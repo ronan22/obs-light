@@ -26,6 +26,8 @@ class OBSLightProject(object):
         
         self.__listDependentPackage={}
         
+        self.__aProjectTarget=None
+        
         self.__listProjectArchitecture=["i586", "armv7el"]
         self.__ProjectArchitecture=self.__listProjectArchitecture[0]
         

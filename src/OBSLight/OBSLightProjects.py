@@ -6,6 +6,9 @@ Created on 17 juin 2011
 
 from OBSLightProject import OBSLightProject
 
+import obslighterr
+
+
 class OBSLightProjects(object): 
     '''
     classdocs
@@ -40,15 +43,20 @@ class OBSLightProjects(object):
             return None
 
     
-    def addOBSLightProject(self,projectName=None , projectDirectory=None,chrootDirectory=None,reposCacheDirectory=None):
+    def addOBSLightProject(self,projectName=None , projectDirectory=None,chrootDirectory=None):
         """
         add a new project 
         """
-        if (projectName!=None)&(projectDirectory!=None)&(chrootDirectory!=None)&(reposCacheDirectory!=None):
-            self.__listOBSLightProject[projectName]=OBSLightProject(projectName=projectName , projectDirectory=projectDirectory,chrootDirectory=chrootDirectory,reposCacheDirectory=reposCacheDirectory)
-            return 1
-        else:
+        if (projectName!=None)&(projectDirectory!=None)&(chrootDirectory!=None):
+            
+            if projectName in self.__listOBSLightProject.keys():
+                raise obslighterr.OBSLightProjectsError("Project all ready  exist in addOBSLightProject")
+            
+            self.__listOBSLightProject[projectName]=OBSLightProject(projectName=projectName , projectDirectory=projectDirectory,chrootDirectory=chrootDirectory)
+            
             return 0
+        else:
+            raise obslighterr.OBSLightProjectsError("Empty directory in addOBSLightProject")
         
     def getListOBSLightProject(self):
         """

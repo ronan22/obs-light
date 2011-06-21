@@ -38,7 +38,24 @@ class LocalRepositories(object):
             return None
         
 
-    def addRepository(self):
-        LocalRepository()
+    def addRepository(self,url,localUrl):
+        aLocalRepository=LocalRepository(url,localUrl)
+        
+        if aLocalRepository.isValideRepository()!=True:
+            self.__listLocalRepository[ aLocalRepository.getRepositoryName() ]=aLocalRepository
+            
+            return 1
+        else:
+            return 0
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
     
         
