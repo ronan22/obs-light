@@ -1,0 +1,16 @@
+README
+obslight-wrapper.py
+setup.py
+OBSLight/LocalRepositories.py
+OBSLight/LocalRepository.py
+OBSLight/OBSLightManager.py
+OBSLight/OBSLightProject.py
+OBSLight/OBSLightProjects.py
+OBSLight/Package.py
+OBSLight/RPMFileObject.py
+OBSLight/__init__.py
+OBSLight/babysitter.py
+OBSLight/commandline.py
+OBSLight/obslighterr.py
+OBSLight/util/__init__.py
+OBSLight/util/safewriter.py

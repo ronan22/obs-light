@@ -9,7 +9,7 @@ import signal
 
 
 
-from OBSLight import obslighterr
+import obslighterr
 
 
 def catchterm(*args):
