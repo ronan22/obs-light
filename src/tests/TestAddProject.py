@@ -32,7 +32,7 @@ class TestAddProject():
         
         obslightcli = commandline.OBSLight()
         obslightcli.setListArgv( self.argSimpleProject() )
-        r = babysitter.run( obslightcli )
+        r = babysitter.run( obslightcli.main )
         if r==0:
             print "SUCCEED"
         else:
@@ -47,7 +47,7 @@ class TestAddProject():
         obslightcli = commandline.OBSLight()
         obslightcli.setListArgv( self.argMissPara() )
         
-        r = babysitter.run(obslightcli)
+        r = babysitter.run(obslightcli.main)
         if r==1:
             print "SUCCEED"
         else:
