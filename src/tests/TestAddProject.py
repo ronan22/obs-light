@@ -64,4 +64,5 @@ def testRun(sferr):
 
 
 if __name__ == '__main__':
-    testRun()
+    
+    testRun(sys.stderr)
