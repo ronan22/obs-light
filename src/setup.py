@@ -2,13 +2,7 @@
 
 from distutils.core import setup
 import distutils.command.build
-import distutils.command.install_data
-import os.path
 
-import sys
-
-import OBSLight
-from OBSLight import commandline
 
 class build_obslight(distutils.command.build.build, object):
     """
