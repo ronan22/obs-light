@@ -9,7 +9,7 @@ import signal
 
 
 
-import obslighterr
+from OBSLight import obslighterr
 
 
 def catchterm(*args):
@@ -45,6 +45,17 @@ def run(prg):
     except obslighterr.OBSLightProjectsError,e:
         print >>sys.stderr, ' Projects Stop:', e.msg
         return 1
+    
+    #added by Gustav
+    except obslighterr.XMLExistenceError,e:
+        print >>sys.stderr, ' XML Existence Error: ', e.msg
+        return 1
+    
+    #added by Gustav
+    except obslighterr.XMLEmptyFileError,e:
+        print >>sys.stderr, ' XML Empty File: ', e.msg
+        return 1
+    
     
     
 

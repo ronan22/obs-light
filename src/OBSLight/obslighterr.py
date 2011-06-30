@@ -33,5 +33,24 @@ class OBSLightProjectsError(OBSLightBaseError):
     def __init__(self, msg):
         OBSLightBaseError.__init__(self)
         self.msg = msg
+
+#added by Gustav        
+class XMLExistenceError(OBSLightBaseError):
+    """Exception raised if the XML file does not exist"""
+    def __init__(self, msg):
+        OBSLightBaseError.__init__(self)
+        self.msg = msg
+        
+#added by Gustav        
+class XMLEmptyFileError(OBSLightBaseError):
+    """Exception raised if the XML file is empty"""
+    def __init__(self, msg):
+        OBSLightBaseError.__init__(self)
+        self.msg = msg
+    
+
+
+
+
         
         
