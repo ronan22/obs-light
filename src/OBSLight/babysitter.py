@@ -22,7 +22,7 @@ for name in 'SIGBREAK', 'SIGHUP', 'SIGTERM':
 def run(prg):
     try:
         try:
-            return prg.main()
+            return prg()
         except:
             raise
 

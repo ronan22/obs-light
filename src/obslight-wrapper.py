@@ -18,7 +18,7 @@ from OBSLight import babysitter
 
 obslightcli = commandline.OBSLight()
 
-r = babysitter.run(obslightcli)
+r = babysitter.run(obslightcli.main)
 sys.exit(r)
 
 
