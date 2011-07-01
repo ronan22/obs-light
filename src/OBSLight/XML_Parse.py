@@ -36,7 +36,7 @@ class XML_Parse(object):
 
         MyFName = aFileName
         MyStdout = sys.stdout
-        MyFDescr = open(MyFName, mode='at')
+        MyFDescr = open(MyFName, mode='wt')
         sys.stdout = MyFDescr
         pprint(aObj)
         sys.stdout = MyStdout
@@ -73,7 +73,28 @@ class XML_Parse(object):
             raise obslighterr.XMLParseFileError("The file " + MyFileName + " cannot not be parsed, probably does not respect XML standard")
         return 0
 
+    def ConvertDictToXMLVerif(self,aDict=None,aXMLOutFile=None):             
                  
+        MyDict = aDict
+        try:      
+            root = ConvertDictToXml(MyDict)
+            tree = ElementTree.ElementTree(root)
+        except:
+            raise obslighterr.XMLDictToXMLError("The dictionary " + MyDict + " cannot not be converted to an XML file ")
+        
+        if aXMLOutFile != None:
+        
+            MyXMLOutFile = aXMLOutFile
+            MyTempFName=MyXMLOutFile.replace('.xml','.temp.xml') 
+            tree.write(MyTempFName) 
+            
+            MyCommand_1="xmllint --format '" + MyTempFName +  "' > '" + MyXMLOutFile + "'"
+            MyCommand_2="rm -rf '" + MyTempFName + "'"
+            os.system(MyCommand_1)
+            os.system(MyCommand_2)
+        
+        return 0         
+               
     # Parses the XML file and creates a dictionary            
     def parseXML(self, aFileName=None):
         
