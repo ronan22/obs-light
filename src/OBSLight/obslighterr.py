@@ -48,7 +48,13 @@ class XMLEmptyFileError(OBSLightBaseError):
         OBSLightBaseError.__init__(self)
         self.msg = msg
     
-
+#added by Gustav        
+class XMLParseFileError(OBSLightBaseError):
+    """Exception raised if the XML file is empty"""
+    def __init__(self, msg):
+        OBSLightBaseError.__init__(self)
+        self.msg = msg
+    
 
 
 
