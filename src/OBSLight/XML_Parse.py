@@ -50,18 +50,27 @@ class XML_Parse(object):
         tree = ElementTree.ElementTree(root)
         tree.write(MyFName_1)
         
-    def ExistsXML(self,aFileName=None):
+    def ExistsXMLVerif(self,aFileName=None):
                 
         MyFileName = aFileName
         if not os.path.exists(MyFileName):
             raise obslighterr.XMLExistenceError("The XML file " + MyFileName + " does not exist")
         return 0
     
-    def EmptyXML(self,aFileName=None):
+    def EmptyXMLVerif(self,aFileName=None):
         
         MyFileName = aFileName        
         if os.stat(MyFileName)[6]==0:
             raise obslighterr.XMLEmptyFileError("The XML file " + MyFileName + " is empty")
+        return 0
+    
+    def StructureXMLVerif(self,aFileName=None):
+        
+        MyFileName = aFileName
+        try:
+            tree = ElementTree.parse(MyFileName)
+        except:
+            raise obslighterr.XMLParseFileError("The file " + MyFileName + " cannot not be parsed, probably does not respect XML standard")
         return 0
 
                  
