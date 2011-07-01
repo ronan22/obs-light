@@ -43,13 +43,40 @@ class CTestXML():
         return aXML_Parse.StructureXMLVerif(url)
     
     def parseBadFile(self):
-        url="./XMLFileTest/pourri.xml"
+        url="./XMLFileTest/NonXML.xml"
         aXML_Parse=XML_Parse.XML_Parse()
         return aXML_Parse.StructureXMLVerif(url)
     
+    def convertGoodDictToXML(self):
+        
+        GoodDict={'CATALOG': {'CD': [{'ARTIST': 'Bob Dylan',
+                                     'attr_My_attr1': 'My_attr1_test',
+                                     'Test_liste' :
+                                     [{'_text': 'My_text1_test'},
+                                     {'_text': 'My_text2_test'}],
+                                     'COMPANY': 'Columbia',
+                                     'COUNTRY': 'USA',
+                                     'PRICE': '10.90',
+                                     'TITLE': 'Empire Burlesque',
+                                     'YEAR': '1985'},
+                                    {'ARTIST': 'Bonnie Tyler',
+                                     'COMPANY': 'CBS Records',
+                                     'COUNTRY': 'UK',
+                                     'PRICE': '9.90',
+                                     'TITLE': 'Hide your heart',
+                                     'YEAR': '1988'}]}}       
+       
+        XMLOutFile="./XMLFileTest/OutpForGoodDict.xml"
+        aXML_Parse=XML_Parse.XML_Parse()
+        return aXML_Parse.ConvertDictToXMLVerif(GoodDict,XMLOutFile)
     
-    
-    
+    def convertBadDictToXML(self):
+        # In BadDict when compared to GoodDict the "{" bracket before 'ARTIST' is missing
+        
+        BadDict={}
+        XMLOutFile="./XMLFileTest/OutpForBadDict.xml"
+        aXML_Parse=XML_Parse.XML_Parse()
+        return aXML_Parse.ConvertDictToXMLVerif(BadDict,XMLOutFile)
     
     
     
