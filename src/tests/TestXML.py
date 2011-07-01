@@ -1,7 +1,7 @@
 '''
 Created on 30 juin 2011
 
-@author: hellmann
+@author: G.hellmann
 '''
 
 import sys
@@ -96,6 +96,33 @@ class TestXML():
             print self.__sferr.getvalue() 
         self.__sferr.seek(0,mode=0) 
         
+    def convertGoodDictToXML(self):
+        
+        print "XML convert good Dict to XML: ",
+        
+        cliXML_Parse = CTestXML()
+        r = babysitter.run(cliXML_Parse.convertGoodDictToXML)
+        if r==0:
+            print "SUCCEED"
+        else:
+            print "FAILED",
+            print self.__sferr.getvalue() 
+        self.__sferr.seek(0,mode=0) 
+        
+    def convertBadDictToXML(self):
+        
+        print "XML convert bad Dict to XML: ",
+        
+        cliXML_Parse = CTestXML()
+        r = babysitter.run(cliXML_Parse.convertBadDictToXML)
+        if r==1:
+            print "SUCCEED"
+        else:
+            print "FAILED",
+            print self.__sferr.getvalue() 
+        self.__sferr.seek(0,mode=0) 
+        
+        
    
         
 def testRun(sferr):
@@ -107,6 +134,9 @@ def testRun(sferr):
     test.loadEmptyFile()
     test.parseGoodFile()
     test.parseBadFile()
+    test.convertGoodDictToXML()
+    test.convertBadDictToXML()
+
 
 if __name__ == '__main__':
     import StringIO
