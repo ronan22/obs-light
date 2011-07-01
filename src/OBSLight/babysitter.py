@@ -56,6 +56,10 @@ def run(prg):
         print >>sys.stderr, ' XML Empty File: ', e.msg
         return 1
     
+    #added by Gustav
+    except obslighterr.XMLParseFileError,e:
+        print >>sys.stderr, ' XML Parse File: ', e.msg
+        return 1
     
     
 
