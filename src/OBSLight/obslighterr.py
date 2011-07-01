@@ -50,7 +50,14 @@ class XMLEmptyFileError(OBSLightBaseError):
     
 #added by Gustav        
 class XMLParseFileError(OBSLightBaseError):
-    """Exception raised if the XML file is empty"""
+    """Exception raised if the XML file cannot be parsed because it does not respect the XML standard"""
+    def __init__(self, msg):
+        OBSLightBaseError.__init__(self)
+        self.msg = msg
+        
+#added by Gustav        
+class XMLDictToXMLError(OBSLightBaseError):
+    """Exception raised if the conversion of a dictionary to XML file did not succeed"""
     def __init__(self, msg):
         OBSLightBaseError.__init__(self)
         self.msg = msg
