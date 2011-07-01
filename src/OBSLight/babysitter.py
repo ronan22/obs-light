@@ -61,6 +61,11 @@ def run(prg):
         print >>sys.stderr, ' XML Parse File: ', e.msg
         return 1
     
-    
+    #added by Guustav
+    except obslighterr.XMLDictToXMLError,e:
+        print >>sys.stderr, ' XML conversion Dict to XML: ', e.msg
+        return 1
+        
+        
 
 
