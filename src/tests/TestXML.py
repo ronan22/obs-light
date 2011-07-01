@@ -69,14 +69,44 @@ class TestXML():
             print "FAILED",
             print self.__sferr.getvalue() 
         self.__sferr.seek(0,mode=0) 
-
-
+        
+    def parseGoodFile(self):
+        
+        print "XML parseGoodFile: ",
+        
+        cliXML_Parse = CTestXML()
+        r = babysitter.run(cliXML_Parse.parseGoodFile)
+        if r==0:
+            print "SUCCEED"
+        else:
+            print "FAILED",
+            print self.__sferr.getvalue() 
+        self.__sferr.seek(0,mode=0) 
+        
+    def parseBadFile(self):
+        
+        print "XML parseBadFile: ",
+        
+        cliXML_Parse = CTestXML()
+        r = babysitter.run(cliXML_Parse.parseBadFile)
+        if r==1:
+            print "SUCCEED"
+        else:
+            print "FAILED",
+            print self.__sferr.getvalue() 
+        self.__sferr.seek(0,mode=0) 
+        
+   
+        
 def testRun(sferr):
+    
     test=TestXML(sferr)
     test.loadTrueFile()
     test.loadNoFile()
     test.loadNonEmptyFile()
     test.loadEmptyFile()
+    test.parseGoodFile()
+    test.parseBadFile()
 
 if __name__ == '__main__':
     import StringIO
