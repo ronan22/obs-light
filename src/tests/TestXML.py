@@ -122,8 +122,33 @@ class TestXML():
             print self.__sferr.getvalue() 
         self.__sferr.seek(0,mode=0) 
         
+    def modifyCorrectlyDict(self):
         
-   
+        print "XML modify correctly a Dict: ",
+        
+        cliXML_Parse = CTestXML()
+        r = babysitter.run(cliXML_Parse.modifyCorrectlyDict)
+        if r==0:
+            print "SUCCEED"
+        else:
+            print "FAILED",
+            print self.__sferr.getvalue() 
+        self.__sferr.seek(0,mode=0) 
+        
+    def modifyWronglyDict(self):
+        
+        print "XML modify wrongly a Dict: ",
+        
+        cliXML_Parse = CTestXML()
+        r = babysitter.run(cliXML_Parse.modifyWronglyDict)
+        if r==1:
+            print "SUCCEED"
+        else:
+            print "FAILED",
+            print self.__sferr.getvalue() 
+        self.__sferr.seek(0,mode=0) 
+        
+    
         
 def testRun(sferr):
     
@@ -136,6 +161,8 @@ def testRun(sferr):
     test.parseBadFile()
     test.convertGoodDictToXML()
     test.convertBadDictToXML()
+    test.modifyCorrectlyDict()
+    test.modifyWronglyDict()
 
 
 if __name__ == '__main__':
