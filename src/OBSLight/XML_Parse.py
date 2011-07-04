@@ -37,10 +37,12 @@ class XML_Parse(object):
         MyFName = aFileName
         MyObj = aObj
         MyStdout = sys.stdout
-        MyFDescr = open(MyFName, mode='a')
+        MyFDescr = open(MyFName, mode='w')
         sys.stdout = MyFDescr
-        pprint(MyObj)
-        pprint(self.__DicoStorage)
+        if aObj == None:
+            pprint(self.__DicoStorage)
+        else:
+            pprint(MyObj)
         sys.stdout = MyStdout
         MyFDescr.close()
                               
@@ -52,19 +54,21 @@ class XML_Parse(object):
         else:
             MyDict = aDict
                 
-        MyDict = self.__DicoStorage    
         MyFName = aFileName
         root = ConvertDictToXml(MyDict)
         tree = ElementTree.ElementTree(root)
         tree.write(MyFName)
         
-    def lintXML(self,aInpXML,aOutXML):
+    def lintXML(self,aInpXML,aOutXML=None):
         
         # It is allowed to pass aInpXML=aOutXML
         
         MyInpXML = aInpXML
         MyTempXML = MyInpXML.replace('.xml','.temp.xml') #
-        MyOutXML = aOutXML     
+        if aOutXML == None:
+            MyOutXML = MyInpXML
+        else:
+            MyOutXML = aOutXML     
         MyCommand_1="xmllint --format '" + MyInpXML +  "' > '" + MyTempXML + "'"
         MyCommand_2="rm -rf '" + MyInpXML + "'"
         MyCommand_3="mv '" + MyTempXML + "'  '" + MyOutXML + "'"
@@ -103,8 +107,9 @@ class XML_Parse(object):
             root = ConvertDictToXml(MyDict)
             tree = ElementTree.ElementTree(root)
         except:
-            print 'ERROR'
-            raise obslighterr.XMLDictToXMLError("The dictionary " + MyDict + " cannot not be converted to an XML file ")
+            print 'ERROR: The dictionary cannot not be converted to a XML file '
+            return 1
+            #raise obslighterr.XMLDictToXMLError("The dictionary " + MyDict + " cannot not be converted to an XML file ")
                 
         if aXMLOutFile != None:
         
@@ -115,24 +120,54 @@ class XML_Parse(object):
                                
         return 0        
     
+    def ModifDictVerif(self,aDict,aValue,aTreepathlist):
+        
+        MyDict = aDict
+        MyValue = aValue
+        MyTreepathlist = aTreepathlist
+        
+        try:
+            ModDict = self.modifyDict(MyDict,MyValue,MyTreepathlist)
+        except:
+            print 'ERROR: The dictionary could not be modified'
+            return 1
+            #raise obslighterr.XMLModDictError("The dictionary " + MyDict + " could not be modified")
+        
+        return 0
+    
     # Allows the modification of the dictionary   
-    def modifyDictVerif(self, aDict = None, aValue = None, aXMLOutFile=None, *treepathlist):
+    def modifyDict(self,aDict,aValue,treepathlist):
   
-        #       
         # 1.possibility: aDict['comps']['group'][0]['packagelist']['packagereq'][0]['_text'] = 'red'
         # 2.possibility: aDict.comps.group[0].packagelist.packagereq[0]._text = 'red'
         
-        
-        for i in range(len(treepathlist)):
-            ModifiedDict = aDict[treepathlist(i)]
-        
-        ModifiedDict = aValue
-        
-        MyXMLOutFile = aXMLOutFile
-        MyTempFName=MyXMLOutFile.replace('.xml','.temp.xml') 
-        self.dumpXML(self,MyTempFName,ModifiedDict)
-        self.lintXML(MyTempFName,MyXMLOutFile)
-
+        ModifiedDict = aDict
+        MyL = treepathlist 
+                
+        n = len(MyL)
+        if n == 0:
+            print 'Error, the list must contain at least one argument!'
+        elif n == 1:
+            ModifiedDict[MyL[0]]= aValue
+        elif n == 2:
+            ModifiedDict[MyL[0]][MyL[1]] = aValue
+        elif n == 3:
+            ModifiedDict[MyL[0]][MyL[1]][MyL[2]] = aValue
+        elif n == 4:
+            ModifiedDict[MyL[0]][MyL[1]][MyL[2]][MyL[3]] = aValue
+        elif n == 5:
+            ModifiedDict[MyL[0]][MyL[1]][MyL[2]][MyL[3]][MyL[4]] = aValue
+        elif n == 6:
+            ModifiedDict[MyL[0]][MyL[1]][MyL[2]][MyL[3]][MyL[4]][MyL[5]] = aValue
+        elif n == 7:
+            ModifiedDict[MyL[0]][MyL[1]][MyL[2]][MyL[3]][MyL[4]][MyL[5]][MyL[6]] = aValue
+        elif n == 8:
+            ModifiedDict[MyL[0]][MyL[1]][MyL[2]][MyL[3]][MyL[4]][MyL[5]][MyL[6]][MyL[7]] = aValue
+        elif n == 9:
+            ModifiedDict[MyL[0]][MyL[1]][MyL[2]][MyL[3]][MyL[4]][MyL[5]][MyL[6]][MyL[7]][MyL[8]] = aValue
+        elif n == 10:
+            ModifiedDict[MyL[0]][MyL[1]][MyL[2]][MyL[3]][MyL[4]][MyL[5]][MyL[6]][MyL[7]][MyL[8]][MyL[9]] = aValue
+            
         return ModifiedDict
      
     # Parses the XML file and creates a dictionary            
@@ -346,6 +381,7 @@ def main():
     aParseXML_cli.printObj(DICT_FILE_NAME,aParseXML_cli.getDicoStorage())
     aParseXML_cli.dumpXML(MyOutFName)
     aParseXML_cli.lintXML(MyOutFName,MyOutFName)
+      
     return 0
         
 #___________________________________________________________________________________________________________
