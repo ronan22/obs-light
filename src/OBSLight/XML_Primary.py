@@ -39,27 +39,18 @@ def main():
     DICT_FILE_NAME = '/home/hellmann/XML_files/output.dict' #The dictionary obtained from the XML file
     
     MyOutFName=OUT_XML_FILE_NAME
-    MyTempFName=MyOutFName.replace('.xml','.temp.xml') #The output XML file will be first written into a temp file
-      
     aPrimary_cli = XML_Primary(IN_XML_FILE_NAME)  
     aPrimary_cli.parseXML(IN_XML_FILE_NAME)
-    
     #For eventual modifications of the dictionary
     #aPrimary_cli.modifyDict()
-    
     aPrimary_cli.setPrimaryNameSpaceDict(aPrimary_cli.getNameSpaceDict()) 
     aPrimary_cli.setPrimaryDicoStorage(aPrimary_cli.getDicoStorage())
     MyPrimaryDict = aPrimary_cli.getPrimaryDicoStorage()
     aPrimary_cli.printObj(DICT_FILE_NAME,MyPrimaryDict)
-    aPrimary_cli.dumpXML(MyTempFName)
-       
-    #The xmllint command will format the output XML file, in particular newlines will be added if necessary    
-    MyCommand_1="xmllint --format '" + MyTempFName +  "' > '" + MyOutFName + "'"
-    MyCommand_2="rm -rf '" + MyTempFName + "'"
-    os.system(MyCommand_1)
-    os.system(MyCommand_2)
-   
+    aPrimary_cli.dumpXML(MyOutFName)
+    aPrimary_cli.lintXML(MyOutFName,MyOutFName)
      
+    
 if __name__ == '__main__':
     main()
     
