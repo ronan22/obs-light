@@ -33,29 +33,17 @@ class XML_Parse(object):
      
     # Prints with the pprint command an object like dictionary to a file  
     def printObj(self,aFileName=None,aObj=None):
-        '''
+        
         MyFName = aFileName
         MyObj = aObj
         MyStdout = sys.stdout
-        pprint(MyObj)
         MyFDescr = open(MyFName, mode='a')
         sys.stdout = MyFDescr
-        #pprint(MyObj)
+        pprint(MyObj)
         pprint(self.__DicoStorage)
         sys.stdout = MyStdout
         MyFDescr.close()
-        '''
-        MyFName=aFileName
-        MyStdout = sys.stdout
-        MyFDescr = open(MyFName, mode='at')
-        sys.stdout = MyFDescr
-        pprint(self.__DicoStorage)
-        sys.stdout = MyStdout
-        MyFDescr.close()
-               
-                        
-        
-          
+                              
     # Dumps the dictionary to a XML file with the help of the ElementTree.write function      
     def dumpXML(self,aFileName=None,aDict=None):
         
@@ -178,8 +166,10 @@ def replaceString(aInpFileName,aOutFileName,aInStr,aOutStr):
         MyOutFDescr.write(content.replace(aInStr, aOutStr))  # write the file with the text substitution
         MyOutFDescr.close()
 
+#_________________________________________________________________________________________________________
+
 '''
-Copyright
+Copyright all rights reserved 
 @author of the original version located at
 
 http://code.activestate.com/recipes/573463-converting-xml-to-dictionary-and-back/
@@ -187,7 +177,7 @@ http://code.activestate.com/recipes/573463-converting-xml-to-dictionary-and-back
 of the class XmlDictObject and of the functions _ConvertDictToXmlRecurse, ConvertDictToXml, 
 _ConvertXmlToDictRecurse, ConvertXmlToDict 
 
-is Cory Fabre. It is distributed under the PSF license. 
+is Cory Fabre. The original version is distributed under the PSF license. 
 
 Slight modifications have been introduced in the original code by Gustav Hellmann 
 in June 2011.
@@ -357,6 +347,8 @@ def main():
     aParseXML_cli.dumpXML(MyOutFName)
     aParseXML_cli.lintXML(MyOutFName,MyOutFName)
     return 0
+        
+#___________________________________________________________________________________________________________
         
 if __name__ == '__main__':
     main()
