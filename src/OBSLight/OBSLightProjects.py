@@ -7,6 +7,8 @@ Created on 17 juin 2011
 from OBSLightProject import OBSLightProject
 
 import obslighterr
+import pickle
+import os
 
 
 class OBSLightProjects(object): 
@@ -14,13 +16,73 @@ class OBSLightProjects(object):
     classdocs
     '''
 
-    def __init__(self):
+    def __init__(self,manager):
         '''
         Constructor
         '''
+        self.__manager=manager
+        
+        self.__pathFile = self.__manager.getManager() +os.sep+"projectConfig"
+        
         self.__listOBSLightProject={}
         
         self.__currentProjectName=None
+        
+        self.__load()
+
+        
+        
+    def __save(self):
+        saveProject={}
+
+        for projectName in self.getListOBSLightProject():
+            aProjet={}
+            aProjet["name"]=projectName
+            aProjet["directory"]=self.getProject(projectName).getDirectory()
+            aProjet["chrootDirectory"]=self.getProject(projectName).getChrootDirectory()
+            aProjet["target"]=self.getProject(projectName).getTarget()
+            aProjet["architecture"]=self.getProject(projectName).getArchitecture()
+
+            saveProject[projectName]=aProjet
+            
+        file=open(self.__pathFile,'w')
+        pickle.dump(saveProject,file)    
+        file.close()
+        
+    def __load(self):
+        if os.path.isfile(self.__pathFile):
+            file=open(self.__pathFile,'r')
+            saveProject=pickle.load(file)
+            
+            for projetName in saveProject.keys():
+
+                
+                aProjet=saveProject[projetName]
+                name=None
+                directory=None
+                chrootDirectory=None
+                target=None
+                architecture=None
+                keys=aProjet.keys()
+                
+                if "name" in keys:
+                    name=aProjet["name"]
+                    
+                if "directory" in keys:    
+                    directory=aProjet["directory"]
+                    
+                if "chrootDirectory" in keys:
+                    chrootDirectory=aProjet["chrootDirectory"]
+                    
+                if "target" in keys:    
+                    target=aProjet["target"]
+                    
+                if "architecture" in keys:
+                    architecture=aProjet["architecture"]
+                
+                self.addOBSLightProject(name=name, directory=directory, chrootDirectory=chrootDirectory , target=target , architecture=architecture)
+                
+            file.close()
         
     def getCurrentProjectName(self):
         """
@@ -41,17 +103,24 @@ class OBSLightProjects(object):
         else:
             return None
 
-    
-    def addOBSLightProject(self,projectName=None , projectDirectory=None,chrootDirectory=None):
+    def addOBSLightProject(self,name=None, directory=None, chrootDirectory=None , target=None , architecture=None):
         """
         add a new project 
         """
-        if (projectName!=None)&(projectDirectory!=None)&(chrootDirectory!=None):
+        
+        
+        if (name!=None)&(directory!=None)&(chrootDirectory!=None):
             
-            if projectName in self.__listOBSLightProject.keys():
+            if name in self.__listOBSLightProject.keys():
                 raise obslighterr.OBSLightProjectsError("Project all ready  exist in addOBSLightProject")
             
-            self.__listOBSLightProject[projectName]=OBSLightProject(projectName=projectName , projectDirectory=projectDirectory,chrootDirectory=chrootDirectory)
+            
+            
+            self.__listOBSLightProject[name]=OBSLightProject(manager=self.__manager,name=name, directory=directory, chrootDirectory=chrootDirectory , target=target , architecture=architecture)
+            
+            self.__currentProjectName=name
+            
+            self.__save()
             
             return 0
         else:
@@ -63,5 +132,30 @@ class OBSLightProjects(object):
         """
         return self.__listOBSLightProject.keys()
         
-         
+    def getProjectInfo(self, name=None ):
+        return  self.__listOBSLightProject[name].getProjectInfo()
+        
+        
+    def creatChroot(self,name):
+        return self.__listOBSLightProject[name].creatChroot()
+        
+        
+    def addRPM(self,project=None, rpm=None, type=None ):
+        """
+        
+        """
+        return self.__listOBSLightProject[project].addRPM( rpm=rpm, type=type )
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         
