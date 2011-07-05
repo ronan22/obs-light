@@ -8,6 +8,11 @@ OBSLight/OBSLightProject.py
 OBSLight/OBSLightProjects.py
 OBSLight/Package.py
 OBSLight/RPMFileObject.py
+OBSLight/XML_Filelists.py
+OBSLight/XML_Other.py
+OBSLight/XML_Parse.py
+OBSLight/XML_Primary.py
+OBSLight/XML_Repomd.py
 OBSLight/__init__.py
 OBSLight/babysitter.py
 OBSLight/commandline.py
