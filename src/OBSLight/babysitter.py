@@ -56,7 +56,21 @@ def run(prg):
         print >>sys.stderr, ' XML Empty File: ', e.msg
         return 1
     
+    #added by Gustav
+    except obslighterr.XMLParseFileError,e:
+        print >>sys.stderr, ' XML Parse File: ', e.msg
+        return 1
     
+    #added by Gustav
+    except obslighterr.XMLDictToXMLError,e:
+        print >>sys.stderr, ' XML conversion Dict to XML: ', e.msg
+        return 1
+        
+    #added by Gustav
+    except obslighterr.XMLModDictError,e:
+        print >>sys.stderr, ' Modification of a dictionary: ', e.msg
+        return 1
     
+        
 
 
