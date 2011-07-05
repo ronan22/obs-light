@@ -140,7 +140,14 @@ class XML_Parse(object):
   
         # 1.possibility: aDict['comps']['group'][0]['packagelist']['packagereq'][0]['_text'] = 'red'
         # 2.possibility: aDict.comps.group[0].packagelist.packagereq[0]._text = 'red'
+        # The code below is based on the 1st possibility
+        #
+        # 'aDict' is the dictionary to be modified
+        # 'aValue' is the value to which an entry of the dictionary will be set
+        # 'treepathlist' is the list which contains the keys respectively the indice (in the case of a list) 
+        # of the dictionary element to be modified 
         
+       
         ModifiedDict = aDict
         MyL = treepathlist 
                 
