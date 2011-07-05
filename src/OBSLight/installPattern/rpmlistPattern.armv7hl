@@ -59,7 +59,7 @@ setup
 file-libs 
 nss-softokn-freebl 
 xz-libs 
-util-linux-ng 
+util-linux 
 perl 
 libblkid 
 e2fsprogs-libs 
@@ -139,7 +139,7 @@ fdupes
 doxygen 
 libstdc++-x86-arm 
 preinstall: file-libs-x86-arm rpm-libs-x86-arm bzip2-libs-x86-arm elfutils-libelf-x86-arm bzip2-x86-arm tar-x86-arm libgcc-x86-arm libacl-x86-arm libattr-x86-arm coreutils-x86-arm libcap-x86-arm liblua-x86-arm nspr-x86-arm nss-softokn-freebl-x86-arm nss-x86-arm popt-x86-arm sed-x86-arm xz-libs-x86-arm zlib-x86-arm db4-x86-arm file diffutils-x86-arm file-x86-arm sqlite-x86-arm rpm-x86-arm aaa-meego-accelerator glibc-x86-arm bash-x86-arm ncurses-libs-x86-arm rpm rpm-libs bash bzip2 coreutils diffutils liblua db4 filesystem glibc glibc-common libacl libattr libgcc pam nss nspr libcap popt readline sed tar zlib sqlite ncurses-libs elfutils-libelf bzip2-libs libstdc++ setup file-libs nss-softokn-freebl xz-libs
-vminstall: util-linux-ng perl libblkid e2fsprogs-libs libuuid perl-libs grep pcre btrfs-progs
+vminstall: util-linux perl libblkid e2fsprogs-libs libuuid perl-libs grep pcre btrfs-progs
 cbinstall: 
 cbpreinstall: 
 runscripts: bzip2-x86-arm tar-x86-arm coreutils-x86-arm nss-x86-arm sed-x86-arm diffutils-x86-arm file-x86-arm rpm-x86-arm aaa-meego-accelerator bash-x86-arm

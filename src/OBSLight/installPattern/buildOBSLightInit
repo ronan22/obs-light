@@ -9,7 +9,7 @@
 
 #test -z "$BUILD_DIR" && BUILD_DIR=/usr/lib/build
 
-test -z "$BUILD_DIR" && BUILD_DIR=/home/rmartret/Documents/build_ronan/
+test -z "$BUILD_DIR" && BUILD_DIR=/home/rmartret/workspace/OBSLight/src/OBSLight/installPattern/
 
 test -z "$BUILD_ROOT" && BUILD_ROOT=/var/tmp/build-root
 
@@ -586,38 +586,38 @@ while test -n "$1"; do
 	cleanup_and_exit 1
       ;;
       *)
-	SPECFILES[${#SPECFILES[@]}]="$PARAM";
+	#SPECFILES[${#SPECFILES[@]}]="$PARAM";
       ;;
     esac
 done
 
-echo \$SPECFILES $SPECFILES
+#echo \$SPECFILES $SPECFILES
 
 repos=()
 
 set_build_arch
 
-find_spec_files
+#find_spec_files
 
-if test -n "$LIST_STATE" ; then
-    BUILD_ROOT=`mktemp -d /var/tmp/build-list-state-XXXXXX`
-    test -d "$BUILD_ROOT" || cleanup_and_exit 3
-    SPECFILE=$SPECFILES # only one specified anyways
-    if test "$SPECFILE" != "${SPECFILE%.src.rpm}" ; then
-       rm -rf $BUILD_ROOT/usr/src/packages
-       mkdir -p $BUILD_ROOT/usr/src/packages/SOURCES $BUILD_ROOT/usr/src/packages/SPECS
-       rpm -i --nodigest --nosignature --root $BUILD_ROOT $SPECFILE || {
-	   echo "could not install $SPECFILE." 2>&1
-	   rm -rf $BUILD_ROOT
-	   cleanup_and_exit 3
-       }
-       for SPECFILE in $BUILD_ROOT/usr/src/packages/SPECS/*.spec ; do : ; done
-    fi
-    init_buildsystem --cachedir "$CACHE_DIR" --list-state "${definesnstuff[@]}" "${repos[@]}" $USEUSEDFORBUILD $SPECFILE $BUILD_EXTRA_PACKS
-    ERR=$?
-    rm -rf $BUILD_ROOT
-    cleanup_and_exit $ERR
-fi
+#if test -n "$LIST_STATE" ; then
+#    BUILD_ROOT=`mktemp -d /var/tmp/build-list-state-XXXXXX`
+#    test -d "$BUILD_ROOT" || cleanup_and_exit 3
+    #SPECFILE=$SPECFILES # only one specified anyways
+    #if test "$SPECFILE" != "${SPECFILE%.src.rpm}" ; then
+    #   rm -rf $BUILD_ROOT/usr/src/packages
+    #   mkdir -p $BUILD_ROOT/usr/src/packages/SOURCES $BUILD_ROOT/usr/src/packages/SPECS
+    #   rpm -i --nodigest --nosignature --root $BUILD_ROOT $SPECFILE || {
+    #	   echo "could not install $SPECFILE." 2>&1
+#	   rm -rf $BUILD_ROOT
+#	   cleanup_and_exit 3
+#       }
+#       for SPECFILE in $BUILD_ROOT/usr/src/packages/SPECS/*.spec ; do : ; done
+#    fi
+#    init_buildsystem --cachedir "$CACHE_DIR" --list-state "${definesnstuff[@]}" "${repos[@]}" $USEUSEDFORBUILD $SPECFILE $BUILD_EXTRA_PACKS
+#    ERR=$?
+#    rm -rf $BUILD_ROOT
+#    cleanup_and_exit $ERR
+#fi
 
 mkdir_build_root
 
@@ -657,22 +657,22 @@ test "$BUILD_ARCH" = all && BUILD_ARCH=
 BUILD_USER_ABUILD_USED=
 
 
-for SPECFILE in "${SPECFILES[@]}" ; do
+#for SPECFILE in "${SPECFILES[@]}" ; do
 
-    SRCDIR="${SPECFILE%/*}"
-    SPECFILE="${SPECFILE##*/}"
+#    SRCDIR="${SPECFILE%/*}"
+#    SPECFILE="${SPECFILE##*/}"
 
-    BUILDTYPE=
-    case $SPECFILE in
-      *.spec|*.src.rpm) BUILDTYPE=spec ;;
-      *.dsc) BUILDTYPE=dsc ;;
-      *.kiwi) BUILDTYPE=kiwi ;;
-    esac
+#    BUILDTYPE=
+#    case $SPECFILE in
+#      *.spec|*.src.rpm) BUILDTYPE=spec ;;
+#      *.dsc) BUILDTYPE=dsc ;;
+#      *.kiwi) BUILDTYPE=kiwi ;;
+#    esac
 
-    if test -z "$BUILDTYPE" ; then
-       echo "don't know how to build $SPECFILE"
-       cleanup_and_exit 1
-    fi
+#    if test -z "$BUILDTYPE" ; then
+#       echo "don't know how to build $SPECFILE"
+#       cleanup_and_exit 1
+#    fi
 
     cd "$SRCDIR"
 
@@ -686,14 +686,14 @@ for SPECFILE in "${SPECFILES[@]}" ; do
     fi
 
 
-    test -s "$SPECFILE" || {
-       echo "$SPECFILE" is empty.  This should not happen...
-       cleanup_and_exit 1
-    }
+#    test -s "$SPECFILE" || {
+#       echo "$SPECFILE" is empty.  This should not happen...
+#       cleanup_and_exit 1
+#    }
 
 	MYSRCDIR="$SRCDIR"
 
-    echo processing specfile $MYSRCDIR/$SPECFILE ...
+#    echo processing specfile $MYSRCDIR/$SPECFILE ...
 
     ADDITIONAL_PACKS=""
     test -z "$BUILD_EXTRA_PACKS" || ADDITIONAL_PACKS="$ADDITIONAL_PACKS $BUILD_EXTRA_PACKS"
@@ -719,7 +719,7 @@ for SPECFILE in "${SPECFILES[@]}" ; do
 
 	check_exit
     fi
-done
+#done
 
 echo
 echo "$HOST finished \"build $SPECFILE\" at `date --utc`."

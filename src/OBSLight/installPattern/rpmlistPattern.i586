@@ -30,7 +30,7 @@ setup
 file-libs 
 nss-softokn-freebl 
 xz-libs 
-util-linux-ng 
+util-linux 
 perl 
 libblkid 
 e2fsprogs-libs 
@@ -96,7 +96,7 @@ perl-TimeDate
 rpmlint-mini 
 libstdc++-devel 
 preinstall: rpm rpm-libs bash bzip2 coreutils diffutils liblua db4 filesystem glibc glibc-common libacl libattr libgcc pam nss nspr libcap popt readline sed tar zlib sqlite ncurses-libs elfutils-libelf bzip2-libs libstdc++ setup file-libs nss-softokn-freebl xz-libs
-vminstall: util-linux-ng perl libblkid e2fsprogs-libs libuuid perl-libs grep pcre btrfs-progs
+vminstall: util-linux perl libblkid e2fsprogs-libs libuuid perl-libs grep pcre btrfs-progs
 cbinstall: 
 cbpreinstall: 
 runscripts: 
