@@ -29,16 +29,14 @@ class LocalRepositories(object):
         
         
     def __save(self):
+        """
+        
+        """
         saveRepository={}
 
         for repName in self.getListLocalRepositoryName():
-            url=self.getLocalRepository(repName).getBaseReposUrl()
-            path=self.getLocalRepository(repName).getPathRepos()
-            #listRPM=self.getLocalRepository(repName).getlistRPM()
-            rep={}
-            rep["url"]=url
-            rep["path"]=path
-            saveRepository[repName]=rep
+            
+            saveRepository[repName]= self.getLocalRepository(repName).getDic() 
             
         file=open(self.__pathFile,'w')
         pickle.dump(saveRepository,file) 
@@ -46,6 +44,9 @@ class LocalRepositories(object):
         
         
     def __load(self):
+        """
+        
+        """
         if os.path.isfile(self.__pathFile):
             file=open(self.__pathFile,'r')
             saveRepository=pickle.load(file)
@@ -86,6 +87,9 @@ class LocalRepositories(object):
         
 
     def addRepository(self,path=None,url=None,name=None):
+        """
+        
+        """
         aLocalRepository=LocalRepository(path=path,url=url,name=name)
         
         if aLocalRepository.isValideRepository()!=True:
@@ -96,6 +100,9 @@ class LocalRepositories(object):
             return 1
         
     def getRepositoryInfo(self, name=None ):
+        """
+        
+        """
         if name in self.getListLocalRepositoryName():
             return self.getLocalRepository(name).getRepositoryInfo( )
         return [] 
@@ -104,6 +111,9 @@ class LocalRepositories(object):
             
             
     def setUrlToRepositoty(self,name=None,url=None):
+        """
+        
+        """
         if self.getLocalRepository(name).setUrlToRepositoty(url=url)==0:
             self.__save()
             return 0
@@ -111,6 +121,9 @@ class LocalRepositories(object):
             return 1 
         
     def setPathToRepositoty(self,name=None,path=None):
+        """
+        
+        """
         if self.getLocalRepository(name).setPathToRepositoty(path=path)==0:
             self.__save()
             return 0
@@ -119,6 +132,9 @@ class LocalRepositories(object):
         
         
     def check(self,name=None):
+        """
+        
+        """
         if self.getLocalRepository(name).check()==0:
             self.__save()
             return 0
@@ -126,10 +142,32 @@ class LocalRepositories(object):
             return 1 
         
     def getRPMPath(self,architecture=None, target=None,rpm=None):
+        """
+        
+        """
         return  self.getLocalRepository(target).getRPMPath(architecture=architecture,rpm=rpm)
         
+    def getDependence(self,architecture=None, target=None,rpm=None):
+        """
+        
+        """
+        return  self.getLocalRepository(target).getDependence(architecture=architecture,rpm=rpm)
+        
+        
     def upDateRepository(self,name=None ):
+        """
+        
+        """
         return  self.getLocalRepository(name).upDateRepository()
     
-    
+    def getReposRPMFile(self,target=None,arch=None):
+        """
+        
+        """
+        return  self.getLocalRepository(target).getReposRPMFile(arch=arch)
+        
+        
+        
+        
+        
         

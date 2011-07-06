@@ -36,14 +36,7 @@ class OBSLightProjects(object):
         saveProject={}
 
         for projectName in self.getListOBSLightProject():
-            aProjet={}
-            aProjet["name"]=projectName
-            aProjet["directory"]=self.getProject(projectName).getDirectory()
-            aProjet["chrootDirectory"]=self.getProject(projectName).getChrootDirectory()
-            aProjet["target"]=self.getProject(projectName).getTarget()
-            aProjet["architecture"]=self.getProject(projectName).getArchitecture()
-
-            saveProject[projectName]=aProjet
+            saveProject[projectName]= self.__listOBSLightProject[projectName].getDic()
             
         file=open(self.__pathFile,'w')
         pickle.dump(saveProject,file)    
@@ -56,7 +49,6 @@ class OBSLightProjects(object):
             
             for projetName in saveProject.keys():
 
-                
                 aProjet=saveProject[projetName]
                 name=None
                 directory=None
@@ -146,10 +138,18 @@ class OBSLightProjects(object):
         """
         return self.__listOBSLightProject[project].addRPM( rpm=rpm, type=type )
         
+    def checkChRoot(self,project=None):
+        """
+        
+        """
+        return self.__listOBSLightProject[project].checkChRoot()
         
         
+    def getProviderLib(self,project=None,lib=None):
+        """
         
-        
+        """
+        return self.__listOBSLightProject[project].getProviderLib(lib=lib)
         
         
         

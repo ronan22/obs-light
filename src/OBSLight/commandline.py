@@ -230,13 +230,7 @@ class OBSLight():
             
             #addRPM
             elif listArgv[0]=="addRPM":
-                print
-                print
-                print "len(listArgv)",len(listArgv)
-                print "(  (len(listArgv)<=(6))",  (len(listArgv)<=(7))
-                print "( (len(listArgv)%(2) ==1) )",( (len(listArgv)%(2) ==1) )
-                print "( (len(listArgv)%(2) ==1) & (len(listArgv)<=(6))",( (len(listArgv)%(2) ==1) & (len(listArgv)<=(7)))
-             
+
                 if ( (len(listArgv)%(2) ==1) & (len(listArgv)<=(7)) ):
                     
                     project=None 
@@ -263,10 +257,8 @@ class OBSLight():
                 if ( (len(listArgv)%(2) ==0) & (len(listArgv)<=(2)) ):
                     
                     name=None 
-                    
 
                     name=listArgv[1]
-
                                  
                     return self.cliOBSLightManager.upDateRepository(name=name )
 
@@ -276,11 +268,44 @@ class OBSLight():
             
             
             
+            #checkChRoot
+            elif listArgv[0]=="checkChRoot":
+                if ( (len(listArgv)%(2) ==0) & (len(listArgv)<=(2)) ):
+                    
+                    name=None 
+
+                    name=listArgv[1]
+                                 
+                    return self.cliOBSLightManager.checkChRoot(project=name )
+
+                else:
+                    raise obslighterr.ArgError("Wrong number of arg in checkChRoot")
+            
+            elif listArgv[0]=="getProviderLib":
+                if ( (len(listArgv)%(2) ==1) & (len(listArgv)<=(5)) ):
+                    
+                    project=None 
+                    lib=None
+                    
+                    for i in range(1,len(listArgv),2):
+                        if listArgv[i]=="project":
+                            project=listArgv[i+1]
+                        if listArgv[i]=="lib":
+                            lib=listArgv[i+1]
+                                 
+                    res= self.cliOBSLightManager.getProviderLib(project=project,lib=lib)
+                    
+                    print res
+
+
+                else:
+                    raise obslighterr.ArgError("Wrong number of arg in getProviderLib")
+            
+            
+            
             # 
             else:  
                 raise obslighterr.ArgError("Not valid argument")
-            
-            
             
             
             

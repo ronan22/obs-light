@@ -81,7 +81,7 @@ class LocalRepository(object):
         pickle.dump(self.__listProvides,file)
         
         
-
+    
         
     def __load(self):
         """
@@ -170,6 +170,7 @@ class LocalRepository(object):
                             if not aVersion in self.__listProvides[type]["rpm"][aName].keys():
                                 self.__listProvides[type]["rpm"][aName][aVersion]=[]
                                 
+                           
                             self.__listProvides[type]["rpm"][aName][aVersion].append([rpmName,version])   
                     
                     else:
@@ -178,6 +179,16 @@ class LocalRepository(object):
                 
                 
         return 0
+        
+    def getDic(self):
+        """
+        
+        """
+        rep={}
+        rep["url"]=self.getBaseReposUrl()
+        rep["path"]=self.getPathRepos()
+        
+        return rep
         
     def __checkDependence(self,type=None):
         """
@@ -208,19 +219,30 @@ class LocalRepository(object):
                 for dep in set(res):
                     dep=dep.replace("\n","").replace(" ","")
                     
-                    islib=dep.count("=")
-                    if (islib==0):
-                        lib=dep
+                    if dep not in ["/sbin/ldconfig"]:
                         
-                        self.__listDependence[type][rpmName][version]["lib"].append(lib)
+                        islib=dep.count("=")
                         
-                    elif (islib==1):
-                        [aName,aVersion]=dep.split("=")
-                        self.__listDependence[type][rpmName][version]["rpm"].append([aName,aVersion])
+                        if (islib==0):
+                            lib=dep
+                            
+                            self.__listDependence[type][rpmName][version]["lib"].append(lib)
+                            
+                        elif (islib==1):
+                            if dep.count("<="):
+                                [aName,aVersion]=dep.split("<=")
+                            else:
+                                [aName,aVersion]=dep.split("=")
+                                
+                            if aName.count("("):
+                                aName=aName.split("(")[0]
+                            
+                            if aName!="rpmlib":    
+                                self.__listDependence[type][rpmName][version]["rpm"].append([aName,aVersion])
                         
-                    else:
-                        print "ERROR in __checkDependence"
-                        print dep
+                        else:
+                            print "ERROR in __checkDependence"
+                            print dep
                 
         return 0
         
@@ -305,9 +327,7 @@ class LocalRepository(object):
         self.__PathRepos=path
         return 0
     
-    
     def getRPMPath(self, architecture=None,rpm=None):
-        
         
         res= self.__listRPM[architecture][rpm]
         
@@ -317,16 +337,81 @@ class LocalRepository(object):
         else:
             return res[0]["path"]
         
+    def getDependence(self, architecture=None,rpm=None):
+        res= self.__listDependence[architecture][rpm]
+        
+        #for lib in self.__listProvides[architecture]["lib"].keys()
+        
+        result=set()
+        
+        for res0 in res.keys():
+            libList=res[res0]["lib"]
+            rpmList=res[res0]["rpm"]
+            
+            for res1 in rpmList:
+                [rpm,version]= res1
+                
+                if rpm in self.__listProvides[architecture]["rpm"].keys():
+                    
+                    if len(self.__listProvides[architecture]["rpm"][rpm].keys())==1:
+                        
+                        version=self.__listProvides[architecture]["rpm"][rpm].keys()[0]
+                        result.add(rpm)
+                        print "-----------rpm",rpm
+                    else:
+                        print "Too many chose", self.__listProvides[architecture]["rpm"][rpm]
+                else:
+                    print "********************************* No rpm",rpm
+                
+            for res1 in libList:
+                
+                if res1 in self.__listProvides[architecture]["lib"].keys():
+                    if len(self.__listProvides[architecture]["lib"][res1])==1:
+                        [rpm,version]=self.__listProvides[architecture]["lib"][res1][0]
+                        result.add(rpm)
+                        
+                        
+                    else:
+                        print "Too many chose", self.__listProvides[architecture]["lib"][res1]
+                else:
+                    print "********************************* No lib",res1
+                
+        return result
+        
         
     
     def upDateRepository(self):
         """
         
         """
-        print "upDateRepository"
+        url=self.getBaseReposUrl()
+        path=self.getPathRepos()
+        slash_count=33
         
         
+        command=("""wget --directory-prefix="""+path+""" --reject "index.html*" --mirror --no-parent --no-host-directories --cut-dirs="""+slash_count+" "+url)
+        command=command.split()
         
+        p=subprocess.Popen(command , shell=False,stdout=subprocess.PIPE)
+        #p.wait()  
+        
+        return 0
+        
+        
+    def getReposRPMFile(self,arch=None):
+        listFile=[]
+        
+        for rpmName in self.__listRPM[arch].keys():
+            for arpm in self.__listRPM[arch][rpmName]:
+                listFile.append(arpm["path"])
+                    
+        return listFile
+        
+    def getProviderLib(self, type=None, lib=None):
+        """
+        
+        """
+        return self.__listProvides[type]["lib"][lib]
         
         
         

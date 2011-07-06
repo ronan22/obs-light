@@ -123,11 +123,20 @@ class OBSLightManager(object):
         """
         return  self.__localRepositories.getRPMPath(architecture=architecture, target=target,rpm=rpm)
     
+    def getDependence(self,architecture=None, target=None,rpm=None):
+        """
+        
+        """
+        return  self.__localRepositories.getDependence(architecture=architecture, target=target,rpm=rpm)
+        
+    
     def addRPM(self,project=None, rpm=None, type=None ):
         """
         
         """
         return self.__oBSLightProjects.addRPM(project=project, rpm=rpm, type=type )
+    
+    
     
     def upDateRepository(self,name=None ):
         """
@@ -135,5 +144,40 @@ class OBSLightManager(object):
         """
         return self.__localRepositories.upDateRepository(name=name )
     
+    def checkChRoot(self,project=None):
+        """
         
+        """
+        return self.__oBSLightProjects.checkChRoot(project=project)
+        
+    def getReposRPMFile(self,target=None,arch=None):
+        """
+        
+        """
+        return self.__localRepositories.getReposRPMFile(target=target,arch=arch)
+    
+    
+    def getProviderLib(self,project=None,lib=None):
+        """
+        
+        """
+        return self.__oBSLightProjects.getProviderLib(project=project,lib=lib)
+    
+    def getRepository(self,name=None):
+        """
+        
+        """
+        return  self.__localRepositories.getLocalRepository(name)
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
         

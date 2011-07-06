@@ -32,6 +32,7 @@ class OBSLightProject(object):
         if not os.path.isdir(self.__chrootDirectory):    
             os.makedirs(self.__chrootDirectory)
         
+        self.__chRootRPM=set()
         
         self.__listPackages={}
         self.__currentPackage=None
@@ -46,7 +47,6 @@ class OBSLightProject(object):
         else:
             self.__ProjectArchitecture=architecture
         
-            
         self.__listImageType=["liveCD","liveUSB","loop","raw/KVM/QEMU","VMWare/vmdk","VirtualBox/vdi","Moorestown/mrstnand","jffs2","nand","ubi"]
         
         if imageType==None:
@@ -57,7 +57,6 @@ class OBSLightProject(object):
         self.__imageName=self.__projectName
         
         self.__listOfSelectedRPM={}
-        
         
         
     def getProjectName(self):
@@ -166,7 +165,6 @@ class OBSLightProject(object):
             
             if line.startswith("preinstall:")|line.startswith("vminstall:")|line.startswith("cbinstall:")|line.startswith("cbpreinstall:")|line.startswith("runscripts:"):
                 fileProject.write(line)
-
             else:
                 rpm=line.replace(" \n","")
                 rpmPath=self.__manager.getRPMPath(architecture= self.__ProjectArchitecture, target=self.__aProjectTarget,rpm=rpm)
@@ -192,6 +190,8 @@ class OBSLightProject(object):
         else:
             arch="armv8el"
             rpmlist=self.__configRPMList("./OBSLight/installPattern/rpmlistPattern.armv7hl")
+            
+            
         
         dist="./OBSLight/installPattern/_buildconfig-MeeGo"
         
@@ -200,31 +200,116 @@ class OBSLightProject(object):
         root=self.__chrootDirectory
         
         command=("sudo "+bashFile+" --root="+root+" --rpmlist="+rpmlist+" --dist="+dist+" --arch="+arch)
-        print "command",command
-        
         command=command.split()
         
         p=subprocess.Popen(command , shell=False,stdout=subprocess.PIPE)
         p.wait()
         
+        for rpmFile in self.__manager.getReposRPMFile( target=self.__aProjectTarget, arch="source"):
+            os.link(rpmFile,self.__chrootDirectory+os.sep+"tmp"+os.sep+os.path.basename(rpmFile)  )
         
+        for rpmFile in self.__manager.getReposRPMFile( target=self.__aProjectTarget, arch=self.getArchitecture() ):
+            os.link(rpmFile,self.__chrootDirectory+os.sep+"tmp"+os.sep+os.path.basename(rpmFile)  )
         
         #print p.stdout.readlines()
         
     def addRPM( self,rpm=None, type=None ):
+        """
         
+        """
         if type=="src":
             arch="src"
         else:
             arch=self.__ProjectArchitecture
-            
-        print self.__manager.getRPMPath(architecture= arch, target=self.__aProjectTarget,rpm=rpm)
+        
+        self.checkChRoot()
+        
+        ensembleToInstall=set()
+        ensembleToInstall.add(rpm)
+        
+        ensembleinstall=set(self.__chRootRPM)
+        
+        res=self.__searchRPMToInstall(arch,ensembleToInstall,ensembleinstall)
+        
+        #path= self.__manager.getRPMPath(architecture= arch, target=self.__aProjectTarget,rpm=rpm)
+        
+        for dep in res.difference_update(self.__chRootRPM):
+            print dep
+              
+        return 0
+        
+    def __searchRPMToInstall(self, arch, ensembleToInstall, ensembleinstall):
+        """
+        
+        """
+        print "ensembleToInstall",ensembleToInstall
+        print "ensembleinstall",ensembleinstall
+        
+        result=set()
+        for rpm in ensembleToInstall:
+            ensembleDep=self.__manager.getDependence(architecture= arch, target=self.__aProjectTarget, rpm=rpm)
+            result.update(ensembleDep)
+        
+        for dep in result:
+            print "result", dep
+        
+        if len( ensembleinstall.difference(result) )>0:
+            ensembleinstall.update(result)
+            ensembleinstall.update(self.__searchRPMToInstall( arch, result, ensembleinstall))
+            return ensembleinstall
+        
+        else:
+            return set()
         
         
         
+    def getDic(self):
+        """
+        
+        """
+        aProjet={}
+        aProjet["name"]=self.__projectName
+        aProjet["directory"]=self.getDirectory()
+        aProjet["chrootDirectory"]=self.getChrootDirectory()
+        aProjet["target"]=self.getTarget()
+        aProjet["architecture"]=self.getArchitecture()
+
+        return aProjet
+
+    def checkChRoot(self):
+        """
+        
+        """
+        root=self.__chrootDirectory
+        
+        command=("sudo  chroot "+root+" rpm -qa")
+
+        command=command.split()
+        
+        p=subprocess.Popen(command , shell=False,stdout=subprocess.PIPE)
+        p.wait()
+        
+        for rpmVerIdArch in p.stdout.readlines():
+            rpmVerIdArch=rpmVerIdArch.replace("\n","")             
+            arch=rpmVerIdArch[rpmVerIdArch.rfind(".")+1:]
+            rpmVerId=rpmVerIdArch[:rpmVerIdArch.rfind(".")]
+               
+            packageVersion=rpmVerId[rpmVerId.rfind("-")+1:]
+            rpmVer=rpmVerId[:rpmVerId.rfind("-")]
+            version=rpmVer[rpmVer.rfind("-")+1:]
+                
+            rpm=rpmVer[:rpmVer.rfind("-")]
+                    
+            self.__chRootRPM.add(rpm)      
+                  
+        return 0   
         
         
+    def getProviderLib(self,lib=None):
+        """
         
+        """
+        return  self.__manager.getRepository(name=self.__aProjectTarget).getProviderLib( type=self.__ProjectArchitecture, lib=lib)
         
         
         
