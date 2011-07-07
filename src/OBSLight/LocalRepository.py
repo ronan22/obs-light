@@ -7,6 +7,7 @@ import os
 import sys
 import pickle
 import subprocess
+import string
 
 
 
@@ -382,21 +383,43 @@ class LocalRepository(object):
     
     def upDateRepository(self):
         """
-        
+           This function updates the repository from a URL  
         """
         url=self.getBaseReposUrl()
         path=self.getPathRepos()
-        slash_count=33
-        
-        
-        command=("""wget --directory-prefix="""+path+""" --reject "index.html*" --mirror --no-parent --no-host-directories --cut-dirs="""+slash_count+" "+url)
-        command=command.split()
-        
+        slash_count=url.count('/')
+        slash_at_the_end=url.count('/',len(url)-1,len(url))
+        doubleslash_count=url.count('//')
+        true_slash_count=slash_count-slash_at_the_end-2*doubleslash_count
+        cut_dir_par=str(true_slash_count)   
+        command=("""wget --directory-prefix="""+path+""" --reject index.html* --mirror --no-parent --no-host-directories --cut-dirs="""+cut_dir_par+" "+url)
+        #print command
+        command=command.split(" ")
+        #print command        
         p=subprocess.Popen(command , shell=False,stdout=subprocess.PIPE)
         #p.wait()  
         
         return 0
+    
+    def upDateRepositoryVerif(self,aUrl,aPath):
+        """
+            This function tests the update of a repository from a URL
+        """
+        MyUrl = aUrl
+        MyPath = aPath
         
+        self.setUrlToRepositoty(MyUrl)          
+        self.setPathToRepositoty(MyPath)
+                       
+        try:
+            self.upDateRepository()
+        except:
+            print 'ERROR: The Repository could not be updated with the provided path and url'
+            return 1            
+            #raise obslighterr.upDateRepositoryError("The Repository could not be updated with the provided path and url")
+        
+        return 0
+            
         
     def getReposRPMFile(self,arch=None):
         listFile=[]
