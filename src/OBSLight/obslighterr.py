@@ -76,5 +76,17 @@ class XMLModDictError(OBSLightBaseError):
     """Exception raised if the XML file cannot be modified with the passed parameters"""
     def __init__(self, msg):
         OBSLightBaseError.__init__(self)
-        self.msg = msg       
+        self.msg = msg     
+        
+#added by Gustav        
+class UpDateRepositoryError(OBSLightBaseError):
+    """Exception raised if the Repository could not be updated"""
+    def __init__(self, msg):
+        OBSLightBaseError.__init__(self)
+        self.msg = msg                           
+                            
+                            
+                            
+                            
+                     
         
