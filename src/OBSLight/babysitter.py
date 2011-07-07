@@ -71,6 +71,13 @@ def run(prg):
         print >>sys.stderr, ' Modification of a dictionary: ', e.msg
         return 1
     
+    #added by Gustav
+    except obslighterr.UpDateRepositoryError,e:
+        print >>sys.stderr, ' Update of a Repository: ', e.msg
+        return 1
+        
+        
+    
         
 
 
