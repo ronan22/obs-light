@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # Authors Ronan Le Martret (Intel OTC)
+# ronan@fridu.net
 # Date 25 July 2011
 # License GLPv2
 
@@ -83,7 +84,8 @@ def obsextractgroups(URL_to_published_repo,target_dir_includes_files=None):
         localwork=1
     elif checkHost(URL_to_published_repo):
         if checkURL(URL_to_published_repo):
-            printProcess("URL_to_published_repo is not local")
+            if __VERBOSEMODE__:
+                printProcess("URL_to_published_repo is not local")
             localwork=0
         else:
             print >>sys.stderr, "URL-to-published-repo is not a valid URL"
@@ -273,14 +275,30 @@ def walkURL(host, port,path):
 
 
 def help():
-    print """obsextractgroups version:"""+__VERSION__+"""   License:+"""+ __LICENSE__+"""
-obsextractgroups [option] URL-to-published-repo [target-dir-includes-files]
-[option]:
+    print """HELP obsextractgroups
+Function :      Parse the group.xml file (even it's a .gz file), in a Meego's repos,
+                and save the lists of rpm for each group into files,
+                with the name of the group for name.
+                
+Usage:          obsextractgroups [option] URL-to-published-repo [target-dir-includes-files]
+    [option]:
         -s silent mode
         -d debug mode, copy the group.xml in the target-dir-includes-files.
         -v verbose mode.
-URL-to-published-repo: must be a valid repository
-target-dir-includes-files: is optional, by default the value is the current directory"""
+        URL-to-published-repo: must be a valid repository
+        target-dir-includes-files: is optional, by default the value is the current directory
+  
+Example1: Remote
+      ./obsextractgroups.py -v -d http://repo.meego.com/MeeGo/releases/1.2.0/repos/oss/ia32/ ./result/
+
+Example2: Remote (note: here the port is 82)
+      ./obsextractgroups.py http://128.124.118.140:82/home%3a/ronan%3a/MeeGo%3a/1.2/  
+
+Example3: Local 
+      ./obsextractgroups.py -s ./repos/
+
+  version:"""+__VERSION__+"""   License:+"""+ __LICENSE__   
+  
     sys.exit(0)
 
 def printProcess(value):
@@ -289,8 +307,11 @@ def printProcess(value):
 
 
 def checkURL(url):
-    filehandle=urllib.urlopen(url)
-    
+    try:
+        filehandle=urllib.urlopen(url)
+    except:
+        return 0
+     
     if filehandle.code==200:
         return 1
     else:
