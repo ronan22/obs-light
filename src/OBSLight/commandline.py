@@ -99,8 +99,8 @@ class OBSLight():
                 if ( (len(listArgv)%(2) ==1) & (len(listArgv)<=(7)) ):
                     
                     repositoryName=None 
-                    repositoryPath=None
-                    repositoryURL=None
+                    repositoryPath=None 
+                    repositoryURL=None 
                     
                     for i in range(1,len(listArgv),2):
                         if listArgv[i]=="name":
@@ -176,7 +176,7 @@ class OBSLight():
                     raise obslighterr.ArgError("Wrong number of arg in checkRPMList")
             #addProject
             elif listArgv[0]=="addProject":
-                if ( (len(listArgv)%(2) ==1) & (len(listArgv)<=(6)) ):
+                if ( (len(listArgv)%(2) ==1) & (len(listArgv)<=(11)) ):
                     
                     ProjectName=None 
                     ProjectDirectory=None

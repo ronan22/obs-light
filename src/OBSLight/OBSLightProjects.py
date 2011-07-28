@@ -45,6 +45,7 @@ class OBSLightProjects(object):
     def __load(self):
         if os.path.isfile(self.__pathFile):
             file=open(self.__pathFile,'r')
+
             saveProject=pickle.load(file)
             
             for projetName in saveProject.keys():

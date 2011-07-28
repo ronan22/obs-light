@@ -31,6 +31,10 @@ class OBSLightProject(object):
             
         if not os.path.isdir(self.__chrootDirectory):    
             os.makedirs(self.__chrootDirectory)
+            command=("sudo chown root "+self.__chrootDirectory)
+            command=command.split()
+            p=subprocess.Popen(command , shell=False,stdout=subprocess.PIPE)
+            p.wait()
         
         self.__chRootRPM=set()
         
@@ -200,18 +204,171 @@ class OBSLightProject(object):
         root=self.__chrootDirectory
         
         command=("sudo "+bashFile+" --root="+root+" --rpmlist="+rpmlist+" --dist="+dist+" --arch="+arch)
+        print "command",command
         command=command.split()
         
+        #p=subprocess.Popen(command , shell=False,stdout=subprocess.PIPE)
+        #p.wait()
+        
+        p=subprocess.call(command)
+        #print "command over"
+        #for l in p.stdout.readlines():
+        #    print l
+
+        
+        repSource=self.__chrootDirectory+os.sep+"tmp"+os.sep+"source"
+        repBin=self.__chrootDirectory+os.sep+"tmp"+os.sep+self.getArchitecture()
+        
+        command=("sudo mkdir -p "+repSource)
+        command=command.split()
+        p=subprocess.Popen(command , shell=False,stdout=subprocess.PIPE)
+        p.wait()
+        
+        command=("sudo mkdir -p "+repBin)
+        command=command.split()
         p=subprocess.Popen(command , shell=False,stdout=subprocess.PIPE)
         p.wait()
         
         for rpmFile in self.__manager.getReposRPMFile( target=self.__aProjectTarget, arch="source"):
-            os.link(rpmFile,self.__chrootDirectory+os.sep+"tmp"+os.sep+os.path.basename(rpmFile)  )
-        
+            #os.link(rpmFile, repSource+os.sep+os.path.basename(rpmFile)  )
+            command=("sudo ln "+rpmFile+" "+repSource+os.sep+os.path.basename(rpmFile))
+            command=command.split()
+            p=subprocess.Popen(command , shell=False,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+            p.wait()
+            
         for rpmFile in self.__manager.getReposRPMFile( target=self.__aProjectTarget, arch=self.getArchitecture() ):
-            os.link(rpmFile,self.__chrootDirectory+os.sep+"tmp"+os.sep+os.path.basename(rpmFile)  )
+            #os.link(rpmFile, repBin+os.sep+os.path.basename(rpmFile)  )
+            command=("sudo ln "+rpmFile+" "+repBin+os.sep+os.path.basename(rpmFile))
+            command=command.split()
+            p=subprocess.Popen(command , shell=False,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+            p.wait()
         
-        #print p.stdout.readlines()
+        
+        command=("sudo ln /home/rmartret/Documents/ReposMeego1.2/ia32/packages/repodata/repomd.xml.key "+ self.__chrootDirectory+os.sep+"tmp")
+        command=command.split()
+        p=subprocess.Popen(command , shell=False,stdout=subprocess.PIPE)
+        p.wait()
+        
+        self.__importKeys()
+        #self.__execInChroot("/bin/bash alias ll='ls -al'")
+        
+        self.__installZypper()
+
+    def __installZypper(self):
+        command=("rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-meego02")
+        command=command.split()
+        p=subprocess.Popen(command , shell=False,stdout=subprocess.PIPE)
+        p.wait()
+
+        
+        if not self.__ProjectArchitecture=="ia32": 
+        #    self.__forceInstallRPMBin("libusb")
+        #    self.__forceInstallRPMBin("dbus-libs")
+            self.__installRPMBin("module-init-tools")
+        #    self.__installRPMBin("chkconfig")
+        #    self.__installRPMBin("module-init-tools")
+        #    self.__installRPMBin("dbus")
+            
+            
+        #    self.__forceInstallRPMBin("gamin")
+        #    self.__installRPMBin("glib2")
+              
+ 
+              
+        #****rpm install
+        if self.__ProjectArchitecture=="ia32":
+            self.__installRPMBin("augeas-libs")
+            self.__installRPMBin("procps")
+            self.__installRPMBin("openssl")
+            self.__installRPMBin("libidn")
+            self.__installRPMBin("libcurl")
+            self.__installRPMBin("libgpg-error")
+            self.__installRPMBin("libgcrypt")
+            self.__installRPMBin("libksba")
+            self.__installRPMBin("pth")
+            self.__installRPMBin("gnupg2")
+        
+        self.__installRPMBin("v8")
+        self.__installRPMBin("pacrunner")
+        
+ 
+        
+        if self.__ProjectArchitecture=="ia32":
+            #self.__installRPMBin("dbus-glib")
+            #self.__forceInstallRPMBin("ConsoleKit-libs")
+            #self.__forceInstallRPMBin("polkit")
+            #self.__installRPMBin("eggdbus")
+            #self.__forceInstallRPMBin("polkit")
+            #self.__installRPMBin("ConsoleKit")
+            #self.__installRPMBin("hwdata")
+            self.__installRPMBin("libudev")
+            self.__installRPMBin("libxml2")
+            self.__installRPMBin("satsolver-tools")
+            self.__installRPMBin("libzypp")
+        
+        self.__installRPMBin("zypper")
+        
+        self.__execInChroot("zypper ar /tmp/source/ meegoSrc")
+        self.__execInChroot("zypper ref meegoSrc")
+        
+        self.__execInChroot("zypper ar /tmp/"+self.getArchitecture()+ os.sep+ " meegoia32")
+        self.__execInChroot("zypper ref meegoia32")
+        
+        
+    def __importKeys(self):
+        """
+        import the GPG key inmport for installing rpm and use zypper
+        """
+        command=("sudo chroot "+self.__chrootDirectory+" rpm --import /tmp/repomd.xml.key")
+        command=command.split()
+        p=subprocess.Popen(command , shell=False,stdout=subprocess.PIPE)
+        p.wait() 
+        
+
+        command=("sudo chroot "+self.__chrootDirectory+" rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-meego02")
+        command=command.split()
+        p=subprocess.Popen(command , shell=False,stdout=subprocess.PIPE)
+        p.wait()
+        
+
+    
+        
+
+        
+    def __forceInstallRPMBin(self,rpm):
+        rpmFile=self.__manager.getRPMPath(architecture=self.getArchitecture(), target=self.__aProjectTarget,rpm=rpm)
+        command=("sudo chroot "+self.__chrootDirectory+" rpm --ignorearch --nodeps -U --oldpackage --ignoresize /tmp/"+self.getArchitecture()+os.sep+os.path.basename(rpmFile) )
+        command=command.split()
+        p=subprocess.Popen(command , shell=False,stdout=subprocess.PIPE)
+        p.wait() 
+        
+        if p.stderr!=None:
+            for l in p.stderr.readlines():
+                print l
+        
+    def __installRPMBin(self,rpm):
+        rpmFile=self.__manager.getRPMPath(architecture=self.getArchitecture(), target=self.__aProjectTarget,rpm=rpm)
+        command=("sudo chroot "+self.__chrootDirectory+" rpm -i /tmp/"+self.getArchitecture()+os.sep+os.path.basename(rpmFile) )
+        command=command.split()
+        p=subprocess.Popen(command , shell=False,stdout=subprocess.PIPE)
+        p.wait()  
+        
+        
+        
+        if p.stderr!=None:
+            for l in p.stderr.readlines():
+                print l
+        
+    def __execInChroot(self, command):
+        command = "sudo chroot "+self.__chrootDirectory+" "+command
+        print "command",command
+        command=command.split()
+        p=subprocess.Popen(command , shell=False,stdout=subprocess.PIPE)
+        p.wait() 
+        
+        
+        
+        
         
     def addRPM( self,rpm=None, type=None ):
         """
