@@ -1,0 +1,61 @@
+rpm --import /tmp/repomd.xml.key
+****force install
+dbus-libs
+glib2
+libudev
+ConsoleKit-libs
+polkit
+libudev
+
+****rpm install
+augeas
+openssl
+libidn
+libcurl
+libgpg-error
+libgcrypt
+libksba
+pth
+libusb
+gnupg2
+expat
+dbus
+gamin
+v8
+pacrunner
+dbus-glib
+ConsoleKit
+module-init-tools
+hwdata
+mkdevnodes
+MAKEDEV
+tcp_wrappers
+systemd
+udev
+libxml2
+satsolver-tools
+libzypp
+procps
+zypper
+
+zypper ar /tmp/source/ meegoSrc
+zypper ref meegoSrc
+zypper ar /tmp/ia32/ meegoia32
+zypper ref meegoia32
+
+zypper --non-interactive install quilt ncurses-devel
+zypper --non-interactive si kernel
+
+cd /root/rpmbuild/SOURCES
+tar xjf ../linux-2.6.38.tar.bz2
+
+rpmbuild -ba --define '_srcdefattr (-,root,root)' /root/rpmbuild/SPECS/kernel.spec  --target=i686 < /dev/null
+rpmbuild -ba --define '_srcdefattr (-,root,root)' /home/abuild/rpmbuild/SOURCES/kernel.spec
+
+rpm -qa gpg\*
+
+rpmbuild -bp --buildroot /home/kernel/rpmbuild/BUILD   --define '_srcdefattr (-,root,root)' /home/kernel/rpmbuild/SPECS/kernel.spec  --target=i686        < /dev/null
+
+
+
+
