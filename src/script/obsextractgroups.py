@@ -57,9 +57,8 @@ def signal_handler(signal, frame):
         
 def help():
     print """HELP obsextractgroups
-Function :      Parse the group.xml file (even it's a .gz file), in a Meego's repos,
-                and save the lists of rpm for each group into files,
-                with the name of the group for name.
+Function :      Parse the group.xml file (even if it's a .gz file), in a Meego's repos,
+                and save the lists of rpm for each group into files.
                 
 Usage:          obsextractgroups [option] URL-to-published-repo [target-dir-includes-files]
     [option]:
