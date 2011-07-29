@@ -11,6 +11,37 @@ __SILENCEMODE__=0
 __DEBUGMODE__=0
 __VERBOSEMODE__=0
 
+def help():
+    print """HELP obsextractgroups
+Function :      Parse the group.xml file (even if it's a .gz file), in a Meego's repos,
+                and save the lists of rpm for each group into files.
+                
+Usage:          obsextractgroups [option] URL-to-published-repo [target-dir-includes-files]
+    [option]:
+        -s silent mode
+        -d debug mode, copy the group.xml in the target-dir-includes-files.
+        -v verbose mode.
+        URL-to-published-repo: must be a valid repository
+        target-dir-includes-files: is optional, by default the value is the current directory
+  
+Example1: Remote
+      ./obsextractgroups.py -v -d http://repo.meego.com/MeeGo/releases/1.2.0/repos/oss/ia32/ ./result/
+
+Example2: Remote (note: here the port is 82)
+      ./obsextractgroups.py http://128.124.118.140:82/home%3a/ronan%3a/MeeGo%3a/1.2/  
+
+Example3: Local 
+      ./obsextractgroups.py -s ./repos/
+
+  version:"""+__VERSION__+"""   License:+"""+ __LICENSE__   
+  
+    sys.exit(0)
+
+
+
+
+
+
 import sys
 import os
 import signal
@@ -55,31 +86,7 @@ def signal_handler(signal, frame):
 
     sys.exit(0)
         
-def help():
-    print """HELP obsextractgroups
-Function :      Parse the group.xml file (even if it's a .gz file), in a Meego's repos,
-                and save the lists of rpm for each group into files.
-                
-Usage:          obsextractgroups [option] URL-to-published-repo [target-dir-includes-files]
-    [option]:
-        -s silent mode
-        -d debug mode, copy the group.xml in the target-dir-includes-files.
-        -v verbose mode.
-        URL-to-published-repo: must be a valid repository
-        target-dir-includes-files: is optional, by default the value is the current directory
-  
-Example1: Remote
-      ./obsextractgroups.py -v -d http://repo.meego.com/MeeGo/releases/1.2.0/repos/oss/ia32/ ./result/
 
-Example2: Remote (note: here the port is 82)
-      ./obsextractgroups.py http://128.124.118.140:82/home%3a/ronan%3a/MeeGo%3a/1.2/  
-
-Example3: Local 
-      ./obsextractgroups.py -s ./repos/
-
-  version:"""+__VERSION__+"""   License:+"""+ __LICENSE__   
-  
-    sys.exit(0)
         
         
 signal.signal(signal.SIGINT, signal_handler)
