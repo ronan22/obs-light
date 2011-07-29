@@ -4,7 +4,7 @@
 # Date 25 July 2011
 # License GLPv2
 
-
+__NAME__="obsextractgroups"
 __LICENSE__="GLPv2"
 __VERSION__="1.0"
 __SILENCEMODE__=0
@@ -55,7 +55,32 @@ def signal_handler(signal, frame):
 
     sys.exit(0)
         
-        
+def help():
+    print """HELP obsextractgroups
+Function :      Parse the group.xml file (even it's a .gz file), in a Meego's repos,
+                and save the lists of rpm for each group into files,
+                with the name of the group for name.
+                
+Usage:          obsextractgroups [option] URL-to-published-repo [target-dir-includes-files]
+    [option]:
+        -s silent mode
+        -d debug mode, copy the group.xml in the target-dir-includes-files.
+        -v verbose mode.
+        URL-to-published-repo: must be a valid repository
+        target-dir-includes-files: is optional, by default the value is the current directory
+  
+Example1: Remote
+      ./obsextractgroups.py -v -d http://repo.meego.com/MeeGo/releases/1.2.0/repos/oss/ia32/ ./result/
+
+Example2: Remote (note: here the port is 82)
+      ./obsextractgroups.py http://128.124.118.140:82/home%3a/ronan%3a/MeeGo%3a/1.2/  
+
+Example3: Local 
+      ./obsextractgroups.py -s ./repos/
+
+  version:"""+__VERSION__+"""   License:+"""+ __LICENSE__   
+  
+    sys.exit(0)
         
         
 signal.signal(signal.SIGINT, signal_handler)
@@ -211,6 +236,12 @@ def obsextractgroups(URL_to_published_repo,target_dir_includes_files=None):
                 dicoStat[groupName]=str(len(listPk))
                 
                 f=open(target_dir_includes_files+os.sep+groupName.replace(" ","_")+".grp-ks",'w')
+                f.write("#from repos:" + URL_to_published_repo + "\r\n")
+                f.write("#group:"+groupName+"\r\n")
+                f.write("#file extract with:"+__NAME__+" "+__VERSION__+"\r\n")
+                
+                
+                
                 for p in listPk:
                     f.write(p+"\r\n")
                 f.close()
@@ -274,32 +305,7 @@ def walkURL(host, port,path):
     return result
 
 
-def help():
-    print """HELP obsextractgroups
-Function :      Parse the group.xml file (even it's a .gz file), in a Meego's repos,
-                and save the lists of rpm for each group into files,
-                with the name of the group for name.
-                
-Usage:          obsextractgroups [option] URL-to-published-repo [target-dir-includes-files]
-    [option]:
-        -s silent mode
-        -d debug mode, copy the group.xml in the target-dir-includes-files.
-        -v verbose mode.
-        URL-to-published-repo: must be a valid repository
-        target-dir-includes-files: is optional, by default the value is the current directory
-  
-Example1: Remote
-      ./obsextractgroups.py -v -d http://repo.meego.com/MeeGo/releases/1.2.0/repos/oss/ia32/ ./result/
 
-Example2: Remote (note: here the port is 82)
-      ./obsextractgroups.py http://128.124.118.140:82/home%3a/ronan%3a/MeeGo%3a/1.2/  
-
-Example3: Local 
-      ./obsextractgroups.py -s ./repos/
-
-  version:"""+__VERSION__+"""   License:+"""+ __LICENSE__   
-  
-    sys.exit(0)
 
 def printProcess(value):
     if __SILENCEMODE__==0:
