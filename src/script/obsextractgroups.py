@@ -6,7 +6,7 @@
 
 
 __LICENSE__="GLPv2"
-__VERSION__="0.1"
+__VERSION__="1.0"
 __SILENCEMODE__=0
 __DEBUGMODE__=0
 __VERBOSEMODE__=0
@@ -210,7 +210,7 @@ def obsextractgroups(URL_to_published_repo,target_dir_includes_files=None):
             if groupName!=None:
                 dicoStat[groupName]=str(len(listPk))
                 
-                f=open(target_dir_includes_files+os.sep+groupName,'w')
+                f=open(target_dir_includes_files+os.sep+groupName.replace(" ","_")+".grp-ks",'w')
                 for p in listPk:
                     f.write(p+"\r\n")
                 f.close()
