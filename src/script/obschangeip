@@ -1,0 +1,98 @@
+#!/usr/bin/python
+# Authors Ronan Le Martret (Intel OTC)
+# ronan@fridu.net
+# Date 03 August 2011
+# License GLPv2
+import sys
+import signal
+import os
+
+def help():
+    pass
+
+def signal_handler(signal, frame):
+    if (signal==2):
+        print >>sys.stderr,"user escape..."
+    else:
+        print  >>sys.stderr,"kill process..."
+
+    sys.exit(0)
+          
+signal.signal(signal.SIGINT, signal_handler)
+
+def saveFile(file,tmplistfile):
+    f =open(file,'w')
+    
+    for line in tmplistfile:
+        f.write(line)
+    f.close()
+    return 0
+
+def changeip(obs_ip,file,tagStart,tagStop):
+    tmplistfile=[]
+    
+    if not os.path.isfile(file):
+        print "No file ",file
+        sys.exit(0)
+    
+    f =open(file,'r')
+    
+    for line in f:
+        tmplistfile.append(line)
+    f.close()
+
+    for i in range(len(tmplistfile)):
+        #print "tmplistfile[i]",tmplistfile[i],"tagStart",tagStart,"tmplistfile[i].startswith(tagStart)",tmplistfile[i].startswith(tagStart)
+        if tmplistfile[i].startswith(tagStart):
+            tmplistfile[i]=tagStart+obs_ip+tagStop+"\n"
+            return saveFile(file,tmplistfile)
+        
+    print "No tagStart ",tagStart," in file ",file
+    
+    sys.exit(0)
+
+
+def obschangeip(obs_ip):
+    filehttpd="""/etc/lighttpd/vhosts.d/obs.conf"""
+    fileweb="""/srv/www/obs/webui/config/environments/production.rb"""
+    fileapi="""/srv/www/obs/api/config/environments/production.rb"""
+    fileserver="""/usr/lib/obs/server/BSConfig.pm"""
+    
+    changeip(obs_ip,filehttpd,"""server.name =""","")
+    changeip(obs_ip,fileweb,"""FRONTEND_HOST = \"""","\"")
+    changeip(obs_ip,fileweb,"""DOWNLOAD_URL = "http://""",":82")
+    changeip(obs_ip,fileapi,"""SOURCE_HOST = \"""","\"")
+    changeip(obs_ip,fileapi,"""DOWNLOAD_URL='http://""",":82/'")
+    changeip(obs_ip,fileserver,"""my $hostname = '""","';")
+    
+    
+    sys.exit(0)
+
+
+if __name__ == '__main__':
+    if (len(sys.argv)>3) | (len(sys.argv)==1):
+        help()
+    elif ("help" in sys.argv[1]) |("-h" in sys.argv[1]):
+        help()
+    else:
+        obs_ip=None
+
+        for i in range(1,len(sys.argv)):
+            value=sys.argv[i]
+            if (len(value)==1)&(value!="."):
+                help()   
+            elif obs_ip==None:
+                obs_ip=value   
+
+            else:
+                help()
+        if obs_ip==None:
+            help()
+            
+        obschangeip(obs_ip)
+        
+        
+        
+        
+        
+        
