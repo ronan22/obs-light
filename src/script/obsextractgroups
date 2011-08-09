@@ -6,7 +6,7 @@
 
 __NAME__="obsextractgroups"
 __LICENSE__="GLPv2"
-__VERSION__="1.0"
+__VERSION__="1.1"
 __SILENCEMODE__=0
 __DEBUGMODE__=0
 __VERBOSEMODE__=0
