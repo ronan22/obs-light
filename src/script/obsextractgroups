@@ -10,6 +10,10 @@ __VERSION__="1.1"
 __SILENCEMODE__=0
 __DEBUGMODE__=0
 __VERBOSEMODE__=0
+__PROXYMODE__=0
+__PROXYHOST__=None
+__PROXYPORT__=None
+ 
 
 def help():
     print """HELP
@@ -21,6 +25,7 @@ Usage:     """+__NAME__+""" [option] URL-to-published-repo [target-dir-includes-
            -s silent mode
            -d debug mode, copy the group.xml in the target-dir-includes-files.
            -v verbose mode.
+           -p use proxy.ex: #export HTTP_PROXY=http://XXX.com:900 
            URL-to-published-repo: must be a valid repository
            target-dir-includes-files: is optional, by default the value is the current directory
   
@@ -168,9 +173,7 @@ def obsextractgroups(URL_to_published_repo,target_dir_includes_files=None):
         
         result=[]
         for root, dirs, files in walkURL(host,port,path):
-            #print root
             for f in files:
-                #print "\t",f
                 if "group.xml" in f:
                     result.append((f,root+f))
                     
@@ -186,7 +189,7 @@ def obsextractgroups(URL_to_published_repo,target_dir_includes_files=None):
                     
             if __VERBOSEMODE__:
                 printProcess(pathfile+" is use for the process.")
-        
+        		
         
         if ".gz" in pathfile:
             filehandle=urllib.urlopen("http://"+pathfile)
@@ -243,8 +246,6 @@ def obsextractgroups(URL_to_published_repo,target_dir_includes_files=None):
                 f.write("#file extract with:"+__NAME__+" "+__VERSION__+"\r\n")
                 f.write("#"+time.asctime()+"\r\n")
                 
-                
-                
                 for p in listPk:
                     f.write(p+"\r\n")
                 f.close()
@@ -260,15 +261,20 @@ def obsextractgroups(URL_to_published_repo,target_dir_includes_files=None):
 
 def walkURL(host, port,path):
     conn=httplib.HTTPConnection(host,port=port) 
+    if __PROXYMODE__==1:
+    	conn.set_tunnel(__PROXYHOST__,port=__PROXYPORT__)
+    else:
+    	conn=httplib.HTTPConnection(host,port=port) 
+    
     try:
-        conn.connect() 
+    	conn.connect() 
     except  Exception,e:
     	print "walkURL Error",e
-        sys.exit(0)
+    	sys.exit(0)
     
     conn.request('GET',path)  
     response=conn.getresponse().read()
-    
+
     root=host+":"+port+path
     dirs=[]
     files=[]
@@ -282,7 +288,8 @@ def walkURL(host, port,path):
             if not d in path:
                 dirs.append(d)
                 
-                result.extend(walkURL(host,port, path+d))    
+                result.extend(walkURL(host,port, path+d))  
+                  
         elif "[   ]" in line :
             parse= line.split("<a href=\"")
             f= parse[-1].split("\">")[0]
@@ -305,9 +312,7 @@ def walkURL(host, port,path):
                 files.append(f) 
             
             
-            
-            
-            
+
     result.append((root,dirs,files))
 
     return result
@@ -322,7 +327,11 @@ def printProcess(value):
 
 def checkURL(url):
     try:
-        filehandle=urllib.urlopen(url)
+    	if __PROXYMODE__==1: 
+        	filehandle=urllib.urlopen(url,proxies=urllib.getproxies_environment())
+        else:
+        	filehandle=urllib.urlopen(url)
+        	
     except  Exception,e:
     	if __DEBUGMODE__==1:
     		print e
@@ -332,7 +341,7 @@ def checkURL(url):
         return 1
     else:
     	if __DEBUGMODE__==1:
-    		print "bad filehandle code",filehandle.code
+    		print >>sys.stderr,"bad filehandle code",filehandle.code
         return 0
     
 def checkHost(url):
@@ -377,6 +386,8 @@ if __name__ == '__main__':
                 __SILENCEMODE__=1
             elif value=="-d":
                 __DEBUGMODE__=1
+            elif value=="-p":
+                __PROXYMODE__=1
             elif URL_to_published_repo==None:
                 URL_to_published_repo=value
             elif target_dir_includes_files==None:
@@ -385,7 +396,24 @@ if __name__ == '__main__':
                 help()
         if URL_to_published_repo==None:
             help()
+         
+        if __PROXYMODE__==1:
+            if ('http' in urllib.getproxies_environment().keys() ):
+                valProxy=urllib.getproxies_environment()['http']
+                if __VERBOSEMODE__ ==1:
+                    printProcess("Proxy:"+valProxy)
+                (scheme, netloc, path, params, query, fragment) = urlparse(valProxy)
+
+            else:
+            	print >>sys.stderr,"No Proxy find"
+            	sys.exit(0)
             
+            if ":" in netloc:
+            	[_PROXYHOST__,__PROXYPORT__]=netloc.split(":")
+            else:
+            	print >>sys.stderr,"Bad Proxy conf ex: HTTP_PROXY=http://HOST:PORT not:",netloc
+            	sys.exit(0)
+
         obsextractgroups(URL_to_published_repo,target_dir_includes_files)
             
         
