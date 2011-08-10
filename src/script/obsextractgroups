@@ -272,8 +272,12 @@ def walkURL(host, port,path):
     except  Exception,e:
         print "walkURL Error",e
         sys.exit(0)
-    
-    conn.request('GET',path)  
+   
+    if __PROXYMODE__==1:
+	    conn.request('GET','http://'+host+":"+port+path)
+    else:
+	    conn.request('GET',path)
+  
     response=conn.getresponse().read()
     root=host+":"+port+path
     dirs=[]
