@@ -21,7 +21,7 @@ Function :  Parse the group.xml file (even if it's a .gz file), in a Meego's rep
            And save the lists of rpm for each group into files.
                 
 Usage:     """+__NAME__+""" [option] URL-to-published-repo [target-dir-includes-files]
-    	   [option]:
+           [option]:
            -s silent mode
            -d debug mode, copy the group.xml in the target-dir-includes-files.
            -v verbose mode.
@@ -189,7 +189,7 @@ def obsextractgroups(URL_to_published_repo,target_dir_includes_files=None):
                     
             if __VERBOSEMODE__:
                 printProcess(pathfile+" is use for the process.")
-        		
+                
         
         if ".gz" in pathfile:
             filehandle=urllib.urlopen("http://"+pathfile)
@@ -260,21 +260,21 @@ def obsextractgroups(URL_to_published_repo,target_dir_includes_files=None):
 
 
 def walkURL(host, port,path):
-    conn=httplib.HTTPConnection(host,port=port) 
+     
     if __PROXYMODE__==1:
-    	conn.set_tunnel(__PROXYHOST__,port=__PROXYPORT__)
+        conn=httplib.HTTPConnection(__PROXYHOST__,port=__PROXYPORT__)
+        #conn.set_tunnel("128.224.218.230",port="456")
     else:
-    	conn=httplib.HTTPConnection(host,port=port) 
+        conn=httplib.HTTPConnection(host,port=port) 
     
     try:
-    	conn.connect() 
+        conn.connect() 
     except  Exception,e:
-    	print "walkURL Error",e
-    	sys.exit(0)
+        print "walkURL Error",e
+        sys.exit(0)
     
     conn.request('GET',path)  
     response=conn.getresponse().read()
-
     root=host+":"+port+path
     dirs=[]
     files=[]
@@ -327,21 +327,21 @@ def printProcess(value):
 
 def checkURL(url):
     try:
-    	if __PROXYMODE__==1: 
-        	filehandle=urllib.urlopen(url,proxies=urllib.getproxies_environment())
+        if __PROXYMODE__==1: 
+            filehandle=urllib.urlopen(url,proxies=urllib.getproxies_environment())
         else:
-        	filehandle=urllib.urlopen(url)
-        	
+            filehandle=urllib.urlopen(url)
+            
     except  Exception,e:
-    	if __DEBUGMODE__==1:
-    		print e
+        if __DEBUGMODE__==1:
+            print e
         return 0
      
     if filehandle.code==200:
         return 1
     else:
-    	if __DEBUGMODE__==1:
-    		print >>sys.stderr,"bad filehandle code",filehandle.code
+        if __DEBUGMODE__==1:
+            print >>sys.stderr,"bad filehandle code",filehandle.code
         return 0
     
 def checkHost(url):
@@ -386,8 +386,6 @@ if __name__ == '__main__':
                 __SILENCEMODE__=1
             elif value=="-d":
                 __DEBUGMODE__=1
-            elif value=="-p":
-                __PROXYMODE__=1
             elif URL_to_published_repo==None:
                 URL_to_published_repo=value
             elif target_dir_includes_files==None:
@@ -397,22 +395,20 @@ if __name__ == '__main__':
         if URL_to_published_repo==None:
             help()
          
-        if __PROXYMODE__==1:
-            if ('http' in urllib.getproxies_environment().keys() ):
-                valProxy=urllib.getproxies_environment()['http']
-                if __VERBOSEMODE__ ==1:
-                    printProcess("Proxy:"+valProxy)
-                (scheme, netloc, path, params, query, fragment) = urlparse(valProxy)
-
-            else:
-            	print >>sys.stderr,"No Proxy find"
-            	sys.exit(0)
+        if ('http' in urllib.getproxies_environment().keys() ):
+            valProxy=urllib.getproxies_environment()['http']
+            if __VERBOSEMODE__ ==1:
+                printProcess("Proxy:"+valProxy)
+            (scheme, netloc, path, params, query, fragment) = urlparse(valProxy)
+            
             
             if ":" in netloc:
-            	[_PROXYHOST__,__PROXYPORT__]=netloc.split(":")
+                [__PROXYHOST__,__PROXYPORT__]=netloc.split(":")
             else:
-            	print >>sys.stderr,"Bad Proxy conf ex: HTTP_PROXY=http://HOST:PORT not:",netloc
-            	sys.exit(0)
+                print >>sys.stderr,"Bad Proxy conf ex: HTTP_PROXY=http://HOST:PORT not:",netloc
+                sys.exit(0)
+                
+            __PROXYMODE__=1
 
         obsextractgroups(URL_to_published_repo,target_dir_includes_files)
             
