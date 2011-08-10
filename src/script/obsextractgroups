@@ -263,7 +263,7 @@ def walkURL(host, port,path):
      
     if __PROXYMODE__==1:
         conn=httplib.HTTPConnection(__PROXYHOST__,port=__PROXYPORT__)
-        #conn.set_tunnel("128.224.218.230",port="456")
+
     else:
         conn=httplib.HTTPConnection(host,port=port) 
     
