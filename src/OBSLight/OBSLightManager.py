@@ -24,9 +24,7 @@ class OBSLightManager(object):
         '''
         Constructor
         '''
-        
-        
-        
+
         self.__workingDirectory=os.environ['HOME']+os.sep+"OBSLight"
         
         if not os.path.isdir(self.__workingDirectory):
@@ -82,9 +80,6 @@ class OBSLightManager(object):
     def getListOBSLightProject(self):
         return self.__oBSLightProjects.getListOBSLightProject()
         
-        
-        
-
         
     def getProjectInfo(self, name=None  ):
         return self.__oBSLightProjects.getProjectInfo( name=name )

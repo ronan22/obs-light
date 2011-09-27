@@ -105,8 +105,6 @@ class OBSLight():
                             ProjectArchitecture=listArgv[i+1]
                                  
                     return self.cliOBSLightManager.addProject(name=ProjectName, directory=ProjectDirectory, chrootDirectory=ProjectChrootDirectory , target=ProjectTarget , architecture=ProjectArchitecture  )
-
-
                 else:
                     raise obslighterr.ArgError("Wrong number of arg in addProject")
             #getProjectInfo
@@ -173,9 +171,7 @@ class OBSLight():
                 else:
                     raise obslighterr.ArgError("Wrong number of arg in upDateRepository")
             
-            
-            
-            
+        
             #checkChRoot
             elif listArgv[0]=="checkChRoot":
                 if ( (len(listArgv)%(2) ==0) & (len(listArgv)<=(2)) ):
