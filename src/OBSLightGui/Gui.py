@@ -12,12 +12,14 @@ from PySide.QtCore import QIODevice, QFile, QMetaObject
 from PySide.QtGui import QApplication
 from PySide.QtUiTools import QUiLoader
 
+from OBSLightGuiObsProjectManager import ObsProjectManager
 
 class Gui():
     application = None
     uiLoader = None
     mainWindow = None
     obsLightManager = None
+    __obsProjectManager = None
     
     def __init__(self, obsLightManager=None):
         self.application = QApplication(sys.argv)
@@ -39,6 +41,7 @@ class Gui():
 
     def main(self):
         self.loadMainWindow()
+        self.__obsProjectManager = ObsProjectManager(self)
         return self.application.exec_()
 
 
