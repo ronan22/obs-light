@@ -1,0 +1,162 @@
+#!/bin/bash
+# Authors Dominig ar Foll (Intel OTC)
+# Date 15 June 2011
+# License GLPv2
+#
+# Credit Thanks to Yan Yin for providing the inial version that I used as base
+
+
+if [ $# -ne 4 ]; then
+        echo "HELP"
+	echo "Function : copy a project from an OBS to an OBS (remote obs are managed via a linked project)"
+	echo "           using as input a package list with the desired MD5 to represent the package revision"
+    echo "           if target pakage is already at the correct revision, its copy is ignored"
+    echo "           running the script several time is possible until zero errors is acheived"
+    echo "           A log file named $MD5_FILE.log is created for everyrun."
+    echo ""
+	echo "Usage:     $0 obs-alias source_prj target_prj md5_file"
+    echo "           md5_file is create by the script obstag"
+    echo ""
+    echo "Example1: Local copy"
+    echo "         $0 http://myObs.mynetwork:81 MyMeeGo:1.2:oss myTest:MeeGo:1.2:oss my_revision_tag.md5"
+    echo "Example2: Remote copy"
+    echo "         $0 http://myObs.mynetwork:81 meego.com:MeeGo:1.2:oss myobs:MeeGo:1.2:oss my_revision_tag.md5"
+	echo "           where meego.com is a local projet which is a link to a remote OBS public api"
+    echo "Version 2.3a  Licence GLPv2"
+    exit
+fi
+
+# TODO 
+# the method to get the final result with hidden files is ugly (but at least works) need correcting
+# I failed to solve the global variable requirement in bash loops.
+
+NB_ARG=$#
+ALIAS=$1
+SRC_PRJ=$2
+DST_PRJ=$3
+MD5_FILE=$4
+
+totalPkg=0
+copiedPkg=0
+goodPkg=0
+failPkg=0
+existPkg=0
+
+# ugly but works
+echo $totalPkg > .totalPkg.cnt
+echo $copiedPkg >.copiedPkg.cnt
+echo $goodPkg > .goodPkg.cnt
+echo $failPkg > .failPkg.cnt
+echo $existPkg > .existPkg.cnt
+
+export LOG=$MD5_FILE.log
+
+# Check that current directory is writable
+if [ ! -w "$PWD" ] ; then
+  echo "Error : Directory $PWD is not writable"
+  exit 1
+fi
+
+# start empty log
+date > $LOG
+echo "start logging in $LOG"
+echo ""
+
+# Check is MD5-file is valid
+if [ ! -f "$MD5_FILE" ] ; then
+      echo "Error: file $MD5_FILE does not exist"
+      echo "Error: file $MD5_FILE does not exist" >> $LOG
+      exit 2
+fi
+echo Copying revision version of source packages as defined in $MD5_FILE
+echo Copying revision version of source packages as defined in $MD5_FILE >> $LOG
+# Check that both OBS are reacheable
+echo -n "info : Checking connectivity with remote source and local target ... "
+
+osc -A $ALIAS ls $DST_PRJ > /dev/null  2>&1
+if [ "$?" -ne 0 ] ; then
+   echo ""
+   echo "Error: Local destination project 'osc -A $ALIAS ls $DST_PRJ' cannot be reached"
+   exit 3
+fi
+
+osc -A $ALIAS ls $SRC_PRJ > /dev/null  2>&1
+if [ "$?" -ne 0 ] ; then
+   echo ""
+   echo "Error: Remote project 'osc -A $ALIAS $SRC_PRJ' cannot be reached"
+   exit 4
+fi
+echo "DONE"
+echo ""
+
+cat $MD5_FILE | while read line
+do
+if [ "${line:0:1}" != "#" ] ; then
+        let totalPkg++
+        echo $totalPkg > .totalPkg.cnt
+        md5=` echo $line | cut -d "|" -f 1 | tr -d " " `
+	    package=` echo $line | cut -d "|" -f 4 | tr -d " " `
+        REV="--revision=$md5"
+        # check if correct revision of the source package is the same as the target.
+        osc -A $ALIAS ls $REV $DST_PRJ $package  > /dev/null  2>&1
+	if [ "$?" -ne 0 ] ; then 
+	   let copiedPkg++
+	   echo $copiedPkg > .copiedPkg.cnt
+           echo -n "info : Copying $package from $SRC_PRJ ... "
+           echo -n "info : Copying $package from $SRC_PRJ ... " >> $LOG
+           osc -A $ALIAS copypac $REV $SRC_PRJ $package $DST_PRJ  >> $LOG  2>&1
+           if [ "$?" = "0" ] ; then
+	       let goodPkg++
+               echo $goodPkg > .goodPkg.cnt
+               echo "DONE"
+               echo "DONE" >> $LOG
+	   else
+	       let failPkg++
+               echo $failPkg > .failPkg.cnt
+               echo "FAILED"
+               echo "FAILED" >> $LOG
+	   fi
+       else
+           let existPkg++
+           echo $existPkg > .existPkg.cnt
+           echo "info : $package is already present on $DST_PRJ"
+           echo "info : $package is already present on $DST_PRJ" >> $LOG 
+	fi
+fi
+done
+
+# ugle but works
+totalPkg=`cat .totalPkg.cnt`
+rm .totalPkg.cnt
+existPkg=`cat .existPkg.cnt`
+rm .existPkg.cnt
+copiedPkg=`cat .copiedPkg.cnt`
+rm .copiedPkg.cnt
+goodPkg=`cat .goodPkg.cnt`
+rm .goodPkg.cnt
+failPkg=`cat .failPkg.cnt`
+rm .failPkg.cnt
+#
+echo "Final reports" >>$LOG
+echo "   Total packages requested     = $totalPkg" >>$LOG
+echo "   Packages existing on target  = $existPkg" >> $LOG 
+echo "   Packages needed copying      = $copiedPkg" >>$LOG
+echo "   Packages copied              = $goodPkg" >> $LOG
+echo "   Packages in error            = $failPkg" >> $LOG
+
+
+echo ""
+echo "Final reports"
+echo "   Total packages requested     = $totalPkg"
+echo "   Packages existing on target  = $existPkg"
+echo "   Packages needed copying      = $copiedPkg"
+echo "   Packages copied              = $goodPkg"
+echo "   Packages in error            = $failPkg" 
+date >> $LOG
+echo "Log available in $LOG"
+
+if [ "$failPkg" -eq "0" ] ; then
+	exit 0
+else 
+	exit 1
+fi
