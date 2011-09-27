@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>946</width>
-    <height>486</height>
+    <width>800</width>
+    <height>440</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -32,12 +32,24 @@
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
+      <property name="tabPosition">
+       <enum>QTabWidget::North</enum>
+      </property>
+      <property name="tabShape">
+       <enum>QTabWidget::Rounded</enum>
+      </property>
       <property name="currentIndex">
        <number>1</number>
       </property>
+      <property name="elideMode">
+       <enum>Qt::ElideNone</enum>
+      </property>
+      <property name="tabsClosable">
+       <bool>false</bool>
+      </property>
       <widget class="QWidget" name="obsProjectTab">
        <attribute name="title">
-        <string>OBS</string>
+        <string>OBS Projects</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_2">
         <item row="1" column="0" colspan="3">
@@ -74,14 +86,14 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="3" rowspan="3">
+        <item row="0" column="3" rowspan="4">
          <widget class="Line" name="line">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
           </property>
          </widget>
         </item>
-        <item row="1" column="4" colspan="3">
+        <item row="1" column="4" colspan="2">
          <widget class="QTableWidget" name="packagesTableWidget">
           <column>
            <property name="text">
@@ -102,14 +114,7 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="5">
-         <widget class="QPushButton" name="deletePackageButton">
-          <property name="text">
-           <string>Delete</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="7" rowspan="2">
+        <item row="1" column="7" rowspan="3">
          <widget class="Line" name="line_2">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -151,27 +156,6 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="6">
-         <widget class="QPushButton" name="buildAllPackagesButton">
-          <property name="text">
-           <string>Build All</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="11">
-         <widget class="QPushButton" name="generateSpecFileButton">
-          <property name="text">
-           <string>Generate Spec File</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="12">
-         <widget class="QPushButton" name="buildPackageButton">
-          <property name="text">
-           <string>Build Package</string>
-          </property>
-         </widget>
-        </item>
         <item row="0" column="4">
          <widget class="QLabel" name="packagesLabel">
           <property name="font">
@@ -208,17 +192,42 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="11">
+        <item row="0" column="7" colspan="3">
+         <widget class="QLineEdit" name="chrootPathLineEdit">
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="8">
+         <widget class="QPushButton" name="generateSpecFileButton">
+          <property name="text">
+           <string>Generate Spec File</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="9">
+         <widget class="QPushButton" name="buildPackageButton">
+          <property name="text">
+           <string>Build Package</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="10">
          <widget class="QPushButton" name="openChrootButton">
           <property name="text">
            <string>Open</string>
           </property>
          </widget>
         </item>
-        <item row="0" column="7" colspan="4">
-         <widget class="QLineEdit" name="chrootPathLineEdit"/>
+        <item row="3" column="5">
+         <widget class="QPushButton" name="buildAllPackagesButton">
+          <property name="text">
+           <string>Build All</string>
+          </property>
+         </widget>
         </item>
-        <item row="0" column="6">
+        <item row="0" column="5">
          <widget class="QLabel" name="chrootLabel">
           <property name="text">
            <string>Chroot path:</string>
@@ -228,11 +237,25 @@
           </property>
          </widget>
         </item>
+        <item row="3" column="4">
+         <widget class="QPushButton" name="deletePackageButton">
+          <property name="text">
+           <string>Delete</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="5">
+         <widget class="QPushButton" name="importRpmButton">
+          <property name="text">
+           <string>Import source RPM</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </widget>
       <widget class="QWidget" name="imagerProjectTab">
        <attribute name="title">
-        <string>Imager</string>
+        <string>Imager Projects</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_3">
         <item row="1" column="0" colspan="2">
@@ -263,17 +286,17 @@
           </property>
          </widget>
         </item>
-        <item row="3" column="4">
-         <widget class="QPushButton" name="loadKickstartButton">
+        <item row="3" column="0">
+         <widget class="QPushButton" name="newImagerProjectButton">
           <property name="text">
-           <string>Load Kickstart File...</string>
+           <string>New</string>
           </property>
          </widget>
         </item>
-        <item row="0" column="4" rowspan="3" colspan="2">
+        <item row="0" column="4" rowspan="6" colspan="2">
          <widget class="QTabWidget" name="imagerProjectsTabWidget">
           <property name="currentIndex">
-           <number>2</number>
+           <number>3</number>
           </property>
           <widget class="QWidget" name="kickstartMainTab">
            <attribute name="title">
@@ -331,7 +354,7 @@
             <string>Kickstart options</string>
            </attribute>
            <layout class="QGridLayout" name="gridLayout_6">
-            <item row="0" column="0" rowspan="3" colspan="2">
+            <item row="0" column="0" rowspan="4" colspan="2">
              <widget class="QTableWidget" name="kickstartOptionsTableWidget">
               <column>
                <property name="text">
@@ -345,35 +368,48 @@
               </column>
              </widget>
             </item>
-            <item row="3" column="0">
+            <item row="4" column="0">
              <widget class="QComboBox" name="kickstartOptionsComboBox"/>
             </item>
-            <item row="3" column="1">
+            <item row="4" column="1">
              <widget class="QLineEdit" name="kickstartOptionValueLineEdit"/>
             </item>
-            <item row="0" column="2">
+            <item row="1" column="2">
              <widget class="QPushButton" name="addKickstartOptionButton">
               <property name="text">
                <string>Add</string>
               </property>
              </widget>
             </item>
-            <item row="1" column="2">
+            <item row="2" column="2">
              <widget class="QPushButton" name="removeKickstartOptionButton">
               <property name="text">
                <string>Remove</string>
               </property>
              </widget>
             </item>
-            <item row="3" column="2">
+            <item row="4" column="2">
              <widget class="QPushButton" name="saveKickstartOptionButton">
               <property name="text">
                <string>Save</string>
               </property>
              </widget>
             </item>
-            <item row="2" column="2">
+            <item row="3" column="2">
              <spacer name="verticalSpacer">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="0" column="2">
+             <spacer name="verticalSpacer_4">
               <property name="orientation">
                <enum>Qt::Vertical</enum>
               </property>
@@ -392,7 +428,7 @@
             <string>Repositories</string>
            </attribute>
            <layout class="QGridLayout" name="gridLayout_7">
-            <item row="0" column="0" colspan="2">
+            <item row="0" column="0" rowspan="4" colspan="3">
              <widget class="QTableWidget" name="kickstartRepositoriesTableWidget">
               <column>
                <property name="text">
@@ -411,22 +447,82 @@
               </column>
              </widget>
             </item>
-            <item row="1" column="0">
+            <item row="4" column="0">
              <widget class="QLabel" name="repositoryNameLabel">
               <property name="text">
                <string>Name:</string>
               </property>
              </widget>
             </item>
-            <item row="1" column="1">
+            <item row="4" column="1" colspan="2">
              <widget class="QLineEdit" name="repositoryNameLineEdit"/>
             </item>
-            <item row="2" column="0">
-             <widget class="QLabel" name="label">
+            <item row="5" column="0">
+             <widget class="QLabel" name="repositoryUrlLabel">
               <property name="text">
-               <string>TextLabel</string>
+               <string>URL:</string>
               </property>
              </widget>
+            </item>
+            <item row="5" column="1" colspan="2">
+             <widget class="QLineEdit" name="repositoryUrlLineEdit"/>
+            </item>
+            <item row="6" column="0">
+             <widget class="QLabel" name="repositoryOptionsLabel">
+              <property name="text">
+               <string>Options:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="1" colspan="2">
+             <widget class="QLineEdit" name="repositoryOptionsLineEdit"/>
+            </item>
+            <item row="1" column="3">
+             <widget class="QPushButton" name="addRepositoryButton">
+              <property name="text">
+               <string>Add</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="3">
+             <widget class="QPushButton" name="removeRepositoryButton">
+              <property name="text">
+               <string>Remove</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="3">
+             <spacer name="verticalSpacer_2">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="4" column="3" rowspan="4">
+             <widget class="QPushButton" name="saveRepositoryButton">
+              <property name="text">
+               <string>Save</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="3">
+             <spacer name="verticalSpacer_3">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
             </item>
            </layout>
           </widget>
@@ -434,6 +530,98 @@
            <attribute name="title">
             <string>Packages</string>
            </attribute>
+           <layout class="QGridLayout" name="gridLayout_8">
+            <item row="0" column="0" rowspan="2">
+             <widget class="QTreeWidget" name="kickstartPackagesTreeWidget">
+              <property name="selectionMode">
+               <enum>QAbstractItemView::SingleSelection</enum>
+              </property>
+              <property name="selectionBehavior">
+               <enum>QAbstractItemView::SelectRows</enum>
+              </property>
+              <column>
+               <property name="text">
+                <string>1</string>
+               </property>
+              </column>
+              <item>
+               <property name="text">
+                <string>group1</string>
+               </property>
+               <property name="checkState">
+                <enum>PartiallyChecked</enum>
+               </property>
+               <property name="flags">
+                <set>ItemIsSelectable|ItemIsDragEnabled|ItemIsUserCheckable|ItemIsEnabled|ItemIsTristate</set>
+               </property>
+               <item>
+                <property name="text">
+                 <string>package1.1</string>
+                </property>
+                <property name="checkState">
+                 <enum>PartiallyChecked</enum>
+                </property>
+                <property name="flags">
+                 <set>ItemIsSelectable|ItemIsDragEnabled|ItemIsUserCheckable|ItemIsEnabled|ItemIsTristate</set>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>package1.2</string>
+                </property>
+                <property name="flags">
+                 <set>ItemIsSelectable|ItemIsDragEnabled|ItemIsEnabled</set>
+                </property>
+               </item>
+              </item>
+              <item>
+               <property name="text">
+                <string>group2</string>
+               </property>
+               <item>
+                <property name="text">
+                 <string>package2.1</string>
+                </property>
+               </item>
+              </item>
+              <item>
+               <property name="text">
+                <string>group3</string>
+               </property>
+               <item>
+                <property name="text">
+                 <string>package3.1</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>package3.2</string>
+                </property>
+               </item>
+              </item>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QTextEdit" name="packageDescriptionTextEdit">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
+              <property name="readOnly">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QLabel" name="packageDescriptionLabel">
+              <property name="text">
+               <string>Description</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </widget>
           <widget class="QWidget" name="kickstartScriptsTab">
            <attribute name="title">
@@ -441,7 +629,7 @@
            </attribute>
            <layout class="QGridLayout" name="gridLayout_5">
             <item row="0" column="0" rowspan="7" colspan="2">
-             <widget class="QListWidget" name="listWidget"/>
+             <widget class="QListWidget" name="kickstartScriptsListWidget"/>
             </item>
             <item row="2" column="2">
              <widget class="QRadioButton" name="postScriptRadioButton">
@@ -529,24 +717,24 @@
           </widget>
          </widget>
         </item>
-        <item row="3" column="5">
-         <widget class="QPushButton" name="saveKickstartButton">
+        <item row="4" column="0">
+         <widget class="QPushButton" name="deleteImagerProjectButton">
           <property name="text">
-           <string>Save Kickstart File...</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0">
-         <widget class="QPushButton" name="newImagerProjectButton">
-          <property name="text">
-           <string>New</string>
+           <string>Delete</string>
           </property>
          </widget>
         </item>
         <item row="3" column="1">
-         <widget class="QPushButton" name="deleteImagerProjectButton">
+         <widget class="QPushButton" name="importKickstartButton">
           <property name="text">
-           <string>Delete</string>
+           <string>Import Kickstart File...</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1">
+         <widget class="QPushButton" name="exportKickstartButton">
+          <property name="text">
+           <string>Export Kickstart File...</string>
           </property>
          </widget>
         </item>
@@ -561,7 +749,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>946</width>
+     <width>800</width>
      <height>20</height>
     </rect>
    </property>
