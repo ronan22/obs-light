@@ -39,7 +39,7 @@
        <enum>QTabWidget::Rounded</enum>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <property name="elideMode">
        <enum>Qt::ElideNone</enum>
@@ -251,6 +251,22 @@
           </property>
          </widget>
         </item>
+        <item row="3" column="0" colspan="2">
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Project page : &lt;a href=&quot;http://www.google.fr&quot;&gt;Project Page&lt;/a&gt;</string>
+          </property>
+          <property name="textFormat">
+           <enum>Qt::RichText</enum>
+          </property>
+          <property name="openExternalLinks">
+           <bool>true</bool>
+          </property>
+          <property name="textInteractionFlags">
+           <set>Qt::TextBrowserInteraction</set>
+          </property>
+         </widget>
+        </item>
        </layout>
       </widget>
       <widget class="QWidget" name="imagerProjectTab">
@@ -296,7 +312,7 @@
         <item row="0" column="4" rowspan="6" colspan="2">
          <widget class="QTabWidget" name="imagerProjectsTabWidget">
           <property name="currentIndex">
-           <number>3</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="kickstartMainTab">
            <attribute name="title">
@@ -839,6 +855,22 @@
     <hint type="destinationlabel">
      <x>800</x>
      <y>185</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionExit</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>219</y>
     </hint>
    </hints>
   </connection>
