@@ -5,14 +5,17 @@ Created on 27 sept. 2011
 '''
 
 from PySide.QtCore import QObject
-from PySide.QtGui import QPushButton, QListWidget, QLineEdit, QComboBox
+from PySide.QtGui import QPushButton, QListView, QLineEdit, QComboBox
+
+from ObsProjectListModel import ObsProjectListModel
 
 class ObsProjectManager(QObject):
     '''
     classdocs
     '''
     __gui = None
-    __obsProjectsListWidget = None
+    __obsProjectsListView = None
+    __obsProjectListModel = None
     __newObsProjectButton = None
     __projectConfigDialogs = []
 
@@ -21,10 +24,16 @@ class ObsProjectManager(QObject):
         Constructor
         '''
         QObject.__init__(self)
+        self.__obsProjectListModel = ObsProjectListModel(None)
         self.__gui = gui
-        self.__obsProjectsListWidget = gui.mainWindow.findChild(QListWidget, "obsProjectsListWidget")
+        self.__obsProjectsListView = gui.mainWindow.findChild(QListView, "obsProjectsListView")
+        self.__obsProjectsListView.setModel(self.__obsProjectListModel)
         self.__newObsProjectButton = gui.mainWindow.findChild(QPushButton, "newObsProjectButton")
         self.__newObsProjectButton.clicked.connect(self.on_newObsProjectButton_clicked)
+        self.__modifyObsProjectButton = gui.mainWindow.findChild(QPushButton, "modifyObsProjectButton")
+        self.__modifyObsProjectButton.clicked.connect(self.on_modifyObsProjectButton_clicked)
+        self.__deleteObsProjectButton = gui.mainWindow.findChild(QPushButton, "deleteObsProjectButton")
+        self.__deleteObsProjectButton.clicked.connect(self.on_deleteObsProjectButton_clicked)
         
     def on_newObsProject(self):
         sender = self.sender()
@@ -32,12 +41,28 @@ class ObsProjectManager(QObject):
         projectServerComboBox = sender.findChild(QComboBox, "projectServerComboBox")
         projectTargetComboBox = sender.findChild(QComboBox, "projectTargetComboBox")
         projectArchitectureComboBox = sender.findChild(QComboBox, "projectArchitectureComboBox")
-        listEntry = projectNameLineEdit.text() + ": " + projectServerComboBox.currentText() + ", "
-        listEntry += projectTargetComboBox.currentText() + ", " + projectArchitectureComboBox.currentText()
-        print listEntry
-        self.__obsProjectsListWidget.addItem(listEntry)
+        
+        self.__obsProjectListModel.addProject(projectNameLineEdit.text(),
+                                              projectServerComboBox.currentText(),
+                                              projectTargetComboBox.currentText(),
+                                              projectArchitectureComboBox.currentText())
         self.__projectConfigDialogs.remove(sender)
         self.__gui.mainWindow.setEnabled(True)
+        
+    def on_modifyObsProject(self):
+        sender = self.sender()
+        projectNameLineEdit = sender.findChild(QLineEdit, "projectNameLineEdit")
+        projectServerComboBox = sender.findChild(QComboBox, "projectServerComboBox")
+        projectTargetComboBox = sender.findChild(QComboBox, "projectTargetComboBox")
+        projectArchitectureComboBox = sender.findChild(QComboBox, "projectArchitectureComboBox")
+        
+        self.__obsProjectListModel.modifyProject(projectNameLineEdit.text(),
+                                              projectServerComboBox.currentText(),
+                                              projectTargetComboBox.currentText(),
+                                              projectArchitectureComboBox.currentText())
+        self.__projectConfigDialogs.remove(sender)
+        self.__gui.mainWindow.setEnabled(True)
+        
         
     def on_projectConfigDialog_rejected(self):
         sender = self.sender()
@@ -52,3 +77,18 @@ class ObsProjectManager(QObject):
         newProjectDialog.show()
         self.__projectConfigDialogs.append(newProjectDialog)
         
+    def on_modifyObsProjectButton_clicked(self):
+        modifyProjectDialog = self.__gui.loadWindow("obsProjectConfig.ui")
+        modifyProjectDialog.accepted.connect(self.on_modifyObsProject)
+        modifyProjectDialog.rejected.connect(self.on_projectConfigDialog_rejected)
+        projectNameField = modifyProjectDialog.findChild(QLineEdit, "projectNameLineEdit")
+        projectData = self.__obsProjectListModel.data(self.__obsProjectsListView.currentIndex(), ObsProjectListModel.dataRole)
+        projectNameField.setText(projectData["name"])
+        projectNameField.setReadOnly(True)
+        self.__gui.mainWindow.setEnabled(False)
+        modifyProjectDialog.show()
+        self.__projectConfigDialogs.append(modifyProjectDialog)
+        
+    def on_deleteObsProjectButton_clicked(self):
+        projectData = self.__obsProjectListModel.data(self.__obsProjectsListView.currentIndex(), ObsProjectListModel.dataRole)
+        self.__obsProjectListModel.deleteProject(projectData["name"])
