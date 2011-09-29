@@ -7,10 +7,13 @@
 
 import sys
 import time
+
 from os.path import join
+from urllib2 import URLError, HTTPError
 from xml.etree import ElementTree
 
 from osc import conf, core
+
 
 def help(progName="obstag"):
     print """HELP
@@ -31,6 +34,10 @@ Version 3.0   License GLPv2"""
 
 
 class PackageRevision(object):
+    """
+    Reflects the content of a <revision> tag as returned by a 
+    'GET /source/<project>/<package>/_history' call on an OBS project package.
+    """
 
     def __init__(self, packageName, rev, vrev):
         self.name = packageName
@@ -43,9 +50,15 @@ class PackageRevision(object):
         self.comment = "<no message>"
 
     def __str__(self):
+        """
+        Simply calls self.__repr__()
+        """
         return self.__repr__()
 
     def __repr__(self):
+        """
+        Returns a string suitable for obs2obscopy input
+        """
         date = time.localtime(int(self.time))
         s = "%(srcmd5)40s | %(rev)6s | " % self.__dict__
         s += "%20s | " % time.strftime("%Y-%m-%d %H:%M:%S", date)
@@ -67,22 +80,32 @@ class ObsProject(object):
         self.obsConfig = conf.get_config()
 
     def getPackageList(self):
+        """
+        Returns the list of all package names of this project.
+        Can raise `urllib2.HTTPError`, `urllib2.URLError` or `ElementTree.ParseError`.
+        """
         # The following method does not work on public repositories :
         #   core.meta_get_packagelist(self.apiUrl, self.name)
-        # This is why we have to use the WEB API and parse XML ourselves
+        # This is why we have to use the WEB API and parse XML ourselves.
         url = self.apiUrl + "/source/" + self.name + "/"
         xmlResult = core.http_request("GET", url).read()
-        xmlPackageDir = ElementTree.fromstring(xmlResult)
         packageList = list()
+        xmlPackageDir = ElementTree.fromstring(xmlResult)
         for packageEntry in xmlPackageDir.iter("entry"):
             packageList.append(packageEntry.get("name"))
         return packageList
 
     def getPackageRevisions(self, packageName):
+        """
+        Returns a list of `PackageRevision` of packageName.
+        Can raise `urllib2.HTTPError`, `urllib2.URLError` or `ElementTree.ParseError`.
+        """
         revisionsList = list()
         url = self.apiUrl + "/source/" + self.name + "/"
         url += packageName + "/_history"
+
         xmlResult = core.http_request("GET", url).read()
+        
         xmlRevisionLists = ElementTree.fromstring(xmlResult)
         for xmlRevisionList in xmlRevisionLists.iter("revisionlist"):
             for xmlRevision in xmlRevisionList.iter("revision"):
@@ -92,19 +115,18 @@ class ObsProject(object):
                 for field in xmlRevision.iter():
                     revision.__dict__[field.tag] = field.text
                 revisionsList.append(revision)
+        
         revisionsList.sort(reverse=True)
         return revisionsList
 
 
-if __name__ == '__main__':
-    if len(sys.argv) != 4:
-        help(sys.argv[0])
-        sys.exit(1)
-    
-    apiUrl = sys.argv[1]
-    projectName = sys.argv[2]
-    outFilePath = sys.argv[3]
-    outFile = open(outFilePath, "wu+", 1)
+def main(apiUrl, projectName, outFilePath):
+    try:
+        outFile = open(outFilePath, "wu+", 1)
+    except IOError as err:
+        print >> sys.stderr, "Cannot write", outFilePath, ":", err.strerror
+        sys.exit(3)
+
     print >> outFile, "# This is a revision Tag file from an OBS project created by obstag."
     print >> outFile, "# That MD5 Tag is directly usable by obs2obscopy script."
     print >> outFile, "#"
@@ -116,17 +138,65 @@ if __name__ == '__main__':
                      "pkgOwner", "pkgComment")
     print >> outFile, "#"
     obsProject = ObsProject(apiUrl, projectName)
-    packageList = obsProject.getPackageList()
+
+    packageList = list()
+    try:
+        packageList = obsProject.getPackageList()
+    except HTTPError as e:
+        print >> sys.stderr, "An error occured while retrieving package list: ", str(e)
+        sys.exit(1)
+    except URLError:
+        print >> sys.stderr, "The URL you gave seems to be invalid or unreachable:", apiUrl
+        sys.exit(1)
+    except ElementTree.ParseError:
+        print >> sys.stdout, "An error occured while parsing package list:", str(pe)
+        sys.exit(2)
+
+    if len(packageList) < 1:
+        print "No package found in project %s !", projectName
+        sys.exit(0)
+
+
     print "Creating a revision tag of source packages as present in ", projectName
     packagesTaggedNumber = 0
-    for packageName in packageList:
-        revisions = obsProject.getPackageRevisions(packageName)
-        if len(revisions) > 0:
-            print >> outFile, revisions[0]
-            sys.stdout.write(".") # 'print' writes an unwanted space between the dots
-            sys.stdout.flush()
-            packagesTaggedNumber += 1
+    try:
+        for packageName in packageList:
+            try:
+                revisions = obsProject.getPackageRevisions(packageName)
+                if len(revisions) > 0:
+                    print >> outFile, revisions[0]
+                    # 'print' writes an unwanted space between the dots
+                    sys.stdout.write(".")
+                    sys.stdout.flush()
+                    packagesTaggedNumber += 1
+            except ElementTree.ParseError as pe:
+                print >> sys.stdout, "An error occured while parsing revision"\
+                    + " list of package ", packageName, ":", str(pe)
+    except HTTPError as e:
+        print >> sys.stderr, "An error occured while retrieving package list:",
+        print >> sys.stderr, str(e)
+        sys.exit(1)
+    except URLError:
+        print >> sys.stderr, "The URL you gave seems to be invalid or",
+        print >> sys.stderr, " unreachable:", self.apiUrl
+        sys.exit(1)
+
     outFile.close()
+
     print "\nFinal reports"
     print "   Total number packages tagged = ", packagesTaggedNumber
     print "   %s created" % outFilePath
+
+
+
+if __name__ == '__main__':
+    if len(sys.argv) != 4:
+        help(sys.argv[0])
+        sys.exit(1)
+    apiUrl = sys.argv[1]
+    projectName = sys.argv[2]
+    outFilePath = sys.argv[3]
+    try:
+        main(apiUrl, projectName, outFilePath)
+    except KeyboardInterrupt:
+        print >> sys.stderr, "Interrupted by user..."
