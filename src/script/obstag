@@ -1,105 +1,202 @@
-#!/bin/bash
-# Authors Dominig ar Foll (Intel OTC)
-# Date 1 June 2011
-# License GLPv2
+#!/usr/bin/env python
+# Authors Dominig ar Foll (Intel OTC) (first versions in Bash)
+#         Florent Vennetier (Intel OTC) (third version in Python)
+# Date 29 September 2011
+# Version 3.0
+# License GPLv2
+
+import sys
+import time
+
+from os.path import join
+from urllib2 import URLError, HTTPError
+from xml.etree import ElementTree
+
+from osc import conf, core
 
 
-if [ $# -ne 3 ]; then
-    echo "HELP"
-	echo "Function : Tag a project in an OBS (remote obs are managed via a linked project)"
-	echo "           It will create a tage file which constains the MD5 to represent the package revision"
-    echo "           The Tag file can be used as direct input for obs2obsCopy"
-    echo ""
-	echo "Usage:     $0 obs-alias project-name md5_file-name"
-    echo "Example:   $0 http://myObs.mynetwork:81 meego.com:MeeGo:1.2:oss my_revision_tag.md5"
-	echo " "
-	echo "           meego.com can be a local projet which is a link to a remote OBS public api"
-    echo "           Public API do NOT provide log info and in that case revision info will be empty"
-    echo "           bs2obscopy will then copy the current release"
-    echo "Version 2.0a   Licence GLPv2"
-    echo ""
-    exit
-fi
+def help(progName="obstag"):
+    print """HELP
+Function : Tag a project in an OBS (remote obs are managed via a linked project)
+        It will create a tag file which constains the MD5 to represent
+        the package revision. The tag file can be used as direct input
+        for obs2obsCopy.
 
-NB_ARG=$#
-ALIAS=$1
-PRJ=$2
-MD5_FILE=$3
-LS=".obstaglist.tmp"
-TAG=".obstagpkglog.tmp"
+Usage:   """ + progName + """ obs-alias project-name md5_file-name
+Example: """ + progName + """ http://myObs.mynetwork:81 meego.com:MeeGo:1.2:oss my_revision_tag.md5
 
-totalPkg=0
+        meego.com can be a local projet which is a link to a remote OBS
+        public API. Public API does NOT provide log info and in that case
+        revision info will be empty. obs2obscopy will then copy the current
+        release.
 
-# ugly but works
-echo $totalPkg > .totalPkg.cnt
-
-# Check that current directory is writable
-if [ ! -w "$PWD" ] ; then
-    echo "Error : Directory $PWD is not writable"
-    exit 1
-fi
-
-# Check is MD5-file is valid
-touch $MD5_FILE
-if [ ! -w "$MD5_FILE" ] ; then
-      echo "Error: file $MD5_FILE is not writable"
-      exit 2
-fi
-# Check that OBS is reacheable
-echo -n "info : Checking connectivity with OBS ... "
-osc -A $ALIAS ls $PRJ > $LS  2> /dev/null
-if [ "$?" -ne 0 ] ; then
-      echo ""
-      echo "Error: OBS: $ALIAS or project: $DST_PRJ' cannot be reached"
-      exit 3
-else
-      echo "DONE"
-fi
-echo "Creating a revision tag of source packages as present in $PRJ"
+Version 3.0   License GLPv2"""
 
 
-# Addition on comment at the begining of the MD5 file
-echo "# This is a revision Tag file from an OBS project created by obstag" > $MD5_FILE
-echo "# That MD5 Tag is directly usable by obs2obscopy script" >> $MD5_FILE
-echo "#" >> $MD5_FILE
-echo "# Created   : `date`" >> $MD5_FILE
-echo "# Project name : $PRJ" >> $MD5_FILE
-echo "#" >> $MD5_FILE
-printf "# %38s | %6s | %20s | %s | %s |%s |%s \n" "pkgMd5" "pkgRev" "pkgDate" "pkgName" "pkgVersion" "pkgOwner" "pkgComment" >> $MD5_FILE
-echo "#" >> $MD5_FILE
+class PackageRevision(object):
+    """
+    Reflects the content of a <revision> tag as returned by a 
+    'GET /source/<project>/<package>/_history' call on an OBS project package.
+    """
 
-cat $LS | while read line
-do
-    let totalPkg++
-    echo $totalPkg > .totalPkg.cnt
-    echo -n "."
-    pkgName="$line"
-    osc -A $ALIAS log --csv $PRJ $pkgName  > $TAG   2>/dev/null
-    read pkgTag < $TAG
-    # presentation is ugly but bash imposes it (no space after the =
-    pkgMd5=`echo     "$pkgTag" | cut -d "|" -f 4 `
-	pkgRev=`echo     "$pkgTag" | cut -d "|" -f 1 `
-    pkgDate=`echo    "$pkgTag" | cut -d "|" -f 3 `
-    pkgOwner=`echo   "$pkgTag" | cut -d "|" -f 2 `
-    pkgVersion=`echo "$pkgTag" | cut -d "|" -f 5 `
-    pkgComment=`echo "$pkgTag" | cut -d "|" -f 6 `
+    def __init__(self, packageName, rev, vrev):
+        self.name = packageName
+        self.rev = rev
+        self.vrev = vrev
+        self.srcmd5 = ""
+        self.time = ""
+        self.version = ""
+        self.user = ""
+        self.comment = "<no message>"
 
-    # Creation of the netry in the MD5 tag file
-    printf "%40s | %6s | %20s | %s | %s |%s |%s \n" "$pkgMd5" "$pkgRev" "$pkgDate" "$pkgName" "$pkgVersion" "$pkgOwner" "$pkgComment" >> $MD5_FILE
-done
+    def __str__(self):
+        """
+        Simply calls self.__repr__()
+        """
+        return self.__repr__()
 
-# ugle but works
-totalPkg=`cat .totalPkg.cnt`
-rm .totalPkg.cnt
-rm $TAG
-rm $LS
+    def __repr__(self):
+        """
+        Returns a string suitable for obs2obscopy input
+        """
+        date = time.localtime(int(self.time))
+        s = "%(srcmd5)40s | %(rev)6s | " % self.__dict__
+        s += "%20s | " % time.strftime("%Y-%m-%d %H:%M:%S", date)
+        s += "%(name)s | %(version)s |%(user)s |%(comment)s " % self.__dict__
+        return s
 
-echo ""
-echo "Final reports"
-echo "   Total number packages tagged     = $totalPkg"
-echo "   $MD5_FILE created"
-# if [ "$TotalPkg" -eq "0" ] ; then
-	exit 1
-else 
-	exit 0
-fi
+    def __cmp__(self, other):
+        if self.name == other.name:
+            return cmp(self.rev, other.rev)
+        else:
+            return cmp(self.name, other.name)
+        
+
+class ObsProject(object):
+
+    def __init__(self, apiUrl, projectName):
+        self.name = projectName
+        self.apiUrl = apiUrl
+        self.obsConfig = conf.get_config()
+
+    def getPackageList(self):
+        """
+        Returns the list of all package names of this project.
+        Can raise `urllib2.HTTPError`, `urllib2.URLError` or `ElementTree.ParseError`.
+        """
+        # The following method does not work on public repositories :
+        #   core.meta_get_packagelist(self.apiUrl, self.name)
+        # This is why we have to use the WEB API and parse XML ourselves.
+        url = self.apiUrl + "/source/" + self.name + "/"
+        xmlResult = core.http_request("GET", url).read()
+        packageList = list()
+        xmlPackageDir = ElementTree.fromstring(xmlResult)
+        for packageEntry in xmlPackageDir.iter("entry"):
+            packageList.append(packageEntry.get("name"))
+        return packageList
+
+    def getPackageRevisions(self, packageName):
+        """
+        Returns a list of `PackageRevision` of packageName.
+        Can raise `urllib2.HTTPError`, `urllib2.URLError` or `ElementTree.ParseError`.
+        """
+        revisionsList = list()
+        url = self.apiUrl + "/source/" + self.name + "/"
+        url += packageName + "/_history"
+
+        xmlResult = core.http_request("GET", url).read()
+        
+        xmlRevisionLists = ElementTree.fromstring(xmlResult)
+        for xmlRevisionList in xmlRevisionLists.iter("revisionlist"):
+            for xmlRevision in xmlRevisionList.iter("revision"):
+                revision = PackageRevision(packageName,
+                                           xmlRevision.get("rev", 1),
+                                           xmlRevision.get("vrev", 1))
+                for field in xmlRevision.iter():
+                    revision.__dict__[field.tag] = field.text
+                revisionsList.append(revision)
+        
+        revisionsList.sort(reverse=True)
+        return revisionsList
+
+
+def main(apiUrl, projectName, outFilePath):
+    try:
+        outFile = open(outFilePath, "wu+", 1)
+    except IOError as err:
+        print >> sys.stderr, "Cannot write", outFilePath, ":", err.strerror
+        sys.exit(3)
+
+    print >> outFile, "# This is a revision Tag file from an OBS project created by obstag."
+    print >> outFile, "# That MD5 Tag is directly usable by obs2obscopy script."
+    print >> outFile, "#"
+    print >> outFile, "# Created :", time.strftime("%a, %b %d %H:%M:%S %Z %Y")
+    print >> outFile, "# Project name : %s" % projectName
+    print >> outFile, "#"
+    print >> outFile, "# %38s | %6s | %20s | %s | %s |%s |%s " \
+                  % ("pkgMd5", "pkgRev", "pkgDate", "pkgName", "pkgVersion",
+                     "pkgOwner", "pkgComment")
+    print >> outFile, "#"
+    obsProject = ObsProject(apiUrl, projectName)
+
+    packageList = list()
+    try:
+        packageList = obsProject.getPackageList()
+    except HTTPError as e:
+        print >> sys.stderr, "An error occured while retrieving package list: ", str(e)
+        sys.exit(1)
+    except URLError:
+        print >> sys.stderr, "The URL you gave seems to be invalid or unreachable:", apiUrl
+        sys.exit(1)
+    except ElementTree.ParseError:
+        print >> sys.stdout, "An error occured while parsing package list:", str(pe)
+        sys.exit(2)
+
+    if len(packageList) < 1:
+        print "No package found in project %s !", projectName
+        sys.exit(0)
+
+
+    print "Creating a revision tag of source packages as present in ", projectName
+    packagesTaggedNumber = 0
+    try:
+        for packageName in packageList:
+            try:
+                revisions = obsProject.getPackageRevisions(packageName)
+                if len(revisions) > 0:
+                    print >> outFile, revisions[0]
+                    # 'print' writes an unwanted space between the dots
+                    sys.stdout.write(".")
+                    sys.stdout.flush()
+                    packagesTaggedNumber += 1
+            except ElementTree.ParseError as pe:
+                print >> sys.stdout, "An error occured while parsing revision"\
+                    + " list of package ", packageName, ":", str(pe)
+    except HTTPError as e:
+        print >> sys.stderr, "An error occured while retrieving package list:",
+        print >> sys.stderr, str(e)
+        sys.exit(1)
+    except URLError:
+        print >> sys.stderr, "The URL you gave seems to be invalid or",
+        print >> sys.stderr, " unreachable:", self.apiUrl
+        sys.exit(1)
+
+    outFile.close()
+
+    print "\nFinal reports"
+    print "   Total number packages tagged = ", packagesTaggedNumber
+    print "   %s created" % outFilePath
+
+
+
+if __name__ == '__main__':
+    if len(sys.argv) != 4:
+        help(sys.argv[0])
+        sys.exit(1)
+    apiUrl = sys.argv[1]
+    projectName = sys.argv[2]
+    outFilePath = sys.argv[3]
+    try:
+        main(apiUrl, projectName, outFilePath)
+    except KeyboardInterrupt:
+        print >> sys.stderr, "Interrupted by user..."
