@@ -1,162 +1,156 @@
-#!/bin/bash
-# Authors Dominig ar Foll (Intel OTC)
-# Date 15 June 2011
-# License GLPv2
+#!/usr/bin/env python
+# Authors Dominig ar Foll (Intel OTC) (first versions in Bash)
+#         Florent Vennetier (Intel OTC) (third version in Python)
+# Date 30 September 2011
+# Version 3.0
+# License GPLv2
 #
-# Credit Thanks to Yan Yin for providing the inial version that I used as base
-
-
-if [ $# -ne 4 ]; then
-        echo "HELP"
-	echo "Function : copy a project from an OBS to an OBS (remote obs are managed via a linked project)"
-	echo "           using as input a package list with the desired MD5 to represent the package revision"
-    echo "           if target pakage is already at the correct revision, its copy is ignored"
-    echo "           running the script several time is possible until zero errors is acheived"
-    echo "           A log file named $MD5_FILE.log is created for everyrun."
-    echo ""
-	echo "Usage:     $0 obs-alias source_prj target_prj md5_file"
-    echo "           md5_file is create by the script obstag"
-    echo ""
-    echo "Example1: Local copy"
-    echo "         $0 http://myObs.mynetwork:81 MyMeeGo:1.2:oss myTest:MeeGo:1.2:oss my_revision_tag.md5"
-    echo "Example2: Remote copy"
-    echo "         $0 http://myObs.mynetwork:81 meego.com:MeeGo:1.2:oss myobs:MeeGo:1.2:oss my_revision_tag.md5"
-	echo "           where meego.com is a local projet which is a link to a remote OBS public api"
-    echo "Version 2.3a  Licence GLPv2"
-    exit
-fi
-
-# TODO 
-# the method to get the final result with hidden files is ugly (but at least works) need correcting
-# I failed to solve the global variable requirement in bash loops.
-
-NB_ARG=$#
-ALIAS=$1
-SRC_PRJ=$2
-DST_PRJ=$3
-MD5_FILE=$4
-
-totalPkg=0
-copiedPkg=0
-goodPkg=0
-failPkg=0
-existPkg=0
-
-# ugly but works
-echo $totalPkg > .totalPkg.cnt
-echo $copiedPkg >.copiedPkg.cnt
-echo $goodPkg > .goodPkg.cnt
-echo $failPkg > .failPkg.cnt
-echo $existPkg > .existPkg.cnt
-
-export LOG=$MD5_FILE.log
-
-# Check that current directory is writable
-if [ ! -w "$PWD" ] ; then
-  echo "Error : Directory $PWD is not writable"
-  exit 1
-fi
-
-# start empty log
-date > $LOG
-echo "start logging in $LOG"
-echo ""
-
-# Check is MD5-file is valid
-if [ ! -f "$MD5_FILE" ] ; then
-      echo "Error: file $MD5_FILE does not exist"
-      echo "Error: file $MD5_FILE does not exist" >> $LOG
-      exit 2
-fi
-echo Copying revision version of source packages as defined in $MD5_FILE
-echo Copying revision version of source packages as defined in $MD5_FILE >> $LOG
-# Check that both OBS are reacheable
-echo -n "info : Checking connectivity with remote source and local target ... "
-
-osc -A $ALIAS ls $DST_PRJ > /dev/null  2>&1
-if [ "$?" -ne 0 ] ; then
-   echo ""
-   echo "Error: Local destination project 'osc -A $ALIAS ls $DST_PRJ' cannot be reached"
-   exit 3
-fi
-
-osc -A $ALIAS ls $SRC_PRJ > /dev/null  2>&1
-if [ "$?" -ne 0 ] ; then
-   echo ""
-   echo "Error: Remote project 'osc -A $ALIAS $SRC_PRJ' cannot be reached"
-   exit 4
-fi
-echo "DONE"
-echo ""
-
-cat $MD5_FILE | while read line
-do
-if [ "${line:0:1}" != "#" ] ; then
-        let totalPkg++
-        echo $totalPkg > .totalPkg.cnt
-        md5=` echo $line | cut -d "|" -f 1 | tr -d " " `
-	    package=` echo $line | cut -d "|" -f 4 | tr -d " " `
-        REV="--revision=$md5"
-        # check if correct revision of the source package is the same as the target.
-        osc -A $ALIAS ls $REV $DST_PRJ $package  > /dev/null  2>&1
-	if [ "$?" -ne 0 ] ; then 
-	   let copiedPkg++
-	   echo $copiedPkg > .copiedPkg.cnt
-           echo -n "info : Copying $package from $SRC_PRJ ... "
-           echo -n "info : Copying $package from $SRC_PRJ ... " >> $LOG
-           osc -A $ALIAS copypac $REV $SRC_PRJ $package $DST_PRJ  >> $LOG  2>&1
-           if [ "$?" = "0" ] ; then
-	       let goodPkg++
-               echo $goodPkg > .goodPkg.cnt
-               echo "DONE"
-               echo "DONE" >> $LOG
-	   else
-	       let failPkg++
-               echo $failPkg > .failPkg.cnt
-               echo "FAILED"
-               echo "FAILED" >> $LOG
-	   fi
-       else
-           let existPkg++
-           echo $existPkg > .existPkg.cnt
-           echo "info : $package is already present on $DST_PRJ"
-           echo "info : $package is already present on $DST_PRJ" >> $LOG 
-	fi
-fi
-done
-
-# ugle but works
-totalPkg=`cat .totalPkg.cnt`
-rm .totalPkg.cnt
-existPkg=`cat .existPkg.cnt`
-rm .existPkg.cnt
-copiedPkg=`cat .copiedPkg.cnt`
-rm .copiedPkg.cnt
-goodPkg=`cat .goodPkg.cnt`
-rm .goodPkg.cnt
-failPkg=`cat .failPkg.cnt`
-rm .failPkg.cnt
+# Credit Thanks to Yan Yin for providing the initial version used as a base
 #
-echo "Final reports" >>$LOG
-echo "   Total packages requested     = $totalPkg" >>$LOG
-echo "   Packages existing on target  = $existPkg" >> $LOG 
-echo "   Packages needed copying      = $copiedPkg" >>$LOG
-echo "   Packages copied              = $goodPkg" >> $LOG
-echo "   Packages in error            = $failPkg" >> $LOG
+
+import sys
+import subprocess
+
+def help(progName="obs2obscopy"):
+    print """HELP
+Function : Copy a project from an OBS to an OBS, using as input a package list
+           with the desired MD5 to represent the package revision.
+           If target package is already at the correct revision, its copy
+           is ignored. Running the script several time is possible until zero
+           errors is acheived.
+           A log file named <MD5_FILE>.log is created for everyrun.
+
+Usage:     %s obs-alias source_prj target_prj md5_file
+       or  %s obs-alias source_prj other-obs-alias target_prj md5_file
+           md5_file is created by the script obstag
+
+Example1: Local copy
+       %s http://myObs.mynetwork:81 MyMeeGo:1.2:oss myTest:MeeGo:1.2:oss my_revision_tag.md5
+Example2: Remote copy (by link)
+       %s http://myObs.mynetwork:81 meego.com:MeeGo:1.2:oss myobs:MeeGo:1.2:oss my_revision_tag.md5
+           where meego.com is a local projet which is a link to a remote OBS public api
+Example3: Remote copy
+       %s http://api.pub.meego.com Project:MINT:Testing http://myObs.mynetwork:81 myTest:MINT:Testing my_revision_tag.md5
+
+Return code:
+          0 success
+          1 some packages not copied
+          2 wrong number of arguments
+          3 problem reading MD5 file or writing log file
+          4 network error
+          5 interrupted by user
+
+Version 3.0  License GPLv2"""  % (progName, progName, progName, progName, progName)
+
+def main(apiUrl, srcProjectName, dstApiUrl, dstProjectName, tagFilePath):
+    totalPkg = 0
+    existPkg = 0
+    copiedPkg = 0
+    goodPkg = 0
+    failPkg = 0
+
+    logFilePath = tagFilePath + ".log"
+    try:
+        logFile = open(logFilePath, "wu")
+    except IOError as e:
+        print >> sys.stderr, "Cannot open", logFilePath, ":", e.strerror
+        sys.exit(3)
+    try:
+        tagFile = open(tagFilePath, "ru")
+    except IOError as e:
+        print >> sys.stderr, "Cannot open", tagFilePath, ":", e.strerror
+        print >> logFile, "Cannot open", tagFilePath, ":", e.strerror
+        sys.exit(3)
+    print "Copying revision version of source packages as defined in %s" % tagFilePath
+    print >> logFile, "Copying revision version of source packages as defined in %s" % tagFilePath
+    print "info : Checking connectivity with remote source and local target ...",
+    # TODO: read stderr to check if osc is asking for credentials
+    osc = subprocess.Popen(["osc", "-A", dstApiUrl, "ls", dstProjectName],
+                           stdout=subprocess.PIPE)
+    osc.communicate()
+    if osc.returncode != 0:
+        print >> sys.stderr, "Error: Local destination project 'osc -A %s ls %s' cannot be reached"\
+            % (apiUrl, dstProjectName)
+        sys.exit(4)
+    # TODO: read stderr to check if osc is asking for credentials
+    osc = subprocess.Popen(["osc", "-A", apiUrl, "ls", srcProjectName],
+                           stdout=subprocess.PIPE)
+    osc.communicate()
+    if osc.returncode != 0:
+        print >> sys.stderr, "Error: Remote project 'osc -A %s ls %s' cannot be reached"\
+            % (apiUrl, srcProjectName)
+        sys.exit(4)
+    print "DONE"
+
+    for line in tagFile:
+        parts = line.split("|", 4) # only first 4 fields are relevant
+
+        md5 = parts[0].strip()
+        if parts[0].startswith("#"):
+            continue
+
+        totalPkg += 1
+        pkgName = parts[3].strip()
+        osc = subprocess.Popen(["osc", "-A", dstApiUrl, "ls",
+                                "--revision=%s" % md5, dstProjectName, pkgName],
+                               stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        osc.communicate()
+        if osc.returncode != 0:
+            # bad return code -> package not already in project
+            copiedPkg += 1
+            print "info : Copying %s from %s" % (pkgName, srcProjectName),
+            print >> logFile, "info : Copying %s from %s" % (pkgName, srcProjectName),
+            osc = subprocess.Popen(["osc", "-A", apiUrl, "copypac",
+                                    "--revision=%s" % md5, srcProjectName,
+                                    pkgName, "-t", dstApiUrl, dstProjectName],
+                                   stdout=logFile, stderr=logFile)
+            osc.communicate()
+            if osc.returncode == 0:
+                goodPkg += 1
+                print "DONE"
+                print >> logFile, "DONE"
+            else:
+                failPkg += 1
+                print "FAILED"
+                print >> logFile, "FAILED"
+        else:
+            existPkg += 1
+            print "info : %s is already present on %s" \
+                % (pkgName, dstProjectName)
+            print >> logFile, "info : %s is already present on %s" \
+                % (pkgName, dstProjectName)
+    
+    tagFile.close()
+
+    print "Final reports"
+    print "   Total packages requested     = %s" % totalPkg
+    print "   Packages existing on target  = %s" % existPkg
+    print "   Packages needed copying      = %s" % copiedPkg
+    print "   Packages copied              = %s" % goodPkg
+    print "   Packages in error            = %s" % failPkg
+
+    print >> logFile, "Final reports"
+    print >> logFile, "   Total packages requested     = %s" % totalPkg
+    print >> logFile, "   Packages existing on target  = %s" % existPkg
+    print >> logFile, "   Packages needed copying      = %s" % copiedPkg
+    print >> logFile, "   Packages copied              = %s" % goodPkg
+    print >> logFile, "   Packages in error            = %s" % failPkg
+    logFile.close()
+    print "Log file available in %s" % logFilePath
+    if failPkg != 0:
+        sys.exit(1)
 
 
-echo ""
-echo "Final reports"
-echo "   Total packages requested     = $totalPkg"
-echo "   Packages existing on target  = $existPkg"
-echo "   Packages needed copying      = $copiedPkg"
-echo "   Packages copied              = $goodPkg"
-echo "   Packages in error            = $failPkg" 
-date >> $LOG
-echo "Log available in $LOG"
-
-if [ "$failPkg" -eq "0" ] ; then
-	exit 0
-else 
-	exit 1
-fi
+if __name__ == '__main__':
+    try:
+        if len(sys.argv) == 5:
+            # Use same OBS URL as source and destination
+            main(sys.argv[1], sys.argv[2], sys.argv[1], sys.argv[3], sys.argv[4])
+        elif len(sys.argv) == 6:
+            main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
+        else:
+            help(sys.argv[0])
+            sys.exit(2)
+    except KeyboardInterrupt:
+        print >> sys.stderr, "Interrupted by user..."
+        sys.exit(5)
