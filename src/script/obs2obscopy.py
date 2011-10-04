@@ -1,15 +1,19 @@
 #!/usr/bin/env python
 # Authors Dominig ar Foll (Intel OTC) (first versions in Bash)
 #         Florent Vennetier (Intel OTC) (third version in Python)
-# Date 30 September 2011
-# Version 3.0
+# Date 04 October 2011
+# Version 3.1
 # License GPLv2
 #
 # Credit Thanks to Yan Yin for providing the initial version used as a base
 #
 
 import sys
-import subprocess
+import urllib
+import urllib2
+import urlparse
+
+from osc import conf, core
 
 def help(progName="obs2obscopy"):
     print """HELP
@@ -40,14 +44,39 @@ Return code:
           4 network error
           5 interrupted by user
 
-Version 3.0  License GPLv2"""  % (progName, progName, progName, progName, progName)
+Version 3.1  License GPLv2"""  % (progName, progName, progName, progName, progName)
 
-def main(apiUrl, srcProjectName, dstApiUrl, dstProjectName, tagFilePath):
+
+def makeurl(baseurl, l, query=[]):
+    """
+    Replacement for `osc.core.makeurl` which preserves the "path"
+    part of the url.
+    """
+
+    if conf.config['verbose'] > 1:
+        print 'makeurl:', baseurl, l, query
+
+    if type(query) == type(list()):
+        query = '&'.join(query)
+    elif type(query) == type(dict()):
+        query = urllib.urlencode(query)
+
+    scheme, netloc, path = urlparse.urlsplit(baseurl)[0:3]
+    if len(path) > 0:
+        l.insert(0, path)
+    finalurl = urlparse.urlunsplit((scheme, netloc, '/'.join(l), query, ''))
+    return finalurl
+
+
+def copyproject(apiUrl, srcProjectName, dstApiUrl, dstProjectName, tagFilePath):
     totalPkg = 0
     existPkg = 0
     copiedPkg = 0
     goodPkg = 0
     failPkg = 0
+
+    conf.get_config()
+    core.makeurl = makeurl
 
     logFilePath = tagFilePath + ".log"
     try:
@@ -61,58 +90,115 @@ def main(apiUrl, srcProjectName, dstApiUrl, dstProjectName, tagFilePath):
         print >> sys.stderr, "Cannot open", tagFilePath, ":", e.strerror
         print >> logFile, "Cannot open", tagFilePath, ":", e.strerror
         sys.exit(3)
-    print "Copying revision version of source packages as defined in %s" % tagFilePath
-    print >> logFile, "Copying revision version of source packages as defined in %s" % tagFilePath
-    print "info : Checking connectivity with remote source and local target ...",
-    # TODO: read stderr to check if osc is asking for credentials
-    osc = subprocess.Popen(["osc", "-A", dstApiUrl, "ls", dstProjectName],
-                           stdout=subprocess.PIPE)
-    osc.communicate()
-    if osc.returncode != 0:
-        print >> sys.stderr, "Error: Local destination project 'osc -A %s ls %s' cannot be reached"\
-            % (apiUrl, dstProjectName)
-        sys.exit(4)
-    # TODO: read stderr to check if osc is asking for credentials
-    osc = subprocess.Popen(["osc", "-A", apiUrl, "ls", srcProjectName],
-                           stdout=subprocess.PIPE)
-    osc.communicate()
-    if osc.returncode != 0:
-        print >> sys.stderr, "Error: Remote project 'osc -A %s ls %s' cannot be reached"\
-            % (apiUrl, srcProjectName)
-        sys.exit(4)
-    print "DONE"
+    message = "Copying revision version of source packages as defined in "
+    message += tagFilePath
+    print message
+    print >> logFile, message
 
+    print "info : Checking connectivity with target project...",
+    sys.stdout.flush()
+    try:
+        core.meta_get_packagelist(dstApiUrl, dstProjectName)
+    except KeyboardInterrupt:
+        raise
+    except urllib2.HTTPError as e:
+        print
+        message = "Error: Target project '%s' cannot be reached: %s"\
+            % (dstProjectName, str(e))
+        print >> sys.stderr, message
+        print >> logFile, message
+        sys.exit(4)
+    except urllib2.URLError as e:
+        print
+        message = "Error: Target project '%s' cannot be reached: %s"\
+            % (dstProjectName, str(e.reason))
+        print >> sys.stderr, message
+        print >> logFile, message
+        sys.exit(4)
+    print "OK"
+
+    print "info : Checking connectivity with source project...",
+    sys.stdout.flush()
+    try:
+        core.meta_get_packagelist(apiUrl, srcProjectName)
+    except KeyboardInterrupt:
+        raise
+    except urllib2.HTTPError as e:
+        print
+        message = "Error: Source project '%s' cannot be reached: %s"\
+            % (srcProjectName, str(e))
+        print >> sys.stderr, message
+        print >> logFile, message
+        sys.exit(4)
+    except urllib2.URLError as e:
+        print
+        message = "Error: Source project '%s' cannot be reached: %s"\
+            % (srcProjectName, str(e.reason))
+        print >> sys.stderr, message
+        print >> logFile, message
+        sys.exit(4)
+    print "OK"
+    
     for line in tagFile:
         parts = line.split("|", 4) # only first 4 fields are relevant
 
         md5 = parts[0].strip()
         if parts[0].startswith("#"):
             continue
+        elif len(md5) < 1:
+            md5 = "latest"
 
         totalPkg += 1
         pkgName = parts[3].strip()
-        osc = subprocess.Popen(["osc", "-A", dstApiUrl, "ls",
-                                "--revision=%s" % md5, dstProjectName, pkgName],
-                               stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        osc.communicate()
-        if osc.returncode != 0:
-            # bad return code -> package not already in project
+        
+        packagePresent = False
+        try:
+            fileList = core.meta_get_filelist(dstApiUrl, dstProjectName,
+                                              pkgName, revision=md5)
+            if len(fileList) > 0:
+                packagePresent = True
+        except KeyboardInterrupt:
+            raise
+        except urllib2.HTTPError as e:
+            if e.code == 404:
+                packagePresent = False
+            else:
+                message = "Error: Cannot list files of project '%s': %s"\
+                    % (pkgName, str(e))
+                print >> sys.stderr, message
+                print >> logFile, message
+                continue
+        except Exception as e:
+            message = "Error: Cannot list files of project '%s': %s"\
+                % (pkgName, str(e))
+            print >> sys.stderr, message
+            print >> logFile, message
+            continue
+
+        if not packagePresent:
             copiedPkg += 1
-            print "info : Copying %s from %s" % (pkgName, srcProjectName),
-            print >> logFile, "info : Copying %s from %s" % (pkgName, srcProjectName),
-            osc = subprocess.Popen(["osc", "-A", apiUrl, "copypac",
-                                    "--revision=%s" % md5, srcProjectName,
-                                    pkgName, "-t", dstApiUrl, dstProjectName],
-                                   stdout=logFile, stderr=logFile)
-            osc.communicate()
-            if osc.returncode == 0:
+            message = "info : Copying %s from %s" % (pkgName, srcProjectName)
+            print message,
+            print >> logFile, message,
+
+            try:
+                core.copy_pac(apiUrl, srcProjectName, pkgName,
+                              dstApiUrl, dstProjectName, pkgName,
+                              client_side_copy=(apiUrl != dstApiUrl),
+                              revision=md5)
+                # I don't know if it can fail without returning an exception.
+                # And we can't analyse the return value because it is sometimes
+                # "Done." and sometimes an XML string (depending on the
+                # value of parameter client_side_copy).
                 goodPkg += 1
                 print "DONE"
                 print >> logFile, "DONE"
-            else:
+                
+            except Exception as e:
                 failPkg += 1
-                print "FAILED"
+                print "FAILED: %s" % str(e)
                 print >> logFile, "FAILED"
+
         else:
             existPkg += 1
             print "info : %s is already present on %s" \
@@ -145,9 +231,11 @@ if __name__ == '__main__':
     try:
         if len(sys.argv) == 5:
             # Use same OBS URL as source and destination
-            main(sys.argv[1], sys.argv[2], sys.argv[1], sys.argv[3], sys.argv[4])
+            copyproject(sys.argv[1], sys.argv[2], sys.argv[1],
+                 sys.argv[3], sys.argv[4])
         elif len(sys.argv) == 6:
-            main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
+            copyproject(sys.argv[1], sys.argv[2], sys.argv[3],
+                 sys.argv[4], sys.argv[5])
         else:
             help(sys.argv[0])
             sys.exit(2)
