@@ -6,7 +6,7 @@ Created on 21 juin 2011
 from xml.etree import ElementTree
 from pprint import pprint
 import sys, string, time, os
-import obslighterr
+import ObsLightErr
 
 class XML_Parse(object):
     
@@ -14,25 +14,25 @@ class XML_Parse(object):
         '''
         Constructor
         '''
-        self.__FileName=aFileName #Name of the XML file to be parsed
-        self.__DicoStorage={} #The dictionary created from the XML file 
-        self.__NameSpaceDict={} #The auxiliary dictionary containing namespaces 
-        self.__Tree=None
+        self.__FileName = aFileName #Name of the XML file to be parsed
+        self.__DicoStorage = {} #The dictionary created from the XML file 
+        self.__NameSpaceDict = {} #The auxiliary dictionary containing namespaces 
+        self.__Tree = None
                 
     def getDicoStorage(self):
         return self.__DicoStorage
     
-    def setDicoStorage(self,aDicoStorage):
-        self.__DicoStorage=aDicoStorage
+    def setDicoStorage(self, aDicoStorage):
+        self.__DicoStorage = aDicoStorage
     
     def getNameSpaceDict(self):
         return self.__NameSpaceDict
     
-    def setNameSpaceDict(self,aNameSpaceDict):
-        self.__NameSpaceDict=aNameSpaceDict
+    def setNameSpaceDict(self, aNameSpaceDict):
+        self.__NameSpaceDict = aNameSpaceDict
      
     # Prints with the pprint command an object like dictionary to a file  
-    def printObj(self,aFileName=None,aObj=None):
+    def printObj(self, aFileName=None, aObj=None):
         
         MyFName = aFileName
         MyObj = aObj
@@ -47,9 +47,9 @@ class XML_Parse(object):
         MyFDescr.close()
                               
     # Dumps the dictionary to a XML file with the help of the ElementTree.write function      
-    def dumpXML(self,aFileName=None,aDict=None):
+    def dumpXML(self, aFileName=None, aDict=None):
         
-        if aDict==None:
+        if aDict == None:
             MyDict = self.__DicoStorage
         else:
             MyDict = aDict
@@ -59,48 +59,48 @@ class XML_Parse(object):
         tree = ElementTree.ElementTree(root)
         tree.write(MyFName)
         
-    def lintXML(self,aInpXML,aOutXML=None):
+    def lintXML(self, aInpXML, aOutXML=None):
         
         # It is allowed to pass aInpXML=aOutXML
         
         MyInpXML = aInpXML
-        MyTempXML = MyInpXML.replace('.xml','.temp.xml') #
+        MyTempXML = MyInpXML.replace('.xml', '.temp.xml') #
         if aOutXML == None:
             MyOutXML = MyInpXML
         else:
             MyOutXML = aOutXML     
-        MyCommand_1="xmllint --format '" + MyInpXML +  "' > '" + MyTempXML + "'"
-        MyCommand_2="rm -rf '" + MyInpXML + "'"
-        MyCommand_3="mv '" + MyTempXML + "'  '" + MyOutXML + "'"
+        MyCommand_1 = "xmllint --format '" + MyInpXML + "' > '" + MyTempXML + "'"
+        MyCommand_2 = "rm -rf '" + MyInpXML + "'"
+        MyCommand_3 = "mv '" + MyTempXML + "'  '" + MyOutXML + "'"
         os.system(MyCommand_1)
         os.system(MyCommand_2)
         os.system(MyCommand_3)
         
                  
-    def ExistsXMLVerif(self,aFileName=None):
+    def ExistsXMLVerif(self, aFileName=None):
                 
         MyFileName = aFileName
         if not os.path.exists(MyFileName):
-            raise obslighterr.XMLExistenceError("The XML file " + MyFileName + " does not exist")
+            raise ObsLightErr.XMLExistenceError("The XML file " + MyFileName + " does not exist")
         return 0
     
-    def EmptyXMLVerif(self,aFileName=None):
+    def EmptyXMLVerif(self, aFileName=None):
         
         MyFileName = aFileName        
-        if os.stat(MyFileName)[6]==0:
-            raise obslighterr.XMLEmptyFileError("The XML file " + MyFileName + " is empty")
+        if os.stat(MyFileName)[6] == 0:
+            raise ObsLightErr.XMLEmptyFileError("The XML file " + MyFileName + " is empty")
         return 0
     
-    def StructureXMLVerif(self,aFileName=None):
+    def StructureXMLVerif(self, aFileName=None):
         
         MyFileName = aFileName
         try:
             tree = ElementTree.parse(MyFileName)
         except:
-            raise obslighterr.XMLParseFileError("The file " + MyFileName + " cannot not be parsed, probably does not respect XML standard")
+            raise ObsLightErr.XMLParseFileError("The file " + MyFileName + " cannot not be parsed, probably does not respect XML standard")
         return 0
 
-    def ConvertDictToXMLVerif(self,aDict=None,aXMLOutFile=None):             
+    def ConvertDictToXMLVerif(self, aDict=None, aXMLOutFile=None):             
                  
         MyDict = aDict
         try:      
@@ -114,20 +114,20 @@ class XML_Parse(object):
         if aXMLOutFile != None:
         
             MyXMLOutFile = aXMLOutFile
-            MyTempFName=MyXMLOutFile.replace('.xml','.temp.xml') 
+            MyTempFName = MyXMLOutFile.replace('.xml', '.temp.xml') 
             tree.write(MyTempFName) 
-            self.lintXML(MyTempFName,MyXMLOutFile)
+            self.lintXML(MyTempFName, MyXMLOutFile)
                                
         return 0        
     
-    def ModifDictVerif(self,aDict,aValue,aTreepathlist):
+    def ModifDictVerif(self, aDict, aValue, aTreepathlist):
         
         MyDict = aDict
         MyValue = aValue
         MyTreepathlist = aTreepathlist
         
         try:
-            ModDict = self.modifyDict(MyDict,MyValue,MyTreepathlist)
+            ModDict = self.modifyDict(MyDict, MyValue, MyTreepathlist)
         except:
             print 'ERROR: The dictionary could not be modified'
             return 1
@@ -136,7 +136,7 @@ class XML_Parse(object):
         return 0
     
     # Allows the modification of the dictionary   
-    def modifyDict(self,aDict,aValue,treepathlist):
+    def modifyDict(self, aDict, aValue, treepathlist):
   
         # 1.possibility: aDict['comps']['group'][0]['packagelist']['packagereq'][0]['_text'] = 'red'
         # 2.possibility: aDict.comps.group[0].packagelist.packagereq[0]._text = 'red'
@@ -155,7 +155,7 @@ class XML_Parse(object):
         if n == 0:
             print 'Error, the list must contain at least one argument!'
         elif n == 1:
-            ModifiedDict[MyL[0]]= aValue
+            ModifiedDict[MyL[0]] = aValue
         elif n == 2:
             ModifiedDict[MyL[0]][MyL[1]] = aValue
         elif n == 3:
@@ -191,7 +191,7 @@ class XML_Parse(object):
         self.__DicoStorage = ConvertXmlToDict(MyFName)      
     
       
-def replaceString(aInpFileName,aOutFileName,aInStr,aOutStr):
+def replaceString(aInpFileName, aOutFileName, aInStr, aOutStr):
 
         '''
         This function allows the replacement of all occurrences 
@@ -201,7 +201,7 @@ def replaceString(aInpFileName,aOutFileName,aInStr,aOutStr):
         ''' 
         MyInpFileName = aInpFileName
         MyOutFileName = aOutFileName
-        MyInpFDescr = open(MyInpFileName,'r')
+        MyInpFDescr = open(MyInpFileName, 'r')
         content = MyInpFDescr.read()              # read the entire input file into memory
         MyInpFDescr.close()
         MyOutFDescr = open(MyOutFileName, 'w')             
@@ -323,7 +323,7 @@ def _ConvertXmlToDictRecurse(node, dictclass):
     if len(node.items()) > 0:
         # if we have attributes, set them
         node_attr_in = dict(node.items())
-        for (k,v) in node_attr_in.iteritems():
+        for (k, v) in node_attr_in.iteritems():
             node_attr_out ['attr_' + str(k)] = v 
         nodedict.update(node_attr_out)
            
@@ -367,7 +367,7 @@ def ConvertXmlToDict(root, dictclass=XmlDictObject):
     elif not isinstance(root, ElementTree.Element):
         raise TypeError, 'Expected ElementTree.Element or file path string'
    
-    root =  ElementTree.ElementTree(root).getroot()
+    root = ElementTree.ElementTree(root).getroot()
     return dictclass({root.tag: _ConvertXmlToDictRecurse(root, dictclass)})
 
 
@@ -380,14 +380,14 @@ def main():
     OUT_XML_FILE_NAME = '/home/hellmann/XML_files/output.xml' #The XML output file
     DICT_FILE_NAME = '/home/hellmann/XML_files/output.dict' #The dictionary obtained from the XML file
         
-    MyOutFName=OUT_XML_FILE_NAME
+    MyOutFName = OUT_XML_FILE_NAME
     aParseXML_cli = XML_Parse()        
     aParseXML_cli.parseXML(IN_XML_FILE_NAME)
     #For eventual modification of a dictionary
     #self.modifyDict()
-    aParseXML_cli.printObj(DICT_FILE_NAME,aParseXML_cli.getDicoStorage())
+    aParseXML_cli.printObj(DICT_FILE_NAME, aParseXML_cli.getDicoStorage())
     aParseXML_cli.dumpXML(MyOutFName)
-    aParseXML_cli.lintXML(MyOutFName,MyOutFName)
+    aParseXML_cli.lintXML(MyOutFName, MyOutFName)
       
     return 0
         
