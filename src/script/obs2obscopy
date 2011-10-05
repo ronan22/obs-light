@@ -53,8 +53,8 @@ def makeurl(baseurl, l, query=[]):
     part of the url.
     """
 
-    if conf.config['verbose'] > 1:
-        print 'makeurl:', baseurl, l, query
+#    if conf.config['verbose'] > 1:
+#        print 'makeurl:', baseurl, l, query,
 
     if type(query) == type(list()):
         query = '&'.join(query)
@@ -65,6 +65,8 @@ def makeurl(baseurl, l, query=[]):
     if len(path) > 0:
         l.insert(0, path)
     finalurl = urlparse.urlunsplit((scheme, netloc, '/'.join(l), query, ''))
+    if conf.config['verbose'] > 1:
+        print "->", finalurl
     return finalurl
 
 
@@ -143,7 +145,7 @@ def copyproject(apiUrl, srcProjectName, dstApiUrl, dstProjectName, tagFilePath):
         parts = line.split("|", 4) # only first 4 fields are relevant
 
         md5 = parts[0].strip()
-        if parts[0].startswith("#"):
+        if len(parts) < 4 or parts[0].startswith("#"):
             continue
         elif len(md5) < 1:
             md5 = "latest"
@@ -160,7 +162,7 @@ def copyproject(apiUrl, srcProjectName, dstApiUrl, dstProjectName, tagFilePath):
         except KeyboardInterrupt:
             raise
         except urllib2.HTTPError as e:
-            if e.code == 404:
+            if e.code == 404 or e.code == 400:
                 packagePresent = False
             else:
                 message = "Error: Cannot list files of project '%s': %s"\
@@ -181,11 +183,24 @@ def copyproject(apiUrl, srcProjectName, dstApiUrl, dstProjectName, tagFilePath):
             print message,
             print >> logFile, message,
 
+            packageIsLink = False
+            try:
+                fileList = core.meta_get_filelist(apiUrl, srcProjectName, pkgName)
+                if "_link" in fileList:
+                    print " is a link... ",
+                    print >> logFile, " is a link... ",
+                    packageIsLink = True
+            except Exception as e:
+                message = "Error checking if %s is a link: %s" % (pkgName, str(e))
+                print >> sys.stderr, message
+                print >> logFile, message
+
             try:
                 core.copy_pac(apiUrl, srcProjectName, pkgName,
                               dstApiUrl, dstProjectName, pkgName,
                               client_side_copy=(apiUrl != dstApiUrl),
-                              revision=md5)
+                              revision=(None if packageIsLink else md5),
+                              expand=packageIsLink)
                 # I don't know if it can fail without returning an exception.
                 # And we can't analyse the return value because it is sometimes
                 # "Done." and sometimes an XML string (depending on the

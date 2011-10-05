@@ -44,7 +44,7 @@ class PackageRevision(object):
         self.rev = rev
         self.vrev = vrev
         self.srcmd5 = ""
-        self.time = ""
+        self.time = "0"
         self.version = ""
         self.user = ""
         self.comment = "<no message>"
@@ -67,7 +67,7 @@ class PackageRevision(object):
 
     def __cmp__(self, other):
         if self.name == other.name:
-            return cmp(self.rev, other.rev)
+            return cmp(int(self.rev) or 0, int(other.rev) or 0)
         else:
             return cmp(self.name, other.name)
         
@@ -166,9 +166,12 @@ def main(apiUrl, projectName, outFilePath):
                 if len(revisions) > 0:
                     print >> outFile, revisions[0]
                     # 'print' writes an unwanted space between the dots
-                    sys.stdout.write(".")
-                    sys.stdout.flush()
-                    packagesTaggedNumber += 1
+                else:
+                    rev = PackageRevision(packageName, "", "")
+                    print >> outFile, rev
+                sys.stdout.write(".")
+                sys.stdout.flush()
+                packagesTaggedNumber += 1
             except ElementTree.ParseError as pe:
                 print >> sys.stdout, "An error occured while parsing revision"\
                     + " list of package ", packageName, ":", str(pe)
