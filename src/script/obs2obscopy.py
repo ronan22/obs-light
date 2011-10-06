@@ -76,6 +76,8 @@ def copyproject(apiUrl, srcProjectName, dstApiUrl, dstProjectName, tagFilePath):
     copiedPkg = 0
     goodPkg = 0
     failPkg = 0
+    goodLink = 0
+    failLink = 0
 
     conf.get_config()
     core.makeurl = makeurl
@@ -187,15 +189,16 @@ def copyproject(apiUrl, srcProjectName, dstApiUrl, dstProjectName, tagFilePath):
             try:
                 fileList = core.meta_get_filelist(apiUrl, srcProjectName, pkgName)
                 if "_link" in fileList:
-                    print " is a link... ",
-                    print >> logFile, " is a link... ",
+                    print "(following the link) ",
+                    print >> logFile, "(following the link) ",
                     packageIsLink = True
             except Exception as e:
-                message = "Error checking if %s is a link: %s" % (pkgName, str(e))
+                message = "Error checking if %s is a link: %s\tTrying standard copy" % (pkgName, str(e))
                 print >> sys.stderr, message
                 print >> logFile, message
 
             try:
+                print
                 core.copy_pac(apiUrl, srcProjectName, pkgName,
                               dstApiUrl, dstProjectName, pkgName,
                               client_side_copy=(apiUrl != dstApiUrl),
@@ -205,12 +208,18 @@ def copyproject(apiUrl, srcProjectName, dstApiUrl, dstProjectName, tagFilePath):
                 # And we can't analyse the return value because it is sometimes
                 # "Done." and sometimes an XML string (depending on the
                 # value of parameter client_side_copy).
-                goodPkg += 1
+                if packageIsLink:
+                    goodLink += 1
+                else:
+                    goodPkg += 1
                 print "DONE"
                 print >> logFile, "DONE"
                 
             except Exception as e:
-                failPkg += 1
+                if packageIsLink:
+                    failLink += 1
+                else:
+                    failPkg += 1
                 print "FAILED: %s" % str(e)
                 print >> logFile, "FAILED"
 
@@ -229,6 +238,8 @@ def copyproject(apiUrl, srcProjectName, dstApiUrl, dstProjectName, tagFilePath):
     print "   Packages needed copying      = %s" % copiedPkg
     print "   Packages copied              = %s" % goodPkg
     print "   Packages in error            = %s" % failPkg
+    print "   Linked packages copied       = %s" % goodLink
+    print "   Linked packages in error     = %s" % failLink
 
     print >> logFile, "Final reports"
     print >> logFile, "   Total packages requested     = %s" % totalPkg
@@ -236,6 +247,8 @@ def copyproject(apiUrl, srcProjectName, dstApiUrl, dstProjectName, tagFilePath):
     print >> logFile, "   Packages needed copying      = %s" % copiedPkg
     print >> logFile, "   Packages copied              = %s" % goodPkg
     print >> logFile, "   Packages in error            = %s" % failPkg
+    print >> logFile, "   Linked packages copied       = %s" % goodLink
+    print >> logFile, "   Linked packages in error     = %s" % failLink
     logFile.close()
     print "Log file available in %s" % logFilePath
     if failPkg != 0:
