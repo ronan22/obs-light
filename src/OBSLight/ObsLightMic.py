@@ -25,6 +25,7 @@ class ObsLightMic(object):
         '''
         
         '''
+        self.initRpmDb(chrootDir)
         command="zypper --non-interactive si "+package
         self.execCommand(chrootDir=chrootDir,command=command)
         
@@ -50,7 +51,7 @@ class ObsLightMic(object):
         '''
         command="sudo mic-chroot "+chrootDir
         command=command.split()
-        p=subprocess.call(command )
+        p=subprocess.call(command)
         
         
         
@@ -92,7 +93,7 @@ class ObsLightMic(object):
         aCommand="sudo mic-chroot "+chrootDir+" --execute=\""+command+"\""
         aCommand= shlex.split(aCommand)
         print "command",aCommand
-        p=subprocess.call(aCommand )
+        p=subprocess.call(aCommand, stdin=open("/dev/null", "r"), close_fds=True)
         
 myObsLightMic=ObsLightMic()
         

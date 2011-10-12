@@ -38,7 +38,7 @@ class ObsLightChRoot(object):
                     
             command="sudo chown root:root "+self.__chrootDirectory
             command=command.split()
-            subprocess.call(command )
+            subprocess.call(command, stdin=open("/dev/null", "r"), close_fds=True)
 
         
             

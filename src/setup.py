@@ -20,20 +20,24 @@ data_files = []
 #if sys.platform[:3] != 'win':
 #    data_files.append((os.path.join('share'), [os.path.join('build', 'obslight.0.1.gz')]))
 
+
 setup(name='obslight',
-      version = "0.1",
+      version = "0.3",
       description = 'OBS Light',
       long_description = 'Command-line client and UI for the OBS.',
       author = 'Ronan Le Martret',
       author_email = 'ronan@fridu.net',
-      license = 'GPL',
+      license = 'GPLv2',
       platforms = ['Linux'],
       keywords = ['MeeGo','OBS', 'chroot', 'RPM', 'build', 'buildservice'],
       url = 'http://wiki.meego.com/OBS_Light',
       download_url = 'https://meego.gitorious.org/meego-developer-tools/obs-light',
 
-      packages = ['OBSLight', 'OBSLight.util'],
-      scripts = ['obslight-wrapper.py'],
+      packages = ['OBSLight', 'OBSLight.util', 'OBSLightGui'],
+      package_data = {'OBSLightGui' : ['ui/*.ui']},
+      scripts = ['obslight-wrapper.py', 'obslightgui-wrapper.py'],
+      provides = ['OBSLight', 'OBSLightGui'],
+      requires = ['osc (>=0.132.5)', 'xml.etree.ElementTree'],
       data_files = data_files,
       
       

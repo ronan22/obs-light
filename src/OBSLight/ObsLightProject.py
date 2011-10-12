@@ -92,10 +92,11 @@ class ObsLightProject(object):
             listFile=files
             break
         
-        status=ObsLightManager.getManager().getPackageStatus(obsserver=self.__obsserver,project=self.__projectName,package=name,repos=self.__projectTarget,arch=self.__projectArchitecture)
+        #status=ObsLightManager.getManager().getPackageStatus(obsserver=self.__obsserver,project=self.__projectName,package=name,repos=self.__projectTarget,arch=self.__projectArchitecture)
         
-        self.__packages.addPackage(name=name, specFile=specFile, listFile=listFile, status=status)
-        
+#        self.__packages.addPackage(name=name, specFile=specFile, listFile=listFile, status=status)
+        self.__packages.addPackage(name=name, specFile=specFile, listFile=listFile)
+
         
     def createChRoot(self):
         '''
