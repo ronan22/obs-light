@@ -47,8 +47,8 @@ class ObsLightMic(object):
         '''
         
         '''
-        self.__bindmounts=[]
-        self.__bindmounts.append(chrootTransfertDirectory+":"+transfertDirectory)
+        self.__bindmounts=chrootTransfertDirectory+":"+transfertDirectory+";"
+        print "self.__bindmounts",self.__bindmounts
         
         self.__chrootDirectory=chrootDirectory
         self.__findArch()
@@ -62,7 +62,9 @@ class ObsLightMic(object):
             if bindmounts in ("", None):
                 bindmounts = ""
             mounts = bindmounts.split(";")
+            print "mounts",mounts
             for mount in mounts:
+                print "-----------mount",mount
                 if mount == "":
                     continue
                 srcdst = mount.split(":")
@@ -82,7 +84,7 @@ class ObsLightMic(object):
                         chroot.pwarning("%s has existed in %s , skip it." % (srcdst[1], chrootdir))
                         continue
                 chrootmounts.append(imgcreate.BindChrootMount(srcdst[0], chrootdir, srcdst[1]))
-    
+            
             """Default bind mounts"""
             chrootmounts.append(imgcreate.BindChrootMount("/proc", chrootdir, None))
             chrootmounts.append(imgcreate.BindChrootMount("/proc/sys/fs/binfmt_misc", self.__chrootDirectory, None))
@@ -106,8 +108,10 @@ class ObsLightMic(object):
         def setup_resolv(chrootdir):
             shutil.copyfile("/etc/resolv.conf", chrootdir + "/etc/resolv.conf")
     
-        globalmounts = get_bind_mounts(self.__chrootDirectory, bindmounts)
-        bind_mount(globalmounts)
+        print "bindmounts",bindmounts    
+        
+        get_bind_mounts(self.__chrootDirectory, bindmounts)
+        bind_mount(self.__globalmounts)
         setup_resolv(self.__chrootDirectory)
         mtab = "/etc/mtab"
         dstmtab = self.__chrootDirectory + mtab
@@ -115,7 +119,7 @@ class ObsLightMic(object):
             shutil.copyfile(mtab, dstmtab)
         self.__chroot_lock = os.path.join(self.__chrootDirectory, ".chroot.lock")
         self.__chroot_lockfd = open(self.__chroot_lock, "w")
-        return globalmounts
+        return self.__globalmounts
         
     def cleanup_chrootenv(self, bindmounts = None):
         def bind_unmount(chrootmounts):
@@ -149,6 +153,18 @@ class ObsLightMic(object):
         
         if self.__qemu_emulator:
             os.unlink(self.__chrootDirectory + self.__qemu_emulator)
+        
+    def isArmArch(self,directory=None):
+        '''
+        
+        '''
+        self.__chrootDirectory=directory
+        self.__findArch()
+        if self.__qemu_emulator:
+            return True
+        else:
+            return False
+        
         
     def __findArch(self):
         '''

@@ -96,8 +96,7 @@ class ObsLightProject(object):
         #Find the status of the package
         status=ObsLightManager.getManager().getPackageStatus(obsserver=self.__obsserver,project=self.__projectName,package=name,repos=self.__projectTarget,arch=self.__projectArchitecture)
 
-#        self.__packages.addPackage(name=name, specFile=specFile, listFile=listFile, status=status)
-        self.__packages.addPackage(name=name, specFile=specFile, listFile=listFile)
+        self.__packages.addPackage(name=name, specFile=specFile, listFile=listFile, status=status)
 
         
     def createChRoot(self):

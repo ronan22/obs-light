@@ -62,7 +62,7 @@ class ObsLightChRoot(object):
         '''
         
         '''
-        ObsLightOsc.myObsLightOsc.createChRoot( chrootDir=self.__chrootDirectory,projectDir=projectDir ,repos=repos,arch=arch,specPath=specPath)
+        #ObsLightOsc.myObsLightOsc.createChRoot( chrootDir=self.__chrootDirectory,projectDir=projectDir ,repos=repos,arch=arch,specPath=specPath)
         self.initRpmDb(chrootDir=self.__chrootDirectory)
         
     
