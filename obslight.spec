@@ -17,8 +17,10 @@ Vendor: Ronan Le Martret <ronan@fridu.net>
 Url: http://wiki.meego.com/OBS_Light
 BuildRequires: osc
 BuildRequires: python-xml
-Requires: osc
+Requires: meego-packaging-tools
 Requires: python-xml
+Requires: sudo
+Requires: qemu
 %{!?python_sitelib: %define python_sitelib %(python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 %description
@@ -34,6 +36,8 @@ python setup.py build
 python setup.py install -O1 --root=%{buildroot} --prefix=%{_prefix}
 ln -s obslight-wrapper.py %{buildroot}/%{_bindir}/obslight
 ln -s obslightgui-wrapper.py %{buildroot}/%{_bindir}/obslight-gui
+echo "%users ALL=(ALL)NOPASSWD:/usr/bin/build" >> /etc/sudoers
+echo "%users ALL=(ALL)NOPASSWD:/usr/bin/mic-chroot" >> /etc/sudoers
 
 %clean
 rm -rf %{buildroot}
