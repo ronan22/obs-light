@@ -80,7 +80,7 @@ class ObsLightOsc(object):
             
         '''
         os.chdir(projectDir)
-        command="osc build --root="+chrootDir+" -x vim -x git -x strace -x iputils -x zypper --noservice --no-verify "+repos+" "+arch+" "+specPath
+        command="osc build --root="+chrootDir+" -x vim -x git -x strace -x iputils -x yum -x yum-utils -x zypper --noservice --no-verify "+repos+" "+arch+" "+specPath
         print command
         command=command.split()
         p=subprocess.call(command, stdin=open("/dev/null", "r"), close_fds=True)

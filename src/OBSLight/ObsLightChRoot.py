@@ -63,7 +63,7 @@ class ObsLightChRoot(object):
         
         '''
         #ObsLightOsc.myObsLightOsc.createChRoot( chrootDir=self.__chrootDirectory,projectDir=projectDir ,repos=repos,arch=arch,specPath=specPath)
-        self.initRpmDb(chrootDir=self.__chrootDirectory)
+        self.prepareChroot(self.__chrootDirectory)
         
     
     def __findPackageDirectory(self,package=None):
@@ -205,11 +205,29 @@ class ObsLightChRoot(object):
         command.append("git --git-dir="+path+"/.git status -u -s > "+resultFile)
         self.execCommand(command=command)
         
-    def initRpmDb(self,chrootDir=None):
+    def prepareChroot(self, chrootDir):
         '''
-        
+        Prepares the chroot :
+        - replaces some binaries by their ARM equivalent (in case chroot is ARM)
+        - configures zypper and rpm for ARM
+        - rebuilds rpm database
+        - changes some rights on /root directory
         '''
         command=[]
+
+        if ObsLightMic.myObsLightMic.isArmArch(chrootDir):
+            # If rpm and rpmbuild binaries are not ARM, replace by ARM versions
+            command.append('[ -z "$(file /bin/rpm | grep ARM)" -a -f /bin/rpm.orig-arm ]'
+                + ' && cp /bin/rpm /bin/rpm.x86 && cp /bin/rpm.orig-arm /bin/rpm')
+            command.append('[ -z "$(file /bin/rpmbuild | grep ARM)" -a -f /bin/rpmbuild.orig-arm ]'
+                + ' && cp /bin/rpm /bin/rpmbuild.x86 && cp /bin/rpmbuild.orig-arm /bin/rpm')
+            # Remove the old (broken ?) rpm database
+            command.append('rm -f /var/lib/rpm/__db*')
+            # Force zypper and rpm to use armv7hl architecture
+            command.append("echo 'arch = armv7hl' >> /etc/zypp/zypp.conf")
+            command.append("echo -n 'armv7hl-meego-linux' > /etc/rpm/platform")
+            
+        
         command.append("rpm --initdb") 
         command.append("rpm --rebuilddb")  
         command.append("chown root:users /root")  
