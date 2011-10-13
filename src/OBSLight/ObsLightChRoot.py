@@ -74,6 +74,8 @@ class ObsLightChRoot(object):
         subprocess.call(["sudo","chmod","g+r",self.__chrootDirectory+"/root"])
         subprocess.call(["sudo","chmod","g+rw",self.__chrootDirectory+"/etc"])
         
+        subprocess.call(["ls","-lah",self.__chrootDirectory+"/etc"])
+        
         self.prepareChroot(self.__chrootDirectory)
 
         

@@ -142,14 +142,37 @@ class ObsLightMic(object):
         self.__chroot_lockfd.close()
         bind_unmount(self.__globalmounts)
         if not imgcreate.my_fuser(self.__chroot_lock):
-            cleanup_resolv(self.__chrootDirectory)
+            #cleanup_resolv(self.__chrootDirectory)
+
             if os.path.exists(self.__chrootDirectory + "/etc/mtab"):
                 os.unlink(self.__chrootDirectory + "/etc/mtab")
             kill_processes(self.__chrootDirectory)
-        chroot.cleanup_mountdir(self.__chrootDirectory, bindmounts)
-        
+        self.cleanup_mountdir(self.__chrootDirectory, bindmounts)
         if self.__qemu_emulator:
             os.unlink(self.__chrootDirectory + self.__qemu_emulator)
+        
+        
+    def cleanup_mountdir(self,chrootdir, bindmounts):
+        if bindmounts == "" or bindmounts == None:
+            return
+        chrootmounts = []
+        mounts = bindmounts.split(";")
+        for mount in mounts:
+            if mount == "":
+                continue
+            srcdst = mount.split(":")
+            if len(srcdst) == 1:
+                srcdst.append("none")
+            if srcdst[1] == "" or srcdst[1] == "none":
+                srcdst[1] = srcdst[0]
+            srcdst[1] = os.path.abspath(os.path.expanduser(srcdst[1]))
+            tmpdir = chrootdir + "/" + srcdst[1]
+            if os.path.isdir(tmpdir):
+                if len(os.listdir(tmpdir)) == 0:
+                    #shutil.rmtree(tmpdir, ignore_errors = True)
+                    subprocess.call(["sudo","rm", "-r",tmpdir])
+                else:
+                    chroot.pwarning("dir %s isn't empty." % tmpdir)
         
     def isArmArch(self,directory=None):
         '''
