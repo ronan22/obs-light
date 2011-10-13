@@ -7,8 +7,6 @@ import sys
 import signal
 
 
-
-
 from OBSLight import ObsLightErr
 
 

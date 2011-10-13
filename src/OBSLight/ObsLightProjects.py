@@ -98,11 +98,11 @@ class ObsLightProjects(object):
         
         
         
-    def goToChRoot(self,project=None):
+    def goToChRoot(self,project=None,package=None):
         '''
         
         '''
-        self.__dicOBSLightProjects[project].goToChRoot()
+        self.__dicOBSLightProjects[project].goToChRoot(package=package)
         
     def addPackageSourceInChRoot(self,project=None,package=None):
         '''
@@ -110,7 +110,11 @@ class ObsLightProjects(object):
         '''
         self.__dicOBSLightProjects[project].addPackageSourceInChRoot(package=package)
         
+    def makePatch(self,project=None,package=None,patch=None):
+        '''
         
+        '''
+        self.__dicOBSLightProjects[project].makePatch(package=package,patch=patch)
         
         
         

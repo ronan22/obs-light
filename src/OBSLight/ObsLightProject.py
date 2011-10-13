@@ -31,7 +31,7 @@ class ObsLightProject(object):
             if chrootDirectory==None:
                 chrootDirectory=os.path.join(projectDirectory,"chroot")
             
-            self.__chroot=ObsLightChRoot(chrootDirectory)
+            self.__chroot=ObsLightChRoot(chrootDirectory=chrootDirectory,chrootDirTransfert=projectDirectory+"/chrootTransfert",dirTransfert="/chrootTransfert" )
             self.__packages=ObsLightPackages()
             
         else:
@@ -62,7 +62,6 @@ class ObsLightProject(object):
         aDic["projectArchitecture"]=self.__projectArchitecture
         aDic["projectTitle"]=self.__projectTitle
         aDic["description"]=self.__description
-        
         aDic["packages"]=self.__packages.getDic()
         aDic["chroot"]=self.__chroot.getDic()
         return aDic
@@ -85,6 +84,8 @@ class ObsLightProject(object):
         specFile=""
         listFile=[]
         packagePath=os.path.join(self.__projectDirectory,self.__projectName,name)
+        
+        #Find the spec file
         for root, dirs, files in os.walk(packagePath):
             for f in files:
                 if f.endswith(".spec"):
@@ -92,8 +93,9 @@ class ObsLightProject(object):
             listFile=files
             break
         
-        #status=ObsLightManager.getManager().getPackageStatus(obsserver=self.__obsserver,project=self.__projectName,package=name,repos=self.__projectTarget,arch=self.__projectArchitecture)
-        
+        #Find the status of the package
+        status=ObsLightManager.getManager().getPackageStatus(obsserver=self.__obsserver,project=self.__projectName,package=name,repos=self.__projectTarget,arch=self.__projectArchitecture)
+
 #        self.__packages.addPackage(name=name, specFile=specFile, listFile=listFile, status=status)
         self.__packages.addPackage(name=name, specFile=specFile, listFile=listFile)
 
@@ -102,35 +104,41 @@ class ObsLightProject(object):
         '''
          
         '''
-        
+        #I hope this will change, because we don't need to build a pakage to creat a chroot. 
         for pk in self.__packages.getListPackages():
             #if self.__packages.getPackageStatus(pk)=="succeeded":
             specPath=self.__packages.getSpecFile(pk)
+            projectDir=self.__packages.getOscDirectory(pk)
             break
         
-        projectDir=os.path.dirname(specPath)
         
         self.__chroot.createChRoot( projectDir=projectDir ,repos=self.__projectTarget,arch=self.__projectArchitecture,specPath=specPath)
         
         repos=os.path.join(ObsLightManager.getManager().getRepos(obsserver=self.__obsserver),self.__projectName.replace(":",":/"),self.__projectTarget)
         
-        print "repos",repos
         alias=self.__projectName
         self.__chroot.addRepos(repos=repos  ,alias=alias )
 
-    def goToChRoot(self):
+    def goToChRoot(self,package=None):
         '''
         
         '''
-        self.__chroot.goToChRoot()
+        if package!=None:
+            self.__chroot.goToChRoot(path=self.__packages.getPackageDirectory(package=package))
+        else:
+            self.__chroot.goToChRoot()
         
     def addPackageSourceInChRoot(self,package=None):
         '''
         
         '''
-        self.__chroot.addPackageSourceInChRoot(package=package)
+        specFile=os.path.basename( self.__packages.getSpecFile(package))
+        self.__chroot.addPackageSourceInChRoot(package=self.__packages.getPackage(package),specFile=specFile,arch=self.__projectArchitecture)
+
+    def makePatch(self,package=None,patch=None):
+        '''
         
-        #self.__chroot.initGitWatch(self,path=None):
+        '''
+        self.__chroot.makePatch(package=self.__packages.getPackage(package),patch=patch)
         
-        
-        
+

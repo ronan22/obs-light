@@ -26,7 +26,7 @@ class ObsLightOsc(object):
         Constructor
         '''
         self.__confFile = os.path.join(os.environ['HOME'],".oscrc")
-        aConf=conf.get_config()
+        conf.get_config()
         
     def initConf(self,api=None,user=None,passw=None,aliases=None):
         '''

@@ -70,8 +70,24 @@ class ObsLightPackages(object):
         '''
         return self.__dicOBSLightPackages[name].getSpecFile()
         
+    def getOscDirectory(self,name=None):
+        '''
+        
+        '''
+        return self.__dicOBSLightPackages[name].getOscDirectory()
         
         
+    def getPackage(self,package=None):
+        '''
+        
+        '''
+        return self.__dicOBSLightPackages[package]
+    
+    def getPackageDirectory(self,package=None):
+        '''
+        
+        '''
+        return self.__dicOBSLightPackages[package].getPackageDirectory()
         
         
         

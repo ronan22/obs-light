@@ -45,9 +45,9 @@ class ObsLightManager(object):
         '''
         add new OBS server.    
         '''
-        if self.isAlreadyInOBSServer(serverAPI):
+        if self.isAlreadyInObsServer(serverAPI):
             raise ObsLightObsServers(serverAPI + " is already a obs server")
-        elif self.isAlreadyInOBSServer(aliases):
+        elif self.isAlreadyInObsServer(aliases):
             raise ObsLightObsServers(aliases + " is already a obs server")
         elif serverAPI == None:
             raise ObsLightObsServers("Can't create a OBSServer No API")
@@ -60,7 +60,7 @@ class ObsLightManager(object):
         self.__myOBSServers.save()
         
         
-    def isAlreadyInOBSServer(self, name=""):
+    def isAlreadyInObsServer(self, name=""):
         '''
         test if name is already a OBS server name.    
         '''
@@ -74,7 +74,7 @@ class ObsLightManager(object):
         
         '''
         if projectDirectory==None:
-            projectDirectory=os.path.join(self.__workingDirectory,projectName)
+            projectDirectory=os.path.join(self.__workingDirectory,projectName.replace(":","_"))
         
         self.__myObsLightProjects.addProject(projectName=projectName, projectTitle=projectTitle, projectDirectory=projectDirectory, chrootDirectory=chrootDirectory, obsserver=obsserver , projectTarget=projectTarget, description=description, projectArchitecture=projectArchitecture)
 
@@ -125,6 +125,7 @@ class ObsLightManager(object):
         
         '''
         self.__myObsLightProjects.createChRoot( project=project )
+        self.__myObsLightProjects.save()
         
     def getRepos(self,obsserver=None):
         '''
@@ -133,19 +134,26 @@ class ObsLightManager(object):
         return self.__myOBSServers.getRepos(obsserver=obsserver)
         
         
-    def goToChRoot(self,project=None):
+    def goToChRoot(self,project=None,package=None):
         '''
         
         '''
-        self.__myObsLightProjects.goToChRoot(project=project)
+        self.__myObsLightProjects.goToChRoot(project=project,package=package)
         
     def addPackageSourceInChRoot(self,project=None,package=None):
         '''
         
         '''
         self.__myObsLightProjects.addPackageSourceInChRoot(project=project,package=package)
+        self.__myObsLightProjects.save()
         
+    def makePatch(self,project=None,package=None,patch=None):
+        '''
         
+        '''
+        self.__myObsLightProjects.makePatch(project=project,package=package,patch=patch)
+        self.__myObsLightProjects.save()
+
         
 myObsLightManager=ObsLightManager()
 
