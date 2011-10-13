@@ -48,7 +48,6 @@ class ObsLightMic(object):
         
         '''
         self.__bindmounts=chrootTransfertDirectory+":"+transfertDirectory+";"
-        print "self.__bindmounts",self.__bindmounts
         
         self.__chrootDirectory=chrootDirectory
         self.__findArch()
@@ -62,9 +61,7 @@ class ObsLightMic(object):
             if bindmounts in ("", None):
                 bindmounts = ""
             mounts = bindmounts.split(";")
-            print "mounts",mounts
             for mount in mounts:
-                print "-----------mount",mount
                 if mount == "":
                     continue
                 srcdst = mount.split(":")
@@ -83,20 +80,20 @@ class ObsLightMic(object):
                     if os.path.isdir(chrootdir + "/" + srcdst[1]):
                         chroot.pwarning("%s has existed in %s , skip it." % (srcdst[1], chrootdir))
                         continue
-                chrootmounts.append(imgcreate.BindChrootMount(srcdst[0], chrootdir, srcdst[1]))
+                chrootmounts.append(BindChrootMount(srcdst[0], chrootdir, srcdst[1]))
             
             """Default bind mounts"""
-            chrootmounts.append(imgcreate.BindChrootMount("/proc", chrootdir, None))
-            chrootmounts.append(imgcreate.BindChrootMount("/proc/sys/fs/binfmt_misc", self.__chrootDirectory, None))
-            chrootmounts.append(imgcreate.BindChrootMount("/sys", chrootdir, None))
-            chrootmounts.append(imgcreate.BindChrootMount("/dev", chrootdir, None))
-            chrootmounts.append(imgcreate.BindChrootMount("/dev/pts", chrootdir, None))
-            chrootmounts.append(imgcreate.BindChrootMount("/dev/shm", chrootdir, None))
-            chrootmounts.append(imgcreate.BindChrootMount("/var/lib/dbus", chrootdir, None))
-            chrootmounts.append(imgcreate.BindChrootMount("/var/run/dbus", chrootdir, None))
+            chrootmounts.append(BindChrootMount("/proc", chrootdir, None))
+            chrootmounts.append(BindChrootMount("/proc/sys/fs/binfmt_misc", self.__chrootDirectory, None))
+            chrootmounts.append(BindChrootMount("/sys", chrootdir, None))
+            chrootmounts.append(BindChrootMount("/dev", chrootdir, None))
+            chrootmounts.append(BindChrootMount("/dev/pts", chrootdir, None))
+            chrootmounts.append(BindChrootMount("/dev/shm", chrootdir, None))
+            chrootmounts.append(BindChrootMount("/var/lib/dbus", chrootdir, None))
+            chrootmounts.append(BindChrootMount("/var/run/dbus", chrootdir, None))
 
             for kernel in os.listdir("/lib/modules"):
-                chrootmounts.append(imgcreate.BindChrootMount("/lib/modules/" + kernel, chrootdir, None, "ro"))
+                chrootmounts.append(BindChrootMount("/lib/modules/" + kernel, chrootdir, None, "ro"))
     
             self.__globalmounts= chrootmounts
     
@@ -106,17 +103,16 @@ class ObsLightMic(object):
                 b.mount()
     
         def setup_resolv(chrootdir):
-            shutil.copyfile("/etc/resolv.conf", chrootdir + "/etc/resolv.conf")
-    
-        print "bindmounts",bindmounts    
-        
+            subprocess.call(["sudo","cp", "/etc/resolv.conf",chrootdir + "/etc/resolv.conf"])
+            
         get_bind_mounts(self.__chrootDirectory, bindmounts)
         bind_mount(self.__globalmounts)
         setup_resolv(self.__chrootDirectory)
         mtab = "/etc/mtab"
         dstmtab = self.__chrootDirectory + mtab
         if not os.path.islink(dstmtab):
-            shutil.copyfile(mtab, dstmtab)
+            subprocess.call(["sudo","cp", mtab,dstmtab])
+            
         self.__chroot_lock = os.path.join(self.__chrootDirectory, ".chroot.lock")
         self.__chroot_lockfd = open(self.__chroot_lock, "w")
         return self.__globalmounts
@@ -127,7 +123,8 @@ class ObsLightMic(object):
             for b in chrootmounts:
                 print "bind_unmount: %s -> %s" % (b.src, b.dest)
                 b.unmount()
-    
+
+                
         def cleanup_resolv(chrootdir):
             fd = open(chrootdir + "/etc/resolv.conf", "w")
             fd.truncate(0)
@@ -227,6 +224,67 @@ class ObsLightMic(object):
             raise imgcreate.CreatorError("Failed to chroot: %s" % msg)
         finally:
             self.cleanup_chrootenv(chrootdir, bindmounts)
+
+class BindChrootMount:
+    """Represents a bind mount of a directory into a chroot."""
+    def __init__(self, src, chroot, dest = None, option = None):
+        self.src = src
+        self.root = os.path.abspath(os.path.expanduser(chroot))
+        self.option = option
+
+        if not dest:
+            dest = src
+        self.dest = self.root + "/" + dest
+
+        self.mounted = False
+        self.mountcmd = imgcreate.find_binary_path("mount")
+        self.umountcmd = imgcreate.find_binary_path("umount")
+
+    def ismounted(self):
+        ret = False
+        dev_null = os.open("/dev/null", os.O_WRONLY)
+        catcmd = imgcreate.find_binary_path("cat")
+        args = [ catcmd, "/proc/mounts" ]
+        proc_mounts = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=dev_null)
+        outputs = proc_mounts.communicate()[0].strip().split("\n")
+        for line in outputs:
+            if line.split()[1] == os.path.abspath(self.dest):
+                ret = True
+                break
+        os.close(dev_null)
+        return ret
+
+    def has_chroot_instance(self):
+        lock = os.path.join(self.root, ".chroot.lock")
+        return imgcreate.my_fuser(lock)
+
+    def mount(self):
+        if self.mounted or self.ismounted():
+            return
+
+        #imgcreate.makedirs(self.dest)
+        subprocess.call(["sudo","mkdir","-p", self.dest])
+        
+        rc = subprocess.call(["sudo",self.mountcmd, "--bind", self.src, self.dest])
+        if rc != 0:
+            raise imgcreate.MountError("Bind-mounting '%s' to '%s' failed" %
+                             (self.src, self.dest))
+        if self.option:
+            rc = subprocess.call(["sudo",self.mountcmd, "--bind", "-o", "remount,%s" % self.option, self.dest])
+            if rc != 0:
+                raise imgcreate.MountError("Bind-remounting '%s' failed" % self.dest)
+        self.mounted = True
+
+    def unmount(self):
+        if self.has_chroot_instance():
+            return
+
+        if self.ismounted():
+            subprocess.call(["sudo",self.umountcmd, "-l", self.dest])
+        self.mounted = False
+
+
+
 
 
 myObsLightMic=ObsLightMic()

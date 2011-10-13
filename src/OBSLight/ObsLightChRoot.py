@@ -45,6 +45,9 @@ class ObsLightChRoot(object):
             command=command.split()
             subprocess.call(command,stdin=open("/dev/null", "r"), close_fds=True)
             
+        if not os.path.isdir(self.__chrootDirTransfert):
+            os.makedirs(self.__chrootDirTransfert)
+
 
     def getDic(self):
         '''
@@ -63,7 +66,16 @@ class ObsLightChRoot(object):
         
         '''
         #ObsLightOsc.myObsLightOsc.createChRoot( chrootDir=self.__chrootDirectory,projectDir=projectDir ,repos=repos,arch=arch,specPath=specPath)
+
+        subprocess.call(["sudo","chown","root:users",self.__chrootDirectory])
+        subprocess.call(["sudo","chown","root:users",self.__chrootDirectory+"/root"])
+        subprocess.call(["sudo","chown","root:users",self.__chrootDirectory+"/etc"])
+        subprocess.call(["sudo","chmod","g+rw",self.__chrootDirectory])
+        subprocess.call(["sudo","chmod","g+r",self.__chrootDirectory+"/root"])
+        subprocess.call(["sudo","chmod","g+rw",self.__chrootDirectory+"/etc"])
+        
         self.prepareChroot(self.__chrootDirectory)
+
         
     
     def __findPackageDirectory(self,package=None):
@@ -114,7 +126,7 @@ class ObsLightChRoot(object):
         pathScript=self.__chrootDirTransfert+"/runMe.sh"
         f=open(pathScript,'w')
         f.write("#!/bin/sh\n")
-        f.write("#Write by obslight\n")
+        f.write("# Created by obslight\n")
         for c in command:
             f.write(c+"\n") 
         f.close()
@@ -211,7 +223,6 @@ class ObsLightChRoot(object):
         - replaces some binaries by their ARM equivalent (in case chroot is ARM)
         - configures zypper and rpm for ARM
         - rebuilds rpm database
-        - changes some rights on /root directory
         '''
         command=[]
 
@@ -229,9 +240,7 @@ class ObsLightChRoot(object):
             
         
         command.append("rpm --initdb") 
-        command.append("rpm --rebuilddb")  
-        command.append("chown root:users /root")  
-        command.append("chmod g+r /root") 
+        command.append("rpm --rebuilddb")   
         self.execCommand(command=command)
 
 
