@@ -138,7 +138,6 @@ class ObsLightManager(object):
         '''
         
         '''
-        print "goToChRoot package",package
         self.__myObsLightProjects.goToChRoot(project=project,package=package)
         
     def addPackageSourceInChRoot(self,project=None,package=None):

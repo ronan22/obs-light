@@ -112,7 +112,7 @@ class ObsLightSpec:
         '''
         
         '''
-        if path!=None:
+        if path==None:
             path=self.__path
         f=open(path,'w')
         

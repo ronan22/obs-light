@@ -166,9 +166,8 @@ class ObsLightChRoot(object):
         f=open(pathScript,'w')
         f.write("#!/bin/sh\n")
         f.write("#Write by obslight\n")
-        print "path",path
         if path!=None:
-            f.write("cd path\n")
+            f.write("cd "+path+"\n")
         f.write("exec bash\n") 
         f.close()
         
@@ -196,7 +195,7 @@ class ObsLightChRoot(object):
         '''
         
         '''
-        patchFile=os.tmpnam()
+        patchFile=patch
         pathPackage=package.getPackageDirectory()
         pathOscPackage=package.getOscDirectory()
         command=[]

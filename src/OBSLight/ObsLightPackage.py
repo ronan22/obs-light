@@ -84,8 +84,8 @@ class ObsLightPackage(object):
         '''
     
         '''
-        self.__specFile.addpatch(file)
-        self.__specFile.save()
+        self.__mySpecFile.addpatch(file)
+        self.__mySpecFile.save()
         self.addFile(file)
     
     
