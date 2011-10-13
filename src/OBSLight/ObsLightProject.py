@@ -122,6 +122,8 @@ class ObsLightProject(object):
         '''
         
         '''
+        print "project goToChRoot package",package
+        print "project goToChRoot self.__packages.getPackageDirectory(package=package)",self.__packages.getPackageDirectory(package=package)
         if package!=None:
             self.__chroot.goToChRoot(path=self.__packages.getPackageDirectory(package=package))
         else:

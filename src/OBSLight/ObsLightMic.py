@@ -1,8 +1,20 @@
-'''
-Created on 4 oct. 2011
+#
+#
+# Copyright 2010, Intel Inc.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Library General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
-@author: meego
-'''
 import os 
 import subprocess
 import shlex
@@ -307,7 +319,49 @@ class BindChrootMount:
         self.mounted = False
 
 
-
+    def setup_qemu_emulator(self,rootdir, arch):
+        # mount binfmt_misc if it doesn't exist
+        if not os.path.exists("/proc/sys/fs/binfmt_misc"):
+            modprobecmd = imgcreate.find_binary_path("modprobe")
+            subprocess.call([modprobecmd, "binfmt_misc"])
+        if not os.path.exists("/proc/sys/fs/binfmt_misc/register"):
+            mountcmd = imgcreate.find_binary_path("mount")
+            subprocess.call([mountcmd, "-t", "binfmt_misc", "none", "/proc/sys/fs/binfmt_misc"])
+    
+        # qemu_emulator is a special case, we can't use find_binary_path
+        # qemu emulator should be a statically-linked executable file
+        qemu_emulator = "/usr/bin/qemu-arm"
+        if not os.path.exists(qemu_emulator) or not imgcreate.is_statically_linked(qemu_emulator):
+            qemu_emulator = "/usr/bin/qemu-arm-static"
+        if not os.path.exists(qemu_emulator):
+            raise imgcreate.CreatorError("Please install a statically-linked qemu-arm")
+        if not os.path.exists(rootdir + "/usr/bin"):
+            subprocess.call(["sudo","mkdir","-p", rootdir + "/usr/bin"])
+        subprocess.call(["sudo","cp",qemu_emulator, rootdir + qemu_emulator])
+        # disable selinux, selinux will block qemu emulator to run
+        #if os.path.exists("/usr/sbin/setenforce"):
+        #   subprocess.call(["/usr/sbin/setenforce", "0"])
+    
+        node = "/proc/sys/fs/binfmt_misc/arm"
+        if imgcreate.is_statically_linked(qemu_emulator) and os.path.exists(node):
+            return qemu_emulator
+    
+        # unregister it if it has been registered and is a dynamically-linked executable
+        if not imgcreate.is_statically_linked(qemu_emulator) and os.path.exists(node):
+            qemu_unregister_string = "-1\n"
+            fd = open("/proc/sys/fs/binfmt_misc/arm", "w")
+            fd.write(qemu_unregister_string)
+            fd.close()
+    
+        #TODO
+        # register qemu emulator for interpreting other arch executable file
+        if not os.path.exists(node):
+            qemu_arm_string = ":arm:M::\\x7fELF\\x01\\x01\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x02\\x00\\x28\\x00:\\xff\\xff\\xff\\xff\\xff\\xff\\xff\\x00\\xff\\xff\\xff\\xff\\xff\\xff\\xff\\xff\\xfa\\xff\\xff\\xff:%s:\n" % qemu_emulator
+            fd = open("/proc/sys/fs/binfmt_misc/register", "w")
+            fd.write(qemu_arm_string)
+            fd.close()
+    
+        return qemu_emulator
 
 
 myObsLightMic=ObsLightMic()

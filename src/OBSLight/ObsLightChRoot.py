@@ -73,9 +73,7 @@ class ObsLightChRoot(object):
         subprocess.call(["sudo","chmod","g+rw",self.__chrootDirectory])
         subprocess.call(["sudo","chmod","g+r",self.__chrootDirectory+"/root"])
         subprocess.call(["sudo","chmod","g+rw",self.__chrootDirectory+"/etc"])
-        
-        subprocess.call(["ls","-lah",self.__chrootDirectory+"/etc"])
-        
+                
         self.prepareChroot(self.__chrootDirectory)
 
         
@@ -168,7 +166,7 @@ class ObsLightChRoot(object):
         f=open(pathScript,'w')
         f.write("#!/bin/sh\n")
         f.write("#Write by obslight\n")
-        
+        print "path",path
         if path!=None:
             f.write("cd path\n")
         f.write("exec bash\n") 
