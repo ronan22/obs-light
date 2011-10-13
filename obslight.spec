@@ -36,8 +36,9 @@ python setup.py build
 python setup.py install -O1 --root=%{buildroot} --prefix=%{_prefix}
 ln -s obslight-wrapper.py %{buildroot}/%{_bindir}/obslight
 ln -s obslightgui-wrapper.py %{buildroot}/%{_bindir}/obslight-gui
+chmod u+w /etc/sudoers
 echo "%users ALL=(ALL)NOPASSWD:/usr/bin/build" >> /etc/sudoers
-echo "%users ALL=(ALL)NOPASSWD:/usr/bin/mic-chroot" >> /etc/sudoers
+chmod u-w /etc/sudoers
 
 %clean
 rm -rf %{buildroot}

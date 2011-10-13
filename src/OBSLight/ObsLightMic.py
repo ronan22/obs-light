@@ -143,10 +143,10 @@ class ObsLightMic(object):
             fd.close()
     
         def kill_processes(chrootdir):
-            for file in glob.glob("/proc/*/root"):
+            for procfile in glob.glob("/proc/*/root"):
                 try:
-                    if os.readlink(file) == chrootdir:
-                        pid = int(file.split("/")[2])
+                    if os.readlink(procfile) == chrootdir:
+                        pid = int(procfile.split("/")[2])
                         os.kill(pid, 9)
                 except:
                     pass
@@ -161,13 +161,13 @@ class ObsLightMic(object):
             kill_processes(self.__chrootDirectory)
         self.cleanup_mountdir(self.__chrootDirectory, bindmounts)
         if self.__qemu_emulator:
-            os.unlink(self.__chrootDirectory + self.__qemu_emulator)
+            subprocess.call(["sudo", "rm", self.__chrootDirectory + self.__qemu_emulator])
         
         
     def cleanup_mountdir(self,chrootdir, bindmounts):
         if bindmounts == "" or bindmounts == None:
             return
-        chrootmounts = []
+
         mounts = bindmounts.split(";")
         for mount in mounts:
             if mount == "":
@@ -224,7 +224,7 @@ class ObsLightMic(object):
     
             for i in range(len(fileOutput)):
                 if fileOutput[i].find("ARM") > 0:
-                    qemu_emulator = imgcreate.setup_qemu_emulator(self.__chrootDirectory, "arm")
+                    qemu_emulator = self.setup_qemu_emulator(self.__chrootDirectory, "arm")
                     architecture_found = True
                     break
                 if fileOutput[i].find("Intel") > 0:
@@ -259,6 +259,51 @@ class ObsLightMic(object):
             raise imgcreate.CreatorError("Failed to chroot: %s" % msg)
         finally:
             self.cleanup_chrootenv(chrootdir, bindmounts)
+            
+    def setup_qemu_emulator(self,rootdir, arch):
+        # mount binfmt_misc if it doesn't exist
+        if not os.path.exists("/proc/sys/fs/binfmt_misc"):
+            modprobecmd = imgcreate.find_binary_path("modprobe")
+            subprocess.call([modprobecmd, "binfmt_misc"])
+        if not os.path.exists("/proc/sys/fs/binfmt_misc/register"):
+            mountcmd = imgcreate.find_binary_path("mount")
+            subprocess.call([mountcmd, "-t", "binfmt_misc", "none", "/proc/sys/fs/binfmt_misc"])
+    
+        # qemu_emulator is a special case, we can't use find_binary_path
+        # qemu emulator should be a statically-linked executable file
+        qemu_emulator = "/usr/bin/qemu-arm"
+        if not os.path.exists(qemu_emulator) or not imgcreate.is_statically_linked(qemu_emulator):
+            qemu_emulator = "/usr/bin/qemu-arm-static"
+        if not os.path.exists(qemu_emulator):
+            raise imgcreate.CreatorError("Please install a statically-linked qemu-arm")
+        if not os.path.exists(rootdir + "/usr/bin"):
+            subprocess.call(["sudo","mkdir","-p", rootdir + "/usr/bin"])
+        subprocess.call(["sudo","cp",qemu_emulator, rootdir + qemu_emulator])
+        # disable selinux, selinux will block qemu emulator to run
+        #if os.path.exists("/usr/sbin/setenforce"):
+        #   subprocess.call(["/usr/sbin/setenforce", "0"])
+    
+        node = "/proc/sys/fs/binfmt_misc/arm"
+        if imgcreate.is_statically_linked(qemu_emulator) and os.path.exists(node):
+            return qemu_emulator
+    
+        # unregister it if it has been registered and is a dynamically-linked executable
+        if not imgcreate.is_statically_linked(qemu_emulator) and os.path.exists(node):
+            qemu_unregister_string = "-1\n"
+            fd = open("/proc/sys/fs/binfmt_misc/arm", "w")
+            fd.write(qemu_unregister_string)
+            fd.close()
+    
+        #TODO
+        # register qemu emulator for interpreting other arch executable file
+        if not os.path.exists(node):
+            qemu_arm_string = ":arm:M::\\x7fELF\\x01\\x01\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x02\\x00\\x28\\x00:\\xff\\xff\\xff\\xff\\xff\\xff\\xff\\x00\\xff\\xff\\xff\\xff\\xff\\xff\\xff\\xff\\xfa\\xff\\xff\\xff:%s:\n" % qemu_emulator
+            fd = open("/proc/sys/fs/binfmt_misc/register", "w")
+            fd.write(qemu_arm_string)
+            fd.close()
+    
+        return qemu_emulator
+
 
 class BindChrootMount:
     """Represents a bind mount of a directory into a chroot."""
@@ -319,52 +364,5 @@ class BindChrootMount:
         self.mounted = False
 
 
-    def setup_qemu_emulator(self,rootdir, arch):
-        # mount binfmt_misc if it doesn't exist
-        if not os.path.exists("/proc/sys/fs/binfmt_misc"):
-            modprobecmd = imgcreate.find_binary_path("modprobe")
-            subprocess.call([modprobecmd, "binfmt_misc"])
-        if not os.path.exists("/proc/sys/fs/binfmt_misc/register"):
-            mountcmd = imgcreate.find_binary_path("mount")
-            subprocess.call([mountcmd, "-t", "binfmt_misc", "none", "/proc/sys/fs/binfmt_misc"])
-    
-        # qemu_emulator is a special case, we can't use find_binary_path
-        # qemu emulator should be a statically-linked executable file
-        qemu_emulator = "/usr/bin/qemu-arm"
-        if not os.path.exists(qemu_emulator) or not imgcreate.is_statically_linked(qemu_emulator):
-            qemu_emulator = "/usr/bin/qemu-arm-static"
-        if not os.path.exists(qemu_emulator):
-            raise imgcreate.CreatorError("Please install a statically-linked qemu-arm")
-        if not os.path.exists(rootdir + "/usr/bin"):
-            subprocess.call(["sudo","mkdir","-p", rootdir + "/usr/bin"])
-        subprocess.call(["sudo","cp",qemu_emulator, rootdir + qemu_emulator])
-        # disable selinux, selinux will block qemu emulator to run
-        #if os.path.exists("/usr/sbin/setenforce"):
-        #   subprocess.call(["/usr/sbin/setenforce", "0"])
-    
-        node = "/proc/sys/fs/binfmt_misc/arm"
-        if imgcreate.is_statically_linked(qemu_emulator) and os.path.exists(node):
-            return qemu_emulator
-    
-        # unregister it if it has been registered and is a dynamically-linked executable
-        if not imgcreate.is_statically_linked(qemu_emulator) and os.path.exists(node):
-            qemu_unregister_string = "-1\n"
-            fd = open("/proc/sys/fs/binfmt_misc/arm", "w")
-            fd.write(qemu_unregister_string)
-            fd.close()
-    
-        #TODO
-        # register qemu emulator for interpreting other arch executable file
-        if not os.path.exists(node):
-            qemu_arm_string = ":arm:M::\\x7fELF\\x01\\x01\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x02\\x00\\x28\\x00:\\xff\\xff\\xff\\xff\\xff\\xff\\xff\\x00\\xff\\xff\\xff\\xff\\xff\\xff\\xff\\xff\\xfa\\xff\\xff\\xff:%s:\n" % qemu_emulator
-            fd = open("/proc/sys/fs/binfmt_misc/register", "w")
-            fd.write(qemu_arm_string)
-            fd.close()
-    
-        return qemu_emulator
-
 
 myObsLightMic=ObsLightMic()
-        
-        
-        
