@@ -66,6 +66,11 @@ class ObsLightProject(object):
         aDic["chroot"]=self.__chroot.getDic()
         return aDic
         
+    def getObsServer(self):
+        '''
+        
+        '''
+        return self.__obsserver
         
     def getListPackage(self,local=0):
         '''
@@ -86,6 +91,7 @@ class ObsLightProject(object):
         packagePath=os.path.join(self.__projectDirectory,self.__projectName,name)
         
         #Find the spec file
+        #TO DO can be doing cleaner
         for root, dirs, files in os.walk(packagePath):
             for f in files:
                 if f.endswith(".spec"):

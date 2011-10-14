@@ -117,7 +117,11 @@ class ObsLightProjects(object):
         self.__dicOBSLightProjects[project].makePatch(package=package,patch=patch)
         
         
+    def getObsServer(self,name=None):
+        '''
         
+        '''
+        return  self.__dicOBSLightProjects[name].getObsServer()
         
         
         

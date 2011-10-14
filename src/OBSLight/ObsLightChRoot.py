@@ -221,7 +221,7 @@ class ObsLightChRoot(object):
         '''
 
         command=[]
-        command.append("git --git-dir="+path+"/.git status -u -s > "+resultFile)
+        command.append("git --git-dir="+path+"/.git --work-tree="+path+" status -u -s > "+resultFile)
         self.execCommand(command=command)
         
     def prepareChroot(self, chrootDir):
