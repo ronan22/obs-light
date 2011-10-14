@@ -5,13 +5,14 @@ Created on 30 sept. 2011
 '''
 
 import os
+import platform
+import shlex
+import shutil
+import subprocess
 
 import ObsLightOsc
 import ObsLightMic 
-import subprocess
-import shlex
 
-import shutil
 
 class ObsLightChRoot(object):
     '''
@@ -42,6 +43,7 @@ class ObsLightChRoot(object):
         if not os.path.isdir(self.__chrootDirectory):
             os.makedirs(self.__chrootDirectory)
             command="sudo chown root:root "+self.__chrootDirectory
+            
             command=command.split()
             subprocess.call(command,stdin=open("/dev/null", "r"), close_fds=True)
             
@@ -134,8 +136,12 @@ class ObsLightChRoot(object):
         os.chmod(pathScript, 0654)
         
         aCommand="sudo chroot "+self.__chrootDirectory+" "+self.__dirTransfert+"/runMe.sh"
+        
+        if platform.machine()=='x86_64':
+            aCommand="linux32 "+aCommand
+        
         aCommand= shlex.split(aCommand)
-        print "aCommand",aCommand
+        
         subprocess.call(aCommand,stdin=open(os.devnull, 'rw') )
 
     def addRepos(self,repos=None,alias=None):
@@ -174,9 +180,11 @@ class ObsLightChRoot(object):
         os.chmod(pathScript, 0654)
         
         command="sudo chroot "+self.__chrootDirectory+" "+self.__dirTransfert+"/runMe.sh"
+        if platform.machine()=='x86_64':
+            command="linux32 "+command
+        
         command= shlex.split(command)
         
-        print "command",command
         subprocess.call(command )
         
         
@@ -199,7 +207,7 @@ class ObsLightChRoot(object):
         pathPackage=package.getPackageDirectory()
         pathOscPackage=package.getOscDirectory()
         command=[]
-        command.append("git --git-dir="+pathPackage+"/.git --work-tree="+pathPackage+"diff -p > "+self.__dirTransfert+"/"+patchFile)
+        command.append("git --git-dir="+pathPackage+"/.git --work-tree="+pathPackage+" diff -p > "+self.__dirTransfert+"/"+patchFile)
         self.execCommand(command=command)
         shutil.copy(self.__chrootDirTransfert+"/"+patchFile, pathOscPackage+"/"+patch)
         package.addPatch(file=patch)

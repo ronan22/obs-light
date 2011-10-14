@@ -72,7 +72,7 @@ class ObsServers(object):
         self.__dicOBSLightServers[aOBSServer.getName()]=aOBSServer
         
         
-    def addOBSServer(self, serverWeb="", serverAPI=None, serverRepos="", aliases=None, user=None, passw=None):
+    def addObsServer(self, serverWeb="", serverAPI=None, serverRepos="", aliases=None, user=None, passw=None):
         '''
         
         '''

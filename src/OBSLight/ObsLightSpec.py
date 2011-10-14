@@ -96,13 +96,14 @@ class ObsLightSpec:
                     print IndexError
                     
 
-        patch_Val="Patch"+str(patchID)
-        
-        self.__spectDico[self.__introduction_section].append(patch_Val+": "+file+"\n")
+        patch_Val_Prep="Patch"+str(patchID)
+        patch_Val_Build="%patch"+str(patchID)
+
+        self.__spectDico[self.__introduction_section].append(patch_Val_Prep+": "+file+"\n")
         
         #You can have not %prep section
         if self.__prepFlag in self.__spectDico.keys():
-            self.__spectDico[self.__prepFlag].append("%"+patch_Val+" -p1\n")
+            self.__spectDico[self.__prepFlag].append(patch_Val_Build+" -p1\n")
             
         return None
         

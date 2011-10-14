@@ -45,27 +45,6 @@ def run(prg):
         return 1
     
 
-    except ObsLightErr.XMLExistenceError,e:
-        print >>sys.stderr, ' XML Existence Error: ', e.msg
-        return 1
-    
-    except ObsLightErr.XMLEmptyFileError,e:
-        print >>sys.stderr, ' XML Empty File: ', e.msg
-        return 1
-    
-    except ObsLightErr.XMLParseFileError,e:
-        print >>sys.stderr, ' XML Parse File: ', e.msg
-        return 1
-    
-    except ObsLightErr.XMLDictToXMLError,e:
-        print >>sys.stderr, ' XML conversion Dict to XML: ', e.msg
-        return 1
-        
-    except ObsLightErr.XMLModDictError,e:
-        print >>sys.stderr, ' Modification of a dictionary: ', e.msg
-        return 1
-    
-
     except ObsLightErr.UpDateRepositoryError,e:
         print >>sys.stderr, ' Update of a Repository: ', e.msg
         return 1
