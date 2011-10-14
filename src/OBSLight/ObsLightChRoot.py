@@ -62,7 +62,6 @@ class ObsLightChRoot(object):
         saveconfigPackages["dirTransfert"]=self.__dirTransfert
         return saveconfigPackages
     
-    
     def createChRoot(self, projectDir=None ,repos=None,arch=None,specPath=None):
         '''
         
@@ -78,8 +77,6 @@ class ObsLightChRoot(object):
                 
         self.prepareChroot(self.__chrootDirectory)
 
-        
-    
     def __findPackageDirectory(self,package=None):
         '''
         
@@ -96,8 +93,6 @@ class ObsLightChRoot(object):
                 return self.__chrootrpmbuildDirectory+"/BUILD/"+res
         return None
 
-        
-    
     def addPackageSourceInChRoot(self,package=None,specFile=None,arch=None):
         '''
         
@@ -116,8 +111,6 @@ class ObsLightChRoot(object):
         package.setDirectoryBuild(packageDirectory)
         self.initGitWatch(path=packageDirectory)
         
-
-
     def execCommand(self,command=None):
         '''
         
@@ -141,7 +134,6 @@ class ObsLightChRoot(object):
             aCommand="linux32 "+aCommand
         
         aCommand= shlex.split(aCommand)
-        
         subprocess.call(aCommand,stdin=open(os.devnull, 'rw') )
 
     def addRepos(self,repos=None,alias=None):
@@ -187,7 +179,6 @@ class ObsLightChRoot(object):
         
         subprocess.call(command )
         
-        
     def initGitWatch(self,path=None):
         '''
         
@@ -197,7 +188,6 @@ class ObsLightChRoot(object):
         command.append("git --work-tree="+path+" --git-dir="+path+"/.git add "+path+"/\*")
         command.append("git --git-dir="+path+"/.git commit -m \"first commit\"")
         self.execCommand(command=command)
-        
         
     def makePatch(self,package=None,patch=None):
         '''
@@ -211,18 +201,64 @@ class ObsLightChRoot(object):
         self.execCommand(command=command)
         shutil.copy(self.__chrootDirTransfert+"/"+patchFile, pathOscPackage+"/"+patch)
         package.addPatch(file=patch)
+        self.__getAddRemoveFiles(chrootDir=None,package=package)
+        package.save()
         
-        
-        
-        
-    def getAddRemoveFiles(self,chrootDir=None,path=None,resultFile=None):
+    def __getAddRemoveFiles(self,chrootDir=None,package=None):
         '''
         
         '''
-
+        resultFile="resultGitStatus"+package.getName()+".log"
+        pathPackage=package.getPackageDirectory()
+        pathOscPackage=package.getOscDirectory()
         command=[]
-        command.append("git --git-dir="+path+"/.git --work-tree="+path+" status -u -s > "+resultFile)
+        command.append("git --git-dir="+pathPackage+"/.git --work-tree="+pathPackage+" status -u -s > "+self.__dirTransfert+"/"+resultFile)
         self.execCommand(command=command)
+        
+        result=[]
+        f=open(self.__chrootDirTransfert+"/"+resultFile,'r')
+        for line in f:
+            result.append(line)
+        f.close()
+        
+        filesToAdd=[]
+        filesToDel=[]
+        
+        for res in result:
+            if " " in res:
+                if res[0]==" ":
+                    res=res[1:]
+                
+                if " " in res:
+                    index=res.index(" ")
+                    tag=res[:index]
+                    file=res[index+1:-1]
+                    if tag=="??":
+                        filesToAdd.append(file)
+                    elif tag=="D":
+                        filesToDel.append(file)
+        
+        command=[]
+        repoListFilesToAdd=[]
+        for file in filesToAdd:
+            baseFile=os.path.basename(file)
+            command.append("cp "+os.path.join(pathPackage,file)+" "+self.__dirTransfert)
+            repoListFilesToAdd.append([file,baseFile])
+            
+        self.execCommand(command=command)
+        
+        for fileDef in repoListFilesToAdd:
+            [file,baseFile]=fileDef
+            shutil.copy(self.__chrootDirTransfert+"/"+baseFile, pathOscPackage+"/"+baseFile)
+            package.addFileToSpec(baseFile=baseFile,file=file)
+            
+            
+        for fileDef in filesToDel:
+            package.delFileToSpec(file=fileDef)
+        
+        package.save()
+        
+        
         
     def prepareChroot(self, chrootDir):
         '''

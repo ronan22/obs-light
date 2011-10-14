@@ -85,7 +85,6 @@ class ObsLightPackage(object):
     
         '''
         self.__mySpecFile.addpatch(file)
-        self.__mySpecFile.save()
         self.addFile(file)
     
     
@@ -95,6 +94,25 @@ class ObsLightPackage(object):
         '''
         self.__listFile.append(file)
     
+    
+    def save(self):
+        '''
+        
+        '''
+        self.__mySpecFile.save()
+        
+    
+    def addFileToSpec(self,baseFile=None,file=None):
+        '''
+        
+        '''
+        return self.__mySpecFile.addFile(baseFile=baseFile,file=file)
+            
+    def delFileToSpec(self,file=None):
+        '''
+        
+        '''    
+        return self.__mySpecFile.delFile(file=file)
     
     
     

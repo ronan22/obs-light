@@ -234,7 +234,7 @@ class ObsLightManager(object):
         '''
         if project==None:
             raise OBSLightProjectsError(" no name for the project")
-        elif package in self.getListPackageFromLocalProject(name=project, local=1):
+        elif not package in self.getListPackageFromLocalProject(name=project, local=1):
             raise OBSLightProjectsError(package+" not in project")
         
         self.__myObsLightProjects.goToChRoot(project=project,package=package)

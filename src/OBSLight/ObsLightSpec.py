@@ -107,8 +107,53 @@ class ObsLightSpec:
             
         return None
         
-    
+    def addFile(self,baseFile=None,file=None):
+        '''
         
+        '''
+        #init the id of the Source
+        SourceID=0
+        for line in self.__spectDico[self.__introduction_section]:
+            #a regular expression sould be better
+            if line.startswith("Source") and (":" in line):
+                try:
+                    if file == self.__cleanline(line.split(":")[1]):
+                        return None
+                    
+                    id=line.split(":")[0].replace("Source", "")
+                    #the id can be null
+                    if id!="":
+                        SourceID=int(id)+1
+                            
+                except ValueError:
+                    print  ValueError
+                except IndexError:
+                    print IndexError
+                    
+
+        source_Val_Prep="Source"+str(SourceID)
+        source_Val_Build="SOURCE"+str(SourceID)
+
+        self.__spectDico[self.__introduction_section].append(source_Val_Prep+": "+baseFile+"\n")
+        
+        #You can have not %prep section
+        if self.__prepFlag in self.__spectDico.keys():
+            self.__spectDico[self.__prepFlag].append("cp %{"+source_Val_Build+"} "+file+"\n")
+            
+        return None
+            
+    def delFile(self,file=None):
+        '''
+        
+        '''    
+        if self.__prepFlag in self.__spectDico.keys():
+            for line in self.__spectDico[self.__prepFlag]:
+                if file in line:
+                    return None
+            self.__spectDico[self.__prepFlag].append("rm "+file+"\n")
+        
+        return None
+    
     def save(self,path=None):
         '''
         
