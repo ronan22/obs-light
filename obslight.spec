@@ -38,15 +38,26 @@ python setup.py build
 python setup.py install -O1 --root=%{buildroot} --prefix=%{_prefix}
 ln -s obslight-wrapper.py %{buildroot}/%{_bindir}/obslight
 ln -s obslightgui-wrapper.py %{buildroot}/%{_bindir}/obslight-gui
-chmod u+w /etc/sudoers
-echo "%users ALL=(ALL)NOPASSWD:/usr/bin/build" >> /etc/sudoers
-chmod u-w /etc/sudoers
+
+%post
+if [ ! -f "%{_sysconfdir}/sudoers.tmp" ]; then
+  touch %{_sysconfdir}/sudoers.tmp
+  [ -f %{_sysconfdir}/sudoers ] && cp %{_sysconfdir}/sudoers %{_sysconfdir}/sudoers.new
+  echo "%users ALL=(ALL)NOPASSWD:/usr/bin/build" >> %{_sysconfdir}/sudoers.new
+#  %{_sbindir}/visudo -c -f %{_sysconfdir}/sudoers.new
+#  [ "$?" -eq "0" ] && cp %{_sysconfdir}/sudoers.new %{_sysconfdir}/sudoers
+  cp %{_sysconfdir}/sudoers.new %{_sysconfdir}/sudoers
+  rm %{_sysconfdir}/sudoers.tmp
+fi
 
 %clean
 rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
-%doc AUTHORS README TODO NEWS
+%doc README
 %{_bindir}/obslight*
+%{_bindir}/obs2obscopy
+%{_bindir}/obstag
+%{_bindir}/obsextractgroups
 %{python_sitelib}/*
