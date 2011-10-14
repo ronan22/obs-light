@@ -238,8 +238,9 @@ class ObsLightChRoot(object):
             command.append("echo -n 'armv7hl-meego-linux' > /etc/rpm/platform")
             
         
-        command.append("rpm --initdb") 
-        command.append("rpm --rebuilddb")   
+        command.append("rpm --initdb")
+        command.append("rpm --rebuilddb")
+        command.append('echo "alias ll=\"ls -lh\"\nalias la=\"ls -Alh\"" >> /etc/profile.d/alias.sh')
         self.execCommand(command=command)
 
 

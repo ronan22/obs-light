@@ -15,8 +15,10 @@ Prefix: %{_prefix}
 BuildArch: noarch
 Vendor: Ronan Le Martret <ronan@fridu.net>
 Url: http://wiki.meego.com/OBS_Light
+BuildRequires: python
 BuildRequires: osc
 BuildRequires: python-xml
+Requires: python
 Requires: meego-packaging-tools
 Requires: python-xml
 Requires: sudo
