@@ -13,10 +13,10 @@ if not loc:
 sys.setdefaultencoding(loc)
 del sys.setdefaultencoding
 
-from OBSLight import commandline
-from OBSLight import babysitter
+from ObsLight import commandline
+from ObsLight import babysitter
 
-obslightcli = commandline.OBSLight()
+obslightcli = commandline.ObsLight()
 
 r = babysitter.run(obslightcli.main)
 sys.exit(r)

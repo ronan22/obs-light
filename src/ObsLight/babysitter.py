@@ -7,7 +7,7 @@ import sys
 import signal
 
 
-from OBSLight import ObsLightErr
+from ObsLight import ObsLightErr
 
 
 def catchterm(*args):
