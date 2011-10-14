@@ -7,6 +7,7 @@ import sys
 import signal
 
 
+<<<<<<< HEAD
 
 
 from OBSLight import obslighterr
@@ -14,6 +15,13 @@ from OBSLight import obslighterr
 
 def catchterm(*args):
     raise obslighterr.SignalInterrupt
+=======
+from OBSLight import ObsLightErr
+
+
+def catchterm(*args):
+    raise ObsLightErr.SignalInterrupt
+>>>>>>> 0f14dab9ce584c8b24463b4d79e1cbba05d90668
 
 for name in 'SIGBREAK', 'SIGHUP', 'SIGTERM':
     num = getattr(signal, name, None)
@@ -26,7 +34,11 @@ def run(prg):
         except:
             raise
 
+<<<<<<< HEAD
     except obslighterr.SignalInterrupt:
+=======
+    except ObsLightErr.SignalInterrupt:
+>>>>>>> 0f14dab9ce584c8b24463b4d79e1cbba05d90668
         print >>sys.stderr, 'killed!'
         return 1
 
@@ -34,6 +46,7 @@ def run(prg):
         print >>sys.stderr, 'interrupted!'
         return 1
     
+<<<<<<< HEAD
     except obslighterr.ArgError,e:
         print >>sys.stderr, ' Arg Stop:', e.msg
         return 1
@@ -78,6 +91,29 @@ def run(prg):
         
         
     
+=======
+    except ObsLightErr.ArgError,e:
+        print >>sys.stderr, ' Arg Stop:', e.msg
+        return 1
+    
+    except ObsLightErr.ManagerError,e:
+        print >>sys.stderr, ' Manager Stop:', e.msg
+        return 1
+    
+    except ObsLightErr.OBSLightProjectsError,e:
+        print >>sys.stderr, ' Projects Stop:', e.msg
+        return 1
+    
+
+    except ObsLightErr.UpDateRepositoryError,e:
+        print >>sys.stderr, ' Update of a Repository: ', e.msg
+        return 1
+        
+    except ObsLightErr.ObsLightObsServers,e:
+        print >>sys.stderr, '', e.msg
+        return 1
+        
+>>>>>>> 0f14dab9ce584c8b24463b4d79e1cbba05d90668
         
 
 
