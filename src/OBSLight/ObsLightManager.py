@@ -46,9 +46,9 @@ class ObsLightManager(object):
         '''
         add new OBS server.    
         '''
-        if self.isAnObsServer(serverAPI):
+        if self.isAObsServer(serverAPI):
             raise ObsLightObsServers(serverAPI + " is already a obs server")
-        elif self.isAnObsServer(aliases):
+        elif self.isAObsServer(aliases):
             raise ObsLightObsServers(aliases + " is already a obs server")
         elif serverAPI == None:
             raise ObsLightObsServers("Can't create a OBSServer No API")
@@ -61,7 +61,7 @@ class ObsLightManager(object):
         self.__myOBSServers.save()
         
         
-    def isAnObsServer(self, name=""):
+    def isAObsServer(self, name=""):
         '''
         test if name is already a OBS server name.    
         '''
@@ -78,9 +78,9 @@ class ObsLightManager(object):
             projectDirectory=os.path.join(self.__workingDirectory,projectName.replace(":","_"))
         
         
-        if self.isAnObsProject(projectName):
+        if self.isALocalProject(projectName):
             raise OBSLightProjectsError(projectName + " is already a obs project")
-        elif self.isAnObsProject(projectTitle):
+        elif self.isALocalProject(projectTitle):
             raise OBSLightProjectsError(projectTitle + " is already a obs project")
         
                 
@@ -88,7 +88,7 @@ class ObsLightManager(object):
 
         self.__myObsLightProjects.save()
 
-    def isAnObsProject(self,name=""):
+    def isALocalProject(self,name=""):
         '''
         test if name is already a OBS Project name.    
         '''
@@ -112,13 +112,13 @@ class ObsLightManager(object):
         '''
         if name==None:
             raise OBSLightProjectsError("not name for the project")
-        elif not self.isAnObsProject(name):
+        elif not self.isALocalProject(name):
             raise OBSLightProjectsError(name + " is not a obs project")
         
         return self.__myObsLightProjects.getListPackage(name=name,local=local)
         
         
-    def getListPackageListFromObsProject(self,obsserver=None,project=None):
+    def getListPackageFromObsProject(self,obsserver=None,project=None):
         '''
         return the list of the package of a project of a OBS server
         '''
@@ -136,26 +136,66 @@ class ObsLightManager(object):
         '''
         return the list of the project of a OBS server
         '''
-        if self.isAnObsServer(server):
+        if server==None:
             raise ObsLightObsServers(" no name for the obs server")
+        elif not self.isAObsServer(server):
+            raise ObsLightObsServers(server+" is not the obs server")
+
         return self.__myOBSServers.getListProject(server=server)
         
     def CheckoutPackage(self,obsserver=None,project=None,package=None,directory=None):
         '''
-        
+        Check out a package from a obs server to a local directory
         '''
+        if obsserver==None:
+            raise ObsLightObsServers(" no name for the obs server")
+        elif project==None:
+            raise ObsLightObsServers(" no name for the project of the obs server")
+        elif package==None:
+            raise ObsLightObsServers(" no name for the package of the obs server")
+        elif directory==None:
+            raise OBSLightProjectsError(" no name for the directory")
+        elif not self.isAObsServer(name=obsserver):
+            raise ObsLightObsServers(obsserver+" is not the obs server")
+        elif not project in self.getListProjectInObsServer(server=obsserver):
+            raise ObsLightObsServers(" no name for the package of the obs server")
+        elif not package in self.getListPackageFromObsProject(obsserver=obsserver,project=project):
+            raise ObsLightObsServers(" no name for the directory")
+        elif os.path.isdir(directory):
+            raise OBSLightProjectsError(directory," is not a directory")
+
         self.__myOBSServers.CheckoutPackage(obsserver=obsserver,project=project,package=package,directory=directory)
     
     def getPackageStatus(self,obsserver=None,project=None,package=None,repos=None,arch=None):
         '''
-        
+        return the status, from a OBS serve,r of a package for the repos and arch
         '''
+        if obsserver==None:
+            raise ObsLightObsServers(" no name for the obs server")
+        elif project==None:
+            raise ObsLightObsServers(" no name for the project of the obs server")
+        elif package==None:
+            raise ObsLightObsServers(" no name for the package of the obs server")
+        elif not self.isAObsServer(name=obsserver):
+            raise ObsLightObsServers(obsserver+" is not the obs server")
+        elif not project in self.getListProjectInObsServer(server=obsserver):
+            raise ObsLightObsServers(" no name for the package of the obs server")
+        elif not package in self.getListPackageFromObsProject(obsserver=obsserver,project=project):
+            raise ObsLightObsServers(" no name for the directory")
+        
         return self.__myOBSServers.getPackageStatus(obsserver=obsserver,project=project,package=package,repos=repos,arch=arch)
         
     def addPackage(self, project=None  ,package=None):
         '''
-        
+        add a package to the local project from the obs server
         '''
+        if project==None:
+            raise OBSLightProjectsError(" no name for the project")
+        elif package==None:
+            raise OBSLightProjectsError(" no name for the package")
+
+        
+        
         self.__myObsLightProjects.addPackage( project=project  ,package=package)
         
         self.__myObsLightProjects.save()

@@ -64,7 +64,7 @@ class ObsLightOsc(object):
         os.chdir(directory)
         command="osc -A "+obsServer+" co "+project+" "+package
         command=command.split()
-        p=subprocess.call(command, stdin=open("/dev/null", "r"), close_fds=True)
+        subprocess.call(command, stdin=open("/dev/null", "r"), close_fds=True)
         
     def getPackageStatus(self,obsServer=None,project=None,package=None,repos=None,arch=None):
         '''
@@ -83,7 +83,7 @@ class ObsLightOsc(object):
         command="osc build --root="+chrootDir+" -x vim -x git -x strace -x iputils -x yum -x yum-utils -x ncurses-devel -x zypper --noservice --no-verify "+repos+" "+arch+" "+specPath
         print command
         command=command.split()
-        p=subprocess.call(command, stdin=open("/dev/null", "r"), close_fds=True)
+        subprocess.call(command, stdin=open("/dev/null", "r"), close_fds=True)
         
         
 myObsLightOsc=ObsLightOsc()

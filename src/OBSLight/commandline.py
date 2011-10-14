@@ -291,7 +291,7 @@ class OBSLight():
                     raise ObsLightErr.ArgError("unknow command for getListPackage")
                 
             if (obsServer!=None)and(projectName!=None):
-                res=self.cliObsLightManager.getListPackageListFromObsProject(obsserver=obsServer,project=projectName)
+                res=self.cliObsLightManager.getListPackageFromObsProject(obsserver=obsServer,project=projectName)
             elif (projectName!=None)and(localPackage in ["0","1"]):
                 res=self.cliObsLightManager.getListPackageFromLocalProject(name=projectName,local=int(localPackage))
             else:

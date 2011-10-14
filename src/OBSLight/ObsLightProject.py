@@ -72,7 +72,7 @@ class ObsLightProject(object):
         
         '''
         if local==0:
-            return ObsLightManager.myObsLightManager.getListPackageListFromObsProject(obsserver=self.__obsserver,project=self.__projectName)
+            return ObsLightManager.myObsLightManager.getListPackageFromObsProject(obsserver=self.__obsserver,project=self.__projectName)
         else:
             return self.__packages.getListPackages()
         
