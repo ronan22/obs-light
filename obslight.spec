@@ -9,24 +9,54 @@ Version: %{version}
 Release: %{release}
 Source0: %{name}-%{unmangled_version}.tar.gz
 License: GPLv2
-Group: Development/Libraries
+Group: Development/Tools/Building
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 Prefix: %{_prefix}
 BuildArch: noarch
-Vendor: Ronan Le Martret <ronan@fridu.net>
+Vendor: Intel Open Source Technology Center (OTC)
 Url: http://wiki.meego.com/OBS_Light
-BuildRequires: python
-BuildRequires: osc
-BuildRequires: python-xml
-Requires: python
-Requires: meego-packaging-tools
-Requires: python-xml
-Requires: sudo
-Requires: qemu
+BuildRequires: python >= 2.5.0
+BuildRequires: python-devel >= 2.5.0
+Requires: python >= 2.5.0
 %{!?python_sitelib: %define python_sitelib %(python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 %description
-Command-line client and UI for the OBS.
+Utilities to work with OBS Light, a lighter version of OBS.
+
+%package base
+BuildRequires: python-devel >= 2.5.0
+Requires: python >= 2.5.0
+Requires: python-xml
+Requires: meego-packaging-tools
+Requires: sudo
+Requires: qemu
+Summary: Utilities to work with OBS Light - command-line client
+Provides: obslight
+%description base
+Utilities to work with OBS Light, a lighter version of OBS.
+This package contains the command-line client.
+
+%package gui
+BuildRequires: python-devel >= 2.5.0
+Requires: python >= 2.5.0
+Requires: obslight-base
+Requires: python-pyside
+Summary: Utilities to work with OBS Light - graphical interface
+%description gui
+Utilities to work with OBS Light, a lighter version of OBS.
+This package contains the graphical interface.
+
+%package utils
+Requires: python >= 2.5.0
+Requires: python-xml
+Requires: osc
+Summary: Utilities to work with OBS Light - additional scripts
+%description utils
+Utilities to work with OBS Light, a lighter version of OBS.
+This package contains additional scripts :
+ - obstag:           Tag a project in an OBS
+ - obs2obscopy:      Copy a project from an OBS to an OBS
+ - obsextractgroups: Extracts the packages groups of an OBS repository
 
 %prep
 %setup -n %{name}-%{unmangled_version}
@@ -37,15 +67,13 @@ python setup.py build
 %install
 python setup.py install -O1 --root=%{buildroot} --prefix=%{_prefix}
 ln -s obslight-wrapper.py %{buildroot}/%{_bindir}/obslight
-ln -s obslightgui-wrapper.py %{buildroot}/%{_bindir}/obslight-gui
+ln -s obslightgui-wrapper.py %{buildroot}/%{_bindir}/obslightgui
 
-%post
+%post base
 if [ ! -f "%{_sysconfdir}/sudoers.tmp" ]; then
   touch %{_sysconfdir}/sudoers.tmp
   [ -f %{_sysconfdir}/sudoers ] && cp %{_sysconfdir}/sudoers %{_sysconfdir}/sudoers.new
-  echo "%users ALL=(ALL)NOPASSWD:/usr/bin/build" >> %{_sysconfdir}/sudoers.new
-#  %{_sbindir}/visudo -c -f %{_sysconfdir}/sudoers.new
-#  [ "$?" -eq "0" ] && cp %{_sysconfdir}/sudoers.new %{_sysconfdir}/sudoers
+  echo "%%users ALL=(ALL)NOPASSWD:/usr/bin/build" >> %{_sysconfdir}/sudoers.new
   cp %{_sysconfdir}/sudoers.new %{_sysconfdir}/sudoers
   rm %{_sysconfdir}/sudoers.tmp
 fi
@@ -53,11 +81,26 @@ fi
 %clean
 rm -rf %{buildroot}
 
-%files
+%files base
 %defattr(-,root,root)
 %doc README
-%{_bindir}/obslight*
+%{_bindir}/obslight
+%{_bindir}/obslight-wrapper.py
+%{python_sitelib}/ObsLight
+%{python_sitelib}/obslight*egg-info
+
+%files gui
+%defattr(-,root,root)
+%{_bindir}/obslightgui
+%{_bindir}/obslightgui-wrapper.py
+%{python_sitelib}/ObsLightGui
+
+%files utils
+%defattr(-,root,root)
 %{_bindir}/obs2obscopy
 %{_bindir}/obstag
 %{_bindir}/obsextractgroups
-%{python_sitelib}/*
+
+%changelog
+* Mon Oct 17 2011 Florent Vennetier (Intel OTC) <florent@fridu.net> 0.3-1
+- First public version
