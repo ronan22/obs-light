@@ -95,6 +95,14 @@ class ObsServers(object):
         aOBSServer=ObsServer(serverWeb=serverWeb, serverAPI=serverAPI, serverRepos=serverRepos, aliases=aliases, user=user, passw=passw)
         self.__dicOBSLightServers[aOBSServer.getName()]=aOBSServer
         
+        
+    def getListProject(self,server=None):
+        '''
+        
+        '''
+        return self.__dicOBSLightServers[server].getListProject()
+        
+        
     def getListPackage(self,obsserver=None,project=None):
         '''
         
@@ -119,7 +127,29 @@ class ObsServers(object):
         '''
         return self.__dicOBSLightServers[obsserver].getRepos()
 
+    def getListTarget(self,obsserver=None ,project=None):
+        '''
         
+        '''
+        return self.__dicOBSLightServers[obsserver].getListTarget(project=project)
         
+    def getListArchitecture(self,obsserver=None ,project=None,projectTarget=None):
+        '''
         
+        '''
+        return self.__dicOBSLightServers[obsserver].getListArchitecture(project=project,projectTarget=projectTarget)
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
             

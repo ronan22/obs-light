@@ -110,7 +110,6 @@ class ObsLightSpec:
                 except IndexError:
                     print IndexError
                     
-
         patch_Val_Prep="Patch"+str(patchID)
         patch_Val_Build="%patch"+str(patchID)
 
