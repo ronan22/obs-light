@@ -1,0 +1,12 @@
+Source: obslight
+Section: unknown
+Priority: optional
+Maintainer: Florent Vennetier <florent@fridu.net>
+Build-Depends: debhelper (>= 4.1.16), python (>= 2.5)
+
+Package: obslight
+Architecture: any
+Depends: ${shlibs:Depends}, python (>= 2.5), osc, mic2, sudo, qemu,
+ python-pyside
+Description: Utilities to work with OBS Light, a lighter version of OBS.
+ Utilities to work with OBS Light, a lighter version of OBS.
