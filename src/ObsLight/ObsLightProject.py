@@ -99,11 +99,12 @@ class ObsLightProject(object):
             listFile=files
             break
         
-        #Find the status of the package
-        status=ObsLightManager.getManager().getPackageStatus(obsserver=self.__obsserver,project=self.__projectName,package=name,repos=self.__projectTarget,arch=self.__projectArchitecture)
+        #Find the status of the package, Don't use that now
+        #status=ObsLightManager.getManager().getPackageStatus(obsserver=self.__obsserver,project=self.__projectName,package=name,repos=self.__projectTarget,arch=self.__projectArchitecture)
+        #self.__packages.addPackage(name=name, specFile=specFile, listFile=listFile, status=status)
 
-        self.__packages.addPackage(name=name, specFile=specFile, listFile=listFile, status=status)
 
+        self.__packages.addPackage(name=name, specFile=specFile, listFile=listFile)
         
     def createChRoot(self):
         '''
@@ -116,9 +117,8 @@ class ObsLightProject(object):
             projectDir=self.__packages.getOscDirectory(pk)
             break
         
-        
-        self.__chroot.createChRoot( projectDir=projectDir ,repos=self.__projectTarget,arch=self.__projectArchitecture,specPath=specPath)
-        
+
+        self.__chroot.createChRoot( obsApi=self.__obsserver, projectDir=projectDir ,repos=self.__projectTarget,arch=self.__projectArchitecture,specPath=specPath)
         repos=os.path.join(ObsLightManager.getManager().getRepos(obsserver=self.__obsserver),self.__projectName.replace(":",":/"),self.__projectTarget)
         
         alias=self.__projectName

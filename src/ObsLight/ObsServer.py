@@ -90,10 +90,24 @@ class ObsServer(object):
         return self.__serverRepos
     
     
+    def getListProject(self):
+        '''
+        
+        '''
+        return  ObsLightOsc.myObsLightOsc.getListProject(obsServer=self.__serverAPI)
     
+    def getListTarget(self,project=None):
+        '''
+        
+        '''
+        return ObsLightOsc.myObsLightOsc.getListTarget(obsServer=self.__serverAPI,project=project)
     
-    
-    
+    def getListArchitecture(self,project=None,projectTarget=None):
+        '''
+        
+        '''
+        return ObsLightOsc.myObsLightOsc.getListArchitecture(obsServer=self.__serverAPI ,project=project, projectTarget=projectTarget)
+        
     
         
         

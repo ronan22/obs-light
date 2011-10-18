@@ -62,12 +62,12 @@ class ObsLightChRoot(object):
         saveconfigPackages["dirTransfert"]=self.__dirTransfert
         return saveconfigPackages
     
-    def createChRoot(self, projectDir=None ,repos=None,arch=None,specPath=None):
+    def createChRoot(self, obsApi=None,projectDir=None ,repos=None,arch=None,specPath=None):
         '''
         
         '''
-        ObsLightOsc.myObsLightOsc.createChRoot( chrootDir=self.__chrootDirectory,projectDir=projectDir ,repos=repos,arch=arch,specPath=specPath)
-
+        ObsLightOsc.myObsLightOsc.createChRoot(obsApi=obsApi, chrootDir=self.__chrootDirectory,projectDir=projectDir ,repos=repos,arch=arch,specPath=specPath)
+        
         subprocess.call(["sudo","chown","root:users",self.__chrootDirectory])
         subprocess.call(["sudo","chown","root:users",self.__chrootDirectory+"/root"])
         subprocess.call(["sudo","chown","root:users",self.__chrootDirectory+"/etc"])
