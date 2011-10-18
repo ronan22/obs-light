@@ -17,7 +17,11 @@ Vendor: Intel Open Source Technology Center (OTC)
 Url: http://wiki.meego.com/OBS_Light
 BuildRequires: python >= 2.5.0
 BuildRequires: python-devel >= 2.5.0
+BuildRequires: fdupes
 Requires: python >= 2.5.0
+%if 0%{?suse_version}
+%py_requires
+%endif
 %{!?python_sitelib: %define python_sitelib %(python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 
 %description
@@ -66,6 +70,7 @@ python setup.py build
 
 %install
 python setup.py install -O1 --root=%{buildroot} --prefix=%{_prefix}
+%fdupes -s $RPM_BUILD_ROOT/%{python_sitelib}
 ln -s obslight-wrapper.py %{buildroot}/%{_bindir}/obslight
 ln -s obslightgui-wrapper.py %{buildroot}/%{_bindir}/obslightgui
 
