@@ -107,5 +107,8 @@ rm -rf %{buildroot}
 %{_bindir}/obsextractgroups
 
 %changelog
+* Wed Oct 19 2011 Florent Vennetier (Intel OTC) <florent@fridu.net> 0.3.1-1
+- Added some internal tests
+
 * Mon Oct 17 2011 Florent Vennetier (Intel OTC) <florent@fridu.net> 0.3-1
 - First public version
