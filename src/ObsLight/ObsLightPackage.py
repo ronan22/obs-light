@@ -23,6 +23,8 @@ import os
 
 from ObsLightSpec import ObsLightSpec
 
+from ObsLightOsc import ObsLightOsc
+
 class ObsLightPackage(object):
     '''
     classdocs
@@ -50,13 +52,13 @@ class ObsLightPackage(object):
             
     def getName(self):
         '''
-        
+        return the name of the package.
         '''
         return self.__name
 
     def getDic(self):
         '''
-        
+        return a description of the object in a dictionary.
         '''
         aDic={}
         aDic["name"]=self.__name
@@ -68,37 +70,37 @@ class ObsLightPackage(object):
             
     def getStatus(self):
         '''
-        
+        return the Status of the package.
         '''
         return self.__status
             
     def getSpecFile(self):
         '''
-        
+        return the absolute path of the spec file.
         '''
         return self.__specFile
             
     def getOscDirectory(self):
         '''
-        
+        Return the absolute path of the osc directory of the package (base on the directory of the spec file).
         '''
         return os.path.dirname(self.__specFile)
             
     def setDirectoryBuild(self,packageDirectory=None):
         '''
-        
+        Set the directory of the package into the chroot.
         '''
         self.__packageDirectory=packageDirectory
         
     def getPackageDirectory(self):
         '''
-        
+        Return the directory of the package into the chroot.
         '''
         return self.__packageDirectory
     
     def addPatch(self,file=None):
         '''
-    
+        add a Patch file to package, the patch is automatically add to the spec file.
         '''
         self.__mySpecFile.addpatch(file)
         self.addFile(file)
@@ -106,29 +108,44 @@ class ObsLightPackage(object):
     
     def addFile(self,file=None):
         '''
-    
+        Add a file to the package.
         '''
         self.__listFile.append(file)
     
     
     def save(self):
         '''
-        
+        Save the Spec file.
         '''
         self.__mySpecFile.save()
         
     
     def addFileToSpec(self,baseFile=None,file=None):
         '''
-        
+        Add a delete command of a file to the spec file.
         '''
         return self.__mySpecFile.addFile(baseFile=baseFile,file=file)
             
     def delFileToSpec(self,file=None):
         '''
-        
+        Add a delete command of a file to the spec file.
         '''    
         return self.__mySpecFile.delFile(file=file)
+    
+    
+    def commitToObs(self,message=None):
+        '''
+        commit the package to the OBS server.
+        '''
+        ObsLightOsc().commitProject(path=self.getOscDirectory(), message=message)
+    
+    def addRemoveFileToTheProject(self):
+        '''
+        add new file and remove file to the project.
+        '''
+        ObsLightOsc().addremove(path=self.getOscDirectory())
+    
+    
     
     
     

@@ -97,6 +97,7 @@ class ObsLight():
         __HELP__+="\t"+"goToChRoot"+"\n"
         __HELP__+="\t"+"addPackageSourceInChRoot"+"\n"
         __HELP__+="\t"+"makePatch"+"\n"
+        __HELP__+="\t"+"addAndCommitChange"+"\n"
         __HELP__+="Type "+__PRGNAME__+" <command> --help for help on a specific command."+"\n"
         
         if len(listArgv)==0:
@@ -125,6 +126,8 @@ class ObsLight():
                 return self.addPackageSourceInChRoot(listArgv[1:])
             elif (listArgv[0]=="makePatch"):
                 return self.makePatch(listArgv[1:])
+            elif (listArgv[0]=="addAndCommitChange"):
+                return self.addAndCommitChange(listArgv[1:])
             else:
                 raise ObsLightErr.ArgError(listArgv[0]+" is not a valid command")
             
@@ -228,7 +231,8 @@ class ObsLight():
         '''
         Add a project to Obs Light
         '''
-        __HELP__="usage: "+__PRGNAME__+" addProject [--command-options] \n" 
+        __HELP__="usage: "+__PRGNAME__+" addProject [--command-options] \n"
+        __HELP__+="\t--projectLocalName name :if no name are define the projectLocalName is equal to projectName ,the symbol : are replace by _\n"
         __HELP__+="\t--projectName name (require)\n"
         __HELP__+="\t--projectTitle text \n"
         __HELP__+="\t--projectDirectory path \n"
@@ -241,7 +245,8 @@ class ObsLight():
         
 
 
-        if (len(listArgv)%2==0) and (len(listArgv)<=(6*2)): 
+        if (len(listArgv)%2==0) and (len(listArgv)<=(9*2)): 
+            projectLocalName=None
             projectName=None
             projectTitle=None
             projectDirectory=None
@@ -254,6 +259,8 @@ class ObsLight():
             for i in range(0,len(listArgv),2):
                 if listArgv[i]=="--projectName":
                     projectName=listArgv[i+1]
+                elif listArgv[i]=="--projectLocalName":
+                    projectLocalName=listArgv[i+1]
                 elif listArgv[i]=="--projectTitle":
                     projectTitle=listArgv[i+1]
                 elif listArgv[i]=="--projectDirectory":
@@ -271,7 +278,7 @@ class ObsLight():
                 else:
                     raise ObsLightErr.ArgError("unknow command for addOBSServer")
             
-            self.cliObsLightManager.addProject(projectName=projectName, projectTitle=projectTitle, projectDirectory=projectDirectory, chrootDirectory=chrootDirectory, obsserver=obsserver ,projectTarget=projectTarget, description=description, projectArchitecture=projectArchitecture)      
+            self.cliObsLightManager.addProject(projectLocalName=projectLocalName,projectName=projectName, projectTitle=projectTitle, projectDirectory=projectDirectory, chrootDirectory=chrootDirectory, obsserver=obsserver ,projectTarget=projectTarget, description=description, projectArchitecture=projectArchitecture)      
         
         elif self.__isHelp(listArgv[0]):
             print  __HELP__
@@ -473,7 +480,7 @@ class ObsLight():
                     patch=listArgv[i+1]
                 else:
                     raise ObsLightErr.ArgError("unknow command for "+__COMMAND__)
-            print project,package,patch
+
             if (project!=None) and (package!=None) and (patch!=None):
                 self.cliObsLightManager.makePatch(project=project,package=package,patch=patch)
             else:
@@ -484,6 +491,44 @@ class ObsLight():
         else:
             raise ObsLightErr.ArgError("not a valid command for "+__COMMAND__)
         return 0 
+        
+        
+    def addAndCommitChange(self,listArgv):
+        '''
+        
+        '''
+        __COMMAND__="addAndCommitChange"
+        
+        __HELP__="usage: "+__PRGNAME__+" "+__COMMAND__+" [--command-options] \n"
+        __HELP__+="\t"+"--project projectName (require)"+"\n"
+        __HELP__+="\t"+"--package packageName (require)"+"\n"
+        __HELP__+="\t"+"--message message(require)"+"\n"
+
+        project=None
+        package=None
+        message=None
+
+        if (len(listArgv)%2==0) and (len(listArgv)<=(3*2)): 
+            for i in range(0,len(listArgv),2):
+                if listArgv[i]=="--project":
+                    project=listArgv[i+1]
+                elif listArgv[i]=="--package":
+                    package=listArgv[i+1]
+                elif listArgv[i]=="--message":
+                    message=listArgv[i+1]
+                else:
+                    raise ObsLightErr.ArgError("unknow command for "+__COMMAND__)
+            if (project!=None) and (package!=None) and (message!=None):
+                self.cliObsLightManager.addAndCommitChange(project=project,package=package,message=message)
+            else:
+                raise ObsLightErr.ArgError("wrong command for "+__COMMAND__)
+                
+        elif self.__isHelp(listArgv[0]):
+            print  __HELP__
+        else:
+            raise ObsLightErr.ArgError("not a valid command for "+__COMMAND__)
+        return 0 
+        
         
         
         

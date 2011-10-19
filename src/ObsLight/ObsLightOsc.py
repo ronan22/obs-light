@@ -37,16 +37,20 @@ import optparse
 
 class ObsLightOsc(object):
     '''
-    classdocs
+    ObsLightOsc interact with osc, when possible, do it directly by python API
     '''
 
 
     def __init__(self):
         '''
-        Constructor
+        init 
         '''
         self.__confFile = os.path.join(os.environ['HOME'],".oscrc")
-        conf.get_config()
+        
+        if os.path.isfile(self.__confFile): 
+            conf.get_config()
+        
+        
         
     def initConf(self,api=None,user=None,passw=None,aliases=None):
         '''
@@ -67,6 +71,43 @@ class ObsLightOsc(object):
         file = open(self.__confFile, 'w')
         aOscConfigParser.write(file, True)
         if file: file.close()
+
+    def trustRepos(self,api=None,project=None):
+        '''
+        
+        '''
+        aOscConfigParser=conf.get_configParser(self.__confFile)
+        
+        if aOscConfigParser.has_option( api, "trusted_prj"):
+            options= aOscConfigParser.get( api, "trusted_prj")
+        else:
+            options=""
+            
+        for option in options.split(" "):
+            if option==project:
+                return
+        
+        aOscConfigParser.set(api, 'trusted_prj', options+" "+project)
+            
+        file = open(self.__confFile, 'w')
+        aOscConfigParser.write(file, True)
+        if file: file.close()
+        return 
+
+    def getDepProject(self,apiurl=None,projet=None,repos=None):
+        '''
+        
+        '''
+        url=apiurl+"/source/"+projet+"/_meta"
+        aElement=ElementTree.fromstring(core.http_request("GET", url).read())
+    
+        result=None
+        for project in aElement:
+            if (project.tag=="repository") and (project.get("name")==repos):
+                for path in project.getiterator():
+                    if path.tag=="path":
+                        return path.get("project")
+        return result
 
     def getListPackage(self,obsServer=None,project=None):
         '''
@@ -111,7 +152,7 @@ class ObsLightOsc(object):
         '''
         create a chroot
         TODO: create chroot without build a package
-        TODO: Build wuthout une subprocess
+        TODO: Build without a subprocess
         '''
         os.chdir(projectDir)
 
@@ -166,13 +207,13 @@ class ObsLightOsc(object):
         
     def getListProject(self,obsServer=None):
         '''
-        
+        return a list of the project of a OBS Server.
         '''
         return core.meta_get_project_list(obsServer)
     
     def getListRepos(self,apiurl):
         '''
-        
+        return the list of the repos of a OBS Server.
         '''
         url=apiurl+"/distributions"
         aElement=ElementTree.fromstring(core.http_request("GET", url).read())
@@ -198,7 +239,7 @@ class ObsLightOsc(object):
      
     def getListTarget(self,obsServer=None,project=None):
         '''
-        
+        return the list of Target of a project for a OBS server.
         '''
         url=obsServer+"/build/"+project
         aElement=ElementTree.fromstring(core.http_request("GET", url).read())
@@ -210,7 +251,7 @@ class ObsLightOsc(object):
         
     def getListArchitecture(self,obsServer=None,project=None,projectTarget=None):
         '''
-        
+        return the list of Archictecture of the target of the project for a OBS server.
         '''
         url=obsServer+"/build/"+project+"/"+projectTarget
         
@@ -221,8 +262,27 @@ class ObsLightOsc(object):
                 res.append(entry.get("name"))
         return res
     
-    
+    def commitProject(self,path=None, message=None, skip_validation=True):
+        '''
+        commit a project to the OBS server.
+        '''
+        os.chdir(path)
+        command="osc ci -m "+message+" "
         
+        if skip_validation:
+            command+="--skip-validation"
+        
+        command=command.split()
+        subprocess.call(command, stdin=open("/dev/null", "r"), close_fds=True)
+        
+    def addremove (self,path=None):
+        '''
+        Adds new files, removes disappeared files
+        '''
+        os.chdir(path)
+        command="osc ar"
+        command=command.split()
+        subprocess.call(command, stdin=open("/dev/null", "r"), close_fds=True)
         
 myObsLightOsc=ObsLightOsc()
 

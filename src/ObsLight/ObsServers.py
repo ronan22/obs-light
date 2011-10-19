@@ -43,6 +43,11 @@ class ObsServers(object):
         self.__pathFile = os.path.join(self.__manager.getObsLightWorkingDirectory() ,"ObsServersConfig")
         self.__load()
         
+    def getObsServer( self,name=None):
+        '''
+        
+        '''
+        return self.__dicOBSLightServers[name]
         
     def getListOBSServers(self):
         '''

@@ -80,11 +80,11 @@ class ObsLightProjects(object):
         return self.__dicOBSLightProjects.keys()
         
         
-    def addProject(self, projectName=None, projectTitle=None, projectDirectory=None, chrootDirectory=None, obsserver=None ,projectTarget=None, description=None, projectArchitecture=None):
+    def addProject(self, projectLocalName=None,projectName=None, projectTitle=None, projectDirectory=None, chrootDirectory=None, obsserver=None ,projectTarget=None, description=None, projectArchitecture=None):
         '''
         
         '''
-        self.__dicOBSLightProjects[projectName]=ObsLightProject( projectName=projectName, projectTitle=projectTitle, projectDirectory=projectDirectory, chrootDirectory=chrootDirectory, obsserver=obsserver ,projectTarget=projectTarget, description=description, projectArchitecture=projectArchitecture)
+        self.__dicOBSLightProjects[projectLocalName]=ObsLightProject( projectLocalName=projectLocalName,projectName=projectName, projectTitle=projectTitle, projectDirectory=projectDirectory, chrootDirectory=chrootDirectory, obsserver=obsserver ,projectTarget=projectTarget, description=description, projectArchitecture=projectArchitecture)
         
     def __addProjectFromSave(self,name=None,fromSave=None ):
         '''
@@ -113,7 +113,6 @@ class ObsLightProjects(object):
         self.__dicOBSLightProjects[project].createChRoot()
         
         
-        
     def goToChRoot(self,project=None,package=None):
         '''
         
@@ -135,12 +134,24 @@ class ObsLightProjects(object):
         
     def getObsServer(self,name=None):
         '''
-        
+        Return the OBS server name of a project.
         '''
         return  self.__dicOBSLightProjects[name].getObsServer()
         
         
         
+    def commitToObs(self,name=None,message=None,package=None):
+        '''
+        commit the package to the OBS server.
+        '''
+        self.__dicOBSLightProjects[name].getPackage(package=package).commitToObs(message=message)
+    
+    def addRemoveFileToTheProject(self,name=None,package=None):
+        '''
+        add new file and remove file to the project.
+        '''
+        self.__dicOBSLightProjects[name].getPackage(package=package).addRemoveFileToTheProject()
         
+
         
         

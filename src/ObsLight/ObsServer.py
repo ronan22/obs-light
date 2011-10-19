@@ -57,7 +57,17 @@ class ObsServer(object):
         
         ObsLightOsc.myObsLightOsc.initConf(api=self.__serverAPI,user=self.__user,passw=self.__passw,aliases=self.__aliases)
         
-
+        
+    def initConfigProject(self,projet=None,repos=None):
+        '''
+        
+        '''
+        #if the repository is link to a project
+        res=ObsLightOsc.myObsLightOsc.getDepProject(apiurl=self.__serverAPI,projet=projet,repos=repos)
+        #the project must be trust(add to .oscrc )
+        if res!=None:
+            ObsLightOsc.myObsLightOsc.trustRepos(api=self.__serverAPI,project=res)
+        
             
         
     def getDic(self):
