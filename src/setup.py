@@ -22,7 +22,7 @@ data_files = []
 
 
 setup(name='obslight',
-      version = "0.3",
+      version = "0.3.1",
       description = 'OBS Light',
       long_description = 'Command-line client and UI for the OBS.',
       author = 'Ronan Le Martret',

@@ -1,6 +1,6 @@
 %define name obslight
-%define version 0.3
-%define unmangled_version 0.3
+%define version 0.3.1
+%define unmangled_version 0.3.1
 %define release 1
 
 Summary: OBS Light
