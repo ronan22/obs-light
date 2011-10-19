@@ -1,4 +1,7 @@
-obslight (0.3.1-1) stable; urgency=low
+obslight (0.3.2-1) stable; urgency=low
+
+  * Version 0.3.2
+    Modified sudo rules so that user doesn't have to type passwords
 
   * Version 0.3.1
     Added some tests
