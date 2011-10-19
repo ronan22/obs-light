@@ -16,13 +16,8 @@ class build_obslight(distutils.command.build.build, object):
 
 addparams = {}
 
-data_files = []
-#if sys.platform[:3] != 'win':
-#    data_files.append((os.path.join('share'), [os.path.join('build', 'obslight.0.1.gz')]))
-
-
 setup(name='obslight',
-      version = "0.3",
+      version = "0.3.1",
       description = 'OBS Light',
       long_description = 'Command-line client and UI for the OBS.',
       author = 'Ronan Le Martret',
@@ -39,7 +34,7 @@ setup(name='obslight',
                  'script/obstag', 'script/obs2obscopy', 'script/obsextractgroups'],
       provides = ['ObsLight', 'ObsLightGui'],
       requires = ['osc (>=0.132.5)', 'xml.etree.ElementTree'],
-      data_files = data_files,
+      data_files = [('/etc', ['sudoers.obslight'])],
       
       
       cmdclass = {

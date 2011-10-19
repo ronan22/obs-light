@@ -1,6 +1,6 @@
 %define name obslight
-%define version 0.3
-%define unmangled_version 0.3
+%define version 0.3.1
+%define unmangled_version 0.3.1
 %define release 1
 
 Summary: OBS Light
@@ -77,9 +77,9 @@ ln -s obslightgui-wrapper.py %{buildroot}/%{_bindir}/obslightgui
 %post base
 if [ ! -f "%{_sysconfdir}/sudoers.tmp" ]; then
   touch %{_sysconfdir}/sudoers.tmp
-  [ -f %{_sysconfdir}/sudoers ] && cp %{_sysconfdir}/sudoers %{_sysconfdir}/sudoers.new
-  echo "%%users ALL=(ALL)NOPASSWD:/usr/bin/build" >> %{_sysconfdir}/sudoers.new
-  cp %{_sysconfdir}/sudoers.new %{_sysconfdir}/sudoers
+  if [ -z "$(grep sudoers.obslight %{_sysconfdir}/sudoers)" ]; then
+    echo "#include %{_sysconfdir}/sudoers.obslight" >> %{_sysconfdir}/sudoers
+  fi
   rm %{_sysconfdir}/sudoers.tmp
 fi
 
@@ -89,6 +89,7 @@ rm -rf %{buildroot}
 %files base
 %defattr(-,root,root)
 %doc README
+%{_sysconfdir}/sudoers.obslight
 %{_bindir}/obslight
 %{_bindir}/obslight-wrapper.py
 %{python_sitelib}/ObsLight
@@ -107,5 +108,8 @@ rm -rf %{buildroot}
 %{_bindir}/obsextractgroups
 
 %changelog
+* Wed Oct 19 2011 Florent Vennetier (Intel OTC) <florent@fridu.net> 0.3.1-1
+- Added some internal tests
+
 * Mon Oct 17 2011 Florent Vennetier (Intel OTC) <florent@fridu.net> 0.3-1
 - First public version

@@ -203,7 +203,7 @@ class ObsLightMic(object):
         
         '''
         dev_null = os.open("/dev/null", os.O_WRONLY)
-        files_to_check = ["/bin/bash", "/sbin/init"]
+        files_to_check = ["/bin/bash", "/sbin/init", "/bin/ps", "/bin/kill"]
     
         architecture_found = False
     

@@ -56,12 +56,12 @@ class ObsLightChRoot(object):
         '''
         
         '''
-        if not os.path.isdir(self.__chrootDirectory):
-            os.makedirs(self.__chrootDirectory)
-            command="sudo chown root:root "+self.__chrootDirectory
-            
-            command=command.split()
-            subprocess.call(command,stdin=open("/dev/null", "r"), close_fds=True)
+#        if not os.path.isdir(self.__chrootDirectory):
+#            os.makedirs(self.__chrootDirectory)
+#            command="sudo chown root:root "+self.__chrootDirectory
+#            
+#            command=command.split()
+#            subprocess.call(command,stdin=open("/dev/null", "r"), close_fds=True)
             
         if not os.path.isdir(self.__chrootDirTransfert):
             os.makedirs(self.__chrootDirTransfert)

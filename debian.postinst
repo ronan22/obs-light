@@ -1,9 +1,10 @@
 #!/bin/sh
 
-if [ ! -f "%{_sysconfdir}/sudoers.tmp" ]; then
+if [ ! -f "/etc/sudoers.tmp" ]; then
   touch /etc/sudoers.tmp
-  [ -f /etc/sudoers ] && cp /etc/sudoers /etc/sudoers.new
-  echo "%users ALL=(ALL)NOPASSWD:/usr/bin/build" >> /etc/sudoers.new
-  cp /etc/sudoers.new /etc/sudoers
+  if [ -z "$(grep sudoers.obslight /etc/sudoers)" ]; then
+    echo "#include /etc/sudoers.obslight" >> /etc/sudoers
+  fi
   rm /etc/sudoers.tmp
 fi
+
