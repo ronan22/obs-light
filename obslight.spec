@@ -1,6 +1,6 @@
 %define name obslight
-%define version 0.3.1
-%define unmangled_version 0.3.1
+%define version 0.3.2
+%define unmangled_version 0.3.2
 %define release 1
 
 Summary: OBS Light
@@ -89,7 +89,7 @@ rm -rf %{buildroot}
 %files base
 %defattr(-,root,root)
 %doc README
-%{_sysconfdir}/sudoers.obslight
+%config %{_sysconfdir}/sudoers.obslight
 %{_bindir}/obslight
 %{_bindir}/obslight-wrapper.py
 %{python_sitelib}/ObsLight
@@ -108,6 +108,9 @@ rm -rf %{buildroot}
 %{_bindir}/obsextractgroups
 
 %changelog
+* Wed Oct 19 2011 Florent Vennetier (Intel OTC) <florent@fridu.net> 0.3.2-1
+- Modified sudo rules so that user doesn't have to type passwords
+
 * Wed Oct 19 2011 Florent Vennetier (Intel OTC) <florent@fridu.net> 0.3.1-1
 - Added some internal tests
 
