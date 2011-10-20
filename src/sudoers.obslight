@@ -8,8 +8,10 @@
 %users ALL=(ALL)NOPASSWD:/bin/mount --bind -o remount* */OBSLight/*/chroot*
 %users ALL=(ALL)NOPASSWD:/bin/umount -l */OBSLight/*/chroot*
 %users ALL=(ALL)NOPASSWD:/bin/cp * */OBSLight/*/chroot*
+%users ALL=(ALL)NOPASSWD:/bin/rm */OBSLight/*/chroot*
 %users ALL=(ALL)NOPASSWD:/bin/rm -r */OBSLight/*/chroot*
 %users ALL=(ALL)NOPASSWD:/bin/echo * > /proc/sys/fs/binfmt_misc/*
 %users ALL=(ALL)NOPASSWD:/sbin/modprobe binfmt_misc
 %users ALL=(ALL)NOPASSWD:/bin/mount -t binfmt_misc none /proc/sys/fs/binfmt_misc
+%users ALL=(ALL)NOPASSWD:/bin/chmod *w /proc/sys/fs/binfmt_misc/*
 

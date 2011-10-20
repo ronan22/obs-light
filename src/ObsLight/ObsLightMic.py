@@ -300,19 +300,23 @@ class ObsLightMic(object):
         # unregister it if it has been registered and is a dynamically-linked executable
         if not imgcreate.is_statically_linked(qemu_emulator) and os.path.exists(node):
             qemu_unregister_string = "-1\n"
-#            fd = open("/proc/sys/fs/binfmt_misc/arm", "w")
-#            fd.write(qemu_unregister_string)
-#            fd.close()
-            subprocess.call(["sudo", "echo", qemu_unregister_string, ">", "/proc/sys/fs/binfmt_misc/arm"])
+            subprocess.call(["sudo", "chmod", "o+w", "/proc/sys/fs/binfmt_misc/arm"])
+            fd = open("/proc/sys/fs/binfmt_misc/arm", "w")
+            fd.write(qemu_unregister_string)
+            fd.close()
+            subprocess.call(["sudo", "chmod", "o-w", "/proc/sys/fs/binfmt_misc/arm"])
+#            subprocess.call(["sudo", "echo", qemu_unregister_string, ">", "/proc/sys/fs/binfmt_misc/arm"])
     
         #TODO
         # register qemu emulator for interpreting other arch executable file
         if not os.path.exists(node):
             qemu_arm_string = ":arm:M::\\x7fELF\\x01\\x01\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x02\\x00\\x28\\x00:\\xff\\xff\\xff\\xff\\xff\\xff\\xff\\x00\\xff\\xff\\xff\\xff\\xff\\xff\\xff\\xff\\xfa\\xff\\xff\\xff:%s:\n" % qemu_emulator
-#            fd = open("/proc/sys/fs/binfmt_misc/register", "w")
-#            fd.write(qemu_arm_string)
-#            fd.close()
-            subprocess.call(["sudo", "echo", qemu_arm_string, ">", "/proc/sys/fs/binfmt_misc/register"])
+            subprocess.call(["sudo", "chmod", "o+w", "/proc/sys/fs/binfmt_misc/register"])
+            fd = open("/proc/sys/fs/binfmt_misc/register", "w")
+            fd.write(qemu_arm_string)
+            fd.close()
+            subprocess.call(["sudo", "chmod", "o+w", "/proc/sys/fs/binfmt_misc/register"])
+#            subprocess.call(["sudo", "echo", qemu_arm_string, ">", "/proc/sys/fs/binfmt_misc/register"])
     
         return qemu_emulator
 
