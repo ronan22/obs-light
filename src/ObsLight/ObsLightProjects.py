@@ -29,15 +29,15 @@ class ObsLightProjects(object):
     '''
 
 
-    def __init__(self,manager):
+    def __init__(self, manager):
         '''
         Constructor
         '''
-        self.__dicOBSLightProjects={}
-        self.__manager=manager
-        self.__currentProjects=""
+        self.__dicOBSLightProjects = {}
+        self.__manager = manager
+        self.__currentProjects = ""
         
-        self.__pathFile = os.path.join(self.__manager.getObsLightWorkingDirectory() ,"ObsLightProjectsConfig")
+        self.__pathFile = os.path.join(self.__manager.getObsLightWorkingDirectory() , "ObsLightProjectsConfig")
         
         self.__load()
         
@@ -46,16 +46,16 @@ class ObsLightProjects(object):
         '''
         
         '''
-        saveProject={}
+        saveProject = {}
 
         for ProjectName in self.getListLocalProject():
-            saveProject[ProjectName]= self.__dicOBSLightProjects[ProjectName].getDic()
+            saveProject[ProjectName] = self.__dicOBSLightProjects[ProjectName].getDic()
         
-        saveconfigProject={}
-        saveconfigProject["saveProjects"]=saveProject
-        saveconfigProject["currentProject"]=self.__currentProjects    
-        file=open(self.__pathFile,'w')
-        pickle.dump(saveconfigProject,file)    
+        saveconfigProject = {}
+        saveconfigProject["saveProjects"] = saveProject
+        saveconfigProject["currentProject"] = self.__currentProjects    
+        file = open(self.__pathFile, 'w')
+        pickle.dump(saveconfigProject, file)    
         file.close()
         
     def __load(self):
@@ -63,14 +63,14 @@ class ObsLightProjects(object):
         
         '''
         if os.path.isfile(self.__pathFile):
-            file=open(self.__pathFile,'r')
-            saveconfigServers=pickle.load(file)
+            file = open(self.__pathFile, 'r')
+            saveconfigServers = pickle.load(file)
             file.close()
-            saveProjects=saveconfigServers["saveProjects"]
+            saveProjects = saveconfigServers["saveProjects"]
             for projetName in saveProjects.keys():
-                aServer=saveProjects[projetName]
+                aServer = saveProjects[projetName]
                 self.__addProjectFromSave(name=projetName, fromSave=aServer)    
-            self.__currentProjects= saveconfigServers["currentProject"]
+            self.__currentProjects = saveconfigServers["currentProject"]
         
         
     def getListLocalProject(self):
@@ -80,65 +80,65 @@ class ObsLightProjects(object):
         return self.__dicOBSLightProjects.keys()
         
         
-    def addProject(self, projectLocalName=None,projectObsName=None, projectTitle=None, projectDirectory=None, chrootDirectory=None, obsServer=None ,projectTarget=None, description=None, projectArchitecture=None):
+    def addProject(self, projectLocalName=None, projectObsName=None, projectTitle=None, projectDirectory=None, chrootDirectory=None, obsServer=None , projectTarget=None, description=None, projectArchitecture=None):
         '''
         
         '''
-        self.__dicOBSLightProjects[projectLocalName]=ObsLightProject( projectLocalName=projectLocalName,projectObsName=projectObsName, projectTitle=projectTitle, projectDirectory=projectDirectory, chrootDirectory=chrootDirectory, obsServer=obsServer ,projectTarget=projectTarget, description=description, projectArchitecture=projectArchitecture)
+        self.__dicOBSLightProjects[projectLocalName] = ObsLightProject(projectLocalName=projectLocalName, projectObsName=projectObsName, projectTitle=projectTitle, projectDirectory=projectDirectory, chrootDirectory=chrootDirectory, obsServer=obsServer , projectTarget=projectTarget, description=description, projectArchitecture=projectArchitecture)
         
-    def __addProjectFromSave(self,name=None,fromSave=None ):
+    def __addProjectFromSave(self, name=None, fromSave=None):
         '''
         
         '''
-        self.__dicOBSLightProjects[name]=ObsLightProject( fromSave=fromSave)
+        self.__dicOBSLightProjects[name] = ObsLightProject(fromSave=fromSave)
         
         
-    def getListPackage(self,name=None,local=0):
+    def getListPackage(self, name=None, local=0):
         '''
         
         '''
         return self.__dicOBSLightProjects[name].getListPackage(local=local)
         
         
-    def addPackage(self, projectLocalName=None  ,package=None):
+    def addPackage(self, projectLocalName=None  , package=None):
         '''
         
         '''
         return self.__dicOBSLightProjects[projectLocalName].addPackage(name=package)
         
-    def createChRoot(self, projectLocalName=None ):
+    def createChRoot(self, projectLocalName=None):
         '''
         
         '''
         self.__dicOBSLightProjects[projectLocalName].createChRoot()
         
         
-    def goToChRoot(self,projectLocalName=None,package=None):
+    def goToChRoot(self, projectLocalName=None, package=None):
         '''
         
         '''
         self.__dicOBSLightProjects[projectLocalName].goToChRoot(package=package)
         
-    def addPackageSourceInChRoot(self,projectLocalName=None,package=None):
+    def addPackageSourceInChRoot(self, projectLocalName=None, package=None):
         '''
         
         '''
         self.__dicOBSLightProjects[projectLocalName].addPackageSourceInChRoot(package=package)
         
-    def makePatch(self,projectLocalName=None,package=None,patch=None):
+    def makePatch(self, projectLocalName=None, package=None, patch=None):
         '''
         
         '''
-        self.__dicOBSLightProjects[projectLocalName].makePatch(package=package,patch=patch)
+        self.__dicOBSLightProjects[projectLocalName].makePatch(package=package, patch=patch)
         
         
-    def getObsServer(self,name=None):
+    def getObsServer(self, name=None):
         '''
         Return the OBS server name of a project.
         '''
         return  self.__dicOBSLightProjects[name].getObsServer()
         
-    def commitToObs(self,   name=None,
+    def commitToObs(self, name=None,
                             message=None,
                             package=None):
         '''
@@ -152,21 +152,22 @@ class ObsLightProjects(object):
         add new file and remove file to the project.
         '''
         self.__dicOBSLightProjects[name].getPackage(package=package).addRemoveFileToTheProject()
+
         
-    def addRepos(self,  projectLocalName=None,
+    def addRepos(self, projectLocalName=None,
                         fromProject=None,
                         repos=None  ,
                         alias=None):
         '''
         
         '''
-        if fromProject!=None:
-            self.__dicOBSLightProjects[fromProject].addRepos( chroot=self.__dicOBSLightProjects[projectLocalName].getChRoot())
+        if fromProject != None:
+            self.__dicOBSLightProjects[fromProject].addRepos(chroot=self.__dicOBSLightProjects[projectLocalName].getChRoot())
         else:
-            self.__dicOBSLightProjects[projectLocalName].addRepos(repos=repos  ,alias=alias)
+            self.__dicOBSLightProjects[projectLocalName].addRepos(repos=repos  , alias=alias)
         
         
-    def getProjectObsName(self,projectLocalName=None):
+    def getProjectObsName(self, projectLocalName=None):
         '''
         
         '''

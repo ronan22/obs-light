@@ -31,42 +31,42 @@ class ObsServer(object):
     '''
 
 
-    def __init__(self,serverWeb="",serverAPI=None,serverRepos="",aliases=None,user=None,passw=None,fromSave=None):
+    def __init__(self, serverWeb="", serverAPI=None, serverRepos="", aliases=None, user=None, passw=None, fromSave=None):
         '''
         Create a reference to a OBS server
         ''' 
-        if fromSave!=None:
-            self.__isOBSConnected=fromSave["isOBSConnected"]
-            self.__serverWeb=fromSave["serverWeb"]
-            self.__serverAPI=fromSave["serverAPI"]
-            self.__serverRepos=fromSave["serverRepos"]
-            self.__aliases=fromSave["aliases"]
-            self.__user=fromSave["user"]
-            self.__passw=fromSave["passw"]
+        if fromSave != None:
+            self.__isOBSConnected = fromSave["isOBSConnected"]
+            self.__serverWeb = fromSave["serverWeb"]
+            self.__serverAPI = fromSave["serverAPI"]
+            self.__serverRepos = fromSave["serverRepos"]
+            self.__aliases = fromSave["aliases"]
+            self.__user = fromSave["user"]
+            self.__passw = fromSave["passw"]
         else:
-            self.__isOBSConnected=False
-            self.__serverWeb=serverWeb
-            self.__serverAPI=serverAPI
-            self.__serverRepos=serverRepos
-            if (aliases==None):
-                self.__aliases=self.__serverAPI
+            self.__isOBSConnected = False
+            self.__serverWeb = serverWeb
+            self.__serverAPI = serverAPI
+            self.__serverRepos = serverRepos
+            if (aliases == None):
+                self.__aliases = self.__serverAPI
             else:
-                self.__aliases=aliases
-            self.__user=user
-            self.__passw=passw
+                self.__aliases = aliases
+            self.__user = user
+            self.__passw = passw
         
-        ObsLightOsc.myObsLightOsc.initConf(api=self.__serverAPI,user=self.__user,passw=self.__passw,aliases=self.__aliases)
+        ObsLightOsc.myObsLightOsc.initConf(api=self.__serverAPI, user=self.__user, passw=self.__passw, aliases=self.__aliases)
         
         
-    def initConfigProject(self,projet=None,repos=None):
+    def initConfigProject(self, projet=None, repos=None):
         '''
         
         '''
         #if the repository is link to a project
-        res=ObsLightOsc.myObsLightOsc.getDepProject(apiurl=self.__serverAPI,projet=projet,repos=repos)
+        res = ObsLightOsc.myObsLightOsc.getDepProject(apiurl=self.__serverAPI, projet=projet, repos=repos)
         #the project must be trust(add to .oscrc )
-        if res!=None:
-            ObsLightOsc.myObsLightOsc.trustRepos(api=self.__serverAPI,project=res)
+        if res != None:
+            ObsLightOsc.myObsLightOsc.trustRepos(api=self.__serverAPI, project=res)
         
             
         
@@ -74,14 +74,14 @@ class ObsServer(object):
         '''
         return a description of the object in a dictionary  
         '''
-        aDic={}
-        aDic["isOBSConnected"]=self.__isOBSConnected=False
-        aDic["serverWeb"]=self.__serverWeb
-        aDic["serverAPI"]=self.__serverAPI
-        aDic["serverRepos"]=self.__serverRepos
-        aDic["aliases"]=self.__aliases
-        aDic["user"]=self.__user
-        aDic["passw"]=self.__passw
+        aDic = {}
+        aDic["isOBSConnected"] = self.__isOBSConnected = False
+        aDic["serverWeb"] = self.__serverWeb
+        aDic["serverAPI"] = self.__serverAPI
+        aDic["serverRepos"] = self.__serverRepos
+        aDic["aliases"] = self.__aliases
+        aDic["user"] = self.__user
+        aDic["passw"] = self.__passw
         return aDic
     
     def getName(self):
@@ -90,23 +90,23 @@ class ObsServer(object):
         '''
         return self.__aliases
     
-    def getListPackage(self,projectLocalName=None):
+    def getListPackage(self, projectLocalName=None):
         '''
         
         '''
-        return ObsLightOsc.myObsLightOsc.getListPackage(obsServer=self.__serverAPI,projectLocalName=projectLocalName)
+        return ObsLightOsc.myObsLightOsc.getListPackage(obsServer=self.__serverAPI, projectLocalName=projectLocalName)
     
-    def CheckoutPackage(self,projectLocalName=None,package=None,directory=None):
+    def CheckoutPackage(self, projectLocalName=None, package=None, directory=None):
         '''
         
         '''
-        ObsLightOsc.myObsLightOsc.CheckoutPackage(obsServer=self.__serverAPI,projectLocalName=projectLocalName,package=package,directory=directory)
+        ObsLightOsc.myObsLightOsc.CheckoutPackage(obsServer=self.__serverAPI, projectLocalName=projectLocalName, package=package, directory=directory)
         
-    def getPackageStatus(self,project=None,package=None,repos=None,arch=None):
+    def getPackageStatus(self, project=None, package=None, repos=None, arch=None):
         '''
         
         '''
-        return  ObsLightOsc.myObsLightOsc.getPackageStatus(obsServer=self.__serverAPI,project=project,package=package,repos=repos,arch=arch)
+        return  ObsLightOsc.myObsLightOsc.getPackageStatus(obsServer=self.__serverAPI, project=project, package=package, repos=repos, arch=arch)
     
     
     def getRepos(self):
@@ -122,17 +122,17 @@ class ObsServer(object):
         '''
         return  ObsLightOsc.myObsLightOsc.getListLocalProject(obsServer=self.__serverAPI)
     
-    def getListTarget(self,project=None):
+    def getListTarget(self, project=None):
         '''
         
         '''
-        return ObsLightOsc.myObsLightOsc.getListTarget(obsServer=self.__serverAPI,project=project)
+        return ObsLightOsc.myObsLightOsc.getListTarget(obsServer=self.__serverAPI, project=project)
     
-    def getListArchitecture(self,project=None,projectTarget=None):
+    def getListArchitecture(self, project=None, projectTarget=None):
         '''
         
         '''
-        return ObsLightOsc.myObsLightOsc.getListArchitecture(obsServer=self.__serverAPI ,project=project, projectTarget=projectTarget)
+        return ObsLightOsc.myObsLightOsc.getListArchitecture(obsServer=self.__serverAPI , project=project, projectTarget=projectTarget)
         
     
         

@@ -38,7 +38,7 @@ class ObsLightChRoot(object):
     '''
 
 
-    def __init__(self,  chrootDirectory=None,
+    def __init__(self, chrootDirectory=None,
                         chrootDirTransfert=None,
                         dirTransfert=None,
                         fromSave=None):
@@ -85,7 +85,7 @@ class ObsLightChRoot(object):
         return saveconfigPackages
     
 
-    def createChRoot(self,  obsApi=None,
+    def createChRoot(self, obsApi=None,
                             projectDir=None ,
                             repos=None,
                             arch=None,
@@ -93,19 +93,19 @@ class ObsLightChRoot(object):
         '''
         
         '''
-        ObsLightOsc.myObsLightOsc.createChRoot(obsApi=obsApi, 
+        ObsLightOsc.myObsLightOsc.createChRoot(obsApi=obsApi,
                                                chrootDir=self.__chrootDirectory,
                                                projectDir=projectDir ,
                                                repos=repos,
                                                arch=arch,
                                                specPath=specPath)
         
-        subprocess.call(["sudo","chown","root:users",self.__chrootDirectory])
-        subprocess.call(["sudo","chown","root:users",self.__chrootDirectory+"/root"])
-        subprocess.call(["sudo","chown","root:users",self.__chrootDirectory+"/etc"])
-        subprocess.call(["sudo","chmod","g+rw",self.__chrootDirectory])
-        subprocess.call(["sudo","chmod","g+r",self.__chrootDirectory+"/root"])
-        subprocess.call(["sudo","chmod","g+rw",self.__chrootDirectory+"/etc"])
+        subprocess.call(["sudo", "chown", "root:users", self.__chrootDirectory])
+        subprocess.call(["sudo", "chown", "root:users", self.__chrootDirectory + "/root"])
+        subprocess.call(["sudo", "chown", "root:users", self.__chrootDirectory + "/etc"])
+        subprocess.call(["sudo", "chmod", "g+rw", self.__chrootDirectory])
+        subprocess.call(["sudo", "chmod", "g+r", self.__chrootDirectory + "/root"])
+        subprocess.call(["sudo", "chmod", "g+rw", self.__chrootDirectory + "/etc"])
 
                 
         self.prepareChroot(self.__chrootDirectory)
@@ -139,8 +139,8 @@ class ObsLightChRoot(object):
         command.append("zypper --non-interactive si " + packageName)
         self.execCommand(command=command)
 
-        if os.path.isdir(self.__chrootDirectory+"/"+self.__chrootrpmbuildDirectory+"/SPECS/"):
-            aspecFile=self.__chrootrpmbuildDirectory+"/SPECS/"+specFile
+        if os.path.isdir(self.__chrootDirectory + "/" + self.__chrootrpmbuildDirectory + "/SPECS/"):
+            aspecFile = self.__chrootrpmbuildDirectory + "/SPECS/" + specFile
             
             self.buildPrepRpm(chrootDir=self.__chrootDirectory,
                               specFile=aspecFile,
@@ -177,7 +177,7 @@ class ObsLightChRoot(object):
         
         os.chmod(scriptPath, 0654)
         
-        aCommand = "sudo chroot " + self.__chrootDirectory + " " + self.__dirTransfert + "/"+ scriptName
+        aCommand = "sudo chroot " + self.__chrootDirectory + " " + self.__dirTransfert + "/" + scriptName
         
         if platform.machine() == 'x86_64':
             aCommand = "linux32 " + aCommand
@@ -195,7 +195,7 @@ class ObsLightChRoot(object):
         self.execCommand(command=command) 
         
 
-    def buildPrepRpm(self,  chrootDir=None,
+    def buildPrepRpm(self, chrootDir=None,
                             specFile=None,
                             arch=None):
 
@@ -251,11 +251,11 @@ class ObsLightChRoot(object):
         '''
         
         '''
-        patchFile=patch
-        pathPackage=package.getPackageDirectory()
-        pathOscPackage=package.getOscDirectory()
-        command=[]
-        command.append("git --git-dir="+pathPackage+"/.git --work-tree="+pathPackage+" diff -p > "+self.__dirTransfert+"/"+patchFile)
+        patchFile = patch
+        pathPackage = package.getPackageDirectory()
+        pathOscPackage = package.getOscDirectory()
+        command = []
+        command.append("git --git-dir=" + pathPackage + "/.git --work-tree=" + pathPackage + " diff -p > " + self.__dirTransfert + "/" + patchFile)
                 
         self.execCommand(command=command)
         shutil.copy(self.__chrootDirTransfert + "/" + patchFile, pathOscPackage + "/" + patch)
@@ -304,13 +304,13 @@ class ObsLightChRoot(object):
             command.append("cp " + os.path.join(pathPackage, file) + " " + self.__dirTransfert)
             repoListFilesToAdd.append([file, baseFile])
             
-        if command!=[]:    
+        if command != []:    
             self.execCommand(command=command)
         
             for fileDef in repoListFilesToAdd:
-                [file,baseFile]=fileDef
-                shutil.copy(self.__chrootDirTransfert+"/"+baseFile, pathOscPackage+"/"+baseFile)
-                package.addFileToSpec(baseFile=baseFile,file=file)
+                [file, baseFile] = fileDef
+                shutil.copy(self.__chrootDirTransfert + "/" + baseFile, pathOscPackage + "/" + baseFile)
+                package.addFileToSpec(baseFile=baseFile, file=file)
             
             
         for fileDef in filesToDel:

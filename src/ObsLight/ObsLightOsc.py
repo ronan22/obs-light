@@ -26,6 +26,8 @@ import os
 
 import subprocess
 
+import shlex
+
 from osc import conf
 from osc import core
 from osc import build
@@ -43,22 +45,22 @@ class ObsLightOsc(object):
         '''
         init 
         '''
-        self.__confFile = os.path.join(os.environ['HOME'],".oscrc")
+        self.__confFile = os.path.join(os.environ['HOME'], ".oscrc")
         
         if os.path.isfile(self.__confFile): 
             conf.get_config()
         
-    def initConf(self,api=None,user=None,passw=None,aliases=None):
+    def initConf(self, api=None, user=None, passw=None, aliases=None):
         '''
         init a configuation for a API.
         '''
         if not os.path.isfile(self.__confFile): 
             conf.write_initial_config(self.__confFile, {'apiurl':api, 'user' : user, 'pass' : passw })
         
-        aOscConfigParser=conf.get_configParser(self.__confFile)
+        aOscConfigParser = conf.get_configParser(self.__confFile)
 
         if not (api in  aOscConfigParser.sections()):
-            aOscConfigParser.add_section( api)
+            aOscConfigParser.add_section(api)
 
         aOscConfigParser.set(api, 'user', user)
         aOscConfigParser.set(api, 'pass', passw)
@@ -68,60 +70,60 @@ class ObsLightOsc(object):
         aOscConfigParser.write(file, True)
         if file: file.close()
 
-    def trustRepos(self,api=None,project=None):
+    def trustRepos(self, api=None, project=None):
         '''
         
         '''
-        aOscConfigParser=conf.get_configParser(self.__confFile)
+        aOscConfigParser = conf.get_configParser(self.__confFile)
         
-        if aOscConfigParser.has_option( api, "trusted_prj"):
-            options= aOscConfigParser.get( api, "trusted_prj")
+        if aOscConfigParser.has_option(api, "trusted_prj"):
+            options = aOscConfigParser.get(api, "trusted_prj")
         else:
-            options=""
+            options = ""
             
         for option in options.split(" "):
-            if option==project:
+            if option == project:
                 return
         
-        aOscConfigParser.set(api, 'trusted_prj', options+" "+project)
+        aOscConfigParser.set(api, 'trusted_prj', options + " " + project)
             
         file = open(self.__confFile, 'w')
         aOscConfigParser.write(file, True)
         if file: file.close()
         return 
 
-    def getDepProject(self,apiurl=None,projet=None,repos=None):
+    def getDepProject(self, apiurl=None, projet=None, repos=None):
         '''
         
         '''
-        url=apiurl+"/source/"+projet+"/_meta"
-        aElement=ElementTree.fromstring(core.http_request("GET", url).read())
+        url = apiurl + "/source/" + projet + "/_meta"
+        aElement = ElementTree.fromstring(core.http_request("GET", url).read())
     
-        result=None
+        result = None
         for project in aElement:
-            if (project.tag=="repository") and (project.get("name")==repos):
+            if (project.tag == "repository") and (project.get("name") == repos):
                 for path in project.getiterator():
-                    if path.tag=="path":
+                    if path.tag == "path":
                         return path.get("project")
         return result
 
-    def getListPackage(self,obsServer=None,projectLocalName=None):
+    def getListPackage(self, obsServer=None, projectLocalName=None):
         '''
             return the list of a projectLocalName
         '''
-        list_package=core.meta_get_packagelist(obsServer, projectLocalName)
+        list_package = core.meta_get_packagelist(obsServer, projectLocalName)
         return list_package
     
-    def CheckoutPackage(self,obsServer=None,projectLocalName=None,package=None,directory=None):
+    def CheckoutPackage(self, obsServer=None, projectLocalName=None, package=None, directory=None):
         '''
             check out a package
         '''
         os.chdir(directory)
-        command="osc -A "+obsServer+" co "+projectLocalName+" "+package
-        command=command.split()
+        command = "osc -A " + obsServer + " co " + projectLocalName + " " + package
+        command = command.split()
         subprocess.call(command, stdin=open("/dev/null", "r"), close_fds=True)
         
-    def getPackageStatus(self,obsServer=None,project=None,package=None,repos=None,arch=None):
+    def getPackageStatus(self, obsServer=None, project=None, package=None, repos=None, arch=None):
         '''
         Return the status of a package for a repos and arch
         The status can be:
@@ -139,12 +141,12 @@ class ObsLightOsc(object):
         excluded: The package build has been disabled in package build description (for example in the .spec file) or does not provide a matching build description for the target.
         unknown: The scheduler has not yet evaluated this package. Should be a short intermediate state for new packages.
         '''
-        url=obsServer+"/build/"+project+"/"+repos+"/"+arch+"/"+package+"/_status"
-        fileXML=core.http_request("GET", url).read()
-        aElement=ElementTree.fromstring(fileXML)
+        url = obsServer + "/build/" + project + "/" + repos + "/" + arch + "/" + package + "/_status"
+        fileXML = core.http_request("GET", url).read()
+        aElement = ElementTree.fromstring(fileXML)
         return aElement.attrib["code"]
         
-    def createChRoot(self,obsApi=None, chrootDir=None,projectDir=None ,repos=None,arch=None,specPath=None):
+    def createChRoot(self, obsApi=None, chrootDir=None, projectDir=None , repos=None, arch=None, specPath=None):
         '''
         create a chroot
         TODO: create chroot without build a package
@@ -195,91 +197,90 @@ class ObsLightOsc(object):
             
         #build.main(apiurl=apiurl, opts=opts, argv=argv)
         
-        command="osc build --root="+chrootDir+" -x vim -x git -x strace -x iputils -x yum -x yum-utils -x ncurses-devel -x zypper --noservice --no-verify "+repos+" "+arch+" "+specPath
-        command=command.split()
+        command = "osc build --root=" + chrootDir + " -x vim -x git -x strace -x iputils -x yum -x yum-utils -x ncurses-devel -x zypper --noservice --no-verify " + repos + " " + arch + " " + specPath
+        command = command.split()
         
         #print "command",command
         subprocess.call(command, stdin=open("/dev/null", "r"), close_fds=True)
         
-    def getListLocalProject(self,obsServer=None):
+    def getListLocalProject(self, obsServer=None):
         '''
         return a list of the project of a OBS Server.
         '''
         return core.meta_get_project_list(obsServer)
     
-    def getListRepos(self,apiurl):
+    def getListRepos(self, apiurl):
         '''
         return the list of the repos of a OBS Server.
         '''
-        url=apiurl+"/distributions"
-        aElement=ElementTree.fromstring(core.http_request("GET", url).read())
+        url = apiurl + "/distributions"
+        aElement = ElementTree.fromstring(core.http_request("GET", url).read())
     
-        result=[]
+        result = []
         for repos in aElement:
    
-            name=""
-            project=""
-            reponame=""
-            repository=""
+            name = ""
+            project = ""
+            reponame = ""
+            repository = ""
             for distri in repos:
-                if distri.tag=="name":
-                    name=distri.text
-                elif distri.tag=="project":
-                    project=distri.text
-                elif distri.tag=="reponame":
-                    reponame=distri.text
-                elif distri.tag=="repository":
-                    repository=distri.text
-            result.append([name,project,reponame,repository])
+                if distri.tag == "name":
+                    name = distri.text
+                elif distri.tag == "project":
+                    project = distri.text
+                elif distri.tag == "reponame":
+                    reponame = distri.text
+                elif distri.tag == "repository":
+                    repository = distri.text
+            result.append([name, project, reponame, repository])
         return result
      
-    def getListTarget(self,obsServer=None,project=None):
+    def getListTarget(self, obsServer=None, project=None):
         '''
         return the list of Target of a project for a OBS server.
         '''
-        url=obsServer+"/build/"+project
-        aElement=ElementTree.fromstring(core.http_request("GET", url).read())
-        res=[]
+        url = obsServer + "/build/" + project
+        aElement = ElementTree.fromstring(core.http_request("GET", url).read())
+        res = []
         for directory in aElement:
             for entry in directory.getiterator():
                 res.append(entry.get("name"))
         return res
         
-    def getListArchitecture(self,obsServer=None,project=None,projectTarget=None):
+    def getListArchitecture(self, obsServer=None, project=None, projectTarget=None):
         '''
         return the list of Archictecture of the target of the project for a OBS server.
         '''
-        url=obsServer+"/build/"+project+"/"+projectTarget
+        url = obsServer + "/build/" + project + "/" + projectTarget
         
-        aElement=ElementTree.fromstring(core.http_request("GET", url).read())
-        res=[]
+        aElement = ElementTree.fromstring(core.http_request("GET", url).read())
+        res = []
         for directory in aElement:
             for entry in directory.getiterator():
                 res.append(entry.get("name"))
         return res
     
-    def commitProject(self,path=None, message=None, skip_validation=True):
+    def commitProject(self, path=None, message=None, skip_validation=True):
         '''
         commit a project to the OBS server.
         '''
         os.chdir(path)
-        command="osc ci -m "+message+" "
+        command = "osc ci -m \"" + message + "\" "
         
         if skip_validation:
-            command+="--skip-validation"
+            command += "--skip-validation"
         
-        command=command.split()
-        subprocess.call(command, stdin=open("/dev/null", "r"), close_fds=True)
+        command = shlex.split(command)
+        subprocess.call(command)
         
-    def addremove (self,path=None):
+    def addremove (self, path=None):
         '''
         Adds new files, removes disappeared files
         '''
         os.chdir(path)
-        command="osc ar"
-        command=command.split()
-        print "path",path,"command",command
+        command = "osc ar"
+        command = shlex.split(command)
         subprocess.call(command, stdin=open("/dev/null", "r"), close_fds=True)
         
-myObsLightOsc=ObsLightOsc()
+myObsLightOsc = ObsLightOsc()
 

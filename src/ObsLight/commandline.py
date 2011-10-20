@@ -521,7 +521,7 @@ class ObsLight():
                 elif listArgv[i] == "--message":
                     message = listArgv[i + 1]
                 else:
-                    raise ObsLightErr.ArgError("unknow command "+listArgv[i]+" for " + __COMMAND__)
+                    raise ObsLightErr.ArgError("unknow command " + listArgv[i] + " for " + __COMMAND__)
             if (message == None):
                 raise ObsLightErr.ArgError("No message for " + __COMMAND__)
             elif (projectLocalName != None) and (package != None) :
@@ -566,11 +566,11 @@ class ObsLight():
                 else:
                     raise ObsLightErr.ArgError("unknow command for " + __COMMAND__)
             if (projectLocalName != None) and (fromProject != None):
-                self.cliObsLightManager.addRepos(projectLocalName=projectLocalName, 
+                self.cliObsLightManager.addRepos(projectLocalName=projectLocalName,
                                                  fromProject=fromProject)
             elif (projectLocalName != None) and (alias != None)and (url == None):
-                self.cliObsLightManager.addRepos(projectLocalName=projectLocalName, 
-                                                 alias=alias, 
+                self.cliObsLightManager.addRepos(projectLocalName=projectLocalName,
+                                                 alias=alias,
                                                  url=url)
             else:
                 raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)

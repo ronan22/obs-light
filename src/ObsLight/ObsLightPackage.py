@@ -31,24 +31,24 @@ class ObsLightPackage(object):
     '''
 
 
-    def __init__(self,name="", specFile="", listFile=[], status="", fromSave=None):
+    def __init__(self, name="", specFile="", listFile=[], status="", fromSave=None):
         '''
         Constructor
         '''
-        if fromSave==None:
-            self.__name=name
-            self.__listFile=listFile
-            self.__status=status
-            self.__specFile=specFile
-            self.__packageDirectory=None
+        if fromSave == None:
+            self.__name = name
+            self.__listFile = listFile
+            self.__status = status
+            self.__specFile = specFile
+            self.__packageDirectory = None
         else:
-            self.__name=fromSave["name"]
-            self.__listFile=fromSave["listFile"]
-            self.__status=fromSave["status"]
-            self.__specFile=fromSave["specFile"]
-            self.__packageDirectory=fromSave["packageDirectory"]
+            self.__name = fromSave["name"]
+            self.__listFile = fromSave["listFile"]
+            self.__status = fromSave["status"]
+            self.__specFile = fromSave["specFile"]
+            self.__packageDirectory = fromSave["packageDirectory"]
             
-        self.__mySpecFile=ObsLightSpec(self.__specFile)
+        self.__mySpecFile = ObsLightSpec(self.__specFile)
             
     def getName(self):
         '''
@@ -60,12 +60,12 @@ class ObsLightPackage(object):
         '''
         return a description of the object in a dictionary.
         '''
-        aDic={}
-        aDic["name"]=self.__name
-        aDic["listFile"]=self.__listFile
-        aDic["status"]=self.__status
-        aDic["specFile"]=self.__specFile
-        aDic["packageDirectory"]=self.__packageDirectory
+        aDic = {}
+        aDic["name"] = self.__name
+        aDic["listFile"] = self.__listFile
+        aDic["status"] = self.__status
+        aDic["specFile"] = self.__specFile
+        aDic["packageDirectory"] = self.__packageDirectory
         return aDic
             
     def getStatus(self):
@@ -86,11 +86,11 @@ class ObsLightPackage(object):
         '''
         return os.path.dirname(self.__specFile)
             
-    def setDirectoryBuild(self,packageDirectory=None):
+    def setDirectoryBuild(self, packageDirectory=None):
         '''
         Set the directory of the package into the chroot.
         '''
-        self.__packageDirectory=packageDirectory
+        self.__packageDirectory = packageDirectory
         
     def getPackageDirectory(self):
         '''
@@ -98,7 +98,7 @@ class ObsLightPackage(object):
         '''
         return self.__packageDirectory
     
-    def addPatch(self,file=None):
+    def addPatch(self, file=None):
         '''
         add a Patch file to package, the patch is automatically add to the spec file.
         '''
@@ -106,7 +106,7 @@ class ObsLightPackage(object):
         self.addFile(file)
     
     
-    def addFile(self,file=None):
+    def addFile(self, file=None):
         '''
         Add a file to the package.
         '''
@@ -120,23 +120,24 @@ class ObsLightPackage(object):
         self.__mySpecFile.save()
         
     
-    def addFileToSpec(self,baseFile=None,file=None):
+    def addFileToSpec(self, baseFile=None, file=None):
         '''
         Add a delete command of a file to the spec file.
         '''
-        return self.__mySpecFile.addFile(baseFile=baseFile,file=file)
+        return self.__mySpecFile.addFile(baseFile=baseFile, file=file)
             
-    def delFileToSpec(self,file=None):
+    def delFileToSpec(self, file=None):
         '''
         Add a delete command of a file to the spec file.
         '''    
         return self.__mySpecFile.delFile(file=file)
     
     
-    def commitToObs(self,message=None):
+    def commitToObs(self, message=None):
         '''
         commit the package to the OBS server.
         '''
+        print "commitToObs",message,self.getOscDirectory()
         ObsLightOsc().commitProject(path=self.getOscDirectory(), message=message)
     
     def addRemoveFileToTheProject(self):
@@ -144,6 +145,7 @@ class ObsLightPackage(object):
         add new file and remove file to the project.
         '''
         ObsLightOsc().addremove(path=self.getOscDirectory())
+
     
     
     

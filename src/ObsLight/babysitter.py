@@ -25,32 +25,32 @@ def run(prg):
             raise
 
     except ObsLightErr.SignalInterrupt:
-        print >>sys.stderr, 'killed!'
+        print >> sys.stderr, 'killed!'
         return 1
 
     except KeyboardInterrupt:
-        print >>sys.stderr, 'interrupted!'
+        print >> sys.stderr, 'interrupted!'
         return 1
     
-    except ObsLightErr.ArgError,e:
-        print >>sys.stderr, ' Arg Stop:', e.msg
+    except ObsLightErr.ArgError, e:
+        print >> sys.stderr, ' Arg Stop:', e.msg
         return 1
     
-    except ObsLightErr.ManagerError,e:
-        print >>sys.stderr, ' Manager Stop:', e.msg
+    except ObsLightErr.ManagerError, e:
+        print >> sys.stderr, ' Manager Stop:', e.msg
         return 1
     
-    except ObsLightErr.ObsLightProjectsError,e:
-        print >>sys.stderr, ' Projects Stop:', e.msg
+    except ObsLightErr.ObsLightProjectsError, e:
+        print >> sys.stderr, ' Projects Stop:', e.msg
         return 1
     
         
-    except ObsLightErr.ObsLightObsServers,e:
-        print >>sys.stderr, '', e.msg
+    except ObsLightErr.ObsLightObsServers, e:
+        print >> sys.stderr, '', e.msg
         return 1
         
-    except ObsLightErr.ObsLightChRootError,e:
-        print >>sys.stderr, '', e.msg
+    except ObsLightErr.ObsLightChRootError, e:
+        print >> sys.stderr, '', e.msg
         return 1
           
 

@@ -32,22 +32,22 @@ class ObsLightMic(object):
         '''
         Constructor
         '''
-        self.__isInit=False
+        self.__isInit = False
         
         self.__chroot_lockfd = -1
         self.__chroot_lock = ""
     
-        self.__globalmounts=None
-        self.__qemu_emulator=None
+        self.__globalmounts = None
+        self.__qemu_emulator = None
         
-        self.__chrootDirectory=None
+        self.__chrootDirectory = None
         
     def __del__(self):
         '''
         
         '''
-        if self.__isInit==True:
-            self.cleanup_chrootenv(bindmounts = self.__bindmounts)
+        if self.__isInit == True:
+            self.cleanup_chrootenv(bindmounts=self.__bindmounts)
     
     def isInit(self):
         '''
@@ -55,21 +55,21 @@ class ObsLightMic(object):
         '''
         return self.__isInit
     
-    def initChroot(self,chrootDirectory=None,
+    def initChroot(self, chrootDirectory=None,
                         chrootTransfertDirectory=None,
                         transfertDirectory=None):
         '''
         
         '''
-        self.__bindmounts=chrootTransfertDirectory+":"+transfertDirectory+";"
-        self.__chrootDirectory=chrootDirectory
+        self.__bindmounts = chrootTransfertDirectory + ":" + transfertDirectory + ";"
+        self.__chrootDirectory = chrootDirectory
         self.__findArch()
         
-        self.setup_chrootenv(bindmounts = self.__bindmounts)
+        self.setup_chrootenv(bindmounts=self.__bindmounts)
         
-        self.__isInit=True
+        self.__isInit = True
         
-    def setup_chrootenv(self, bindmounts = None):
+    def setup_chrootenv(self, bindmounts=None):
         def get_bind_mounts(chrootdir, bindmounts):
             chrootmounts = []
             if bindmounts in ("", None):
@@ -109,7 +109,7 @@ class ObsLightMic(object):
             for kernel in os.listdir("/lib/modules"):
                 chrootmounts.append(BindChrootMount("/lib/modules/" + kernel, chrootdir, None, "ro"))
     
-            self.__globalmounts= chrootmounts
+            self.__globalmounts = chrootmounts
     
         def bind_mount(chrootmounts):
             for b in chrootmounts:
@@ -117,7 +117,7 @@ class ObsLightMic(object):
                 b.mount()
     
         def setup_resolv(chrootdir):
-            subprocess.call(["sudo","cp", "/etc/resolv.conf",chrootdir + "/etc/resolv.conf"])
+            subprocess.call(["sudo", "cp", "/etc/resolv.conf", chrootdir + "/etc/resolv.conf"])
             
         get_bind_mounts(self.__chrootDirectory, bindmounts)
         bind_mount(self.__globalmounts)
@@ -125,13 +125,13 @@ class ObsLightMic(object):
         mtab = "/etc/mtab"
         dstmtab = self.__chrootDirectory + mtab
         if not os.path.islink(dstmtab):
-            subprocess.call(["sudo","cp", mtab,dstmtab])
+            subprocess.call(["sudo", "cp", mtab, dstmtab])
             
         self.__chroot_lock = os.path.join(self.__chrootDirectory, ".chroot.lock")
         self.__chroot_lockfd = open(self.__chroot_lock, "w")
         return self.__globalmounts
         
-    def cleanup_chrootenv(self, bindmounts = None):
+    def cleanup_chrootenv(self, bindmounts=None):
         def bind_unmount(chrootmounts):
             chrootmounts.reverse()
             for b in chrootmounts:
@@ -166,7 +166,7 @@ class ObsLightMic(object):
             subprocess.call(["sudo", "rm", self.__chrootDirectory + self.__qemu_emulator])
         
         
-    def cleanup_mountdir(self,chrootdir, bindmounts):
+    def cleanup_mountdir(self, chrootdir, bindmounts):
         if bindmounts == "" or bindmounts == None:
             return
 
@@ -184,15 +184,15 @@ class ObsLightMic(object):
             if os.path.isdir(tmpdir):
                 if len(os.listdir(tmpdir)) == 0:
                     #shutil.rmtree(tmpdir, ignore_errors = True)
-                    subprocess.call(["sudo","rm", "-r",tmpdir])
+                    subprocess.call(["sudo", "rm", "-r", tmpdir])
                 else:
                     chroot.pwarning("dir %s isn't empty." % tmpdir)
         
-    def isArmArch(self,directory=None):
+    def isArmArch(self, directory=None):
         '''
         
         '''
-        self.__chrootDirectory=directory
+        self.__chrootDirectory = directory
         self.__findArch()
         if self.__qemu_emulator:
             return True
@@ -213,7 +213,7 @@ class ObsLightMic(object):
         qemu_emulator = None
     
         for ftc in files_to_check:
-            ftc = "%s/%s" % (self.__chrootDirectory,ftc)
+            ftc = "%s/%s" % (self.__chrootDirectory, ftc)
     
             # Return code of 'file' is "almost always" 0 based on some man pages
             # so we need to check the file existance first.
@@ -240,10 +240,10 @@ class ObsLightMic(object):
         if not architecture_found:
             raise imgcreate.CreatorError("Failed to get architecture from any of the following files %s from chroot." % files_to_check)
         
-        self.__qemu_emulator= qemu_emulator
+        self.__qemu_emulator = qemu_emulator
         
         
-    def chroot(self,chrootdir, bindmounts = None, execute = "/bin/bash"):
+    def chroot(self, chrootdir, bindmounts=None, execute="/bin/bash"):
         def mychroot():
             os.chroot(chrootdir)
             os.chdir("/")
@@ -255,14 +255,14 @@ class ObsLightMic(object):
             print "----------------------------------"
             self.setup_chrootenv(chrootdir, bindmounts)
             args = shlex.split(execute)
-            subprocess.call(args, preexec_fn = mychroot)
+            subprocess.call(args, preexec_fn=mychroot)
             
         except OSError, (err, msg):
             raise imgcreate.CreatorError("Failed to chroot: %s" % msg)
         finally:
             self.cleanup_chrootenv(chrootdir, bindmounts)
             
-    def setup_qemu_emulator(self,rootdir, arch):
+    def setup_qemu_emulator(self, rootdir, arch):
         # mount binfmt_misc if it doesn't exist
         if not os.path.exists("/proc/sys/fs/binfmt_misc"):
             modprobecmd = imgcreate.find_binary_path("modprobe")
@@ -279,8 +279,8 @@ class ObsLightMic(object):
         if not os.path.exists(qemu_emulator):
             raise imgcreate.CreatorError("Please install a statically-linked qemu-arm")
         if not os.path.exists(rootdir + "/usr/bin"):
-            subprocess.call(["sudo","mkdir","-p", rootdir + "/usr/bin"])
-        subprocess.call(["sudo","cp",qemu_emulator, rootdir + qemu_emulator])
+            subprocess.call(["sudo", "mkdir", "-p", rootdir + "/usr/bin"])
+        subprocess.call(["sudo", "cp", qemu_emulator, rootdir + qemu_emulator])
         # disable selinux, selinux will block qemu emulator to run
         #if os.path.exists("/usr/sbin/setenforce"):
         #   subprocess.call(["/usr/sbin/setenforce", "0"])
@@ -309,7 +309,7 @@ class ObsLightMic(object):
 
 class BindChrootMount:
     """Represents a bind mount of a directory into a chroot."""
-    def __init__(self, src, chroot, dest = None, option = None):
+    def __init__(self, src, chroot, dest=None, option=None):
         self.src = src
         self.root = os.path.abspath(os.path.expanduser(chroot))
         self.option = option
@@ -345,14 +345,14 @@ class BindChrootMount:
             return
 
         #imgcreate.makedirs(self.dest)
-        subprocess.call(["sudo","mkdir","-p", self.dest])
+        subprocess.call(["sudo", "mkdir", "-p", self.dest])
         
-        rc = subprocess.call(["sudo",self.mountcmd, "--bind", self.src, self.dest])
+        rc = subprocess.call(["sudo", self.mountcmd, "--bind", self.src, self.dest])
         if rc != 0:
-            raise imgcreate.MountError("Bind-mounting '%s' to '%s' failed" %
+            raise imgcreate.MountError("Bind-mounting '%s' to '%s' failed" % 
                              (self.src, self.dest))
         if self.option:
-            rc = subprocess.call(["sudo",self.mountcmd, "--bind", "-o", "remount,%s" % self.option, self.dest])
+            rc = subprocess.call(["sudo", self.mountcmd, "--bind", "-o", "remount,%s" % self.option, self.dest])
             if rc != 0:
                 raise imgcreate.MountError("Bind-remounting '%s' failed" % self.dest)
         self.mounted = True
@@ -362,9 +362,9 @@ class BindChrootMount:
             return
 
         if self.ismounted():
-            subprocess.call(["sudo",self.umountcmd, "-l", self.dest])
+            subprocess.call(["sudo", self.umountcmd, "-l", self.dest])
         self.mounted = False
 
 
 
-myObsLightMic=ObsLightMic()
+myObsLightMic = ObsLightMic()
