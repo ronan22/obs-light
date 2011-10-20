@@ -43,7 +43,15 @@ class ObsLightSpec:
         self.__postunFlag = "%postun"
         self.__verifyscriptFlag = "%verifyscript"
         
-        self.__listSection = [self.__prepFlag, self.__buildFlag, self.__installFlag, self.__cleanFlag, self.__filesFlag, self.__postFlag, self.__preunFlag, self.__postunFlag, self.__verifyscriptFlag]
+        self.__listSection = [self.__prepFlag, 
+                              self.__buildFlag, 
+                              self.__installFlag, 
+                              self.__cleanFlag, 
+                              self.__filesFlag, 
+                              self.__postFlag, 
+                              self.__preunFlag, 
+                              self.__postunFlag, 
+                              self.__verifyscriptFlag]
         #deprecated if you use order dico
         self.__orderList = []
         self.__spectDico = {}
@@ -121,7 +129,9 @@ class ObsLightSpec:
             
         return None
         
-    def addFile(self, baseFile=None, file=None):
+    def addFile(self, 
+                baseFile=None, 
+                file=None):
         '''
         
         '''

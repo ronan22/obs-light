@@ -33,24 +33,23 @@ def run(prg):
         return 1
     
     except ObsLightErr.ArgError, e:
-        print >> sys.stderr, ' Arg Stop:', e.msg
+        print >> sys.stderr, 'Argument Error:', e.msg
         return 1
     
     except ObsLightErr.ManagerError, e:
-        print >> sys.stderr, ' Manager Stop:', e.msg
+        print >> sys.stderr, 'Manager Error:', e.msg
         return 1
     
     except ObsLightErr.ObsLightProjectsError, e:
-        print >> sys.stderr, ' Projects Stop:', e.msg
+        print >> sys.stderr, 'Projects Error:', e.msg
         return 1
     
-        
     except ObsLightErr.ObsLightObsServers, e:
-        print >> sys.stderr, '', e.msg
+        print >> sys.stderr, 'OBS Error', e.msg
         return 1
         
     except ObsLightErr.ObsLightChRootError, e:
-        print >> sys.stderr, '', e.msg
+        print >> sys.stderr, 'Chroot Error', e.msg
         return 1
           
 

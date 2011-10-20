@@ -84,7 +84,15 @@ class ObsLightMic(object):
                     srcdst.append("none")
                 if not os.path.isdir(srcdst[0]):
                     continue
-                if srcdst[0] in ("/proc", "/proc/sys/fs/binfmt_misc", "/", "/sys", "/dev", "/dev/pts", "/dev/shm", "/var/lib/dbus", "/var/run/dbus"):
+                if srcdst[0] in ("/proc",
+                                 "/proc/sys/fs/binfmt_misc",
+                                 "/",
+                                 "/sys",
+                                 "/dev",
+                                 "/dev/pts",
+                                 "/dev/shm",
+                                 "/var/lib/dbus",
+                                  "/var/run/dbus"):
                     chroot.pwarning("%s will be mounted by default." % srcdst[0])
                     continue
                 if srcdst[1] == "" or srcdst[1] == "none":
