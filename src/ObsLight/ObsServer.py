@@ -90,17 +90,17 @@ class ObsServer(object):
         '''
         return self.__aliases
     
-    def getListPackage(self,project=None):
+    def getListPackage(self,projectLocalName=None):
         '''
         
         '''
-        return ObsLightOsc.myObsLightOsc.getListPackage(obsServer=self.__serverAPI,project=project)
+        return ObsLightOsc.myObsLightOsc.getListPackage(obsServer=self.__serverAPI,projectLocalName=projectLocalName)
     
-    def CheckoutPackage(self,project=None,package=None,directory=None):
+    def CheckoutPackage(self,projectLocalName=None,package=None,directory=None):
         '''
         
         '''
-        ObsLightOsc.myObsLightOsc.CheckoutPackage(obsServer=self.__serverAPI,project=project,package=package,directory=directory)
+        ObsLightOsc.myObsLightOsc.CheckoutPackage(obsServer=self.__serverAPI,projectLocalName=projectLocalName,package=package,directory=directory)
         
     def getPackageStatus(self,project=None,package=None,repos=None,arch=None):
         '''
@@ -116,11 +116,11 @@ class ObsServer(object):
         return self.__serverRepos
     
     
-    def getListProject(self):
+    def getListLocalProject(self):
         '''
         
         '''
-        return  ObsLightOsc.myObsLightOsc.getListProject(obsServer=self.__serverAPI)
+        return  ObsLightOsc.myObsLightOsc.getListLocalProject(obsServer=self.__serverAPI)
     
     def getListTarget(self,project=None):
         '''

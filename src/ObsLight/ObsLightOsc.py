@@ -39,8 +39,6 @@ class ObsLightOsc(object):
     '''
     ObsLightOsc interact with osc, when possible, do it directly by python API
     '''
-
-
     def __init__(self):
         '''
         init 
@@ -49,8 +47,6 @@ class ObsLightOsc(object):
         
         if os.path.isfile(self.__confFile): 
             conf.get_config()
-        
-        
         
     def initConf(self,api=None,user=None,passw=None,aliases=None):
         '''
@@ -109,19 +105,19 @@ class ObsLightOsc(object):
                         return path.get("project")
         return result
 
-    def getListPackage(self,obsServer=None,project=None):
+    def getListPackage(self,obsServer=None,projectLocalName=None):
         '''
-            return the list of a project
+            return the list of a projectLocalName
         '''
-        list_package=core.meta_get_packagelist(obsServer, project)
+        list_package=core.meta_get_packagelist(obsServer, projectLocalName)
         return list_package
     
-    def CheckoutPackage(self,obsServer=None,project=None,package=None,directory=None):
+    def CheckoutPackage(self,obsServer=None,projectLocalName=None,package=None,directory=None):
         '''
             check out a package
         '''
         os.chdir(directory)
-        command="osc -A "+obsServer+" co "+project+" "+package
+        command="osc -A "+obsServer+" co "+projectLocalName+" "+package
         command=command.split()
         subprocess.call(command, stdin=open("/dev/null", "r"), close_fds=True)
         
@@ -205,7 +201,7 @@ class ObsLightOsc(object):
         #print "command",command
         subprocess.call(command, stdin=open("/dev/null", "r"), close_fds=True)
         
-    def getListProject(self,obsServer=None):
+    def getListLocalProject(self,obsServer=None):
         '''
         return a list of the project of a OBS Server.
         '''

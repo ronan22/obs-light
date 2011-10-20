@@ -24,41 +24,45 @@ class OBSLightBaseError(Exception):
 
 
 class SignalInterrupt(Exception):
-    """Exception raised on SIGTERM and SIGHUP."""
+    '''Exception raised on SIGTERM and SIGHUP.'''
 
 class ArgError(OBSLightBaseError):
-    """Exception raised when there are a wrong number of arg"""
+    '''Exception raised when there are a wrong number of arg'''
     def __init__(self, msg):
         OBSLightBaseError.__init__(self)
         self.msg = msg
 
 class ManagerError(OBSLightBaseError):
-    """Exception raised in Manager"""
+    '''Exception raised in Manager'''
     def __init__(self, msg):
         OBSLightBaseError.__init__(self)
         self.msg = msg
     
 class ObsLightObsServers(OBSLightBaseError):
-    """Exception raised in OBSServers"""
+    '''Exception raised in ObsServers'''
     def __init__(self, msg):
         OBSLightBaseError.__init__(self)
         self.msg = msg 
 
-class OBSLightCommandLineError(OBSLightBaseError):
-    """Exception raised in OBSServers"""
+class ObsLightCommandLineError(OBSLightBaseError):
+    '''Exception raised in ObsServers'''
     def __init__(self, msg):
         OBSLightBaseError.__init__(self)
         self.msg = msg 
    
         
-class OBSLightProjectsError(OBSLightBaseError):
-    """Exception raised in OBSLightProjects"""
+class ObsLightProjectsError(OBSLightBaseError):
+    '''Exception raised in ObsLightProjects'''
     def __init__(self, msg):
         OBSLightBaseError.__init__(self)
         self.msg = msg
                           
                             
-                            
+class ObsLightChRootError(OBSLightBaseError):
+    ''''Exception raised in ChRoot'''
+    def __init__(self, msg):
+        OBSLightBaseError.__init__(self)
+        self.msg = msg          
                             
                             
                      

@@ -49,7 +49,7 @@ class ObsServers(object):
         '''
         return self.__dicOBSLightServers[name]
         
-    def getListOBSServers(self):
+    def getListObsServers(self):
         '''
         
         '''
@@ -61,7 +61,7 @@ class ObsServers(object):
         '''
         saveServers={}
 
-        for obsserverName in self.getListOBSServers():
+        for obsserverName in self.getListObsServers():
             saveServers[obsserverName]= self.__dicOBSLightServers[obsserverName].getDic()
         
         saveconfigServers={}
@@ -93,56 +93,78 @@ class ObsServers(object):
         self.__dicOBSLightServers[aOBSServer.getName()]=aOBSServer
         
         
-    def addObsServer(self, serverWeb="", serverAPI=None, serverRepos="", aliases=None, user=None, passw=None):
+    def addObsServer(self,  serverWeb="", 
+                            serverAPI=None, 
+                            serverRepos="", 
+                            aliases=None, 
+                            user=None, 
+                            passw=None):
         '''
         
         '''
-        aOBSServer=ObsServer(serverWeb=serverWeb, serverAPI=serverAPI, serverRepos=serverRepos, aliases=aliases, user=user, passw=passw)
+        aOBSServer=ObsServer(serverWeb=serverWeb, 
+                             serverAPI=serverAPI, 
+                             serverRepos=serverRepos, 
+                             aliases=aliases, 
+                             user=user, 
+                             passw=passw)
         self.__dicOBSLightServers[aOBSServer.getName()]=aOBSServer
         
         
-    def getListProject(self,server=None):
+    def getListLocalProject(self,server=None):
         '''
         
         '''
-        return self.__dicOBSLightServers[server].getListProject()
+        return self.__dicOBSLightServers[server].getListLocalProject()
         
         
-    def getListPackage(self,obsserver=None,project=None):
+    def getListPackage(self,obsServer=None,
+                            projectLocalName=None):
         '''
         
         '''
-        return self.__dicOBSLightServers[obsserver].getListPackage(project=project)
+        return self.__dicOBSLightServers[obsServer].getListPackage(projectLocalName=projectLocalName)
     
-    def CheckoutPackage(self,obsserver=None,project=None,package=None,directory=None):
+    def CheckoutPackage(self,   obsServer=None,
+                                projectLocalName=None,
+                                package=None,
+                                directory=None):
         '''
         
         '''
-        self.__dicOBSLightServers[obsserver].CheckoutPackage(project=project,package=package,directory=directory)
+        self.__dicOBSLightServers[obsServer].CheckoutPackage(projectLocalName=projectLocalName,
+                                                             package=package,
+                                                             directory=directory)
         
-    def getPackageStatus(self,obsserver=None,project=None,package=None,repos=None,arch=None):
+    def getPackageStatus(self,obsServer=None,project=None,package=None,repos=None,arch=None):
         '''
         
         '''
-        return self.__dicOBSLightServers[obsserver].getPackageStatus(project=project,package=package,repos=repos,arch=arch)
+        return self.__dicOBSLightServers[obsServer].getPackageStatus(project=project,
+                                                                     package=package,
+                                                                     repos=repos,
+                                                                     arch=arch)
         
-    def getRepos(self,obsserver=None):
+    def getRepos(self,obsServer=None):
         '''
         
         '''
-        return self.__dicOBSLightServers[obsserver].getRepos()
+        return self.__dicOBSLightServers[obsServer].getRepos()
 
-    def getListTarget(self,obsserver=None ,project=None):
+    def getListTarget(self,obsServer=None ,project=None):
         '''
         
         '''
-        return self.__dicOBSLightServers[obsserver].getListTarget(project=project)
+        return self.__dicOBSLightServers[obsServer].getListTarget(project=project)
         
-    def getListArchitecture(self,obsserver=None ,project=None,projectTarget=None):
+    def getListArchitecture(self,   obsServer=None ,
+                                    project=None,
+                                    projectTarget=None):
         '''
         
         '''
-        return self.__dicOBSLightServers[obsserver].getListArchitecture(project=project,projectTarget=projectTarget)
+        return self.__dicOBSLightServers[obsServer].getListArchitecture(project=project,
+                                                                        projectTarget=projectTarget)
             
             
             

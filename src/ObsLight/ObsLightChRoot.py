@@ -29,6 +29,7 @@ import subprocess
 import ObsLightOsc
 import ObsLightMic 
 
+import ObsLightErr
 
 class ObsLightChRoot(object):
     '''
@@ -116,17 +117,21 @@ class ObsLightChRoot(object):
         packageName=package.getName()
         command=[]
         command.append("zypper --non-interactive si "+packageName)
-        
         self.execCommand(command=command)
         
-        aspecFile=self.__chrootrpmbuildDirectory+"/SPECS/"+specFile
-        self.buildPrepRpm(chrootDir=self.__chrootDirectory,specFile=aspecFile,arch=arch)
-        
-        #find the directory to watch
-        packageDirectory=self.__findPackageDirectory(package=packageName)
-        package.setDirectoryBuild(packageDirectory)
-        self.initGitWatch(path=packageDirectory)
-        
+        if os.path.isdir(self.__chrootrpmbuildDirectory+"/SPECS/"):
+            aspecFile=self.__chrootrpmbuildDirectory+"/SPECS/"+specFile
+            
+            self.buildPrepRpm(chrootDir=self.__chrootDirectory,specFile=aspecFile,arch=arch)
+            
+            #find the directory to watch
+            packageDirectory=self.__findPackageDirectory(package=packageName)
+            package.setDirectoryBuild(packageDirectory)
+            self.initGitWatch(path=packageDirectory)
+        else:
+            raise ObsLightErr.ObsLightChRootError(packageName+" source is not intall in "+self.__chrootDirectory)
+            
+            
     def execCommand(self,command=None):
         '''
         

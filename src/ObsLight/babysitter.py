@@ -40,7 +40,7 @@ def run(prg):
         print >>sys.stderr, ' Manager Stop:', e.msg
         return 1
     
-    except ObsLightErr.OBSLightProjectsError,e:
+    except ObsLightErr.ObsLightProjectsError,e:
         print >>sys.stderr, ' Projects Stop:', e.msg
         return 1
     
@@ -49,6 +49,9 @@ def run(prg):
         print >>sys.stderr, '', e.msg
         return 1
         
-        
+    except ObsLightErr.ObsLightChRootError,e:
+        print >>sys.stderr, '', e.msg
+        return 1
+          
 
 
