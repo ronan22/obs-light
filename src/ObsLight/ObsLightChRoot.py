@@ -37,7 +37,10 @@ class ObsLightChRoot(object):
     '''
 
 
-    def __init__(self,chrootDirectory=None,chrootDirTransfert=None,dirTransfert=None,fromSave=None):
+    def __init__(self,  chrootDirectory=None,
+                        chrootDirTransfert=None,
+                        dirTransfert=None,
+                        fromSave=None):
         '''
         Constructor
         '''
@@ -79,11 +82,20 @@ class ObsLightChRoot(object):
         saveconfigPackages["dirTransfert"]=self.__dirTransfert
         return saveconfigPackages
     
-    def createChRoot(self, obsApi=None,projectDir=None ,repos=None,arch=None,specPath=None):
+    def createChRoot(self,  obsApi=None,
+                            projectDir=None ,
+                            repos=None,
+                            arch=None,
+                            specPath=None):
         '''
         
         '''
-        ObsLightOsc.myObsLightOsc.createChRoot(obsApi=obsApi, chrootDir=self.__chrootDirectory,projectDir=projectDir ,repos=repos,arch=arch,specPath=specPath)
+        ObsLightOsc.myObsLightOsc.createChRoot(obsApi=obsApi, 
+                                               chrootDir=self.__chrootDirectory,
+                                               projectDir=projectDir ,
+                                               repos=repos,
+                                               arch=arch,
+                                               specPath=specPath)
         
         subprocess.call(["sudo","chown","root:users",self.__chrootDirectory])
         subprocess.call(["sudo","chown","root:users",self.__chrootDirectory+"/root"])
@@ -110,7 +122,9 @@ class ObsLightChRoot(object):
                 return self.__chrootrpmbuildDirectory+"/BUILD/"+res
         return None
 
-    def addPackageSourceInChRoot(self,package=None,specFile=None,arch=None):
+    def addPackageSourceInChRoot(self,  package=None,
+                                        specFile=None,
+                                        arch=None):
         '''
         
         '''
@@ -118,11 +132,12 @@ class ObsLightChRoot(object):
         command=[]
         command.append("zypper --non-interactive si "+packageName)
         self.execCommand(command=command)
-        
-        if os.path.isdir(self.__chrootrpmbuildDirectory+"/SPECS/"):
+        if os.path.isdir(self.__chrootDirectory+"/"+self.__chrootrpmbuildDirectory+"/SPECS/"):
             aspecFile=self.__chrootrpmbuildDirectory+"/SPECS/"+specFile
             
-            self.buildPrepRpm(chrootDir=self.__chrootDirectory,specFile=aspecFile,arch=arch)
+            self.buildPrepRpm(chrootDir=self.__chrootDirectory,
+                              specFile=aspecFile,
+                              arch=arch)
             
             #find the directory to watch
             packageDirectory=self.__findPackageDirectory(package=packageName)
@@ -137,12 +152,14 @@ class ObsLightChRoot(object):
         
         '''
         if  not ObsLightMic.myObsLightMic.isInit():
-            ObsLightMic.myObsLightMic.initChroot(chrootDirectory=self.__chrootDirectory,chrootTransfertDirectory=self.__chrootDirTransfert,transfertDirectory=self.__dirTransfert)    
-            
+            ObsLightMic.myObsLightMic.initChroot(chrootDirectory=self.__chrootDirectory,
+                                                 chrootTransfertDirectory=self.__chrootDirTransfert,
+                                                 transfertDirectory=self.__dirTransfert)    
         pathScript=self.__chrootDirTransfert+"/runMe.sh"
         f=open(pathScript,'w')
         f.write("#!/bin/sh\n")
         f.write("# Created by obslight\n")
+        
         for c in command:
             f.write(c+"\n") 
         f.close()
@@ -166,7 +183,9 @@ class ObsLightChRoot(object):
         command.append("zypper --no-gpg-checks --gpg-auto-import-keys ref")
         self.execCommand(command=command) 
         
-    def buildPrepRpm(self,chrootDir=None,specFile=None,arch=None):
+    def buildPrepRpm(self,  chrootDir=None,
+                            specFile=None,
+                            arch=None):
         '''
         
         '''
@@ -179,7 +198,9 @@ class ObsLightChRoot(object):
         
         '''
         if  not ObsLightMic.myObsLightMic.isInit():
-            ObsLightMic.myObsLightMic.initChroot(chrootDirectory=self.__chrootDirectory,chrootTransfertDirectory=self.__chrootDirTransfert,transfertDirectory=self.__dirTransfert)
+            ObsLightMic.myObsLightMic.initChroot(chrootDirectory=self.__chrootDirectory,
+                                                 chrootTransfertDirectory=self.__chrootDirTransfert,
+                                                 transfertDirectory=self.__dirTransfert)
         
         pathScript=self.__chrootDirTransfert+"/runMe.sh"
         f=open(pathScript,'w')
@@ -210,7 +231,8 @@ class ObsLightChRoot(object):
         command.append("git --git-dir="+path+"/.git commit -m \"first commit\"")
         self.execCommand(command=command)
         
-    def makePatch(self,package=None,patch=None):
+    def makePatch(self, package=None,
+                        patch=None):
         '''
         
         '''
@@ -219,6 +241,7 @@ class ObsLightChRoot(object):
         pathOscPackage=package.getOscDirectory()
         command=[]
         command.append("git --git-dir="+pathPackage+"/.git --work-tree="+pathPackage+" diff -p > "+self.__dirTransfert+"/"+patchFile)
+                
         self.execCommand(command=command)
         shutil.copy(self.__chrootDirTransfert+"/"+patchFile, pathOscPackage+"/"+patch)
         package.addPatch(file=patch)
@@ -266,12 +289,13 @@ class ObsLightChRoot(object):
             command.append("cp "+os.path.join(pathPackage,file)+" "+self.__dirTransfert)
             repoListFilesToAdd.append([file,baseFile])
             
-        self.execCommand(command=command)
+        if command!=[]:    
+            self.execCommand(command=command)
         
-        for fileDef in repoListFilesToAdd:
-            [file,baseFile]=fileDef
-            shutil.copy(self.__chrootDirTransfert+"/"+baseFile, pathOscPackage+"/"+baseFile)
-            package.addFileToSpec(baseFile=baseFile,file=file)
+            for fileDef in repoListFilesToAdd:
+                [file,baseFile]=fileDef
+                shutil.copy(self.__chrootDirTransfert+"/"+baseFile, pathOscPackage+"/"+baseFile)
+                package.addFileToSpec(baseFile=baseFile,file=file)
             
             
         for fileDef in filesToDel:

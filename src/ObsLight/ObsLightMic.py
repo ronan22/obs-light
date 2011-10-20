@@ -55,14 +55,16 @@ class ObsLightMic(object):
         '''
         return self.__isInit
     
-    def initChroot(self,chrootDirectory=None,chrootTransfertDirectory=None,transfertDirectory=None):
+    def initChroot(self,chrootDirectory=None,
+                        chrootTransfertDirectory=None,
+                        transfertDirectory=None):
         '''
         
         '''
         self.__bindmounts=chrootTransfertDirectory+":"+transfertDirectory+";"
-        
         self.__chrootDirectory=chrootDirectory
         self.__findArch()
+        
         self.setup_chrootenv(bindmounts = self.__bindmounts)
         
         self.__isInit=True

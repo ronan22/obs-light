@@ -113,23 +113,23 @@ class ObsLightProjects(object):
         self.__dicOBSLightProjects[projectLocalName].createChRoot()
         
         
-    def goToChRoot(self,project=None,package=None):
+    def goToChRoot(self,projectLocalName=None,package=None):
         '''
         
         '''
-        self.__dicOBSLightProjects[project].goToChRoot(package=package)
+        self.__dicOBSLightProjects[projectLocalName].goToChRoot(package=package)
         
-    def addPackageSourceInChRoot(self,project=None,package=None):
+    def addPackageSourceInChRoot(self,projectLocalName=None,package=None):
         '''
         
         '''
-        self.__dicOBSLightProjects[project].addPackageSourceInChRoot(package=package)
+        self.__dicOBSLightProjects[projectLocalName].addPackageSourceInChRoot(package=package)
         
-    def makePatch(self,project=None,package=None,patch=None):
+    def makePatch(self,projectLocalName=None,package=None,patch=None):
         '''
         
         '''
-        self.__dicOBSLightProjects[project].makePatch(package=package,patch=patch)
+        self.__dicOBSLightProjects[projectLocalName].makePatch(package=package,patch=patch)
         
         
     def getObsServer(self,name=None):
@@ -138,26 +138,32 @@ class ObsLightProjects(object):
         '''
         return  self.__dicOBSLightProjects[name].getObsServer()
         
-    def commitToObs(self,name=None,message=None,package=None):
+    def commitToObs(self,   name=None,
+                            message=None,
+                            package=None):
         '''
         commit the package to the OBS server.
         '''
         self.__dicOBSLightProjects[name].getPackage(package=package).commitToObs(message=message)
     
-    def addRemoveFileToTheProject(self,name=None,package=None):
+    def addRemoveFileToTheProject(self, name=None,
+                                        package=None):
         '''
         add new file and remove file to the project.
         '''
         self.__dicOBSLightProjects[name].getPackage(package=package).addRemoveFileToTheProject()
         
-    def addRepos(self,project=None,fromProject=None,repos=None  ,alias=None):
+    def addRepos(self,  projectLocalName=None,
+                        fromProject=None,
+                        repos=None  ,
+                        alias=None):
         '''
         
         '''
         if fromProject!=None:
-            self.__dicOBSLightProjects[fromProject].addRepos( chroot=self.__dicOBSLightProjects[project].getChRoot())
+            self.__dicOBSLightProjects[fromProject].addRepos( chroot=self.__dicOBSLightProjects[projectLocalName].getChRoot())
         else:
-            self.__dicOBSLightProjects[project].addRepos(repos=repos  ,alias=alias)
+            self.__dicOBSLightProjects[projectLocalName].addRepos(repos=repos  ,alias=alias)
         
         
     def getProjectObsName(self,projectLocalName=None):

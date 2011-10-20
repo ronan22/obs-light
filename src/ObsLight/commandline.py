@@ -445,7 +445,8 @@ class ObsLight():
                 else:
                     raise ObsLightErr.ArgError("unknow command for " + __COMMAND__)
             if (projectLocalName != None) or (package != None):
-                self.cliObsLightManager.addPackageSourceInChRoot(projectLocalName=projectLocalName, package=package)
+                self.cliObsLightManager.addPackageSourceInChRoot(projectLocalName=projectLocalName,
+                                                                 package=package)
             else:
                 raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
                 
@@ -482,7 +483,9 @@ class ObsLight():
                     raise ObsLightErr.ArgError("unknow command for " + __COMMAND__)
 
             if (projectLocalName != None) and (package != None) and (patch != None):
-                self.cliObsLightManager.makePatch(projectLocalName=projectLocalName, package=package, patch=patch)
+                self.cliObsLightManager.makePatch(projectLocalName=projectLocalName,
+                                                  package=package,
+                                                  patch=patch)
             else:
                 raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
                 
@@ -518,8 +521,10 @@ class ObsLight():
                 elif listArgv[i] == "--message":
                     message = listArgv[i + 1]
                 else:
-                    raise ObsLightErr.ArgError("unknow command for " + __COMMAND__)
-            if (projectLocalName != None) and (package != None) and (message != None):
+                    raise ObsLightErr.ArgError("unknow command "+listArgv[i]+" for " + __COMMAND__)
+            if (message == None):
+                raise ObsLightErr.ArgError("No message for " + __COMMAND__)
+            elif (projectLocalName != None) and (package != None) :
                 self.cliObsLightManager.addAndCommitChange(projectLocalName=projectLocalName, package=package, message=message)
             else:
                 raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
@@ -561,9 +566,12 @@ class ObsLight():
                 else:
                     raise ObsLightErr.ArgError("unknow command for " + __COMMAND__)
             if (projectLocalName != None) and (fromProject != None):
-                self.cliObsLightManager.addAndCommitChange(projectLocalName=projectLocalName, fromProject=fromProject)
+                self.cliObsLightManager.addRepos(projectLocalName=projectLocalName, 
+                                                 fromProject=fromProject)
             elif (projectLocalName != None) and (alias != None)and (url == None):
-                self.cliObsLightManager.addAndCommitChange(projectLocalName=projectLocalName, alias=alias, url=url)
+                self.cliObsLightManager.addRepos(projectLocalName=projectLocalName, 
+                                                 alias=alias, 
+                                                 url=url)
             else:
                 raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
                 

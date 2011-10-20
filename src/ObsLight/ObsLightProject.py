@@ -152,7 +152,9 @@ class ObsLightProject(object):
         #status=ObsLightManager.getManager().getPackageStatus(obsserver=self.__obsServer,projectLocalName=self.__projectObsName,package=name,repos=self.__projectTarget,arch=self.__projectArchitecture)
         #self.__packages.addPackage(name=name, specFile=specFile, listFile=listFile, status=status)
 
-        self.__packages.addPackage(name=name, specFile=specFile, listFile=listFile)
+        self.__packages.addPackage(name=name, 
+                                   specFile=specFile, 
+                                   listFile=listFile)
         
     def createChRoot(self):
         '''
@@ -178,10 +180,16 @@ class ObsLightProject(object):
         '''
         if chroot==None:
             __aChroot=self.__chroot
+        else:
+            __aChroot=chroot
         if repos==None:
             __aRepos=self.getReposProject()
+        else:
+            __aRepos=repos
         if alias==None:
             __anAlias=self.__projectObsName
+        else:
+            __anAlias=alias
             
         __aChroot.addRepos(repos=__aRepos  ,alias=__anAlias )
         
@@ -206,13 +214,16 @@ class ObsLightProject(object):
         
         '''
         specFile=os.path.basename( self.__packages.getSpecFile(package))
-        self.__chroot.addPackageSourceInChRoot(package=self.__packages.getPackage(package),specFile=specFile,arch=self.__projectArchitecture)
+        self.__chroot.addPackageSourceInChRoot(package=self.__packages.getPackage(package),
+                                               specFile=specFile,
+                                               arch=self.__projectArchitecture)
 
     def makePatch(self,package=None,patch=None):
         '''
-        Creat a patch
+        Create a patch
         '''
-        self.__chroot.makePatch(package=self.__packages.getPackage(package),patch=patch)
+        self.__chroot.makePatch(package=self.__packages.getPackage(package),
+                                patch=patch)
         
 
     def commitToObs(self,message=None,package=None):

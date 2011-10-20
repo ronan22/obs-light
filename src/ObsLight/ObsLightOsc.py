@@ -278,6 +278,7 @@ class ObsLightOsc(object):
         os.chdir(path)
         command="osc ar"
         command=command.split()
+        print "path",path,"command",command
         subprocess.call(command, stdin=open("/dev/null", "r"), close_fds=True)
         
 myObsLightOsc=ObsLightOsc()
