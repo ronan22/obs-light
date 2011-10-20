@@ -14,12 +14,14 @@ fi
 TMPDIR=`mktemp -d`
 PROJECTDIR=`pwd`
 cd $TMPDIR
-osc -A https://build.pub.meego.com co home:ronan:OBS_Light obslight
+osc -A https://api.pub.meego.com co -c home:ronan:OBS_Light obslight
+osc rm obslight/obslight*.tar.gz
 cd $PROJECTDIR
-cp src/dist/obslight*.tar.gz $TMPDIR
-cp obslight.spec $TMPDIR
-cp debian.changelog debian.control debian.postinst debian.rules obslight.dsc $TMPDIR
-cd $TMPDIR
+cp src/dist/obslight*.tar.gz $TMPDIR/obslight
+cp obslight.spec $TMPDIR/obslight
+cp debian.changelog debian.control debian.postinst debian.rules obslight.dsc $TMPDIR/obslight
+cd $TMPDIR/obslight
+osc add obslight*.tar.gz
 osc ci -m "$1"
 RETVAL=$?
 cd $PROJECTDIR

@@ -1,4 +1,7 @@
-obslight (0.3.2-1) stable; urgency=low
+obslight (0.3.3-1) stable; urgency=low
+
+  * Version 0.3.3
+    Improved (fixed?) patch generation
 
   * Version 0.3.2
     Modified sudo rules so that user doesn't have to type passwords
@@ -8,4 +11,4 @@ obslight (0.3.2-1) stable; urgency=low
 
   * Initial Release
 
- -- Florent Vennetier <florent@fridu.net>  Tue, 18 Oct 2011 14:49:19 +0200
+ -- Florent Vennetier <florent@fridu.net>  Thu, 20 Oct 2011 14:36:02 +0200
