@@ -80,11 +80,28 @@ class ObsLightProjects(object):
         return self.__dicOBSLightProjects.keys()
         
         
-    def addProject(self, projectLocalName=None, projectObsName=None, projectTitle=None, projectDirectory=None, chrootDirectory=None, obsServer=None , projectTarget=None, description=None, projectArchitecture=None):
+    def addProject(self, 
+                   projectLocalName=None, 
+                   projectObsName=None, 
+                   projectTitle=None, 
+                   projectDirectory=None, 
+                   chrootDirectory=None, 
+                   obsServer=None , 
+                   projectTarget=None, 
+                   description=None, 
+                   projectArchitecture=None):
         '''
         
         '''
-        self.__dicOBSLightProjects[projectLocalName] = ObsLightProject(projectLocalName=projectLocalName, projectObsName=projectObsName, projectTitle=projectTitle, projectDirectory=projectDirectory, chrootDirectory=chrootDirectory, obsServer=obsServer , projectTarget=projectTarget, description=description, projectArchitecture=projectArchitecture)
+        self.__dicOBSLightProjects[projectLocalName] = ObsLightProject(projectLocalName=projectLocalName, 
+                                                                       projectObsName=projectObsName, 
+                                                                       projectTitle=projectTitle, 
+                                                                       projectDirectory=projectDirectory, 
+                                                                       chrootDirectory=chrootDirectory, 
+                                                                       obsServer=obsServer, 
+                                                                       projectTarget=projectTarget, 
+                                                                       description=description, 
+                                                                       projectArchitecture=projectArchitecture)
         
     def __addProjectFromSave(self, name=None, fromSave=None):
         '''
@@ -125,11 +142,15 @@ class ObsLightProjects(object):
         '''
         self.__dicOBSLightProjects[projectLocalName].addPackageSourceInChRoot(package=package)
         
-    def makePatch(self, projectLocalName=None, package=None, patch=None):
+    def makePatch(self, 
+                  projectLocalName=None, 
+                  package=None, 
+                  patch=None):
         '''
         
         '''
-        self.__dicOBSLightProjects[projectLocalName].makePatch(package=package, patch=patch)
+        self.__dicOBSLightProjects[projectLocalName].makePatch(package=package, 
+                                                               patch=patch)
         
         
     def getObsServer(self, name=None):

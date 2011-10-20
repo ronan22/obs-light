@@ -50,7 +50,11 @@ class ObsLightOsc(object):
         if os.path.isfile(self.__confFile): 
             conf.get_config()
         
-    def initConf(self, api=None, user=None, passw=None, aliases=None):
+    def initConf(self, 
+                 api=None, 
+                 user=None, 
+                 passw=None, 
+                 aliases=None):
         '''
         init a configuation for a API.
         '''
@@ -70,7 +74,9 @@ class ObsLightOsc(object):
         aOscConfigParser.write(file, True)
         if file: file.close()
 
-    def trustRepos(self, api=None, project=None):
+    def trustRepos(self, 
+                   api=None, 
+                   listDepProject=None):
         '''
         
         '''
@@ -81,40 +87,50 @@ class ObsLightOsc(object):
         else:
             options = ""
             
-        for option in options.split(" "):
-            if option == project:
-                return
+        res=options
+        for depProject in listDepProject:
+            if not depProject in res:
+                res+=" "+depProject
         
-        aOscConfigParser.set(api, 'trusted_prj', options + " " + project)
+        aOscConfigParser.set(api, 'trusted_prj', options + " " + res)
             
         file = open(self.__confFile, 'w')
         aOscConfigParser.write(file, True)
         if file: file.close()
         return 
 
-    def getDepProject(self, apiurl=None, projet=None, repos=None):
+    def getDepProject(self, 
+                      apiurl=None, 
+                      projet=None, 
+                      repos=None):
         '''
         
         '''
         url = apiurl + "/source/" + projet + "/_meta"
         aElement = ElementTree.fromstring(core.http_request("GET", url).read())
     
-        result = None
+        result = []
         for project in aElement:
             if (project.tag == "repository") and (project.get("name") == repos):
                 for path in project.getiterator():
                     if path.tag == "path":
-                        return path.get("project")
+                        result.append( path.get("project"))
         return result
 
-    def getListPackage(self, obsServer=None, projectLocalName=None):
+    def getListPackage(self, 
+                       obsServer=None, 
+                       projectLocalName=None):
         '''
             return the list of a projectLocalName
         '''
         list_package = core.meta_get_packagelist(obsServer, projectLocalName)
         return list_package
     
-    def CheckoutPackage(self, obsServer=None, projectLocalName=None, package=None, directory=None):
+    def CheckoutPackage(self, 
+                        obsServer=None, 
+                        projectLocalName=None, 
+                        package=None, 
+                        directory=None):
         '''
             check out a package
         '''
@@ -123,7 +139,12 @@ class ObsLightOsc(object):
         command = command.split()
         subprocess.call(command, stdin=open("/dev/null", "r"), close_fds=True)
         
-    def getPackageStatus(self, obsServer=None, project=None, package=None, repos=None, arch=None):
+    def getPackageStatus(self, 
+                         obsServer=None, 
+                         project=None, 
+                         package=None, 
+                         repos=None, 
+                         arch=None):
         '''
         Return the status of a package for a repos and arch
         The status can be:
@@ -146,7 +167,13 @@ class ObsLightOsc(object):
         aElement = ElementTree.fromstring(fileXML)
         return aElement.attrib["code"]
         
-    def createChRoot(self, obsApi=None, chrootDir=None, projectDir=None , repos=None, arch=None, specPath=None):
+    def createChRoot(self, 
+                     obsApi=None, 
+                     chrootDir=None, 
+                     projectDir=None , 
+                     repos=None, 
+                     arch=None, 
+                     specPath=None):
         '''
         create a chroot
         TODO: create chroot without build a package
@@ -235,11 +262,13 @@ class ObsLightOsc(object):
             result.append([name, project, reponame, repository])
         return result
      
-    def getListTarget(self, obsServer=None, project=None):
+    def getListTarget(self, 
+                      obsServer=None, 
+                      projectObsName=None):
         '''
-        return the list of Target of a project for a OBS server.
+        return the list of Target of a projectObsProject for a OBS server.
         '''
-        url = obsServer + "/build/" + project
+        url = obsServer + "/build/" + projectObsName
         aElement = ElementTree.fromstring(core.http_request("GET", url).read())
         res = []
         for directory in aElement:
@@ -247,11 +276,14 @@ class ObsLightOsc(object):
                 res.append(entry.get("name"))
         return res
         
-    def getListArchitecture(self, obsServer=None, project=None, projectTarget=None):
+    def getListArchitecture(self, 
+                            obsServer=None, 
+                            projectObsName=None, 
+                            projectTarget=None):
         '''
-        return the list of Archictecture of the target of the project for a OBS server.
+        return the list of Archictecture of the target of the projectObsName for a OBS server.
         '''
-        url = obsServer + "/build/" + project + "/" + projectTarget
+        url = obsServer + "/build/" + projectObsName + "/" + projectTarget
         
         aElement = ElementTree.fromstring(core.http_request("GET", url).read())
         res = []
@@ -260,7 +292,10 @@ class ObsLightOsc(object):
                 res.append(entry.get("name"))
         return res
     
-    def commitProject(self, path=None, message=None, skip_validation=True):
+    def commitProject(self, 
+                      path=None, 
+                      message=None, 
+                      skip_validation=True):
         '''
         commit a project to the OBS server.
         '''

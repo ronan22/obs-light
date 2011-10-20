@@ -151,19 +151,19 @@ class ObsServers(object):
         '''
         return self.__dicOBSLightServers[obsServer].getRepos()
 
-    def getListTarget(self, obsServer=None , project=None):
+    def getListTarget(self, obsServer=None , projectObsName=None):
         '''
         
         '''
-        return self.__dicOBSLightServers[obsServer].getListTarget(project=project)
+        return self.__dicOBSLightServers[obsServer].getListTarget(projectObsName=projectObsName)
         
     def getListArchitecture(self, obsServer=None ,
-                                    project=None,
+                                    projectObsName=None,
                                     projectTarget=None):
         '''
         
         '''
-        return self.__dicOBSLightServers[obsServer].getListArchitecture(project=project,
+        return self.__dicOBSLightServers[obsServer].getListArchitecture(projectObsName=projectObsName,
                                                                         projectTarget=projectTarget)
             
             

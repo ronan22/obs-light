@@ -64,7 +64,11 @@ class ObsLightPackages(object):
         return saveconfigPackages
         
         
-    def addPackage(self, name=None, specFile=None, listFile=[], status=""):
+    def addPackage(self, 
+                   name=None, 
+                   specFile=None, 
+                   listFile=[], 
+                   status=""):
         '''
         
         '''

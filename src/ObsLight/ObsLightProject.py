@@ -174,7 +174,10 @@ class ObsLightProject(object):
                                     specPath=specPath)
         self.addRepos()
 
-    def addRepos(self, repos=None  , alias=None, chroot=None):
+    def addRepos(self, 
+                 repos=None, 
+                 alias=None, 
+                 chroot=None):
         '''
         
         '''
