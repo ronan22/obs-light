@@ -89,11 +89,11 @@ rm -rf %{buildroot}
 %files base
 %defattr(-,root,root)
 %doc README
-%config %{_sysconfdir}/sudoers.obslight
 %{_bindir}/obslight
 %{_bindir}/obslight-wrapper.py
 %{python_sitelib}/ObsLight
 %{python_sitelib}/obslight*egg-info
+%config %attr(440, root, root) %{_sysconfdir}/sudoers.obslight
 
 %files gui
 %defattr(-,root,root)

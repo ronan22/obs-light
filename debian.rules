@@ -46,6 +46,7 @@ install: build
 	 # The DESTDIR Has To Be Exactly
 	 # /usr/src/packages/BUILD/debian/<nameOfPackage>
 	python setup.py install -O1 --root=/usr/src/packages/BUILD/debian/obslight
+	chmod 440 /usr/src/packages/BUILD/debian/obslight/etc/sudoers.obslight
 	 # make install DESTDIR=/usr/src/packages/BUILD/debian/ace
 	 # --- end custom part for installing
 

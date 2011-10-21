@@ -185,7 +185,7 @@ class ObsLightProjects(object):
         if fromProject != None:
             self.__dicOBSLightProjects[fromProject].addRepos(chroot=self.__dicOBSLightProjects[projectLocalName].getChRoot())
         else:
-            self.__dicOBSLightProjects[projectLocalName].addRepos(repos=repos  , alias=alias)
+            self.__dicOBSLightProjects[projectLocalName].addRepos(repos=repos, alias=alias)
         
         
     def getProjectObsName(self, projectLocalName=None):
