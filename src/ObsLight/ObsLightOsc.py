@@ -34,6 +34,7 @@ from osc import core
 
 from xml.etree import ElementTree
 
+import ObsLightManager
 
 class ObsLightOsc(object):
     '''
@@ -134,8 +135,17 @@ class ObsLightOsc(object):
         '''
         os.chdir(directory)
         command = "osc -A " + obsServer + " co " + projectLocalName + " " + package
-        command = command.split()
-        subprocess.call(command, stdin=open("/dev/null", "r"), close_fds=True)
+        self.__subprocess(command=command)
+
+        
+    def __subprocess(self, command=None):
+        '''
+        
+        '''
+        
+        ObsLightManager.obsLightPrint("command: " + command, isDebug=True)
+        command = shlex.split(command)
+        subprocess.call(command, stdin=open(os.devnull, 'rw'), close_fds=True)
         
     def getPackageStatus(self, 
                          obsServer=None, 
@@ -223,9 +233,8 @@ class ObsLightOsc(object):
         #build.main(apiurl=apiurl, opts=opts, argv=argv)
         
         command = "osc build --root=" + chrootDir + " -x vim -x git -x strace -x iputils -x yum -x yum-utils -x ncurses-devel -x zypper --noservice --no-verify " + repos + " " + arch + " " + specPath
-        command = command.split()
-        
-        subprocess.call(command, stdin=open("/dev/null", "r"), close_fds=True)
+        self.__subprocess(command=command)
+
         
     def getListLocalProject(self, obsServer=None):
         '''
@@ -301,18 +310,15 @@ class ObsLightOsc(object):
         
         if skip_validation:
             command += "--skip-validation"
-        
-        command = shlex.split(command)
-        subprocess.call(command)
-        
+        self.__subprocess(command=command)
+
     def addremove (self, path=None):
         '''
         Adds new files, removes disappeared files
         '''
         os.chdir(path)
         command = "osc ar"
-        command = shlex.split(command)
-        subprocess.call(command, stdin=open("/dev/null", "r"), close_fds=True)
+        self.__subprocess(command=command)
         
 myObsLightOsc = ObsLightOsc()
 

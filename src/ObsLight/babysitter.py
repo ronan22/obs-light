@@ -8,7 +8,7 @@ import signal
 
 
 from ObsLight import ObsLightErr
-
+from mic import imgcreate
 
 def catchterm(*args):
     raise ObsLightErr.SignalInterrupt
@@ -56,4 +56,13 @@ def run(prg):
         print >> sys.stderr, 'Spec Error', e.msg
         return 1
           
-
+    except imgcreate.CreatorError, e:
+        print >> sys.stderr, 'Mic Error', e
+        return 1
+    
+    except imgcreate.MountError, e:
+        print >> sys.stderr, 'Mic Error', e
+        return 1
+    
+    
+    

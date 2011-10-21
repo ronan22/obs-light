@@ -85,7 +85,7 @@ class ObsLight():
         """
         exec the a list of argument
         """
-        __HELP__ = __PRGNAME__ + " <command> [--command-options]"
+        __HELP__ = __PRGNAME__ + "[global command] <command> [--command-options]"
         __HELP__ += "Commandes:" + "\n"
         __HELP__ += "\n"
         __HELP__ += "\t" + "getListObsServers: print the list of the OBS servers" + "\n"
@@ -102,6 +102,10 @@ class ObsLight():
         __HELP__ += "\t" + "makePatch" + "\n"
         __HELP__ += "\t" + "addAndCommitChange" + "\n"
         __HELP__ += "\t" + "addRepoInChRoot" + "\n"
+        __HELP__ += "\n"
+        __HELP__ += "global command\n"
+        __HELP__ += "\t" + "--verbose" + "\n"
+        __HELP__ += "\t" + "--debug" + "\n"
         __HELP__ += "Type " + __PRGNAME__ + " <command> --help for help on a specific command." + "\n"
         
         __DESCRIPTION__ = "ObsLight: http://wiki.meego.com/OBS_Light  \n"

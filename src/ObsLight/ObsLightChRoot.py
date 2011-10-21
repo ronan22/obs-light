@@ -32,6 +32,7 @@ import ObsLightMic
 
 import ObsLightErr
 
+import ObsLightManager
 
 class ObsLightChRoot(object):
     '''
@@ -101,15 +102,26 @@ class ObsLightChRoot(object):
                                                arch=arch,
                                                specPath=specPath)
         
-        subprocess.call(["sudo", "chown", "root:users", self.__chrootDirectory])
-        subprocess.call(["sudo", "chown", "root:users", self.__chrootDirectory + "/root"])
-        subprocess.call(["sudo", "chown", "root:users", self.__chrootDirectory + "/etc"])
-        subprocess.call(["sudo", "chmod", "g+rw", self.__chrootDirectory])
-        subprocess.call(["sudo", "chmod", "g+r", self.__chrootDirectory + "/root"])
-        subprocess.call(["sudo", "chmod", "g+rw", self.__chrootDirectory + "/etc"])
-
+        
+        
+        self.__subprocess(command="sudo chown root:users " + self.__chrootDirectory)
+        self.__subprocess(command="sudo chown root:users " + self.__chrootDirectory + "/root")
+        self.__subprocess(command="sudo chown root:users " + self.__chrootDirectory + "/etc")
+        self.__subprocess(command="sudo chmod g+rw " + self.__chrootDirectory)
+        self.__subprocess(command="sudo chmod g+r " + self.__chrootDirectory + "/root")
+        self.__subprocess(command="sudo chmod g+rw " + self.__chrootDirectory + "/etc")
                 
         self.prepareChroot(self.__chrootDirectory)
+
+    def __subprocess(self, command=None):
+        '''
+        
+        '''
+        
+        ObsLightManager.obsLightPrint("command: " + command, isDebug=True)
+        command = shlex.split(command)
+        subprocess.call(command, stdin=open(os.devnull, 'rw'), close_fds=True)
+        
 
     def __findPackageDirectory(self, package=None):
         '''
@@ -117,18 +129,23 @@ class ObsLightChRoot(object):
         '''
         pathBuild = self.__chrootDirectory + "/" + self.__chrootrpmbuildDirectory + "/" + "BUILD"
         #Find the Package Directory
+        
+        if package == None:
+            raise ObsLightErr.ObsLightChRootError("in __findPackageDirectory path is not def ")
+        elif not os.path.isdir(pathBuild):
+            raise ObsLightErr.ObsLightChRootError("in the chroot path: " + pathBuild + " is not a directory")
+        
         for  packageDirectory in os.listdir(pathBuild):
             res = packageDirectory
             if "-" in packageDirectory:
                 packageDirectory = packageDirectory[:packageDirectory.rindex("-")]
                 
-            
             if package == packageDirectory:
                 return self.__chrootrpmbuildDirectory + "/BUILD/" + res
         return None
 
 
-    def addPackageSourceInChRoot(self,  package=None,
+    def addPackageSourceInChRoot(self, package=None,
                                         specFile=None,
                                         arch=None):
 
@@ -183,8 +200,8 @@ class ObsLightChRoot(object):
         if platform.machine() == 'x86_64':
             aCommand = "linux32 " + aCommand
         
-        aCommand = shlex.split(aCommand)
-        subprocess.call(aCommand, stdin=open(os.devnull, 'rw'))
+        self.__subprocess(command=aCommand)
+
 
     def addRepos(self, repos=None, alias=None):
         '''
@@ -216,7 +233,7 @@ class ObsLightChRoot(object):
         elif not os.path.isdir(self.__chrootDirectory):
             raise 
         
-        ObsLightErr.ObsLightChRootError("goToChRoot: the path: "+self.__chrootDirectory+" is not a directory")
+        ObsLightErr.ObsLightChRootError("goToChRoot: the path: " + self.__chrootDirectory + " is not a directory")
         
         if  not ObsLightMic.myObsLightMic.isInit():
             ObsLightMic.myObsLightMic.initChroot(chrootDirectory=self.__chrootDirectory,
@@ -238,16 +255,16 @@ class ObsLightChRoot(object):
         command = "sudo chroot " + self.__chrootDirectory + " " + self.__dirTransfert + "/runMe.sh"
         if platform.machine() == 'x86_64':
             command = "linux32 " + command
-        
+            
         command = shlex.split(command)
-        
         subprocess.call(command)
+
         
     def initGitWatch(self, path=None):
         '''
         
         '''
-        if path==None:
+        if path == None:
             raise ObsLightErr.ObsLightChRootError("path is not define in initGitWatch.")
         
         command = []
