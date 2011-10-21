@@ -574,7 +574,7 @@ class ObsLight():
         __HELP__ += "\t" + "--projectLocalName projectName (require)" + "\n"
         __HELP__ += "\t" + "--alias message" + "\n"
         __HELP__ += "\t" + "--url message" + "\n"
-        __HELP__ += "\t" + "if --fromProject is specifi --alias and --url are ignore" + "\n"
+        __HELP__ += "\t" + "if --fromProject is specified, --alias and --url are ignored" + "\n"
         
         fromProject = None
         projectLocalName = None
@@ -592,14 +592,14 @@ class ObsLight():
                 elif listArgv[i] == "--url":
                     url = listArgv[i + 1]
                 else:
-                    raise ObsLightErr.ArgError("unknow command " + listArgv[i] + " for " + __COMMAND__)
+                    raise ObsLightErr.ArgError("unknown command " + listArgv[i] + " for " + __COMMAND__)
             if (projectLocalName != None) and (fromProject != None):
                 self.cliObsLightManager.addRepos(projectLocalName=projectLocalName,
                                                  fromProject=fromProject)
-            elif (projectLocalName != None) and (alias != None)and (url == None):
+            elif (projectLocalName != None) and (alias != None) and (url != None):
                 self.cliObsLightManager.addRepos(projectLocalName=projectLocalName,
                                                  alias=alias,
-                                                 url=url)
+                                                 repos=url)
             else:
                 raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
                 

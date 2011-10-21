@@ -452,7 +452,7 @@ class ObsLightManager(object):
         '''
         if projectLocalName == None:
             raise ObsLightProjectsError(" no name for the projectLocalName")
-        elif (fromProject == None)and((repos == None)and(alias == None)):
+        elif (fromProject == None) and ((repos == None) or (alias == None)):
             raise ObsLightProjectsError("wrong value for fromProject or (repos, alias)")
         elif (fromProject != None) and (not self.isALocalProject(name=projectLocalName)):
             raise ObsLightProjectsError(fromProject + " is not a local projectLocalName")          

@@ -1,3 +1,21 @@
 OBSLight 
 
 
+Troubleshooting
+----------------
+
+ * "Problem: nothing provides X needed by Y" when adding packages in ARM chroot
+
+      It may come from a broken version of zypper/libzypp (e.g. zypper 1.5.3
+  and libzypp 8.12.1), which do not see noarch packages. We suggest you to
+  update your zypper version to 1.6+. For convenience, we backported zypper
+  1.6.15 to Meego 1.2.0.
+
+      Install our zypper version:
+   $> obslight addRepoInChRoot --projectLocalName $ProjectName --url \
+http://repo.pub.meego.com/home:/fvennetier:/zypper-backport/MeeGo_1.2.0_standard/ \
+--alias "Zypper_1.6.15_backport"
+   $> obslight goToChRoot --projectLocalName $ProjectName
+     # zypper update zypper
+     # exit
+
