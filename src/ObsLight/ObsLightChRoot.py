@@ -32,6 +32,7 @@ import ObsLightMic
 
 import ObsLightErr
 
+
 class ObsLightChRoot(object):
     '''
     classdocs
@@ -206,10 +207,17 @@ class ObsLightChRoot(object):
         command.append("rpmbuild -bp --define '_srcdefattr (-,root,root)' " + specFile + "  --target=" + arch + " < /dev/null")
         self.execCommand(command=command)
         
-    def goToChRoot(self, chrootDir=None, path=None):
+    def goToChRoot(self, path=None):
         '''
         
         '''
+        if not os.path.isdir(self.__chrootDirectory):
+            raise ObsLightErr.ObsLightChRootError("goToChRoot: chroot is init, use createChRoot")
+        elif not os.path.isdir(self.__chrootDirectory):
+            raise 
+        
+        ObsLightErr.ObsLightChRootError("goToChRoot: the path: "+self.__chrootDirectory+" is not a directory")
+        
         if  not ObsLightMic.myObsLightMic.isInit():
             ObsLightMic.myObsLightMic.initChroot(chrootDirectory=self.__chrootDirectory,
                                                  chrootTransfertDirectory=self.__chrootDirTransfert,
@@ -239,6 +247,9 @@ class ObsLightChRoot(object):
         '''
         
         '''
+        if path==None:
+            raise ObsLightErr.ObsLightChRootError("path is not define in initGitWatch.")
+        
         command = []
         command.append("git init " + path)
         command.append("git --work-tree=" + path + " --git-dir=" + path + "/.git add " + path + "/\*")

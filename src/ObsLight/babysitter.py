@@ -52,5 +52,8 @@ def run(prg):
         print >> sys.stderr, 'Chroot Error', e.msg
         return 1
           
-
+    except ObsLightErr.ObsLightSpec, e:
+        print >> sys.stderr, 'Spec Error', e.msg
+        return 1
+          
 

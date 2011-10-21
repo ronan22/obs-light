@@ -19,8 +19,6 @@ Created on 29 sept. 2011
 
 @author: ronan
 '''
-import os
-
 
 import ObsLightOsc
 

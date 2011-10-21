@@ -30,11 +30,9 @@ import shlex
 
 from osc import conf
 from osc import core
-from osc import build
+#from osc import build
 
 from xml.etree import ElementTree
-
-import optparse
 
 
 class ObsLightOsc(object):
@@ -92,7 +90,7 @@ class ObsLightOsc(object):
             if not depProject in res:
                 res+=" "+depProject
         
-        aOscConfigParser.set(api, 'trusted_prj', options + " " + res)
+        aOscConfigParser.set(api, 'trusted_prj', res)
             
         file = open(self.__confFile, 'w')
         aOscConfigParser.write(file, True)
@@ -227,7 +225,6 @@ class ObsLightOsc(object):
         command = "osc build --root=" + chrootDir + " -x vim -x git -x strace -x iputils -x yum -x yum-utils -x ncurses-devel -x zypper --noservice --no-verify " + repos + " " + arch + " " + specPath
         command = command.split()
         
-        #print "command",command
         subprocess.call(command, stdin=open("/dev/null", "r"), close_fds=True)
         
     def getListLocalProject(self, obsServer=None):

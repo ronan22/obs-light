@@ -137,7 +137,6 @@ class ObsLightPackage(object):
         '''
         commit the package to the OBS server.
         '''
-        print "commitToObs",message,self.getOscDirectory()
         ObsLightOsc().commitProject(path=self.getOscDirectory(), message=message)
     
     def addRemoveFileToTheProject(self):

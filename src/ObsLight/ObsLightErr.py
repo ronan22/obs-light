@@ -64,6 +64,10 @@ class ObsLightChRootError(OBSLightBaseError):
         OBSLightBaseError.__init__(self)
         self.msg = msg          
                             
-                            
-                     
+class ObsLightSpec(OBSLightBaseError):
+    ''''Exception raised in ObsLightChRootSpec'''
+    def __init__(self, msg):
+        OBSLightBaseError.__init__(self)
+        self.msg = msg             
+   
         

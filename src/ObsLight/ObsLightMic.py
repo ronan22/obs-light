@@ -18,10 +18,11 @@
 import os 
 import subprocess
 import shlex
-import shutil
 import glob
 from mic import chroot
 import mic.imgcreate as imgcreate
+
+import ObsLightManager
 
 class ObsLightMic(object):
     '''
@@ -93,14 +94,16 @@ class ObsLightMic(object):
                                  "/dev/shm",
                                  "/var/lib/dbus",
                                   "/var/run/dbus"):
-                    chroot.pwarning("%s will be mounted by default." % srcdst[0])
+                    #chroot.pwarning("%s will be mounted by default." % srcdst[0])
+                    ObsLightManager.obsLightPrint( "%s will be mounted by default." % srcdst[0] ,isDebug=True)
                     continue
                 if srcdst[1] == "" or srcdst[1] == "none":
                     srcdst[1] = None
                 else:
                     srcdst[1] = os.path.abspath(os.path.expanduser(srcdst[1]))
                     if os.path.isdir(chrootdir + "/" + srcdst[1]):
-                        chroot.pwarning("%s has existed in %s , skip it." % (srcdst[1], chrootdir))
+                        #chroot.pwarning("%s has existed in %s , skip it." % (srcdst[1], chrootdir))
+                        ObsLightManager.obsLightPrint( "%s has existed in %s , skip it." % (srcdst[1], chrootdir) ,isDebug=True)
                         continue
                 chrootmounts.append(BindChrootMount(srcdst[0], chrootdir, srcdst[1]))
             
@@ -121,7 +124,8 @@ class ObsLightMic(object):
     
         def bind_mount(chrootmounts):
             for b in chrootmounts:
-                print "bind_mount: %s -> %s" % (b.src, b.dest)
+                import ObsLightManager
+                ObsLightManager.obsLightPrint( "bind_mount: %s -> %s" % (b.src, b.dest),isDebug=True)
                 b.mount()
     
         def setup_resolv(chrootdir):
@@ -140,10 +144,13 @@ class ObsLightMic(object):
         return self.__globalmounts
         
     def cleanup_chrootenv(self, bindmounts=None):
+        
+        
         def bind_unmount(chrootmounts):
             chrootmounts.reverse()
             for b in chrootmounts:
-                print "bind_unmount: %s -> %s" % (b.src, b.dest)
+                import ObsLightManager
+                ObsLightManager.obsLightPrint( "bind_unmount: %s -> %s" % (b.src, b.dest),isDebug=True)
                 b.unmount()
 
                 
@@ -194,7 +201,9 @@ class ObsLightMic(object):
                     #shutil.rmtree(tmpdir, ignore_errors = True)
                     subprocess.call(["sudo", "rm", "-r", tmpdir])
                 else:
-                    chroot.pwarning("dir %s isn't empty." % tmpdir)
+                    import ObsLightManager
+                    ObsLightManager.obsLightPrint( "dir %s isn't empty." % tmpdir,isDebug=True)
+                    #chroot.pwarning("dir %s isn't empty." % tmpdir)
         
     def isArmArch(self, directory=None):
         '''
@@ -259,13 +268,16 @@ class ObsLightMic(object):
         self.__findArch()
 
         try:
-            print "Launching shell. Exit to continue."
-            print "----------------------------------"
+            import ObsLightManager
+            ObsLightManager.obsLightPrint( "Launching shell. Exit to continue.",isDebug=True)
+            ObsLightManager.obsLightPrint( "----------------------------------",isDebug=True)
             self.setup_chrootenv(chrootdir, bindmounts)
             args = shlex.split(execute)
             subprocess.call(args, preexec_fn=mychroot)
             
         except OSError, (err, msg):
+            import ObsLightManager
+            ObsLightManager.obsLightPrint( err,isDebug=True)
             raise imgcreate.CreatorError("Failed to chroot: %s" % msg)
         finally:
             self.cleanup_chrootenv(chrootdir, bindmounts)
