@@ -131,7 +131,9 @@ class ObsLightSpec:
         patch_Val_Prep = "Patch" + str(patchID)
         patch_Val_Build = "%patch" + str(patchID)
 
-        self.__spectDico[self.__introduction_section].append(patch_Val_Prep + ": " + file + "\n")
+        self.__spectDico[self.__introduction_section].insert(0,patch_Val_Prep + ": " + file + "\n")
+        self.__spectDico[self.__introduction_section].insert(0,"# This line is insert automatically, please comment and clean the code\n")
+
         
         #You can have not %prep section
         if self.__prepFlag in self.__spectDico.keys():
@@ -168,8 +170,9 @@ class ObsLightSpec:
         source_Val_Prep = "Source" + str(SourceID)
         source_Val_Build = "SOURCE" + str(SourceID)
 
-        self.__spectDico[self.__introduction_section].append(source_Val_Prep + ": " + baseFile + "\n")
-        
+        self.__spectDico[self.__introduction_section].insert(0,source_Val_Prep + ": " + baseFile + "\n")
+        self.__spectDico[self.__introduction_section].insert(0,"# This line is insert automatically, please comment and clean the code\n")
+
         #You can have not %prep section
         if self.__prepFlag in self.__spectDico.keys():
             self.__spectDico[self.__prepFlag].append("cp %{" + source_Val_Build + "} " + file + "\n")

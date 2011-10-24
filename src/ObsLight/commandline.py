@@ -601,7 +601,7 @@ class ObsLight():
         __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
         __HELP__ += "\t" + "--projectLocalName projectName (require)" + "\n"
         __HELP__ += "\t" + "--package packageName (require)" + "\n"
-        __HELP__ += "\t" + "--message message(require)" + "\n"
+        __HELP__ += "\t" + "--message (-m) message(require)" + "\n"
         __HELP__ += __DICO_HELP__[__COMMAND__]
         
         projectLocalName = None
@@ -614,7 +614,7 @@ class ObsLight():
                     projectLocalName = listArgv[i + 1]
                 elif listArgv[i] == "--package":
                     package = listArgv[i + 1]
-                elif listArgv[i] == "--message":
+                elif listArgv[i] in ("--message","-m"):
                     message = listArgv[i + 1]
                 else:
                     raise ObsLightErr.ArgError("unknow command " + listArgv[i] + " for " + __COMMAND__)
