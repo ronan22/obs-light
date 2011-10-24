@@ -1,4 +1,8 @@
-obslight (0.3.3-1) stable; urgency=low
+obslight (0.3.4-1) stable; urgency=low
+
+  * Version 0.3.4
+    Improved sudo rules
+    New debug/verbose options
 
   * Version 0.3.3
     Improved (fixed?) patch generation
@@ -11,4 +15,4 @@ obslight (0.3.3-1) stable; urgency=low
 
   * Initial Release
 
- -- Florent Vennetier <florent@fridu.net>  Thu, 20 Oct 2011 14:36:02 +0200
+ -- Florent Vennetier <florent@fridu.net>  Mon, 24 Oct 2011 10:10:25 +0200

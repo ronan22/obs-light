@@ -537,8 +537,8 @@ class ObsLight():
                 elif listArgv[i] == "--package":
                     package = listArgv[i + 1]
                 else:
-                    raise ObsLightErr.ArgError("unknow command " + listArgv[i] + " for " + __COMMAND__)
-            if (projectLocalName != None) or (package != None):
+                    raise ObsLightErr.ArgError("unknown command '" + listArgv[i] + "' for " + __COMMAND__)
+            if (projectLocalName != None) and (package != None):
                 self.cliObsLightManager.addPackageSourceInChRoot(projectLocalName=projectLocalName,
                                                                  package=package)
             else:
