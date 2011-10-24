@@ -83,6 +83,13 @@ if [ ! -f "%{_sysconfdir}/sudoers.tmp" ]; then
   rm %{_sysconfdir}/sudoers.tmp
 fi
 
+%preun base
+if [ ! -f "%{_sysconfdir}/sudoers.tmp" ]; then
+  touch %{_sysconfdir}/sudoers.tmp
+  sed -i s/"#include %{_sysconfdir}/sudoers.obslight"// %{_sysconfdir}/sudoers
+  rm %{_sysconfdir}/sudoers.tmp
+fi
+
 %clean
 rm -rf %{buildroot}
 
