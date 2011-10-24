@@ -203,7 +203,7 @@ class ObsLightChRoot(object):
         
         '''
         command = []
-        command.append("rpmbuild -bp --define '_srcdefattr (-,root,root)' " + specFile + "  --target=" + arch + " < /dev/null")
+        command.append("rpmbuild -bp --define '_srcdefattr (-,root,root)' " + specFile + " --target=" + arch + " < /dev/null")
         self.execCommand(command=command)
         
     def goToChRoot(self, chrootDir=None, path=None):

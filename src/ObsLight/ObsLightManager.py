@@ -379,14 +379,14 @@ class ObsLightManager(object):
         
     def addPackageSourceInChRoot(self, projectLocalName=None, package=None):
         '''
-        add a rpm source from the obs repos into the chroot
+        Add a source RPM from the OBS repository into the chroot
         '''
         if projectLocalName == None:
-            raise ObsLightProjectsError(" no name for the projectLocalName")
+            raise ObsLightProjectsError(" projectLocalName not specified")
         elif package == None:
-            raise ObsLightProjectsError(" no name for the package")
+            raise ObsLightProjectsError(" package name not specified")
         elif not self.isALocalProject(name=projectLocalName):
-            raise ObsLightProjectsError(projectLocalName + " is not a local projectLocalName")
+            raise ObsLightProjectsError(projectLocalName + " is not a local project")
         #TODO test if package can be install
         
         self.__myObsLightProjects.addPackageSourceInChRoot(projectLocalName=projectLocalName,
