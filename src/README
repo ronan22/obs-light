@@ -19,3 +19,23 @@ http://repo.pub.meego.com/home:/fvennetier:/zypper-backport/MeeGo_1.2.0_standard
      # zypper update zypper
      # exit
 
+ * "error: Architecture is not included: armv8el"
+
+      The build script of your distribution does not support armv8el
+  builds. Consider using another version, like the 2011.03.29 of Meego
+  repositories.
+
+      For OpenSuse 11.4 host:
+   $> zypper ar http://download.meego.com/live/Tools:/Building/openSUSE_11.4/Tools:Building.repo
+   $> zypper refresh
+   $> zypper install --force build-2011.03.29
+
+      For Meego 1.2.0 chroot:
+   $> obslight addRepoInChRoot --projectLocalName $ProjectName --url \
+http://download.meego.com/live/Tools:/Building/MeeGo_1.2.0/ --alias \
+"Tools:Building_MeeGo_1.2.0"
+   $> obslight goToChRoot --projectLocalName $ProjectName
+     # zypper ref
+     # zypper update build
+     # exit
+
