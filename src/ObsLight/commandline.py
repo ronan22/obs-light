@@ -36,6 +36,35 @@ MAN_FOOTER = r"""
 """
 
 __PRGNAME__ = "ObsLight"
+__getListObsServers__ = "getListObsServers"
+__addObsServer__ = "addObsServer"
+__getListLocalProject__ = "getListLocalProject"
+__addProject__ = "addProject"
+__getListPackage__ = "getListPackage"
+__addPackage__ = "addPackage"
+__createChRoot__ = "createChRoot"
+__goToChRoot__ = "goToChRoot"
+__addPackageSourceInChRoot__ = "addPackageSourceInChRoot"
+__makePatch__ = "makePatch"
+__addAndCommitChange__ = "addAndCommitChange"
+__addRepoInChRoot__ = "addRepoInChRoot"
+
+
+__DICO_HELP__ = {}
+__DICO_HELP__[__getListObsServers__] = "Print the list of the OBS servers."
+__DICO_HELP__[__getListLocalProject__] = "Print the list of the local project."
+__DICO_HELP__[__getListPackage__] = "Print the list of the package of a project."
+__DICO_HELP__[__addObsServer__] = "Add an OBS server."
+__DICO_HELP__[__addProject__] = "Create a local project base from an existing project on a obs serveur"
+__DICO_HELP__[__addPackage__] = "Create a local package in a local project, base from an existing package in project on a obs serveur"
+__DICO_HELP__[__createChRoot__] = "create a chroot, build from a local project" 
+__DICO_HELP__[__addPackageSourceInChRoot__] = "Install the source rpm of a package from the obs to the chroot of the project."    
+__DICO_HELP__[__goToChRoot__] = "Open a bash into the chroot of a project."
+__DICO_HELP__[__makePatch__] = "Generate the patch from a package from the chroot to local project." 
+__DICO_HELP__[__addAndCommitChange__] = "Add, remove the file from local package and commit the package to the OBS."
+__DICO_HELP__[__addRepoInChRoot__] = "Add a repo to zypper into the chroot of a project."
+
+
 
 class ObsLight():
     """
@@ -83,104 +112,113 @@ class ObsLight():
  
     def execute(self, listArgv):
         """
-        exec the a list of argument
+        exec the a list of argument.
         """
-        __HELP__ = __PRGNAME__ + "[global command] <command> [--command-options]"
+        __DESCRIPTION__ = "ObsLight:" + "\n"
+        __DESCRIPTION__ += "\t" + "Provide a tool to manage a OBS project on your local machine" + "\n"
+        __DESCRIPTION__ += "\t" + "For additional information, see" + "\n"
+        __DESCRIPTION__ += "\t" + "* http://wiki.meego.com/OBS_Light" + "\n"
+        
+        
+        __HELP__ = "Usage: " + __PRGNAME__ + "[global command] <command> [--command-options]" + "\n"
+        __HELP__ += "\n"
+        __HELP__ += "Type " + __PRGNAME__ + " <command> --help for help on a specific command." + "\n"
         __HELP__ += "Commandes:" + "\n"
         __HELP__ += "\n"
-        __HELP__ += "\t" + "getListObsServers: print the list of the OBS servers" + "\n"
-        __HELP__ += "\t" + "getListLocalProject" + "\n"
-        __HELP__ += "\t" + "getListPackage" + "\n"
+        __HELP__ += "\t" + __getListObsServers__ + ":" + "\t" + __DICO_HELP__[__getListObsServers__] + "\n"
+        __HELP__ += "\t" + __getListLocalProject__ + ":" + "\t" + __DICO_HELP__[__getListLocalProject__] + "\n"
+        __HELP__ += "\t" + __getListPackage__ + ":" + "\t\t" + __DICO_HELP__[__getListPackage__] + "\n"
         __HELP__ += "\n"
-        __HELP__ += "\t" + "addObsServer add an OBS server to " + "\n"
-        __HELP__ += "\t" + "addProject" + "\n"
+        __HELP__ += "\t" + __addObsServer__ + ":" + "\t\t" + __DICO_HELP__[__addObsServer__] + "\n"
+        __HELP__ += "\t" + __addProject__ + ":" + "\t\t" + __DICO_HELP__[__addProject__] + "\n"
         __HELP__ += "\n"
-        __HELP__ += "\t" + "addPackage" + "\n"
-        __HELP__ += "\t" + "createChRoot" + "\n"
-        __HELP__ += "\t" + "goToChRoot" + "\n"
-        __HELP__ += "\t" + "addPackageSourceInChRoot" + "\n"
-        __HELP__ += "\t" + "makePatch" + "\n"
-        __HELP__ += "\t" + "addAndCommitChange" + "\n"
-        __HELP__ += "\t" + "addRepoInChRoot" + "\n"
+        __HELP__ += "\t" + __addPackage__ + ":" + "\t\t" + __DICO_HELP__[__addPackage__] + "\n"
+        __HELP__ += "\t" + __createChRoot__ + ":" + "\t\t" + __DICO_HELP__[__createChRoot__] + "\n"
+        __HELP__ += "\t" + __addPackageSourceInChRoot__ + ":" + __DICO_HELP__[__addPackageSourceInChRoot__] + "\n"   
+        __HELP__ += "\t" + __goToChRoot__ + ":" + "\t\t" + __DICO_HELP__[__goToChRoot__] + "\n"
+        __HELP__ += "\t" + __makePatch__ + ":" + "\t\t" + __DICO_HELP__[__makePatch__] + "\n"
+        __HELP__ += "\t" + __addAndCommitChange__ + ":" + "\t" + __DICO_HELP__[__addAndCommitChange__] + "\n"
+        __HELP__ += "\t" + __addRepoInChRoot__ + ":" + "\t" + __DICO_HELP__[__addRepoInChRoot__] + "\n"
         __HELP__ += "\n"
         __HELP__ += "global command\n"
-        __HELP__ += "\t" + "--verbose" + "\n"
-        __HELP__ += "\t" + "--debug" + "\n"
-        __HELP__ += "Type " + __PRGNAME__ + " <command> --help for help on a specific command." + "\n"
+        __HELP__ += "\t" + "--verbose:" + "\t" + " Print all subprocess ouput." + "\n"
+        __HELP__ += "\t" + "--debug:" + "\t" + " Print all subprocess command." + "\n"
+        __HELP__ += "\n"
+        __HELP__ += __DESCRIPTION__
+        __HELP__ += "\n"
         
-        __DESCRIPTION__ = "ObsLight: http://wiki.meego.com/OBS_Light  \n"
-        __DESCRIPTION__ += "\tProvide a tool to manage a OBS project on your local machine"
         
         if len(listArgv) == 0:
-            ObsLightManager.obsLightPrint( __DESCRIPTION__)
+            ObsLightManager.obsLightPrint(__DESCRIPTION__)
             return None
         elif len(listArgv) > 0:
             while(1):
                 
                 if (listArgv[0] == "--verbose"):
-                    listArgv=listArgv[1:]
-                    ObsLightManager.VERBOSE=1
+                    listArgv = listArgv[1:]
+                    ObsLightManager.VERBOSE = 1
                     continue
                 if (listArgv[0] == "--debug"):
-                    listArgv=listArgv[1:]
-                    ObsLightManager.DEBUG=1
+                    listArgv = listArgv[1:]
+                    ObsLightManager.DEBUG = 1
                     continue
                 elif self.__isHelp(listArgv[0]):
-                    ObsLightManager.obsLightPrint( __HELP__ )
+                    ObsLightManager.obsLightPrint(__HELP__)
                     return None
-                elif (listArgv[0] == "getListObsServers"):
+                elif (listArgv[0] == __getListObsServers__):
                     return self.getListObsServers(listArgv[1:])
-                elif (listArgv[0] == "addObsServer"):
+                elif (listArgv[0] == __addObsServer__):
                     return self.addObsServer(listArgv[1:])
-                elif (listArgv[0] == "getListLocalProject"):
+                elif (listArgv[0] == __getListLocalProject__):
                     return self.getListLocalProject(listArgv[1:])
-                elif (listArgv[0] == "addProject"):
+                elif (listArgv[0] == __addProject__):
                     return self.addProject(listArgv[1:])
-                elif (listArgv[0] == "getListPackage"):
+                elif (listArgv[0] == __getListPackage__):
                     return self.getListPackage(listArgv[1:])
-                elif (listArgv[0] == "addPackage"):
+                elif (listArgv[0] == __addPackage__):
                     return self.addPackage(listArgv[1:])
-                elif (listArgv[0] == "createChRoot"):
+                elif (listArgv[0] == __createChRoot__):
                     return self.createChRoot(listArgv[1:])
-                elif (listArgv[0] == "goToChRoot"):
+                elif (listArgv[0] == __goToChRoot__):
                     return self.goToChRoot(listArgv[1:])
-                elif (listArgv[0] == "addPackageSourceInChRoot"):
+                elif (listArgv[0] == __addPackageSourceInChRoot__):
                     return self.addPackageSourceInChRoot(listArgv[1:])
-                elif (listArgv[0] == "makePatch"):
+                elif (listArgv[0] == __makePatch__):
                     return self.makePatch(listArgv[1:])
-                elif (listArgv[0] == "addAndCommitChange"):
+                elif (listArgv[0] == __addAndCommitChange__):
                     return self.addAndCommitChange(listArgv[1:])
-                elif (listArgv[0] == "addRepoInChRoot"):
+                elif (listArgv[0] == __addRepoInChRoot__):
                     return self.addRepoInChRoot(listArgv[1:])
                 else:
                     raise ObsLightErr.ArgError(listArgv[0] + " is not a valid command")
             
     def __isHelp(self, arg):
         '''
-        Test if tha arg is ["--help","-h","-help"]
+        Test if the arg is ["--help","-h","-help"]
         '''
         if arg  in ["--help", "-h", "-help", "help"]:
             return 1
         else:
             return 0   
         
+        
     def getListLocalProject(self, listArgv):
         '''
-        print the list of the name of the project 
+        print the list of the name of the project. 
         '''
-        __COMMAND__ = "getListLocalProject"
-        __HELP__ = "usage: " + __PRGNAME__ + " getListLocalProject \n"
-        __HELP__ += "return the list of the name of the project"        
+        __COMMAND__ = __getListLocalProject__
+        __HELP__ = "usage: " + __PRGNAME__ + " getListLocalProject" + " \n"
+        __HELP__ += "return the list of the local project." + " \n"        
 
         if len(listArgv) == 0: 
             result = self.cliObsLightManager.getListLocalProject()
             if not (len(result) == 0):
                 for k in result:
-                    ObsLightManager.obsLightPrint( k)
+                    ObsLightManager.obsLightPrint(k)
             else:
-                ObsLightManager.obsLightPrint( "No project" )
+                ObsLightManager.obsLightPrint("No project")
         elif self.__isHelp(listArgv[0]):
-            ObsLightManager.obsLightPrint(  __HELP__ )
+            ObsLightManager.obsLightPrint(__HELP__)
         else:
             raise ObsLightErr.ArgError(listArgv[0] + " is not a valid command for " + __COMMAND__)
         return 0 
@@ -190,19 +228,19 @@ class ObsLight():
         '''
         print the list of the name of the OBS Servers 
         '''
-        __COMMAND__ = "getListObsServers"
+        __COMMAND__ = __getListObsServers__
         __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " \n"
-        __HELP__ += "return the list of the name of the OBS Servers"        
+        __HELP__ += __DICO_HELP__[__getListObsServers__]       
 
         if len(listArgv) == 0: 
             result = self.cliObsLightManager.getListObsServers()
             if not (len(result) == 0):
                 for k in result:
-                    ObsLightManager.obsLightPrint( k )
+                    ObsLightManager.obsLightPrint(k)
             else:
                 print "No OBS Server" 
         elif self.__isHelp(listArgv[0]):
-            ObsLightManager.obsLightPrint(  __HELP__ )
+            ObsLightManager.obsLightPrint(__HELP__)
         else:
             raise ObsLightErr.ArgError(listArgv[0] + " is not a valid command for " + __COMMAND__)
         return 0 
@@ -211,7 +249,7 @@ class ObsLight():
         '''
         add a OBS Server
         '''
-        __COMMAND__ = "addObsServer"
+        __COMMAND__ = __addObsServer__
         __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n" 
         __HELP__ += "\t--serverAPI api_url (require)\n"
         __HELP__ += "\t--user user_name (require)\n"
@@ -219,7 +257,7 @@ class ObsLight():
         __HELP__ += "\t--serverWeb web_url \n"
         __HELP__ += "\t--serverRepos repo_url (require)\n"
         __HELP__ += "\t--aliases name \n"
-        __HELP__ += "add a OBS Server"        
+        __HELP__ += __DICO_HELP__[__COMMAND__]        
 
         if (len(listArgv) % 2 == 0) and (len(listArgv) <= (6 * 2)): 
             serverWeb = ""
@@ -253,7 +291,7 @@ class ObsLight():
                                                  passw=passw)
             
         elif self.__isHelp(listArgv[0]):
-            ObsLightManager.obsLightPrint(  __HELP__ )
+            ObsLightManager.obsLightPrint(__HELP__)
         else:
             raise ObsLightErr.ArgError("not a valid command for " + __COMMAND__)
         return 0 
@@ -263,7 +301,7 @@ class ObsLight():
         '''
         Add a project to Obs Light
         '''
-        __COMMAND__ = "addProject"
+        __COMMAND__ = __addProject__
         __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
         __HELP__ += "\t--projectLocalName name :if no name are define the projectLocalName is equal to projectObsName ,the symbol : are replace by _\n"
         __HELP__ += "\t--projectObsName name (require)\n"
@@ -274,7 +312,7 @@ class ObsLight():
         __HELP__ += "\t--projectTarget name \n"
         __HELP__ += "\t--description \n"
         __HELP__ += "\t--projectArchitecture \n" 
-        __HELP__ += "add a obs project \n"
+        __HELP__ += __DICO_HELP__[__COMMAND__]
         
         if (len(listArgv) % 2 == 0) and (len(listArgv) <= (9 * 2)): 
             projectLocalName = None
@@ -320,23 +358,25 @@ class ObsLight():
                                                 projectArchitecture=projectArchitecture)      
         
         elif self.__isHelp(listArgv[0]):
-            ObsLightManager.obsLightPrint(  __HELP__ )
+            ObsLightManager.obsLightPrint(__HELP__)
         else:
             raise ObsLightErr.ArgError("not a valid command for " + __COMMAND__)
         return 0 
+    
     
     
     def getListPackage(self, listArgv):
         '''
         return the list of the package.
         '''
-        __COMMAND__ = "getListPackage"
+        __COMMAND__ = __getListPackage__
         __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n" 
         __HELP__ += "Commandes:" + "\n"
         __HELP__ += "\t" + "--obsServer serverName (if no serverName the projectLocalName is local)" + "\n"
         __HELP__ += "\t" + "--projectLocalName projectLocalName" + "\n"
         __HELP__ += "\t" + "--localPackage 1/0 (if the projectLocalName is local)" + "\n"
-
+        __HELP__ += __DICO_HELP__[__COMMAND__]
+        
         if (len(listArgv) % 2 == 0) and (len(listArgv) <= (2 * 2)): 
             projectLocalName = None
             obsServer = None
@@ -353,34 +393,37 @@ class ObsLight():
                     raise ObsLightErr.ArgError("unknow command for " + __COMMAND__)
                 
             if (obsServer != None)and(projectLocalName != None):
-                res = self.cliObsLightManager.getListPackageFromObsProject(obsServer=obsServer, 
+                res = self.cliObsLightManager.getListPackageFromObsProject(obsServer=obsServer,
                                                                            projectLocalName=projectLocalName)
             elif (projectLocalName != None)and(localPackage in ["0", "1"]):
-                res = self.cliObsLightManager.getListPackageFromLocalProject(name=projectLocalName, 
+                res = self.cliObsLightManager.getListPackageFromLocalProject(name=projectLocalName,
                                                                              local=int(localPackage))
             else:
                 raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
             
             if len(res) != 0:
                 for pk in res:
-                    ObsLightManager.obsLightPrint( pk )
+                    ObsLightManager.obsLightPrint(pk)
             else:
-                ObsLightManager.obsLightPrint( "No Package." )
+                ObsLightManager.obsLightPrint("No Package.")
                 
         elif self.__isHelp(listArgv[0]):
-            ObsLightManager.obsLightPrint(  __HELP__ )
+            ObsLightManager.obsLightPrint(__HELP__)
         else:
             raise ObsLightErr.ArgError("not a valid command for " + __COMMAND__)
         return 0 
+
+
 
     def addPackage(self, listArgv):
         '''
         add a package.
         '''
-        __COMMAND__ = "addPackage"
+        __COMMAND__ = __addPackage__
         __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
         __HELP__ += "\t" + "--projectLocalName projectName" + "\n"
         __HELP__ += "\t" + "--package packageName" + "\n"
+        __HELP__ += __DICO_HELP__[__COMMAND__]
         
         projectLocalName = None
         package = None
@@ -395,24 +438,26 @@ class ObsLight():
                     raise ObsLightErr.ArgError("unknow command " + listArgv[i] + " for " + __COMMAND__)
                 
             if (projectLocalName != None)and(package != None):
-                self.cliObsLightManager.addPackage(projectLocalName=projectLocalName  , 
+                self.cliObsLightManager.addPackage(projectLocalName=projectLocalName  ,
                                                    package=package)
             else:
                 raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
                 
         elif self.__isHelp(listArgv[0]):
-            ObsLightManager.obsLightPrint(  __HELP__ )
+            ObsLightManager.obsLightPrint(__HELP__)
         else:
             raise ObsLightErr.ArgError("not a valid command for " + __COMMAND__)
         return 0 
+    
     
     def createChRoot(self, listArgv):
         '''
         create a chroot
         '''
-        __COMMAND__ = "createChRoot"
+        __COMMAND__ = __createChRoot__
         __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
         __HELP__ += "\t" + "--projectLocalName projectName" + "\n"
+        __HELP__ += __DICO_HELP__[__COMMAND__]
         
         projectLocalName = None
         
@@ -429,20 +474,23 @@ class ObsLight():
                 raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
                 
         elif self.__isHelp(listArgv[0]):
-            ObsLightManager.obsLightPrint(  __HELP__ )
+            ObsLightManager.obsLightPrint(__HELP__)
         else:
             raise ObsLightErr.ArgError("not a valid command for " + __COMMAND__)
         return 0 
+        
+
         
     def goToChRoot(self, listArgv):
         '''
         open a bash in the chroot
         '''
-        __COMMAND__ = "goToChRoot"
+        __COMMAND__ = __goToChRoot__
         
         __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
         __HELP__ += "\t" + "--projectLocalName projectName" + "\n"
         __HELP__ += "\t" + "--package packageName" + "directly go to the BUILD directory of the package\n"
+        __HELP__ += __DICO_HELP__[__COMMAND__]
         
         projectLocalName = None
         package = None
@@ -457,13 +505,13 @@ class ObsLight():
                     raise ObsLightErr.ArgError(listArgv[i] + " is unknowed command " + listArgv[i] + " for " + __COMMAND__ + "")
                 
             if (projectLocalName != None):
-                self.cliObsLightManager.goToChRoot(projectLocalName=projectLocalName, 
+                self.cliObsLightManager.goToChRoot(projectLocalName=projectLocalName,
                                                    package=package)
             else:
                 raise ObsLightErr.ArgError("wrong command for " + __COMMAND__ + "")
                 
         elif self.__isHelp(listArgv[0]):
-            ObsLightManager.obsLightPrint(  __HELP__ )
+            ObsLightManager.obsLightPrint(__HELP__)
         else:
             raise ObsLightErr.ArgError("not a valid command for " + __COMMAND__ + "")
         return 0 
@@ -472,11 +520,12 @@ class ObsLight():
         '''
         install a package source into a chroot, and make the spec %prep
         '''
-        __COMMAND__ = "addPackageSourceInChRoot"
+        __COMMAND__ = __addPackageSourceInChRoot__
         
         __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
         __HELP__ += "\t" + "--projectLocalName projectName (require)" + "\n"
         __HELP__ += "\t" + "--package packageName" + "\n"
+        __HELP__ += __DICO_HELP__[__COMMAND__]
         
         projectLocalName = None
         package = None
@@ -496,22 +545,24 @@ class ObsLight():
                 raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
                 
         elif self.__isHelp(listArgv[0]):
-            ObsLightManager.obsLightPrint(  __HELP__ )
+            ObsLightManager.obsLightPrint(__HELP__)
         else:
             raise ObsLightErr.ArgError("not a valid command for " + __COMMAND__)
         return 0 
         
+
     def makePatch(self, listArgv):
         '''
         generate a patch 
         '''
-        __COMMAND__ = "makePatch"
+        __COMMAND__ = __makePatch__
         
         __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
         __HELP__ += "\t" + "--projectLocalName projectName (require)" + "\n"
         __HELP__ += "\t" + "--package packageName (require)" + "\n"
         __HELP__ += "\t" + "--patch patchName (require)" + "\n"
-
+        __HELP__ += __DICO_HELP__[__COMMAND__]
+        
         projectLocalName = None
         package = None
         patch = None
@@ -535,7 +586,7 @@ class ObsLight():
                 raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
                 
         elif self.__isHelp(listArgv[0]):
-            ObsLightManager.obsLightPrint(  __HELP__ )
+            ObsLightManager.obsLightPrint(__HELP__)
         else:
             raise ObsLightErr.ArgError("not a valid command for " + __COMMAND__)
         return 0 
@@ -545,13 +596,13 @@ class ObsLight():
         '''
         add/delete file in a osc directory. 
         '''
-        __COMMAND__ = "addAndCommitChange"
+        __COMMAND__ = __addAndCommitChange__
         
         __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
         __HELP__ += "\t" + "--projectLocalName projectName (require)" + "\n"
         __HELP__ += "\t" + "--package packageName (require)" + "\n"
         __HELP__ += "\t" + "--message message(require)" + "\n"
-        __HELP__ += "Add new file in the osc directory and commit"
+        __HELP__ += __DICO_HELP__[__COMMAND__]
         
         projectLocalName = None
         package = None
@@ -570,13 +621,13 @@ class ObsLight():
             if (message == None):
                 raise ObsLightErr.ArgError("No message for " + __COMMAND__)
             elif (projectLocalName != None) and (package != None) :
-                self.cliObsLightManager.addAndCommitChange(projectLocalName=projectLocalName, 
+                self.cliObsLightManager.addAndCommitChange(projectLocalName=projectLocalName,
                                                            package=package, message=message)
             else:
                 raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
                 
         elif self.__isHelp(listArgv[0]):
-            ObsLightManager.obsLightPrint(  __HELP__ )
+            ObsLightManager.obsLightPrint(__HELP__)
         else:
             raise ObsLightErr.ArgError("not a valid command for " + __COMMAND__)
         return 0 
@@ -585,7 +636,7 @@ class ObsLight():
         '''
         add a repo in zypper in the chroot
         '''
-        __COMMAND__ = "addRepoInChRoot"
+        __COMMAND__ = __addRepoInChRoot__
         
         __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
         __HELP__ += "\t" + "--fromProject projectName " + "\n"
@@ -593,6 +644,7 @@ class ObsLight():
         __HELP__ += "\t" + "--alias message" + "\n"
         __HELP__ += "\t" + "--url message" + "\n"
         __HELP__ += "\t" + "if --fromProject is specified, --alias and --url are ignored" + "\n"
+        __HELP__ += __DICO_HELP__[__COMMAND__]
         
         fromProject = None
         projectLocalName = None
@@ -622,7 +674,7 @@ class ObsLight():
                 raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
                 
         elif self.__isHelp(listArgv[0]):
-            ObsLightManager.obsLightPrint(  __HELP__ )
+            ObsLightManager.obsLightPrint(__HELP__)
         else:
             raise ObsLightErr.ArgError("not a valid command for " + __COMMAND__)
         return 0 
