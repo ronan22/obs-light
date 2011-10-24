@@ -11,18 +11,24 @@ if [ $# -ne 1 ]; then
   exit 1
 fi
 
+# Create a temporary directory and go into it
 TMPDIR=`mktemp -d`
 PROJECTDIR=`pwd`
 cd $TMPDIR
+# Checkout the project
 osc -A https://api.pub.meego.com co -c home:ronan:OBS_Light obslight
-osc rm obslight/obslight*.tar.gz
+# Delete the old source archive
+rm obslight/obslight*.tar.gz
 cd $PROJECTDIR
+# Copy all project file to the temporary directory
 cp src/dist/obslight*.tar.gz $TMPDIR/obslight
 cp obslight.spec $TMPDIR/obslight
 cp debian.changelog debian.control debian.postinst debian.prerm debian.rules obslight.dsc $TMPDIR/obslight
 cd $TMPDIR/obslight
+# Add all new files, remove disappeared files, and commit
 osc ar
 osc ci -m "$1"
+# Check the return value and delete (or not) the temporary directory
 RETVAL=$?
 cd $PROJECTDIR
 if [ $RETVAL -eq 0 ]; then
