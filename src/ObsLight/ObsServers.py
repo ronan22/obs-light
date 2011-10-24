@@ -23,9 +23,7 @@ Created on 29 sept. 2011
 import pickle
 import os
 
-from ObsLightErr import ObsLightObsServers
 from ObsServer import ObsServer
-import ObsLightOsc
 
 class ObsServers(object):
     '''

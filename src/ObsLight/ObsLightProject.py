@@ -136,18 +136,14 @@ class ObsLightProject(object):
                                                           package=name,
                                                           directory=self.__projectDirectory)
         specFile = ""
-        listFile = []
         packagePath = os.path.join(self.__projectDirectory, self.__projectObsName, name)
         
         #Find the spec file
-        #TO DO can be doing cleaner
-        for root, dirs, files in os.walk(packagePath):
-            for f in files:
-                if f.endswith(".spec"):
-                    specFile = os.path.join(root, f)
-            listFile = files
-            break
-        
+        listFile=os.listdir(packagePath)
+        for f in listFile:
+            if f.endswith(".spec"):
+                specFile = os.path.join(packagePath, f)
+                break
         #Find the status of the package, Don't use that now
         #status=ObsLightManager.getManager().getPackageStatus(obsserver=self.__obsServer,projectLocalName=self.__projectObsName,package=name,repos=self.__projectTarget,arch=self.__projectArchitecture)
         #self.__packages.addPackage(name=name, specFile=specFile, listFile=listFile, status=status)
@@ -208,7 +204,12 @@ class ObsLightProject(object):
         
         '''
         if package != None:
-            self.__chroot.goToChRoot(path=self.__packages.getPackageDirectory(package=package))
+            
+            pathPackage=self.__packages.getPackageDirectory(package=package)
+            if pathPackage!=None:
+                self.__chroot.goToChRoot(path=pathPackage)
+            else:
+                self.__chroot.goToChRoot()
         else:
             self.__chroot.goToChRoot()
         

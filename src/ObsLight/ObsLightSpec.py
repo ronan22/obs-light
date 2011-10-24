@@ -20,8 +20,10 @@ Created on 22 juil. 2011
 @author: rmartret
 '''
 import sys
+import os
+import ObsLightManager
 
-
+import ObsLightErr
 
 class ObsLightSpec:
     '''
@@ -71,11 +73,19 @@ class ObsLightSpec:
         if path != None:
             tmpLineList = []
             
+            
+            if not os.path.exists(path):
+                raise ObsLightErr.ObsLightSpec("parseFile: the path: "+path+", do not exist")
+            
             #Load the file in a list
             f = open(path, 'r')
+            
             for line in f:
                 tmpLineList.append(line)
+                
             f.close()    
+            
+            
             
             #init variable
             self.__spectDico = {}
@@ -93,7 +103,7 @@ class ObsLightSpec:
                     self.__orderList.append(currentSection)
                 self.__spectDico[currentSection].append(line)   
         else:
-            print "ERROR"
+            ObsLightManager.obsLightPrint( "ERROR" )
     
     def addpatch(self, file):
         '''
@@ -114,9 +124,9 @@ class ObsLightSpec:
                         patchID = int(id) + 1
                             
                 except ValueError:
-                    print  ValueError
+                    ObsLightManager.obsLightPrint( ValueError )
                 except IndexError:
-                    print IndexError
+                    ObsLightManager.obsLightPrint( IndexError )
                     
         patch_Val_Prep = "Patch" + str(patchID)
         patch_Val_Build = "%patch" + str(patchID)
@@ -150,9 +160,9 @@ class ObsLightSpec:
                         SourceID = int(id) + 1
                             
                 except ValueError:
-                    print  ValueError
+                    ObsLightManager.obsLightPrint(  ValueError)
                 except IndexError:
-                    print IndexError
+                    ObsLightManager.obsLightPrint( IndexError )
                     
 
         source_Val_Prep = "Source" + str(SourceID)

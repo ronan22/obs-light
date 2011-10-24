@@ -19,8 +19,6 @@ Created on 30 sept. 2011
 
 @author: ronan
 '''
-import os
-
 from ObsLightPackage import ObsLightPackage
 
 class ObsLightPackages(object):
