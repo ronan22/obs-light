@@ -19,9 +19,9 @@ osc rm obslight/obslight*.tar.gz
 cd $PROJECTDIR
 cp src/dist/obslight*.tar.gz $TMPDIR/obslight
 cp obslight.spec $TMPDIR/obslight
-cp debian.changelog debian.control debian.postinst debian.rules obslight.dsc $TMPDIR/obslight
+cp debian.changelog debian.control debian.postinst debian.prerm debian.rules obslight.dsc $TMPDIR/obslight
 cd $TMPDIR/obslight
-osc add obslight*.tar.gz
+osc ar
 osc ci -m "$1"
 RETVAL=$?
 cd $PROJECTDIR
