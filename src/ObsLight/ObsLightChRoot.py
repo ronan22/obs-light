@@ -221,7 +221,7 @@ class ObsLightChRoot(object):
         
         '''
         command = []
-        command.append("rpmbuild -bp --define '_srcdefattr (-,root,root)' " + specFile + " --target=" + arch + " < /dev/null")
+        command.append("rpmbuild -bp --define '_srcdefattr (-,root,root)' " + specFile + " < /dev/null")
         self.execCommand(command=command)
         
     def goToChRoot(self, path=None):
@@ -319,26 +319,26 @@ class ObsLightChRoot(object):
                 if " " in res:
                     index = res.index(" ")
                     tag = res[:index]
-                    file = res[index + 1:-1]
+                    aFile = res[index + 1:-1]
                     if tag == "??":
-                        filesToAdd.append(file)
+                        filesToAdd.append(aFile)
                     elif tag == "D":
-                        filesToDel.append(file)
+                        filesToDel.append(aFile)
         
         command = []
         repoListFilesToAdd = []
-        for file in filesToAdd:
-            baseFile = os.path.basename(file)
-            command.append("cp " + os.path.join(pathPackage, file) + " " + self.__dirTransfert)
-            repoListFilesToAdd.append([file, baseFile])
+        for aFile in filesToAdd:
+            baseFile = os.path.basename(aFile)
+            command.append("cp " + os.path.join(pathPackage, aFile) + " " + self.__dirTransfert)
+            repoListFilesToAdd.append([aFile, baseFile])
             
         if command != []:    
             self.execCommand(command=command)
         
             for fileDef in repoListFilesToAdd:
-                [file, baseFile] = fileDef
+                [aFile, baseFile] = fileDef
                 shutil.copy(self.__chrootDirTransfert + "/" + baseFile, pathOscPackage + "/" + baseFile)
-                package.addFileToSpec(baseFile=baseFile, file=file)
+                package.addFileToSpec(baseFile=baseFile, file=aFile)
             
             
         for fileDef in filesToDel:
@@ -361,8 +361,8 @@ class ObsLightChRoot(object):
             # If rpm and rpmbuild binaries are not ARM, replace by ARM versions
             command.append('[ -z "$(file /bin/rpm | grep ARM)" -a -f /bin/rpm.orig-arm ]'
                 + ' && cp /bin/rpm /bin/rpm.x86 && cp /bin/rpm.orig-arm /bin/rpm')
-            command.append('[ -z "$(file /bin/rpmbuild | grep ARM)" -a -f /bin/rpmbuild.orig-arm ]'
-                + ' && cp /bin/rpm /bin/rpmbuild.x86 && cp /bin/rpmbuild.orig-arm /bin/rpm')
+            command.append('[ -z "$(file /usr/bin/rpmbuild | grep ARM)" -a -f /usr/bin/rpmbuild.orig-arm ]'
+                + ' && cp /usr/bin/rpmbuild /usr/bin/rpmbuild.x86 && cp /usr/bin/rpmbuild.orig-arm /usr/bin/rpmbuild')
             # Remove the old (broken ?) rpm database
             command.append('rm -f /var/lib/rpm/__db*')
             # Force zypper and rpm to use armv7hl architecture
