@@ -5,6 +5,7 @@ if [ ! -f "/etc/sudoers.tmp" ]; then
   if [ -z "$(grep sudoers.obslight /etc/sudoers)" ]; then
     echo "#include /etc/sudoers.obslight" >> /etc/sudoers
   fi
+  chmod -f 0440 /etc/sudoers.obslight
   rm /etc/sudoers.tmp
 fi
 
