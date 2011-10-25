@@ -220,7 +220,8 @@ class ObsLightProject(object):
         specFile = os.path.basename(self.__packages.getSpecFile(package))
         self.__chroot.addPackageSourceInChRoot(package=self.__packages.getPackage(package),
                                                specFile=specFile,
-                                               arch=self.__projectArchitecture)
+                                               arch=self.__projectArchitecture,
+                                               repo=self.__projectObsName)
 
     def makePatch(self, package=None, patch=None):
         '''

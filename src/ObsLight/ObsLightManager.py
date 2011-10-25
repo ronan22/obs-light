@@ -27,17 +27,7 @@ from ObsLightErr import ObsLightProjectsError
 from ObsServers import ObsServers
 from ObsLightProjects import ObsLightProjects 
 
-VERBOSE=0
-DEBUG=0
 
-def obsLightPrint(text,isDebug=False,isVerbose=False ):
-    '''
-    
-    '''
-    if ((VERBOSE==1) and (isVerbose==1)) or ( (DEBUG==1) and (isDebug==1)) or (isDebug==False) and (isVerbose==False):
-        print text
-
-    
     
 
 

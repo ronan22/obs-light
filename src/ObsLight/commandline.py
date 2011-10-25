@@ -26,6 +26,7 @@ import ObsLightErr
 from util import safewriter
 
 import ObsLightManager
+import ObsLightPrintManager
 
 MAN_HEADER = r"""
 
@@ -149,21 +150,21 @@ class ObsLight():
         
         
         if len(listArgv) == 0:
-            ObsLightManager.obsLightPrint(__DESCRIPTION__)
+            ObsLightPrintManager.obsLightPrint(__DESCRIPTION__)
             return None
         elif len(listArgv) > 0:
             while(1):
                 
                 if (listArgv[0] == "--verbose"):
                     listArgv = listArgv[1:]
-                    ObsLightManager.VERBOSE = 1
+                    ObsLightPrintManager.VERBOSE = 1
                     continue
                 if (listArgv[0] == "--debug"):
                     listArgv = listArgv[1:]
-                    ObsLightManager.DEBUG = 1
+                    ObsLightPrintManager.DEBUG = 1
                     continue
                 elif self.__isHelp(listArgv[0]):
-                    ObsLightManager.obsLightPrint(__HELP__)
+                    ObsLightPrintManager.obsLightPrint(__HELP__)
                     return None
                 elif (listArgv[0] == __getListObsServers__):
                     return self.getListObsServers(listArgv[1:])
@@ -214,11 +215,11 @@ class ObsLight():
             result = self.cliObsLightManager.getListLocalProject()
             if not (len(result) == 0):
                 for k in result:
-                    ObsLightManager.obsLightPrint(k)
+                    ObsLightPrintManager.obsLightPrint(k)
             else:
-                ObsLightManager.obsLightPrint("No project")
+                ObsLightPrintManager.obsLightPrint("No project")
         elif self.__isHelp(listArgv[0]):
-            ObsLightManager.obsLightPrint(__HELP__)
+            ObsLightPrintManager.obsLightPrint(__HELP__)
         else:
             raise ObsLightErr.ArgError(listArgv[0] + " is not a valid command for " + __COMMAND__)
         return 0 
@@ -236,11 +237,11 @@ class ObsLight():
             result = self.cliObsLightManager.getListObsServers()
             if not (len(result) == 0):
                 for k in result:
-                    ObsLightManager.obsLightPrint(k)
+                    ObsLightPrintManager.obsLightPrint(k)
             else:
                 print "No OBS Server" 
         elif self.__isHelp(listArgv[0]):
-            ObsLightManager.obsLightPrint(__HELP__)
+            ObsLightPrintManager.obsLightPrint(__HELP__)
         else:
             raise ObsLightErr.ArgError(listArgv[0] + " is not a valid command for " + __COMMAND__)
         return 0 
@@ -291,7 +292,7 @@ class ObsLight():
                                                  passw=passw)
             
         elif self.__isHelp(listArgv[0]):
-            ObsLightManager.obsLightPrint(__HELP__)
+            ObsLightPrintManager.obsLightPrint(__HELP__)
         else:
             raise ObsLightErr.ArgError("not a valid command for " + __COMMAND__)
         return 0 
@@ -358,7 +359,7 @@ class ObsLight():
                                                 projectArchitecture=projectArchitecture)      
         
         elif self.__isHelp(listArgv[0]):
-            ObsLightManager.obsLightPrint(__HELP__)
+            ObsLightPrintManager.obsLightPrint(__HELP__)
         else:
             raise ObsLightErr.ArgError("not a valid command for " + __COMMAND__)
         return 0 
@@ -403,12 +404,12 @@ class ObsLight():
             
             if len(res) != 0:
                 for pk in res:
-                    ObsLightManager.obsLightPrint(pk)
+                    ObsLightPrintManager.obsLightPrint(pk)
             else:
-                ObsLightManager.obsLightPrint("No Package.")
+                ObsLightPrintManager.obsLightPrint("No Package.")
                 
         elif self.__isHelp(listArgv[0]):
-            ObsLightManager.obsLightPrint(__HELP__)
+            ObsLightPrintManager.obsLightPrint(__HELP__)
         else:
             raise ObsLightErr.ArgError("not a valid command for " + __COMMAND__)
         return 0 
@@ -444,7 +445,7 @@ class ObsLight():
                 raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
                 
         elif self.__isHelp(listArgv[0]):
-            ObsLightManager.obsLightPrint(__HELP__)
+            ObsLightPrintManager.obsLightPrint(__HELP__)
         else:
             raise ObsLightErr.ArgError("not a valid command for " + __COMMAND__)
         return 0 
@@ -474,7 +475,7 @@ class ObsLight():
                 raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
                 
         elif self.__isHelp(listArgv[0]):
-            ObsLightManager.obsLightPrint(__HELP__)
+            ObsLightPrintManager.obsLightPrint(__HELP__)
         else:
             raise ObsLightErr.ArgError("not a valid command for " + __COMMAND__)
         return 0 
@@ -511,7 +512,7 @@ class ObsLight():
                 raise ObsLightErr.ArgError("wrong command for " + __COMMAND__ + "")
                 
         elif self.__isHelp(listArgv[0]):
-            ObsLightManager.obsLightPrint(__HELP__)
+            ObsLightPrintManager.obsLightPrint(__HELP__)
         else:
             raise ObsLightErr.ArgError("not a valid command for " + __COMMAND__ + "")
         return 0 
@@ -545,7 +546,7 @@ class ObsLight():
                 raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
                 
         elif self.__isHelp(listArgv[0]):
-            ObsLightManager.obsLightPrint(__HELP__)
+            ObsLightPrintManager.obsLightPrint(__HELP__)
         else:
             raise ObsLightErr.ArgError("not a valid command for " + __COMMAND__)
         return 0 
@@ -586,7 +587,7 @@ class ObsLight():
                 raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
                 
         elif self.__isHelp(listArgv[0]):
-            ObsLightManager.obsLightPrint(__HELP__)
+            ObsLightPrintManager.obsLightPrint(__HELP__)
         else:
             raise ObsLightErr.ArgError("not a valid command for " + __COMMAND__)
         return 0 
@@ -614,7 +615,7 @@ class ObsLight():
                     projectLocalName = listArgv[i + 1]
                 elif listArgv[i] == "--package":
                     package = listArgv[i + 1]
-                elif listArgv[i] in ("--message","-m"):
+                elif listArgv[i] in ("--message", "-m"):
                     message = listArgv[i + 1]
                 else:
                     raise ObsLightErr.ArgError("unknow command " + listArgv[i] + " for " + __COMMAND__)
@@ -627,7 +628,7 @@ class ObsLight():
                 raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
                 
         elif self.__isHelp(listArgv[0]):
-            ObsLightManager.obsLightPrint(__HELP__)
+            ObsLightPrintManager.obsLightPrint(__HELP__)
         else:
             raise ObsLightErr.ArgError("not a valid command for " + __COMMAND__)
         return 0 
@@ -674,7 +675,7 @@ class ObsLight():
                 raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
                 
         elif self.__isHelp(listArgv[0]):
-            ObsLightManager.obsLightPrint(__HELP__)
+            ObsLightPrintManager.obsLightPrint(__HELP__)
         else:
             raise ObsLightErr.ArgError("not a valid command for " + __COMMAND__)
         return 0 

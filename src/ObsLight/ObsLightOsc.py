@@ -24,9 +24,6 @@ Created on 3 oct. 2011
 
 import os
 
-import subprocess
-
-import shlex
 
 from osc import conf
 from osc import core
@@ -34,7 +31,7 @@ from osc import core
 
 from xml.etree import ElementTree
 
-import ObsLightManager
+from ObsLightSubprocess import SubprocessCrt
 
 class ObsLightOsc(object):
     '''
@@ -45,6 +42,7 @@ class ObsLightOsc(object):
         init 
         '''
         self.__confFile = os.path.join(os.environ['HOME'], ".oscrc")
+        self.__mySubprocessCrt=SubprocessCrt()
         
         if os.path.isfile(self.__confFile): 
             conf.get_config()
@@ -138,14 +136,12 @@ class ObsLightOsc(object):
         self.__subprocess(command=command)
 
         
-    def __subprocess(self, command=None):
+    def __subprocess(self, command=None,waitMess=False):
         '''
         
         '''
+        return self.__mySubprocessCrt.execSubprocess(command=command,waitMess=waitMess)
         
-        ObsLightManager.obsLightPrint("command: " + command, isDebug=True)
-        command = shlex.split(command)
-        subprocess.call(command, stdin=open(os.devnull, 'rw'), close_fds=True)
         
     def getPackageStatus(self, 
                          obsServer=None, 
@@ -233,7 +229,7 @@ class ObsLightOsc(object):
         #build.main(apiurl=apiurl, opts=opts, argv=argv)
         
         command = "osc build --root=" + chrootDir + " -x vim -x git -x strace -x iputils -x yum -x yum-utils -x ncurses-devel -x zypper --noservice --no-verify " + repos + " " + arch + " " + specPath
-        self.__subprocess(command=command)
+        self.__subprocess(command=command,waitMess=True)
 
         
     def getListLocalProject(self, obsServer=None):

@@ -32,7 +32,7 @@ import ObsLightMic
 
 import ObsLightErr
 
-import ObsLightManager
+from ObsLightSubprocess import SubprocessCrt
 
 class ObsLightChRoot(object):
     '''
@@ -48,6 +48,8 @@ class ObsLightChRoot(object):
         '''
         Constructor
         '''
+        self.__mySubprocessCrt = SubprocessCrt()
+        
         if fromSave == None:
             self.__chrootDirectory = chrootDirectory
             self.__chrootrpmbuildDirectory = "/root/rpmbuild"
@@ -113,14 +115,11 @@ class ObsLightChRoot(object):
                 
         self.prepareChroot(self.__chrootDirectory)
 
-    def __subprocess(self, command=None):
+    def __subprocess(self, command=None, waitMess=False):
         '''
         
         '''
-        
-        ObsLightManager.obsLightPrint("command: " + command, isDebug=True)
-        command = shlex.split(command)
-        subprocess.call(command, stdin=open(os.devnull, 'rw'), close_fds=True)
+        return self.__mySubprocessCrt.execSubprocess(command=command, waitMess=waitMess)
         
 
     def __findPackageDirectory(self, package=None):
@@ -147,14 +146,15 @@ class ObsLightChRoot(object):
 
     def addPackageSourceInChRoot(self, package=None,
                                         specFile=None,
-                                        arch=None):
+                                        arch=None,
+                                        repo=None):
 
         '''
         
         '''
         packageName = package.getName()
         command = []
-        command.append("zypper --non-interactive si " + packageName)
+        command.append("zypper --non-interactive si " + "--repo " + repo + " " + packageName)
         self.execCommand(command=command)
 
         if os.path.isdir(self.__chrootDirectory + "/" + self.__chrootrpmbuildDirectory + "/SPECS/"):
@@ -200,7 +200,7 @@ class ObsLightChRoot(object):
         if platform.machine() == 'x86_64':
             aCommand = "linux32 " + aCommand
         
-        self.__subprocess(command=aCommand)
+        self.__subprocess(command=aCommand, waitMess=True)
 
 
     def addRepos(self, repos=None, alias=None):

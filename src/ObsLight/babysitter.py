@@ -10,6 +10,8 @@ import signal
 from ObsLight import ObsLightErr
 from mic import imgcreate
 
+import ObsLightMic
+
 def catchterm(*args):
     raise ObsLightErr.SignalInterrupt
 
@@ -23,6 +25,11 @@ def run(prg):
             return prg()
         except:
             raise
+        finally:
+            try:
+                ObsLightMic.get().destroy()
+            except:
+                raise
 
     except ObsLightErr.SignalInterrupt:
         print >> sys.stderr, 'killed!'

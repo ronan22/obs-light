@@ -21,7 +21,7 @@ Created on 22 juil. 2011
 '''
 import sys
 import os
-import ObsLightManager
+import ObsLightPrintManager
 
 import ObsLightErr
 
@@ -103,7 +103,7 @@ class ObsLightSpec:
                     self.__orderList.append(currentSection)
                 self.__spectDico[currentSection].append(line)   
         else:
-            ObsLightManager.obsLightPrint( "ERROR" )
+            ObsLightPrintManager.obsLightPrint( "ERROR" )
     
     def addpatch(self, file):
         '''
@@ -124,9 +124,9 @@ class ObsLightSpec:
                         patchID = int(id) + 1
                             
                 except ValueError:
-                    ObsLightManager.obsLightPrint( ValueError )
+                    ObsLightPrintManager.obsLightPrint( ValueError )
                 except IndexError:
-                    ObsLightManager.obsLightPrint( IndexError )
+                    ObsLightPrintManager.obsLightPrint( IndexError )
                     
         patch_Val_Prep = "Patch" + str(patchID)
         patch_Val_Build = "%patch" + str(patchID)
@@ -162,9 +162,9 @@ class ObsLightSpec:
                         SourceID = int(id) + 1
                             
                 except ValueError:
-                    ObsLightManager.obsLightPrint(  ValueError)
+                    ObsLightPrintManager.obsLightPrint(  ValueError)
                 except IndexError:
-                    ObsLightManager.obsLightPrint( IndexError )
+                    ObsLightPrintManager.obsLightPrint( IndexError )
                     
 
         source_Val_Prep = "Source" + str(SourceID)
