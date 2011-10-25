@@ -108,7 +108,7 @@ class ObsLightProject(object):
         aDic["projectTitle"] = self.__projectTitle
         aDic["description"] = self.__description
         aDic["packages"] = self.__packages.getDic()
-        aDic["chroot"] = self.__chroot.getDic()
+        aDic["aChroot"] = self.__chroot.getDic()
         return aDic
         
     def getObsServer(self):

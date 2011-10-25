@@ -116,7 +116,7 @@ class ObsLightSpec:
             if line.startswith("Patch") and (":" in line):
                 try:
                     if aFile == self.__cleanline(line.split(":")[1]):
-                        return None
+                        return 1
                     
                     aId = line.split(":")[0].replace("Patch", "")
                     #the aId can be null
@@ -136,10 +136,19 @@ class ObsLightSpec:
 
         
         #You can have not %prep section
+        #add the patch after the last one or if any patch present in the prep part, at the end.
         if self.__prepFlag in self.__spectDico.keys():
-            self.__spectDico[self.__prepFlag].append(patch_Val_Build + " -p1\n")
+            i=0
+            res=0
+            for line in self.__spectDico[self.__prepFlag]:
+                i+=1
+                if line.startswith("%patch"):
+                    res=i
+            if res==0:
+                res=i
+            self.__spectDico[self.__prepFlag].insert(res,patch_Val_Build + " -p1\n")
             
-        return None
+        return 0
         
     def addFile(self,
                 baseFile=None,

@@ -28,9 +28,6 @@ class SubprocessCrt(object):
         '''
         self.__isPrintMess = False
         
-
-
-        
     def execSubprocess(self, command=None, waitMess=False):
         '''
         
@@ -46,12 +43,19 @@ class SubprocessCrt(object):
         else:
             if waitMess:
                 self.__isPrintMess = True
-                aThread = Thread(group=None, target=self.printWaitMess, name=None, args=(), kwargs=None, verbose=None)
+                aThread = Thread(group=None,
+                                 target=self.printWaitMess,
+                                 name=None, args=(),
+                                 kwargs=None,
+                                 verbose=None)
                 aThread.start()
                 
             #res = subprocess.call(command,  stdout=open(os.devnull, 'rw'), stdin=open(os.devnull, 'rw'))
             
-            res = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=open(os.devnull, 'rw'))
+            res = subprocess.Popen(command,
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE,
+                                   stdin=open(os.devnull, 'rw'))
             fileErr = res.communicate()[1]
             
             if waitMess:
@@ -81,7 +85,4 @@ class SubprocessCrt(object):
                 
         sys.stdout.write("work finish\n")
         sys.stdout.flush()
-        
-        
-        
         

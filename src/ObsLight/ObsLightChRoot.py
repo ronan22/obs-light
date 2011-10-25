@@ -152,6 +152,7 @@ class ObsLightChRoot(object):
         '''
         packageName = package.getName()
         command = []
+        command.append("zypper --non-interactive si --build-deps-only "+packageName)
         command.append("zypper --non-interactive si " + "--repo " + repo + " " + packageName)
         self.execCommand(command=command)
 

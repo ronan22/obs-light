@@ -22,8 +22,10 @@ Created on 30 sept. 2011
 import os
 
 from ObsLightSpec import ObsLightSpec
-
 from ObsLightOsc import ObsLightOsc
+
+import ObsLightPrintManager
+
 
 class ObsLightPackage(object):
     '''
@@ -39,6 +41,8 @@ class ObsLightPackage(object):
             self.__name = name
             if listFile == None:
                 self.__listFile = []
+            else:
+                self.__listFile=listFile
             self.__status = status
             self.__specFile = specFile
             self.__packageDirectory = None
@@ -103,7 +107,9 @@ class ObsLightPackage(object):
         '''
         add a Patch aFile to package, the patch is automatically add to the spec aFile.
         '''
-        self.__mySpecFile.addpatch(aFile)
+        if self.__mySpecFile.addpatch(aFile)==1:
+            ObsLightPrintManager.obsLightPrint("WARNING: Patch already exist the spec file will not be changed.")
+
         self.addFile(aFile)
     
     

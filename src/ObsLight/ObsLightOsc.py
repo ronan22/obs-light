@@ -74,10 +74,6 @@ class ObsLightOsc(object):
         if aFile: 
             aFile.close()
 
-        
-      
-        
-        
     def trustRepos(self,
                    api=None,
                    listDepProject=None):
