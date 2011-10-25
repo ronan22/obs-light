@@ -89,7 +89,7 @@ class ObsLightChRoot(object):
         return saveconfigPackages
     
 
-    def createChRoot(self, obsApi=None,
+    def createChRoot(self, #obsApi=None,
                             projectDir=None ,
                             repos=None,
                             arch=None,
@@ -97,7 +97,7 @@ class ObsLightChRoot(object):
         '''
         
         '''
-        ObsLightOsc.myObsLightOsc.createChRoot(obsApi=obsApi,
+        ObsLightOsc.myObsLightOsc.createChRoot(#obsApi=obsApi,
                                                chrootDir=self.__chrootDirectory,
                                                projectDir=projectDir ,
                                                repos=repos,
@@ -146,7 +146,6 @@ class ObsLightChRoot(object):
 
     def addPackageSourceInChRoot(self, package=None,
                                         specFile=None,
-                                        arch=None,
                                         repo=None):
 
         '''
@@ -160,9 +159,7 @@ class ObsLightChRoot(object):
         if os.path.isdir(self.__chrootDirectory + "/" + self.__chrootrpmbuildDirectory + "/SPECS/"):
             aspecFile = self.__chrootrpmbuildDirectory + "/SPECS/" + specFile
             
-            self.buildPrepRpm(chrootDir=self.__chrootDirectory,
-                              specFile=aspecFile,
-                              arch=arch)
+            self.buildPrepRpm(specFile=aspecFile)
             
             #find the directory to watch
             packageDirectory = self.__findPackageDirectory(package=packageName)
@@ -213,9 +210,7 @@ class ObsLightChRoot(object):
         self.execCommand(command=command) 
         
 
-    def buildPrepRpm(self, chrootDir=None,
-                            specFile=None,
-                            arch=None):
+    def buildPrepRpm(self, specFile=None):
 
         '''
         
@@ -258,7 +253,7 @@ class ObsLightChRoot(object):
             
         command = shlex.split(command)
         subprocess.call(command)
-
+ 
         
     def initGitWatch(self, path=None):
         '''
@@ -287,11 +282,11 @@ class ObsLightChRoot(object):
                 
         self.execCommand(command=command)
         shutil.copy(self.__chrootDirTransfert + "/" + patchFile, pathOscPackage + "/" + patch)
-        package.addPatch(file=patch)
-        self.__getAddRemoveFiles(chrootDir=None, package=package)
+        package.addPatch(aFile=patch)
+        self.__getAddRemoveFiles(package=package)
         package.save()
         
-    def __getAddRemoveFiles(self, chrootDir=None, package=None):
+    def __getAddRemoveFiles(self, package=None):
         '''
         
         '''
@@ -338,11 +333,11 @@ class ObsLightChRoot(object):
             for fileDef in repoListFilesToAdd:
                 [aFile, baseFile] = fileDef
                 shutil.copy(self.__chrootDirTransfert + "/" + baseFile, pathOscPackage + "/" + baseFile)
-                package.addFileToSpec(baseFile=baseFile, file=aFile)
+                package.addFileToSpec(baseFile=baseFile, aFile=aFile)
             
             
         for fileDef in filesToDel:
-            package.delFileToSpec(file=fileDef)
+            package.delFileToSpec(aFile=fileDef)
         
         package.save()
         

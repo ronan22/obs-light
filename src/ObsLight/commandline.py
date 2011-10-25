@@ -83,7 +83,8 @@ class ObsLight():
         sys.stdout = safewriter.SafeWriter(sys.stdout)
 
         self.__listArgv = sys.argv[1:]
-
+        
+        self.cliObsLightManager = None
 
     def main(self):
         """
@@ -296,7 +297,7 @@ class ObsLight():
         else:
             raise ObsLightErr.ArgError("not a valid command for " + __COMMAND__)
         return 0 
-        
+         
         
     def addProject(self, listArgv):
         '''

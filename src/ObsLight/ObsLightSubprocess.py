@@ -14,10 +14,10 @@ from threading import Thread
 import ObsLightPrintManager
 
 
-BREAKPROCESS=False
+BREAKPROCESS = False
 
 
-
+ 
 class SubprocessCrt(object):
     '''
     classdocs
@@ -28,10 +28,10 @@ class SubprocessCrt(object):
         '''
         self.__isPrintMess = False
         
-        self.__printDEBUG =ObsLightPrintManager.DEBUG 
+
 
         
-    def execSubprocess(self, command=None,waitMess=False):
+    def execSubprocess(self, command=None, waitMess=False):
         '''
         
         '''
@@ -40,7 +40,9 @@ class SubprocessCrt(object):
         command = shlex.split(command)
         
         if ObsLightPrintManager.VERBOSE == True:
-            return subprocess.call(command, stdin=open(os.devnull, 'rw'), close_fds=True) 
+            return subprocess.call(command,
+                                   stdin=open(os.devnull, 'rw'),
+                                   close_fds=True) 
         else:
             if waitMess:
                 self.__isPrintMess = True
@@ -55,7 +57,7 @@ class SubprocessCrt(object):
             if waitMess:
                 self.__isPrintMess = False
             
-            if res.returncode!=0:
+            if res.returncode != 0:
                 sys.stdout.flush()  
                 sys.stderr.write(fileErr)
                 sys.stderr.flush()        
@@ -72,10 +74,10 @@ class SubprocessCrt(object):
         while((self.__isPrintMess == True)and(not BREAKPROCESS)):
             sys.stdout.write(".")
             sys.stdout.flush()
-            i=0
-            while((i<=10)and((self.__isPrintMess == True)and(not BREAKPROCESS))):
+            i = 0
+            while((i <= 10)and((self.__isPrintMess == True)and(not BREAKPROCESS))):
                 time.sleep(0.1)
-                i+=1
+                i += 1
                 
         sys.stdout.write("work finish\n")
         sys.stdout.flush()

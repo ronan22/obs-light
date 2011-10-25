@@ -54,7 +54,7 @@ class ObsLightProject(object):
             self.__description = description
             
             if chrootDirectory == None:
-                chrootDirectory = os.path.join(projectDirectory, "chroot")
+                chrootDirectory = os.path.join(projectDirectory, "aChroot")
             
             self.__chroot = ObsLightChRoot(chrootDirectory=chrootDirectory,
                                          chrootDirTransfert=projectDirectory + "/chrootTransfert",
@@ -75,7 +75,7 @@ class ObsLightProject(object):
             self.__projectTitle = fromSave["projectTitle"]
             self.__description = fromSave["description"]
             
-            self.__chroot = ObsLightChRoot(fromSave=fromSave["chroot"])
+            self.__chroot = ObsLightChRoot(fromSave=fromSave["aChroot"])
             self.__packages = ObsLightPackages(fromSave["packages"])
             
         if not os.path.isdir(self.__projectDirectory):
@@ -139,7 +139,7 @@ class ObsLightProject(object):
         packagePath = os.path.join(self.__projectDirectory, self.__projectObsName, name)
         
         #Find the spec file
-        listFile=os.listdir(packagePath)
+        listFile = os.listdir(packagePath)
         for f in listFile:
             if f.endswith(".spec"):
                 specFile = os.path.join(packagePath, f)
@@ -163,16 +163,16 @@ class ObsLightProject(object):
             projectDir = self.__packages.getOscDirectory(pk)
             break
 
-        self.__chroot.createChRoot(obsApi=self.__obsServer,
+        self.__chroot.createChRoot(#obsApi=self.__obsServer,
                                     projectDir=projectDir ,
                                     repos=self.__projectTarget,
                                     arch=self.__projectArchitecture,
                                     specPath=specPath)
         self.addRepos()
 
-    def addRepos(self, 
-                 repos=None, 
-                 alias=None, 
+    def addRepos(self,
+                 repos=None,
+                 alias=None,
                  chroot=None):
         '''
         
@@ -205,8 +205,8 @@ class ObsLightProject(object):
         '''
         if package != None:
             
-            pathPackage=self.__packages.getPackageDirectory(package=package)
-            if pathPackage!=None:
+            pathPackage = self.__packages.getPackageDirectory(package=package)
+            if pathPackage != None:
                 self.__chroot.goToChRoot(path=pathPackage)
             else:
                 self.__chroot.goToChRoot()
@@ -215,12 +215,11 @@ class ObsLightProject(object):
         
     def addPackageSourceInChRoot(self, package=None):
         '''
-        
+         
         '''
         specFile = os.path.basename(self.__packages.getSpecFile(package))
         self.__chroot.addPackageSourceInChRoot(package=self.__packages.getPackage(package),
                                                specFile=specFile,
-                                               arch=self.__projectArchitecture,
                                                repo=self.__projectObsName)
 
     def makePatch(self, package=None, patch=None):

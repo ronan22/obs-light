@@ -45,14 +45,14 @@ class ObsLightSpec:
         self.__postunFlag = "%postun"
         self.__verifyscriptFlag = "%verifyscript"
         
-        self.__listSection = [self.__prepFlag, 
-                              self.__buildFlag, 
-                              self.__installFlag, 
-                              self.__cleanFlag, 
-                              self.__filesFlag, 
-                              self.__postFlag, 
-                              self.__preunFlag, 
-                              self.__postunFlag, 
+        self.__listSection = [self.__prepFlag,
+                              self.__buildFlag,
+                              self.__installFlag,
+                              self.__cleanFlag,
+                              self.__filesFlag,
+                              self.__postFlag,
+                              self.__preunFlag,
+                              self.__postunFlag,
                               self.__verifyscriptFlag]
         #deprecated if you use order dico
         self.__orderList = []
@@ -75,7 +75,7 @@ class ObsLightSpec:
             
             
             if not os.path.exists(path):
-                raise ObsLightErr.ObsLightSpec("parseFile: the path: "+path+", do not exist")
+                raise ObsLightErr.ObsLightSpec("parseFile: the path: " + path + ", do not exist")
             
             #Load the file in a list
             f = open(path, 'r')
@@ -103,36 +103,36 @@ class ObsLightSpec:
                     self.__orderList.append(currentSection)
                 self.__spectDico[currentSection].append(line)   
         else:
-            ObsLightPrintManager.obsLightPrint( "ERROR" )
+            ObsLightPrintManager.obsLightPrint("ERROR")
     
-    def addpatch(self, file):
+    def addpatch(self, aFile):
         '''
         
         '''
-        #init the id of the patch
+        #init the aId of the patch
         patchID = 0
         for line in self.__spectDico[self.__introduction_section]:
             #a regular expression sould be better
             if line.startswith("Patch") and (":" in line):
                 try:
-                    if file == self.__cleanline(line.split(":")[1]):
+                    if aFile == self.__cleanline(line.split(":")[1]):
                         return None
                     
-                    id = line.split(":")[0].replace("Patch", "")
-                    #the id can be null
-                    if id != "":
-                        patchID = int(id) + 1
+                    aId = line.split(":")[0].replace("Patch", "")
+                    #the aId can be null
+                    if aId != "":
+                        patchID = int(aId) + 1
                             
                 except ValueError:
-                    ObsLightPrintManager.obsLightPrint( ValueError )
+                    ObsLightPrintManager.obsLightPrint(ValueError)
                 except IndexError:
-                    ObsLightPrintManager.obsLightPrint( IndexError )
+                    ObsLightPrintManager.obsLightPrint(IndexError)
                     
         patch_Val_Prep = "Patch" + str(patchID)
         patch_Val_Build = "%patch" + str(patchID)
 
-        self.__spectDico[self.__introduction_section].insert(0,patch_Val_Prep + ": " + file + "\n")
-        self.__spectDico[self.__introduction_section].insert(0,"# This line is insert automatically, please comment and clean the code\n")
+        self.__spectDico[self.__introduction_section].insert(0, patch_Val_Prep + ": " + aFile + "\n")
+        self.__spectDico[self.__introduction_section].insert(0, "# This line is insert automatically, please comment and clean the code\n")
 
         
         #You can have not %prep section
@@ -141,53 +141,53 @@ class ObsLightSpec:
             
         return None
         
-    def addFile(self, 
-                baseFile=None, 
-                file=None):
+    def addFile(self,
+                baseFile=None,
+                aFile=None):
         '''
         
         '''
-        #init the id of the Source
+        #init the aId of the Source
         SourceID = 0
         for line in self.__spectDico[self.__introduction_section]:
             #a regular expression sould be better
             if line.startswith("Source") and (":" in line):
                 try:
-                    if file == self.__cleanline(line.split(":")[1]):
+                    if aFile == self.__cleanline(line.split(":")[1]):
                         return None
                     
-                    id = line.split(":")[0].replace("Source", "")
-                    #the id can be null
-                    if id != "":
-                        SourceID = int(id) + 1
+                    aId = line.split(":")[0].replace("Source", "")
+                    #the aId can be null
+                    if aId != "":
+                        SourceID = int(aId) + 1
                             
                 except ValueError:
-                    ObsLightPrintManager.obsLightPrint(  ValueError)
+                    ObsLightPrintManager.obsLightPrint(ValueError)
                 except IndexError:
-                    ObsLightPrintManager.obsLightPrint( IndexError )
+                    ObsLightPrintManager.obsLightPrint(IndexError)
                     
 
         source_Val_Prep = "Source" + str(SourceID)
         source_Val_Build = "SOURCE" + str(SourceID)
 
-        self.__spectDico[self.__introduction_section].insert(0,source_Val_Prep + ": " + baseFile + "\n")
-        self.__spectDico[self.__introduction_section].insert(0,"# This line is insert automatically, please comment and clean the code\n")
+        self.__spectDico[self.__introduction_section].insert(0, source_Val_Prep + ": " + baseFile + "\n")
+        self.__spectDico[self.__introduction_section].insert(0, "# This line is insert automatically, please comment and clean the code\n")
 
         #You can have not %prep section
         if self.__prepFlag in self.__spectDico.keys():
-            self.__spectDico[self.__prepFlag].append("cp %{" + source_Val_Build + "} " + file + "\n")
+            self.__spectDico[self.__prepFlag].append("cp %{" + source_Val_Build + "} " + aFile + "\n")
             
         return None
             
-    def delFile(self, file=None):
+    def delFile(self, aFile=None):
         '''
         
         '''    
         if self.__prepFlag in self.__spectDico.keys():
             for line in self.__spectDico[self.__prepFlag]:
-                if file in line:
+                if aFile in line:
                     return None
-            self.__spectDico[self.__prepFlag].append("rm " + file + "\n")
+            self.__spectDico[self.__prepFlag].append("rm " + aFile + "\n")
         
         return None
     
@@ -230,7 +230,7 @@ if __name__ == '__main__':
     
     
     
-    
+     
     
     
     

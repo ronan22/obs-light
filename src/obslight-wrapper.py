@@ -12,7 +12,7 @@ import signal
 from ObsLight import ObsLightMic
 
 def signal_handler(signal, frame):
-    ObsLightSubprocess.BREAKPROCESS=True
+    ObsLightSubprocess.BREAKPROCESS = True
     if (signal == 2):
         print >> sys.stderr, "user escape..."
     else:

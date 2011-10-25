@@ -70,4 +70,4 @@ class ObsLightSpec(OBSLightBaseError):
         OBSLightBaseError.__init__(self)
         self.msg = msg             
    
-        
+         

@@ -17,27 +17,27 @@ class build_obslight(distutils.command.build.build, object):
 addparams = {}
 
 setup(name='obslight',
-      version = "0.3.4",
-      description = 'OBS Light',
-      long_description = 'Command-line client and UI for the OBS.',
-      author = 'Ronan Le Martret',
-      author_email = 'ronan@fridu.net',
-      license = 'GPLv2',
-      platforms = ['Linux'],
-      keywords = ['MeeGo','OBS', 'chroot', 'RPM', 'build', 'buildservice'],
-      url = 'http://wiki.meego.com/OBS_Light',
-      download_url = 'https://meego.gitorious.org/meego-developer-tools/obs-light',
+      version="0.3.4",
+      description='OBS Light',
+      long_description='Command-line client and UI for the OBS.',
+      author='Ronan Le Martret',
+      author_email='ronan@fridu.net',
+      license='GPLv2',
+      platforms=['Linux'],
+      keywords=['MeeGo', 'OBS', 'chroot', 'RPM', 'build', 'buildservice'],
+      url='http://wiki.meego.com/OBS_Light',
+      download_url='https://meego.gitorious.org/meego-developer-tools/obs-light',
 
-      packages = ['ObsLight', 'ObsLight.util', 'ObsLightGui'],
-      package_data = {'ObsLightGui' : ['ui/*.ui']},
-      scripts = ['obslight-wrapper.py', 'obslightgui-wrapper.py',
+      packages=['ObsLight', 'ObsLight.util', 'ObsLightGui'],
+      package_data={'ObsLightGui' : ['ui/*.ui']},
+      scripts=['obslight-wrapper.py', 'obslightgui-wrapper.py',
                  'script/obstag', 'script/obs2obscopy', 'script/obsextractgroups'],
-      provides = ['ObsLight', 'ObsLightGui'],
-      requires = ['osc (>=0.132.5)', 'xml.etree.ElementTree'],
-      data_files = [('/etc', ['sudoers.obslight'])],
+      provides=['ObsLight', 'ObsLightGui'],
+      requires=['osc (>=0.132.5)', 'xml.etree.ElementTree'],
+      data_files=[('/etc', ['sudoers.obslight'])],
       
       
-      cmdclass = {
+      cmdclass={
         'build': build_obslight,
         },
       **addparams

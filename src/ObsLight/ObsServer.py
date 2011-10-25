@@ -29,13 +29,13 @@ class ObsServer(object):
     '''
 
 
-    def __init__(self, 
-                 serverWeb="", 
-                 serverAPI=None, 
-                 serverRepos="", 
-                 aliases=None, 
-                 user=None, 
-                 passw=None, 
+    def __init__(self,
+                 serverWeb="",
+                 serverAPI=None,
+                 serverRepos="",
+                 aliases=None,
+                 user=None,
+                 passw=None,
                  fromSave=None):
         '''
         Create a reference to a OBS server
@@ -60,25 +60,25 @@ class ObsServer(object):
             self.__user = user
             self.__passw = passw
         
-        ObsLightOsc.myObsLightOsc.initConf(api=self.__serverAPI, 
-                                           user=self.__user, 
-                                           passw=self.__passw, 
+        ObsLightOsc.myObsLightOsc.initConf(api=self.__serverAPI,
+                                           user=self.__user,
+                                           passw=self.__passw,
                                            aliases=self.__aliases)
         
         
-    def initConfigProject(self, 
-                          projet=None, 
+    def initConfigProject(self,
+                          projet=None,
                           repos=None):
         '''
         
         '''
         #if the repository is link to a listDepProject
-        res = ObsLightOsc.myObsLightOsc.getDepProject(apiurl=self.__serverAPI, 
-                                                      projet=projet, 
+        res = ObsLightOsc.myObsLightOsc.getDepProject(apiurl=self.__serverAPI,
+                                                      projet=projet,
                                                       repos=repos)
         #the listDepProject must be trust(add to .oscrc )
         if res != None:
-            ObsLightOsc.myObsLightOsc.trustRepos(api=self.__serverAPI, 
+            ObsLightOsc.myObsLightOsc.trustRepos(api=self.__serverAPI,
                                                  listDepProject=res)
         
             
@@ -107,33 +107,33 @@ class ObsServer(object):
         '''
         
         '''
-        return ObsLightOsc.myObsLightOsc.getListPackage(obsServer=self.__serverAPI, 
+        return ObsLightOsc.myObsLightOsc.getListPackage(obsServer=self.__serverAPI,
                                                         projectLocalName=projectLocalName)
     
     def CheckoutPackage(self, projectLocalName=None, package=None, directory=None):
         '''
         
         '''
-        ObsLightOsc.myObsLightOsc.CheckoutPackage(obsServer=self.__serverAPI, 
-                                                  projectLocalName=projectLocalName, 
-                                                  package=package, 
+        ObsLightOsc.myObsLightOsc.CheckoutPackage(obsServer=self.__serverAPI,
+                                                  projectLocalName=projectLocalName,
+                                                  package=package,
                                                   directory=directory)
         
-    def getPackageStatus(self, 
-                         listDepProject=None, 
-                         package=None, 
-                         repos=None, 
+    def getPackageStatus(self,
+                         listDepProject=None,
+                         package=None,
+                         repos=None,
                          arch=None):
         '''
         
         '''
-        return  ObsLightOsc.myObsLightOsc.getPackageStatus(obsServer=self.__serverAPI, 
-                                                           listDepProject=listDepProject, 
-                                                           package=package, 
-                                                           repos=repos, 
+        return  ObsLightOsc.myObsLightOsc.getPackageStatus(obsServer=self.__serverAPI,
+                                                           project=listDepProject,
+                                                           package=package,
+                                                           repos=repos,
                                                            arch=arch)
     
-    
+     
     def getRepos(self):
         '''
         
@@ -151,17 +151,17 @@ class ObsServer(object):
         '''
         
         '''
-        return ObsLightOsc.myObsLightOsc.getListTarget(obsServer=self.__serverAPI, 
+        return ObsLightOsc.myObsLightOsc.getListTarget(obsServer=self.__serverAPI,
                                                        projectObsName=projectObsName)
     
-    def getListArchitecture(self, 
-                            projectObsName=None, 
+    def getListArchitecture(self,
+                            projectObsName=None,
                             projectTarget=None):
         '''
         
         '''
         return ObsLightOsc.myObsLightOsc.getListArchitecture(obsServer=self.__serverAPI ,
-                                                              projectObsName=projectObsName, 
+                                                              projectObsName=projectObsName,
                                                               projectTarget=projectTarget)
         
     
