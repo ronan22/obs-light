@@ -5,24 +5,38 @@
 
 import sys
 import signal
-
+ 
 
 from ObsLight import ObsLightErr
 from mic import imgcreate
 
+import ObsLightMic
+
 def catchterm(*args):
+    '''
+    
+    '''
     raise ObsLightErr.SignalInterrupt
 
 for name in 'SIGBREAK', 'SIGHUP', 'SIGTERM':
     num = getattr(signal, name, None)
-    if num: signal.signal(num, catchterm)
+    if num: 
+        signal.signal(num, catchterm)
 
-def run(prg):
+def run(prg=None):
+    '''
+     
+    '''
     try:
         try:
             return prg()
         except:
             raise
+        finally:
+            try:
+                ObsLightMic.get().destroy()
+            except:
+                raise
 
     except ObsLightErr.SignalInterrupt:
         print >> sys.stderr, 'killed!'
@@ -32,37 +46,39 @@ def run(prg):
         print >> sys.stderr, 'interrupted!'
         return 1
     
-    except ObsLightErr.ArgError, e:
-        print >> sys.stderr, 'Argument Error:', e.msg
+    except ObsLightErr.ArgError, err:
+        print >> sys.stderr, 'Argument Error:', err.msg
         return 1
     
-    except ObsLightErr.ManagerError, e:
-        print >> sys.stderr, 'Manager Error:', e.msg
+    except ObsLightErr.ManagerError, err:
+        print >> sys.stderr, 'Manager Error:', err.msg
         return 1
     
-    except ObsLightErr.ObsLightProjectsError, e:
-        print >> sys.stderr, 'Projects Error:', e.msg
+    except ObsLightErr.ObsLightProjectsError, err:
+        print >> sys.stderr, 'Projects Error:', err.msg
         return 1
     
-    except ObsLightErr.ObsLightObsServers, e:
-        print >> sys.stderr, 'OBS Error', e.msg
+    except ObsLightErr.ObsLightObsServers, err:
+        print >> sys.stderr, 'OBS Error', err.msg
         return 1
         
-    except ObsLightErr.ObsLightChRootError, e:
-        print >> sys.stderr, 'Chroot Error', e.msg
+    except ObsLightErr.ObsLightChRootError, err:
+        print >> sys.stderr, 'Chroot Error', err.msg
         return 1
           
-    except ObsLightErr.ObsLightSpec, e:
-        print >> sys.stderr, 'Spec Error', e.msg
+    except ObsLightErr.ObsLightSpec, err:
+        print >> sys.stderr, 'Spec Error', err.msg
         return 1
           
-    except imgcreate.CreatorError, e:
-        print >> sys.stderr, 'Mic Error', e
+    except imgcreate.MountError, err:
+        print >> sys.stderr, 'Mic Error', err
+        return 1
+          
+    except imgcreate.CreatorError, err:
+        print >> sys.stderr, 'Mic Error', err
         return 1
     
-    except imgcreate.MountError, e:
-        print >> sys.stderr, 'Mic Error', e
-        return 1
+
     
-    
+
     

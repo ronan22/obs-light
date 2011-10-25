@@ -24,9 +24,6 @@ Created on 3 oct. 2011
 
 import os
 
-import subprocess
-
-import shlex
 
 from osc import conf
 from osc import core
@@ -34,7 +31,7 @@ from osc import core
 
 from xml.etree import ElementTree
 
-import ObsLightManager
+from ObsLightSubprocess import SubprocessCrt
 
 class ObsLightOsc(object):
     '''
@@ -45,14 +42,15 @@ class ObsLightOsc(object):
         init 
         '''
         self.__confFile = os.path.join(os.environ['HOME'], ".oscrc")
+        self.__mySubprocessCrt = SubprocessCrt()
         
         if os.path.isfile(self.__confFile): 
             conf.get_config()
         
-    def initConf(self, 
-                 api=None, 
-                 user=None, 
-                 passw=None, 
+    def initConf(self,
+                 api=None,
+                 user=None,
+                 passw=None,
                  aliases=None):
         '''
         init a configuation for a API.
@@ -69,12 +67,19 @@ class ObsLightOsc(object):
         aOscConfigParser.set(api, 'pass', passw)
         aOscConfigParser.set(api, 'aliases', aliases)
 
-        file = open(self.__confFile, 'w')
-        aOscConfigParser.write(file, True)
-        if file: file.close()
+        aOscConfigParser.set('general', 'su-wrapper', "sudo")
+        
+        aFile = open(self.__confFile, 'w')
+        aOscConfigParser.write(aFile, True)
+        if aFile: 
+            aFile.close()
 
-    def trustRepos(self, 
-                   api=None, 
+        
+      
+        
+        
+    def trustRepos(self,
+                   api=None,
                    listDepProject=None):
         '''
         
@@ -86,21 +91,21 @@ class ObsLightOsc(object):
         else:
             options = ""
             
-        res=options
+        res = options
         for depProject in listDepProject:
             if not depProject in res:
-                res+=" "+depProject
+                res += " " + depProject
         
         aOscConfigParser.set(api, 'trusted_prj', res)
             
-        file = open(self.__confFile, 'w')
-        aOscConfigParser.write(file, True)
-        if file: file.close()
+        aFile = open(self.__confFile, 'w')
+        aOscConfigParser.write(aFile, True)
+        if aFile: aFile.close()
         return 
 
-    def getDepProject(self, 
-                      apiurl=None, 
-                      projet=None, 
+    def getDepProject(self,
+                      apiurl=None,
+                      projet=None,
                       repos=None):
         '''
         
@@ -113,11 +118,11 @@ class ObsLightOsc(object):
             if (project.tag == "repository") and (project.get("name") == repos):
                 for path in project.getiterator():
                     if path.tag == "path":
-                        result.append( path.get("project"))
+                        result.append(path.get("project"))
         return result
 
-    def getListPackage(self, 
-                       obsServer=None, 
+    def getListPackage(self,
+                       obsServer=None,
                        projectLocalName=None):
         '''
             return the list of a projectLocalName
@@ -125,10 +130,10 @@ class ObsLightOsc(object):
         list_package = core.meta_get_packagelist(obsServer, projectLocalName)
         return list_package
     
-    def CheckoutPackage(self, 
-                        obsServer=None, 
-                        projectLocalName=None, 
-                        package=None, 
+    def CheckoutPackage(self,
+                        obsServer=None,
+                        projectLocalName=None,
+                        package=None,
                         directory=None):
         '''
             check out a package
@@ -138,20 +143,18 @@ class ObsLightOsc(object):
         self.__subprocess(command=command)
 
         
-    def __subprocess(self, command=None):
+    def __subprocess(self, command=None, waitMess=False):
         '''
         
         '''
+        return self.__mySubprocessCrt.execSubprocess(command=command, waitMess=waitMess)
         
-        ObsLightManager.obsLightPrint("command: " + command, isDebug=True)
-        command = shlex.split(command)
-        subprocess.call(command, stdin=open(os.devnull, 'rw'), close_fds=True)
         
-    def getPackageStatus(self, 
-                         obsServer=None, 
-                         project=None, 
-                         package=None, 
-                         repos=None, 
+    def getPackageStatus(self,
+                         obsServer=None,
+                         project=None,
+                         package=None,
+                         repos=None,
                          arch=None):
         '''
         Return the status of a package for a repos and arch
@@ -175,12 +178,12 @@ class ObsLightOsc(object):
         aElement = ElementTree.fromstring(fileXML)
         return aElement.attrib["code"]
         
-    def createChRoot(self, 
-                     obsApi=None, 
-                     chrootDir=None, 
-                     projectDir=None , 
-                     repos=None, 
-                     arch=None, 
+    def createChRoot(self,
+                     #obsApi=None,doesn't work
+                     chrootDir=None,
+                     projectDir=None ,
+                     repos=None,
+                     arch=None,
                      specPath=None):
         '''
         create a chroot
@@ -233,7 +236,7 @@ class ObsLightOsc(object):
         #build.main(apiurl=apiurl, opts=opts, argv=argv)
         
         command = "osc build --root=" + chrootDir + " -x vim -x git -x strace -x iputils -x yum -x yum-utils -x ncurses-devel -x zypper --noservice --no-verify " + repos + " " + arch + " " + specPath
-        self.__subprocess(command=command)
+        self.__subprocess(command=command, waitMess=True)
 
         
     def getListLocalProject(self, obsServer=None):
@@ -248,7 +251,7 @@ class ObsLightOsc(object):
         '''
         url = apiurl + "/distributions"
         aElement = ElementTree.fromstring(core.http_request("GET", url).read())
-    
+     
         result = []
         for repos in aElement:
    
@@ -268,8 +271,8 @@ class ObsLightOsc(object):
             result.append([name, project, reponame, repository])
         return result
      
-    def getListTarget(self, 
-                      obsServer=None, 
+    def getListTarget(self,
+                      obsServer=None,
                       projectObsName=None):
         '''
         return the list of Target of a projectObsProject for a OBS server.
@@ -282,9 +285,9 @@ class ObsLightOsc(object):
                 res.append(entry.get("name"))
         return res
         
-    def getListArchitecture(self, 
-                            obsServer=None, 
-                            projectObsName=None, 
+    def getListArchitecture(self,
+                            obsServer=None,
+                            projectObsName=None,
                             projectTarget=None):
         '''
         return the list of Archictecture of the target of the projectObsName for a OBS server.
@@ -298,9 +301,9 @@ class ObsLightOsc(object):
                 res.append(entry.get("name"))
         return res
     
-    def commitProject(self, 
-                      path=None, 
-                      message=None, 
+    def commitProject(self,
+                      path=None,
+                      message=None,
                       skip_validation=True):
         '''
         commit a project to the OBS server.

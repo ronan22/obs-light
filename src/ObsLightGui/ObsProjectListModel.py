@@ -32,7 +32,7 @@ class ObsProjectListModel(QAbstractListModel):
     __obsLightManager = None
     __projectList = []  # TODO: use a dictionary instead of a list
 
-    def __init__(self, obsLightManager = None):
+    def __init__(self, obsLightManager=None):
         '''
         Constructor
         '''
@@ -62,7 +62,7 @@ class ObsProjectListModel(QAbstractListModel):
         else:
             self.__getProjectList().append({"name":name, "server":server, "target":target, "arch":architecture})
         rowCount = self.rowCount()
-        self.dataChanged.emit(self.createIndex(rowCount-1, 0), self.createIndex(rowCount, 0))
+        self.dataChanged.emit(self.createIndex(rowCount - 1, 0), self.createIndex(rowCount, 0))
         
     def modifyProject(self, name, server, target, architecture):
         if self.__obsLightManager != None:

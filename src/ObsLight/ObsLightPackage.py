@@ -31,13 +31,14 @@ class ObsLightPackage(object):
     '''
 
 
-    def __init__(self, name="", specFile="", listFile=[], status="", fromSave=None):
+    def __init__(self, name="", specFile="", listFile=None, status="", fromSave=None):
         '''
         Constructor
         '''
         if fromSave == None:
             self.__name = name
-            self.__listFile = listFile
+            if listFile == None:
+                self.__listFile = []
             self.__status = status
             self.__specFile = specFile
             self.__packageDirectory = None
@@ -98,19 +99,19 @@ class ObsLightPackage(object):
         '''
         return self.__packageDirectory
     
-    def addPatch(self, file=None):
+    def addPatch(self, aFile=None):
         '''
-        add a Patch file to package, the patch is automatically add to the spec file.
+        add a Patch aFile to package, the patch is automatically add to the spec aFile.
         '''
-        self.__mySpecFile.addpatch(file)
-        self.addFile(file)
+        self.__mySpecFile.addpatch(aFile)
+        self.addFile(aFile)
     
     
-    def addFile(self, file=None):
+    def addFile(self, aFile=None):
         '''
-        Add a file to the package.
+        Add a aFile to the package.
         '''
-        self.__listFile.append(file)
+        self.__listFile.append(aFile)
     
     
     def save(self):
@@ -120,18 +121,18 @@ class ObsLightPackage(object):
         self.__mySpecFile.save()
         
     
-    def addFileToSpec(self, baseFile=None, file=None):
+    def addFileToSpec(self, baseFile=None, aFile=None):
         '''
-        Add a delete command of a file to the spec file.
+        Add a delete command of a aFile to the spec aFile.
         '''
-        return self.__mySpecFile.addFile(baseFile=baseFile, file=file)
+        return self.__mySpecFile.addFile(baseFile=baseFile, aFile=aFile)
             
-    def delFileToSpec(self, file=None):
+    def delFileToSpec(self, aFile=None):
         '''
-        Add a delete command of a file to the spec file.
-        '''    
-        return self.__mySpecFile.delFile(file=file)
-    
+        Add a delete command of a aFile to the spec aFile.
+        '''
+        return self.__mySpecFile.delFile(aFile=aFile)
+     
     
     def commitToObs(self, message=None):
         '''

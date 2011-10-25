@@ -62,16 +62,17 @@ class ObsLightPackages(object):
         return saveconfigPackages
         
         
-    def addPackage(self, 
-                   name=None, 
-                   specFile=None, 
-                   listFile=[], 
+    def addPackage(self,
+                   name=None,
+                   specFile=None,
+                   listFile=None,
                    status=""):
         '''
         
         '''
         self.__currentPackage = name
-        
+        if listFile == None:
+            listFile = []
         
         self.__dicOBSLightPackages[name] = ObsLightPackage(name=name, specFile=specFile, listFile=listFile, status=status)
         
@@ -108,5 +109,5 @@ class ObsLightPackages(object):
         return self.__dicOBSLightPackages[package].getPackageDirectory()
         
         
-        
+         
         

@@ -39,6 +39,7 @@ class ObsServers(object):
         self.__currentServer = None
         self.__manager = manager
         self.__pathFile = os.path.join(self.__manager.getObsLightWorkingDirectory() , "ObsServersConfig")
+        self.__currentOBSServer = None
         self.__load()
         
     def getObsServer(self, name=None):
@@ -65,18 +66,18 @@ class ObsServers(object):
         saveconfigServers = {}
         saveconfigServers["saveServers"] = saveServers
         saveconfigServers["currentObsServer"] = self.__currentServer    
-        file = open(self.__pathFile, 'w')
-        pickle.dump(saveconfigServers, file)    
-        file.close()
+        aFile = open(self.__pathFile, 'w')
+        pickle.dump(saveconfigServers, aFile)    
+        aFile.close()
         
     def __load(self):
         '''
         
         '''
         if os.path.isfile(self.__pathFile):
-            file = open(self.__pathFile, 'r')
-            saveconfigServers = pickle.load(file)
-            file.close()
+            aFile = open(self.__pathFile, 'r')
+            saveconfigServers = pickle.load(aFile)
+            aFile.close()
             saveServers = saveconfigServers["saveServers"]
             for projetName in saveServers.keys():
                 aServer = saveServers[projetName]
@@ -91,7 +92,7 @@ class ObsServers(object):
         self.__dicOBSLightServers[aOBSServer.getName()] = aOBSServer
         
         
-    def addObsServer(self,  serverWeb="",
+    def addObsServer(self, serverWeb="",
                             serverAPI=None,
                             serverRepos="",
                             aliases=None,
@@ -133,7 +134,7 @@ class ObsServers(object):
         self.__dicOBSLightServers[obsServer].CheckoutPackage(projectLocalName=projectLocalName,
                                                              package=package,
                                                              directory=directory)
-        
+         
     def getPackageStatus(self, obsServer=None, project=None, package=None, repos=None, arch=None):
         '''
         
