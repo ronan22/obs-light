@@ -105,7 +105,6 @@ class ObsLightChRoot(object):
                                                specPath=specPath)
         
         
-        
         self.__subprocess(command="sudo chown root:users " + self.__chrootDirectory)
         self.__subprocess(command="sudo chown root:users " + self.__chrootDirectory + "/root")
         self.__subprocess(command="sudo chown root:users " + self.__chrootDirectory + "/etc")

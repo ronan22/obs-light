@@ -67,10 +67,17 @@ class ObsLightOsc(object):
         aOscConfigParser.set(api, 'pass', passw)
         aOscConfigParser.set(api, 'aliases', aliases)
 
+        aOscConfigParser.set('general', 'su-wrapper', "sudo")
+        
         aFile = open(self.__confFile, 'w')
         aOscConfigParser.write(aFile, True)
-        if aFile: aFile.close()
+        if aFile: 
+            aFile.close()
 
+        
+      
+        
+        
     def trustRepos(self,
                    api=None,
                    listDepProject=None):
