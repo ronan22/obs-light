@@ -1,0 +1,85 @@
+'''
+Created on 24 oct. 2011
+
+@author: meego
+'''
+
+import os
+import sys
+import subprocess
+import shlex
+import time
+
+from threading import Thread
+import ObsLightPrintManager
+
+
+BREAKPROCESS=False
+
+
+
+class SubprocessCrt(object):
+    '''
+    classdocs
+    '''
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        self.__isPrintMess = False
+        
+        self.__printDEBUG =ObsLightPrintManager.DEBUG 
+
+        
+    def execSubprocess(self, command=None,waitMess=False):
+        '''
+        
+        '''
+
+        ObsLightPrintManager.obsLightPrint("command: " + command, isDebug=True)
+        command = shlex.split(command)
+        
+        if ObsLightPrintManager.VERBOSE == True:
+            return subprocess.call(command, stdin=open(os.devnull, 'rw'), close_fds=True) 
+        else:
+            if waitMess:
+                self.__isPrintMess = True
+                aThread = Thread(group=None, target=self.printWaitMess, name=None, args=(), kwargs=None, verbose=None)
+                aThread.start()
+                
+            #res = subprocess.call(command,  stdout=open(os.devnull, 'rw'), stdin=open(os.devnull, 'rw'))
+            
+            res = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=open(os.devnull, 'rw'))
+            fileErr = res.communicate()[1]
+            
+            if waitMess:
+                self.__isPrintMess = False
+            
+            if res.returncode!=0:
+                sys.stdout.flush()  
+                sys.stderr.write(fileErr)
+                sys.stderr.flush()        
+            return res.returncode
+
+    def printWaitMess(self):
+        '''
+        
+        '''
+        global BREAKPROCESS
+        
+        sys.stdout.write("please wait\n")
+        sys.stdout.flush()
+        while((self.__isPrintMess == True)and(not BREAKPROCESS)):
+            sys.stdout.write(".")
+            sys.stdout.flush()
+            i=0
+            while((i<=10)and((self.__isPrintMess == True)and(not BREAKPROCESS))):
+                time.sleep(0.1)
+                i+=1
+                
+        sys.stdout.write("work finish\n")
+        sys.stdout.flush()
+        
+        
+        
+        
