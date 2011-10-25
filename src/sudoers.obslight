@@ -4,6 +4,7 @@
 %users ALL=(ALL)NOPASSWD:/bin/chown root\:users */OBSLight/*/chroot*
 %users ALL=(ALL)NOPASSWD:/bin/chmod * */OBSLight/*/chroot*
 %users ALL=(ALL)NOPASSWD:/usr/bin/chroot */OBSLight/*/chroot */runMe*.sh
+%users ALL=(ALL)NOPASSWD:/usr/sbin/chroot */OBSLight/*/chroot */runMe*.sh
 %users ALL=(ALL)NOPASSWD:/bin/mount --bind * */OBSLight/*/chroot*
 %users ALL=(ALL)NOPASSWD:/bin/mount --bind -o remount* */OBSLight/*/chroot*
 %users ALL=(ALL)NOPASSWD:/bin/umount -l */OBSLight/*/chroot*

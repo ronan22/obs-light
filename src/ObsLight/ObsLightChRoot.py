@@ -170,15 +170,18 @@ class ObsLightChRoot(object):
             
     def execCommand(self, command=None):
         '''
-        
+        Execute a list of commands in the chroot.
         '''
+        if command == None:
+            return
+        
         if not ObsLightMic.myObsLightMic.isInit():
             ObsLightMic.myObsLightMic.initChroot(chrootDirectory=self.__chrootDirectory,
                                                  chrootTransfertDirectory=self.__chrootDirTransfert,
                                                  transfertDirectory=self.__dirTransfert)    
         
-        timeString = time.strftime("%Y%m%d%H%M%S")
-        scriptName = "runMe-" + timeString + ".sh"    
+        timeString = time.strftime("%Y-%m-%d_%Hh%Mm%S")
+        scriptName = "runMe_" + timeString + ".sh"    
         scriptPath = self.__chrootDirTransfert + "/" + scriptName
 
         f = open(scriptPath, 'w')
@@ -191,7 +194,7 @@ class ObsLightChRoot(object):
         
         os.chmod(scriptPath, 0654)
         
-        aCommand = "sudo chroot " + self.__chrootDirectory + " " + self.__dirTransfert + "/" + scriptName
+        aCommand = "sudo -H chroot " + self.__chrootDirectory + " " + self.__dirTransfert + "/" + scriptName
         
         if platform.machine() == 'x86_64':
             aCommand = "linux32 " + aCommand

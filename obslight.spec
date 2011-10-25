@@ -86,7 +86,7 @@ fi
 %preun base
 if [ ! -f "%{_sysconfdir}/sudoers.tmp" ]; then
   touch %{_sysconfdir}/sudoers.tmp
-  sed -i s/"#include %{_sysconfdir}/sudoers.obslight"// %{_sysconfdir}/sudoers
+  sed -i s/"#include .*sudoers\.obslight"// %{_sysconfdir}/sudoers
   rm %{_sysconfdir}/sudoers.tmp
 fi
 

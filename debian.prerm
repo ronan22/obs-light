@@ -2,7 +2,7 @@
 
 if [ ! -f "/etc/sudoers.tmp" ]; then
   touch /etc/sudoers.tmp
-  sed -i s/"#include /etc/sudoers.obslight"// /etc/sudoers
+  sed -i s/"#include .*sudoers\.obslight"// /etc/sudoers
   rm /etc/sudoers.tmp
 fi
 
