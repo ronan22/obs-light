@@ -27,10 +27,47 @@ class SignalInterrupt(Exception):
     '''Exception raised on SIGTERM and SIGHUP.'''
 
 class ArgError(OBSLightBaseError):
-    '''Exception raised when there are a wrong number of arg'''
+    '''Exception raised when there are wrong arguments'''
     def __init__(self, msg):
         OBSLightBaseError.__init__(self)
         self.msg = msg
+        
+    def __str__(self):
+        return self.msg
+
+
+class ArgNumError(ArgError):
+    '''Exception raised when the number of arguments is wrong'''
+    def __init__(self, msg=None, command=None, argNumber=None):
+        self.command = command
+        self.argNumber = argNumber
+        ArgError.__init__(self, self.makeMessage(msg))
+        
+    def makeMessage(self, remark=None):
+        message = "Wrong number of arguments"
+        if self.argNumber is not None:
+            message += " (%s)" % self.argNumber
+        if self.command is not None:
+            message += " for command '%s'" % self.command
+        if remark is not None:
+            message += ": " + remark
+        return message
+
+
+class ArgUnknownError(ArgError):
+    def __init__(self, command, param):
+        self.command = command
+        self.param = param
+        ArgError.__init__(self, self.makeMessage())
+        
+    def makeMessage(self):
+        message = "Unknown parameter"
+        if self.param is not None:
+            message += " '%s'" % self.param
+        if self.command is not None:
+            message += " for command %s" % self.command
+        return message
+
 
 class ManagerError(OBSLightBaseError):
     '''Exception raised in Manager'''
