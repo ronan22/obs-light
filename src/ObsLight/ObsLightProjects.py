@@ -175,7 +175,7 @@ class ObsLightProjects(object):
         self.__dicOBSLightProjects[name].getPackage(package=package).addRemoveFileToTheProject()
 
         
-    def addRepos(self, projectLocalName=None,
+    def addRepo(self, projectLocalName=None,
                         fromProject=None,
                         repos=None  ,
                         alias=None):
@@ -183,9 +183,9 @@ class ObsLightProjects(object):
         
         '''
         if fromProject != None:
-            self.__dicOBSLightProjects[fromProject].addRepos(chroot=self.__dicOBSLightProjects[projectLocalName].getChRoot())
+            self.__dicOBSLightProjects[fromProject].addRepo(chroot=self.__dicOBSLightProjects[projectLocalName].getChRoot())
         else:
-            self.__dicOBSLightProjects[projectLocalName].addRepos(repos=repos, alias=alias)
+            self.__dicOBSLightProjects[projectLocalName].addRepo(repos=repos, alias=alias)
         
         
     def getProjectObsName(self, projectLocalName=None):

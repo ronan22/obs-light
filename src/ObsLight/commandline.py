@@ -657,10 +657,10 @@ class ObsLight():
                 else:
                     raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
             if (projectLocalName != None) and (fromProject != None):
-                self.cliObsLightManager.addRepos(projectLocalName=projectLocalName,
+                self.cliObsLightManager.addRepo(projectLocalName=projectLocalName,
                                                  fromProject=fromProject)
             elif (projectLocalName != None) and (alias != None) and (url != None):
-                self.cliObsLightManager.addRepos(projectLocalName=projectLocalName,
+                self.cliObsLightManager.addRepo(projectLocalName=projectLocalName,
                                                  alias=alias,
                                                  repos=url)
             else:

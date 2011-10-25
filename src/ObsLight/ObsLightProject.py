@@ -168,9 +168,9 @@ class ObsLightProject(object):
                                     repos=self.__projectTarget,
                                     arch=self.__projectArchitecture,
                                     specPath=specPath)
-        self.addRepos()
+        self.addRepo()
 
-    def addRepos(self,
+    def addRepo(self,
                  repos=None,
                  alias=None,
                  chroot=None):
@@ -190,7 +190,7 @@ class ObsLightProject(object):
         else:
             __anAlias = alias
             
-        __aChroot.addRepos(repos=__aRepos  , alias=__anAlias)
+        __aChroot.addRepo(repos=__aRepos  , alias=__anAlias)
         
         
     def getReposProject(self):

@@ -17,7 +17,7 @@
 '''
 Created on 30 sept. 2011
 
-@author: meego
+@author: Ronan Le Martret
 '''
 
 import os
@@ -66,13 +66,6 @@ class ObsLightChRoot(object):
         '''
         
         '''
-#        if not os.path.isdir(self.__chrootDirectory):
-#            os.makedirs(self.__chrootDirectory)
-#            command="sudo chown root:root "+self.__chrootDirectory
-#            
-#            command=command.split()
-#            subprocess.call(command,stdin=open("/dev/null", "r"), close_fds=True)
-            
         if not os.path.isdir(self.__chrootDirTransfert):
             os.makedirs(self.__chrootDirTransfert)
 
@@ -152,7 +145,7 @@ class ObsLightChRoot(object):
         '''
         packageName = package.getName()
         command = []
-        command.append("zypper --non-interactive si --build-deps-only "+packageName)
+        command.append("zypper --non-interactive si --build-deps-only " + packageName)
         command.append("zypper --non-interactive si " + "--repo " + repo + " " + packageName)
         self.execCommand(command=command)
 
@@ -166,7 +159,7 @@ class ObsLightChRoot(object):
             package.setDirectoryBuild(packageDirectory)
             self.initGitWatch(path=packageDirectory)
         else:
-            raise ObsLightErr.ObsLightChRootError(packageName + " source is not intall in " + self.__chrootDirectory)
+            raise ObsLightErr.ObsLightChRootError(packageName + " source is not installed in " + self.__chrootDirectory)
             
             
     def execCommand(self, command=None):
@@ -203,9 +196,9 @@ class ObsLightChRoot(object):
         self.__subprocess(command=aCommand, waitMess=True)
 
 
-    def addRepos(self, repos=None, alias=None):
+    def addRepo(self, repos=None, alias=None):
         '''
-        
+        Add a repository in the chroot's zypper configuration file.
         '''
         command = []
         command.append("zypper ar " + repos + " " + alias)
@@ -214,9 +207,8 @@ class ObsLightChRoot(object):
         
 
     def buildPrepRpm(self, specFile=None):
-
         '''
-        
+        Execute the %prep section of an RPM spec file.
         '''
         command = []
         command.append("rpmbuild -bp --define '_srcdefattr (-,root,root)' " + specFile + " < /dev/null")
@@ -224,10 +216,11 @@ class ObsLightChRoot(object):
         
     def goToChRoot(self, path=None):
         '''
-        
+        Go to the chroot.
+        Open a Bash in the chroot.
         '''
         if not os.path.isdir(self.__chrootDirectory):
-            raise ObsLightErr.ObsLightChRootError("goToChRoot: chroot is init, use createChRoot")
+            raise ObsLightErr.ObsLightChRootError("goToChRoot: chroot is not initialized, use createChRoot")
         elif not os.path.isdir(self.__chrootDirectory):
             raise 
         
@@ -250,7 +243,7 @@ class ObsLightChRoot(object):
         
         os.chmod(pathScript, 0654)
         
-        command = "sudo chroot " + self.__chrootDirectory + " " + self.__dirTransfert + "/runMe.sh"
+        command = "sudo -H chroot " + self.__chrootDirectory + " " + self.__dirTransfert + "/runMe.sh"
         if platform.machine() == 'x86_64':
             command = "linux32 " + command
             
@@ -260,10 +253,10 @@ class ObsLightChRoot(object):
         
     def initGitWatch(self, path=None):
         '''
-        
+        Initialize a Git repository in the specified path, and 'git add' everything.
         '''
         if path == None:
-            raise ObsLightErr.ObsLightChRootError("path is not define in initGitWatch.")
+            raise ObsLightErr.ObsLightChRootError("path is not defined in initGitWatch.")
         
         command = []
         command.append("git init " + path)
@@ -272,17 +265,16 @@ class ObsLightChRoot(object):
         self.execCommand(command=command)
         
 
-    def makePatch(self, package=None,
-                        patch=None):
+    def makePatch(self, package=None, patch=None):
         '''
-        
+        Create a patch from modifications made in the package directory.
         '''
         patchFile = patch
         pathPackage = package.getPackageDirectory()
         pathOscPackage = package.getOscDirectory()
         command = []
         command.append("git --git-dir=" + pathPackage + "/.git --work-tree=" + pathPackage + " diff -p > " + self.__dirTransfert + "/" + patchFile)
-                
+        
         self.execCommand(command=command)
         shutil.copy(self.__chrootDirTransfert + "/" + patchFile, pathOscPackage + "/" + patch)
         package.addPatch(aFile=patch)
@@ -348,7 +340,7 @@ class ObsLightChRoot(object):
         
     def prepareChroot(self, chrootDir):
         '''
-        Prepares the chroot :
+        Prepare the chroot :
         - replaces some binaries by their ARM equivalent (in case chroot is ARM)
         - configures zypper and rpm for ARM
         - rebuilds rpm database
@@ -356,12 +348,12 @@ class ObsLightChRoot(object):
         command = []
 
         if ObsLightMic.myObsLightMic.isArmArch(chrootDir):
-            # If rpm and rpmbuild binaries are not ARM, replace by ARM versions
+            # If rpm and rpmbuild binaries are not ARM, replace them by ARM versions
             command.append('[ -z "$(file /bin/rpm | grep ARM)" -a -f /bin/rpm.orig-arm ]'
                 + ' && cp /bin/rpm /bin/rpm.x86 && cp /bin/rpm.orig-arm /bin/rpm')
             command.append('[ -z "$(file /usr/bin/rpmbuild | grep ARM)" -a -f /usr/bin/rpmbuild.orig-arm ]'
                 + ' && cp /usr/bin/rpmbuild /usr/bin/rpmbuild.x86 && cp /usr/bin/rpmbuild.orig-arm /usr/bin/rpmbuild')
-            # Remove the old (broken ?) rpm database
+            # Remove the old (broken ?) RPM database
             command.append('rm -f /var/lib/rpm/__db*')
             # Force zypper and rpm to use armv7hl architecture
             command.append("echo 'arch = armv7hl' >> /etc/zypp/zypp.conf")
@@ -372,9 +364,3 @@ class ObsLightChRoot(object):
         command.append("rpm --rebuilddb")
         command.append('echo "alias ll=\"ls -lh\"\nalias la=\"ls -Alh\"" >> /etc/profile.d/alias.sh')
         self.execCommand(command=command)
-
-
-        
-        
-
-

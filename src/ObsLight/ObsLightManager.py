@@ -17,7 +17,7 @@
 '''
 Created on 17 juin 2011
 
-@author: ronan
+@author: Ronan Le Martret
 '''
 
 import os
@@ -26,10 +26,6 @@ from ObsLightErr import ObsLightObsServers
 from ObsLightErr import ObsLightProjectsError
 from ObsServers import ObsServers
 from ObsLightProjects import ObsLightProjects 
-
-
-    
-
 
 
 class ObsLightManager(object):
@@ -43,7 +39,7 @@ class ObsLightManager(object):
         '''
         
         self.__workingDirectory = os.path.join(os.environ['HOME'], "OBSLight")
-        #if not exist creat the obsLight directory for the user.
+        # If not exists, create the obsLight directory for the user.
         if not os.path.isdir(self.__workingDirectory):
             os.makedirs(self.__workingDirectory)
             
@@ -393,7 +389,7 @@ class ObsLightManager(object):
             raise ObsLightProjectsError(" package name not specified")
         elif not self.isALocalProject(name=projectLocalName):
             raise ObsLightProjectsError(projectLocalName + " is not a local project")
-        #TODO test if package can be install
+        #TODO test if package can be installed
         
         self.__myObsLightProjects.addPackageSourceInChRoot(projectLocalName=projectLocalName,
                                                            package=package)
@@ -449,7 +445,7 @@ class ObsLightManager(object):
 
         self.__myObsLightProjects.save()
         
-    def addRepos(self, projectLocalName=None,
+    def addRepo(self, projectLocalName=None,
                         fromProject=None,
                         repos=None,
                         alias=None):
@@ -465,7 +461,7 @@ class ObsLightManager(object):
         elif not self.isALocalProject(name=projectLocalName):
             raise ObsLightProjectsError(projectLocalName + " is not a local projectLocalName")         
                                 
-        self.__myObsLightProjects.addRepos(projectLocalName=projectLocalName,
+        self.__myObsLightProjects.addRepo(projectLocalName=projectLocalName,
                                            fromProject=fromProject,
                                            repos=repos,
                                            alias=alias)

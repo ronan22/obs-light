@@ -54,7 +54,7 @@ class ObsProjectListModel(QAbstractListModel):
             return None
         
     def rowCount(self, parent=None):
-            return len(self.__getProjectList())
+        return len(self.__getProjectList())
         
     def addProject(self, name, server, target, architecture):
         if self.__obsLightManager != None:
