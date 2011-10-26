@@ -1,4 +1,7 @@
-obslight (0.3.4-1) stable; urgency=low
+obslight (0.4.0-1) stable; urgency=low
+
+  * Version 0.4.0
+    First stable version
 
   * Version 0.3.4
     Improved sudo rules
@@ -15,4 +18,4 @@ obslight (0.3.4-1) stable; urgency=low
 
   * Initial Release
 
- -- Florent Vennetier <florent@fridu.net>  Mon, 24 Oct 2011 10:10:25 +0200
+ -- Florent Vennetier <florent@fridu.net>  Wed, 26 Oct 2011 10:55:48 +0200

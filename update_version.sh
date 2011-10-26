@@ -28,7 +28,7 @@ sed -i s/"version $OLDVERSION"/"version $NEWVERSION"/ obslight.spec
 echo "---"
 grep --color "version $NEWVERSION" obslight.spec
 echo "----------------"
-grep --color "version = \"$OLDVERSION\"" src/setup.py
-sed -i s/"version = \"$OLDVERSION\""/"version = \"$NEWVERSION\""/ src/setup.py
+grep --color "version=\"$OLDVERSION\"" src/setup.py
+sed -i s/"version=\"$OLDVERSION\""/"version=\"$NEWVERSION\""/ src/setup.py
 echo "---"
-grep --color "version = \"$NEWVERSION\"" src/setup.py
+grep --color "version=\"$NEWVERSION\"" src/setup.py
