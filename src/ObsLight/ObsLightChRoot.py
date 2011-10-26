@@ -116,7 +116,7 @@ class ObsLightChRoot(object):
 
     def __findPackageDirectory(self, package=None):
         '''
-        
+        Return the directory of where the package were installed.
         '''
         pathBuild = self.__chrootDirectory + "/" + self.__chrootrpmbuildDirectory + "/" + "BUILD"
         #Find the Package Directory
@@ -132,7 +132,16 @@ class ObsLightChRoot(object):
                 packageDirectory = packageDirectory[:packageDirectory.rindex("-")]
                 
             if package == packageDirectory:
-                return self.__chrootrpmbuildDirectory + "/BUILD/" + res
+                resultPath= self.__chrootrpmbuildDirectory + "/BUILD/" + res
+                
+                subDir=os.listdir(pathBuild+ "/" + res)
+                if len(subDir)==0:
+                    return resultPath
+                elif len(subDir)==1:
+                    return resultPath+"/"+subDir[0]
+                else:
+                    return resultPath
+                
         return None
 
 

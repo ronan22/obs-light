@@ -112,7 +112,6 @@ class ObsLightPackage(object):
 
         self.addFile(aFile)
     
-    
     def addFile(self, aFile=None):
         '''
         Add a aFile to the package.

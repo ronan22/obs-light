@@ -132,7 +132,7 @@ class ObsLightSpec:
         patch_Val_Build = "%patch" + str(patchID)
 
         self.__spectDico[self.__introduction_section].insert(0, patch_Val_Prep + ": " + aFile + "\n")
-        self.__spectDico[self.__introduction_section].insert(0, "# This line is insert automatically, please comment and clean the code\n")
+        self.__spectDico[self.__introduction_section].insert(0, "# This line is insert automatically , please comment and clean the code\n")
 
         
         #You can have not %prep section
@@ -147,7 +147,8 @@ class ObsLightSpec:
             if res==0:
                 res=i
             self.__spectDico[self.__prepFlag].insert(res,patch_Val_Build + " -p1\n")
-            
+            self.__spectDico[self.__prepFlag].insert(res, "# This line is insert automatically, please comment and clean the code\n")
+
         return 0
         
     def addFile(self,
