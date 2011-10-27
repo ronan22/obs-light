@@ -27,21 +27,26 @@ from PySide.QtCore import QIODevice, QFile, QMetaObject
 from PySide.QtGui import QApplication
 from PySide.QtUiTools import QUiLoader
 
-from OBSLightGuiObsProjectManager import ObsProjectManager
+from ProjectManager import ObsProjectManager
+from ActionManager import MainWindowActionManager
 
 class Gui():
     application = None
     uiLoader = None
-    mainWindow = None
-    obsLightManager = None
+    __mainWindow = None
+    __obsLightManager = None
     __obsProjectManager = None
+    __mainWindowActionManager = None
     
     def __init__(self, obsLightManager=None):
         self.application = QApplication(sys.argv)
         self.uiLoader = QUiLoader()
-        self.obsLightManager = obsLightManager
+        self.__obsLightManager = obsLightManager
         
     def loadWindow(self, uiFile):
+        '''
+        Load a Window
+        '''
         path = join(dirname(__file__), "ui", uiFile)
         windowFile = QFile(path)
         windowFile.open(QIODevice.ReadOnly | QIODevice.Text)
@@ -50,12 +55,22 @@ class Gui():
         QMetaObject.connectSlotsByName(window)
         return window
         
-    def loadMainWindow(self):
-        self.mainWindow = self.loadWindow("obsLightMain.ui")
-        self.mainWindow.show()
+    def __loadMainWindow(self):
+        self.__mainWindow = self.loadWindow("obsLightMain.ui")
+        self.__mainWindowActionManager = MainWindowActionManager(self)
+        self.__mainWindow.show()
+        
+    def getMainWindow(self):
+        '''
+        Returns the main window object (may be None)
+        '''
+        return self.__mainWindow
+    
+    def getObsLightManager(self):
+        return self.__obsLightManager
 
     def main(self):
-        self.loadMainWindow()
+        self.__loadMainWindow()
         self.__obsProjectManager = ObsProjectManager(self)
         return self.application.exec_()
 
