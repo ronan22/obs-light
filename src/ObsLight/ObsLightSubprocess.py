@@ -45,13 +45,12 @@ class SubprocessCrt(object):
                 self.__isPrintMess = True
                 aThread = Thread(group=None,
                                  target=self.printWaitMess,
-                                 name=None, args=(),
+                                 name=None,
+                                 args=(),
                                  kwargs=None,
                                  verbose=None)
                 aThread.start()
-                
-            #res = subprocess.call(command,  stdout=open(os.devnull, 'rw'), stdin=open(os.devnull, 'rw'))
-            
+                            
             res = subprocess.Popen(command,
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE,
@@ -75,11 +74,11 @@ class SubprocessCrt(object):
         
         sys.stdout.write("please wait\n")
         sys.stdout.flush()
-        while((self.__isPrintMess == True)and(not BREAKPROCESS)):
+        while((self.__isPrintMess)and(not BREAKPROCESS)):
             sys.stdout.write(".")
             sys.stdout.flush()
             i = 0
-            while((i <= 10)and((self.__isPrintMess == True)and(not BREAKPROCESS))):
+            while((i <= 10)and((self.__isPrintMess)and(not BREAKPROCESS))):
                 time.sleep(0.1)
                 i += 1
                 

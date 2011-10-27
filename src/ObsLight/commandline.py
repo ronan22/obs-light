@@ -48,7 +48,8 @@ __addPackageSourceInChRoot__ = "addPackageSourceInChRoot"
 __makePatch__ = "makePatch"
 __addAndCommitChange__ = "addAndCommitChanges"
 __addRepoInChRoot__ = "addRepoInChRoot"
-
+__info_verbose__ ="--verbose"
+__info_debug__ ="--debug"
 
 __DICO_HELP__ = {}
 __DICO_HELP__[__getListObsServers__] = "Print the list of OBS servers."
@@ -64,6 +65,9 @@ __DICO_HELP__[__makePatch__] = "Generate a patch with modifications made in the 
 __DICO_HELP__[__addAndCommitChange__] = "Add the new files (including patches) and commit them to the OBS"
 __DICO_HELP__[__addRepoInChRoot__] = "Add a repository to the chroot's zypper configuration file."
 
+__DICO_OPTION_HELP__={}
+__DICO_OPTION_HELP__[__info_verbose__] = "Print all subprocess outputs."
+__DICO_OPTION_HELP__[__info_debug__] = "Print all subprocess commands."
 
 
 class ObsLight():
@@ -139,30 +143,42 @@ class ObsLight():
         __HELP__ += "\t" + __addRepoInChRoot__ + ":" + "\t" + __DICO_HELP__[__addRepoInChRoot__] + "\n"
         __HELP__ += "\n"
         __HELP__ += "global commands\n"
-        __HELP__ += "\t" + "--verbose:" + "\t" + " Print all subprocess outputs." + "\n"
-        __HELP__ += "\t" + "--debug:" + "\t" + " Print all subprocess commands." + "\n"
+        __HELP__ += "\t" + __info_verbose__+":" + "\t" + __DICO_OPTION_HELP__[__info_verbose__] + "\n"
+        __HELP__ += "\t" + __info_debug__+":" + "\t" + __DICO_OPTION_HELP__[__info_debug__] + "\n"
         __HELP__ += "\n"
         __HELP__ += __DESCRIPTION__
         __HELP__ += "\n"
-        
-        
+
+        ObsLightPrintManager.VERBOSE=0
+        ObsLightPrintManager.DEBUG=0
         if len(listArgv) == 0:
             ObsLightPrintManager.obsLightPrint(__DESCRIPTION__)
             return None
         elif len(listArgv) > 0:
             while(1):
-                
-                if (listArgv[0] == "--verbose"):
+                if (listArgv[0] == __info_verbose__):
                     listArgv = listArgv[1:]
                     ObsLightPrintManager.VERBOSE = 1
                     continue
-                if (listArgv[0] == "--debug"):
+                if (listArgv[0] == __info_debug__):
                     listArgv = listArgv[1:]
-                    ObsLightPrintManager.DEBUG = 1
+                    ObsLightPrintManager.DEBUG += 1
                     continue
                 elif self.__isHelp(listArgv[0]):
-                    ObsLightPrintManager.obsLightPrint(__HELP__)
-                    return None
+                    if ObsLightPrintManager.DEBUG==0:
+                        ObsLightPrintManager.obsLightPrint(__HELP__)
+                        return None
+                    elif ObsLightPrintManager.DEBUG==1:
+                        for k in __DICO_HELP__.keys():print k
+                        return None
+                    elif ObsLightPrintManager.DEBUG==2:
+                        for k in __DICO_OPTION_HELP__.keys():print k
+                        return None
+                    elif ObsLightPrintManager.DEBUG==3:
+                        for k in __DICO_HELP__.keys():print k
+                        for k in __DICO_OPTION_HELP__.keys():print k
+                        return None
+                    
                 elif (listArgv[0] == __getListObsServers__):
                     return self.getListObsServers(listArgv[1:])
                 elif (listArgv[0] == __addObsServer__):
