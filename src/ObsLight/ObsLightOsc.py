@@ -126,7 +126,7 @@ class ObsLightOsc(object):
         list_package = core.meta_get_packagelist(obsServer, projectLocalName)
         return list_package
     
-    def CheckoutPackage(self,
+    def checkoutPackage(self,
                         obsServer=None,
                         projectLocalName=None,
                         package=None,
@@ -235,7 +235,7 @@ class ObsLightOsc(object):
         self.__subprocess(command=command, waitMess=True)
 
         
-    def getListLocalProject(self, obsServer=None):
+    def getLocalProjectList(self, obsServer=None):
         '''
         return a list of the project of a OBS Server.
         '''
@@ -267,7 +267,7 @@ class ObsLightOsc(object):
             result.append([name, project, reponame, repository])
         return result
      
-    def getListTarget(self,
+    def getTargetList(self,
                       obsServer=None,
                       projectObsName=None):
         '''
@@ -281,7 +281,7 @@ class ObsLightOsc(object):
                 res.append(entry.get("name"))
         return res
         
-    def getListArchitecture(self,
+    def getArchitectureList(self,
                             obsServer=None,
                             projectObsName=None,
                             projectTarget=None):

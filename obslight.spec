@@ -1,6 +1,6 @@
 %define name obslight
-%define version 0.3.4
-%define unmangled_version 0.3.4
+%define version 0.4.0
+%define unmangled_version 0.4.0
 %define release 1
 
 Summary: OBS Light
@@ -115,6 +115,9 @@ rm -rf %{buildroot}
 %{_bindir}/obsextractgroups
 
 %changelog
+* Wed Oct 26 2011 Florent Vennetier (Intel OTC) <florent@fridu.net> 0.4.0-1
+- First stable version
+
 * Mon Oct 24 2011 Florent Vennetier (Intel OTC) <florent@fridu.net> 0.3.4-1
 - Improved sudo rules
 - New debug/verbose options
