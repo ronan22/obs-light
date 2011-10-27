@@ -164,11 +164,11 @@ class ObsLight():
                     ObsLightPrintManager.obsLightPrint(__HELP__)
                     return None
                 elif (listArgv[0] == __getListObsServers__):
-                    return self.getListObsServers(listArgv[1:])
+                    return self.getObsServerList(listArgv[1:])
                 elif (listArgv[0] == __addObsServer__):
                     return self.addObsServer(listArgv[1:])
                 elif (listArgv[0] == __getListLocalProject__):
-                    return self.getListLocalProject(listArgv[1:])
+                    return self.getLocalProjectList(listArgv[1:])
                 elif (listArgv[0] == __addProject__):
                     return self.addProject(listArgv[1:])
                 elif (listArgv[0] == __getListPackage__):
@@ -184,7 +184,7 @@ class ObsLight():
                 elif (listArgv[0] == __makePatch__):
                     return self.makePatch(listArgv[1:])
                 elif (listArgv[0] == __addAndCommitChange__):
-                    return self.addAndCommitChange(listArgv[1:])
+                    return self.addAndCommitChanges(listArgv[1:])
                 elif (listArgv[0] == __addRepoInChRoot__):
                     return self.addRepoInChRoot(listArgv[1:])
                 else:
@@ -197,7 +197,7 @@ class ObsLight():
         return arg in ["--help", "-h", "-help", "help"]
 
 
-    def getListLocalProject(self, listArgv):
+    def getLocalProjectList(self, listArgv):
         '''
         Print the list of local projects. 
         '''
@@ -206,7 +206,7 @@ class ObsLight():
         __HELP__ += __DICO_HELP__[__COMMAND__]
 
         if len(listArgv) == 0:
-            result = self.cliObsLightManager.getListLocalProject()
+            result = self.cliObsLightManager.getLocalProjectList()
             if len(result) > 0:
                 for k in result:
                     ObsLightPrintManager.obsLightPrint(k)
@@ -219,7 +219,7 @@ class ObsLight():
         return 0 
     
         
-    def getListObsServers(self, listArgv):
+    def getObsServerList(self, listArgv):
         '''
         Print the list OBS servers. 
         '''
@@ -228,7 +228,7 @@ class ObsLight():
         __HELP__ += __DICO_HELP__[__getListObsServers__]       
 
         if len(listArgv) == 0: 
-            result = self.cliObsLightManager.getListObsServers()
+            result = self.cliObsLightManager.getObsServerList()
             if len(result) > 0:
                 for k in result:
                     ObsLightPrintManager.obsLightPrint(k)
@@ -387,10 +387,10 @@ class ObsLight():
                     raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
                 
             if (obsServer != None) and (projectLocalName != None):
-                res = self.cliObsLightManager.getListPackageFromObsProject(obsServer=obsServer,
+                res = self.cliObsLightManager.getObsProjectPackageList(obsServer=obsServer,
                                                                            projectLocalName=projectLocalName)
             elif (projectLocalName != None) and (localPackage in ["0", "1"]):
-                res = self.cliObsLightManager.getListPackageFromLocalProject(name=projectLocalName,
+                res = self.cliObsLightManager.getLocalProjectPackageList(name=projectLocalName,
                                                                              local=int(localPackage))
             else:
                 raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
@@ -585,7 +585,7 @@ class ObsLight():
         return 0 
         
         
-    def addAndCommitChange(self, listArgv):
+    def addAndCommitChanges(self, listArgv):
         '''
         Add/delete files in an osc directory, and commit modifications to the OBS. 
         '''
@@ -614,7 +614,7 @@ class ObsLight():
             if (message == None):
                 raise ObsLightErr.ArgError("No message for " + __COMMAND__)
             elif (projectLocalName != None) and (package != None) :
-                self.cliObsLightManager.addAndCommitChange(projectLocalName=projectLocalName,
+                self.cliObsLightManager.addAndCommitChanges(projectLocalName=projectLocalName,
                                                            package=package, message=message)
             else:
                 raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)

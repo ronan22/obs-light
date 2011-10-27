@@ -110,11 +110,11 @@ class ObsServer(object):
         return ObsLightOsc.myObsLightOsc.getListPackage(obsServer=self.__serverAPI,
                                                         projectLocalName=projectLocalName)
     
-    def CheckoutPackage(self, projectLocalName=None, package=None, directory=None):
+    def checkoutPackage(self, projectLocalName=None, package=None, directory=None):
         '''
         
         '''
-        ObsLightOsc.myObsLightOsc.CheckoutPackage(obsServer=self.__serverAPI,
+        ObsLightOsc.myObsLightOsc.checkoutPackage(obsServer=self.__serverAPI,
                                                   projectLocalName=projectLocalName,
                                                   package=package,
                                                   directory=directory)
@@ -134,33 +134,33 @@ class ObsServer(object):
                                                            arch=arch)
     
      
-    def getRepos(self):
+    def getRepo(self):
         '''
         
         '''
         return self.__serverRepos
     
     
-    def getListLocalProject(self):
+    def getLocalProjectList(self):
         '''
         
         '''
-        return  ObsLightOsc.myObsLightOsc.getListLocalProject(obsServer=self.__serverAPI)
+        return  ObsLightOsc.myObsLightOsc.getLocalProjectList(obsServer=self.__serverAPI)
     
-    def getListTarget(self, projectObsName=None):
+    def getTargetList(self, projectObsName=None):
         '''
         
         '''
-        return ObsLightOsc.myObsLightOsc.getListTarget(obsServer=self.__serverAPI,
+        return ObsLightOsc.myObsLightOsc.getTargetList(obsServer=self.__serverAPI,
                                                        projectObsName=projectObsName)
     
-    def getListArchitecture(self,
+    def getArchitectureList(self,
                             projectObsName=None,
                             projectTarget=None):
         '''
         
         '''
-        return ObsLightOsc.myObsLightOsc.getListArchitecture(obsServer=self.__serverAPI ,
+        return ObsLightOsc.myObsLightOsc.getArchitectureList(obsServer=self.__serverAPI ,
                                                               projectObsName=projectObsName,
                                                               projectTarget=projectTarget)
         

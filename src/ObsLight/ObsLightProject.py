@@ -122,7 +122,7 @@ class ObsLightProject(object):
         
         '''
         if local == 0:
-            return ObsLightManager.myObsLightManager.getListPackageFromObsProject(obsServer=self.__obsServer,
+            return ObsLightManager.myObsLightManager.getObsProjectPackageList(obsServer=self.__obsServer,
                                                                                   projectLocalName=self.__projectObsName)
         else:
             return self.__packages.getListPackages()
@@ -131,7 +131,7 @@ class ObsLightProject(object):
         '''
         add a package to the projectLocalName.
         '''
-        ObsLightManager.myObsLightManager.CheckoutPackage(obsServer=self.__obsServer,
+        ObsLightManager.myObsLightManager.checkoutPackage(obsServer=self.__obsServer,
                                                           projectLocalName=self.__projectObsName,
                                                           package=name,
                                                           directory=self.__projectDirectory)
@@ -197,7 +197,7 @@ class ObsLightProject(object):
         '''
         
         '''
-        return os.path.join(ObsLightManager.getManager().getRepos(obsServer=self.__obsServer), self.__projectObsName.replace(":", ":/"), self.__projectTarget)
+        return os.path.join(ObsLightManager.getManager().getRepo(obsServer=self.__obsServer), self.__projectObsName.replace(":", ":/"), self.__projectTarget)
 
     def goToChRoot(self, package=None):
         '''

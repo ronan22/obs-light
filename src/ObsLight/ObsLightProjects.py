@@ -48,7 +48,7 @@ class ObsLightProjects(object):
         '''
         saveProject = {}
 
-        for ProjectName in self.getListLocalProject():
+        for ProjectName in self.getLocalProjectList():
             saveProject[ProjectName] = self.__dicOBSLightProjects[ProjectName].getDic()
         
         saveconfigProject = {}
@@ -73,7 +73,7 @@ class ObsLightProjects(object):
             self.__currentProjects = saveconfigServers["currentProject"]
         
         
-    def getListLocalProject(self):
+    def getLocalProjectList(self):
         '''
         
         '''
