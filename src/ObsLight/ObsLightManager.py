@@ -61,7 +61,15 @@ class ObsLightManager(object):
         
     def getObsServerInfo(self,obsServer=None,info=None):
         '''
-        
+        return the value of the parameter "info" of an OBS server
+        the valid parameter is:
+            obssOBSConnected
+            serverWeb
+            serverAPI
+            serverRepos
+            aliases
+            user
+            passw
         '''
         if not self.isAnObsServer(obsServer):
             raise ObsLightObsServers(obsServer + " is not a obs server")
@@ -69,12 +77,39 @@ class ObsLightManager(object):
         
     def setObsServerInfo(self,obsServer=None,info=None,value=None):
         '''
-        
+        change the value of the parameter "info" of an OBS server
+        the valid parameter is:
+            obssOBSConnected
+            serverWeb
+            serverAPI
+            serverRepos
+            aliases
+            user
+            passw
         '''
         if not self.isAnObsServer(obsServer):
             raise ObsLightObsServers(obsServer + " is not a obs server")
         
         return self.__myObsServers.setObsServerInfo(obsServer=obsServer,info=info,value=value)
+        
+    def getProjectInfo(self,projectLocalName=None,info=None):
+        '''
+
+        '''
+        if not self.isALocalProject(projectLocalName):
+            raise ObsLightProjectsError(projectLocalName + " is not a local project")
+        return self.__myObsLightProjects.getProjectInfo(projectLocalName=projectLocalName,info=info)
+        
+    def setProjectInfo(self,projectLocalName=None,info=None,value=None):
+        '''
+
+        '''
+        if not self.isALocalProject(projectLocalName):
+            raise ObsLightProjectsError(projectLocalName + " is not a local project")
+        
+        return self.__myObsLightProjects.setProjectInfo(projectLocalName=projectLocalName,info=info,value=value)
+        
+        
         
     def addObsServer(self, serverWeb="",
                             serverAPI=None,

@@ -25,6 +25,8 @@ from ObsLightPackages import ObsLightPackages
 from ObsLightChRoot import ObsLightChRoot
 import ObsLightManager
 
+import ObsLightErr
+
 class ObsLightProject(object):
     '''
     classdocs
@@ -80,6 +82,58 @@ class ObsLightProject(object):
             
         if not os.path.isdir(self.__projectDirectory):
             os.makedirs(self.__projectDirectory)
+        
+    def getProjectInfo(self,info=None):
+        '''
+        return the value  of the info of the project:
+        the valide info is :
+            projectLocalName
+            projectObsName
+            projectDirectory
+            obsServer
+            projectTarget
+            "projectArchitecture
+            projectTitle
+            description
+        '''
+        if info=="projectLocalName":
+            return self.__projectLocalName
+        elif info=="projectObsName":
+            return self.__projectObsName
+        elif info=="projectDirectory":
+            return self.__projectDirectory
+        elif info=="obsServer":
+            return self.__obsServer
+        elif info=="projectTarget":
+            return self.__projectTarget
+        elif info=="projectArchitecture":
+            return self.__projectArchitecture
+        elif info=="projectTitle":
+            return self.__projectTitle
+        elif info=="description":
+            return self.__description
+        else:
+            raise ObsLightErr.ObsLightProjectsError("info value is not valide for getProjectInfo")
+        
+    def setProjectInfo(self,info=None,value=None):
+        '''
+        return the value  of the info of the project:
+        the valide info is :
+            projectTarget
+            projectArchitecture
+            projectTitle
+            description
+        '''
+        if info=="projectTarget":
+            self.__projectTarget=value
+        elif info=="projectArchitecture":
+            self.__projectArchitecture=value
+        elif info=="projectTitle":
+            self.__projectTitle=value
+        elif info=="description":
+            self.__description=value
+        else:
+            raise ObsLightErr.ObsLightProjectsError("info value is not valide for getProjectInfo")
         
 
     def getProjectObsName(self):
