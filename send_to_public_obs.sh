@@ -22,8 +22,8 @@ rm obslight/obslight*.tar.gz
 cd $PROJECTDIR
 # Copy all project file to the temporary directory
 cp src/dist/obslight*.tar.gz $TMPDIR/obslight
-cp obslight.spec $TMPDIR/obslight
-cp debian.changelog debian.control debian.postinst debian.prerm debian.rules obslight.dsc $TMPDIR/obslight
+cp rpm/obslight.spec $TMPDIR/obslight
+cp deb/debian.changelog deb/debian.control deb/debian.postinst deb/debian.prerm deb/debian.rules deb/obslight.dsc $TMPDIR/obslight
 cd $TMPDIR/obslight
 # Add all new files, remove disappeared files, and commit
 osc ar

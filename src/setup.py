@@ -34,7 +34,8 @@ setup(name='obslight',
                  'script/obstag', 'script/obs2obscopy', 'script/obsextractgroups'],
       provides=['ObsLight', 'ObsLightGui'],
       requires=['osc (>=0.132.5)', 'xml.etree.ElementTree'],
-      data_files=[('/etc', ['sudoers.obslight'])],
+      data_files=[('/etc', ['sudoers.obslight']),
+                  ('/etc/bash_completion.d/', ['obslight.sh'])],
       
       
       cmdclass={

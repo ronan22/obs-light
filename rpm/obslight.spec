@@ -101,6 +101,7 @@ rm -rf %{buildroot}
 %{python_sitelib}/ObsLight
 %{python_sitelib}/obslight*egg-info
 %config %attr(440, root, root) %{_sysconfdir}/sudoers.obslight
+%config %{_sysconfdir}/bash_completion.d/obslight.sh
 
 %files gui
 %defattr(-,root,root)
@@ -115,6 +116,9 @@ rm -rf %{buildroot}
 %{_bindir}/obsextractgroups
 
 %changelog
+* Wed Oct 27 2011 Ronan Le Martret (Intel OTC) <ronan@fridu.net> 0.4.0-2
+- Add completion 
+
 * Wed Oct 26 2011 Florent Vennetier (Intel OTC) <florent@fridu.net> 0.4.0-1
 - First stable version
 
