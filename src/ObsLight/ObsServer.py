@@ -21,7 +21,7 @@ Created on 29 sept. 2011
 '''
 
 import ObsLightOsc
-
+import ObsLightErr
 
 class ObsServer(object):
     '''
@@ -64,6 +64,71 @@ class ObsServer(object):
                                            user=self.__user,
                                            passw=self.__passw,
                                            aliases=self.__aliases)
+        
+    def getObsServerInfo(self,info=None):
+        '''
+        return the value of the parameter "info"
+        the valid parameter is:
+            obssOBSConnected
+            serverWeb
+            serverAPI
+            serverRepos
+            aliases
+            user
+            passw
+        '''
+        if info=="obssOBSConnected":
+            return self.__isOBSConnected
+        elif info=="serverWeb":
+            return self.__serverWeb
+        elif info=="serverAPI":
+            return self.__serverAPI
+        elif info=="serverRepos":
+            return self.__serverRepos
+        elif info=="aliases":
+            return self.__aliases
+        elif info=="user":
+            return self.__passw
+        elif info=="passw":
+            return self.__passw
+        
+    def setObsServerInfo(self,info=None,value=None):
+        '''
+        change the value of the parameter "info"
+        the valid parameter is:
+            obssOBSConnected
+            serverWeb
+            serverAPI
+            serverRepos
+            aliases
+            user
+            passw
+        '''
+        if value==None:
+            raise ObsLightErr.ObsLightObsServers("value is not valid for setObsServerInfo")
+        
+        if info=="obssOBSConnected":
+            self.__isOBSConnected=value
+        elif info=="serverWeb":
+            self.__serverWeb=value
+        elif info=="serverAPI":
+            self.__serverAPI=value
+        elif info=="serverRepos":
+            self.__serverRepos=value
+        elif info=="aliases":
+            self.__aliases=value
+        elif info=="user":
+            self.__passw=value
+        elif info=="passw":
+            self.__passw=value
+        else:
+            raise ObsLightErr.ObsLightObsServers("info is not valid for setObsServerInfo")
+        return None
+        
+        
+        
+        
+        
         
         
     def initConfigProject(self,

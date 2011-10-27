@@ -166,9 +166,17 @@ class ObsServers(object):
                                                                         projectTarget=projectTarget)
             
             
+    def getObsServerInfo(self,obsServer=None,info=None):
+        '''
+        
+        '''
+        return self.__dicOBSLightServers[obsServer].getObsServerInfo(info=info)
             
-            
-            
+    def setObsServerInfo(self,obsServer=None,info=None,value=None):
+        '''
+        
+        '''
+        return self.__dicOBSLightServers[obsServer]. setObsServerInfo(info=info,value=value)
             
             
             

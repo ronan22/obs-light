@@ -59,6 +59,23 @@ class ObsLightManager(object):
         '''
         return self.__myObsServers.getObsServerList()
         
+    def getObsServerInfo(self,obsServer=None,info=None):
+        '''
+        
+        '''
+        if not self.isAnObsServer(obsServer):
+            raise ObsLightObsServers(obsServer + " is not a obs server")
+        return self.__myObsServers.getObsServerInfo(obsServer=obsServer,info=info)
+        
+    def setObsServerInfo(self,obsServer=None,info=None,value=None):
+        '''
+        
+        '''
+        if not self.isAnObsServer(obsServer):
+            raise ObsLightObsServers(obsServer + " is not a obs server")
+        
+        return self.__myObsServers.setObsServerInfo(obsServer=obsServer,info=info,value=value)
+        
     def addObsServer(self, serverWeb="",
                             serverAPI=None,
                             serverRepos="",
