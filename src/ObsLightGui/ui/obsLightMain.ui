@@ -770,6 +770,7 @@
      <string>File</string>
     </property>
     <addaction name="actionExit"/>
+    <addaction name="actionOBS_servers"/>
    </widget>
    <widget class="QMenu" name="menuProject">
     <property name="locale">
@@ -798,6 +799,11 @@
   <action name="actionAbout">
    <property name="text">
     <string>About</string>
+   </property>
+  </action>
+  <action name="actionOBS_servers">
+   <property name="text">
+    <string>OBS servers</string>
    </property>
   </action>
  </widget>

@@ -51,7 +51,7 @@ class ObsLightOsc(object):
                  api=None,
                  user=None,
                  passw=None,
-                 aliases=None):
+                 alias=None):
         '''
         init a configuation for a API.
         '''
@@ -65,7 +65,7 @@ class ObsLightOsc(object):
 
         aOscConfigParser.set(api, 'user', user)
         aOscConfigParser.set(api, 'pass', passw)
-        aOscConfigParser.set(api, 'aliases', aliases)
+        aOscConfigParser.set(api, 'aliases', alias)
 
         aOscConfigParser.set('general', 'su-wrapper', "sudo")
         

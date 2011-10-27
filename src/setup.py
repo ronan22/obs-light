@@ -14,7 +14,6 @@ class build_obslight(distutils.command.build.build, object):
         super(build_obslight, self).run()
         
 
-addparams = {}
 
 setup(name='obslight',
       version="0.4.0",
@@ -40,6 +39,5 @@ setup(name='obslight',
       
       cmdclass={
         'build': build_obslight,
-        },
-      **addparams
+        }
      )

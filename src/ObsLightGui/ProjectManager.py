@@ -42,13 +42,13 @@ class ObsProjectManager(QObject):
         QObject.__init__(self)
         self.__obsProjectListModel = ObsProjectListModel(None)
         self.__gui = gui
-        self.__obsProjectsListView = gui.mainWindow.findChild(QListView, "obsProjectsListView")
+        self.__obsProjectsListView = gui.getMainWindow().findChild(QListView, "obsProjectsListView")
         self.__obsProjectsListView.setModel(self.__obsProjectListModel)
-        self.__newObsProjectButton = gui.mainWindow.findChild(QPushButton, "newObsProjectButton")
+        self.__newObsProjectButton = gui.getMainWindow().findChild(QPushButton, "newObsProjectButton")
         self.__newObsProjectButton.clicked.connect(self.on_newObsProjectButton_clicked)
-        self.__modifyObsProjectButton = gui.mainWindow.findChild(QPushButton, "modifyObsProjectButton")
+        self.__modifyObsProjectButton = gui.getMainWindow().findChild(QPushButton, "modifyObsProjectButton")
         self.__modifyObsProjectButton.clicked.connect(self.on_modifyObsProjectButton_clicked)
-        self.__deleteObsProjectButton = gui.mainWindow.findChild(QPushButton, "deleteObsProjectButton")
+        self.__deleteObsProjectButton = gui.getMainWindow().findChild(QPushButton, "deleteObsProjectButton")
         self.__deleteObsProjectButton.clicked.connect(self.on_deleteObsProjectButton_clicked)
         
     def on_newObsProject(self):
@@ -63,7 +63,7 @@ class ObsProjectManager(QObject):
                                               projectTargetComboBox.currentText(),
                                               projectArchitectureComboBox.currentText())
         self.__projectConfigDialogs.remove(sender)
-        self.__gui.mainWindow.setEnabled(True)
+        self.__gui.getMainWindow().setEnabled(True)
         
     def on_modifyObsProject(self):
         sender = self.sender()
@@ -77,19 +77,19 @@ class ObsProjectManager(QObject):
                                               projectTargetComboBox.currentText(),
                                               projectArchitectureComboBox.currentText())
         self.__projectConfigDialogs.remove(sender)
-        self.__gui.mainWindow.setEnabled(True)
+        self.__gui.getMainWindow().setEnabled(True)
         
         
     def on_projectConfigDialog_rejected(self):
         sender = self.sender()
         self.__projectConfigDialogs.remove(sender)
-        self.__gui.mainWindow.setEnabled(True)
+        self.__gui.getMainWindow().setEnabled(True)
         
     def on_newObsProjectButton_clicked(self):
         newProjectDialog = self.__gui.loadWindow("obsProjectConfig.ui")
         newProjectDialog.accepted.connect(self.on_newObsProject)
         newProjectDialog.rejected.connect(self.on_projectConfigDialog_rejected)
-        self.__gui.mainWindow.setEnabled(False)
+        self.__gui.getMainWindow().setEnabled(False)
         newProjectDialog.show()
         self.__projectConfigDialogs.append(newProjectDialog)
         
@@ -101,7 +101,7 @@ class ObsProjectManager(QObject):
         projectData = self.__obsProjectListModel.data(self.__obsProjectsListView.currentIndex(), ObsProjectListModel.dataRole)
         projectNameField.setText(projectData["name"])
         projectNameField.setReadOnly(True)
-        self.__gui.mainWindow.setEnabled(False)
+        self.__gui.getMainWindow().setEnabled(False)
         modifyProjectDialog.show()
         self.__projectConfigDialogs.append(modifyProjectDialog)
         

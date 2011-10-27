@@ -33,7 +33,7 @@ class ObsServer(object):
                  serverWeb="",
                  serverAPI=None,
                  serverRepos="",
-                 aliases=None,
+                 alias=None,
                  user=None,
                  passw=None,
                  fromSave=None):
@@ -45,7 +45,7 @@ class ObsServer(object):
             self.__serverWeb = fromSave["serverWeb"]
             self.__serverAPI = fromSave["serverAPI"]
             self.__serverRepos = fromSave["serverRepos"]
-            self.__aliases = fromSave["aliases"]
+            self.__aliases = fromSave["alias"]
             self.__user = fromSave["user"]
             self.__passw = fromSave["passw"]
         else:
@@ -53,17 +53,17 @@ class ObsServer(object):
             self.__serverWeb = serverWeb
             self.__serverAPI = serverAPI
             self.__serverRepos = serverRepos
-            if (aliases == None):
+            if alias == None or len(alias) < 1:
                 self.__aliases = self.__serverAPI
             else:
-                self.__aliases = aliases
+                self.__aliases = alias
             self.__user = user
             self.__passw = passw
         
         ObsLightOsc.myObsLightOsc.initConf(api=self.__serverAPI,
                                            user=self.__user,
                                            passw=self.__passw,
-                                           aliases=self.__aliases)
+                                           alias=self.__aliases)
         
     def getObsServerInfo(self,info=None):
         '''
