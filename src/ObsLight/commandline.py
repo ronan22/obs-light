@@ -296,8 +296,8 @@ class ObsLight():
 
             self.cliObsLightManager.addObsServer(serverWeb=serverWeb,
                                                  serverAPI=serverApi,
-                                                 serverRepos=serverRepo,
-                                                 aliases=alias,
+                                                 serverRepo=serverRepo,
+                                                 alias=alias,
                                                  user=user,
                                                  passw=password)
             

@@ -41,19 +41,19 @@ class ObsServers(object):
         self.__pathFile = os.path.join(self.__manager.getObsLightWorkingDirectory() , "ObsServersConfig")
         self.__currentOBSServer = None
         self.__load()
-        
+
     def getObsServer(self, name=None):
         '''
         
         '''
         return self.__dicOBSLightServers[name]
-        
+
     def getObsServerList(self):
         '''
         
         '''
         return self.__dicOBSLightServers.keys()
-    
+
     def save(self):
         '''
         
@@ -62,14 +62,14 @@ class ObsServers(object):
 
         for obsserverName in self.getObsServerList():
             saveServers[obsserverName] = self.__dicOBSLightServers[obsserverName].getDic()
-        
+
         saveconfigServers = {}
         saveconfigServers["saveServers"] = saveServers
-        saveconfigServers["currentObsServer"] = self.__currentServer    
+        saveconfigServers["currentObsServer"] = self.__currentServer
         aFile = open(self.__pathFile, 'w')
-        pickle.dump(saveconfigServers, aFile)    
+        pickle.dump(saveconfigServers, aFile)
         aFile.close()
-        
+
     def __load(self):
         '''
         
@@ -81,60 +81,53 @@ class ObsServers(object):
             saveServers = saveconfigServers["saveServers"]
             for projetName in saveServers.keys():
                 aServer = saveServers[projetName]
-                self.__addOBSServerFromSave(fromSave=aServer)    
+                self.__addOBSServerFromSave(fromSave=aServer)
             self.__currentOBSServer = saveconfigServers["currentObsServer"]
-            
+
     def __addOBSServerFromSave(self, fromSave=None):
         '''
         
         '''
         aOBSServer = ObsServer(fromSave=fromSave)
         self.__dicOBSLightServers[aOBSServer.getName()] = aOBSServer
-        
-        
-    def addObsServer(self, serverWeb="",
-                            serverAPI=None,
-                            serverRepos="",
-                            aliases=None,
-                            user=None,
-                            passw=None):
+
+
+    def addObsServer(self, serverWeb="", serverAPI=None, serverRepo="",
+                    alias=None, user=None, passw=None):
         '''
         
         '''
         aOBSServer = ObsServer(serverWeb=serverWeb,
                                serverAPI=serverAPI,
-                               serverRepos=serverRepos,
-                               aliases=aliases,
+                               serverRepo=serverRepo,
+                               alias=alias,
                                user=user,
                                passw=passw)
         self.__dicOBSLightServers[aOBSServer.getName()] = aOBSServer
-        
-        
+
+
     def getLocalProjectList(self, server=None):
         '''
         
         '''
         return self.__dicOBSLightServers[server].getLocalProjectList()
-        
-        
-    def getListPackage(self, obsServer=None,
-                            projectLocalName=None):
+
+
+    def getListPackage(self, obsServer=None, projectLocalName=None):
         '''
         
         '''
         return self.__dicOBSLightServers[obsServer].getListPackage(projectLocalName=projectLocalName)
-    
-    def checkoutPackage(self, obsServer=None,
-                                projectLocalName=None,
-                                package=None,
-                                directory=None):
+
+    def checkoutPackage(self, obsServer=None, projectLocalName=None,
+                        package=None, directory=None):
         '''
         
         '''
         self.__dicOBSLightServers[obsServer].checkoutPackage(projectLocalName=projectLocalName,
                                                              package=package,
                                                              directory=directory)
-         
+
     def getPackageStatus(self, obsServer=None, project=None, package=None, repos=None, arch=None):
         '''
         
@@ -143,47 +136,47 @@ class ObsServers(object):
                                                                      package=package,
                                                                      repos=repos,
                                                                      arch=arch)
-        
+
     def getRepo(self, obsServer=None):
         '''
         
         '''
         return self.__dicOBSLightServers[obsServer].getRepo()
 
-    def getTargetList(self, obsServer=None , projectObsName=None):
+    def getTargetList(self, obsServer=None, projectObsName=None):
         '''
         
         '''
         return self.__dicOBSLightServers[obsServer].getTargetList(projectObsName=projectObsName)
-        
-    def getArchitectureList(self, obsServer=None ,
-                                    projectObsName=None,
-                                    projectTarget=None):
+
+    def getArchitectureList(self, obsServer=None,
+                            projectObsName=None,
+                            projectTarget=None):
         '''
         
         '''
         return self.__dicOBSLightServers[obsServer].getArchitectureList(projectObsName=projectObsName,
                                                                         projectTarget=projectTarget)
-            
-            
-    def getObsServerInfo(self,obsServer=None,info=None):
+
+
+    def getObsServerParameter(self, obsServerAlias=None, parameter=None):
         '''
         
         '''
-        return self.__dicOBSLightServers[obsServer].getObsServerInfo(info=info)
-            
-    def setObsServerInfo(self,obsServer=None,info=None,value=None):
+        return self.__dicOBSLightServers[obsServerAlias].getObsServerParameter(parameter=parameter)
+
+    def setObsServerParameter(self, obsServer=None, parameter=None, value=None):
         '''
         
         '''
-        return self.__dicOBSLightServers[obsServer]. setObsServerInfo(info=info,value=value)
-            
-            
-            
-            
-            
-            
-            
-            
-            
-            
+        return self.__dicOBSLightServers[obsServer].setObsServerParameter(parameter=parameter, value=value)
+
+
+
+
+
+
+
+
+
+

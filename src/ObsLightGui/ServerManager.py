@@ -161,8 +161,8 @@ class ServerConfigManager(QObject):
             manager = self.__gui.getObsLightManager()
             manager.addObsServer(serverWeb=self.getWebIfaceUrl(),
                                  serverAPI=self.getApiUrl(),
-                                 serverRepos=self.getRepoUrl(),
-                                 aliases=self.getAlias(),
+                                 serverRepo=self.getRepoUrl(),
+                                 alias=self.getAlias(),
                                  user=self.getUser(),
                                  passw=self.getPass())
             self.finished.emit(True)
