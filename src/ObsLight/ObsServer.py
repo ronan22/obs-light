@@ -45,7 +45,7 @@ class ObsServer(object):
             self.__serverWeb = fromSave["serverWeb"]
             self.__serverAPI = fromSave["serverAPI"]
             self.__serverRepos = fromSave["serverRepos"]
-            self.__aliases = fromSave["alias"]
+            self.__aliases = fromSave["aliases"]
             self.__user = fromSave["user"]
             self.__passw = fromSave["passw"]
         else:
