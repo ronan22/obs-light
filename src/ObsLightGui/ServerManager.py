@@ -90,6 +90,7 @@ class ServerConfigManager(QObject):
     Manage an OBS server configuration window.
     '''
     __gui = None
+    __serverAlias = None
     __srvConfDialog = None
 
     __webUrlLineEdit = None
@@ -103,10 +104,21 @@ class ServerConfigManager(QObject):
 
     def __init__(self, gui, serverAlias=None):
         '''
+        Load the server configuration window.
+        If serverAlias is None, load an empty configuration.
+        If serverAlias is an OBS server alias, load its configuration.
         '''
         QObject.__init__(self)
         self.__gui = gui
+        self.__serverAlias = serverAlias
         self.__srvConfDialog = self.__gui.loadWindow("obsServerConfig.ui")
+        self.__loadFieldObjects()
+        if self.__serverAlias is not None:
+            self.__loadFieldValues()
+        self.__srvConfDialog.finished.connect(self.on_obsServerConfigDialog_finished)
+        self.__srvConfDialog.show()
+        
+    def __loadFieldObjects(self):
         self.__webUrlLineEdit = self.__srvConfDialog.findChild(QLineEdit,
                                                                "serverWebUrlLineEdit")
         httpValidator = QRegExpValidator()
@@ -123,18 +135,20 @@ class ServerConfigManager(QObject):
         self.__repoUrlLineEdit.setPlaceholderText("http://myObs:82")
         self.__aliasLineEdit = self.__srvConfDialog.findChild(QLineEdit,
                                                                "serverAliasLineEdit")
-        if serverAlias is not None:
-            self.__loadFields(serverAlias)
+        
         self.__userLineEdit = self.__srvConfDialog.findChild(QLineEdit,
                                                                "usernameLineEdit")
         self.__passLineEdit = self.__srvConfDialog.findChild(QLineEdit,
                                                                "passwordLineEdit")
-
-        self.__srvConfDialog.finished.connect(self.on_obsServerConfigDialog_finished)
-        self.__srvConfDialog.show()
         
-    def __loadFields(self, serverAlias):
-        self.__aliasLineEdit.setText(serverAlias)
+    def __loadFieldValues(self):
+        manager = self.__gui.getObsLightManager()
+        self.__aliasLineEdit.setText(self.__serverAlias)
+        self.__webUrlLineEdit.setText(manager.getObsServerParameter(self.__serverAlias, "serverWeb"))
+        self.__apiUrlLineEdit.setText(manager.getObsServerParameter(self.__serverAlias, "serverAPI"))
+        self.__repoUrlLineEdit.setText(manager.getObsServerParameter(self.__serverAlias, "serverRepos"))
+        self.__userLineEdit.setText(manager.getObsServerParameter(self.__serverAlias, "user"))
+        self.__passLineEdit.setText(manager.getObsServerParameter(self.__serverAlias, "passw"))
 
     def getWebIfaceUrl(self):
         return self.__webUrlLineEdit.text()
@@ -155,9 +169,12 @@ class ServerConfigManager(QObject):
         return self.__passLineEdit.text()
 
     def on_obsServerConfigDialog_finished(self, result):
+        # User cancelled, nothing to do.
         if result == QDialog.Rejected:
             self.finished.emit(False)
-        else:
+        # User accepted, and there was no preloaded server,
+        # so create a new server.
+        elif self.__serverAlias is None:
             manager = self.__gui.getObsLightManager()
             manager.addObsServer(serverWeb=self.getWebIfaceUrl(),
                                  serverAPI=self.getApiUrl(),
@@ -165,4 +182,14 @@ class ServerConfigManager(QObject):
                                  alias=self.getAlias(),
                                  user=self.getUser(),
                                  passw=self.getPass())
+            self.finished.emit(True)
+        # User accepted, and there was a preloaded server,
+        # so modify it.
+        else:
+            manager = self.__gui.getObsLightManager()
+            manager.setObsServerParameter(self.__serverAlias, "serverWeb", self.getWebIfaceUrl())
+            manager.setObsServerParameter(self.__serverAlias, "serverAPI", self.getApiUrl())
+            manager.setObsServerParameter(self.__serverAlias, "serverRepos", self.getRepoUrl())
+            manager.setObsServerParameter(self.__serverAlias, "user", self.getUser())
+            manager.setObsServerParameter(self.__serverAlias, "passw", self.getPass())
             self.finished.emit(True)
