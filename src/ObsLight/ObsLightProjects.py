@@ -198,7 +198,7 @@ class ObsLightProjects(object):
         '''
         
         '''
-        self.__dicOBSLightProjects[projectLocalName].getProjectInfo(info=info)
+        return self.__dicOBSLightProjects[projectLocalName].getProjectInfo(info=info)
         
     def setProjectInfo(self,projectLocalName=None,info=None,value=None):
         '''

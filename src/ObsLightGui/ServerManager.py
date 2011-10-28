@@ -114,7 +114,7 @@ class ServerConfigManager(QObject):
         self.__srvConfDialog = self.__gui.loadWindow("obsServerConfig.ui")
         self.__loadFieldObjects()
         if self.__serverAlias is not None:
-            self.__loadFieldValues()
+            self.__loadInitialFieldValues()
         self.__srvConfDialog.finished.connect(self.on_obsServerConfigDialog_finished)
         self.__srvConfDialog.show()
         
@@ -141,7 +141,7 @@ class ServerConfigManager(QObject):
         self.__passLineEdit = self.__srvConfDialog.findChild(QLineEdit,
                                                                "passwordLineEdit")
         
-    def __loadFieldValues(self):
+    def __loadInitialFieldValues(self):
         manager = self.__gui.getObsLightManager()
         self.__aliasLineEdit.setText(self.__serverAlias)
         self.__webUrlLineEdit.setText(manager.getObsServerParameter(self.__serverAlias, "serverWeb"))

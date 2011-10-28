@@ -215,7 +215,9 @@ class ObsLightManager(object):
                       obsServer=None ,
                       projectObsName=None):
         '''
-        return the list of the target of a obs server
+        Return the list of targets of the specified project.
+        This method is blocking so you may want to call it from a
+        separate thread.
         '''
         if obsServer == None:
             raise ObsLightObsServers(" no obsServer for getTargetList")
@@ -235,7 +237,10 @@ class ObsLightManager(object):
                             projectObsName=None,
                             projectTarget=None):
         '''
-        return the list of the 
+        Return the list of architectures configured on this target
+        for the specified project.
+        This method is blocking so you may want to call it from a
+        separate thread.
         '''
         if obsServer == None:
             raise ObsLightObsServers(" no obsServer for the projectObsName")
@@ -249,7 +254,6 @@ class ObsLightManager(object):
         return self.__myObsServers.getArchitectureList(obsServer=obsServer ,
                                                        projectObsName=projectObsName,
                                                        projectTarget=projectTarget)
-
 
 
     def isALocalProject(self, name=""):
