@@ -198,13 +198,13 @@ class ObsLightProjects(object):
         '''
         
         '''
-        self.__dicOBSLightProjects[projectLocalName].getProjectInfo(info=info)
+        return self.__dicOBSLightProjects[projectLocalName].getProjectInfo(info=info)
         
-    def setProjectInfo(self,projectLocalName=None,info=None,value=None):
+    def setProjectparameter(self,projectLocalName=None,parameter=None,value=None):
         '''
         
         '''
-        self.__dicOBSLightProjects[projectLocalName].setProjectInfo(info=info,value=value)
+        self.__dicOBSLightProjects[projectLocalName].setProjectparameter(parameter=parameter,value=value)
 
     def removeProject(self,projectLocalName=None):
         '''

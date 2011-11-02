@@ -64,7 +64,7 @@ class ObsLightProject(object):
             self.__packages = ObsLightPackages()
             
             #perhaps a trusted_prj must be had
-            ObsLightManager.myObsLightManager.getObsServer(name=self.__obsServer).initConfigProject(projet=self.__projectObsName,
+            ObsLightManager.getManager().getObsServer(name=self.__obsServer).initConfigProject(projet=self.__projectObsName,
                                                                                                     repos=self.__projectTarget)
 
         else:
@@ -115,25 +115,25 @@ class ObsLightProject(object):
         else:
             raise ObsLightErr.ObsLightProjectsError("info value is not valide for getProjectInfo")
         
-    def setProjectInfo(self,info=None,value=None):
+    def setProjectparameter(self,parameter=None,value=None):
         '''
-        return the value  of the info of the project:
-        the valide info is :
+        return the value  of the parameter of the project:
+        the valide parameter is :
             projectTarget
             projectArchitecture
             projectTitle
             description
         '''
-        if info=="projectTarget":
+        if parameter=="projectTarget":
             self.__projectTarget=value
-        elif info=="projectArchitecture":
+        elif parameter=="projectArchitecture":
             self.__projectArchitecture=value
-        elif info=="projectTitle":
+        elif parameter=="projectTitle":
             self.__projectTitle=value
-        elif info=="description":
+        elif parameter=="description":
             self.__description=value
         else:
-            raise ObsLightErr.ObsLightProjectsError("info value is not valide for getProjectInfo")
+            raise ObsLightErr.ObsLightProjectsError("parameter value is not valide for getProjectInfo")
         
     def removeProject(self):
         '''
@@ -181,7 +181,7 @@ class ObsLightProject(object):
         
         '''
         if local == 0:
-            return ObsLightManager.myObsLightManager.getObsProjectPackageList(obsServer=self.__obsServer,
+            return ObsLightManager.getManager().getObsProjectPackageList(obsServer=self.__obsServer,
                                                                                   projectLocalName=self.__projectObsName)
         else:
             return self.__packages.getListPackages()
@@ -190,7 +190,7 @@ class ObsLightProject(object):
         '''
         add a package to the projectLocalName.
         '''
-        ObsLightManager.myObsLightManager.checkoutPackage(obsServer=self.__obsServer,
+        ObsLightManager.getManager().checkoutPackage(obsServer=self.__obsServer,
                                                           projectLocalName=self.__projectObsName,
                                                           package=name,
                                                           directory=self.__projectDirectory)

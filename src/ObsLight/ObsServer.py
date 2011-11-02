@@ -32,7 +32,7 @@ class ObsServer(object):
     def __init__(self,
                  serverWeb="",
                  serverAPI=None,
-                 serverRepos="",
+                 serverRepo="",
                  alias=None,
                  user=None,
                  passw=None,
@@ -46,16 +46,19 @@ class ObsServer(object):
             if "isOBSConnected" in fromSave.keys():self.__isOBSConnected = fromSave["isOBSConnected"]
             if "serverWeb" in fromSave.keys():self.__serverWeb = fromSave["serverWeb"]
             if "serverAPI" in fromSave.keys():self.__serverAPI = fromSave["serverAPI"]
-            if "serverRepos" in fromSave.keys():self.__serverRepos = fromSave["serverRepos"]
+            if "serverRepo" in fromSave.keys():self.__serverRepo = fromSave["serverRepo"]
             if "alias" in fromSave.keys():self.__alias = fromSave["alias"]
             if "user" in fromSave.keys():self.__user = fromSave["user"]
             if "passw" in fromSave.keys():self.__passw = fromSave["passw"]
+
         else:
             self.__isOBSConnected = False
             self.__serverWeb = serverWeb
             self.__serverAPI = serverAPI
-            self.__serverRepos = serverRepos
+
+            self.__serverRepo = serverRepo
             self.__alias = alias
+
             self.__user = user
             self.__passw = passw
             
@@ -70,64 +73,66 @@ class ObsServer(object):
                                            passw=self.__passw,
                                            alias=self.__alias)
         
-    def getObsServerInfo(self, info=None):
+
+    def getObsServerParameter(self,parameter=None):
         '''
-        return the value of the parameter "info"
+        return the value of the parameter "parameter"
         the valid parameter is:
             obssOBSConnected
             serverWeb
             serverAPI
-            serverRepos
+            serverRepo
             alias
             user
             passw
         '''
-        if info == "obssOBSConnected":
+
+        if parameter=="obssOBSConnected":
             return self.__isOBSConnected
-        elif info == "serverWeb":
+        elif parameter=="serverWeb":
             return self.__serverWeb
-        elif info == "serverAPI":
+        elif parameter=="serverAPI":
             return self.__serverAPI
-        elif info == "serverRepos":
-            return self.__serverRepos
-        elif info == "alias":
+        elif parameter=="serverRepo":
+            return self.__serverRepo
+        elif parameter=="aliases":
             return self.__alias
-        elif info == "user":
-            return self.__passw
-        elif info == "passw":
+        elif parameter=="user":
+            return self.__user
+        elif parameter=="passw":
             return self.__passw
         
-    def setObsServerInfo(self, info=None, value=None):
+    def setObsServerParameter(self,parameter=None,value=None):
         '''
-        change the value of the parameter "info"
+        change the value of the parameter "parameter"
         the valid parameter is:
             obssOBSConnected
             serverWeb
             serverAPI
-            serverRepos
+            serverRepo
             alias
             user
             passw
         '''
-        if value == None:
-            raise ObsLightErr.ObsLightObsServers("value is not valid for setObsServerInfo")
+        if value==None:
+            raise ObsLightErr.ObsLightObsServers("value is not valid for setObsServerParameter")
         
-        if info == "obssOBSConnected":
-            self.__isOBSConnected = value
-        elif info == "serverWeb":
-            self.__serverWeb = value
-        elif info == "serverAPI":
-            self.__serverAPI = value
-        elif info == "serverRepos":
-            self.__serverRepos = value
-        elif info == "alias":
-            self.__alias = value
-        elif info == "user":
-            self.__passw = value
-        elif info == "passw":
-            self.__passw = value
+        if parameter=="obssOBSConnected":
+            self.__isOBSConnected=value
+        elif parameter=="serverWeb":
+            self.__serverWeb=value
+        elif parameter=="serverAPI":
+            self.__serverAPI=value
+        elif parameter=="serverRepo":
+            self.__serverRepo=value
+        elif parameter=="alias":
+            self.__alias=value
+        elif parameter=="user":
+            self.__user=value
+        elif parameter=="passw":
+            self.__passw=value
         else:
-            raise ObsLightErr.ObsLightObsServers("info is not valid for setObsServerInfo")
+            raise ObsLightErr.ObsLightObsServers("parameter is not valid for setObsServerParameter")
         return None
         
     def initConfigProject(self,
@@ -155,7 +160,7 @@ class ObsServer(object):
         aDic["isOBSConnected"] = self.__isOBSConnected = False
         aDic["serverWeb"] = self.__serverWeb
         aDic["serverAPI"] = self.__serverAPI
-        aDic["serverRepos"] = self.__serverRepos
+        aDic["serverRepo"] = self.__serverRepo
         aDic["alias"] = self.__alias
         aDic["user"] = self.__user
         aDic["passw"] = self.__passw
@@ -202,7 +207,7 @@ class ObsServer(object):
         '''
         
         '''
-        return self.__serverRepos
+        return self.__serverRepo
     
     
     def getLocalProjectList(self):

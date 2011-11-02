@@ -94,7 +94,7 @@ class ObsLight():
         Execute the main list of arguments
         """
 
-        self.cliObsLightManager = ObsLightManager.myObsLightManager
+        self.cliObsLightManager = ObsLightManager.getManager()
         
         while ("," in self.__listArgv):
             
@@ -296,8 +296,8 @@ class ObsLight():
 
             self.cliObsLightManager.addObsServer(serverWeb=serverWeb,
                                                  serverAPI=serverApi,
-                                                 serverRepos=serverRepo,
-                                                 aliases=alias,
+                                                 serverRepo=serverRepo,
+                                                 alias=alias,
                                                  user=user,
                                                  passw=password)
             
