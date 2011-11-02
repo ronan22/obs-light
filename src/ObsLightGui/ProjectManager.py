@@ -79,7 +79,8 @@ class ObsProjectManager(QObject):
             self.loadProjectList()
             
     def on_projectSelected(self, project):
-        self.__packageManager.setCurrentProject(project)
+        if project is None or len(project) > 0:
+            self.__packageManager.setCurrentProject(project)
 
 
 class ProjectConfigManager(QObject):

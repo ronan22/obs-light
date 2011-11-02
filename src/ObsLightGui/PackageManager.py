@@ -50,6 +50,10 @@ class ObsPackageManager(QObject):
         return self.__project
     
     def setCurrentProject(self, projectName):
+        '''
+        Set the current active project. It will refresh package list.
+        Take care of not passing 0-length project name (None is valid).
+        '''
         self.__project = projectName
         self.__model = PackageModel(self.__obsLightManager, projectName, self)
         self.__packageTableView.setModel(self.__model)

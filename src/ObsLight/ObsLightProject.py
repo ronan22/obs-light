@@ -151,7 +151,7 @@ class ObsLightProject(object):
         res=self.__chroot.removeChRoot()
         
         if res ==0:
-            command = "sudo rm -r " + self.__projectDirectory
+            command = "rm -r " + self.__projectDirectory
             return self.__subprocess(command)
         else:
             raise ObsLightErr.ObsLightProjectsError("Error in removeProject, can't remove chroot")

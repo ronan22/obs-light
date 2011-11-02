@@ -46,7 +46,7 @@ class PackageModel(QAbstractTableModel):
         return self.__project
         
     def __getPackageList(self):
-        if self.__project in (None,"","None"):
+        if self.getProject() is None:
             return list()
         return self.__obsLightManager.getLocalProjectPackageList(self.getProject(), local=1)
     
