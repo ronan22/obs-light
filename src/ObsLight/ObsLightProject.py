@@ -331,3 +331,10 @@ class ObsLightProject(object):
         '''
         return  self.__packages.getPackage(package=package)
         
+    def removePackage(self,package=None):
+        '''
+        
+        '''
+        return self.__packages.removePackage(package=package)
+        
+        

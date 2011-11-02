@@ -32,6 +32,8 @@ class ObsLightPackages(object):
         Constructor
         '''
         self.__dicOBSLightPackages = {}
+        
+        
         if fromSave == None:
             self.__currentPackage = ""
         else:
@@ -113,6 +115,13 @@ class ObsLightPackages(object):
         '''
         return self.__dicOBSLightPackages[package].getPackageDirectory()
         
+    def removePackage(self,package=None):
+        '''
+        
+        '''
+        self.__dicOBSLightPackages[package].destroy()
+        del self.__dicOBSLightPackages[package]
+        return 0
         
          
         
