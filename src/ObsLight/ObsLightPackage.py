@@ -26,6 +26,7 @@ from ObsLightYaml import ObsLightYaml
 from ObsLightOsc import ObsLightOsc
 
 import ObsLightPrintManager
+from ObsLightSubprocess import SubprocessCrt
 
 from ObsLightErr import ObsLightPackageErr
 
@@ -45,6 +46,7 @@ class ObsLightPackage(object):
         '''
         Constructor
         '''
+        self.__mySubprocessCrt = SubprocessCrt()
         self.__yamlFile=None
         self.__specFile = None
         
@@ -78,6 +80,12 @@ class ObsLightPackage(object):
                 self.__mySpecFile = ObsLightSpec(self.__specFile)
             else:
                 self.__mySpecFile = None
+            
+    def __subprocess(self, command=None, waitMess=False):
+        '''
+        
+        '''
+        return self.__mySubprocessCrt.execSubprocess(command=command, waitMess=waitMess)
             
     def getName(self):
         '''
@@ -197,7 +205,11 @@ class ObsLightPackage(object):
         '''
         ObsLightOsc().addremove(path=self.getOscDirectory())
 
-    
+    def destroy(self):
+        '''
+        
+        '''
+        return self.__subprocess(command="rm -r  " + self.getOscDirectory())
     
     
     

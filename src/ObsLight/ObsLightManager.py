@@ -129,6 +129,23 @@ class ObsLightManager(object):
         self.__myObsLightProjects.save()
         return res
         
+    def removePackage(self,projectLocalName=None,package=None):
+        '''
+        Remove a package from local project.
+        '''
+        if not self.isALocalProject(projectLocalName):
+            raise ObsLightProjectsError(projectLocalName + " is not a local project")
+        elif package == None:
+            raise ObsLightObsServers(" no name for the package of the obs server")
+        elif not package in self.getLocalProjectPackageList(name=projectLocalName,local=1):
+            raise ObsLightObsServers(package+" is not a local package of "+projectLocalName)
+        
+        res=  self.__myObsLightProjects.removePackage(projectLocalName=projectLocalName,package=package)
+        
+        self.__myObsLightProjects.save()
+        return res
+        
+        
 
     def addObsServer(self, serverWeb="",
                             serverAPI=None,
@@ -381,7 +398,7 @@ class ObsLightManager(object):
         elif not self.isAnObsServer(name=obsServer):
             raise ObsLightObsServers(obsServer + " is not the obs server")
         elif not project in self.getObsServerProjectList(server=obsServer):
-            raise ObsLightObsServers(" no name for the package of the obs server")
+            raise ObsLightObsServers(" no name for the project of the obs server")
         elif not package in self.getObsProjectPackageList(obsServer=obsServer,
                                                               projectLocalName=project):
             raise ObsLightObsServers(" no name for the directory")

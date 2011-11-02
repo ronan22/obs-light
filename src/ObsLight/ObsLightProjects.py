@@ -217,3 +217,16 @@ class ObsLightProjects(object):
             return None
         else:
             raise ObsLightErr.ObsLightProjectsError("Error in removeProject, can't remove project directory.")
+        
+        
+    def removePackage(self,projectLocalName=None,package=None):
+        '''
+        Remove a package from local project.
+        '''
+        return self.__dicOBSLightProjects[projectLocalName].removePackage(package=package)
+        
+        
+        
+        
+        
+        
