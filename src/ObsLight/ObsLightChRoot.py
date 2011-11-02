@@ -56,10 +56,10 @@ class ObsLightChRoot(object):
             self.__chrootDirTransfert = chrootDirTransfert
             self.__dirTransfert = dirTransfert
         else:
-            self.__chrootDirectory = fromSave["chrootDirectory"]
-            self.__chrootrpmbuildDirectory = fromSave["rpmbuildDirectory"]
-            self.__chrootDirTransfert = fromSave["chrootDirTransfert"]
-            self.__dirTransfert = fromSave["dirTransfert"]
+            if "chrootDirectory" in fromSave.keys():self.__chrootDirectory = fromSave["chrootDirectory"]
+            if "rpmbuildDirectory" in fromSave.keys():self.__chrootrpmbuildDirectory = fromSave["rpmbuildDirectory"]
+            if "chrootDirTransfert" in fromSave.keys():self.__chrootDirTransfert = fromSave["chrootDirTransfert"]
+            if "dirTransfert" in fromSave.keys():self.__dirTransfert = fromSave["dirTransfert"]
         self.initChRoot()
         
     def initChRoot(self):
@@ -90,13 +90,15 @@ class ObsLightChRoot(object):
         '''
         
         '''
-        ObsLightOsc.myObsLightOsc.createChRoot(#obsApi=obsApi,
+        res=ObsLightOsc.myObsLightOsc.createChRoot(#obsApi=obsApi,
                                                chrootDir=self.__chrootDirectory,
                                                projectDir=projectDir ,
                                                repos=repos,
                                                arch=arch,
                                                specPath=specPath)
-        
+
+        if res!=0:
+            raise ObsLightErr.ObsLightChRootError("Can't create the chroot") 
         
         self.__subprocess(command="sudo chown root:users " + self.__chrootDirectory)
         self.__subprocess(command="sudo chown root:users " + self.__chrootDirectory + "/root")
@@ -128,10 +130,9 @@ class ObsLightChRoot(object):
         
         for  packageDirectory in os.listdir(pathBuild):
             res = packageDirectory
-            if "-" in packageDirectory:
-                packageDirectory = packageDirectory[:packageDirectory.rindex("-")]
-                
-            if package == packageDirectory:
+            
+            #TODO: Find the directory like this is not safely.
+            if packageDirectory.startswith(package):
                 resultPath= self.__chrootrpmbuildDirectory + "/BUILD/" + res
                 
                 subDir=os.listdir(pathBuild+ "/" + res)

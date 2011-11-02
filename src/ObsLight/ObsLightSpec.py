@@ -151,9 +151,7 @@ class ObsLightSpec:
 
         return 0
         
-    def addFile(self,
-                baseFile=None,
-                aFile=None):
+    def addFile(self,baseFile=None,aFile=None):
         '''
         
         '''
@@ -184,8 +182,12 @@ class ObsLightSpec:
         self.__spectDico[self.__introduction_section].insert(0, "# This line is insert automatically, please comment and clean the code\n")
 
         #You can have not %prep section
-        if self.__prepFlag in self.__spectDico.keys():
-            self.__spectDico[self.__prepFlag].append("cp %{" + source_Val_Build + "} " + aFile + "\n")
+        if not self.__prepFlag in self.__spectDico.keys():
+            self.__spectDico[self.__prepFlag]=[]
+            self.__orderList.append(self.__prepFlag)
+            self.__spectDico[self.__prepFlag].append(self.__prepFlag+"\n") 
+
+        self.__spectDico[self.__prepFlag].append("cp %{" + source_Val_Build + "} " + aFile + "\n")
             
         return None
             
@@ -223,7 +225,7 @@ class ObsLightSpec:
 if __name__ == '__main__':
     file1 = sys.argv[1]
     file2 = sys.argv[1] + ".sav"
-    
+    print "----------------------------file1",file1
     s = ObsLightSpec(file1)
     s.addpatch("aPatch.patch")
     s.save(file2)

@@ -68,17 +68,17 @@ class ObsLightProject(object):
                                                                                                     repos=self.__projectTarget)
 
         else:
-            self.__projectLocalName = fromSave["projectLocalName"]
-            self.__projectObsName = fromSave["projectObsName"]
-            self.__projectDirectory = fromSave["projectDirectory"]
-            self.__obsServer = fromSave["obsServer"]
-            self.__projectTarget = fromSave["projectTarget"]
-            self.__projectArchitecture = fromSave["projectArchitecture"]
-            self.__projectTitle = fromSave["projectTitle"]
-            self.__description = fromSave["description"]
+            if "projectLocalName" in fromSave.keys():self.__projectLocalName = fromSave["projectLocalName"]
+            if "projectObsName" in fromSave.keys():self.__projectObsName = fromSave["projectObsName"]
+            if "projectDirectory" in fromSave.keys():self.__projectDirectory = fromSave["projectDirectory"]
+            if "obsServer" in fromSave.keys():self.__obsServer = fromSave["obsServer"]
+            if "projectTarget" in fromSave.keys():self.__projectTarget = fromSave["projectTarget"]
+            if "projectArchitecture" in fromSave.keys():self.__projectArchitecture = fromSave["projectArchitecture"]
+            if "projectTitle" in fromSave.keys():self.__projectTitle = fromSave["projectTitle"]
+            if "description" in fromSave.keys():self.__description = fromSave["description"]
             
-            self.__chroot = ObsLightChRoot(fromSave=fromSave["aChroot"])
-            self.__packages = ObsLightPackages(fromSave["packages"])
+            if "aChroot" in fromSave.keys():self.__chroot = ObsLightChRoot(fromSave=fromSave["aChroot"])
+            if "packages" in fromSave.keys():self.__packages = ObsLightPackages(fromSave["packages"])
             
         if not os.path.isdir(self.__projectDirectory):
             os.makedirs(self.__projectDirectory)
@@ -135,6 +135,11 @@ class ObsLightProject(object):
         else:
             raise ObsLightErr.ObsLightProjectsError("info value is not valide for getProjectInfo")
         
+    def removeProject(self):
+        '''
+        TODO
+        '''
+        return None
 
     def getProjectObsName(self):
         '''
@@ -194,16 +199,22 @@ class ObsLightProject(object):
         
         #Find the spec file
         listFile = os.listdir(packagePath)
+        
+        specFile=None
+        yamlFile=None
+        
         for f in listFile:
             if f.endswith(".spec"):
                 specFile = os.path.join(packagePath, f)
-                break
+            elif f.endswith(".yaml"):
+                yamlFile = os.path.join(packagePath, f)
         #Find the status of the package, Don't use that now
         #status=ObsLightManager.getManager().getPackageStatus(obsserver=self.__obsServer,projectLocalName=self.__projectObsName,package=name,repos=self.__projectTarget,arch=self.__projectArchitecture)
         #self.__packages.addPackage(name=name, specFile=specFile, listFile=listFile, status=status)
 
         self.__packages.addPackage(name=name,
                                    specFile=specFile,
+                                   yamlFile=yamlFile,
                                    listFile=listFile)
         
     def createChRoot(self):

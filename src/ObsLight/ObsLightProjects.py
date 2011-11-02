@@ -206,5 +206,10 @@ class ObsLightProjects(object):
         '''
         self.__dicOBSLightProjects[projectLocalName].setProjectInfo(info=info,value=value)
 
-
+    def removeProject(self,projectLocalName=None):
+        '''
+        
+        '''
+        self.__dicOBSLightProjects[projectLocalName].removeProject()
+        del self.__dicOBSLightProjects[projectLocalName]
 

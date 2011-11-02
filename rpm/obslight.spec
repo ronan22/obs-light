@@ -34,6 +34,7 @@ Requires: python-xml
 Requires: meego-packaging-tools
 Requires: sudo
 Requires: qemu
+Requires: spectacle
 Summary: Utilities to work with OBS Light - command-line client
 Provides: obslight
 %description base

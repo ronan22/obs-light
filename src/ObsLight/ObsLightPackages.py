@@ -65,6 +65,7 @@ class ObsLightPackages(object):
     def addPackage(self,
                    name=None,
                    specFile=None,
+                   yamlFile=None,
                    listFile=None,
                    status=""):
         '''
@@ -74,7 +75,11 @@ class ObsLightPackages(object):
         if listFile == None:
             listFile = []
         
-        self.__dicOBSLightPackages[name] = ObsLightPackage(name=name, specFile=specFile, listFile=listFile, status=status)
+        self.__dicOBSLightPackages[name] = ObsLightPackage(name=name,
+                                                           specFile=specFile,
+                                                           yamlFile=yamlFile,
+                                                           listFile=listFile,
+                                                           status=status)
         
         
     def getPackageStatus(self, name=None):

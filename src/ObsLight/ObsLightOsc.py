@@ -232,7 +232,7 @@ class ObsLightOsc(object):
         #build.main(apiurl=apiurl, opts=opts, argv=argv)
         
         command = "osc build --root=" + chrootDir + " -x vim -x git -x strace -x iputils -x yum -x yum-utils -x ncurses-devel -x zypper --noservice --no-verify " + repos + " " + arch + " " + specPath
-        self.__subprocess(command=command, waitMess=True)
+        return self.__subprocess(command=command, waitMess=True)
 
         
     def getLocalProjectList(self, obsServer=None):

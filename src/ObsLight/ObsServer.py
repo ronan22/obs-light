@@ -39,33 +39,38 @@ class ObsServer(object):
                  fromSave=None):
         '''
         Create a reference to a OBS server
-        ''' 
+        '''
+        self.__alias = None
+        
         if fromSave != None:
-            self.__isOBSConnected = fromSave["isOBSConnected"]
-            self.__serverWeb = fromSave["serverWeb"]
-            self.__serverAPI = fromSave["serverAPI"]
-            self.__serverRepos = fromSave["serverRepos"]
-            self.__aliases = fromSave["alias"]
-            self.__user = fromSave["user"]
-            self.__passw = fromSave["passw"]
+            if "isOBSConnected" in fromSave.keys():self.__isOBSConnected = fromSave["isOBSConnected"]
+            if "serverWeb" in fromSave.keys():self.__serverWeb = fromSave["serverWeb"]
+            if "serverAPI" in fromSave.keys():self.__serverAPI = fromSave["serverAPI"]
+            if "serverRepos" in fromSave.keys():self.__serverRepos = fromSave["serverRepos"]
+            if "alias" in fromSave.keys():self.__alias = fromSave["alias"]
+            if "user" in fromSave.keys():self.__user = fromSave["user"]
+            if "passw" in fromSave.keys():self.__passw = fromSave["passw"]
         else:
             self.__isOBSConnected = False
             self.__serverWeb = serverWeb
             self.__serverAPI = serverAPI
             self.__serverRepos = serverRepos
-            if alias == None or len(alias) < 1:
-                self.__aliases = self.__serverAPI
-            else:
-                self.__aliases = alias
+            self.__alias = alias
             self.__user = user
             self.__passw = passw
+            
+            
+        if (self.__alias == None) or (len(self.__alias) < 1):
+            self.__alias = self.__serverAPI
+        
+        
         
         ObsLightOsc.myObsLightOsc.initConf(api=self.__serverAPI,
                                            user=self.__user,
                                            passw=self.__passw,
-                                           alias=self.__aliases)
+                                           alias=self.__alias)
         
-    def getObsServerInfo(self,info=None):
+    def getObsServerInfo(self, info=None):
         '''
         return the value of the parameter "info"
         the valid parameter is:
@@ -73,26 +78,26 @@ class ObsServer(object):
             serverWeb
             serverAPI
             serverRepos
-            aliases
+            alias
             user
             passw
         '''
-        if info=="obssOBSConnected":
+        if info == "obssOBSConnected":
             return self.__isOBSConnected
-        elif info=="serverWeb":
+        elif info == "serverWeb":
             return self.__serverWeb
-        elif info=="serverAPI":
+        elif info == "serverAPI":
             return self.__serverAPI
-        elif info=="serverRepos":
+        elif info == "serverRepos":
             return self.__serverRepos
-        elif info=="aliases":
-            return self.__aliases
-        elif info=="user":
+        elif info == "alias":
+            return self.__alias
+        elif info == "user":
             return self.__passw
-        elif info=="passw":
+        elif info == "passw":
             return self.__passw
         
-    def setObsServerInfo(self,info=None,value=None):
+    def setObsServerInfo(self, info=None, value=None):
         '''
         change the value of the parameter "info"
         the valid parameter is:
@@ -100,36 +105,30 @@ class ObsServer(object):
             serverWeb
             serverAPI
             serverRepos
-            aliases
+            alias
             user
             passw
         '''
-        if value==None:
+        if value == None:
             raise ObsLightErr.ObsLightObsServers("value is not valid for setObsServerInfo")
         
-        if info=="obssOBSConnected":
-            self.__isOBSConnected=value
-        elif info=="serverWeb":
-            self.__serverWeb=value
-        elif info=="serverAPI":
-            self.__serverAPI=value
-        elif info=="serverRepos":
-            self.__serverRepos=value
-        elif info=="aliases":
-            self.__aliases=value
-        elif info=="user":
-            self.__passw=value
-        elif info=="passw":
-            self.__passw=value
+        if info == "obssOBSConnected":
+            self.__isOBSConnected = value
+        elif info == "serverWeb":
+            self.__serverWeb = value
+        elif info == "serverAPI":
+            self.__serverAPI = value
+        elif info == "serverRepos":
+            self.__serverRepos = value
+        elif info == "alias":
+            self.__alias = value
+        elif info == "user":
+            self.__passw = value
+        elif info == "passw":
+            self.__passw = value
         else:
             raise ObsLightErr.ObsLightObsServers("info is not valid for setObsServerInfo")
         return None
-        
-        
-        
-        
-        
-        
         
     def initConfigProject(self,
                           projet=None,
@@ -157,16 +156,16 @@ class ObsServer(object):
         aDic["serverWeb"] = self.__serverWeb
         aDic["serverAPI"] = self.__serverAPI
         aDic["serverRepos"] = self.__serverRepos
-        aDic["aliases"] = self.__aliases
+        aDic["alias"] = self.__alias
         aDic["user"] = self.__user
         aDic["passw"] = self.__passw
         return aDic
     
     def getName(self):
         '''
-        return the Obs server name.
+        return the OBS server name.
         '''
-        return self.__aliases
+        return self.__alias
     
     def getListPackage(self, projectLocalName=None):
         '''
@@ -226,8 +225,8 @@ class ObsServer(object):
         
         '''
         return ObsLightOsc.myObsLightOsc.getArchitectureList(obsServer=self.__serverAPI ,
-                                                              projectObsName=projectObsName,
-                                                              projectTarget=projectTarget)
+                                                             projectObsName=projectObsName,
+                                                             projectTarget=projectTarget)
         
     
         
