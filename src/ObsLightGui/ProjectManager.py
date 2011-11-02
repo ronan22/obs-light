@@ -20,10 +20,9 @@ Created on 27 sept. 2011
 @author: Florent Vennetier
 '''
 
-from PySide.QtCore import QObject, QThreadPool
-from PySide.QtGui import QPushButton, QListView, QLineEdit, QComboBox
+from PySide.QtCore import QObject, QThreadPool, Signal
+from PySide.QtGui import QPushButton, QListWidget, QLineEdit, QComboBox
 
-from ObsProjectListModel import ObsProjectListModel
 from Utils import QRunnableImpl
 
 class ObsProjectManager(QObject):
@@ -31,10 +30,10 @@ class ObsProjectManager(QObject):
     classdocs
     '''
     __gui = None
-    __obsProjectsListView = None
-    __obsProjectListModel = None
+    __obsProjectsListWidget = None
     __newObsProjectButton = None
-    #__projectConfigDialogs = []
+    __modifyObsProjectButton = None
+    __deleteObsProjectButton = None
     __projectConfigManager = None
 
     def __init__(self, gui):
@@ -43,9 +42,8 @@ class ObsProjectManager(QObject):
         '''
         QObject.__init__(self)
         self.__gui = gui
-        self.__obsProjectListModel = ObsProjectListModel(self.__gui.getObsLightManager())
-        self.__obsProjectsListView = gui.getMainWindow().findChild(QListView, "obsProjectsListView")
-        self.__obsProjectsListView.setModel(self.__obsProjectListModel)
+        self.__obsProjectsListWidget = gui.getMainWindow().findChild(QListWidget, "obsProjectsListWidget")
+        self.loadProjectList()
         self.__newObsProjectButton = gui.getMainWindow().findChild(QPushButton, "newObsProjectButton")
         self.__newObsProjectButton.clicked.connect(self.on_newObsProjectButton_clicked)
         self.__modifyObsProjectButton = gui.getMainWindow().findChild(QPushButton, "modifyObsProjectButton")
@@ -53,62 +51,27 @@ class ObsProjectManager(QObject):
         self.__deleteObsProjectButton = gui.getMainWindow().findChild(QPushButton, "deleteObsProjectButton")
         self.__deleteObsProjectButton.clicked.connect(self.on_deleteObsProjectButton_clicked)
         
-    def on_newObsProject(self):
-        sender = self.sender()
-        projectLocalNameLineEdit = sender.findChild(QLineEdit, "projectLocalNameLineEdit")
-        projectServerComboBox = sender.findChild(QComboBox, "projectServerComboBox")
-        projectTargetComboBox = sender.findChild(QComboBox, "projectTargetComboBox")
-        projectArchitectureComboBox = sender.findChild(QComboBox, "projectArchitectureComboBox")
-        
-        self.__obsProjectListModel.addProject(projectLocalNameLineEdit.text(),
-                                              projectServerComboBox.currentText(),
-                                              projectTargetComboBox.currentText(),
-                                              projectArchitectureComboBox.currentText())
-        self.__projectConfigDialogs.remove(sender)
-        
-    def on_modifyObsProject(self):
-        sender = self.sender()
-        projectLocalNameLineEdit = sender.findChild(QLineEdit, "projectLocalNameLineEdit")
-        projectServerComboBox = sender.findChild(QComboBox, "projectServerComboBox")
-        projectTargetComboBox = sender.findChild(QComboBox, "projectTargetComboBox")
-        projectArchitectureComboBox = sender.findChild(QComboBox, "projectArchitectureComboBox")
-        
-        self.__obsProjectListModel.modifyProject(projectLocalNameLineEdit.text(),
-                                              projectServerComboBox.currentText(),
-                                              projectTargetComboBox.currentText(),
-                                              projectArchitectureComboBox.currentText())
-        self.__projectConfigDialogs.remove(sender)
-        
-    def on_projectConfigDialog_rejected(self):
-        sender = self.sender()
-        self.__projectConfigDialogs.remove(sender)
+    def loadProjectList(self):
+        projectList = self.__gui.getObsLightManager().getLocalProjectList()
+        self.__obsProjectsListWidget.clear()
+        self.__obsProjectsListWidget.addItems(projectList)
         
     def on_newObsProjectButton_clicked(self):
         self.__projectConfigManager = ProjectConfigManager(self.__gui)
-#        newProjectDialog = self.__gui.loadWindow("obsProjectConfig.ui")
-#        newProjectDialog.accepted.connect(self.on_newObsProject)
-#        newProjectDialog.rejected.connect(self.on_projectConfigDialog_rejected)
-#        newProjectDialog.show()
-#        self.__projectConfigDialogs.append(newProjectDialog)
+        self.__projectConfigManager.finished.connect(self.on_projectConfigManager_finished)
         
     def on_modifyObsProjectButton_clicked(self):
-        projectName = self.__obsProjectListModel.data(self.__obsProjectsListView.currentIndex(), ObsProjectListModel.dataRole)
+        projectName = self.__obsProjectsListWidget.currentItem().text()
         self.__projectConfigManager = ProjectConfigManager(self.__gui, projectName)
-#        modifyProjectDialog = self.__gui.loadWindow("obsProjectConfig.ui")
-#        modifyProjectDialog.accepted.connect(self.on_modifyObsProject)
-#        modifyProjectDialog.rejected.connect(self.on_projectConfigDialog_rejected)
-#        projectNameField = modifyProjectDialog.findChild(QLineEdit, "projectLocalNameLineEdit")
-#        projectData = self.__obsProjectListModel.data(self.__obsProjectsListView.currentIndex(), ObsProjectListModel.dataRole)
-#        #projectNameField.setText(projectData["name"])
-#        projectNameField.setText(projectData)
-#        projectNameField.setReadOnly(True)
-#        modifyProjectDialog.show()
-#        self.__projectConfigDialogs.append(modifyProjectDialog)
+        self.__projectConfigManager.finished.connect(self.on_projectConfigManager_finished)
         
     def on_deleteObsProjectButton_clicked(self):
-        projectData = self.__obsProjectListModel.data(self.__obsProjectsListView.currentIndex(), ObsProjectListModel.dataRole)
-        #self.__obsProjectListModel.deleteProject(projectData["name"])
-        self.__obsProjectListModel.deleteProject(projectData)
+        # TODO: project deletion
+        pass
+    
+    def on_projectConfigManager_finished(self, result):
+        if result:
+            self.loadProjectList()
 
 
 class ProjectConfigManager(QObject):
@@ -125,7 +88,8 @@ class ProjectConfigManager(QObject):
     __targetCBox = None
     __archCBox = None
     
-    projectObsNameEdited = False
+    finished = Signal(bool)
+    __projectObsNameEdited = False
     
     def __init__(self, gui, projectAlias = None):
         QObject.__init__(self)
@@ -135,6 +99,8 @@ class ProjectConfigManager(QObject):
         self.__configDialog = self.__gui.loadWindow("obsProjectConfig.ui")
         self.__loadFieldObjects()
         self.__loadInitialFieldValues()
+        self.__configDialog.accepted.connect(self.on_configDialog_accepted)
+        self.__configDialog.rejected.connect(self.on_configDialog_rejected)
         self.__configDialog.show()
         
     def __isNewProject(self):
@@ -162,16 +128,19 @@ class ProjectConfigManager(QObject):
         if not self.__isNewProject():
             # load project local name
             self.__localNameField.setText(self.__projectAlias)
+            self.__localNameField.setReadOnly(True)
             # load OBS server list and select appropriate current server
             obsServerAlias = self.__obsLightManager.getProjectInfo(self.__projectAlias,
                                                                    "obsServer")
             lineIndex = self.__serverCBox.findText(obsServerAlias)
             if lineIndex >= 0:
                 self.__serverCBox.setCurrentIndex(lineIndex)
+            self.__serverCBox.setEnabled(False)
             # load project OBS name
             projectObsName = self.__obsLightManager.getProjectInfo(self.__projectAlias,
                                                                    "projectObsName")
             self.__obsNameField.setText(projectObsName)
+            self.__obsNameField.setReadOnly(True)
             # load target list and select appropriate current target
             self.__loadTargetPossibilities()
             target = self.__obsLightManager.getProjectInfo(self.__projectAlias,
@@ -211,11 +180,11 @@ class ProjectConfigManager(QObject):
             self.__archCBox.addItems(archs)
             
     def handleObsNameEdited(self, _ignore):
-        self.projectObsNameEdited = True
+        self.__projectObsNameEdited = True
         
     def handleObsNameEditingFinished(self):
-        if self.projectObsNameEdited:
-            self.projectObsNameEdited = False
+        if self.__projectObsNameEdited:
+            self.__projectObsNameEdited = False
             task = QRunnableImpl()
             task.run = self.__loadTargetPossibilities
             QThreadPool.globalInstance().start(task)
@@ -239,3 +208,28 @@ class ProjectConfigManager(QObject):
     
     def getCurrentArch(self):
         return self.__archCBox.currentText()
+
+    def on_configDialog_accepted(self):
+        if self.__isNewProject():
+            self.__obsLightManager.addProject(self.getCurrentProjectLocalName(),
+                                              self.getCurrentProjectObsName(),
+                                              obsServer=self.getCurrentServerAlias(),
+                                              projectTarget=self.getCurrentTarget(),
+                                              projectArchitecture=self.getCurrentArch())
+        else:
+            # Currently we can't relocate a project.
+#            self.__obsLightManager.setProjectInfo(self.getCurrentProjectLocalName(),
+#                                                  "projectObsName",
+#                                                  self.getCurrentProjectObsName())
+#            self.__obsLightManager.setProjectInfo(self.getCurrentProjectLocalName(),
+#                                                  "obsServer",
+#                                                  self.getCurrentServerAlias())
+            self.__obsLightManager.setProjectInfo(self.getCurrentProjectLocalName(),
+                                                  "projectTarget",
+                                                  self.getCurrentTarget())
+            self.__obsLightManager.setProjectInfo(self.getCurrentProjectLocalName(),
+                                                  "projectArchitecture",
+                                                  self.getCurrentArch())
+        self.finished.emit(True)
+    def on_configDialog_rejected(self):
+        self.finished.emit(False)

@@ -258,7 +258,7 @@
          </widget>
         </item>
         <item row="1" column="0" colspan="3">
-         <widget class="QListView" name="obsProjectsListView"/>
+         <widget class="QListWidget" name="obsProjectsListWidget"/>
         </item>
        </layout>
       </widget>
@@ -769,8 +769,8 @@
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionExit"/>
     <addaction name="actionOBS_servers"/>
+    <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menuProject">
     <property name="locale">
