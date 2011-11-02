@@ -314,7 +314,7 @@ class ObsLightManager(object):
         if local=1 the list is the list of the package install locally
         if local=0 the list is the list of the package provide by the obs server of the project
         '''
-        if name == None:
+        if name in (None,"None",""):
             raise ObsLightProjectsError("not name for the project")
         elif not self.isALocalProject(name):
             raise ObsLightProjectsError(name + " is not a local project")
