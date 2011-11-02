@@ -34,7 +34,7 @@ def run(prg=None):
             raise
         finally:
             try:
-                ObsLightMic.get().destroy()
+                ObsLightMic.destroy()
             except:
                 raise
 

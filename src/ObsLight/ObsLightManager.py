@@ -544,6 +544,7 @@ class ObsLightManager(object):
         self.__myObsLightProjects.save()
 
 
+
 __myObsLightManager = ObsLightManager()
 
 def getManager():

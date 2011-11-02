@@ -62,13 +62,25 @@ class ObsLightChRoot(object):
             if "dirTransfert" in fromSave.keys():self.__dirTransfert = fromSave["dirTransfert"]
         self.initChRoot()
         
+    def removeChRoot(self):
+        '''
+        
+        '''
+        if  ObsLightMic.getObsLightMic(name=self.__chrootDirectory ).isInit():
+            ObsLightMic.destroy(name=self.__chrootDirectory)
+        
+
+        if os.path.isdir(self.__chrootDirectory):
+            return self.__subprocess(command="sudo rm -r  " + self.__chrootDirectory)
+        
+        return 0
+    
     def initChRoot(self):
         '''
         
         '''
         if not os.path.isdir(self.__chrootDirTransfert):
             os.makedirs(self.__chrootDirTransfert)
-
 
     def getDic(self):
         '''
@@ -90,14 +102,14 @@ class ObsLightChRoot(object):
         '''
         
         '''
-        res=ObsLightOsc.myObsLightOsc.createChRoot(#obsApi=obsApi,
+        res = ObsLightOsc.getObsLightOsc().createChRoot(#obsApi=obsApi,
                                                chrootDir=self.__chrootDirectory,
                                                projectDir=projectDir ,
                                                repos=repos,
                                                arch=arch,
                                                specPath=specPath)
 
-        if res!=0:
+        if res != 0:
             raise ObsLightErr.ObsLightChRootError("Can't create the chroot") 
         
         self.__subprocess(command="sudo chown root:users " + self.__chrootDirectory)
@@ -133,13 +145,13 @@ class ObsLightChRoot(object):
             
             #TODO: Find the directory like this is not safely.
             if packageDirectory.startswith(package):
-                resultPath= self.__chrootrpmbuildDirectory + "/BUILD/" + res
+                resultPath = self.__chrootrpmbuildDirectory + "/BUILD/" + res
                 
-                subDir=os.listdir(pathBuild+ "/" + res)
-                if len(subDir)==0:
+                subDir = os.listdir(pathBuild + "/" + res)
+                if len(subDir) == 0:
                     return resultPath
-                elif len(subDir)==1:
-                    return resultPath+"/"+subDir[0]
+                elif len(subDir) == 1:
+                    return resultPath + "/" + subDir[0]
                 else:
                     return resultPath
                 
@@ -179,8 +191,8 @@ class ObsLightChRoot(object):
         if command == None:
             return
         
-        if not ObsLightMic.myObsLightMic.isInit():
-            ObsLightMic.myObsLightMic.initChroot(chrootDirectory=self.__chrootDirectory,
+        if not ObsLightMic.getObsLightMic(name=self.__chrootDirectory).isInit():
+            ObsLightMic.getObsLightMic(name=self.__chrootDirectory).initChroot(chrootDirectory=self.__chrootDirectory,
                                                  chrootTransfertDirectory=self.__chrootDirTransfert,
                                                  transfertDirectory=self.__dirTransfert)    
         
@@ -232,12 +244,10 @@ class ObsLightChRoot(object):
         if not os.path.isdir(self.__chrootDirectory):
             raise ObsLightErr.ObsLightChRootError("goToChRoot: chroot is not initialized, use createChRoot")
         elif not os.path.isdir(self.__chrootDirectory):
-            raise 
+            raise ObsLightErr.ObsLightChRootError("goToChRoot: the path: " + self.__chrootDirectory + " is not a directory")
         
-        ObsLightErr.ObsLightChRootError("goToChRoot: the path: " + self.__chrootDirectory + " is not a directory")
-        
-        if  not ObsLightMic.myObsLightMic.isInit():
-            ObsLightMic.myObsLightMic.initChroot(chrootDirectory=self.__chrootDirectory,
+        if  not ObsLightMic.getObsLightMic(name=self.__chrootDirectory).isInit():
+            ObsLightMic.getObsLightMic(name=self.__chrootDirectory).initChroot(chrootDirectory=self.__chrootDirectory,
                                                  chrootTransfertDirectory=self.__chrootDirTransfert,
                                                  transfertDirectory=self.__dirTransfert)
 
@@ -357,7 +367,7 @@ class ObsLightChRoot(object):
         '''
         command = []
 
-        if ObsLightMic.myObsLightMic.isArmArch(chrootDir):
+        if ObsLightMic.getObsLightMic(name=self.__chrootDirectory).isArmArch(chrootDir):
             # If rpm and rpmbuild binaries are not ARM, replace them by ARM versions
             command.append('[ -z "$(file /bin/rpm | grep ARM)" -a -f /bin/rpm.orig-arm ]'
                 + ' && cp /bin/rpm /bin/rpm.x86 && cp /bin/rpm.orig-arm /bin/rpm')

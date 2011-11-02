@@ -271,7 +271,7 @@ class ObsLightMic(object):
     
         os.close(dev_null)
         if not architecture_found:
-            raise imgcreate.CreatorError("Failed to get architecture from any of the following files %s from chroot." % files_to_check)
+            raise imgcreate.CreatorError("Failed to getObsLightMic architecture from any of the following files %s from chroot." % files_to_check)
         
         self.__qemu_emulator = qemu_emulator
         
@@ -428,17 +428,32 @@ class BindChrootMount:
 
 
 
-myObsLightMic = ObsLightMic()
+__myObsLightMic = ObsLightMic()
 
+__myListObsLightMic={}
 
-def get():
+def getObsLightMic(name=None):
     '''
     
     '''
-    return myObsLightMic
+    if not (name in __myListObsLightMic.keys()):
+        __myListObsLightMic[name]=ObsLightMic()
+    
+    return __myListObsLightMic[name]
 
-
-
+def destroy(name=None):
+    '''
+    
+    '''
+    if name==None:
+        for aName in __myListObsLightMic.keys():
+            __myListObsLightMic[aName].destroy()
+            del __myListObsLightMic[aName]
+    else:
+        __myListObsLightMic[name].destroy()
+        del __myListObsLightMic[name]
+        
+    return None
 
 
 

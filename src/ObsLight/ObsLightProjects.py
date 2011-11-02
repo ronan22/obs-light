@@ -22,7 +22,8 @@ Created on 29 sept. 2011
 import os
 import pickle
 from ObsLightProject import ObsLightProject
-
+import ObsLightErr
+ 
 class ObsLightProjects(object):
     '''
     classdocs
@@ -210,6 +211,9 @@ class ObsLightProjects(object):
         '''
         
         '''
-        self.__dicOBSLightProjects[projectLocalName].removeProject()
-        del self.__dicOBSLightProjects[projectLocalName]
-
+        res=self.__dicOBSLightProjects[projectLocalName].removeProject()
+        if res==0:
+            del self.__dicOBSLightProjects[projectLocalName]
+            return None
+        else:
+            raise ObsLightErr.ObsLightProjectsError("Error in removeProject, can't remove project directory.")

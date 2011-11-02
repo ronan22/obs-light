@@ -41,6 +41,7 @@ class ObsServer(object):
         Create a reference to a OBS server
         '''
         self.__alias = None
+        self.__serverRepo=None
         
         if fromSave != None:
             if "isOBSConnected" in fromSave.keys():self.__isOBSConnected = fromSave["isOBSConnected"]
@@ -68,7 +69,7 @@ class ObsServer(object):
         
         
         
-        ObsLightOsc.myObsLightOsc.initConf(api=self.__serverAPI,
+        ObsLightOsc.getObsLightOsc().initConf(api=self.__serverAPI,
                                            user=self.__user,
                                            passw=self.__passw,
                                            alias=self.__alias)
@@ -142,12 +143,12 @@ class ObsServer(object):
         
         '''
         #if the repository is link to a listDepProject
-        res = ObsLightOsc.myObsLightOsc.getDepProject(apiurl=self.__serverAPI,
+        res = ObsLightOsc.getObsLightOsc().getDepProject(apiurl=self.__serverAPI,
                                                       projet=projet,
                                                       repos=repos)
         #the listDepProject must be trust(add to .oscrc )
         if res != None:
-            ObsLightOsc.myObsLightOsc.trustRepos(api=self.__serverAPI,
+            ObsLightOsc.getObsLightOsc().trustRepos(api=self.__serverAPI,
                                                  listDepProject=res)
         
             
@@ -176,14 +177,14 @@ class ObsServer(object):
         '''
         
         '''
-        return ObsLightOsc.myObsLightOsc.getListPackage(obsServer=self.__serverAPI,
+        return ObsLightOsc.getObsLightOsc().getListPackage(obsServer=self.__serverAPI,
                                                         projectLocalName=projectLocalName)
     
     def checkoutPackage(self, projectLocalName=None, package=None, directory=None):
         '''
         
         '''
-        ObsLightOsc.myObsLightOsc.checkoutPackage(obsServer=self.__serverAPI,
+        ObsLightOsc.getObsLightOsc().checkoutPackage(obsServer=self.__serverAPI,
                                                   projectLocalName=projectLocalName,
                                                   package=package,
                                                   directory=directory)
@@ -196,7 +197,7 @@ class ObsServer(object):
         '''
         
         '''
-        return  ObsLightOsc.myObsLightOsc.getPackageStatus(obsServer=self.__serverAPI,
+        return  ObsLightOsc.getObsLightOsc().getPackageStatus(obsServer=self.__serverAPI,
                                                            project=listDepProject,
                                                            package=package,
                                                            repos=repos,
@@ -207,20 +208,23 @@ class ObsServer(object):
         '''
         
         '''
-        return self.__serverRepo
+        if self.__serverRepo!=None:
+            return self.__serverRepo
+        else:
+            raise ObsLightErr.ObsLightObsServers("In "+self.__alias+" there is no repo")
     
     
     def getLocalProjectList(self):
         '''
         
         '''
-        return  ObsLightOsc.myObsLightOsc.getLocalProjectList(obsServer=self.__serverAPI)
+        return  ObsLightOsc.getObsLightOsc().getLocalProjectList(obsServer=self.__serverAPI)
     
     def getTargetList(self, projectObsName=None):
         '''
         
         '''
-        return ObsLightOsc.myObsLightOsc.getTargetList(obsServer=self.__serverAPI,
+        return ObsLightOsc.getObsLightOsc().getTargetList(obsServer=self.__serverAPI,
                                                        projectObsName=projectObsName)
     
     def getArchitectureList(self,
@@ -229,7 +233,7 @@ class ObsServer(object):
         '''
         
         '''
-        return ObsLightOsc.myObsLightOsc.getArchitectureList(obsServer=self.__serverAPI ,
+        return ObsLightOsc.getObsLightOsc().getArchitectureList(obsServer=self.__serverAPI ,
                                                              projectObsName=projectObsName,
                                                              projectTarget=projectTarget)
         

@@ -319,5 +319,14 @@ class ObsLightOsc(object):
         command = "osc ar"
         self.__subprocess(command=command)
         
-myObsLightOsc = ObsLightOsc()
+__myObsLightOsc = ObsLightOsc()
+
+def getObsLightOsc():
+    '''
+    
+    '''
+    return __myObsLightOsc
+
+
+
 

@@ -40,6 +40,7 @@ __getListObsServers__ = "getObsServerList"
 __addObsServer__ = "addObsServer"
 __getListLocalProject__ = "getLocalProjectList"
 __addProject__ = "addProject"
+__removeProject__ = "removeProject"
 __getListPackage__ = "getPackageList"
 __addPackage__ = "addPackage"
 __createChRoot__ = "createChRoot"
@@ -64,6 +65,7 @@ __DICO_HELP__[__goToChRoot__] = "Open a bash in the chroot of a project."
 __DICO_HELP__[__makePatch__] = "Generate a patch with modifications made in the chroot of a local project." 
 __DICO_HELP__[__addAndCommitChange__] = "Add the new files (including patches) and commit them to the OBS"
 __DICO_HELP__[__addRepoInChRoot__] = "Add a repository to the chroot's zypper configuration file."
+__DICO_HELP__[__removeProject__] = "Remove local project"
 
 __DICO_OPTION_HELP__={}
 __DICO_OPTION_HELP__[__info_verbose__] = "Print all subprocess outputs."
@@ -134,6 +136,8 @@ class ObsLight():
         __HELP__ += "\t" + __addObsServer__ + ":" + "\t\t" + __DICO_HELP__[__addObsServer__] + "\n"
         __HELP__ += "\t" + __addProject__ + ":" + "\t\t" + __DICO_HELP__[__addProject__] + "\n"
         __HELP__ += "\n"
+        __HELP__ +="\t" +__removeProject__+":"+__DICO_HELP__[__removeProject__]+ "\n"
+        __HELP__ += "\n"
         __HELP__ += "\t" + __addPackage__ + ":" + "\t\t" + __DICO_HELP__[__addPackage__] + "\n"
         __HELP__ += "\t" + __createChRoot__ + ":" + "\t\t" + __DICO_HELP__[__createChRoot__] + "\n"
         __HELP__ += "\t" + __addPackageSourceInChRoot__ + ":" + __DICO_HELP__[__addPackageSourceInChRoot__] + "\n"   
@@ -203,6 +207,8 @@ class ObsLight():
                     return self.addAndCommitChanges(listArgv[1:])
                 elif (listArgv[0] == __addRepoInChRoot__):
                     return self.addRepoInChRoot(listArgv[1:])
+                elif (listArgv[0] ==__removeProject__):
+                    return self.removeProject(listArgv[1:])
                 else:
                     raise ObsLightErr.ArgError(listArgv[0] + " is not a valid command")
             
@@ -688,4 +694,31 @@ class ObsLight():
             raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
         return 0 
         
+    def removeProject(self, listArgv):
+        '''
         
+        '''
+        __COMMAND__ = __removeProject__
+        
+        __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
+        __HELP__ += "\t" + "--projectLocalName projectName (required)" + "\n"
+        __HELP__ += __DICO_HELP__[__COMMAND__]
+        
+        projectLocalName = None
+
+        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (1 * 2)): 
+            for i in range(0, len(listArgv), 2):
+                if listArgv[i] == "--projectLocalName":
+                    projectLocalName = listArgv[i + 1]
+                else:
+                    raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
+            if (projectLocalName != None):
+                self.cliObsLightManager.removeProject(projectLocalName=projectLocalName)
+            else:
+                raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
+                
+        elif self.__isHelp(listArgv[0]):
+            ObsLightPrintManager.obsLightPrint(__HELP__)
+        else:
+            raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
+        return 0 

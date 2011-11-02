@@ -24,8 +24,8 @@ import os
 from ObsLightPackages import ObsLightPackages
 from ObsLightChRoot import ObsLightChRoot
 import ObsLightManager
-
 import ObsLightErr
+from ObsLightSubprocess import SubprocessCrt
 
 class ObsLightProject(object):
     '''
@@ -45,6 +45,8 @@ class ObsLightProject(object):
         '''
         Constructor
         '''
+        self.__mySubprocessCrt = SubprocessCrt()
+        
         if fromSave == None:
             self.__projectLocalName = projectLocalName
             self.__projectObsName = projectObsName
@@ -135,11 +137,25 @@ class ObsLightProject(object):
         else:
             raise ObsLightErr.ObsLightProjectsError("parameter value is not valide for getProjectInfo")
         
+    def __subprocess(self, command=None, waitMess=False):
+        '''
+        
+        '''
+        return self.__mySubprocessCrt.execSubprocess(command=command, waitMess=waitMess)
+        
     def removeProject(self):
         '''
-        TODO
+        
         '''
-        return None
+        
+        res=self.__chroot.removeChRoot()
+        
+        if res ==0:
+            return self.__subprocess(command="sudo rm -r  " + self.__projectDirectory)
+        else:
+            raise ObsLightErr.ObsLightProjectsError("Error in removeProject, can't remove chroot")
+        
+        return 0
 
     def getProjectObsName(self):
         '''
