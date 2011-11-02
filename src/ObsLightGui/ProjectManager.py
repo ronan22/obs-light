@@ -14,6 +14,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 #
+from ObsLightGui import PackageManager
 '''
 Created on 27 sept. 2011
 
@@ -24,6 +25,7 @@ from PySide.QtCore import QObject, QThreadPool, Signal
 from PySide.QtGui import QPushButton, QListWidget, QLineEdit, QComboBox
 
 from Utils import QRunnableImpl
+from PackageManager import ObsPackageManager
 
 class ObsProjectManager(QObject):
     '''
@@ -35,6 +37,7 @@ class ObsProjectManager(QObject):
     __modifyObsProjectButton = None
     __deleteObsProjectButton = None
     __projectConfigManager = None
+    __packageManager = None
 
     def __init__(self, gui):
         '''
@@ -43,7 +46,9 @@ class ObsProjectManager(QObject):
         QObject.__init__(self)
         self.__gui = gui
         self.__obsProjectsListWidget = gui.getMainWindow().findChild(QListWidget, "obsProjectsListWidget")
+        self.__obsProjectsListWidget.currentTextChanged.connect(self.on_projectSelected)
         self.loadProjectList()
+        self.__packageManager = ObsPackageManager(self.__gui)
         self.__newObsProjectButton = gui.getMainWindow().findChild(QPushButton, "newObsProjectButton")
         self.__newObsProjectButton.clicked.connect(self.on_newObsProjectButton_clicked)
         self.__modifyObsProjectButton = gui.getMainWindow().findChild(QPushButton, "modifyObsProjectButton")
@@ -72,6 +77,9 @@ class ObsProjectManager(QObject):
     def on_projectConfigManager_finished(self, result):
         if result:
             self.loadProjectList()
+            
+    def on_projectSelected(self, project):
+        self.__packageManager.setCurrentProject(project)
 
 
 class ProjectConfigManager(QObject):
@@ -218,16 +226,16 @@ class ProjectConfigManager(QObject):
                                               projectArchitecture=self.getCurrentArch())
         else:
             # Currently we can't relocate a project.
-#            self.__obsLightManager.setProjectparameter(self.getCurrentProjectLocalName(),
+#            self.__obsLightManager.setProjectParameter(self.getCurrentProjectLocalName(),
 #                                                  "projectObsName",
 #                                                  self.getCurrentProjectObsName())
-#            self.__obsLightManager.setProjectparameter(self.getCurrentProjectLocalName(),
+#            self.__obsLightManager.setProjectParameter(self.getCurrentProjectLocalName(),
 #                                                  "obsServer",
 #                                                  self.getCurrentServerAlias())
-            self.__obsLightManager.setProjectparameter(self.getCurrentProjectLocalName(),
+            self.__obsLightManager.setProjectParameter(self.getCurrentProjectLocalName(),
                                                   "projectTarget",
                                                   self.getCurrentTarget())
-            self.__obsLightManager.setProjectparameter(self.getCurrentProjectLocalName(),
+            self.__obsLightManager.setProjectParameter(self.getCurrentProjectLocalName(),
                                                   "projectArchitecture",
                                                   self.getCurrentArch())
         self.finished.emit(True)

@@ -104,7 +104,7 @@ class ObsLightManager(object):
             raise ObsLightProjectsError(projectLocalName + " is not a local project")
         return self.__myObsLightProjects.getProjectInfo(projectLocalName=projectLocalName, info=info)
         
-    def setProjectparameter(self, projectLocalName=None, parameter=None, value=None):
+    def setProjectParameter(self, projectLocalName=None, parameter=None, value=None):
         '''
         
         '''
