@@ -14,7 +14,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 #
-from ObsLightGui import PackageManager
 '''
 Created on 27 sept. 2011
 
@@ -71,8 +70,9 @@ class ObsProjectManager(QObject):
         self.__projectConfigManager.finished.connect(self.on_projectConfigManager_finished)
         
     def on_deleteObsProjectButton_clicked(self):
-        # TODO: project deletion
-        pass
+        projectName = self.__obsProjectsListWidget.currentItem().text()
+        self.__gui.getObsLightManager().removeProject(projectName)
+        self.loadProjectList()
     
     def on_projectConfigManager_finished(self, result):
         if result:

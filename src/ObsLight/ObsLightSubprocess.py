@@ -34,10 +34,10 @@ class SubprocessCrt(object):
         '''
 
         ObsLightPrintManager.obsLightPrint("command: " + command, isDebug=True)
-        command = shlex.split(command)
+        splittedCommand = shlex.split(command)
         
         if ObsLightPrintManager.VERBOSE == True:
-            return subprocess.call(command,
+            return subprocess.call(splittedCommand,
                                    stdin=open(os.devnull, 'rw'),
                                    close_fds=True) 
         else:
@@ -51,7 +51,7 @@ class SubprocessCrt(object):
                                  verbose=None)
                 aThread.start()
                             
-            res = subprocess.Popen(command,
+            res = subprocess.Popen(splittedCommand,
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE,
                                    stdin=open(os.devnull, 'rw'))
