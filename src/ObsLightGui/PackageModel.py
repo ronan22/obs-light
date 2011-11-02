@@ -78,3 +78,7 @@ class PackageModel(QAbstractTableModel):
                 return "unknown"
         else:
             return None
+
+    def addPackage(self, packageName):
+        self.__obsLightManager.addPackage(self.getProject(), packageName)
+        self.dataChanged.emit(self.createIndex(0, 0), self.createIndex(self.rowCount(), 2))

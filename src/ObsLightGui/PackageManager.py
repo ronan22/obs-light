@@ -21,7 +21,7 @@ Created on 2 nov. 2011
 '''
 
 from PySide.QtCore import QObject
-from PySide.QtGui import QTableView
+from PySide.QtGui import QInputDialog, QPushButton, QTableView
 
 from PackageModel import PackageModel
 
@@ -32,9 +32,11 @@ class ObsPackageManager(QObject):
 
     __gui = None
     __obsLightManager = None
-    __packageTableView = None
     __project = None
     __model = None
+    
+    __packageTableView = None
+    __newPackageButton = None
 
     def __init__(self, gui):
         '''
@@ -45,6 +47,9 @@ class ObsPackageManager(QObject):
         self.__obsLightManager = gui.getObsLightManager()
         self.__packageTableView = gui.getMainWindow().findChild(QTableView,
                                                                   "packageTableView")
+        self.__newPackageButton = gui.getMainWindow().findChild(QPushButton,
+                                                                "newPackageButton")
+        self.__newPackageButton.clicked.connect(self.on_newPackage_clicked)
         
     def getCurrentProject(self):
         return self.__project
@@ -57,3 +62,12 @@ class ObsPackageManager(QObject):
         self.__project = projectName
         self.__model = PackageModel(self.__obsLightManager, projectName, self)
         self.__packageTableView.setModel(self.__model)
+        
+    def on_newPackage_clicked(self):
+        if self.getCurrentProject() == None:
+            return
+        packageName, accepted = QInputDialog.getText(self.__gui.getMainWindow(),
+                                                     u"Choose package name",
+                                                     u"Package name")
+        if accepted:
+            self.__model.addPackage(packageName)
