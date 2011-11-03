@@ -30,12 +30,14 @@ from ObsLightProjects import ObsLightProjects
 
 class ObsLightManager(object):
     '''
-    classdocs
+    Main interface between clients (command line, GUI) and OBS Light.
+    All interactions should be done with this class, no other class should
+    be imported in external projects.
     '''
 
     def __init__(self):
         '''
-        init the OBS Light Manager
+        Initialize the OBS Light Manager.
         '''
 
         self.__workingDirectory = os.path.join(os.environ['HOME'], "OBSLight")
@@ -49,20 +51,21 @@ class ObsLightManager(object):
 
     def getObsLightWorkingDirectory(self):
         '''
-        
+        Returns the OBS Light working directory, usually /home/<user>/OBSLight.
         '''
         return self.__workingDirectory
 
     def getObsServerList(self):
         '''
-        return the list of the OBS servers available
+        Returns the list of available OBS servers.
         '''
         return self.__myObsServers.getObsServerList()
 
-    def getObsServerParameter(self, obsServerAlias=None, parameter=None):
+    def getObsServerParameter(self, obsServerAlias, parameter):
+        # TODO: check valid parameters
         '''
-        return the value of the parameter "parameter" of an OBS server
-        the valid parameters are:
+        Get the value of an OBS server parameter.
+        Valid parameters are:
             obssOBSConnected
             serverWeb
             serverAPI
@@ -74,12 +77,14 @@ class ObsLightManager(object):
 
         if not self.isAnObsServer(obsServerAlias):
             raise ObsLightObsServers(obsServerAlias + " is not an OBS server")
-        return self.__myObsServers.getObsServerParameter(obsServerAlias=obsServerAlias, parameter=parameter)
+        return self.__myObsServers.getObsServerParameter(obsServerAlias=obsServerAlias,
+                                                         parameter=parameter)
 
-    def setObsServerParameter(self, obsServerAlias=None, parameter=None, value=None):
+    def setObsServerParameter(self, obsServerAlias, parameter, value):
+        # TODO: check valid parameters
         '''
-        change the value of the parameter "parameter" of an OBS server
-        the valid parameters are:
+        Change the value of an OBS server parameter.
+        Valid parameters are:
             obssOBSConnected
             serverWeb
             serverAPI
@@ -91,61 +96,62 @@ class ObsLightManager(object):
 
         if not self.isAnObsServer(obsServerAlias):
             raise ObsLightObsServers(obsServerAlias + " is not an OBS server")
-        
-        res= self.__myObsServers.setObsServerParameter(obsServer=obsServerAlias, parameter=parameter, value=value)
+
+        res = self.__myObsServers.setObsServerParameter(obsServer=obsServerAlias,
+                                                        parameter=parameter,
+                                                        value=value)
         self.__myObsServers.save()
         return res
     
-    def getProjectInfo(self, projectLocalName=None, info=None):
+    def getProjectParameter(self, projectLocalName, parameter):
+        # TODO: check valid parameters
         '''
-        
-        '''
-        if not self.isALocalProject(projectLocalName):
-            raise ObsLightProjectsError(projectLocalName + " is not a local project")
-        return self.__myObsLightProjects.getProjectInfo(projectLocalName=projectLocalName, info=info)
-        
-    def setProjectParameter(self, projectLocalName=None, parameter=None, value=None):
-        '''
-        
+        Get the value of a project parameter.
         '''
         if not self.isALocalProject(projectLocalName):
             raise ObsLightProjectsError(projectLocalName + " is not a local project")
-        
-        res= self.__myObsLightProjects.setProjectparameter(projectLocalName=projectLocalName, parameter=parameter, value=value)
-        self.__myObsLightProjects.save()
-        return res
-    
-    def removeProject(self,projectLocalName=None):
+        return self.__myObsLightProjects.getProjectInfo(projectLocalName, parameter)
 
+    def setProjectParameter(self, projectLocalName, parameter, value):
+        # TODO: check valid parameters
         '''
-        remove a local Project
+        Get the value of a project parameter.
         '''
         if not self.isALocalProject(projectLocalName):
             raise ObsLightProjectsError(projectLocalName + " is not a local project")
 
-        
-        res=  self.__myObsLightProjects.removeProject(projectLocalName=projectLocalName)
-        
+        res = self.__myObsLightProjects.setProjectparameter(projectLocalName,
+                                                            parameter, value)
         self.__myObsLightProjects.save()
         return res
-        
-    def removePackage(self,projectLocalName=None,package=None):
+
+    def removeProject(self, projectLocalName):
         '''
-        Remove a package from local project.
+        Remove a local Project.
+        '''
+        if not self.isALocalProject(projectLocalName):
+            raise ObsLightProjectsError(projectLocalName + " is not a local project")
+
+        res = self.__myObsLightProjects.removeProject(projectLocalName=projectLocalName)
+
+        self.__myObsLightProjects.save()
+        return res
+
+    def removePackage(self, projectLocalName, package):
+        '''
+        Remove a package from a local project.
         '''
         if not self.isALocalProject(projectLocalName):
             raise ObsLightProjectsError(projectLocalName + " is not a local project")
         elif package == None:
             raise ObsLightObsServers(" no name for the package of the obs server")
-        elif not package in self.getLocalProjectPackageList(name=projectLocalName,local=1):
-            raise ObsLightObsServers(package+" is not a local package of "+projectLocalName)
-        
-        res=  self.__myObsLightProjects.removePackage(projectLocalName=projectLocalName,package=package)
-        
+        elif not package in self.getLocalProjectPackageList(name=projectLocalName, local=1):
+            raise ObsLightObsServers(package + " is not a local package of " + projectLocalName)
+
+        res = self.__myObsLightProjects.removePackage(projectLocalName, package)
+
         self.__myObsLightProjects.save()
         return res
-        
-        
 
     def addObsServer(self, serverWeb="",
                             serverAPI=None,

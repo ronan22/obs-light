@@ -142,27 +142,27 @@ class ProjectConfigManager(QObject):
             self.__localNameField.setText(self.__projectAlias)
             self.__localNameField.setReadOnly(True)
             # load OBS server list and select appropriate current server
-            obsServerAlias = self.__obsLightManager.getProjectInfo(self.__projectAlias,
+            obsServerAlias = self.__obsLightManager.getProjectParameter(self.__projectAlias,
                                                                    "obsServer")
             lineIndex = self.__serverCBox.findText(obsServerAlias)
             if lineIndex >= 0:
                 self.__serverCBox.setCurrentIndex(lineIndex)
             self.__serverCBox.setEnabled(False)
             # load project OBS name
-            projectObsName = self.__obsLightManager.getProjectInfo(self.__projectAlias,
+            projectObsName = self.__obsLightManager.getProjectParameter(self.__projectAlias,
                                                                    "projectObsName")
             self.__obsNameField.setText(projectObsName)
             self.__obsNameField.setReadOnly(True)
             # load target list and select appropriate current target
             self.__loadTargetPossibilities()
-            target = self.__obsLightManager.getProjectInfo(self.__projectAlias,
+            target = self.__obsLightManager.getProjectParameter(self.__projectAlias,
                                                            "projectTarget")
             lineIndex = self.__targetCBox.findText(target)
             if lineIndex >= 0:
                 self.__targetCBox.setCurrentIndex(lineIndex)
             # load arch list and select appropriate current arch
             self.__loadArchPossibilities()
-            arch = self.__obsLightManager.getProjectInfo(self.__projectAlias,
+            arch = self.__obsLightManager.getProjectParameter(self.__projectAlias,
                                                          "projectArchitecture")
             lineIndex = self.__archCBox.findText(arch)
             if lineIndex >= 0:
