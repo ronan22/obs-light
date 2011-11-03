@@ -147,7 +147,7 @@ class ServerConfigManager(QObject):
         self.__aliasLineEdit.setText(self.__serverAlias)
         self.__webUrlLineEdit.setText(manager.getObsServerParameter(self.__serverAlias, "serverWeb"))
         self.__apiUrlLineEdit.setText(manager.getObsServerParameter(self.__serverAlias, "serverAPI"))
-        self.__repoUrlLineEdit.setText(manager.getObsServerParameter(self.__serverAlias, "serverRepos"))
+        self.__repoUrlLineEdit.setText(manager.getObsServerParameter(self.__serverAlias, "serverRepo"))
         self.__userLineEdit.setText(manager.getObsServerParameter(self.__serverAlias, "user"))
         self.__passLineEdit.setText(manager.getObsServerParameter(self.__serverAlias, "passw"))
 
@@ -190,7 +190,7 @@ class ServerConfigManager(QObject):
             manager = self.__gui.getObsLightManager()
             manager.setObsServerParameter(self.__serverAlias, "serverWeb", self.getWebIfaceUrl())
             manager.setObsServerParameter(self.__serverAlias, "serverAPI", self.getApiUrl())
-            manager.setObsServerParameter(self.__serverAlias, "serverRepos", self.getRepoUrl())
+            manager.setObsServerParameter(self.__serverAlias, "serverRepo", self.getRepoUrl())
             manager.setObsServerParameter(self.__serverAlias, "user", self.getUser())
             manager.setObsServerParameter(self.__serverAlias, "passw", self.getPass())
             self.finished.emit(True)

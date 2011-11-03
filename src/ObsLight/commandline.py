@@ -322,11 +322,11 @@ class ObsLight():
                     raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
 
             self.cliObsLightManager.addObsServer(serverWeb=serverWeb,
-                                                 serverAPI=serverApi,
+                                                 serverApi=serverApi,
                                                  serverRepo=serverRepo,
                                                  alias=alias,
                                                  user=user,
-                                                 passw=password)
+                                                 password=password)
             
         elif self.__isHelp(listArgv[0]):
             ObsLightPrintManager.obsLightPrint(__HELP__)

@@ -576,7 +576,7 @@ class ObsLightManager(object):
         elif not self.isALocalProject(name=projectLocalName):
             raise ObsLightProjectsError(projectLocalName + " is not a local projectLocalName")
         
-        self.__myObsLightProjects.getWebProjectPage(projectLocalName=projectLocalName)
+        print self.__myObsLightProjects.getWebProjectPage(projectLocalName=projectLocalName)
         
         
         
