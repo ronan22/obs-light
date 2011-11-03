@@ -24,11 +24,12 @@ from PySide.QtCore import QObject, QThreadPool, Signal
 from PySide.QtGui import QPushButton, QListWidget, QLineEdit, QComboBox
 
 from Utils import QRunnableImpl
-from PackageManager import ObsPackageManager
+from PackageManager import PackageManager
 
-class ObsProjectManager(QObject):
+class ProjectManager(QObject):
     '''
-    classdocs
+    Manages the local project list widget and project-related buttons
+    of the main window.
     '''
     __gui = None
     __obsProjectsListWidget = None
@@ -39,15 +40,12 @@ class ObsProjectManager(QObject):
     __packageManager = None
 
     def __init__(self, gui):
-        '''
-        Constructor
-        '''
         QObject.__init__(self)
         self.__gui = gui
         self.__obsProjectsListWidget = gui.getMainWindow().findChild(QListWidget, "obsProjectsListWidget")
         self.__obsProjectsListWidget.currentTextChanged.connect(self.on_projectSelected)
         self.loadProjectList()
-        self.__packageManager = ObsPackageManager(self.__gui)
+        self.__packageManager = PackageManager(self.__gui)
         self.__newObsProjectButton = gui.getMainWindow().findChild(QPushButton, "newObsProjectButton")
         self.__newObsProjectButton.clicked.connect(self.on_newObsProjectButton_clicked)
         self.__modifyObsProjectButton = gui.getMainWindow().findChild(QPushButton, "modifyObsProjectButton")
@@ -56,6 +54,9 @@ class ObsProjectManager(QObject):
         self.__deleteObsProjectButton.clicked.connect(self.on_deleteObsProjectButton_clicked)
         
     def loadProjectList(self):
+        '''
+        Load (or reload) the local project list in the obsProjectsListWidget.
+        '''
         projectList = self.__gui.getObsLightManager().getLocalProjectList()
         self.__obsProjectsListWidget.clear()
         self.__obsProjectsListWidget.addItems(projectList)
@@ -74,8 +75,8 @@ class ObsProjectManager(QObject):
         self.__gui.getObsLightManager().removeProject(projectName)
         self.loadProjectList()
     
-    def on_projectConfigManager_finished(self, result):
-        if result:
+    def on_projectConfigManager_finished(self, success):
+        if success:
             self.loadProjectList()
             
     def on_projectSelected(self, project):
@@ -85,7 +86,9 @@ class ObsProjectManager(QObject):
 
 class ProjectConfigManager(QObject):
     '''
+    Manages the project configuration dialog.
     '''
+    
     __gui = None
     __projectAlias = None
     __obsLightManager = None
@@ -120,15 +123,15 @@ class ProjectConfigManager(QObject):
                                                               "projectLocalNameLineEdit")
         self.__obsNameField = self.__configDialog.findChild(QLineEdit,
                                                             "projectObsNameLineEdit")
+        self.__obsNameField.textEdited.connect(self.handleObsNameEdited)
+        self.__obsNameField.editingFinished.connect(self.handleObsNameEditingFinished)
         self.__serverCBox = self.__configDialog.findChild(QComboBox,
                                                           "projectServerComboBox")
         self.__targetCBox = self.__configDialog.findChild(QComboBox,
                                                           "projectTargetComboBox")
+        self.__targetCBox.currentIndexChanged.connect(self.handleTargetIndexChanged)
         self.__archCBox = self.__configDialog.findChild(QComboBox,
                                                         "projectArchitectureComboBox")
-        self.__obsNameField.textEdited.connect(self.handleObsNameEdited)
-        self.__obsNameField.editingFinished.connect(self.handleObsNameEditingFinished)
-        self.__targetCBox.currentIndexChanged.connect(self.handleTargetIndexChanged)
 
     def __loadInitialFieldValues(self):
         self.__serverCBox.clear()
@@ -169,6 +172,7 @@ class ProjectConfigManager(QObject):
         '''
         Load the target possibilities into the target ComboBox,
         according to the current server and project.
+        May take some time, so you should run it asynchronously.
         '''
         self.__targetCBox.clear()
         if len(self.getCurrentServerAlias()) > 0 and len(self.getCurrentProjectObsName()) > 0:
@@ -180,6 +184,7 @@ class ProjectConfigManager(QObject):
         '''
         Load the architecture possibilities into the arch ComboBox,
         according to the current server, project and target.
+        May take some time, so you should run it asynchronously.
         '''
         self.__archCBox.clear()
         if len(self.getCurrentTarget()) > 0:
@@ -240,5 +245,6 @@ class ProjectConfigManager(QObject):
                                                   "projectArchitecture",
                                                   self.getCurrentArch())
         self.finished.emit(True)
+
     def on_configDialog_rejected(self):
         self.finished.emit(False)

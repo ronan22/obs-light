@@ -27,10 +27,14 @@ from PySide.QtCore import QIODevice, QFile, QMetaObject
 from PySide.QtGui import QApplication
 from PySide.QtUiTools import QUiLoader
 
-from ProjectManager import ObsProjectManager
+from ProjectManager import ProjectManager
 from ActionManager import MainWindowActionManager
 
 class Gui():
+    '''
+    ObsLight GUI main class. Keeps reference to the main window
+    and to the ObsLightManager.
+    '''
     application = None
     uiLoader = None
     __mainWindow = None
@@ -45,7 +49,7 @@ class Gui():
         
     def loadWindow(self, uiFile):
         '''
-        Load a Window
+        Load a Window from UI file.
         '''
         path = join(dirname(__file__), "ui", uiFile)
         windowFile = QFile(path)
@@ -62,7 +66,7 @@ class Gui():
         
     def getMainWindow(self):
         '''
-        Returns the main window object (may be None)
+        Returns the main window object (may be None).
         '''
         return self.__mainWindow
     
@@ -71,7 +75,7 @@ class Gui():
 
     def main(self):
         self.__loadMainWindow()
-        self.__obsProjectManager = ObsProjectManager(self)
+        self.__obsProjectManager = ProjectManager(self)
         return self.application.exec_()
 
 
