@@ -50,7 +50,8 @@ __addPackageSourceInChRoot__ = "addPackageSourceInChRoot"
 __makePatch__ = "makePatch"
 __addAndCommitChange__ = "addAndCommitChanges"
 __addRepoInChRoot__ = "addRepoInChRoot"
-
+__exportProject__ = "exportProject"
+__importProject__ = "importProject"
 
 __info_verbose__ ="--verbose"
 __info_debug__ ="--debug"
@@ -70,6 +71,8 @@ __DICO_HELP__[__addAndCommitChange__] = "Add the new files (including patches) a
 __DICO_HELP__[__addRepoInChRoot__] = "Add a repository to the chroot's zypper configuration file."
 __DICO_HELP__[__removeProject__] = "Remove local project"
 __DICO_HELP__[__removePackage__] = "Remove local package from a local project"
+__DICO_HELP__[__exportProject__] = "save a Project into a path"
+__DICO_HELP__[__importProject__] = "import a Project from a file"
 
 __DICO_OPTION_HELP__={}
 __DICO_OPTION_HELP__[__info_verbose__] = "Print all subprocess outputs."
@@ -139,9 +142,11 @@ class ObsLight():
         __HELP__ += "\n"
         __HELP__ += "\t" + __addObsServer__ + ":" + "\t\t" + __DICO_HELP__[__addObsServer__] + "\n"
         __HELP__ += "\t" + __addProject__ + ":" + "\t\t" + __DICO_HELP__[__addProject__] + "\n"
+        __HELP__ +="\t" +__exportProject__+":"+ "\t\t" +__DICO_HELP__[__exportProject__] + "\n"
+        __HELP__ +="\t" +__importProject__+":"+ "\t\t" +__DICO_HELP__[__importProject__] + "\n"
         __HELP__ += "\n"
-        __HELP__ +="\t" +__removeProject__+":"+__DICO_HELP__[__removeProject__]+ "\n"
-        __HELP__ +="\t" +__removePackage__+":"+__DICO_HELP__[__removePackage__]+ "\n"
+        __HELP__ +="\t" +__removeProject__+":"+ "\t\t" +__DICO_HELP__[__removeProject__]+ "\n"
+        __HELP__ +="\t" +__removePackage__+":"+ "\t\t" +__DICO_HELP__[__removePackage__]+ "\n"
         __HELP__ += "\n"
         __HELP__ += "\t" + __addPackage__ + ":" + "\t\t" + __DICO_HELP__[__addPackage__] + "\n"
         __HELP__ += "\t" + __createChRoot__ + ":" + "\t\t" + __DICO_HELP__[__createChRoot__] + "\n"
@@ -216,6 +221,10 @@ class ObsLight():
                     return self.removeProject(listArgv[1:])
                 elif (listArgv[0] ==__removePackage__):
                     return self.removePackage(listArgv[1:])
+                elif (listArgv[0] ==__exportProject__):
+                    return self.exportProject(listArgv[1:])
+                elif (listArgv[0] ==__importProject__):
+                    return self.importProject(listArgv[1:])
                 else:
                     raise ObsLightErr.ArgError(listArgv[0] + " is not a valid command")
             
@@ -763,3 +772,66 @@ class ObsLight():
         else:
             raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
         return 0 
+    
+    
+    def exportProject(self, listArgv):
+        '''
+        
+        '''
+        __COMMAND__ = __exportProject__
+        
+        __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
+        __HELP__ += "\t" + "--projectLocalName projectName (required)" + "\n"
+        __HELP__ += "\t" + "--path file (required)" + "\n"
+        __HELP__ += __DICO_HELP__[__COMMAND__]
+        
+        projectLocalName = None
+        path=None
+
+        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (2 * 2)): 
+            for i in range(0, len(listArgv), 2):
+                if listArgv[i] == "--projectLocalName":
+                    projectLocalName = listArgv[i + 1]
+                elif listArgv[i] == "--path":
+                    path = listArgv[i + 1]
+                else:
+                    raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
+                
+            if (projectLocalName != None) and (path != None):
+                self.cliObsLightManager.exportProject(projectLocalName=projectLocalName,path=path)
+            else:
+                raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
+                
+        elif self.__isHelp(listArgv[0]):
+            ObsLightPrintManager.obsLightPrint(__HELP__)
+        else:
+            raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
+        return 0 
+    
+    
+    def importProject(self, listArgv):
+        '''
+        
+        '''
+        __COMMAND__ = __importProject__
+        __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
+        __HELP__ += "\t" + "--path file (required)" + "\n"
+        __HELP__ += __DICO_HELP__[__COMMAND__]
+        path=None
+        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (1 * 2)): 
+            for i in range(0, len(listArgv), 2):
+                if listArgv[i] == "--path":
+                    path = listArgv[i + 1]
+                else:
+                    raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
+            if  (path != None):
+                self.cliObsLightManager.importProject(path=path)
+            else:
+                raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
+                
+        elif self.__isHelp(listArgv[0]):
+            ObsLightPrintManager.obsLightPrint(__HELP__)
+        else:
+            raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
+        return 0 
+    

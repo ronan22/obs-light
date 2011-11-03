@@ -32,7 +32,6 @@ class SubprocessCrt(object):
         '''
         
         '''
-
         ObsLightPrintManager.obsLightPrint("command: " + command, isDebug=True)
         #need Python 2.7.3 to do shlex.split(command) 
         splittedCommand = shlex.split(str(command))

@@ -326,7 +326,7 @@ class ObsLightManager(object):
                                      obsServer=None,
                                      projectLocalName=None):
         '''
-        return the list of the package of a projectLocalName of a OBS server
+        return the list of the package of a projectLocalName of a OBS server.
         '''
         if obsServer == None:
             raise ObsLightObsServers(" no name for the obs server")
@@ -560,7 +560,26 @@ class ObsLightManager(object):
 
         self.__myObsLightProjects.save()
 
-
+    def importProject(self,path=None):
+        '''
+        
+        '''
+        if not os.path.isfile(path):
+            raise ObsLightProjectsError(path+"is not a file, can't importProject")
+        self.__myObsLightProjects.importProject(path=path)
+        self.__myObsLightProjects.save()
+    
+    def exportProject(self,projectLocalName=None,path=None):
+        '''
+        
+        '''
+        if projectLocalName == None:
+            raise ObsLightProjectsError(" no name for the projectLocalName")
+        elif not self.isALocalProject(name=projectLocalName):
+            raise ObsLightProjectsError(projectLocalName + " is not a local projectLocalName")
+        
+        self.__myObsLightProjects.exportProject(projectLocalName=projectLocalName,path=path)
+    
 
 __myObsLightManager = ObsLightManager()
 

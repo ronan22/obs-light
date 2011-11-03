@@ -23,6 +23,7 @@ import os
 import pickle
 from ObsLightProject import ObsLightProject
 import ObsLightErr
+import ObsLightPrintManager
  
 class ObsLightProjects(object):
     '''
@@ -43,36 +44,59 @@ class ObsLightProjects(object):
         self.__load()
         
         
-    def save(self):
+    def save(self,aFile=None,ProjectName=None):
         '''
         
         '''
+        if aFile==None:
+            pathFile=self.__pathFile
+        else:
+            pathFile=aFile
+        
+        
         saveProject = {}
 
-        for ProjectName in self.getLocalProjectList():
+        if ProjectName==None:
+            for ProjectName in self.getLocalProjectList():
+                saveProject[ProjectName] = self.__dicOBSLightProjects[ProjectName].getDic()
+        else:
             saveProject[ProjectName] = self.__dicOBSLightProjects[ProjectName].getDic()
-        
+            
         saveconfigProject = {}
         saveconfigProject["saveProjects"] = saveProject
-        saveconfigProject["currentProject"] = self.__currentProjects    
-        aFile = open(self.__pathFile, 'w')
+        saveconfigProject["currentProject"] = self.__currentProjects 
+        
+        aFile = open(pathFile, 'w')
         pickle.dump(saveconfigProject, aFile)    
         aFile.close()
         
-    def __load(self):
+    def __load(self,aFile=None):
         '''
         
         '''
-        if os.path.isfile(self.__pathFile):
-            aFile = open(self.__pathFile, 'r')
-            saveconfigServers = pickle.load(aFile)
+        if aFile==None:
+            pathFile=self.__pathFile
+        else:
+            pathFile=aFile
+            
+        if os.path.isfile(pathFile):
+            aFile = open(pathFile, 'r')
+            try:
+                saveconfigServers = pickle.load(aFile)
+            except:
+                raise  ObsLightErr.ObsLightProjectsError("the file: "+pathFile+" is not a backup")
             aFile.close()
+            
+            if not ("saveProjects" in saveconfigServers.keys()):
+                raise ObsLightErr.ObsLightProjectsError("the file: "+pathFile+"  is not a backup")
             saveProjects = saveconfigServers["saveProjects"]
+            
             for projetName in saveProjects.keys():
                 aServer = saveProjects[projetName]
-                self.__addProjectFromSave(name=projetName, fromSave=aServer)    
+                self.__addProjectFromSave(name=projetName, fromSave=aServer)
             self.__currentProjects = saveconfigServers["currentProject"]
         
+    
         
     def getLocalProjectList(self):
         '''
@@ -108,8 +132,10 @@ class ObsLightProjects(object):
         '''
         
         '''
-        self.__dicOBSLightProjects[name] = ObsLightProject(fromSave=fromSave)
-        
+        if not (name in self.__dicOBSLightProjects.keys() ):
+            self.__dicOBSLightProjects[name] = ObsLightProject(fromSave=fromSave)
+        else:
+            ObsLightPrintManager.obsLightPrint("Can't import: "+name+", The Project already exist.")
         
     def getListPackage(self, name=None, local=0):
         '''
@@ -225,7 +251,17 @@ class ObsLightProjects(object):
         '''
         return self.__dicOBSLightProjects[projectLocalName].removePackage(package=package)
         
-        
+    def importProject(self,path=None):
+        '''
+        Import a project
+        '''
+        self.__load(aFile=path)
+    
+    def exportProject(self,projectLocalName=None,path=None):
+        '''
+        Export a project
+        '''
+        self.save(aFile=path,ProjectName=projectLocalName)
         
         
         

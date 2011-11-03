@@ -85,7 +85,7 @@ class ObsLightProject(object):
         if not os.path.isdir(self.__projectDirectory):
             os.makedirs(self.__projectDirectory)
         
-    def getProjectInfo(self,info=None):
+    def getProjectInfo(self, info=None):
         '''
         return the value  of the info of the project:
         the valide info is :
@@ -98,26 +98,26 @@ class ObsLightProject(object):
             projectTitle
             description
         '''
-        if info=="projectLocalName":
+        if info == "projectLocalName":
             return self.__projectLocalName
-        elif info=="projectObsName":
+        elif info == "projectObsName":
             return self.__projectObsName
-        elif info=="projectDirectory":
+        elif info == "projectDirectory":
             return self.__projectDirectory
-        elif info=="obsServer":
+        elif info == "obsServer":
             return self.__obsServer
-        elif info=="projectTarget":
+        elif info == "projectTarget":
             return self.__projectTarget
-        elif info=="projectArchitecture":
+        elif info == "projectArchitecture":
             return self.__projectArchitecture
-        elif info=="projectTitle":
+        elif info == "projectTitle":
             return self.__projectTitle
-        elif info=="description":
+        elif info == "description":
             return self.__description
         else:
             raise ObsLightErr.ObsLightProjectsError("info value is not valide for getProjectInfo")
         
-    def setProjectparameter(self,parameter=None,value=None):
+    def setProjectparameter(self, parameter=None, value=None):
         '''
         return the value  of the parameter of the project:
         the valide parameter is :
@@ -126,14 +126,14 @@ class ObsLightProject(object):
             projectTitle
             description
         '''
-        if parameter=="projectTarget":
-            self.__projectTarget=value
-        elif parameter=="projectArchitecture":
-            self.__projectArchitecture=value
-        elif parameter=="projectTitle":
-            self.__projectTitle=value
-        elif parameter=="description":
-            self.__description=value
+        if parameter == "projectTarget":
+            self.__projectTarget = value
+        elif parameter == "projectArchitecture":
+            self.__projectArchitecture = value
+        elif parameter == "projectTitle":
+            self.__projectTitle = value
+        elif parameter == "description":
+            self.__description = value
         else:
             raise ObsLightErr.ObsLightProjectsError("parameter value is not valide for getProjectInfo")
         
@@ -148,9 +148,9 @@ class ObsLightProject(object):
         
         '''
         
-        res=self.__chroot.removeChRoot()
+        res = self.__chroot.removeChRoot()
         
-        if res ==0:
+        if res == 0:
             command = "sudo rm -r " + self.__projectDirectory
             return self.__subprocess(command)
         else:
@@ -217,8 +217,8 @@ class ObsLightProject(object):
         #Find the spec file
         listFile = os.listdir(packagePath)
         
-        specFile=None
-        yamlFile=None
+        specFile = None
+        yamlFile = None
         
         for f in listFile:
             if f.endswith(".spec"):
@@ -228,7 +228,7 @@ class ObsLightProject(object):
         #Find the status of the package, Don't use that now
         #status=ObsLightManager.getManager().getPackageStatus(obsserver=self.__obsServer,projectLocalName=self.__projectObsName,package=name,repos=self.__projectTarget,arch=self.__projectArchitecture)
         #self.__packages.addPackage(name=name, specFile=specFile, listFile=listFile, status=status)
-
+        
         self.__packages.addPackage(name=name,
                                    specFile=specFile,
                                    yamlFile=yamlFile,
@@ -332,7 +332,7 @@ class ObsLightProject(object):
         '''
         return  self.__packages.getPackage(package=package)
         
-    def removePackage(self,package=None):
+    def removePackage(self, package=None):
         '''
         
         '''
