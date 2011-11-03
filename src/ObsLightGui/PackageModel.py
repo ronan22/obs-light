@@ -77,6 +77,10 @@ class PackageModel(QAbstractTableModel):
         else:
             return None
 
+    def refresh(self):
+        self.dataChanged.emit(self.createIndex(0, 0), self.createIndex(self.rowCount(),
+                                                                       self.columnCount()))
+
     def addPackage(self, packageName):
         '''
         Add a package to the local project associated with this PackageModel.
@@ -84,4 +88,11 @@ class PackageModel(QAbstractTableModel):
         the project is associated to.
         '''
         self.__obsLightManager.addPackage(self.getProject(), packageName)
-        self.dataChanged.emit(self.createIndex(0, 0), self.createIndex(self.rowCount(), 2))
+        self.refresh()
+
+    def removePackage(self, packageName):
+        '''
+        Remove the package from the local project associated with this PackageModel.
+        '''
+        self.__obsLightManager.removePackage(packageName)
+        self.refresh()

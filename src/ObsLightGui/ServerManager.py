@@ -170,19 +170,17 @@ class ServerConfigManager(QObject):
         return self.__passLineEdit.text()
 
     def on_obsServerConfigDialog_finished(self, result):
-        # User cancelled, nothing to do.
+        # User canceled, nothing to do.
         if result == QDialog.Rejected:
             self.finished.emit(False)
         # User accepted, and there was no preloaded server,
         # so create a new server.
         elif self.__serverAlias is None:
             manager = self.__gui.getObsLightManager()
-            manager.addObsServer(serverWeb=self.getWebIfaceUrl(),
-                                 serverAPI=self.getApiUrl(),
+            manager.addObsServer(self.getApiUrl(), self.getUser(), self.getPass(),
                                  serverRepo=self.getRepoUrl(),
                                  alias=self.getAlias(),
-                                 user=self.getUser(),
-                                 passw=self.getPass())
+                                 serverWeb=self.getWebIfaceUrl())
             self.finished.emit(True)
         # User accepted, and there was a preloaded server,
         # so modify it.

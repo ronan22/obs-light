@@ -225,11 +225,11 @@ class ProjectConfigManager(QObject):
 
     def on_configDialog_accepted(self):
         if self.__isNewProject():
-            self.__obsLightManager.addProject(self.getCurrentProjectLocalName(),
+            self.__obsLightManager.addProject(self.getCurrentServerAlias(),
                                               self.getCurrentProjectObsName(),
-                                              obsServer=self.getCurrentServerAlias(),
-                                              projectTarget=self.getCurrentTarget(),
-                                              projectArchitecture=self.getCurrentArch())
+                                              self.getCurrentTarget(),
+                                              self.getCurrentArch(),
+                                              projectLocalName=self.getCurrentProjectLocalName())
         else:
             # Currently we can't relocate a project.
 #            self.__obsLightManager.setProjectParameter(self.getCurrentProjectLocalName(),

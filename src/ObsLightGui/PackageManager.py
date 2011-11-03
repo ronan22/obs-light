@@ -48,6 +48,9 @@ class PackageManager(QObject):
         self.__newPackageButton = gui.getMainWindow().findChild(QPushButton,
                                                                 "newPackageButton")
         self.__newPackageButton.clicked.connect(self.on_newPackageButton_clicked)
+        self.__deletePackageButton = gui.getMainWindow().findChild(QPushButton,
+                                                                   "deletePackageButton")
+        self.__deletePackageButton.clicked.connect(self.on_deletePackageButton_clicked)
         
     def getCurrentProject(self):
         return self.__project
@@ -64,10 +67,19 @@ class PackageManager(QObject):
         self.__packageTableView.setModel(self.__model)
         
     def on_newPackageButton_clicked(self):
-        if self.getCurrentProject() == None:
+        if self.getCurrentProject() is None:
             return
         packageName, accepted = QInputDialog.getText(self.__gui.getMainWindow(),
                                                      u"Choose package name...",
                                                      u"Package name (must exist on server):")
         if accepted:
             self.__model.addPackage(packageName)
+
+    def on_deletePackageButton_clicked(self):
+        project = self.getCurrentProject()
+        if project is None:
+            return
+        row = self.__packageTableView.currentRow()
+        packageName = self.__model.item(row, PackageModel.PackageNameColumn).text()
+        if packageName is not None and len(packageName) > 0:
+            self.__model.removePackage(packageName)
