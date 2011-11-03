@@ -117,8 +117,8 @@ class ObsServer(object):
         '''
         if value==None:
             raise ObsLightErr.ObsLightObsServers("value is not valid for setObsServerParameter")
-        
-        if parameter=="obssOBSConnected":
+
+        if parameter=="isOBSConnected":
             self.__isOBSConnected=value
         elif parameter=="serverWeb":
             self.__serverWeb=value
