@@ -33,21 +33,19 @@ class PackageModel(QAbstractTableModel):
     
     __obsLightManager = None
     __project = None
+    __emptyList = []
 
-    def __init__(self, obsLightManager, project, parent=None):
-        '''
-        Constructor
-        '''
-        QAbstractTableModel.__init__(self, parent)
+    def __init__(self, obsLightManager, projectName):
+        QAbstractTableModel.__init__(self)
         self.__obsLightManager = obsLightManager
-        self.__project = project
+        self.__project = projectName
         
     def getProject(self):
         return self.__project
         
     def __getPackageList(self):
-        if self.__project in (None,"","None"):
-            return list()
+        if self.getProject() is None:
+            return self.__emptyList
         return self.__obsLightManager.getLocalProjectPackageList(self.getProject(), local=1)
     
     def rowCount(self, _parent=None):
@@ -78,3 +76,12 @@ class PackageModel(QAbstractTableModel):
                 return "unknown"
         else:
             return None
+
+    def addPackage(self, packageName):
+        '''
+        Add a package to the local project associated with this PackageModel.
+        packageName must be an existing package name on the OBS server
+        the project is associated to.
+        '''
+        self.__obsLightManager.addPackage(self.getProject(), packageName)
+        self.dataChanged.emit(self.createIndex(0, 0), self.createIndex(self.rowCount(), 2))

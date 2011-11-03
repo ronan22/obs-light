@@ -20,6 +20,7 @@ Created on 29 sept. 2011
 @author: ronan
 '''
 import os
+import shutil
 
 from ObsLightPackages import ObsLightPackages
 from ObsLightChRoot import ObsLightChRoot
@@ -147,12 +148,10 @@ class ObsLightProject(object):
         '''
         
         '''
-        
         res = self.__chroot.removeChRoot()
-        
+           
         if res == 0:
-            command = "sudo rm -r " + self.__projectDirectory
-            return self.__subprocess(command)
+            return shutil.rmtree(self.__projectDirectory)
         else:
             raise ObsLightErr.ObsLightProjectsError("Error in removeProject, can't remove chroot")
         
@@ -166,7 +165,7 @@ class ObsLightProject(object):
 
     def getChRoot(self):
         '''
-        
+         
         '''
         return self.__chroot
 
@@ -211,7 +210,7 @@ class ObsLightProject(object):
                                                           projectLocalName=self.__projectObsName,
                                                           package=name,
                                                           directory=self.__projectDirectory)
-        specFile = ""
+
         packagePath = os.path.join(self.__projectDirectory, self.__projectObsName, name)
         
         #Find the spec file

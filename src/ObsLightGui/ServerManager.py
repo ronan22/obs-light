@@ -78,6 +78,7 @@ class ServerListManager(QObject):
                                                              currentItem.text())
 
     def on_deleteServerButton_clicked(self):
+        # TODO: implement server deletion
         pass
     
     def on_serverConfigManager_finished(self, serverListModified):

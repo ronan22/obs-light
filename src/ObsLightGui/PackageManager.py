@@ -21,35 +21,53 @@ Created on 2 nov. 2011
 '''
 
 from PySide.QtCore import QObject
-from PySide.QtGui import QTableView
+from PySide.QtGui import QInputDialog, QPushButton, QTableView
 
 from PackageModel import PackageModel
 
-class ObsPackageManager(QObject):
+class PackageManager(QObject):
     '''
-    
+    Manages the package list widget and package-related buttons
+    of the main window.
     '''
 
     __gui = None
     __obsLightManager = None
-    __packageTableView = None
     __project = None
     __model = None
+    
+    __packageTableView = None
+    __newPackageButton = None
 
     def __init__(self, gui):
-        '''
-        
-        '''
         QObject.__init__(self)
         self.__gui = gui
         self.__obsLightManager = gui.getObsLightManager()
         self.__packageTableView = gui.getMainWindow().findChild(QTableView,
                                                                   "packageTableView")
+        self.__newPackageButton = gui.getMainWindow().findChild(QPushButton,
+                                                                "newPackageButton")
+        self.__newPackageButton.clicked.connect(self.on_newPackageButton_clicked)
         
     def getCurrentProject(self):
         return self.__project
     
     def setCurrentProject(self, projectName):
+        '''
+        Set the current active project. It will refresh package list.
+        Passing None is valid.
+        '''
+        if projectName is not None and len(projectName) < 1:
+            projectName = None
         self.__project = projectName
-        self.__model = PackageModel(self.__obsLightManager, projectName, self)
+        self.__model = PackageModel(self.__obsLightManager, projectName)
         self.__packageTableView.setModel(self.__model)
+        
+    def on_newPackageButton_clicked(self):
+        if self.getCurrentProject() == None:
+            return
+        packageName, accepted = QInputDialog.getText(self.__gui.getMainWindow(),
+                                                     u"Choose package name...",
+                                                     u"Package name (must exist on server):")
+        if accepted:
+            self.__model.addPackage(packageName)

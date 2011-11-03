@@ -34,15 +34,11 @@ class MainWindowActionManager(object):
     __serverListManager = None
 
     def __init__(self, gui):
-        '''
-        Constructor
-        '''
         self.__gui = gui
         self.__obsLightManager = self.__gui.getObsLightManager()
         mainWindow = self.__gui.getMainWindow()
         action = mainWindow.findChild(QAction, "actionOBS_servers")
         action.triggered.connect(self.on_actionOBS_servers_triggered)
-        
         
     def on_actionOBS_servers_triggered(self):
         self.__serverListManager = ServerListManager(self.__gui)
