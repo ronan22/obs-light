@@ -119,12 +119,12 @@ class ObsServers(object):
         '''
         return self.__dicOBSLightServers[obsServer].getListPackage(projectLocalName=projectLocalName)
 
-    def checkoutPackage(self, obsServer=None, projectLocalName=None,
+    def checkoutPackage(self, obsServer=None, projectObsName=None,
                         package=None, directory=None):
         '''
         
         '''
-        self.__dicOBSLightServers[obsServer].checkoutPackage(projectLocalName=projectLocalName,
+        self.__dicOBSLightServers[obsServer].checkoutPackage(projectObsName=projectObsName,
                                                              package=package,
                                                              directory=directory)
 

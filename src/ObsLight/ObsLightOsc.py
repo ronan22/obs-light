@@ -128,16 +128,24 @@ class ObsLightOsc(object):
     
     def checkoutPackage(self,
                         obsServer=None,
-                        projectLocalName=None,
+                        projectObsName=None,
                         package=None,
                         directory=None):
         '''
             check out a package
         '''
         os.chdir(directory)
-        command = "osc -A " + obsServer + " co " + projectLocalName + " " + package
+        command = "osc -A " + obsServer + " co " + projectObsName + " " + package
         self.__subprocess(command=command)
 
+    def updatePackage(self,packagePath):
+        '''
+        
+        '''
+        os.chdir(packagePath)
+        command = "osc up"
+        self.__subprocess(command=command)
+        
         
     def __subprocess(self, command=None, waitMess=False):
         '''

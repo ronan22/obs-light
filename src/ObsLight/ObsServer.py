@@ -180,12 +180,12 @@ class ObsServer(object):
         return ObsLightOsc.getObsLightOsc().getListPackage(obsServer=self.__serverAPI,
                                                         projectLocalName=projectLocalName)
     
-    def checkoutPackage(self, projectLocalName=None, package=None, directory=None):
+    def checkoutPackage(self, projectObsName=None, package=None, directory=None):
         '''
         
         '''
         ObsLightOsc.getObsLightOsc().checkoutPackage(obsServer=self.__serverAPI,
-                                                  projectLocalName=projectLocalName,
+                                                  projectObsName=projectObsName,
                                                   package=package,
                                                   directory=directory)
         

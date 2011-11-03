@@ -6,7 +6,7 @@
 import sys
 import signal
  
-
+ 
 from ObsLight import ObsLightErr
 from mic import imgcreate
 

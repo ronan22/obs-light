@@ -351,7 +351,7 @@ class ObsLightManager(object):
         return self.__myObsServers.getLocalProjectList(server=server)
 
     def checkoutPackage(self, obsServer=None,
-                                projectLocalName=None,
+                                projectObsName=None,
                                 package=None,
                                 directory=None):
         '''
@@ -359,24 +359,24 @@ class ObsLightManager(object):
         '''
         if obsServer == None:
             raise ObsLightObsServers(" no name for the obs server")
-        elif projectLocalName == None:
-            raise ObsLightObsServers(" no name for the projectLocalName of the obs server")
+        elif projectObsName == None:
+            raise ObsLightObsServers(" no name for the projectObsName of the obs server")
         elif package == None:
             raise ObsLightObsServers(" no name for the package of the obs server")
         elif directory == None:
             raise ObsLightProjectsError(" no name for the directory")
         elif not self.isAnObsServer(name=obsServer):
             raise ObsLightObsServers(obsServer + " is not the obs server")
-        elif not projectLocalName in self.getObsServerProjectList(server=obsServer):
+        elif not projectObsName in self.getObsServerProjectList(server=obsServer):
             raise ObsLightObsServers(" no name for the package of the obs server")
         elif not package in self.getObsProjectPackageList(obsServer=obsServer,
-                                                              projectLocalName=projectLocalName):
+                                                              projectObsName=projectObsName):
             raise ObsLightObsServers(" no name for the directory")
         elif not os.path.isdir(directory):
             raise ObsLightProjectsError(directory + " is not a directory")
 
         self.__myObsServers.checkoutPackage(obsServer=obsServer,
-                                            projectLocalName=projectLocalName,
+                                            projectObsName=projectObsName,
                                             package=package,
                                             directory=directory)
         self.__myObsLightProjects.save()
@@ -581,6 +581,8 @@ class ObsLightManager(object):
         self.__myObsLightProjects.exportProject(projectLocalName=projectLocalName,path=path)
     
 
+    
+        
 __myObsLightManager = ObsLightManager()
 
 def getManager():

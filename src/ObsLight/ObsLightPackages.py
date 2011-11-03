@@ -37,11 +37,10 @@ class ObsLightPackages(object):
         if fromSave == None:
             self.__currentPackage = ""
         else:
-
             for name in fromSave["savePackages"].keys():
                 self.__dicOBSLightPackages[name] = ObsLightPackage(fromSave=fromSave["savePackages"][name])
             self.__currentPackage = fromSave["currentPackage"]
-
+    
     def getListPackages(self):
         '''
         
@@ -60,10 +59,8 @@ class ObsLightPackages(object):
         saveconfigPackages["savePackages"] = aDic
         saveconfigPackages["currentPackage"] = self.__currentPackage
         
-        
         return saveconfigPackages
-        
-        
+          
     def addPackage(self,
                    name=None,
                    specFile=None,

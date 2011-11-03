@@ -19,7 +19,7 @@ Created on 27 sept. 2011
 
 @author: Florent Vennetier
 '''
-
+ 
 from PySide.QtCore import QObject, QThreadPool, Signal
 from PySide.QtGui import QPushButton, QListWidget, QLineEdit, QComboBox
 

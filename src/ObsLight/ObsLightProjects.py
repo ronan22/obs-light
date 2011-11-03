@@ -65,7 +65,6 @@ class ObsLightProjects(object):
         saveconfigProject = {}
         saveconfigProject["saveProjects"] = saveProject
         saveconfigProject["currentProject"] = self.__currentProjects 
-        
         aFile = open(pathFile, 'w')
         pickle.dump(saveconfigProject, aFile)    
         aFile.close()
@@ -237,8 +236,11 @@ class ObsLightProjects(object):
         '''
         
         '''
-        res=self.__dicOBSLightProjects[projectLocalName].removeProject()
-        if res==0:
+        projetPath=self.__dicOBSLightProjects[projectLocalName].getDirectory()
+        
+        self.__dicOBSLightProjects[projectLocalName].removeProject()
+        
+        if not os.path.isdir(projetPath):
             del self.__dicOBSLightProjects[projectLocalName]
             return None
         else:
@@ -256,12 +258,14 @@ class ObsLightProjects(object):
         Import a project
         '''
         self.__load(aFile=path)
+        
     
     def exportProject(self,projectLocalName=None,path=None):
         '''
         Export a project
         '''
         self.save(aFile=path,ProjectName=projectLocalName)
+        
         
         
         

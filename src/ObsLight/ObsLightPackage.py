@@ -41,7 +41,7 @@ class ObsLightPackage(object):
                  specFile=None,
                  yamlFile=None,
                  listFile=None,
-                 status="",
+                 status=None,
                  fromSave=None):
         '''
         Constructor
