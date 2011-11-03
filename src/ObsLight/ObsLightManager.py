@@ -573,8 +573,19 @@ class ObsLightManager(object):
         
         self.__myObsLightProjects.exportProject(projectLocalName=projectLocalName,path=path)
     
-
-    
+    def getWebProjectPage(self,projectLocalName):
+        '''
+        return the URL of the 
+        '''
+        if projectLocalName == None:
+            raise ObsLightProjectsError(" no name for the projectLocalName")
+        elif not self.isALocalProject(name=projectLocalName):
+            raise ObsLightProjectsError(projectLocalName + " is not a local projectLocalName")
+        
+        self.__myObsLightProjects.getWebProjectPage(projectLocalName=projectLocalName)
+        
+        
+        
         
 __myObsLightManager = ObsLightManager()
 

@@ -239,6 +239,9 @@ class ObsServer(object):
         
     
         
+    def getUrlServerWeb(self):
+        '''
         
-    
+        '''
+        return self.__serverWeb
     

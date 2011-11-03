@@ -266,7 +266,11 @@ class ObsLightProjects(object):
         '''
         self.save(aFile=path,ProjectName=projectLocalName)
         
+    def getWebProjectPage(self,projectLocalName):
+        '''
         
+        '''
+        return self.__dicOBSLightProjects[projectLocalName].getWebProjectPage()
         
         
         

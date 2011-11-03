@@ -28,6 +28,7 @@ import ObsLightManager
 import ObsLightErr
 from ObsLightSubprocess import SubprocessCrt
 import ObsLightOsc
+import urllib
 
 class ObsLightProject(object):
     '''
@@ -92,42 +93,42 @@ class ObsLightProject(object):
         '''
         return self.__projectDirectory
         
-    def __addPackagesFromSave(self,fromSave):
+    def __addPackagesFromSave(self, fromSave):
         '''
         check and add a package from a save.
         '''
         for packageName in fromSave["savePackages"].keys():
             packageFromSave = fromSave["savePackages"][packageName]
-            if "name" in packageFromSave.keys(): name=packageFromSave["name"]
-            packagePath=self.__getPackagePath(name)
+            if "name" in packageFromSave.keys(): name = packageFromSave["name"]
+            packagePath = self.__getPackagePath(name)
             if not os.path.isdir(self.__getPackagePath(name)):
-                specFile, yamlFile, listFile=self.checkoutPackage(package=name)
-                packageFromSave["specFile"]=specFile
-                packageFromSave["yamlFile"]=yamlFile
-                packageFromSave["listFile"]=listFile
+                specFile, yamlFile, listFile = self.checkoutPackage(package=name)
+                packageFromSave["specFile"] = specFile
+                packageFromSave["yamlFile"] = yamlFile
+                packageFromSave["listFile"] = listFile
                 
-            toUpDate=False
-            if "listFile" in packageFromSave.keys():listFile= packageFromSave["listFile"]
+            toUpDate = False
+            if "listFile" in packageFromSave.keys():listFile = packageFromSave["listFile"]
             for aFile in listFile:
                 if not os.path.isfile(os.path.join(packagePath, aFile)):
-                    toUpDate=True
+                    toUpDate = True
                               
             if "specFile" in packageFromSave.keys():
-                specFilePath= packageFromSave["specFile"]
+                specFilePath = packageFromSave["specFile"]
                 if not os.path.isfile(specFilePath):
-                    toUpDate=True
+                    toUpDate = True
             if "yamlFile" in packageFromSave.keys():
-                yamlFilePath=packageFromSave["yamlFile"]
+                yamlFilePath = packageFromSave["yamlFile"]
                 if not os.path.isfile(yamlFilePath):
-                    toUpDate=True
+                    toUpDate = True
             
-            if toUpDate==True:
+            if toUpDate == True:
                 ObsLightOsc.getObsLightOsc().updatePackage(packagePath=packagePath)
                 
             if "packageDirectory" in packageFromSave.keys():
-                packageDirectoryPath=packageFromSave["packageDirectory"]
+                packageDirectoryPath = packageFromSave["packageDirectory"]
                 
-            fromSave["savePackages"][packageName]=packageFromSave
+            fromSave["savePackages"][packageName] = packageFromSave
             
         return ObsLightPackages(fromSave)
         
@@ -247,7 +248,7 @@ class ObsLightProject(object):
         else:
             return self.__packages.getListPackages()
         
-    def __getPackagePath(self,package):
+    def __getPackagePath(self, package):
         '''
         
         '''
@@ -289,7 +290,7 @@ class ObsLightProject(object):
         '''
         add a package to the projectLocalName.
         '''
-        specFile, yamlFile, listFile=self.checkoutPackage(package=name)
+        specFile, yamlFile, listFile = self.checkoutPackage(package=name)
 
         self.__packages.addPackage(name=name,
                                    specFile=specFile,
@@ -400,4 +401,14 @@ class ObsLightProject(object):
         '''
         return self.__packages.removePackage(package=package)
         
+    def getWebProjectPage(self):
+        '''
         
+        '''
+        serverWeb = ObsLightManager.getManager().getObsServer(name=self.__obsServer).getUrlServerWeb()
+        
+        if serverWeb in (None, "None", ""):
+            raise ObsLightErr.ObsLightProjectsError("No Web Server")
+        return urllib.basejoin(serverWeb ,"project/show?project="+self.__projectObsName)
+                              
+                              
