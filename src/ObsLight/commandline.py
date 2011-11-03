@@ -322,11 +322,11 @@ class ObsLight():
                     raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
 
             self.cliObsLightManager.addObsServer(serverWeb=serverWeb,
-                                                 serverAPI=serverApi,
+                                                 serverApi=serverApi,
                                                  serverRepo=serverRepo,
                                                  alias=alias,
                                                  user=user,
-                                                 passw=password)
+                                                 password=password)
             
         elif self.__isHelp(listArgv[0]):
             ObsLightPrintManager.obsLightPrint(__HELP__)
@@ -705,7 +705,7 @@ class ObsLight():
             elif (projectLocalName != None) and (alias != None) and (url != None):
                 self.cliObsLightManager.addRepo(projectLocalName=projectLocalName,
                                                  alias=alias,
-                                                 repos=url)
+                                                 repoUrl=url)
             else:
                 raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
                 
@@ -859,7 +859,7 @@ class ObsLight():
                 else:
                     raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
             if (projectLocalName != None):
-                self.cliObsLightManager.getWebProjectPage(projectLocalName=projectLocalName)
+                self.cliObsLightManager.getProjectWebPage(projectLocalName=projectLocalName)
             else:
                 raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
                 

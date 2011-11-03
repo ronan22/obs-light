@@ -18,6 +18,7 @@
 Created on 17 juin 2011
 
 @author: Ronan Le Martret
+@author: Florent Vennetier
 '''
 
 import os
@@ -401,182 +402,174 @@ class ObsLightManager(object):
         Add a package to a local project. The package must exist on the
         OBS server.
         '''
-        if projectLocalName == None:
-            raise ObsLightProjectsError(" no name for the projectLocalName")
-        elif package == None:
-            raise ObsLightProjectsError(" no name for the package")
-        elif not self.isALocalProject(name=projectLocalName):
-            raise ObsLightProjectsError(projectLocalName + " is not a local projectLocalName")
-        elif not projectLocalName in self.getLocalProjectList():
-            raise ObsLightObsServers(projectLocalName + " not present in the projectLocalName of the obs server")
-        elif not package in self.getObsProjectPackageList(obsServer=self.__myObsLightProjects.getObsServer(name=projectLocalName),
-                                                                projectLocalName=self.__myObsLightProjects.getProjectObsName(projectLocalName=projectLocalName)):
-            raise ObsLightObsServers(package + " not present in the projectLocalName of the obs server")
+        if not isNonEmptyString(projectLocalName):
+            raise ObsLightProjectsError(" invalid projectLocalName: " + str(projectLocalName))
+        elif not isNonEmptyString(package):
+            raise ObsLightProjectsError(" invalid package name: " + str(package))
+        elif not self.isALocalProject(projectLocalName):
+            raise ObsLightProjectsError(projectLocalName + " is not a local project")
+        server = self.__myObsLightProjects.getObsServer(projectLocalName)
+        projectObsName = self.__myObsLightProjects.getProjectObsName(projectLocalName)
+        if not package in self.getObsProjectPackageList(server, projectObsName):
+            raise ObsLightObsServers(" package " + package + " is not part of the "
+                                     + projectLocalName + " project")
 
-        self.__myObsLightProjects.addPackage(projectLocalName=projectLocalName, package=package)
+        self.__myObsLightProjects.addPackage(projectLocalName, package)
         self.__myObsLightProjects.save()
 
-    def createChRoot(self, projectLocalName=None):
+    def createChRoot(self, projectLocalName):
         '''
-        create a chroot inside the projectLocalName, you need a least one package.
+        Create a chroot for the project. You need a least one package.
         '''
-        if projectLocalName == None:
-            raise ObsLightProjectsError(" no name for the projectLocalName")
-        elif not self.isALocalProject(name=projectLocalName):
-            raise ObsLightProjectsError(projectLocalName + " is not a local projectLocalName")
-        elif len(self.getLocalProjectPackageList(name=projectLocalName, local=1)) == 0:
-            raise ObsLightProjectsError("no package in " + projectLocalName)
+        if not isNonEmptyString(projectLocalName):
+            raise ObsLightProjectsError(" invalid project name: " + str(projectLocalName))
+        elif not self.isALocalProject(projectLocalName):
+            raise ObsLightProjectsError(projectLocalName + " is not a local project")
+        elif len(self.getLocalProjectPackageList(projectLocalName, local=1)) == 0:
+            raise ObsLightProjectsError("No package in " + projectLocalName + ". At least one"
+                                        + " package is needed to build the chroot.")
 
         self.__myObsLightProjects.createChRoot(projectLocalName=projectLocalName)
         self.__myObsLightProjects.save()
 
-    def getRepo(self, obsServer=None):
+    def getRepo(self, obsServer):
         '''
-        return the name of the repos of the OBS server
+        Return the URL of the OBS server package repository.
         '''
-        if obsServer == None:
-            raise ObsLightObsServers(" no name for the obs server")
-        elif not self.isAnObsServer(name=obsServer):
-            raise ObsLightObsServers(obsServer + " is not the obs server")
+        if not isNonEmptyString(obsServer):
+            raise ObsLightObsServers(" invalid OBS server name: " + str(obsServer))
+        elif not self.isAnObsServer(obsServer):
+            raise ObsLightObsServers(obsServer + " is not an OBS server")
         return self.__myObsServers.getRepo(obsServer=obsServer)
 
 
-    def goToChRoot(self, projectLocalName=None, package=None):
+    def goToChRoot(self, projectLocalName, package=None):
         '''
         offer a bash in the chroot for the user
         if package  define, the pwd will be ~/rpmbuild/BUILD/[package]
         '''
 
-        if projectLocalName == None:
-            raise ObsLightProjectsError(" no name for the projectLocalName")
-        elif not self.isALocalProject(name=projectLocalName):
-            raise ObsLightProjectsError(projectLocalName + " is not a local projectLocalName")
-        elif (package != None) and (not package in self.getLocalProjectPackageList(name=projectLocalName,
-                                                                                       local=1)):
-            raise ObsLightProjectsError(package + " not in projectLocalName")
-
-        self.__myObsLightProjects.goToChRoot(projectLocalName=projectLocalName,
-                                             package=package)
-
-    def addPackageSourceInChRoot(self, projectLocalName=None, package=None):
-        '''
-        Add a source RPM from the OBS repository into the chroot
-        '''
-        if projectLocalName == None:
-            raise ObsLightProjectsError(" projectLocalName not specified")
-        elif package == None:
-            raise ObsLightProjectsError(" package name not specified")
-        elif not self.isALocalProject(name=projectLocalName):
+        if not isNonEmptyString(projectLocalName):
+            raise ObsLightProjectsError(" invalid project name: " + str(projectLocalName))
+        elif not self.isALocalProject(projectLocalName):
             raise ObsLightProjectsError(projectLocalName + " is not a local project")
-        #TODO test if package can be installed
+        elif ((package != None)
+              and (not package in self.getLocalProjectPackageList(projectLocalName, local=1))):
+            raise ObsLightProjectsError(" package " + package + " is not part of the "
+                                        + projectLocalName + " project")
+
+        self.__myObsLightProjects.goToChRoot(projectLocalName, package)
+
+    def addPackageSourceInChRoot(self, projectLocalName, package):
+        '''
+        Add a source RPM from the OBS repository into the chroot.
+        '''
+        if not isNonEmptyString(projectLocalName):
+            raise ObsLightProjectsError(" invalid project name: " + str(projectLocalName))
+        elif not isNonEmptyString(package):
+            raise ObsLightProjectsError(" invalid package name: " + str(package))
+        elif not self.isALocalProject(projectLocalName):
+            raise ObsLightProjectsError(projectLocalName + " is not a local project")
+        # TODO: test if package can be installed
 
         self.__myObsLightProjects.addPackageSourceInChRoot(projectLocalName=projectLocalName,
                                                            package=package)
         self.__myObsLightProjects.save()
 
-    def makePatch(self, projectLocalName=None,
-                        package=None,
-                        patch=None):
+    def makePatch(self, projectLocalName, package, patch):
         '''
-        generate patch, and add it to the local obs package, modifi the spec file.
+        Generate patch, and add it to the local OBS package, modify the spec file.
         '''
-        if projectLocalName == None:
-            raise ObsLightProjectsError(" no name for the projectLocalName")
-        elif package == None:
-            raise ObsLightProjectsError(" no name for the package")
-        elif patch == None:
-            raise ObsLightProjectsError(" no name for the patch")
-        elif not self.isALocalProject(name=projectLocalName):
-            raise ObsLightProjectsError(projectLocalName + " is not a local projectLocalName")
-        elif not package in self.getLocalProjectPackageList(name=projectLocalName,
-                                                                local=1):
+        if not isNonEmptyString(projectLocalName):
+            raise ObsLightProjectsError(" invalid project name: " + str(projectLocalName))
+        elif not isNonEmptyString(package):
+            raise ObsLightProjectsError(" invalid package name: " + str(package))
+        elif not isNonEmptyString(patch):
+            raise ObsLightProjectsError(" invalid patch name: " + str(patch))
+        elif not self.isALocalProject(projectLocalName):
+            raise ObsLightProjectsError(projectLocalName + " is not a local project")
+        elif not package in self.getLocalProjectPackageList(projectLocalName, local=1):
             raise ObsLightProjectsError(package + " is not a local package")
 
-        self.__myObsLightProjects.makePatch(projectLocalName=projectLocalName,
-                                            package=package,
-                                            patch=patch)
+        self.__myObsLightProjects.makePatch(projectLocalName, package, patch)
         self.__myObsLightProjects.save()
 
 
-    def addAndCommitChanges(self, projectLocalName=None,
-                                package=None,
-                                message=None):
+    def addAndCommitChanges(self, projectLocalName, package, message):
         '''
         Add/Remove file in the local directory of a package, and commit change to the OBS.
         '''
-        if projectLocalName == None:
-            raise ObsLightProjectsError(" no name for the projectLocalName")
-        elif package == None:
-            raise ObsLightProjectsError(" no name for the package")
-        elif message == None:
-            raise ObsLightProjectsError(" no message for the commit")
-        elif not self.isALocalProject(name=projectLocalName):
-            raise ObsLightProjectsError(projectLocalName + " is not a local projectLocalName")
-        elif not package in self.getLocalProjectPackageList(name=projectLocalName,
-                                                                local=1):
+        if not isNonEmptyString(projectLocalName):
+            raise ObsLightProjectsError(" invalid project name: " + str(projectLocalName))
+        elif not isNonEmptyString(package):
+            raise ObsLightProjectsError(" invalid package name: " + str(package))
+        elif isNonEmptyString(message):
+            raise ObsLightProjectsError(" no commit message")
+        elif not self.isALocalProject(projectLocalName):
+            raise ObsLightProjectsError(projectLocalName + " is not a local project")
+        elif not package in self.getLocalProjectPackageList(projectLocalName, local=1):
             raise ObsLightProjectsError(package + " is not a local package")
 
-        self.__myObsLightProjects.addRemoveFileToTheProject(name=projectLocalName,
-                                                            package=package)
+        self.__myObsLightProjects.addRemoveFileToTheProject(projectLocalName, package)
         self.__myObsLightProjects.commitToObs(name=projectLocalName,
                                               message=message,
                                               package=package)
 
         self.__myObsLightProjects.save()
 
-    def addRepo(self, projectLocalName=None,
-                        fromProject=None,
-                        repos=None,
-                        alias=None):
+    def addRepo(self, projectLocalName, fromProject=None, repoUrl=None, alias=None):
         '''
-        
+        Add a repository in the chroot's zypper configuration file.
+        You can add the repository of another project or use a specific
+        url.
         '''
-        if projectLocalName == None:
-            raise ObsLightProjectsError(" no name for the projectLocalName")
-        elif (fromProject == None) and ((repos == None) or (alias == None)):
-            raise ObsLightProjectsError("wrong value for fromProject or (repos, alias)")
-        elif (fromProject != None) and (not self.isALocalProject(name=fromProject)):
-            raise ObsLightProjectsError(fromProject + " is not a local projectLocalName")
-        elif not self.isALocalProject(name=projectLocalName):
-            raise ObsLightProjectsError(projectLocalName + " is not a local projectLocalName")
+        if not isNonEmptyString(projectLocalName):
+            raise ObsLightProjectsError(" invalid project name: " + str(projectLocalName))
+        elif (fromProject == None) and ((repoUrl == None) or (alias == None)):
+            raise ObsLightProjectsError("wrong value for fromProject or (repoUrl, alias)")
+        elif (fromProject != None) and (not self.isALocalProject(fromProject)):
+            raise ObsLightProjectsError(fromProject + " is not a local project")
+        elif not self.isALocalProject(projectLocalName):
+            raise ObsLightProjectsError(projectLocalName + " is not a local project")
 
         self.__myObsLightProjects.addRepo(projectLocalName=projectLocalName,
                                            fromProject=fromProject,
-                                           repos=repos,
+                                           repos=repoUrl,
                                            alias=alias)
 
         self.__myObsLightProjects.save()
 
-    def importProject(self,path=None):
+    def importProject(self, path):
         '''
         
         '''
         if not os.path.isfile(path):
-            raise ObsLightProjectsError(path+"is not a file, can't importProject")
-        self.__myObsLightProjects.importProject(path=path)
+            raise ObsLightProjectsError(path + "is not a file, can't import project")
+        self.__myObsLightProjects.importProject(path)
         self.__myObsLightProjects.save()
-    
-    def exportProject(self,projectLocalName=None,path=None):
+
+    def exportProject(self, projectLocalName, path=None):
         '''
         
         '''
-        if projectLocalName == None:
-            raise ObsLightProjectsError(" no name for the projectLocalName")
-        elif not self.isALocalProject(name=projectLocalName):
+        if not isNonEmptyString(projectLocalName):
+            raise ObsLightProjectsError(" invalid project name: " + str(projectLocalName))
+        elif not self.isALocalProject(projectLocalName):
             raise ObsLightProjectsError(projectLocalName + " is not a local projectLocalName")
-        
-        self.__myObsLightProjects.exportProject(projectLocalName=projectLocalName,path=path)
-    
-    def getWebProjectPage(self,projectLocalName):
+
+        self.__myObsLightProjects.exportProject(projectLocalName, path=path)
+
+    def getProjectWebPage(self, projectLocalName):
         '''
-        return the URL of the 
+        Get the project webpage URL.
         '''
-        if projectLocalName == None:
-            raise ObsLightProjectsError(" no name for the projectLocalName")
-        elif not self.isALocalProject(name=projectLocalName):
+        if not isNonEmptyString(projectLocalName):
+            raise ObsLightProjectsError(" invalid project name: " + str(projectLocalName))
+        elif not self.isALocalProject(projectLocalName):
             raise ObsLightProjectsError(projectLocalName + " is not a local projectLocalName")
-        
-        self.__myObsLightProjects.getWebProjectPage(projectLocalName=projectLocalName)
+
+        self.__myObsLightProjects.getWebProjectPage(projectLocalName)
+
         
         
         
@@ -585,6 +578,6 @@ __myObsLightManager = ObsLightManager()
 
 def getManager():
     '''
-
+    Get a reference to the ObsLightManager singleton.
     '''
     return __myObsLightManager
