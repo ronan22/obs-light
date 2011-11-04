@@ -104,7 +104,6 @@ class ObsLight():
         """
         Execute the main list of arguments
         """
-
         self.cliObsLightManager = ObsLightManager.getManager()
         
         while ("," in self.__listArgv):
@@ -781,7 +780,7 @@ class ObsLight():
     
     def exportProject(self, listArgv):
         '''
-        
+        Export a project to a file.
         '''
         __COMMAND__ = __exportProject__
         
@@ -816,7 +815,7 @@ class ObsLight():
     
     def importProject(self, listArgv):
         '''
-        
+        Import a project from a file.
         '''
         __COMMAND__ = __importProject__
         __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
@@ -842,7 +841,7 @@ class ObsLight():
     
     def getWebProjectPage(self, listArgv):
         '''
-        
+        return the Web url of an OBS project for a local project.
         '''
         __COMMAND__ = __getWebProjectPage__
         
@@ -851,7 +850,7 @@ class ObsLight():
         __HELP__ += __DICO_HELP__[__COMMAND__]
         
         projectLocalName = None
-
+        
         if (len(listArgv) % 2 == 0) and (len(listArgv) <= (1 * 2)): 
             for i in range(0, len(listArgv), 2):
                 if listArgv[i] == "--projectLocalName":
@@ -859,7 +858,9 @@ class ObsLight():
                 else:
                     raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
             if (projectLocalName != None):
+
                 print self.cliObsLightManager.getProjectWebPage(projectLocalName=projectLocalName)
+
             else:
                 raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
                 
@@ -867,5 +868,6 @@ class ObsLight():
             ObsLightPrintManager.obsLightPrint(__HELP__)
         else:
             raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
-        return 0 
+        return 0
+    
     

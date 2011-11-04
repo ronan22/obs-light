@@ -21,10 +21,10 @@ Created on 29 sept. 2011
 '''
 import os
 import pickle
-from ObsLightProject import ObsLightProject
+from ObsLightProject import ObsLightProject 
 import ObsLightErr
 import ObsLightPrintManager
- 
+
 class ObsLightProjects(object):
     '''
     classdocs
@@ -51,7 +51,6 @@ class ObsLightProjects(object):
         else:
             pathFile=aFile
         
-        
         saveProject = {}
 
         if ProjectName==None:
@@ -73,8 +72,10 @@ class ObsLightProjects(object):
         '''
         if aFile==None:
             pathFile=self.__pathFile
+            importFile=True
         else:
             pathFile=aFile
+            importFile=False
             
         if os.path.isfile(pathFile):
             aFile = open(pathFile, 'r')
@@ -90,11 +91,9 @@ class ObsLightProjects(object):
             
             for projetName in saveProjects.keys():
                 aServer = saveProjects[projetName]
-                self.__addProjectFromSave(name=projetName, fromSave=aServer)
+                self.__addProjectFromSave(name=projetName, fromSave=aServer, importFile=importFile)
             self.__currentProjects = saveconfigServers["currentProject"]
-        
-    
-        
+            
     def getLocalProjectList(self):
         '''
         
@@ -126,12 +125,12 @@ class ObsLightProjects(object):
                                                                        description=description,
                                                                        projectArchitecture=projectArchitecture)
         
-    def __addProjectFromSave(self, name=None, fromSave=None):
+    def __addProjectFromSave(self, name=None, fromSave=None,importFile=None):
         '''
         
         '''
         if not (name in self.__dicOBSLightProjects.keys() ):
-            self.__dicOBSLightProjects[name] = ObsLightProject(obsServers=self.__obsServers,fromSave=fromSave)
+            self.__dicOBSLightProjects[name] = ObsLightProject(obsServers=self.__obsServers,fromSave=fromSave,importFile=importFile)
         else:
             ObsLightPrintManager.obsLightPrint("Can't import: "+name+", The Project already exist.")
         
@@ -254,14 +253,14 @@ class ObsLightProjects(object):
         
     def importProject(self,path=None):
         '''
-        Import a project
+        Import a project from a file
         '''
         self.__load(aFile=path)
         
     
     def exportProject(self,projectLocalName=None,path=None):
         '''
-        Export a project
+        Export a project to a file
         '''
         self.save(aFile=path,ProjectName=projectLocalName)
         

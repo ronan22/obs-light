@@ -356,7 +356,11 @@ class ObsLightChRoot(object):
         
         package.save()
         
+    def getDirectory(self):
+        '''
         
+        '''
+        return self.__chrootDirectory
         
     def prepareChroot(self, chrootDir):
         '''

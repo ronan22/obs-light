@@ -68,7 +68,6 @@ class ObsLightPackage(object):
             if "yamlFile" in fromSave.keys():self.__yamlFile = fromSave["yamlFile"]
             if "packageDirectory" in fromSave.keys():self.__packageDirectory = fromSave["packageDirectory"]
         
-        
         if not self.__yamlFile in (None,'None',""):
             self.__myYamlFile = ObsLightYaml(path=self.__yamlFile,specPath=self.__specFile)
             self.__mySpecFile = None
@@ -169,8 +168,7 @@ class ObsLightPackage(object):
         else:
             raise ObsLightPackageErr("No Spec or Yaml in the package")
         
-        
-    
+
     def addFileToSpec(self, baseFile=None, aFile=None):
         '''
         Add a delete command of a aFile to the spec aFile.

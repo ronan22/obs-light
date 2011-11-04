@@ -160,21 +160,26 @@ def main(apiUrl, projectName, outFilePath):
     print "Creating a revision tag of source packages as present in ", projectName
     packagesTaggedNumber = 0
     try:
+	failedPackages = []
         for packageName in packageList:
-            try:
-                revisions = obsProject.getPackageRevisions(packageName)
-                if len(revisions) > 0:
-                    print >> outFile, revisions[0]
-                    # 'print' writes an unwanted space between the dots
-                else:
-                    rev = PackageRevision(packageName, "", "")
-                    print >> outFile, rev
-                sys.stdout.write(".")
-                sys.stdout.flush()
-                packagesTaggedNumber += 1
-            except ElementTree.ParseError as pe:
-                print >> sys.stdout, "An error occured while parsing revision"\
-                    + " list of package ", packageName, ":", str(pe)
+	    nbError = 0
+	    while (nbError < 5):
+                nbError += 1
+                try:
+                    revisions = obsProject.getPackageRevisions(packageName)
+                    if len(revisions) > 0:
+                        print >> outFile, revisions[0]
+                        # 'print' writes an unwanted space between the dots
+                    else:
+                        rev = PackageRevision(packageName, "", "")
+                        print >> outFile, rev
+                    sys.stdout.write(".")
+                    sys.stdout.flush()
+                    packagesTaggedNumber += 1
+		    break
+                except ElementTree.ParseError as pe:
+                    print >> sys.stdout, "An error occured while parsing revision"\
+                        + " list of package ", packageName, ":", str(pe)
     except HTTPError as e:
         print >> sys.stderr, "An error occured while retrieving package list:",
         print >> sys.stderr, str(e)

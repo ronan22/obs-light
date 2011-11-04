@@ -278,8 +278,7 @@ class ObsLightManager(object):
         return self.__myObsServers.getArchitectureList(obsServer=obsServer ,
                                                        projectObsName=projectObsName,
                                                        projectTarget=projectTarget)
-
-
+        
     def isALocalProject(self, name):
         '''
         Test if name is already an OBS Project name.    
@@ -532,7 +531,7 @@ class ObsLightManager(object):
 
     def importProject(self, path):
         '''
-        
+        Import a project from a file.
         '''
         if not os.path.isfile(path):
             raise ObsLightProjectsError(path + "is not a file, can't import project")
@@ -541,7 +540,7 @@ class ObsLightManager(object):
 
     def exportProject(self, projectLocalName, path=None):
         '''
-        
+        Export a project to a file.
         '''
         if not isNonEmptyString(projectLocalName):
             raise ObsLightProjectsError(" invalid project name: " + str(projectLocalName))
@@ -561,7 +560,6 @@ class ObsLightManager(object):
 
         return self.__myObsLightProjects.getWebProjectPage(projectLocalName)
 
- 
 __myObsLightManager = ObsLightManager()
 
 def getManager():
