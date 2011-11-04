@@ -327,7 +327,7 @@ class ObsLightManager(object):
         elif not isNonEmptyString(projectLocalName):
             raise ObsLightObsServers(" invalid project name provided")
         elif not projectLocalName in self.getObsServerProjectList(obsServer):
-            raise ObsLightObsServers(projectLocalName + " is not an OBS projectLocalName")
+            raise ObsLightObsServers("'" + projectLocalName + "' is not an OBS project")
 
         return self.__myObsServers.getListPackage(obsServer=obsServer,
                                                   projectLocalName=projectLocalName)
@@ -566,7 +566,7 @@ class ObsLightManager(object):
         if not isNonEmptyString(projectLocalName):
             raise ObsLightProjectsError(" invalid project name: " + str(projectLocalName))
         elif not self.isALocalProject(projectLocalName):
-            raise ObsLightProjectsError(projectLocalName + " is not a local projectLocalName")
+            raise ObsLightProjectsError(projectLocalName + " is not a local project")
 
         return self.__myObsLightProjects.getWebProjectPage(projectLocalName)
 
