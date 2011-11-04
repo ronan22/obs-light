@@ -190,7 +190,7 @@ class ObsServer(object):
                                                   directory=directory)
         
     def getPackageStatus(self,
-                         listDepProject=None,
+                         project=None,
                          package=None,
                          repos=None,
                          arch=None):
@@ -198,7 +198,7 @@ class ObsServer(object):
         
         '''
         return  ObsLightOsc.getObsLightOsc().getPackageStatus(obsServer=self.__serverAPI,
-                                                           project=listDepProject,
+                                                           project=project,
                                                            package=package,
                                                            repos=repos,
                                                            arch=arch)

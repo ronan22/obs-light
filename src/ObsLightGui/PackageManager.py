@@ -46,6 +46,7 @@ class PackageManager(QObject):
         self.__obsLightManager = gui.getObsLightManager()
         self.__packageTableView = gui.getMainWindow().findChild(QTableView,
                                                                   "packageTableView")
+        self.__packageTableView.setSelectionBehavior(QTableView.SelectionBehavior.SelectRows)
         self.__newPackageButton = gui.getMainWindow().findChild(QPushButton,
                                                                 "newPackageButton")
         self.__newPackageButton.clicked.connect(self.on_newPackageButton_clicked)
@@ -82,7 +83,8 @@ class PackageManager(QObject):
         project = self.getCurrentProject()
         if project is None:
             return
-        row = self.__packageTableView.currentRow()
-        packageName = self.__model.item(row, PackageModel.PackageNameColumn).text()
+        row = self.__packageTableView.currentIndex().row()
+        packageName = self.__model.data(self.__model.createIndex(row,
+                                                                 PackageModel.PackageNameColumn))
         if packageName is not None and len(packageName) > 0:
             self.__model.removePackage(packageName)
