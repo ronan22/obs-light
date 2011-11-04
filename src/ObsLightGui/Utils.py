@@ -5,6 +5,9 @@ Created on 28 oct. 2011
 '''
 
 from PySide.QtCore import QRunnable
+from PySide.QtGui import QMessageBox
+
+from ObsLight import ObsLightErr
 
 class QRunnableImpl(QRunnable):
     '''
@@ -15,3 +18,11 @@ class QRunnableImpl(QRunnable):
     '''
     def run(self):
         pass
+    
+def popupOnException(f):
+    def catchException(*args):
+        try:
+            f(*args)
+        except ObsLightErr.OBSLightBaseError as e:
+            QMessageBox.warning(None, "Exception occurred", e.msg)
+    return catchException

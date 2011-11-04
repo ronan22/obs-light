@@ -24,6 +24,7 @@ from PySide.QtCore import QObject
 from PySide.QtGui import QInputDialog, QPushButton, QTableView
 
 from PackageModel import PackageModel
+from Utils import popupOnException
 
 class PackageManager(QObject):
     '''
@@ -65,7 +66,8 @@ class PackageManager(QObject):
         self.__project = projectName
         self.__model = PackageModel(self.__obsLightManager, projectName)
         self.__packageTableView.setModel(self.__model)
-        
+
+    @popupOnException
     def on_newPackageButton_clicked(self):
         if self.getCurrentProject() is None:
             return
@@ -75,6 +77,7 @@ class PackageManager(QObject):
         if accepted:
             self.__model.addPackage(packageName)
 
+    @popupOnException
     def on_deletePackageButton_clicked(self):
         project = self.getCurrentProject()
         if project is None:

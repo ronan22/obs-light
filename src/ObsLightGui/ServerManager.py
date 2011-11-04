@@ -24,6 +24,8 @@ from PySide.QtCore import QObject, QRegExp, Signal
 from PySide.QtGui import QDialog, QLineEdit, QListWidget, QPushButton
 from PySide.QtGui import QRegExpValidator
 
+from Utils import popupOnException
+
 class ServerListManager(QObject):
     '''
     Manage the OBS server list window.
@@ -77,10 +79,12 @@ class ServerListManager(QObject):
             self.__serverConfigManager = ServerConfigManager(self.__gui,
                                                              currentItem.text())
 
+    @popupOnException
     def on_deleteServerButton_clicked(self):
         # TODO: implement server deletion
         pass
-    
+
+    @popupOnException
     def on_serverConfigManager_finished(self, serverListModified):
         if serverListModified:
             self.loadServerList()
@@ -136,7 +140,9 @@ class ServerConfigManager(QObject):
         self.__repoUrlLineEdit.setPlaceholderText("http://myObs:82")
         self.__aliasLineEdit = self.__srvConfDialog.findChild(QLineEdit,
                                                                "serverAliasLineEdit")
-        
+        noSpaceValidator = QRegExpValidator()
+        noSpaceValidator.setRegExp(QRegExp("\\S+"))
+        self.__aliasLineEdit.setValidator(noSpaceValidator)
         self.__userLineEdit = self.__srvConfDialog.findChild(QLineEdit,
                                                                "usernameLineEdit")
         self.__passLineEdit = self.__srvConfDialog.findChild(QLineEdit,
@@ -145,6 +151,7 @@ class ServerConfigManager(QObject):
     def __loadInitialFieldValues(self):
         manager = self.__gui.getObsLightManager()
         self.__aliasLineEdit.setText(self.__serverAlias)
+        self.__aliasLineEdit.setReadOnly(True)
         self.__webUrlLineEdit.setText(manager.getObsServerParameter(self.__serverAlias, "serverWeb"))
         self.__apiUrlLineEdit.setText(manager.getObsServerParameter(self.__serverAlias, "serverAPI"))
         self.__repoUrlLineEdit.setText(manager.getObsServerParameter(self.__serverAlias, "serverRepo"))
@@ -169,6 +176,7 @@ class ServerConfigManager(QObject):
     def getPass(self):
         return self.__passLineEdit.text()
 
+    @popupOnException
     def on_obsServerConfigDialog_finished(self, result):
         # User canceled, nothing to do.
         if result == QDialog.Rejected:
