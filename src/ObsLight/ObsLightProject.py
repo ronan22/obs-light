@@ -24,7 +24,7 @@ import shutil
 
 from ObsLightPackages import ObsLightPackages
 from ObsLightChRoot import ObsLightChRoot
-import ObsLightManager
+#import ObsLightManager
 import ObsLightErr
 from ObsLightSubprocess import SubprocessCrt
 import ObsLightOsc
@@ -35,7 +35,8 @@ class ObsLightProject(object):
     classdocs
     '''
 
-    def __init__(self, projectLocalName=None,
+    def __init__(self, obsServers,
+                       projectLocalName=None,
                        projectObsName=None,
                        projectTitle=None,
                        projectDirectory=None,
@@ -49,7 +50,7 @@ class ObsLightProject(object):
         Constructor
         '''
         self.__mySubprocessCrt = SubprocessCrt()
-        
+        self.__obsServers=obsServers
         if fromSave == None:
             self.__projectLocalName = projectLocalName
             self.__projectObsName = projectObsName
@@ -69,7 +70,7 @@ class ObsLightProject(object):
             self.__packages = ObsLightPackages()
             
             #perhaps a trusted_prj must be had
-            ObsLightManager.getManager().getObsServer(name=self.__obsServer).initConfigProject(projet=self.__projectObsName,
+            self.__obsServers.getObsServer(name=self.__obsServer).initConfigProject(projet=self.__projectObsName,
                                                                                                     repos=self.__projectTarget)
         else:
             if "projectLocalName" in fromSave.keys():self.__projectLocalName = fromSave["projectLocalName"]
@@ -243,7 +244,7 @@ class ObsLightProject(object):
         
         '''
         if local == 0:
-            return ObsLightManager.getManager().getObsProjectPackageList(obsServer=self.__obsServer,
+            return self.__obsServers.getObsProjectPackageList(obsServer=self.__obsServer,
                                                                                   projectLocalName=self.__projectObsName)
         else:
             return self.__packages.getListPackages()
@@ -342,7 +343,7 @@ class ObsLightProject(object):
         '''
         
         '''
-        return os.path.join(ObsLightManager.getManager().getRepo(obsServer=self.__obsServer), self.__projectObsName.replace(":", ":/"), self.__projectTarget)
+        return os.path.join(self.__obsServers.getRepo(obsServer=self.__obsServer), self.__projectObsName.replace(":", ":/"), self.__projectTarget)
 
     def goToChRoot(self, package=None):
         '''
@@ -405,7 +406,7 @@ class ObsLightProject(object):
         '''
         
         '''
-        serverWeb = ObsLightManager.getManager().getObsServer(name=self.__obsServer).getUrlServerWeb()
+        serverWeb = self.__obsServers.getObsServer(name=self.__obsServer).getUrlServerWeb()
         
         if serverWeb in (None, "None", ""):
             raise ObsLightErr.ObsLightProjectsError("No Web Server")

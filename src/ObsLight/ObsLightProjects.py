@@ -29,17 +29,15 @@ class ObsLightProjects(object):
     '''
     classdocs
     '''
-
-
-    def __init__(self, manager):
+    def __init__(self, obsServers,workingDirectory):
         '''
         Constructor
         '''
         self.__dicOBSLightProjects = {}
-        self.__manager = manager
-        self.__currentProjects = ""
+        self.__obsServers = obsServers
+        self.__currentProjects = None
         
-        self.__pathFile = os.path.join(self.__manager.getObsLightWorkingDirectory() , "ObsLightProjectsConfig")
+        self.__pathFile = os.path.join(workingDirectory , "ObsLightProjectsConfig")
         
         self.__load()
         
@@ -117,7 +115,8 @@ class ObsLightProjects(object):
         '''
         
         '''
-        self.__dicOBSLightProjects[projectLocalName] = ObsLightProject(projectLocalName=projectLocalName,
+        self.__dicOBSLightProjects[projectLocalName] = ObsLightProject(obsServers=self.__obsServers,
+                                                                       projectLocalName=projectLocalName,
                                                                        projectObsName=projectObsName,
                                                                        projectTitle=projectTitle,
                                                                        projectDirectory=projectDirectory,
@@ -132,7 +131,7 @@ class ObsLightProjects(object):
         
         '''
         if not (name in self.__dicOBSLightProjects.keys() ):
-            self.__dicOBSLightProjects[name] = ObsLightProject(fromSave=fromSave)
+            self.__dicOBSLightProjects[name] = ObsLightProject(obsServers=self.__obsServers,fromSave=fromSave)
         else:
             ObsLightPrintManager.obsLightPrint("Can't import: "+name+", The Project already exist.")
         

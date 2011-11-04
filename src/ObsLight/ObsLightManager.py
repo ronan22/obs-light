@@ -43,14 +43,14 @@ class ObsLightManager(object):
         '''
         Initialize the OBS Light Manager.
         '''
-
+        
         self.__workingDirectory = os.path.join(os.environ['HOME'], "OBSLight")
         # If not exists, create the obsLight directory for the user.
         if not os.path.isdir(self.__workingDirectory):
             os.makedirs(self.__workingDirectory)
-
-        self.__myObsServers = ObsServers(self)
-        self.__myObsLightProjects = ObsLightProjects(self)
+            
+        self.__myObsServers = ObsServers(workingDirectory=self.__workingDirectory)
+        self.__myObsLightProjects = ObsLightProjects(obsServers=self.__myObsServers, workingDirectory=self.__workingDirectory)
 
 
     def getObsLightWorkingDirectory(self):
@@ -180,14 +180,6 @@ class ObsLightManager(object):
                                          user=user,
                                          passw=password)
         self.__myObsServers.save()
-
-    # TODO: RLM remove this function ?
-    def getObsServer(self, name=None):
-        '''
-        
-        '''
-        return self.__myObsServers.getObsServer(name=name)
-
 
     def isAnObsServer(self, name):
         '''
@@ -331,7 +323,6 @@ class ObsLightManager(object):
 
         return self.__myObsServers.getListPackage(obsServer=obsServer,
                                                   projectLocalName=projectLocalName)
-
 
     def getObsServerProjectList(self, server):
         '''
@@ -570,9 +561,7 @@ class ObsLightManager(object):
 
         return self.__myObsLightProjects.getWebProjectPage(projectLocalName)
 
-        
-        
-        
+ 
 __myObsLightManager = ObsLightManager()
 
 def getManager():

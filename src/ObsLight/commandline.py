@@ -859,7 +859,7 @@ class ObsLight():
                 else:
                     raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
             if (projectLocalName != None):
-                self.cliObsLightManager.getProjectWebPage(projectLocalName=projectLocalName)
+                print self.cliObsLightManager.getProjectWebPage(projectLocalName=projectLocalName)
             else:
                 raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
                 
