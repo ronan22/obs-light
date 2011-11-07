@@ -438,7 +438,7 @@ class ObsLightManager(object):
         return self.__myObsServers.getRepo(obsServer=obsServer)
 
 
-    def goToChRoot(self, projectLocalName, package=None):
+    def goToChRoot(self, projectLocalName, package=None, detach=False):
         '''
         offer a bash in the chroot for the user
         if package  define, the pwd will be ~/rpmbuild/BUILD/[package]
@@ -453,7 +453,7 @@ class ObsLightManager(object):
             raise ObsLightProjectsError(" package '" + package + "' is not part of the '"
                                         + projectLocalName + "' project")
 
-        self.__myObsLightProjects.goToChRoot(projectLocalName, package)
+        self.__myObsLightProjects.goToChRoot(projectLocalName, package, detach)
 
     def addPackageSourceInChRoot(self, projectLocalName, package):
         '''

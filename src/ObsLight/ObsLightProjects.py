@@ -154,11 +154,12 @@ class ObsLightProjects(object):
         self.__dicOBSLightProjects[projectLocalName].createChRoot()
         
         
-    def goToChRoot(self, projectLocalName=None, package=None):
+    def goToChRoot(self, projectLocalName=None, package=None, detach=False):
         '''
         
         '''
-        self.__dicOBSLightProjects[projectLocalName].goToChRoot(package=package)
+        self.__dicOBSLightProjects[projectLocalName].goToChRoot(package=package,
+                                                                detach=detach)
         
     def addPackageSourceInChRoot(self, projectLocalName=None, package=None):
         '''
