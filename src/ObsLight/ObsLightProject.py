@@ -150,11 +150,11 @@ class ObsLightProject(object):
                         toUpDate = True             
                 if "specFile" in packageFromSave.keys():
                     specFilePath = packageFromSave["specFile"]
-                    if not os.path.isfile(specFilePath):
+                    if specFilePath is not None and not os.path.isfile(specFilePath):
                         toUpDate = True
                 if "yamlFile" in packageFromSave.keys():
                     yamlFilePath = packageFromSave["yamlFile"]
-                    if not os.path.isfile(yamlFilePath):
+                    if yamlFilePath is not None and not os.path.isfile(yamlFilePath):
                         toUpDate = True
                 if toUpDate == True:
                     ObsLightOsc.getObsLightOsc().updatePackage(packagePath=packagePath)
