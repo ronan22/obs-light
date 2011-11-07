@@ -100,12 +100,13 @@ class ObsLightProject(object):
                 else:
                     if os.path.isdir(self.__chroot.getDirectory()):
                         self.__chrootIsInit = True
-                        
-            for packageName in self.__packages.getListPackages():
-                if not self.__packages.isInstallInChroot(packageName):
-                    absPackagePath = os.path.join(self.__chroot.getDirectory() , self.__packages.getPackageDirectory(packageName))
-                    if not os.path.isdir(absPackagePath) and (self.__chrootIsInit == True):
-                        self.addPackageSourceInChRoot(package=packageName)
+
+            if self.__chrootIsInit:
+                for packageName in self.__packages.getListPackages():
+                    if not self.__packages.isInstallInChroot(packageName):
+                        absPackagePath = os.path.join(self.__chroot.getDirectory() , self.__packages.getPackageDirectory(packageName))
+                        if not os.path.isdir(absPackagePath) and (self.__chrootIsInit == True):
+                            self.addPackageSourceInChRoot(package=packageName)
                         
         if not os.path.isdir(self.__projectDirectory):
             os.makedirs(self.__projectDirectory)
