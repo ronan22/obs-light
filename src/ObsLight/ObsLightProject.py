@@ -339,8 +339,17 @@ class ObsLightProject(object):
             
             self.__packages.updatePackage(name=name,status=status)
  
+    def getChRootPath(self):
+        '''
+        Return the path of aChRoot of a project
+        '''
+        return self.__chroot.getDirectory()
 
-
+    def isChRootInit(self):
+        '''
+        Return True if the ChRoot is init otherwise False.
+        '''
+        return self.__chrootIsInit
         
     def createChRoot(self):
         '''

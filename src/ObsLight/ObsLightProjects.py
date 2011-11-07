@@ -249,6 +249,11 @@ class ObsLightProjects(object):
         else:
             raise ObsLightErr.ObsLightProjectsError("Error in removeProject, can't remove project directory.")
         
+    def getChRootPath(self,projectLocalName):
+        '''
+        Return the path of aChRoot of a project
+        '''
+        return self.__dicOBSLightProjects[projectLocalName].getChRootPath()
         
     def removePackage(self,projectLocalName=None,package=None):
         '''
@@ -281,7 +286,11 @@ class ObsLightProjects(object):
         '''
         return self.__dicOBSLightProjects[project].getPackageStatus( package=package)
 
-        
+    def isChRootInit(self):
+        '''
+        Return True if the ChRoot is init otherwise False.
+        '''
+        return self.__chrootIsInit
         
         
         

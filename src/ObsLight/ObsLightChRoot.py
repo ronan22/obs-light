@@ -361,7 +361,7 @@ class ObsLightChRoot(object):
         
     def getDirectory(self):
         '''
-        
+        Return the path of aChRoot of a project
         '''
         return self.__chrootDirectory
         

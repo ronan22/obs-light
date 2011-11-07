@@ -22,7 +22,7 @@ Created on 17 juin 2011
 '''
 
 import os, urllib2
-
+ 
 from ObsLightErr import ObsLightObsServers
 from ObsLightErr import ObsLightProjectsError
 from ObsServers import ObsServers
@@ -454,6 +454,22 @@ class ObsLightManager(object):
                                         + projectLocalName + "' project")
 
         self.__myObsLightProjects.goToChRoot(projectLocalName, package, detach)
+
+    def getChRootPath(self, projectLocalName):
+        '''
+        Return the path of aChRoot of a project
+        '''
+
+        if not isNonEmptyString(projectLocalName):
+            raise ObsLightProjectsError(" invalid project name: " + str(projectLocalName))
+        elif not self.isALocalProject(projectLocalName):
+            raise ObsLightProjectsError(projectLocalName + " is not a local project")
+
+        self.__myObsLightProjects.getChRootPath(projectLocalName)
+
+
+ 
+
 
     def addPackageSourceInChRoot(self, projectLocalName, package):
         '''
