@@ -31,14 +31,13 @@ class ObsServers(object):
     '''
 
 
-    def __init__(self, manager):
+    def __init__(self, workingDirectory):
         '''
         Constructor
         '''
         self.__dicOBSLightServers = {}
         self.__currentServer = None
-        self.__manager = manager
-        self.__pathFile = os.path.join(self.__manager.getObsLightWorkingDirectory() , "ObsServersConfig")
+        self.__pathFile = os.path.join(workingDirectory , "ObsServersConfig")
         self.__currentOBSServer = None
         self.__load()
 
