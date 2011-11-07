@@ -97,20 +97,6 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="8" colspan="5">
-         <widget class="QTableWidget" name="tableWidget">
-          <column>
-           <property name="text">
-            <string>File</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string>Status</string>
-           </property>
-          </column>
-         </widget>
-        </item>
         <item row="2" column="8">
          <widget class="QPushButton" name="addFileButton">
           <property name="text">
@@ -252,6 +238,9 @@
            <bool>false</bool>
           </attribute>
          </widget>
+        </item>
+        <item row="1" column="8" colspan="5">
+         <widget class="QTreeView" name="fileTreeView"/>
         </item>
        </layout>
       </widget>

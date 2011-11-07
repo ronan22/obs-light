@@ -397,6 +397,18 @@ class ObsLightManager(object):
                                                     repos=target,
                                                     arch=arch)
 
+    def getPackageDirectory(self, projectLocalName, packageName):
+        '''
+        Return the directory where the package files live.
+        '''
+        if not isNonEmptyString(projectLocalName):
+            raise ObsLightObsServers(" invalid project name provided")
+        if not isNonEmptyString(packageName):
+            raise ObsLightObsServers(" invalid package: " + str(packageName))
+        if not self.isALocalProject(projectLocalName):
+            raise ObsLightProjectsError(projectLocalName + " is not a local project")
+        return self.__myObsLightProjects.getPackageDirectory(projectLocalName, packageName)
+
     def addPackage(self, projectLocalName, package):
         '''
         Add a package to a local project. The package must exist on the

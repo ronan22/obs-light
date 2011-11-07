@@ -225,6 +225,10 @@ class ObsLightProjects(object):
         
         '''
         return self.__dicOBSLightProjects[projectLocalName].getProjectInfo(info=info)
+    
+    def getPackageDirectory(self, projectLocalName, packageName):
+        package = self.__dicOBSLightProjects[projectLocalName].getPackage(packageName)
+        return package.getPackageDirectory()
         
     def setProjectparameter(self,projectLocalName=None,parameter=None,value=None):
         '''
