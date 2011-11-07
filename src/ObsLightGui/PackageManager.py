@@ -73,7 +73,6 @@ class PackageManager(QObject):
         self.__packageTableView.setModel(self.__model)
         
     def on_packageIndex_clicked(self, index):
-        print index
         if index.isValid():
             self.__fileManager.setCurrentPackage(self.__project, self.__currentPackage())
         
