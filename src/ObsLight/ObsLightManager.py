@@ -22,7 +22,7 @@ Created on 17 juin 2011
 '''
 
 import os, urllib2
- 
+
 from ObsLightErr import ObsLightObsServers
 from ObsLightErr import ObsLightProjectsError
 from ObsServers import ObsServers
@@ -43,12 +43,12 @@ class ObsLightManager(object):
         '''
         Initialize the OBS Light Manager.
         '''
-        
+
         self.__workingDirectory = os.path.join(os.environ['HOME'], "OBSLight")
         # If not exists, create the obsLight directory for the user.
         if not os.path.isdir(self.__workingDirectory):
             os.makedirs(self.__workingDirectory)
-            
+
         self.__myObsServers = ObsServers(workingDirectory=self.__workingDirectory)
         self.__myObsLightProjects = ObsLightProjects(obsServers=self.__myObsServers, workingDirectory=self.__workingDirectory)
 
@@ -106,7 +106,7 @@ class ObsLightManager(object):
                                                         value=value)
         self.__myObsServers.save()
         return res
-    
+
     def getProjectParameter(self, projectLocalName, parameter):
         # TODO: check valid parameters
         '''
@@ -278,7 +278,7 @@ class ObsLightManager(object):
         return self.__myObsServers.getArchitectureList(obsServer=obsServer ,
                                                        projectObsName=projectObsName,
                                                        projectTarget=projectTarget)
-        
+
     def isALocalProject(self, name):
         '''
         Test if name is already an OBS Project name.    
@@ -364,7 +364,7 @@ class ObsLightManager(object):
         self.__myObsLightProjects.save()
 
     #def getPackageStatus(self, obsServer, project, package, target, arch):
-    def getPackageStatus(self,  project, package):
+    def getPackageStatus(self, project, package):
         '''
         Return the status of package on the OBS server.
         '''
@@ -467,7 +467,7 @@ class ObsLightManager(object):
 
         self.__myObsLightProjects.getChRootPath(projectLocalName)
 
-    def isChRootInit(self,projectLocalName):
+    def isChRootInit(self, projectLocalName):
         '''
         Return True if the ChRoot is init otherwise False.
         '''
@@ -475,10 +475,14 @@ class ObsLightManager(object):
             raise ObsLightProjectsError(" invalid project name: " + str(projectLocalName))
         elif not self.isALocalProject(projectLocalName):
             raise ObsLightProjectsError(projectLocalName + " is not a local project")
-        
+
         return self.__myObsLightProjects.isChRootInit(projectLocalName=projectLocalName)
- 
- 
+
+    def isInstallInChroot(self, projectLocalName, package):
+        '''
+        Return True if the package is install into the chroot.
+        '''
+        return self.__myObsLightProjects.isInstallInChroot(projectLocalName=projectLocalName, package=package)
 
     def addPackageSourceInChRoot(self, projectLocalName, package):
         '''
