@@ -42,6 +42,7 @@ class ProjectManager(QObject):
     __createChrootButton = None
     __openChrootButton = None
     __projectLinkLabel = None
+    __chrootPathLineEdit = None
     __projectConfigManager = None
     __packageManager = None
 
@@ -69,6 +70,7 @@ class ProjectManager(QObject):
         self.__openChrootButton = mainWindow.findChild(QPushButton, "openChrootButton")
         self.__openChrootButton.clicked.connect(self.on_openChrootButton_clicked)
         self.__projectLinkLabel = mainWindow.findChild(QLabel, "projectPageLinkLabel")
+        self.__chrootPathLineEdit = mainWindow.findChild(QLineEdit, "chrootPathLineEdit")
         
     def loadProjectList(self):
         '''
@@ -79,6 +81,9 @@ class ProjectManager(QObject):
         self.__obsProjectsListWidget.addItems(projectList)
 
     def getCurrentProjectName(self):
+        '''
+        Get the name of the project selected in the UI, or None.
+        '''
         item = self.__obsProjectsListWidget.currentItem()
         if item is None:
             return None
@@ -117,16 +122,32 @@ class ProjectManager(QObject):
     def on_openChrootButton_clicked(self):
         projectName = self.getCurrentProjectName()
         if projectName is not None:
-            self.__gui.getObsLightManager().goToChRoot(projectName, detach=True)
-            
-    def on_projectSelected(self, project):
-        if project is None or len(project) > 0:
-            self.__packageManager.setCurrentProject(project)
-            link = self.__gui.getObsLightManager().getProjectWebPage(project)
-            projectObsName = self.__gui.getObsLightManager().getProjectParameter(project,
+            currentPackage = self.__packageManager.currentPackage()
+            if currentPackage is None:
+                self.__gui.getObsLightManager().goToChRoot(projectName, detach=True)
+            else:
+                self.__gui.getObsLightManager().goToChRoot(projectName,
+                                                           currentPackage,
+                                                           detach=True)
+
+    def on_projectSelected(self, _project):
+        project = self.getCurrentProjectName()
+        self.__packageManager.setCurrentProject(project)
+        if project is not None:
+            obslightManager = self.__gui.getObsLightManager()
+            link = obslightManager.getProjectWebPage(project)
+            projectObsName = obslightManager.getProjectParameter(project,
                                                                                  "projectObsName")
             self.__projectLinkLabel.setText('<a href="%s">%s</a>' % (link, projectObsName))
-
+            self.updateChrootPath()
+                
+    def updateChrootPath(self):
+        project = self.getCurrentProjectName()
+        if project is not None:
+            obslightManager = self.__gui.getObsLightManager()
+            if obslightManager.isChRootInit(project):
+                chrootPath = obslightManager.getChRootPath(project)
+                self.__chrootPathLineEdit.setText(chrootPath)
 
 class ProjectConfigManager(QObject):
     '''
