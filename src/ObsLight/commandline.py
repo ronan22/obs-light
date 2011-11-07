@@ -52,10 +52,10 @@ __addAndCommitChange__ = "addAndCommitChanges"
 __addRepoInChRoot__ = "addRepoInChRoot"
 __exportProject__ = "exportProject"
 __importProject__ = "importProject"
-__getWebProjectPage__="getWebProjectPage"
+__getWebProjectPage__ = "getWebProjectPage"
 
-__info_verbose__ ="--verbose"
-__info_debug__ ="--debug"
+__info_verbose__ = "--verbose"
+__info_debug__ = "--debug"
 
 __DICO_HELP__ = {}
 __DICO_HELP__[__getListObsServers__] = "Print the list of OBS servers."
@@ -64,10 +64,10 @@ __DICO_HELP__[__getListPackage__] = "Print the list of packages of a project."
 __DICO_HELP__[__addObsServer__] = "Add an OBS server."
 __DICO_HELP__[__addProject__] = "Create a local project based on an existing project on an OBS server."
 __DICO_HELP__[__addPackage__] = "Create a local package in a local project, based on an existing package in a project on an OBS server."
-__DICO_HELP__[__createChRoot__] = "Create a chroot, built from a local project." 
-__DICO_HELP__[__addPackageSourceInChRoot__] = "Install the source RPM of a package into the chroot of the project."    
+__DICO_HELP__[__createChRoot__] = "Create a chroot, built from a local project."
+__DICO_HELP__[__addPackageSourceInChRoot__] = "Install the source RPM of a package into the chroot of the project."
 __DICO_HELP__[__goToChRoot__] = "Open a bash in the chroot of a project."
-__DICO_HELP__[__makePatch__] = "Generate a patch with modifications made in the chroot of a local project." 
+__DICO_HELP__[__makePatch__] = "Generate a patch with modifications made in the chroot of a local project."
 __DICO_HELP__[__addAndCommitChange__] = "Add the new files (including patches) and commit them to the OBS"
 __DICO_HELP__[__addRepoInChRoot__] = "Add a repository to the chroot's zypper configuration file."
 __DICO_HELP__[__removeProject__] = "Remove local project"
@@ -76,7 +76,7 @@ __DICO_HELP__[__exportProject__] = "save a Project into a path"
 __DICO_HELP__[__importProject__] = "import a Project from a file"
 __DICO_HELP__[__getWebProjectPage__] = "return the web URL of a project."
 
-__DICO_OPTION_HELP__={}
+__DICO_OPTION_HELP__ = {}
 __DICO_OPTION_HELP__[__info_verbose__] = "Print all subprocess outputs."
 __DICO_OPTION_HELP__[__info_debug__] = "Print all subprocess commands."
 
@@ -97,23 +97,19 @@ class ObsLight():
         sys.stdout = safewriter.SafeWriter(sys.stdout)
 
         self.__listArgv = sys.argv[1:]
-        
-        self.cliObsLightManager = None
 
     def main(self):
         """
         Execute the main list of arguments
         """
-        self.cliObsLightManager = ObsLightManager.getManager()
-        
         while ("," in self.__listArgv):
-            
+
             ll = self.__listArgv[:self.__listArgv.index(",")]
             self.__listArgv = self.__listArgv[self.__listArgv.index(",") + 1:]
             self.execute(ll)
 
         return self.execute(self.__listArgv)
-    
+
     def setListArgv(self, arg):
         """
         Set the main list of arguments.
@@ -130,8 +126,8 @@ class ObsLight():
         __DESCRIPTION__ += "\t" + "Provides a tool to manage an OBS project on your local machine" + "\n"
         __DESCRIPTION__ += "\t" + "For additional informations, see" + "\n"
         __DESCRIPTION__ += "\t" + "* http://wiki.meego.com/OBS_Light" + "\n"
-        
-        
+
+
         __HELP__ = "Usage: " + __PRGNAME__ + " [global command] <command> [--command-options]" + "\n"
         __HELP__ += "\n"
         __HELP__ += "Type " + __PRGNAME__ + " <command> --help to get help on a specific command." + "\n"
@@ -143,30 +139,30 @@ class ObsLight():
         __HELP__ += "\n"
         __HELP__ += "\t" + __addObsServer__ + ":" + "\t\t" + __DICO_HELP__[__addObsServer__] + "\n"
         __HELP__ += "\t" + __addProject__ + ":" + "\t\t" + __DICO_HELP__[__addProject__] + "\n"
-        __HELP__ +="\t" +__exportProject__+":"+ "\t\t" +__DICO_HELP__[__exportProject__] + "\n"
-        __HELP__ +="\t" +__importProject__+":"+ "\t\t" +__DICO_HELP__[__importProject__] + "\n"
-        __HELP__ +="\t" +__getWebProjectPage__+":"+ "\t\t" +__DICO_HELP__[__getWebProjectPage__]+ "\n"
+        __HELP__ += "\t" + __exportProject__ + ":" + "\t\t" + __DICO_HELP__[__exportProject__] + "\n"
+        __HELP__ += "\t" + __importProject__ + ":" + "\t\t" + __DICO_HELP__[__importProject__] + "\n"
+        __HELP__ += "\t" + __getWebProjectPage__ + ":" + "\t\t" + __DICO_HELP__[__getWebProjectPage__] + "\n"
         __HELP__ += "\n"
-        __HELP__ +="\t" +__removeProject__+":"+ "\t\t" +__DICO_HELP__[__removeProject__]+ "\n"
-        __HELP__ +="\t" +__removePackage__+":"+ "\t\t" +__DICO_HELP__[__removePackage__]+ "\n"
+        __HELP__ += "\t" + __removeProject__ + ":" + "\t\t" + __DICO_HELP__[__removeProject__] + "\n"
+        __HELP__ += "\t" + __removePackage__ + ":" + "\t\t" + __DICO_HELP__[__removePackage__] + "\n"
         __HELP__ += "\n"
         __HELP__ += "\t" + __addPackage__ + ":" + "\t\t" + __DICO_HELP__[__addPackage__] + "\n"
         __HELP__ += "\t" + __createChRoot__ + ":" + "\t\t" + __DICO_HELP__[__createChRoot__] + "\n"
-        __HELP__ += "\t" + __addPackageSourceInChRoot__ + ":" + __DICO_HELP__[__addPackageSourceInChRoot__] + "\n"   
+        __HELP__ += "\t" + __addPackageSourceInChRoot__ + ":" + __DICO_HELP__[__addPackageSourceInChRoot__] + "\n"
         __HELP__ += "\t" + __goToChRoot__ + ":" + "\t\t" + __DICO_HELP__[__goToChRoot__] + "\n"
         __HELP__ += "\t" + __makePatch__ + ":" + "\t\t" + __DICO_HELP__[__makePatch__] + "\n"
         __HELP__ += "\t" + __addAndCommitChange__ + ":" + "\t" + __DICO_HELP__[__addAndCommitChange__] + "\n"
         __HELP__ += "\t" + __addRepoInChRoot__ + ":" + "\t" + __DICO_HELP__[__addRepoInChRoot__] + "\n"
         __HELP__ += "\n"
         __HELP__ += "global commands\n"
-        __HELP__ += "\t" + __info_verbose__+":" + "\t" + __DICO_OPTION_HELP__[__info_verbose__] + "\n"
-        __HELP__ += "\t" + __info_debug__+":" + "\t" + __DICO_OPTION_HELP__[__info_debug__] + "\n"
+        __HELP__ += "\t" + __info_verbose__ + ":" + "\t" + __DICO_OPTION_HELP__[__info_verbose__] + "\n"
+        __HELP__ += "\t" + __info_debug__ + ":" + "\t" + __DICO_OPTION_HELP__[__info_debug__] + "\n"
         __HELP__ += "\n"
         __HELP__ += __DESCRIPTION__
         __HELP__ += "\n"
 
-        ObsLightPrintManager.VERBOSE=0
-        ObsLightPrintManager.DEBUG=0
+        ObsLightPrintManager.VERBOSE = 0
+        ObsLightPrintManager.DEBUG = 0
         if len(listArgv) == 0:
             ObsLightPrintManager.obsLightPrint(__DESCRIPTION__)
             return None
@@ -181,20 +177,20 @@ class ObsLight():
                     ObsLightPrintManager.DEBUG += 1
                     continue
                 elif self.__isHelp(listArgv[0]):
-                    if ObsLightPrintManager.DEBUG==0:
+                    if ObsLightPrintManager.DEBUG == 0:
                         ObsLightPrintManager.obsLightPrint(__HELP__)
                         return None
-                    elif ObsLightPrintManager.DEBUG==1:
+                    elif ObsLightPrintManager.DEBUG == 1:
                         for k in __DICO_HELP__.keys():print k
                         return None
-                    elif ObsLightPrintManager.DEBUG==2:
+                    elif ObsLightPrintManager.DEBUG == 2:
                         for k in __DICO_OPTION_HELP__.keys():print k
                         return None
-                    elif ObsLightPrintManager.DEBUG==3:
+                    elif ObsLightPrintManager.DEBUG == 3:
                         for k in __DICO_HELP__.keys():print k
                         for k in __DICO_OPTION_HELP__.keys():print k
                         return None
-                    
+
                 elif (listArgv[0] == __getListObsServers__):
                     return self.getObsServerList(listArgv[1:])
                 elif (listArgv[0] == __addObsServer__):
@@ -219,19 +215,19 @@ class ObsLight():
                     return self.addAndCommitChanges(listArgv[1:])
                 elif (listArgv[0] == __addRepoInChRoot__):
                     return self.addRepoInChRoot(listArgv[1:])
-                elif (listArgv[0] ==__removeProject__):
+                elif (listArgv[0] == __removeProject__):
                     return self.removeProject(listArgv[1:])
-                elif (listArgv[0] ==__removePackage__):
+                elif (listArgv[0] == __removePackage__):
                     return self.removePackage(listArgv[1:])
-                elif (listArgv[0] ==__exportProject__):
+                elif (listArgv[0] == __exportProject__):
                     return self.exportProject(listArgv[1:])
-                elif (listArgv[0] ==__importProject__):
+                elif (listArgv[0] == __importProject__):
                     return self.importProject(listArgv[1:])
-                elif (listArgv[0] ==__getWebProjectPage__):
+                elif (listArgv[0] == __getWebProjectPage__):
                     return self.getWebProjectPage(listArgv[1:])
                 else:
                     raise ObsLightErr.ArgError(listArgv[0] + " is not a valid command")
-            
+
     def __isHelp(self, arg):
         '''
         Test if the argument is "--help", "-h" or "-help"
@@ -248,7 +244,7 @@ class ObsLight():
         __HELP__ += __DICO_HELP__[__COMMAND__]
 
         if len(listArgv) == 0:
-            result = self.cliObsLightManager.getLocalProjectList()
+            result = ObsLightManager.getManager().getLocalProjectList()
             if len(result) > 0:
                 for k in result:
                     ObsLightPrintManager.obsLightPrint(k)
@@ -258,52 +254,52 @@ class ObsLight():
             ObsLightPrintManager.obsLightPrint(__HELP__)
         else:
             raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
-        return 0 
-    
-        
+        return 0
+
+
     def getObsServerList(self, listArgv):
         '''
         Print the list OBS servers. 
         '''
         __COMMAND__ = __getListObsServers__
         __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " \n"
-        __HELP__ += __DICO_HELP__[__getListObsServers__]       
+        __HELP__ += __DICO_HELP__[__getListObsServers__]
 
-        if len(listArgv) == 0: 
-            result = self.cliObsLightManager.getObsServerList()
+        if len(listArgv) == 0:
+            result = ObsLightManager.getManager().getObsServerList()
             if len(result) > 0:
                 for k in result:
                     ObsLightPrintManager.obsLightPrint(k)
             else:
-                print "No OBS server" 
+                print "No OBS server"
         elif self.__isHelp(listArgv[0]):
             ObsLightPrintManager.obsLightPrint(__HELP__)
         else:
             raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
-        return 0 
-        
+        return 0
+
     def addObsServer(self, listArgv):
         '''
         Add an OBS Server
         '''
         __COMMAND__ = __addObsServer__
-        __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options]\n" 
+        __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options]\n"
         __HELP__ += "\t--serverApi api_url (required)\n"
         __HELP__ += "\t--user user_name (required)\n"
         __HELP__ += "\t--password password (required)\n"
         __HELP__ += "\t--serverWeb web_url\n"
         __HELP__ += "\t--serverRepo repo_url (required)\n"
         __HELP__ += "\t--alias name\n"
-        __HELP__ += __DICO_HELP__[__COMMAND__]        
+        __HELP__ += __DICO_HELP__[__COMMAND__]
 
-        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (6 * 2)): 
+        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (6 * 2)):
             serverWeb = ""
             serverApi = None
             serverRepo = ""
             alias = None
             user = None
             password = None
-            
+
             for i in range(0, len(listArgv), 2):
                 if listArgv[i] == "--serverWeb":
                     serverWeb = listArgv[i + 1]
@@ -312,7 +308,7 @@ class ObsLight():
                 elif listArgv[i] == "--serverRepo":
                     serverRepo = listArgv[i + 1]
                 elif listArgv[i] == "--alias":
-                    alias = listArgv[i + 1] 
+                    alias = listArgv[i + 1]
                 elif listArgv[i] == "--user":
                     user = listArgv[i + 1]
                 elif listArgv[i] == "--password":
@@ -320,20 +316,20 @@ class ObsLight():
                 else:
                     raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
 
-            self.cliObsLightManager.addObsServer(serverWeb=serverWeb,
+            ObsLightManager.getManager().addObsServer(serverWeb=serverWeb,
                                                  serverApi=serverApi,
                                                  serverRepo=serverRepo,
                                                  alias=alias,
                                                  user=user,
                                                  password=password)
-            
+
         elif self.__isHelp(listArgv[0]):
             ObsLightPrintManager.obsLightPrint(__HELP__)
         else:
             raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
-        return 0 
-         
-        
+        return 0
+
+
     def addProject(self, listArgv):
         '''
         Add a project to OBS Light.
@@ -350,7 +346,7 @@ class ObsLight():
         __HELP__ += "\t--description description\n"
         __HELP__ += "\t--projectArch architecture\n"
         __HELP__ += __DICO_HELP__[__COMMAND__]
-        
+
         if (len(listArgv) % 2 == 0) and (len(listArgv) <= (9 * 2)):
             projectLocalName = None
             projectObsName = None
@@ -361,7 +357,7 @@ class ObsLight():
             projectTarget = None
             description = None
             projectArchitecture = None
-        
+
             for i in range(0, len(listArgv), 2):
                 if listArgv[i] == "--projectObsName":
                     projectObsName = listArgv[i + 1]
@@ -372,7 +368,7 @@ class ObsLight():
                 elif listArgv[i] == "--projectDirectory":
                     projectDirectory = listArgv[i + 1]
                 elif listArgv[i] == "--chrootDirectory":
-                    chrootDirectory = listArgv[i + 1] 
+                    chrootDirectory = listArgv[i + 1]
                 elif listArgv[i] == "--obsServer":
                     obsServer = listArgv[i + 1]
                 elif listArgv[i] == "--projectTarget":
@@ -384,7 +380,7 @@ class ObsLight():
                 else:
                     raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
 
-            self.cliObsLightManager.addProject(projectLocalName=projectLocalName,
+            ObsLightManager.getManager().addProject(projectLocalName=projectLocalName,
                                                 projectObsName=projectObsName,
                                                 projectTitle=projectTitle,
                                                 projectDirectory=projectDirectory,
@@ -392,32 +388,32 @@ class ObsLight():
                                                 obsServer=obsServer ,
                                                 projectTarget=projectTarget,
                                                 description=description,
-                                                projectArchitecture=projectArchitecture)      
-        
+                                                projectArchitecture=projectArchitecture)
+
         elif self.__isHelp(listArgv[0]):
             ObsLightPrintManager.obsLightPrint(__HELP__)
         else:
             raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
-        return 0 
-    
+        return 0
+
 
     def getListPackage(self, listArgv):
         '''
         Print the list of packages of a project.
         '''
         __COMMAND__ = __getListPackage__
-        __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n" 
+        __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
         __HELP__ += "Commands:" + "\n"
         __HELP__ += "\t" + "--obsServer serverName (if no serverName, the projectLocalName is local)" + "\n"
         __HELP__ += "\t" + "--projectLocalName projectLocalName" + "\n"
         __HELP__ += "\t" + "--localPackage 1/0 (if the projectLocalName is local)" + "\n"
         __HELP__ += __DICO_HELP__[__COMMAND__]
-        
-        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (2 * 2)): 
+
+        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (2 * 2)):
             projectLocalName = None
             obsServer = None
             localPackage = "1"
-        
+
             for i in range(0, len(listArgv), 2):
                 if listArgv[i] == "--projectLocalName":
                     projectLocalName = listArgv[i + 1]
@@ -427,22 +423,22 @@ class ObsLight():
                     localPackage = listArgv[i + 1]
                 else:
                     raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
-                
+
             if (obsServer != None) and (projectLocalName != None):
-                res = self.cliObsLightManager.getObsProjectPackageList(obsServer=obsServer,
+                res = ObsLightManager.getManager().getObsProjectPackageList(obsServer=obsServer,
                                                                            projectLocalName=projectLocalName)
             elif (projectLocalName != None) and (localPackage in ["0", "1"]):
-                res = self.cliObsLightManager.getLocalProjectPackageList(name=projectLocalName,
+                res = ObsLightManager.getManager().getLocalProjectPackageList(name=projectLocalName,
                                                                              local=int(localPackage))
             else:
                 raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
-            
+
             if len(res) != 0:
                 for pk in res:
                     ObsLightPrintManager.obsLightPrint(pk)
             else:
                 ObsLightPrintManager.obsLightPrint("No Package.")
-                
+
         elif self.__isHelp(listArgv[0]):
             ObsLightPrintManager.obsLightPrint(__HELP__)
         else:
@@ -459,11 +455,11 @@ class ObsLight():
         __HELP__ += "\t" + "--projectLocalName projectName" + "\n"
         __HELP__ += "\t" + "--package packageName" + "\n"
         __HELP__ += __DICO_HELP__[__COMMAND__]
-        
+
         projectLocalName = None
         package = None
-        
-        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (2 * 2)): 
+
+        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (2 * 2)):
             for i in range(0, len(listArgv), 2):
                 if listArgv[i] == "--projectLocalName":
                     projectLocalName = listArgv[i + 1]
@@ -471,20 +467,20 @@ class ObsLight():
                     package = listArgv[i + 1]
                 else:
                     raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
-                
+
             if (projectLocalName != None) and (package != None):
-                self.cliObsLightManager.addPackage(projectLocalName=projectLocalName  ,
+                ObsLightManager.getManager().addPackage(projectLocalName=projectLocalName  ,
                                                    package=package)
             else:
                 raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
-                
+
         elif self.__isHelp(listArgv[0]):
             ObsLightPrintManager.obsLightPrint(__HELP__)
         else:
             raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
-        return 0 
-    
-    
+        return 0
+
+
     def createChRoot(self, listArgv):
         '''
         Create a chroot.
@@ -493,44 +489,44 @@ class ObsLight():
         __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
         __HELP__ += "\t" + "--projectLocalName projectName" + "\n"
         __HELP__ += __DICO_HELP__[__COMMAND__]
-        
+
         projectLocalName = None
-        
-        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (1 * 2)): 
+
+        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (1 * 2)):
             for i in range(0, len(listArgv), 2):
                 if listArgv[i] == "--projectLocalName":
                     projectLocalName = listArgv[i + 1]
                 else:
                     raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
-                
+
             if (projectLocalName != None):
-                self.cliObsLightManager.createChRoot(projectLocalName=projectLocalName)
+                ObsLightManager.getManager().createChRoot(projectLocalName=projectLocalName)
             else:
                 raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
-                
+
         elif self.__isHelp(listArgv[0]):
             ObsLightPrintManager.obsLightPrint(__HELP__)
         else:
             raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
-        return 0 
-        
+        return 0
 
-        
+
+
     def goToChRoot(self, listArgv):
         '''
         Open a bash in the chroot.
         '''
         __COMMAND__ = __goToChRoot__
-        
+
         __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
         __HELP__ += "\t" + "--projectLocalName projectName (required)\n"
         __HELP__ += "\t" + "--package packageName\t" + "directly go to the BUILD directory of the package\n"
         __HELP__ += __DICO_HELP__[__COMMAND__]
-        
+
         projectLocalName = None
         package = None
-        
-        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (2 * 2)): 
+
+        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (2 * 2)):
             for i in range(0, len(listArgv), 2):
                 if listArgv[i] == "--projectLocalName":
                     projectLocalName = listArgv[i + 1]
@@ -538,33 +534,33 @@ class ObsLight():
                     package = listArgv[i + 1]
                 else:
                     raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
-                
+
             if (projectLocalName != None):
-                self.cliObsLightManager.goToChRoot(projectLocalName=projectLocalName,
+                ObsLightManager.getManager().goToChRoot(projectLocalName=projectLocalName,
                                                    package=package)
             else:
                 raise ObsLightErr.ArgError("wrong command for " + __COMMAND__ + "")
-                
+
         elif self.__isHelp(listArgv[0]):
             ObsLightPrintManager.obsLightPrint(__HELP__)
         else:
             raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
-        return 0 
-        
+        return 0
+
     def addPackageSourceInChRoot(self, listArgv):
         '''
         Install a source package in the chroot, and execute the %prep section of the spec file.
         '''
         __COMMAND__ = __addPackageSourceInChRoot__
-        
+
         __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
         __HELP__ += "\t" + "--projectLocalName projectName (require)" + "\n"
         __HELP__ += "\t" + "--package packageName" + "\n"
         __HELP__ += __DICO_HELP__[__COMMAND__]
-        
+
         projectLocalName = None
         package = None
-        
+
         if (len(listArgv) % 2 == 0) and (len(listArgv) <= (2 * 2)):
             for i in range(0, len(listArgv), 2):
                 if listArgv[i] == "--projectLocalName":
@@ -574,35 +570,35 @@ class ObsLight():
                 else:
                     raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
             if (projectLocalName != None) and (package != None):
-                self.cliObsLightManager.addPackageSourceInChRoot(projectLocalName=projectLocalName,
+                ObsLightManager.getManager().addPackageSourceInChRoot(projectLocalName=projectLocalName,
                                                                  package=package)
             else:
                 raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
-                
+
         elif self.__isHelp(listArgv[0]):
             ObsLightPrintManager.obsLightPrint(__HELP__)
         else:
             raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
         return 0
-        
+
 
     def makePatch(self, listArgv):
         '''
         Generate a patch from the modifications made in the chroot.
         '''
         __COMMAND__ = __makePatch__
-        
+
         __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
         __HELP__ += "\t" + "--projectLocalName projectName (required)" + "\n"
         __HELP__ += "\t" + "--package packageName (required)" + "\n"
         __HELP__ += "\t" + "--patch patchName (required)" + "\n"
         __HELP__ += __DICO_HELP__[__COMMAND__]
-        
+
         projectLocalName = None
         package = None
         patch = None
 
-        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (3 * 2)): 
+        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (3 * 2)):
             for i in range(0, len(listArgv), 2):
                 if listArgv[i] == "--projectLocalName":
                     projectLocalName = listArgv[i + 1]
@@ -614,36 +610,36 @@ class ObsLight():
                     raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
 
             if (projectLocalName != None) and (package != None) and (patch != None):
-                self.cliObsLightManager.makePatch(projectLocalName=projectLocalName,
+                ObsLightManager.getManager().makePatch(projectLocalName=projectLocalName,
                                                   package=package,
                                                   patch=patch)
             else:
                 raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
-                
+
         elif self.__isHelp(listArgv[0]):
             ObsLightPrintManager.obsLightPrint(__HELP__)
         else:
             raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
-        return 0 
-        
-        
+        return 0
+
+
     def addAndCommitChanges(self, listArgv):
         '''
         Add/delete files in an osc directory, and commit modifications to the OBS. 
         '''
         __COMMAND__ = __addAndCommitChange__
-        
+
         __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
         __HELP__ += "\t" + "--projectLocalName projectName (required)" + "\n"
         __HELP__ += "\t" + "--package packageName (required)" + "\n"
         __HELP__ += "\t" + "--message (-m) message(required)" + "\n"
         __HELP__ += __DICO_HELP__[__COMMAND__]
-        
+
         projectLocalName = None
         package = None
         message = None
 
-        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (3 * 2)): 
+        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (3 * 2)):
             for i in range(0, len(listArgv), 2):
                 if listArgv[i] == "--projectLocalName":
                     projectLocalName = listArgv[i + 1]
@@ -656,23 +652,23 @@ class ObsLight():
             if (message == None):
                 raise ObsLightErr.ArgError("No message for " + __COMMAND__)
             elif (projectLocalName != None) and (package != None) :
-                self.cliObsLightManager.addAndCommitChanges(projectLocalName=projectLocalName,
+                ObsLightManager.getManager().addAndCommitChanges(projectLocalName=projectLocalName,
                                                            package=package, message=message)
             else:
                 raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
-                
+
         elif self.__isHelp(listArgv[0]):
             ObsLightPrintManager.obsLightPrint(__HELP__)
         else:
             raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
-        return 0 
-        
+        return 0
+
     def addRepoInChRoot(self, listArgv):
         '''
         Add a repository in chroot's zypper configuration file.
         '''
         __COMMAND__ = __addRepoInChRoot__
-        
+
         __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
         __HELP__ += "\t" + "--fromProject projectName " + "\n"
         __HELP__ += "\t" + "--projectLocalName projectName (required)" + "\n"
@@ -680,13 +676,13 @@ class ObsLight():
         __HELP__ += "\t" + "--url message" + "\n"
         __HELP__ += "\t" + "if --fromProject is specified, --alias and --url are ignored" + "\n"
         __HELP__ += __DICO_HELP__[__COMMAND__]
-        
+
         fromProject = None
         projectLocalName = None
         alias = None
         url = None
 
-        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (3 * 2)): 
+        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (3 * 2)):
             for i in range(0, len(listArgv), 2):
                 if listArgv[i] == "--fromProject":
                     fromProject = listArgv[i + 1]
@@ -699,65 +695,65 @@ class ObsLight():
                 else:
                     raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
             if (projectLocalName != None) and (fromProject != None):
-                self.cliObsLightManager.addRepo(projectLocalName=projectLocalName,
+                ObsLightManager.getManager().addRepo(projectLocalName=projectLocalName,
                                                  fromProject=fromProject)
             elif (projectLocalName != None) and (alias != None) and (url != None):
-                self.cliObsLightManager.addRepo(projectLocalName=projectLocalName,
+                ObsLightManager.getManager().addRepo(projectLocalName=projectLocalName,
                                                  alias=alias,
                                                  repoUrl=url)
             else:
                 raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
-                
+
         elif self.__isHelp(listArgv[0]):
             ObsLightPrintManager.obsLightPrint(__HELP__)
         else:
             raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
-        return 0 
-        
+        return 0
+
     def removeProject(self, listArgv):
         '''
         
         '''
         __COMMAND__ = __removeProject__
-        
+
         __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
         __HELP__ += "\t" + "--projectLocalName projectName (required)" + "\n"
         __HELP__ += __DICO_HELP__[__COMMAND__]
-        
+
         projectLocalName = None
 
-        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (1 * 2)): 
+        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (1 * 2)):
             for i in range(0, len(listArgv), 2):
                 if listArgv[i] == "--projectLocalName":
                     projectLocalName = listArgv[i + 1]
                 else:
                     raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
             if (projectLocalName != None):
-                self.cliObsLightManager.removeProject(projectLocalName=projectLocalName)
+                ObsLightManager.getManager().removeProject(projectLocalName=projectLocalName)
             else:
                 raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
-                
+
         elif self.__isHelp(listArgv[0]):
             ObsLightPrintManager.obsLightPrint(__HELP__)
         else:
             raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
-        return 0 
+        return 0
 
     def removePackage(self, listArgv):
         '''
         
         '''
         __COMMAND__ = __removeProject__
-        
+
         __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
         __HELP__ += "\t" + "--projectLocalName projectName (required)" + "\n"
         __HELP__ += "\t" + "--package packageName (required)" + "\n"
         __HELP__ += __DICO_HELP__[__COMMAND__]
-        
-        projectLocalName = None
-        package=None
 
-        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (2 * 2)): 
+        projectLocalName = None
+        package = None
+
+        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (2 * 2)):
             for i in range(0, len(listArgv), 2):
                 if listArgv[i] == "--projectLocalName":
                     projectLocalName = listArgv[i + 1]
@@ -765,34 +761,34 @@ class ObsLight():
                     package = listArgv[i + 1]
                 else:
                     raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
-                
+
             if (projectLocalName != None) and (package != None):
-                self.cliObsLightManager.removePackage(projectLocalName=projectLocalName,package=package)
+                ObsLightManager.getManager().removePackage(projectLocalName=projectLocalName, package=package)
             else:
                 raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
-                
+
         elif self.__isHelp(listArgv[0]):
             ObsLightPrintManager.obsLightPrint(__HELP__)
         else:
             raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
-        return 0 
-    
-    
+        return 0
+
+
     def exportProject(self, listArgv):
         '''
         Export a project to a file.
         '''
         __COMMAND__ = __exportProject__
-        
+
         __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
         __HELP__ += "\t" + "--projectLocalName projectName (required)" + "\n"
         __HELP__ += "\t" + "--path file (required)" + "\n"
         __HELP__ += __DICO_HELP__[__COMMAND__]
-        
-        projectLocalName = None
-        path=None
 
-        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (2 * 2)): 
+        projectLocalName = None
+        path = None
+
+        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (2 * 2)):
             for i in range(0, len(listArgv), 2):
                 if listArgv[i] == "--projectLocalName":
                     projectLocalName = listArgv[i + 1]
@@ -800,19 +796,19 @@ class ObsLight():
                     path = listArgv[i + 1]
                 else:
                     raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
-                
+
             if (projectLocalName != None) and (path != None):
-                self.cliObsLightManager.exportProject(projectLocalName=projectLocalName,path=path)
+                ObsLightManager.getManager().exportProject(projectLocalName=projectLocalName, path=path)
             else:
                 raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
-                
+
         elif self.__isHelp(listArgv[0]):
             ObsLightPrintManager.obsLightPrint(__HELP__)
         else:
             raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
-        return 0 
-    
-    
+        return 0
+
+
     def importProject(self, listArgv):
         '''
         Import a project from a file.
@@ -821,37 +817,37 @@ class ObsLight():
         __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
         __HELP__ += "\t" + "--path file (required)" + "\n"
         __HELP__ += __DICO_HELP__[__COMMAND__]
-        path=None
-        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (1 * 2)): 
+        path = None
+        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (1 * 2)):
             for i in range(0, len(listArgv), 2):
                 if listArgv[i] == "--path":
                     path = listArgv[i + 1]
                 else:
                     raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
             if  (path != None):
-                self.cliObsLightManager.importProject(path=path)
+                ObsLightManager.getManager().importProject(path=path)
             else:
                 raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
-                
+
         elif self.__isHelp(listArgv[0]):
             ObsLightPrintManager.obsLightPrint(__HELP__)
         else:
             raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
-        return 0 
-    
+        return 0
+
     def getWebProjectPage(self, listArgv):
         '''
         return the Web url of an OBS project for a local project.
         '''
         __COMMAND__ = __getWebProjectPage__
-        
+
         __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
         __HELP__ += "\t" + "--projectLocalName projectName (required)" + "\n"
         __HELP__ += __DICO_HELP__[__COMMAND__]
-        
+
         projectLocalName = None
-        
-        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (1 * 2)): 
+
+        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (1 * 2)):
             for i in range(0, len(listArgv), 2):
                 if listArgv[i] == "--projectLocalName":
                     projectLocalName = listArgv[i + 1]
@@ -859,15 +855,14 @@ class ObsLight():
                     raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
             if (projectLocalName != None):
 
-                print self.cliObsLightManager.getProjectWebPage(projectLocalName=projectLocalName)
+                print ObsLightManager.getManager().getProjectWebPage(projectLocalName=projectLocalName)
 
             else:
                 raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
-                
+
         elif self.__isHelp(listArgv[0]):
             ObsLightPrintManager.obsLightPrint(__HELP__)
         else:
             raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
         return 0
-    
-    
+

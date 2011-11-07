@@ -476,13 +476,26 @@ class ObsLightManager(object):
         elif not self.isALocalProject(projectLocalName):
             raise ObsLightProjectsError(projectLocalName + " is not a local project")
 
+
         return self.__myObsLightProjects.isChRootInit(projectLocalName=projectLocalName)
 
     def isInstallInChroot(self, projectLocalName, package):
         '''
         Return True if the package is install into the chroot.
         '''
-        return self.__myObsLightProjects.isInstallInChroot(projectLocalName=projectLocalName, package=package)
+
+        if not isNonEmptyString(projectLocalName):
+            raise ObsLightProjectsError(" invalid project name: " + str(projectLocalName))
+        elif not self.isALocalProject(projectLocalName):
+            raise ObsLightProjectsError(projectLocalName + " is not a local project")
+        elif not isNonEmptyString(package):
+            raise ObsLightProjectsError(" invalid package name: " + str(package))
+        elif not package in self.getLocalProjectPackageList(projectLocalName, local=1):
+            raise ObsLightProjectsError(package + " is not a local package")
+
+
+        return self.__myObsLightProjects.isInstallInChroot(projectLocalName=projectLocalName,
+                                                           package=package)
 
     def addPackageSourceInChRoot(self, projectLocalName, package):
         '''
@@ -594,10 +607,18 @@ class ObsLightManager(object):
 
         return self.__myObsLightProjects.getWebProjectPage(projectLocalName)
 
-__myObsLightManager = ObsLightManager()
+__myObsLightManager = None
 
 def getManager():
     '''
     Get a reference to the ObsLightManager singleton.
     '''
+    global __myObsLightManager
+    if __myObsLightManager == None:
+        __myObsLightManager = ObsLightManager()
+
     return __myObsLightManager
+
+
+
+

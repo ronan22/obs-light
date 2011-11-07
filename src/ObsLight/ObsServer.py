@@ -44,13 +44,20 @@ class ObsServer(object):
         self.__serverRepo = None
 
         if fromSave != None:
-            if "isOBSConnected" in fromSave.keys():self.__isOBSConnected = fromSave["isOBSConnected"]
-            if "serverWeb" in fromSave.keys():self.__serverWeb = fromSave["serverWeb"]
-            if "serverAPI" in fromSave.keys():self.__serverAPI = fromSave["serverAPI"]
-            if "serverRepo" in fromSave.keys():self.__serverRepo = fromSave["serverRepo"]
-            if "alias" in fromSave.keys():self.__alias = fromSave["alias"]
-            if "user" in fromSave.keys():self.__user = fromSave["user"]
-            if "passw" in fromSave.keys():self.__passw = fromSave["passw"]
+            if "isOBSConnected" in fromSave.keys():
+                self.__isOBSConnected = fromSave["isOBSConnected"]
+            if "serverWeb" in fromSave.keys():
+                self.__serverWeb = fromSave["serverWeb"]
+            if "serverAPI" in fromSave.keys():
+                self.__serverAPI = fromSave["serverAPI"]
+            if "serverRepo" in fromSave.keys():
+                self.__serverRepo = fromSave["serverRepo"]
+            if "alias" in fromSave.keys():
+                self.__alias = fromSave["alias"]
+            if "user" in fromSave.keys():
+                self.__user = fromSave["user"]
+            if "passw" in fromSave.keys():
+                self.__passw = fromSave["passw"]
 
         else:
             self.__isOBSConnected = False
