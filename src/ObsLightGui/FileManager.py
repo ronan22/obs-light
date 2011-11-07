@@ -43,7 +43,6 @@ class FileManager(QObject):
         self.__fileTreeView = gui.getMainWindow().findChild(QTreeView, "fileTreeView")
 
     def setCurrentPackage(self, project, package):
-        print "current package: %s (%s)" % (package, project)
         if project is not None and len(project) < 1:
             project = None
         if package is not None and len(package) < 1:
@@ -52,17 +51,12 @@ class FileManager(QObject):
         self.__package = package
         self.__model = QFileSystemModel()
         if self.__project is not None and self.__package is not None:
-            # TODO: replace by package dir
-            path = self.__obsLightManager.getProjectParameter(self.__project, "projectDirectory")
-            print "project dir: %s" % path
-            #path = self.__obsLightManager.getPackageDirectory(self.__project, self.__package)
-            #print "package dir: %s" % path
+            path = self.__obsLightManager.getPackageDirectory(self.__project, self.__package)
             self.__model.directoryLoaded.connect(self.on_path_loaded)
             self.__packageDir = path
             self.__model.setRootPath(path)
         self.__fileTreeView.setModel(self.__model)
         
     def on_path_loaded(self, path):
-        print "path loaded:", path
         if path == self.__packageDir:
             self.__fileTreeView.setRootIndex(self.__model.index(path))

@@ -228,7 +228,7 @@ class ObsLightProjects(object):
     
     def getPackageDirectory(self, projectLocalName, packageName):
         package = self.__dicOBSLightProjects[projectLocalName].getPackage(packageName)
-        return package.getPackageDirectory()
+        return package.getOscDirectory()
         
     def setProjectparameter(self,projectLocalName=None,parameter=None,value=None):
         '''
