@@ -19,6 +19,8 @@ Created on 27 sept. 2011
 
 @author: Florent Vennetier
 '''
+
+from os import environ
  
 from PySide.QtCore import QObject, QRegExp, QThreadPool, Signal
 from PySide.QtGui import QPushButton, QListWidget, QLineEdit, QLabel, QComboBox
@@ -37,6 +39,8 @@ class ProjectManager(QObject):
     __newObsProjectButton = None
     __modifyObsProjectButton = None
     __deleteObsProjectButton = None
+    __createChrootButton = None
+    __openChrootButton = None
     __projectLinkLabel = None
     __projectConfigManager = None
     __packageManager = None
@@ -44,21 +48,27 @@ class ProjectManager(QObject):
     def __init__(self, gui):
         QObject.__init__(self)
         self.__gui = gui
-        self.__obsProjectsListWidget = gui.getMainWindow().findChild(QListWidget,
+        mainWindow = gui.getMainWindow()
+        self.__obsProjectsListWidget = mainWindow.findChild(QListWidget,
                                                                      "obsProjectsListWidget")
         self.__obsProjectsListWidget.currentTextChanged.connect(self.on_projectSelected)
         self.loadProjectList()
         self.__packageManager = PackageManager(self.__gui)
-        self.__newObsProjectButton = gui.getMainWindow().findChild(QPushButton,
+        self.__newObsProjectButton = mainWindow.findChild(QPushButton,
                                                                    "newObsProjectButton")
         self.__newObsProjectButton.clicked.connect(self.on_newObsProjectButton_clicked)
-        self.__modifyObsProjectButton = gui.getMainWindow().findChild(QPushButton,
+        self.__modifyObsProjectButton = mainWindow.findChild(QPushButton,
                                                                       "modifyObsProjectButton")
         self.__modifyObsProjectButton.clicked.connect(self.on_modifyObsProjectButton_clicked)
-        self.__deleteObsProjectButton = gui.getMainWindow().findChild(QPushButton,
+        self.__deleteObsProjectButton = mainWindow.findChild(QPushButton,
                                                                       "deleteObsProjectButton")
         self.__deleteObsProjectButton.clicked.connect(self.on_deleteObsProjectButton_clicked)
-        self.__projectLinkLabel = gui.getMainWindow().findChild(QLabel, "projectPageLinkLabel")
+        self.__createChrootButton = mainWindow.findChild(QPushButton,
+                                                                  "createChrootButton")
+        self.__createChrootButton.clicked.connect(self.on_createChrootButton_clicked)
+        self.__openChrootButton = mainWindow.findChild(QPushButton, "openChrootButton")
+        self.__openChrootButton.clicked.connect(self.on_openChrootButton_clicked)
+        self.__projectLinkLabel = mainWindow.findChild(QLabel, "projectPageLinkLabel")
         
     def loadProjectList(self):
         '''
@@ -67,19 +77,28 @@ class ProjectManager(QObject):
         projectList = self.__gui.getObsLightManager().getLocalProjectList()
         self.__obsProjectsListWidget.clear()
         self.__obsProjectsListWidget.addItems(projectList)
+
+    def getCurrentProjectName(self):
+        item = self.__obsProjectsListWidget.currentItem()
+        if item is None:
+            return None
+        project = item.text()
+        if project is not None and len(project) < 1:
+            project = None
+        return project
         
     def on_newObsProjectButton_clicked(self):
         self.__projectConfigManager = ProjectConfigManager(self.__gui)
         self.__projectConfigManager.finished.connect(self.on_projectConfigManager_finished)
         
     def on_modifyObsProjectButton_clicked(self):
-        projectName = self.__obsProjectsListWidget.currentItem().text()
+        projectName = self.getCurrentProjectName()
         self.__projectConfigManager = ProjectConfigManager(self.__gui, projectName)
         self.__projectConfigManager.finished.connect(self.on_projectConfigManager_finished)
         
     @popupOnException
     def on_deleteObsProjectButton_clicked(self):
-        projectName = self.__obsProjectsListWidget.currentItem().text()
+        projectName = self.getCurrentProjectName()
         self.__gui.getObsLightManager().removeProject(projectName)
         self.loadProjectList()
     
@@ -87,6 +106,18 @@ class ProjectManager(QObject):
     def on_projectConfigManager_finished(self, success):
         if success:
             self.loadProjectList()
+
+    @popupOnException
+    def on_createChrootButton_clicked(self):
+        projectName = self.getCurrentProjectName()
+        if projectName is not None:
+            self.__gui.getObsLightManager().createChRoot(projectName)
+
+    @popupOnException
+    def on_openChrootButton_clicked(self):
+        projectName = self.getCurrentProjectName()
+        if projectName is not None:
+            self.__gui.getObsLightManager().goToChRoot(projectName, detach=True)
             
     def on_projectSelected(self, project):
         if project is None or len(project) > 0:
