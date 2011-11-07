@@ -21,7 +21,7 @@ Created on 17 juin 2011
 @author: Florent Vennetier
 '''
 
-import os
+import os, urllib2
 
 from ObsLightErr import ObsLightObsServers
 from ObsLightErr import ObsLightProjectsError
@@ -375,17 +375,32 @@ class ObsLightManager(object):
             raise ObsLightObsServers(" invalid package: " + str(package))
         elif not self.isAnObsServer(obsServer):
             raise ObsLightObsServers(obsServer + " is not an OBS server")
-        elif not project in self.getObsServerProjectList(obsServer):
-            raise ObsLightObsServers(" unknown project: " + project)
-        elif not package in self.getObsProjectPackageList(obsServer, project):
-            raise ObsLightObsServers(" Package '" + package + "' is not part of the '"
+        try:
+            if not project in self.getObsServerProjectList(obsServer):
+                raise ObsLightObsServers(" unknown project: " + project)
+            elif not package in self.getObsProjectPackageList(obsServer, project):
+                raise ObsLightObsServers(" Package '" + package + "' is not part of the '"
                                      + project + "' project")
 
-        return self.__myObsServers.getPackageStatus(obsServer=obsServer,
-                                                    project=project,
-                                                    package=package,
-                                                    repos=target,
-                                                    arch=arch)
+            return self.__myObsServers.getPackageStatus(obsServer=obsServer,
+                                                        project=project,
+                                                        package=package,
+                                                        repos=target,
+                                                        arch=arch)
+        except urllib2.URLError:
+            return "unknown (connection problem)"
+
+    def getPackageDirectory(self, projectLocalName, packageName):
+        '''
+        Return the directory where the package files live.
+        '''
+        if not isNonEmptyString(projectLocalName):
+            raise ObsLightObsServers(" invalid project name provided")
+        if not isNonEmptyString(packageName):
+            raise ObsLightObsServers(" invalid package: " + str(packageName))
+        if not self.isALocalProject(projectLocalName):
+            raise ObsLightProjectsError(projectLocalName + " is not a local project")
+        return self.__myObsLightProjects.getPackageDirectory(projectLocalName, packageName)
 
     def addPackage(self, projectLocalName, package):
         '''

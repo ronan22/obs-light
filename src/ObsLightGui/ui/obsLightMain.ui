@@ -97,20 +97,6 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="8" colspan="5">
-         <widget class="QTableWidget" name="tableWidget">
-          <column>
-           <property name="text">
-            <string>File</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string>Status</string>
-           </property>
-          </column>
-         </widget>
-        </item>
         <item row="2" column="8">
          <widget class="QPushButton" name="addFileButton">
           <property name="text">
@@ -227,10 +213,10 @@
           </property>
          </widget>
         </item>
-        <item row="3" column="0" colspan="2">
-         <widget class="QLabel" name="label">
+        <item row="3" column="0">
+         <widget class="QLabel" name="projectPageLabel">
           <property name="text">
-           <string>Project page : &lt;a href=&quot;http://www.google.fr&quot;&gt;Project Page&lt;/a&gt;</string>
+           <string>Project page :</string>
           </property>
           <property name="textFormat">
            <enum>Qt::RichText</enum>
@@ -251,6 +237,22 @@
           <attribute name="verticalHeaderVisible">
            <bool>false</bool>
           </attribute>
+         </widget>
+        </item>
+        <item row="1" column="8" colspan="5">
+         <widget class="QTreeView" name="fileTreeView"/>
+        </item>
+        <item row="3" column="1" colspan="2">
+         <widget class="QLabel" name="projectPageLinkLabel">
+          <property name="text">
+           <string>link</string>
+          </property>
+          <property name="openExternalLinks">
+           <bool>true</bool>
+          </property>
+          <property name="textInteractionFlags">
+           <set>Qt::LinksAccessibleByMouse</set>
+          </property>
          </widget>
         </item>
        </layout>

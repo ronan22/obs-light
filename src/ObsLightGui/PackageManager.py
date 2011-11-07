@@ -14,6 +14,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 #
+from ObsLightGui.FileManager import FileManager
 '''
 Created on 2 nov. 2011
 
@@ -36,6 +37,7 @@ class PackageManager(QObject):
     __obsLightManager = None
     __project = None
     __model = None
+    __fileManager = None
     
     __packageTableView = None
     __newPackageButton = None
@@ -44,9 +46,11 @@ class PackageManager(QObject):
         QObject.__init__(self)
         self.__gui = gui
         self.__obsLightManager = gui.getObsLightManager()
+        self.__fileManager = FileManager(self.__gui)
         self.__packageTableView = gui.getMainWindow().findChild(QTableView,
                                                                   "packageTableView")
         self.__packageTableView.setSelectionBehavior(QTableView.SelectionBehavior.SelectRows)
+        self.__packageTableView.activated.connect(self.on_packageIndex_clicked)
         self.__newPackageButton = gui.getMainWindow().findChild(QPushButton,
                                                                 "newPackageButton")
         self.__newPackageButton.clicked.connect(self.on_newPackageButton_clicked)
@@ -67,6 +71,16 @@ class PackageManager(QObject):
         self.__project = projectName
         self.__model = PackageModel(self.__obsLightManager, projectName)
         self.__packageTableView.setModel(self.__model)
+        
+    def on_packageIndex_clicked(self, index):
+        if index.isValid():
+            self.__fileManager.setCurrentPackage(self.__project, self.__currentPackage())
+        
+    def __currentPackage(self):
+        row = self.__packageTableView.currentIndex().row()
+        packageName = self.__model.data(self.__model.createIndex(row,
+                                                                 PackageModel.PackageNameColumn))
+        return packageName
 
     @popupOnException
     def on_newPackageButton_clicked(self):
