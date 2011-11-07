@@ -14,18 +14,18 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 #
-from ObsLightGui.FileManager import FileManager
 '''
 Created on 2 nov. 2011
 
 @author: Florent Vennetier
 '''
 
-from PySide.QtCore import QObject
-from PySide.QtGui import QInputDialog, QPushButton, QTableView
+from PySide.QtCore import QObject, QThreadPool, Qt
+from PySide.QtGui import QInputDialog, QProgressDialog, QPushButton, QTableView
 
 from PackageModel import PackageModel
-from Utils import popupOnException
+from ObsLightGui.FileManager import FileManager
+from Utils import popupOnException, QRunnableImpl2
 
 class PackageManager(QObject):
     '''
@@ -38,6 +38,7 @@ class PackageManager(QObject):
     __project = None
     __model = None
     __fileManager = None
+    __progress = None
     
     __packageTableView = None
     __newPackageButton = None
@@ -57,6 +58,7 @@ class PackageManager(QObject):
         self.__deletePackageButton = gui.getMainWindow().findChild(QPushButton,
                                                                    "deletePackageButton")
         self.__deletePackageButton.clicked.connect(self.on_deletePackageButton_clicked)
+        self.__progress = QProgressDialog(gui.getMainWindow())
         
     def getCurrentProject(self):
         return self.__project
@@ -74,13 +76,17 @@ class PackageManager(QObject):
         
     def on_packageIndex_clicked(self, index):
         if index.isValid():
-            self.__fileManager.setCurrentPackage(self.__project, self.__currentPackage())
+            self.__fileManager.setCurrentPackage(self.__project, self.currentPackage())
         
-    def __currentPackage(self):
-        row = self.__packageTableView.currentIndex().row()
-        packageName = self.__model.data(self.__model.createIndex(row,
+    def currentPackage(self):
+        index = self.__packageTableView.currentIndex()
+        if index.isValid():
+            row = index.row()
+            packageName = self.__model.data(self.__model.createIndex(row,
                                                                  PackageModel.PackageNameColumn))
-        return packageName
+            return packageName
+        else:
+            return None
 
     @popupOnException
     def on_newPackageButton_clicked(self):
@@ -90,7 +96,16 @@ class PackageManager(QObject):
                                                      u"Choose package name...",
                                                      u"Package name (must exist on server):")
         if accepted:
-            self.__model.addPackage(packageName)
+            self.__progress.setLabelText("Adding package")
+            self.__progress.setMinimumDuration(500)
+            self.__progress.setWindowModality(Qt.WindowModal)
+            # make the progress "infinite"
+            self.__progress.setRange(0, 0)
+            #self.__progress.setValue(0)
+            self.__progress.show()
+            runnable = QRunnableImpl2(self.__model.addPackage, packageName)
+            runnable.setProgressDialog(self.__progress)
+            QThreadPool.globalInstance().start(runnable)
 
     @popupOnException
     def on_deletePackageButton_clicked(self):
