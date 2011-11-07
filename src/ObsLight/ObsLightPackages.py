@@ -81,7 +81,12 @@ class ObsLightPackages(object):
                                                            listFile=listFile,
                                                            status=status)
         
-        
+    def isInstallInChroot(self,name):
+        '''
+        Return True if the package is install into the chroot.
+        '''
+        return self.__dicOBSLightPackages[name].isInstallInChroot()
+    
     def getPackageStatus(self, name=None):
         '''
         

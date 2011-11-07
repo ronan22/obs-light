@@ -89,6 +89,15 @@ class ObsLightPackage(object):
             else:
                 self.__mySpecFile = None
             
+    def isInstallInChroot(self):
+        '''
+        Return True if the package is install into the chroot.
+        '''
+        if self.__packageDirectory in (None,""):
+            return False
+        else:
+            return True   
+               
     def update(self,status=None):
         '''
         

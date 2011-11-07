@@ -292,8 +292,11 @@ class ObsLightProjects(object):
         '''
         return self.__dicOBSLightProjects[projectLocalName].isChRootInit()
         
-        
-        
+    def isInstallInChroot(self,projectLocalName,package):
+        '''
+        Return True if the package is install into the chroot.
+        '''
+        return self.__dicOBSLightProjects[projectLocalName].isChRootInit(package=package)
         
         
         
