@@ -74,7 +74,7 @@ class PackageModel(QAbstractTableModel):
             if index.column() == self.PackageNameColumn:
                 return packageName
             elif index.column() == self.PackageStatusColumn:
-                return self.__obsLightManager.getPackageStatus( self.__project,packageName)
+                return self.__obsLightManager.getPackageStatus(self.__project, packageName)
         else:
             return None
 
