@@ -41,8 +41,8 @@ class ObsServer(object):
         Create a reference to a OBS server
         '''
         self.__alias = None
-        self.__serverRepo=None
-        
+        self.__serverRepo = None
+
         if fromSave != None:
             if "isOBSConnected" in fromSave.keys():self.__isOBSConnected = fromSave["isOBSConnected"]
             if "serverWeb" in fromSave.keys():self.__serverWeb = fromSave["serverWeb"]
@@ -62,20 +62,20 @@ class ObsServer(object):
 
             self.__user = user
             self.__passw = passw
-            
-            
+
+
         if (self.__alias == None) or (len(self.__alias) < 1):
             self.__alias = self.__serverAPI
-        
-        
-        
+
+
+
         ObsLightOsc.getObsLightOsc().initConf(api=self.__serverAPI,
                                            user=self.__user,
                                            passw=self.__passw,
                                            alias=self.__alias)
-        
 
-    def getObsServerParameter(self,parameter=None):
+
+    def getObsServerParameter(self, parameter=None):
         '''
         return the value of the parameter "parameter"
         the valid parameter is:
@@ -88,22 +88,22 @@ class ObsServer(object):
             passw
         '''
 
-        if parameter=="obssOBSConnected":
+        if parameter == "obssOBSConnected":
             return self.__isOBSConnected
-        elif parameter=="serverWeb":
+        elif parameter == "serverWeb":
             return self.__serverWeb
-        elif parameter=="serverAPI":
+        elif parameter == "serverAPI":
             return self.__serverAPI
-        elif parameter=="serverRepo":
+        elif parameter == "serverRepo":
             return self.__serverRepo
-        elif parameter=="aliases":
+        elif parameter == "aliases":
             return self.__alias
-        elif parameter=="user":
+        elif parameter == "user":
             return self.__user
-        elif parameter=="passw":
+        elif parameter == "passw":
             return self.__passw
-        
-    def setObsServerParameter(self,parameter=None,value=None):
+
+    def setObsServerParameter(self, parameter=None, value=None):
         '''
         change the value of the parameter "parameter"
         the valid parameter is:
@@ -115,27 +115,27 @@ class ObsServer(object):
             user
             passw
         '''
-        if value==None:
+        if value == None:
             raise ObsLightErr.ObsLightObsServers("value is not valid for setObsServerParameter")
 
-        if parameter=="isOBSConnected":
-            self.__isOBSConnected=value
-        elif parameter=="serverWeb":
-            self.__serverWeb=value
-        elif parameter=="serverAPI":
-            self.__serverAPI=value
-        elif parameter=="serverRepo":
-            self.__serverRepo=value
-        elif parameter=="alias":
-            self.__alias=value
-        elif parameter=="user":
-            self.__user=value
-        elif parameter=="passw":
-            self.__passw=value
+        if parameter == "isOBSConnected":
+            self.__isOBSConnected = value
+        elif parameter == "serverWeb":
+            self.__serverWeb = value
+        elif parameter == "serverAPI":
+            self.__serverAPI = value
+        elif parameter == "serverRepo":
+            self.__serverRepo = value
+        elif parameter == "alias":
+            self.__alias = value
+        elif parameter == "user":
+            self.__user = value
+        elif parameter == "passw":
+            self.__passw = value
         else:
             raise ObsLightErr.ObsLightObsServers("parameter is not valid for setObsServerParameter")
         return None
-        
+
     def initConfigProject(self,
                           projet=None,
                           repos=None):
@@ -150,9 +150,9 @@ class ObsServer(object):
         if res != None:
             ObsLightOsc.getObsLightOsc().trustRepos(api=self.__serverAPI,
                                                  listDepProject=res)
-        
-            
-        
+
+
+
     def getDic(self):
         '''
         return a description of the object in a dictionary  
@@ -166,20 +166,20 @@ class ObsServer(object):
         aDic["user"] = self.__user
         aDic["passw"] = self.__passw
         return aDic
-    
+
     def getName(self):
         '''
         return the OBS server name.
         '''
         return self.__alias
-    
+
     def getListPackage(self, projectLocalName=None):
         '''
         
         '''
         return ObsLightOsc.getObsLightOsc().getListPackage(obsServer=self.__serverAPI,
                                                         projectLocalName=projectLocalName)
-    
+
     def checkoutPackage(self, projectObsName=None, package=None, directory=None):
         '''
         
@@ -188,7 +188,7 @@ class ObsServer(object):
                                                   projectObsName=projectObsName,
                                                   package=package,
                                                   directory=directory)
-        
+
     def getPackageStatus(self,
                          project=None,
                          package=None,
@@ -202,31 +202,31 @@ class ObsServer(object):
                                                            package=package,
                                                            repo=repo,
                                                            arch=arch)
-    
-     
+
+
     def getRepo(self):
         '''
         
         '''
-        if self.__serverRepo!=None:
+        if self.__serverRepo != None:
             return self.__serverRepo
         else:
-            raise ObsLightErr.ObsLightObsServers("In "+self.__alias+" there is no repo")
-    
-    
+            raise ObsLightErr.ObsLightObsServers("In " + self.__alias + " there is no repo")
+
+
     def getLocalProjectList(self):
         '''
         
         '''
         return  ObsLightOsc.getObsLightOsc().getLocalProjectList(obsServer=self.__serverAPI)
-    
+
     def getTargetList(self, projectObsName=None):
         '''
         
         '''
         return ObsLightOsc.getObsLightOsc().getTargetList(obsServer=self.__serverAPI,
                                                        projectObsName=projectObsName)
-    
+
     def getArchitectureList(self,
                             projectObsName=None,
                             projectTarget=None):
@@ -236,12 +236,12 @@ class ObsServer(object):
         return ObsLightOsc.getObsLightOsc().getArchitectureList(obsServer=self.__serverAPI ,
                                                              projectObsName=projectObsName,
                                                              projectTarget=projectTarget)
-        
-    
-        
+
+
+
     def getUrlServerWeb(self):
         '''
         
         '''
         return self.__serverWeb
-    
+

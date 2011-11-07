@@ -33,7 +33,7 @@ class ObsLightSpec:
         
         '''
         self.__path = path
-        
+
         self.__introduction_section = "introduction_section"
         self.__prepFlag = "%prep"
         self.__buildFlag = "%build"
@@ -44,7 +44,7 @@ class ObsLightSpec:
         self.__preunFlag = "%preun"
         self.__postunFlag = "%postun"
         self.__verifyscriptFlag = "%verifyscript"
-        
+
         self.__listSection = [self.__prepFlag,
                               self.__buildFlag,
                               self.__installFlag,
@@ -60,51 +60,51 @@ class ObsLightSpec:
         if path != None:
             self.parseFile(path)
 
-    def __cleanline(self, line):   
+    def __cleanline(self, line):
         '''
             
         '''
         return line.replace("\n", "").replace(" ", "")
-        
+
     def parseFile(self, path=None):
         '''
         
         '''
         if path != None:
             tmpLineList = []
-            
-            
+
+
             if not os.path.exists(path):
                 raise ObsLightErr.ObsLightSpec("parseFile: the path: " + path + ", do not exist")
-            
+
             #Load the file in a list
             f = open(path, 'r')
-            
+
             for line in f:
                 tmpLineList.append(line)
-                
-            f.close()    
-            
-            
-            
+
+            f.close()
+
+
+
             #init variable
             self.__spectDico = {}
             currentSection = self.__introduction_section
             self.__spectDico[currentSection] = []
             self.__orderList.append(currentSection)
-            
+
             for line in tmpLineList:
                 #use a clean string
-                
+
                 tmp_line = self.__cleanline(line)
                 if tmp_line in self.__listSection:
                     currentSection = tmp_line
                     self.__spectDico[currentSection] = []
                     self.__orderList.append(currentSection)
-                self.__spectDico[currentSection].append(line)   
+                self.__spectDico[currentSection].append(line)
         else:
             ObsLightPrintManager.obsLightPrint("ERROR")
-    
+
     def addpatch(self, aFile):
         '''
         
@@ -117,41 +117,41 @@ class ObsLightSpec:
                 try:
                     if aFile == self.__cleanline(line.split(":")[1]):
                         return 1
-                    
+
                     aId = line.split(":")[0].replace("Patch", "")
                     #the aId can be null
                     if aId != "":
                         patchID = int(aId) + 1
-                            
+
                 except ValueError:
                     ObsLightPrintManager.obsLightPrint(ValueError)
                 except IndexError:
                     ObsLightPrintManager.obsLightPrint(IndexError)
-                    
+
         patch_Val_Prep = "Patch" + str(patchID)
         patch_Val_Build = "%patch" + str(patchID)
 
         self.__spectDico[self.__introduction_section].insert(0, patch_Val_Prep + ": " + aFile + "\n")
         self.__spectDico[self.__introduction_section].insert(0, "# This line is insert automatically , please comment and clean the code\n")
 
-        
+
         #You can have not %prep section
         #add the patch after the last one or if any patch present in the prep part, at the end.
         if self.__prepFlag in self.__spectDico.keys():
-            i=0
-            res=0
+            i = 0
+            res = 0
             for line in self.__spectDico[self.__prepFlag]:
-                i+=1
+                i += 1
                 if line.startswith("%patch"):
-                    res=i
-            if res==0:
-                res=i
-            self.__spectDico[self.__prepFlag].insert(res,patch_Val_Build + " -p1\n")
+                    res = i
+            if res == 0:
+                res = i
+            self.__spectDico[self.__prepFlag].insert(res, patch_Val_Build + " -p1\n")
             self.__spectDico[self.__prepFlag].insert(res, "# This line is insert automatically, please comment and clean the code\n")
 
         return 0
-        
-    def addFile(self,baseFile=None,aFile=None):
+
+    def addFile(self, baseFile=None, aFile=None):
         '''
         
         '''
@@ -163,17 +163,17 @@ class ObsLightSpec:
                 try:
                     if aFile == self.__cleanline(line.split(":")[1]):
                         return None
-                    
+
                     aId = line.split(":")[0].replace("Source", "")
                     #the aId can be null
                     if aId != "":
                         SourceID = int(aId) + 1
-                            
+
                 except ValueError:
                     ObsLightPrintManager.obsLightPrint(ValueError)
                 except IndexError:
                     ObsLightPrintManager.obsLightPrint(IndexError)
-                    
+
 
         source_Val_Prep = "Source" + str(SourceID)
         source_Val_Build = "SOURCE" + str(SourceID)
@@ -183,26 +183,26 @@ class ObsLightSpec:
 
         #You can have not %prep section
         if not self.__prepFlag in self.__spectDico.keys():
-            self.__spectDico[self.__prepFlag]=[]
+            self.__spectDico[self.__prepFlag] = []
             self.__orderList.append(self.__prepFlag)
-            self.__spectDico[self.__prepFlag].append(self.__prepFlag+"\n") 
+            self.__spectDico[self.__prepFlag].append(self.__prepFlag + "\n")
 
         self.__spectDico[self.__prepFlag].append("cp %{" + source_Val_Build + "} " + aFile + "\n")
-            
+
         return None
-            
+
     def delFile(self, aFile=None):
         '''
         
-        '''    
+        '''
         if self.__prepFlag in self.__spectDico.keys():
             for line in self.__spectDico[self.__prepFlag]:
                 if aFile in line:
                     return None
             self.__spectDico[self.__prepFlag].append("rm " + aFile + "\n")
-        
+
         return None
-    
+
     def save(self, path=None):
         '''
         
@@ -210,12 +210,12 @@ class ObsLightSpec:
         if path == None:
             path = self.__path
         f = open(path, 'w')
-        
+
         for section in self.__orderList:
             for line in self.__spectDico[section]:
                 f.write(line)
-        f.close()  
-            
+        f.close()
+
     def getsection(self):
         '''
         
@@ -225,7 +225,7 @@ class ObsLightSpec:
 if __name__ == '__main__':
     file1 = sys.argv[1]
     file2 = sys.argv[1] + ".sav"
-    print "----------------------------file1",file1
+    print "----------------------------file1", file1
     s = ObsLightSpec(file1)
     s.addpatch("aPatch.patch")
     s.save(file2)
@@ -233,16 +233,16 @@ if __name__ == '__main__':
 
     import subprocess
     subprocess.call(["diff", file1, file2])
-    
-    
-    
-    
-    
-    
-    
-    
-    
-     
-    
-    
-    
+
+
+
+
+
+
+
+
+
+
+
+
+
