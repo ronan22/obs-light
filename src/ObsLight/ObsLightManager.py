@@ -467,9 +467,18 @@ class ObsLightManager(object):
 
         self.__myObsLightProjects.getChRootPath(projectLocalName)
 
-
+    def isChRootInit(self,projectLocalName):
+        '''
+        Return True if the ChRoot is init otherwise False.
+        '''
+        if not isNonEmptyString(projectLocalName):
+            raise ObsLightProjectsError(" invalid project name: " + str(projectLocalName))
+        elif not self.isALocalProject(projectLocalName):
+            raise ObsLightProjectsError(projectLocalName + " is not a local project")
+        
+        return self.__myObsLightProjects.isChRootInit(projectLocalName=projectLocalName)
  
-
+ 
 
     def addPackageSourceInChRoot(self, projectLocalName, package):
         '''

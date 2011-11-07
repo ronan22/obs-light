@@ -286,11 +286,11 @@ class ObsLightProjects(object):
         '''
         return self.__dicOBSLightProjects[project].getPackageStatus( package=package)
 
-    def isChRootInit(self):
+    def isChRootInit(self,projectLocalName):
         '''
         Return True if the ChRoot is init otherwise False.
         '''
-        return self.__chrootIsInit
+        return self.__dicOBSLightProjects[projectLocalName].isChRootInit()
         
         
         
