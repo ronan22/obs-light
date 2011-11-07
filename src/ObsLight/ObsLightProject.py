@@ -344,7 +344,7 @@ class ObsLightProject(object):
         '''
         return os.path.join(ObsLightManager.getManager().getRepo(obsServer=self.__obsServer), self.__projectObsName.replace(":", ":/"), self.__projectTarget)
 
-    def goToChRoot(self, package=None):
+    def goToChRoot(self, package=None, detach=False):
         '''
         
         '''
@@ -352,11 +352,11 @@ class ObsLightProject(object):
             
             pathPackage = self.__packages.getPackageDirectory(package=package)
             if pathPackage != None:
-                self.__chroot.goToChRoot(path=pathPackage)
+                self.__chroot.goToChRoot(path=pathPackage, detach=detach)
             else:
-                self.__chroot.goToChRoot()
+                self.__chroot.goToChRoot(detach=detach)
         else:
-            self.__chroot.goToChRoot()
+            self.__chroot.goToChRoot(detach=detach)
         
     def addPackageSourceInChRoot(self, package=None):
         '''

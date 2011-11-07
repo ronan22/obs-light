@@ -236,7 +236,7 @@ class ObsLightChRoot(object):
         command.append("rpmbuild -bp --define '_srcdefattr (-,root,root)' " + specFile + " < /dev/null")
         self.execCommand(command=command)
         
-    def goToChRoot(self, path=None):
+    def goToChRoot(self, path=None, detach=False):
         '''
         Go to the chroot.
         Open a Bash in the chroot.
@@ -264,10 +264,13 @@ class ObsLightChRoot(object):
         os.chmod(pathScript, 0654)
         
         command = "sudo -H chroot " + self.__chrootDirectory + " " + self.__dirTransfert + "/runMe.sh"
+        if detach is True:
+            command = "xterm -e " + command
         if platform.machine() == 'x86_64':
             command = "linux32 " + command
-            
-        command = shlex.split(command)
+        
+        # TODO: find why it does not work without str()
+        command = shlex.split(str(command))
         subprocess.call(command)
  
         
