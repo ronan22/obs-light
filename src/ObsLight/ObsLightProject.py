@@ -97,12 +97,11 @@ class ObsLightProject(object):
                 if self.__chrootIsInit==True:
                     if not os.path.isdir(self.__chroot.getDirectory()):
                         self.createChRoot()
-        
             for packageName in self.__packages.getListPackages():
                 if not self.__packages.getPackageDirectory(packageName) in (None,""):
                     absPackagePath=os.path.join(self.__chroot.getDirectory() ,self.__packages.getPackageDirectory(packageName))
-                    if os.path.isdir(absPackagePath) and (self.__chrootIsInit==True):
-                        self.addPackageSourceInChRoot( package=self.__packages.getPackage(packageName))
+                    if not os.path.isdir(absPackagePath) and (self.__chrootIsInit==True):
+                        self.addPackageSourceInChRoot( package=packageName)
         if not os.path.isdir(self.__projectDirectory):
             os.makedirs(self.__projectDirectory)
         
@@ -127,6 +126,21 @@ class ObsLightProject(object):
                 packageFromSave["specFile"] = specFile
                 packageFromSave["yamlFile"] = yamlFile
                 packageFromSave["listFile"] = listFile
+                
+            toUpDate = False
+            if "listFile" in packageFromSave.keys():listFile = packageFromSave["listFile"]
+            for aFile in listFile:
+                if not os.path.isfile(os.path.join(packagePath, aFile)):
+                    toUpDate = True
+                              
+            if "specFile" in packageFromSave.keys():
+                specFilePath = packageFromSave["specFile"]
+                if not os.path.isfile(specFilePath):
+                    toUpDate = True
+            if "yamlFile" in packageFromSave.keys() and packageFromSave["yamlFile"] is not None:
+                yamlFilePath = packageFromSave["yamlFile"]
+                if not os.path.isfile(yamlFilePath):
+                    toUpDate = True
             
             if importFile==True:    
                 toUpDate = False
@@ -144,7 +158,7 @@ class ObsLightProject(object):
                         toUpDate = True
                 if toUpDate == True:
                     ObsLightOsc.getObsLightOsc().updatePackage(packagePath=packagePath)
-                     
+                    
             fromSave["savePackages"][packageName] = packageFromSave
             
         return ObsLightPackages(fromSave)

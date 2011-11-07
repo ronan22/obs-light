@@ -16,6 +16,7 @@
 #
 
 class OBSLightBaseError(Exception):
+    msg = ""
     def __init__(self, args=()):
         Exception.__init__(self)
         self.args = args

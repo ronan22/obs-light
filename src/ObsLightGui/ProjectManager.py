@@ -20,10 +20,11 @@ Created on 27 sept. 2011
 @author: Florent Vennetier
 '''
  
-from PySide.QtCore import QObject, QThreadPool, Signal
+from PySide.QtCore import QObject, QRegExp, QThreadPool, Signal
 from PySide.QtGui import QPushButton, QListWidget, QLineEdit, QComboBox
+from PySide.QtGui import QRegExpValidator
 
-from Utils import QRunnableImpl
+from Utils import QRunnableImpl, popupOnException
 from PackageManager import PackageManager
 
 class ProjectManager(QObject):
@@ -70,11 +71,13 @@ class ProjectManager(QObject):
         self.__projectConfigManager = ProjectConfigManager(self.__gui, projectName)
         self.__projectConfigManager.finished.connect(self.on_projectConfigManager_finished)
         
+    @popupOnException
     def on_deleteObsProjectButton_clicked(self):
         projectName = self.__obsProjectsListWidget.currentItem().text()
         self.__gui.getObsLightManager().removeProject(projectName)
         self.loadProjectList()
     
+    @popupOnException
     def on_projectConfigManager_finished(self, success):
         if success:
             self.loadProjectList()
@@ -121,12 +124,16 @@ class ProjectConfigManager(QObject):
     def __loadFieldObjects(self):
         self.__localNameField = self.__configDialog.findChild(QLineEdit,
                                                               "projectLocalNameLineEdit")
+        noSpaceValidator = QRegExpValidator()
+        noSpaceValidator.setRegExp(QRegExp("\\S+"))
+        self.__localNameField.setValidator(noSpaceValidator)
         self.__obsNameField = self.__configDialog.findChild(QLineEdit,
                                                             "projectObsNameLineEdit")
         self.__obsNameField.textEdited.connect(self.handleObsNameEdited)
         self.__obsNameField.editingFinished.connect(self.handleObsNameEditingFinished)
         self.__serverCBox = self.__configDialog.findChild(QComboBox,
                                                           "projectServerComboBox")
+        self.__serverCBox.currentIndexChanged.connect(self.handleObsNameEditingFinished)
         self.__targetCBox = self.__configDialog.findChild(QComboBox,
                                                           "projectTargetComboBox")
         self.__targetCBox.currentIndexChanged.connect(self.handleTargetIndexChanged)
@@ -223,6 +230,7 @@ class ProjectConfigManager(QObject):
     def getCurrentArch(self):
         return self.__archCBox.currentText()
 
+    @popupOnException
     def on_configDialog_accepted(self):
         if self.__isNewProject():
             self.__obsLightManager.addProject(self.getCurrentServerAlias(),

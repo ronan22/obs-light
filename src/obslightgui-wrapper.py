@@ -7,12 +7,10 @@ Created on 27 sept. 2011
 
 import sys
 
-from ObsLight.ObsLightManager import ObsLightManager
-
-from ObsLight import babysitter
+from ObsLight import babysitter, ObsLightManager
 from ObsLightGui.Gui import Gui
 
-obsLightManager = ObsLightManager()
+obsLightManager = ObsLightManager.getManager()
 gui = Gui(obsLightManager)
 
 sys.exit(babysitter.run(gui.main))

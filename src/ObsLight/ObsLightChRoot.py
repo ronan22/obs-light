@@ -386,5 +386,6 @@ class ObsLightChRoot(object):
         
         command.append("rpm --initdb")
         command.append("rpm --rebuilddb")
-        command.append('echo "alias ll=\"ls -lh\"\nalias la=\"ls -Alh\"" >> /etc/profile.d/alias.sh')
+        command.append('echo "alias ll=\\"ls -lh\\"" >> ~/.bashrc')
+        command.append('echo "alias la=\\"ls -Alh\\"" >> ~/.bashrc')
         self.execCommand(command=command)

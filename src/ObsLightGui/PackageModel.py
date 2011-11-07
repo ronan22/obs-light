@@ -66,20 +66,29 @@ class PackageModel(QAbstractTableModel):
                 else:
                     return None
         
-    def data(self, index, role):
+    def data(self, index, role=Qt.DisplayRole):
+        if not index.isValid():
+            return None
         if role == Qt.DisplayRole:
             packageName = self.__getPackageList()[index.row()]
             if index.column() == self.PackageNameColumn:
                 return packageName
             elif index.column() == self.PackageStatusColumn:
-                # TODO: get status from server
-                return "unknown"
+                # TODO: rewrite with simplified getPackageStatus method when it's available
+                obsServer = self.__obsLightManager.getProjectParameter(self.__project, "obsServer")
+                projectObsName = self.__obsLightManager.getProjectParameter(self.__project,
+                                                                            "projectObsName")
+                arch = self.__obsLightManager.getProjectParameter(self.__project,
+                                                                   "projectArchitecture")
+                target = self.__obsLightManager.getProjectParameter(self.__project,
+                                                                    "projectTarget")
+                return self.__obsLightManager.getPackageStatus(obsServer, projectObsName,
+                                                               packageName, target, arch)
         else:
             return None
 
     def refresh(self):
-        self.dataChanged.emit(self.createIndex(0, 0), self.createIndex(self.rowCount(),
-                                                                       self.columnCount()))
+        self.layoutChanged.emit()
 
     def addPackage(self, packageName):
         '''
@@ -94,5 +103,5 @@ class PackageModel(QAbstractTableModel):
         '''
         Remove the package from the local project associated with this PackageModel.
         '''
-        self.__obsLightManager.removePackage(packageName)
+        self.__obsLightManager.removePackage(self.getProject(), packageName)
         self.refresh()
