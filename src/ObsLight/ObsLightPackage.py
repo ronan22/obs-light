@@ -41,7 +41,7 @@ class ObsLightPackage(object):
                  specFile=None,
                  yamlFile=None,
                  listFile=None,
-                 status=None,
+                 status="Unknown",
                  fromSave=None):
         '''
         Constructor
@@ -61,12 +61,21 @@ class ObsLightPackage(object):
             self.__yamlFile = yamlFile
             self.__packageDirectory = None
         else:
-            if "name" in fromSave.keys():self.__name = fromSave["name"]
-            if "listFile" in fromSave.keys():self.__listFile = fromSave["listFile"]
-            if "status" in fromSave.keys():self.__status = fromSave["status"]
-            if "specFile" in fromSave.keys():self.__specFile = fromSave["specFile"]
-            if "yamlFile" in fromSave.keys():self.__yamlFile = fromSave["yamlFile"]
-            if "packageDirectory" in fromSave.keys():self.__packageDirectory = fromSave["packageDirectory"]
+            if "name" in fromSave.keys():
+                self.__name = fromSave["name"]
+            if "listFile" in fromSave.keys():
+                self.__listFile = fromSave["listFile"]
+            if "status" in fromSave.keys():
+                self.__status = fromSave["status"]
+            if "specFile" in fromSave.keys():
+                self.__specFile = fromSave["specFile"]
+            if "yamlFile" in fromSave.keys():
+                self.__yamlFile = fromSave["yamlFile"]
+            if "packageDirectory" in fromSave.keys():
+                self.__packageDirectory = fromSave["packageDirectory"]
+            if self.__status in [None,"None",""]:
+                self.__status="Unknown"
+            
         
         if not self.__yamlFile in (None,'None',""):
             self.__myYamlFile = ObsLightYaml(path=self.__yamlFile,specPath=self.__specFile)
@@ -79,6 +88,13 @@ class ObsLightPackage(object):
                 self.__mySpecFile = ObsLightSpec(self.__specFile)
             else:
                 self.__mySpecFile = None
+            
+    def update(self,status=None):
+        '''
+        
+        '''
+        if status not in [None,"","None"]:
+            self.__status=status
             
     def __subprocess(self, command=None, waitMess=False):
         '''

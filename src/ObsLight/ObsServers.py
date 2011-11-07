@@ -127,13 +127,13 @@ class ObsServers(object):
                                                              package=package,
                                                              directory=directory)
 
-    def getPackageStatus(self, obsServer=None, project=None, package=None, repos=None, arch=None):
+    def getPackageStatus(self, obsServer=None, project=None, package=None, repo=None, arch=None):
         '''
         
         '''
         return self.__dicOBSLightServers[obsServer].getPackageStatus(project=project,
                                                                      package=package,
-                                                                     repos=repos,
+                                                                     repo=repo,
                                                                      arch=arch)
 
     def getRepo(self, obsServer=None):

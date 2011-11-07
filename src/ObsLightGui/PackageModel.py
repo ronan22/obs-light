@@ -74,16 +74,7 @@ class PackageModel(QAbstractTableModel):
             if index.column() == self.PackageNameColumn:
                 return packageName
             elif index.column() == self.PackageStatusColumn:
-                # TODO: rewrite with simplified getPackageStatus method when it's available
-                obsServer = self.__obsLightManager.getProjectParameter(self.__project, "obsServer")
-                projectObsName = self.__obsLightManager.getProjectParameter(self.__project,
-                                                                            "projectObsName")
-                arch = self.__obsLightManager.getProjectParameter(self.__project,
-                                                                   "projectArchitecture")
-                target = self.__obsLightManager.getProjectParameter(self.__project,
-                                                                    "projectTarget")
-                return self.__obsLightManager.getPackageStatus(obsServer, projectObsName,
-                                                               packageName, target, arch)
+                return self.__obsLightManager.getPackageStatus( self.__project,packageName)
         else:
             return None
 

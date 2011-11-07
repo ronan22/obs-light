@@ -123,5 +123,11 @@ class ObsLightPackages(object):
         del self.__dicOBSLightPackages[package]
         return 0
         
-         
+    def updatePackage(self,name,status=None):
+        '''
+        
+        '''
+        self.__dicOBSLightPackages[name].update(status=status)
+        
+        
         

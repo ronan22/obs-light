@@ -158,10 +158,10 @@ class ObsLightOsc(object):
                          obsServer=None,
                          project=None,
                          package=None,
-                         repos=None,
+                         repo=None,
                          arch=None):
         '''
-        Return the status of a package for a repos and arch
+        Return the status of a package for a repo and arch
         The status can be:
         succeeded: Package has built successfully and can be used to build further packages.
         failed: The package does not build successfully. No packages have been created. Packages that depend on this package will be built using any previously created packages, if they exist.
@@ -177,7 +177,7 @@ class ObsLightOsc(object):
         excluded: The package build has been disabled in package build description (for example in the .spec file) or does not provide a matching build description for the target.
         unknown: The scheduler has not yet evaluated this package. Should be a short intermediate state for new packages.
         '''
-        url = obsServer + "/build/" + project + "/" + repos + "/" + arch + "/" + package + "/_status"
+        url = obsServer + "/build/" + project + "/" + repo + "/" + arch + "/" + package + "/_status"
         fileXML = core.http_request("GET", url).read()
         aElement = ElementTree.fromstring(fileXML)
         return aElement.attrib["code"]

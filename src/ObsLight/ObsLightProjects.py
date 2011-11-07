@@ -274,5 +274,20 @@ class ObsLightProjects(object):
         '''
         return self.__dicOBSLightProjects[projectLocalName].getWebProjectPage()
         
+    def getPackageStatus(self,project, package):
+        '''
+        
+        '''
+        return self.__dicOBSLightProjects[project].getPackageStatus( package=package)
+
+        
+        
+        
+        
+        
+        
+        
+        
+        
         
         

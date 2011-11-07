@@ -20,17 +20,22 @@ BREAKPROCESS = False
  
 class SubprocessCrt(object):
     '''
-    classdocs
+    Control All the subprocess in the ObsLight project. 
     '''
     def __init__(self):
         '''
-        Constructor
+        Init subprocess.
         '''
         self.__isPrintMess = False
         
     def execSubprocess(self, command=None, waitMess=False):
         '''
-        
+        Execute the "command" in a sub process,
+        the "command" must be a valid bash command.
+        If waitMess is set to True:
+            -A message "please wait" is print at the start of the sub process,
+            -A message "." is print every second during the sub process,
+            -A message "work finish" is print at the end of the sub process
         '''
         ObsLightPrintManager.obsLightPrint("command: " + command, isDebug=True)
         #need Python 2.7.3 to do shlex.split(command) 

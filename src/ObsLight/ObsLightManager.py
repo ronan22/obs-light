@@ -34,7 +34,7 @@ def isNonEmptyString(theString):
 
 class ObsLightManager(object):
     '''
-    Main interface between clients (command line, GUI) and OBS Light.
+    Application Programming Interface between clients (command line, GUI) and OBS Light.
     All interactions should be done with this class, no other class should
     be imported in external projects.
     '''
@@ -363,32 +363,22 @@ class ObsLightManager(object):
                                             directory=directory)
         self.__myObsLightProjects.save()
 
-    def getPackageStatus(self, obsServer, project, package, target, arch):
+    #def getPackageStatus(self, obsServer, project, package, target, arch):
+    def getPackageStatus(self,  project, package):
         '''
         Return the status of package on the OBS server.
         '''
-        if not isNonEmptyString(obsServer):
-            raise ObsLightObsServers(" invalid OBS server: " + str(obsServer))
-        elif not isNonEmptyString(project):
+        if not isNonEmptyString(project):
             raise ObsLightObsServers(" invalid project: " + str(project))
         elif not isNonEmptyString(package):
             raise ObsLightObsServers(" invalid package: " + str(package))
-        elif not self.isAnObsServer(obsServer):
-            raise ObsLightObsServers(obsServer + " is not an OBS server")
-        try:
-            if not project in self.getObsServerProjectList(obsServer):
-                raise ObsLightObsServers(" unknown project: " + project)
-            elif not package in self.getObsProjectPackageList(obsServer, project):
-                raise ObsLightObsServers(" Package '" + package + "' is not part of the '"
-                                     + project + "' project")
 
-            return self.__myObsServers.getPackageStatus(obsServer=obsServer,
-                                                        project=project,
-                                                        package=package,
-                                                        repos=target,
-                                                        arch=arch)
-        except urllib2.URLError:
-            return "unknown (connection problem)"
+        #try:
+
+        return self.__myObsLightProjects.getPackageStatus(project=project,
+                                                    package=package)
+        #except urllib2.URLError:
+        #    return "unknown (connection problem)"
 
     def getPackageDirectory(self, projectLocalName, packageName):
         '''

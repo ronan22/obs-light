@@ -309,26 +309,38 @@ class ObsLightProject(object):
                 specFile = os.path.join(packagePath, f)
             elif f.endswith(".yaml"):
                 yamlFile = os.path.join(packagePath, f)
-        #TODO:Find the status of the package, Don't use that now
-        #status=ObsLightManager.getManager().getPackageStatus(obsserver=self.__obsServer,
-        #                                                     projectObsName=self.__projectObsName,
-        #                                                     package=name,
-        #                                                     repos=self.__projectTarget,
-        #                                                     arch=self.__projectArchitecture)
-        #self.__packages.addPackage(name=name, specFile=specFile, listFile=listFile, status=status)
-        
+
         return specFile, yamlFile, listFile
+        
+    def getPackageStatus(self,package=None):
+        '''
+        
+        '''
+        return self.__packages.getPackageStatus(name=package)
         
     def addPackage(self, name=None):
         '''
         add a package to the projectLocalName.
         '''
         specFile, yamlFile, listFile = self.checkoutPackage(package=name)
-
+        status=self.__obsServers.getPackageStatus( obsServer=self.__obsServer, project=self.__projectObsName, package=name, repo=self.__projectTarget, arch=self.__projectArchitecture)
         self.__packages.addPackage(name=name,
                                    specFile=specFile,
                                    yamlFile=yamlFile,
-                                   listFile=listFile)
+                                   listFile=listFile,
+                                   status=status)
+    
+    def updateProject(self):
+        '''
+        
+        '''
+        for name in self.__packages.getListPackages():
+            status=self.__obsServers.getPackageStatus( obsServer=self.__obsServer, project=self.__projectObsName, package=name, repo=self.__projectTarget, arch=self.__projectArchitecture)
+            
+            self.__packages.updatePackage(name=name,status=status)
+ 
+
+
         
     def createChRoot(self):
         '''
