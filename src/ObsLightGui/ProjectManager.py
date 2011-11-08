@@ -19,14 +19,13 @@ Created on 27 sept. 2011
 
 @author: Florent Vennetier
 '''
-
-from os import environ
  
-from PySide.QtCore import QObject, QRegExp, QThreadPool, Signal
+from PySide.QtCore import QObject, QRegExp, QThreadPool, Signal, Qt
 from PySide.QtGui import QPushButton, QListWidget, QLineEdit, QLabel, QComboBox
-from PySide.QtGui import QRegExpValidator
+from PySide.QtGui import QRegExpValidator, QProgressDialog
 
-from Utils import QRunnableImpl, popupOnException
+from ObsLight.ObsLightErr import OBSLightBaseError
+from Utils import QRunnableImpl, ProgressRunnable, popupOnException
 from PackageManager import PackageManager
 
 class ProjectManager(QObject):
@@ -45,6 +44,8 @@ class ProjectManager(QObject):
     __chrootPathLineEdit = None
     __projectConfigManager = None
     __packageManager = None
+    __statusBar = None
+    __progress = None
 
     def __init__(self, gui):
         QObject.__init__(self)
@@ -71,6 +72,8 @@ class ProjectManager(QObject):
         self.__openChrootButton.clicked.connect(self.on_openChrootButton_clicked)
         self.__projectLinkLabel = mainWindow.findChild(QLabel, "projectPageLinkLabel")
         self.__chrootPathLineEdit = mainWindow.findChild(QLineEdit, "chrootPathLineEdit")
+        self.__progress = QProgressDialog(mainWindow)
+        
         
     def loadProjectList(self):
         '''
@@ -91,7 +94,7 @@ class ProjectManager(QObject):
         if project is not None and len(project) < 1:
             project = None
         return project
-        
+
     def on_newObsProjectButton_clicked(self):
         self.__projectConfigManager = ProjectConfigManager(self.__gui)
         self.__projectConfigManager.finished.connect(self.on_projectConfigManager_finished)
@@ -116,7 +119,18 @@ class ProjectManager(QObject):
     def on_createChrootButton_clicked(self):
         projectName = self.getCurrentProjectName()
         if projectName is not None:
-            self.__gui.getObsLightManager().createChRoot(projectName)
+            self.__progress.setLabelText("Creating chroot")
+            self.__progress.setMinimumDuration(500)
+            self.__progress.setWindowModality(Qt.WindowModal)
+            # make the progress "infinite"
+            self.__progress.setRange(0, 0)
+            self.__progress.show()
+            runnable = ProgressRunnable(self.__gui.getObsLightManager().createChRoot, projectName)
+            runnable.setProgressDialog(self.__progress)
+            runnable.setErrorCallback(self.__gui.obsLightErrorCallback)
+            QThreadPool.globalInstance().start(runnable)
+            
+            #self.__gui.getObsLightManager().createChRoot(projectName)
 
     @popupOnException
     def on_openChrootButton_clicked(self):

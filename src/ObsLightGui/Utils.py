@@ -1,11 +1,27 @@
+#
+# Copyright 2011, Intel Inc.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Library General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+#
 '''
 Created on 28 oct. 2011
 
 @author: Florent Vennetier
 '''
 
-from PySide.QtCore import QObject, QRunnable, Signal
-from PySide.QtGui import QMessageBox
+from PySide.QtCore import QObject, QRunnable, QThreadPool, Qt, Signal
+from PySide.QtGui import QMessageBox, QProgressDialog
 
 from ObsLight import ObsLightErr
 
@@ -20,24 +36,47 @@ class QRunnableImpl(QRunnable):
         pass
 
 
-class QRunnableImpl2(QRunnable, QObject):
-    
+class ProgressRunnable(QRunnable, QObject):
+    '''
+    QRunnable implementation which can update a QProgressDialog, and
+    send exceptions to a callback.
+    '''
     __progressDialog = None
     __isInfinite = False
-    # Create a double signal: one with no parameter, the other with one integer parameter
+    __cb = None
+    # Create two signals: one with no parameter, the other with one integer parameter
     __finished = Signal((), (int, ))
 
-    
-    def __init__(self, method, *args):
+    def __init__(self, func, *args, **kwargs):
+        '''
+        Initialize the ProgressRunnable with the function to run in thread
+        and its optional arguments.
+        '''
         QRunnable.__init__(self)
         QObject.__init__(self)
-        self.method = method
+        self.func = func
         self.params = args
+        self.kwargs = kwargs
 
     def setProgressDialog(self, dialog):
+        '''
+        Set the QProgressDialog (or QProgressBar) to update when finished
+        running the function.
+        If it is an infinite progress dialog (minimum == maximum),
+        the ProgressRunnable will call reset().
+        If it is a regular progress dialog (minimum < maximum),
+        the ProgressRunnable will increment its value().
+        '''
         self.__progressDialog = dialog
         if self.__progressDialog is not None:
             self.__isInfinite = self.__progressDialog.minimum() < self.__progressDialog.maximum()
+            
+    def setErrorCallback(self, cb):
+        '''
+        Set the function that will be called if an exception is caught.
+        The function must take exactly one parameter (the exception).
+        '''
+        self.__cb = cb
         
     def __updateValue(self):
         if self.__progressDialog is not None:
@@ -54,13 +93,77 @@ class QRunnableImpl2(QRunnable, QObject):
                 self.__finished.disconnect(self.__progressDialog.reset)
 
     def run(self):
-        self.method(*self.params)
-        self.__updateValue()
+        try:
+            self.func(*self.params, **self.kwargs)
+        except BaseException as e:
+            if self.__cb is not None:
+                self.__cb(e)
+        finally:
+            self.__updateValue()
+
+def detachWithProgress(title, minDuration=500):
+    '''
+    Decorator which will make a function run in a QThreadPool while
+    displaying an infinite QProgressDialog.
+    '''
+    def showProgress1(func):
+        def showProgress2(*args):
+            progress = QProgressDialog()
+            progress.setLabelText(title)
+            progress.setMinimumDuration(minDuration)
+            progress.setWindowModality(Qt.WindowModal)
+            progress.setRange(0, 0)
+            runnable = ProgressRunnable(func, *args)
+            runnable.setProgressDialog(progress)
+            progress.show()
+            QThreadPool.globalInstance().start(runnable)
+        return showProgress2
+    return showProgress1
+
+
+# Attempt to write a "run on UI thread" function.
+# Does not work because of an obscure threading bug that I did not
+# manage to solve.
+
+#class UiThreadRunner(QObject):
+#    
+#    class FuncParam(object):
+#        func = None
+#        args = None
+#        
+#    __runSignal = Signal(FuncParam)
+#    
+#    def __init__(self):
+#        QObject.__init__(self)
+#        self.__runSignal.connect(self.__runInUiThread)
+#
+#    def __runInUiThread(self, funcParam):
+#        print "in __runInUiThread(), thread %s" % currentThread()
+#        print funcParam.args
+#        funcParam.func(*funcParam.args)
+#
+#    def run(self, func, *args):
+#        print "in run(), thread %s" % currentThread()
+#        param = UiThreadRunner.FuncParam()
+#        param.func = func
+#        param.args = args
+#        self.__runSignal.emit(param)
+#
+#uiThreadRunner = UiThreadRunner()
+#
+#def runInUiThread(func, *args):
+#    uiThreadRunner.run(func, *args)
+
 
 def popupOnException(f):
-    def catchException(*args):
+    '''
+    Catch the exceptions a function may return and display them
+    in a warning QMessageBox.
+    '''
+    def catchException(*args, **kwargs):
         try:
-            f(*args)
+            f(*args, **kwargs)
         except ObsLightErr.OBSLightBaseError as e:
+            #runInUiThread(QMessageBox.warning, None, "Exception occurred", e.msg)
             QMessageBox.warning(None, "Exception occurred", e.msg)
     return catchException
