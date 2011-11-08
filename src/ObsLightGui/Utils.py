@@ -166,4 +166,6 @@ def popupOnException(f):
         except ObsLightErr.OBSLightBaseError as e:
             #runInUiThread(QMessageBox.warning, None, "Exception occurred", e.msg)
             QMessageBox.warning(None, "Exception occurred", e.msg)
+        except BaseException as e:
+            QMessageBox.critical(None, "Exception occurred", str(e))
     return catchException

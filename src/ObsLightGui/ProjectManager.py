@@ -40,6 +40,7 @@ class ProjectManager(QObject):
     __deleteObsProjectButton = None
     __createChrootButton = None
     __addRepoInChrootButton = None
+    __importRpmButton = None
     __projectLinkLabel = None
     __chrootPathLineEdit = None
     __projectConfigManager = None
@@ -72,6 +73,8 @@ class ProjectManager(QObject):
         self.__addRepoInChrootButton = mainWindow.findChild(QPushButton,
                                                             "addRepoInChrootButton")
         self.__addRepoInChrootButton.clicked.connect(self.on_addRepoInChrootButton_clicked)
+        self.__importRpmButton = mainWindow.findChild(QPushButton, "importRpmButton")
+        self.__importRpmButton.clicked.connect(self.on_importRpmButton_clicked)
         self.__projectLinkLabel = mainWindow.findChild(QLabel, "projectPageLinkLabel")
         self.__chrootPathLineEdit = mainWindow.findChild(QLineEdit, "chrootPathLineEdit")
         self.__progress = QProgressDialog(mainWindow)
@@ -146,9 +149,18 @@ class ProjectManager(QObject):
                 QThreadPool.globalInstance().start(runnable)
                 #self.__gui.getObsLightManager().createChRoot(projectName)
 
+    @popupOnException
     def on_addRepoInChrootButton_clicked(self):
         projectName = self.getCurrentProjectName()
         self.__repoConfigManager = RepoConfigManager(self.__gui, projectName)
+
+    @popupOnException
+    def on_importRpmButton_clicked(self):
+        projectName = self.getCurrentProjectName()
+        packageName = self.__packageManager.currentPackage()
+        if projectName is not None and packageName is not None:
+            obslightManager = self.__gui.getObsLightManager()
+            obslightManager.addPackageSourceInChRoot(projectName, packageName)
 
     def on_projectSelected(self, _project):
         project = self.getCurrentProjectName()
@@ -174,9 +186,11 @@ class ProjectManager(QObject):
                 self.__chrootPathLineEdit.setText(chrootPath)
                 self.__createChrootButton.setText("Open chroot")
                 self.__addRepoInChrootButton.setEnabled(True)
+                self.__importRpmButton.setEnabled(True)
             else:
                 self.__createChrootButton.setText("Create chroot")
                 self.__addRepoInChrootButton.setEnabled(False)
+                self.__importRpmButton.setEnabled(False)
 
 class ProjectConfigManager(QObject):
     '''

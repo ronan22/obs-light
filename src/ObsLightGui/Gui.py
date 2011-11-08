@@ -83,7 +83,7 @@ class Gui(QObject):
     
     def obsLightErrorCallback(self, error):
         if isinstance(error, OBSLightBaseError):
-            self.sendStatusBarMessage("OBS Light error: %s" % error.msg, 0)
+            self.sendStatusBarMessage("OBS Light error: %s" % error.msg, 30000)
         else:
             self.sendStatusBarMessage("Caught exception: %s" % str(error))
     
