@@ -79,15 +79,25 @@ class Gui(QObject):
         return self.__mainWindow
     
     def getObsLightManager(self):
+        '''
+        Get the unique ObsLightManager instance.
+        '''
         return self.__obsLightManager
     
     def obsLightErrorCallback(self, error):
+        '''
+        Display errors in the status bar of the main window.
+        '''
         if isinstance(error, OBSLightBaseError):
             self.sendStatusBarMessage("OBS Light error: %s" % error.msg, 30000)
         else:
-            self.sendStatusBarMessage("Caught exception: %s" % str(error))
+            self.sendStatusBarMessage("Caught exception: %s" % str(error), 30000)
     
     def sendStatusBarMessage(self, message, timeout=0):
+        '''
+        Display a message in the status bar of the main window.
+        Timeout is in milliseconds.
+        '''
         self.__messageSignal.emit(message, timeout)
 
     def main(self):

@@ -24,7 +24,6 @@ from PySide.QtCore import QObject, QRegExp, QThreadPool, Signal, Qt
 from PySide.QtGui import QPushButton, QListWidget, QLineEdit, QLabel, QComboBox
 from PySide.QtGui import QRegExpValidator, QRadioButton, QProgressDialog
 
-from ObsLight.ObsLightErr import OBSLightBaseError
 from Utils import QRunnableImpl, ProgressRunnable, popupOnException
 from PackageManager import PackageManager
 
@@ -363,7 +362,12 @@ class ProjectConfigManager(QObject):
         self.finished.emit(False)
 
 class RepoConfigManager(QObject):
-    
+    '''
+    Manage the configuration of a repository about to be added to the chroot
+    of a project. Simply asks user about repository url/alias or name of
+    project to import repository from.
+    '''
+
     __gui = None
     __projectAlias = None
     __obsLightManager = None

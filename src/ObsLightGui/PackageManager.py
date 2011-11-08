@@ -79,6 +79,10 @@ class PackageManager(QObject):
             self.__fileManager.setCurrentPackage(self.__project, self.currentPackage())
         
     def currentPackage(self):
+        '''
+        Get the name of the package that is currently selected in the
+        package list. May return None.
+        '''
         index = self.__packageTableView.currentIndex()
         if index.isValid():
             row = index.row()

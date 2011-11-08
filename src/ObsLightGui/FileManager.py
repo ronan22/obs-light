@@ -25,7 +25,7 @@ from PySide.QtGui import QFileSystemModel, QTreeView
 
 class FileManager(QObject):
     '''
-    classdocs
+    Manage the file list widget and file-related buttons of the main window.
     '''
 
     __gui = None
@@ -43,6 +43,10 @@ class FileManager(QObject):
         self.__fileTreeView = gui.getMainWindow().findChild(QTreeView, "fileTreeView")
 
     def setCurrentPackage(self, project, package):
+        '''
+        Set the package that you want this class to operate on.
+        None is valid.
+        '''
         if project is not None and len(project) < 1:
             project = None
         if package is not None and len(package) < 1:

@@ -157,8 +157,9 @@ def detachWithProgress(title, minDuration=500):
 
 def popupOnException(f):
     '''
-    Catch the exceptions a function may return and display them
+    Decorator to catch the exceptions a function may return and display them
     in a warning QMessageBox.
+    To be used only in UI thread.
     '''
     def catchException(*args, **kwargs):
         try:
