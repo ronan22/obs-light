@@ -115,16 +115,25 @@ class ObsLightProject(object):
 
             if self.__chrootIsInit:
                 for packageName in self.__packages.getListPackages():
-                    if self.__packages.isInstallInChroot(packageName):
-                        absPackagePath = os.path.join(self.__chroot.getDirectory() , self.__packages.getPackageDirectory(packageName))
+                    absPackagePath = self.getAbsPackagePath(name=packageName)
+                    if absPackagePath != None:
                         if not os.path.isdir(absPackagePath) :
-                            self.addPackageSourceInChRoot(package=packageName)
-
+                                self.addPackageSourceInChRoot(package=packageName)
 
         if not os.path.isdir(self.__projectDirectory):
             os.makedirs(self.__projectDirectory)
 
+    def getAbsPackagePath(self, name):
+        '''
+        return the absolute path of a package install into chroot.
+        return None if the package is not install.
+        '''
 
+        if self.__packages.isInstallInChroot(name):
+            absPackagePath = self.__chroot.getDirectory() + self.__packages.getPackageDirectory(name)
+            return absPackagePath
+        else:
+            return None
 
     def getDirectory(self):
         '''
@@ -147,7 +156,8 @@ class ObsLightProject(object):
                 packageFromSave["listFile"] = listFile
 
             toUpDate = False
-            if "listFile" in packageFromSave.keys():listFile = packageFromSave["listFile"]
+            if "listFile" in packageFromSave.keys():
+                listFile = packageFromSave["listFile"]
             for aFile in listFile:
                 if not os.path.isfile(os.path.join(packagePath, aFile)):
                     toUpDate = True
