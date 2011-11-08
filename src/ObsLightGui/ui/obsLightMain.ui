@@ -792,7 +792,7 @@
    <addaction name="menuProject"/>
    <addaction name="menuHelp"/>
   </widget>
-  <widget class="QStatusBar" name="mainStatusbar"/>
+  <widget class="QStatusBar" name="mainStatusBar"/>
   <action name="actionExit">
    <property name="text">
     <string>Exit</string>

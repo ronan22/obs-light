@@ -25,7 +25,7 @@ from PySide.QtGui import QInputDialog, QProgressDialog, QPushButton, QTableView
 
 from PackageModel import PackageModel
 from ObsLightGui.FileManager import FileManager
-from Utils import popupOnException, QRunnableImpl2
+from Utils import popupOnException, ProgressRunnable
 
 class PackageManager(QObject):
     '''
@@ -101,10 +101,10 @@ class PackageManager(QObject):
             self.__progress.setWindowModality(Qt.WindowModal)
             # make the progress "infinite"
             self.__progress.setRange(0, 0)
-            #self.__progress.setValue(0)
             self.__progress.show()
-            runnable = QRunnableImpl2(self.__model.addPackage, packageName)
+            runnable = ProgressRunnable(self.__model.addPackage, packageName)
             runnable.setProgressDialog(self.__progress)
+            runnable.setErrorCallback(self.__gui.obsLightErrorCallback)
             QThreadPool.globalInstance().start(runnable)
 
     @popupOnException

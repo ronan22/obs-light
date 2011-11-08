@@ -23,14 +23,16 @@ Created on 27 sept. 2011
 import sys
 from os.path import dirname, join
 
-from PySide.QtCore import QIODevice, QFile, QMetaObject
-from PySide.QtGui import QApplication
+from PySide.QtCore import QIODevice, QFile, QMetaObject, QObject, Signal
+from PySide.QtGui import QApplication, QStatusBar
 from PySide.QtUiTools import QUiLoader
+
+from ObsLight.ObsLightErr import OBSLightBaseError
 
 from ProjectManager import ProjectManager
 from ActionManager import MainWindowActionManager
 
-class Gui():
+class Gui(QObject):
     '''
     ObsLight GUI main class. Keeps reference to the main window
     and to the ObsLightManager.
@@ -38,11 +40,15 @@ class Gui():
     application = None
     uiLoader = None
     __mainWindow = None
+    __statusBar = None
     __obsLightManager = None
     __obsProjectManager = None
     __mainWindowActionManager = None
     
+    __messageSignal = Signal((str, int))
+    
     def __init__(self, obsLightManager=None):
+        QObject.__init__(self)
         self.application = QApplication(sys.argv)
         self.uiLoader = QUiLoader()
         self.__obsLightManager = obsLightManager
@@ -62,6 +68,8 @@ class Gui():
     def __loadMainWindow(self):
         self.__mainWindow = self.loadWindow("obsLightMain.ui")
         self.__mainWindowActionManager = MainWindowActionManager(self)
+        self.__statusBar = self.__mainWindow.findChild(QStatusBar, "mainStatusBar")
+        self.__messageSignal.connect(self.__statusBar.showMessage)
         self.__mainWindow.show()
         
     def getMainWindow(self):
@@ -72,6 +80,15 @@ class Gui():
     
     def getObsLightManager(self):
         return self.__obsLightManager
+    
+    def obsLightErrorCallback(self, error):
+        if isinstance(error, OBSLightBaseError):
+            self.sendStatusBarMessage("OBS Light error: %s" % error.msg, 0)
+        else:
+            self.sendStatusBarMessage("Caught exception: %s" % str(error))
+    
+    def sendStatusBarMessage(self, message, timeout=0):
+        self.__messageSignal.emit(message, timeout)
 
     def main(self):
         self.__loadMainWindow()
