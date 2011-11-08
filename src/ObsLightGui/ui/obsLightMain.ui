@@ -154,7 +154,7 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="7" colspan="2">
+        <item row="0" column="7" colspan="3">
          <widget class="QLineEdit" name="chrootPathLineEdit">
           <property name="readOnly">
            <bool>true</bool>
@@ -175,17 +175,10 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="10">
-         <widget class="QPushButton" name="openChrootButton">
-          <property name="text">
-           <string>Open</string>
-          </property>
-         </widget>
-        </item>
         <item row="3" column="5">
-         <widget class="QPushButton" name="buildAllPackagesButton">
+         <widget class="QPushButton" name="addRepoInChrootButton">
           <property name="text">
-           <string>Build All</string>
+           <string>Add repository in chroot</string>
           </property>
          </widget>
         </item>
@@ -255,7 +248,7 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="9">
+        <item row="0" column="10">
          <widget class="QPushButton" name="createChrootButton">
           <property name="text">
            <string>Create chroot</string>

@@ -22,7 +22,7 @@ Created on 27 sept. 2011
  
 from PySide.QtCore import QObject, QRegExp, QThreadPool, Signal, Qt
 from PySide.QtGui import QPushButton, QListWidget, QLineEdit, QLabel, QComboBox
-from PySide.QtGui import QRegExpValidator, QProgressDialog
+from PySide.QtGui import QRegExpValidator, QRadioButton, QProgressDialog
 
 from ObsLight.ObsLightErr import OBSLightBaseError
 from Utils import QRunnableImpl, ProgressRunnable, popupOnException
@@ -39,10 +39,11 @@ class ProjectManager(QObject):
     __modifyObsProjectButton = None
     __deleteObsProjectButton = None
     __createChrootButton = None
-    __openChrootButton = None
+    __addRepoInChrootButton = None
     __projectLinkLabel = None
     __chrootPathLineEdit = None
     __projectConfigManager = None
+    __repoConfigManager = None
     __packageManager = None
     __statusBar = None
     __progress = None
@@ -52,24 +53,25 @@ class ProjectManager(QObject):
         self.__gui = gui
         mainWindow = gui.getMainWindow()
         self.__obsProjectsListWidget = mainWindow.findChild(QListWidget,
-                                                                     "obsProjectsListWidget")
+                                                            "obsProjectsListWidget")
         self.__obsProjectsListWidget.currentTextChanged.connect(self.on_projectSelected)
         self.loadProjectList()
         self.__packageManager = PackageManager(self.__gui)
         self.__newObsProjectButton = mainWindow.findChild(QPushButton,
-                                                                   "newObsProjectButton")
+                                                          "newObsProjectButton")
         self.__newObsProjectButton.clicked.connect(self.on_newObsProjectButton_clicked)
         self.__modifyObsProjectButton = mainWindow.findChild(QPushButton,
-                                                                      "modifyObsProjectButton")
+                                                             "modifyObsProjectButton")
         self.__modifyObsProjectButton.clicked.connect(self.on_modifyObsProjectButton_clicked)
         self.__deleteObsProjectButton = mainWindow.findChild(QPushButton,
-                                                                      "deleteObsProjectButton")
+                                                             "deleteObsProjectButton")
         self.__deleteObsProjectButton.clicked.connect(self.on_deleteObsProjectButton_clicked)
         self.__createChrootButton = mainWindow.findChild(QPushButton,
-                                                                  "createChrootButton")
+                                                         "createChrootButton")
         self.__createChrootButton.clicked.connect(self.on_createChrootButton_clicked)
-        self.__openChrootButton = mainWindow.findChild(QPushButton, "openChrootButton")
-        self.__openChrootButton.clicked.connect(self.on_openChrootButton_clicked)
+        self.__addRepoInChrootButton = mainWindow.findChild(QPushButton,
+                                                            "addRepoInChrootButton")
+        self.__addRepoInChrootButton.clicked.connect(self.on_addRepoInChrootButton_clicked)
         self.__projectLinkLabel = mainWindow.findChild(QLabel, "projectPageLinkLabel")
         self.__chrootPathLineEdit = mainWindow.findChild(QLineEdit, "chrootPathLineEdit")
         self.__progress = QProgressDialog(mainWindow)
@@ -95,21 +97,23 @@ class ProjectManager(QObject):
             project = None
         return project
 
+    @popupOnException
     def on_newObsProjectButton_clicked(self):
         self.__projectConfigManager = ProjectConfigManager(self.__gui)
         self.__projectConfigManager.finished.connect(self.on_projectConfigManager_finished)
-        
+
+    @popupOnException
     def on_modifyObsProjectButton_clicked(self):
         projectName = self.getCurrentProjectName()
         self.__projectConfigManager = ProjectConfigManager(self.__gui, projectName)
         self.__projectConfigManager.finished.connect(self.on_projectConfigManager_finished)
-        
+
     @popupOnException
     def on_deleteObsProjectButton_clicked(self):
         projectName = self.getCurrentProjectName()
         self.__gui.getObsLightManager().removeProject(projectName)
         self.loadProjectList()
-    
+
     @popupOnException
     def on_projectConfigManager_finished(self, success):
         if success:
@@ -118,31 +122,33 @@ class ProjectManager(QObject):
     @popupOnException
     def on_createChrootButton_clicked(self):
         projectName = self.getCurrentProjectName()
+        obslightManager = self.__gui.getObsLightManager()
         if projectName is not None:
-            self.__progress.setLabelText("Creating chroot")
-            self.__progress.setMinimumDuration(500)
-            self.__progress.setWindowModality(Qt.WindowModal)
-            # make the progress "infinite"
-            self.__progress.setRange(0, 0)
-            self.__progress.show()
-            runnable = ProgressRunnable(self.__gui.getObsLightManager().createChRoot, projectName)
-            runnable.setProgressDialog(self.__progress)
-            runnable.setErrorCallback(self.__gui.obsLightErrorCallback)
-            QThreadPool.globalInstance().start(runnable)
-            
-            #self.__gui.getObsLightManager().createChRoot(projectName)
-
-    @popupOnException
-    def on_openChrootButton_clicked(self):
-        projectName = self.getCurrentProjectName()
-        if projectName is not None:
-            currentPackage = self.__packageManager.currentPackage()
-            if currentPackage is None:
-                self.__gui.getObsLightManager().goToChRoot(projectName, detach=True)
+            if obslightManager.isChRootInit(projectName):
+                currentPackage = self.__packageManager.currentPackage()
+                if currentPackage is None:
+                    self.__gui.getObsLightManager().goToChRoot(projectName,
+                                                               detach=True)
+                else:
+                    self.__gui.getObsLightManager().goToChRoot(projectName,
+                                                               currentPackage,
+                                                               detach=True)
             else:
-                self.__gui.getObsLightManager().goToChRoot(projectName,
-                                                           currentPackage,
-                                                           detach=True)
+                self.__progress.setLabelText("Creating chroot")
+                self.__progress.setMinimumDuration(500)
+                self.__progress.setWindowModality(Qt.WindowModal)
+                # make the progress "infinite"
+                self.__progress.setRange(0, 0)
+                self.__progress.show()
+                runnable = ProgressRunnable(obslightManager.createChRoot, projectName)
+                runnable.setProgressDialog(self.__progress)
+                runnable.setErrorCallback(self.__gui.obsLightErrorCallback)
+                QThreadPool.globalInstance().start(runnable)
+                #self.__gui.getObsLightManager().createChRoot(projectName)
+
+    def on_addRepoInChrootButton_clicked(self):
+        projectName = self.getCurrentProjectName()
+        self.__repoConfigManager = RepoConfigManager(self.__gui, projectName)
 
     def on_projectSelected(self, _project):
         project = self.getCurrentProjectName()
@@ -156,12 +162,21 @@ class ProjectManager(QObject):
             self.updateChrootPath()
                 
     def updateChrootPath(self):
+        '''
+        Update the chroot path displayed in the main window
+        with the one of the currently selected project.
+        '''
         project = self.getCurrentProjectName()
         if project is not None:
             obslightManager = self.__gui.getObsLightManager()
             if obslightManager.isChRootInit(project):
                 chrootPath = obslightManager.getChRootPath(project)
                 self.__chrootPathLineEdit.setText(chrootPath)
+                self.__createChrootButton.setText("Open chroot")
+                self.__addRepoInChrootButton.setEnabled(True)
+            else:
+                self.__createChrootButton.setText("Create chroot")
+                self.__addRepoInChrootButton.setEnabled(False)
 
 class ProjectConfigManager(QObject):
     '''
@@ -332,3 +347,68 @@ class ProjectConfigManager(QObject):
 
     def on_configDialog_rejected(self):
         self.finished.emit(False)
+
+class RepoConfigManager(QObject):
+    
+    __gui = None
+    __projectAlias = None
+    __obsLightManager = None
+    
+    __configDialog = None
+    __projectComboBox = None
+    __urlLineEdit = None
+    __aliasLineEdit = None
+    __fromProjectRadio = None
+    __fromUrlRadio = None
+    
+    def __init__(self, gui, projectAlias):
+        QObject.__init__(self)
+        self.__gui = gui
+        self.__projectAlias = projectAlias
+        self.__obsLightManager = self.__gui.getObsLightManager()
+        self.__configDialog = self.__gui.loadWindow("obsRepoConfig.ui")
+        self.__loadFieldObjects()
+        self.__loadProjectPossibilities()
+        self.__configDialog.accepted.connect(self.on_configDialog_accepted)
+        self.__configDialog.rejected.connect(self.on_configDialog_rejected)
+        self.__configDialog.show()
+
+    def __loadFieldObjects(self):
+        self.__projectComboBox = self.__configDialog.findChild(QComboBox, "projectComboBox")
+        self.__urlLineEdit = self.__configDialog.findChild(QLineEdit, "repoUrlLineEdit")
+        self.__aliasLineEdit = self.__configDialog.findChild(QLineEdit, "repoAliasLineEdit")
+        self.__fromProjectRadio = self.__configDialog.findChild(QRadioButton,
+                                                                "repoFromProjectRadioButton")
+        self.__fromUrlRadio = self.__configDialog.findChild(QRadioButton,
+                                                            "repoFromUrlRadioButton")
+
+    def __loadProjectPossibilities(self):
+        projects = self.__obsLightManager.getLocalProjectList()
+        self.__projectComboBox.addItems(projects)
+        
+    def getRepoAlias(self):
+        return self.__aliasLineEdit.text()
+    
+    def getRepoUrl(self):
+        return self.__urlLineEdit.text()
+    
+    def getProject(self):
+        return self.__projectComboBox.currentText()
+    
+    def addFromUrl(self):
+        return self.__fromUrlRadio.isChecked()
+
+    @popupOnException
+    def on_configDialog_accepted(self):
+        if self.addFromUrl():
+            if len(self.getRepoUrl()) > 0 and len(self.getRepoAlias()) > 0:
+                self.__obsLightManager.addRepo(self.__projectAlias,
+                                               repoUrl=self.getRepoUrl(),
+                                               alias=self.getRepoAlias())
+        else:
+            if len(self.getProject()) > 0:
+                self.__obsLightManager.addRepo(self.__projectAlias,
+                                               fromProject=self.getProject())
+
+    def on_configDialog_rejected(self):
+        pass
