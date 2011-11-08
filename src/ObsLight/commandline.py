@@ -44,8 +44,10 @@ __removeProject__ = "removeProject"
 __removePackage__ = "removePackage"
 __getListPackage__ = "getPackageList"
 __addPackage__ = "addPackage"
+
 __createChRoot__ = "createChRoot"
 __goToChRoot__ = "goToChRoot"
+
 __addPackageSourceInChRoot__ = "addPackageSourceInChRoot"
 __makePatch__ = "makePatch"
 __addAndCommitChange__ = "addAndCommitChanges"

@@ -72,7 +72,8 @@ class ObsLightProjects(object):
         '''
         if aFile == None:
             pathFile = self.__pathFile
-            importFile = True
+            #If default file load, no importFile=False and no update on osc directory.
+            importFile = False
         else:
             pathFile = aFile
             importFile = False
