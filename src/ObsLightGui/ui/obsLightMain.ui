@@ -103,7 +103,7 @@
            <bool>false</bool>
           </property>
           <property name="text">
-           <string>Add File</string>
+           <string>Add file</string>
           </property>
          </widget>
         </item>
@@ -113,7 +113,7 @@
            <bool>false</bool>
           </property>
           <property name="text">
-           <string>Delete File</string>
+           <string>Delete file</string>
           </property>
          </widget>
         </item>
@@ -123,7 +123,7 @@
            <bool>false</bool>
           </property>
           <property name="text">
-           <string>Update File</string>
+           <string>Update file</string>
           </property>
          </widget>
         </item>
@@ -171,9 +171,9 @@
          </widget>
         </item>
         <item row="5" column="8">
-         <widget class="QPushButton" name="generateSpecFileButton">
+         <widget class="QPushButton" name="generatePatchButton">
           <property name="text">
-           <string>Generate Spec File</string>
+           <string>Generate patch</string>
           </property>
          </widget>
         </item>

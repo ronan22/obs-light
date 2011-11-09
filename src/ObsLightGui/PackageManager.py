@@ -42,6 +42,8 @@ class PackageManager(QObject):
     
     __packageTableView = None
     __newPackageButton = None
+    __deletePackageButton = None
+    __makePatchButton = None
 
     def __init__(self, gui):
         QObject.__init__(self)
@@ -58,7 +60,14 @@ class PackageManager(QObject):
         self.__deletePackageButton = gui.getMainWindow().findChild(QPushButton,
                                                                    "deletePackageButton")
         self.__deletePackageButton.clicked.connect(self.on_deletePackageButton_clicked)
+        self.__makePatchButton = gui.getMainWindow().findChild(QPushButton,
+                                                               "generatePatchButton")
+        self.__makePatchButton.clicked.connect(self.on_makePatchButton_clicked)
         self.__progress = QProgressDialog(gui.getMainWindow())
+        self.__progress.setMinimumDuration(500)
+        self.__progress.setWindowModality(Qt.WindowModal)
+        # make the progress "infinite"
+        self.__progress.setRange(0, 0)
         
     def getCurrentProject(self):
         return self.__project
@@ -101,10 +110,6 @@ class PackageManager(QObject):
                                                      u"Package name (must exist on server):")
         if accepted:
             self.__progress.setLabelText("Adding package")
-            self.__progress.setMinimumDuration(500)
-            self.__progress.setWindowModality(Qt.WindowModal)
-            # make the progress "infinite"
-            self.__progress.setRange(0, 0)
             self.__progress.show()
             runnable = ProgressRunnable(self.__model.addPackage, packageName)
             runnable.setProgressDialog(self.__progress)
@@ -121,3 +126,21 @@ class PackageManager(QObject):
                                                                  PackageModel.PackageNameColumn))
         if packageName is not None and len(packageName) > 0:
             self.__model.removePackage(packageName)
+
+    @popupOnException
+    def on_makePatchButton_clicked(self):
+        project = self.getCurrentProject()
+        package = self.currentPackage()
+        if project is None or package is None:
+            return
+        patchName, accepted = QInputDialog.getText(self.__gui.getMainWindow(),
+                                                   u"Choose patch name...",
+                                                   u"Patch name:")
+        if accepted:
+            self.__progress.setLabelText("Creating patch")
+            self.__progress.show()
+            runnable = ProgressRunnable(self.__obsLightManager.makePatch,
+                                        project, package, patchName)
+            runnable.setProgressDialog(self.__progress)
+            runnable.setErrorCallback(self.__gui.obsLightErrorCallback)
+            QThreadPool.globalInstance().start(runnable)
