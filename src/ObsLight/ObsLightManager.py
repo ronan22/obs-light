@@ -108,12 +108,30 @@ class ObsLightManager(object):
         return res
 
     def getProjectParameter(self, projectLocalName, parameter):
-        # TODO: check valid parameters
         '''
-        Get the value of a project parameter.
+        Get the value of a project parameter:
+        the valide info is :
+            projectLocalName
+            projectObsName
+            projectDirectory
+            obsServer
+            projectTarget
+            projectArchitecture
+            projectTitle
+            description
         '''
         if not self.isALocalProject(projectLocalName):
             raise ObsLightProjectsError(projectLocalName + " is not a local project")
+        if not parameter in ["projectLocalName",
+                             "projectObsName",
+                             "projectDirectory",
+                             "obsServer",
+                             "projectTarget",
+                             "projectArchitecture",
+                             "projectTitle",
+                             "description"]:
+            raise ObsLightProjectsError(parameter + " is not a parameter of a local project ")
+
         return self.__myObsLightProjects.getProjectInfo(projectLocalName, parameter)
 
     def setProjectParameter(self, projectLocalName, parameter, value):

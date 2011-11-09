@@ -72,7 +72,7 @@ class ObsLightProjects(object):
         '''
         if aFile == None:
             pathFile = self.__pathFile
-            #If default file load, no importFile=False and no update on osc directory.
+            #If default file load, importFile=False and no update on osc directory.
             importFile = False
         else:
             pathFile = aFile
@@ -222,7 +222,16 @@ class ObsLightProjects(object):
 
     def getProjectInfo(self, projectLocalName=None, info=None):
         '''
-        
+        Get the value of a project parameter:
+        the valide info is :
+            projectLocalName
+            projectObsName
+            projectDirectory
+            obsServer
+            projectTarget
+            projectArchitecture
+            projectTitle
+            description
         '''
         return self.__dicOBSLightProjects[projectLocalName].getProjectInfo(info=info)
 

@@ -194,14 +194,14 @@ class ObsLightProject(object):
 
     def getProjectInfo(self, info=None):
         '''
-        return the value  of the info of the project:
+        Get the value of a project parameter:
         the valide info is :
             projectLocalName
             projectObsName
             projectDirectory
             obsServer
             projectTarget
-            "projectArchitecture
+            projectArchitecture
             projectTitle
             description
         '''
