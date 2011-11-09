@@ -14,6 +14,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 #
+from ObsLight.ObsServer import ObsServer
 '''
 Created on 27 sept. 2011
 
@@ -41,6 +42,9 @@ class ProjectManager(QObject):
     __addRepoInChrootButton = None
     __importRpmButton = None
     __projectLinkLabel = None
+    __projectRepoLinkLabel = None
+    __projectTitleLabel = None
+    __projectLabel = None
     __chrootPathLineEdit = None
     __projectConfigManager = None
     __repoConfigManager = None
@@ -75,6 +79,9 @@ class ProjectManager(QObject):
         self.__importRpmButton = mainWindow.findChild(QPushButton, "importRpmButton")
         self.__importRpmButton.clicked.connect(self.on_importRpmButton_clicked)
         self.__projectLinkLabel = mainWindow.findChild(QLabel, "projectPageLinkLabel")
+        self.__projectRepoLinkLabel = mainWindow.findChild(QLabel, "projectRepoPageLinkLabel")
+        self.__projectTitleLabel = mainWindow.findChild(QLabel, "projectTitleLabel")
+        self.__projectLabel = mainWindow.findChild(QLabel, "projectLabelValue")
         self.__chrootPathLineEdit = mainWindow.findChild(QLineEdit, "chrootPathLineEdit")
         self.__progress = QProgressDialog(mainWindow)
         self.__progress.setMinimumDuration(500)
@@ -169,10 +176,20 @@ class ProjectManager(QObject):
         self.__packageManager.setCurrentProject(project)
         if project is not None:
             obslightManager = self.__gui.getObsLightManager()
-            link = obslightManager.getProjectWebPage(project)
+            projectLink = obslightManager.getProjectWebPage(project)
             projectObsName = obslightManager.getProjectParameter(project,
-                                                                                 "projectObsName")
-            self.__projectLinkLabel.setText('<a href="%s">%s</a>' % (link, projectObsName))
+                                                                 "projectObsName")
+            obsServer = obslightManager.getProjectParameter(project, "obsServer")
+            repoLink = obslightManager.getRepo(obsServer)
+            projectTitle = obslightManager.getProjectParameter(project, "projectTitle")
+            
+            self.__projectLabel.setText(project)
+            self.__projectTitleLabel.setText(projectTitle)
+            self.__projectLinkLabel.setText('<a href="%s">%s</a>' % (projectLink,
+                                                                     projectObsName))
+            self.__projectRepoLinkLabel.setText('<a href="%s">%s</a>' % (repoLink,
+                                                                         obsServer))
+            
             self.updateChrootPath()
                 
     def updateChrootPath(self):

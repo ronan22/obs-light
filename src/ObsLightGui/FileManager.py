@@ -21,7 +21,7 @@ Created on 4 nov. 2011
 '''
 
 from PySide.QtCore import QObject
-from PySide.QtGui import QFileSystemModel, QTreeView
+from PySide.QtGui import QFileSystemModel, QTabWidget, QTreeView
 
 class FileManager(QObject):
     '''
@@ -35,12 +35,14 @@ class FileManager(QObject):
     __package = None
     __packageDir = None
     __fileTreeView = None
+    __packageTabWidget = None
 
     def __init__(self, gui):
         QObject.__init__(self)
         self.__gui = gui
         self.__obsLightManager = gui.getObsLightManager()
         self.__fileTreeView = gui.getMainWindow().findChild(QTreeView, "fileTreeView")
+        self.__packageTabWidget = gui.getMainWindow().findChild(QTabWidget, "packageTabWidget")
 
     def setCurrentPackage(self, project, package):
         '''
@@ -59,6 +61,9 @@ class FileManager(QObject):
             self.__model.directoryLoaded.connect(self.on_path_loaded)
             self.__packageDir = path
             self.__model.setRootPath(path)
+            self.__packageTabWidget.setEnabled(True)
+        else:
+            self.__packageTabWidget.setEnabled(False)
         self.__fileTreeView.setModel(self.__model)
         
     def on_path_loaded(self, path):

@@ -21,7 +21,7 @@ Created on 2 nov. 2011
 '''
 
 from PySide.QtCore import QObject, QThreadPool, Qt
-from PySide.QtGui import QInputDialog, QProgressDialog, QPushButton, QTableView
+from PySide.QtGui import QInputDialog, QProgressDialog, QPushButton, QTableView, QWidget
 
 from PackageModel import PackageModel
 from ObsLightGui.FileManager import FileManager
@@ -39,7 +39,8 @@ class PackageManager(QObject):
     __model = None
     __fileManager = None
     __progress = None
-    
+
+    __packageWidget = None
     __packageTableView = None
     __newPackageButton = None
     __deletePackageButton = None
@@ -50,6 +51,7 @@ class PackageManager(QObject):
         self.__gui = gui
         self.__obsLightManager = gui.getObsLightManager()
         self.__fileManager = FileManager(self.__gui)
+        self.__packageWidget = gui.getMainWindow().findChild(QWidget, "packageWidget")
         self.__packageTableView = gui.getMainWindow().findChild(QTableView,
                                                                   "packageTableView")
         self.__packageTableView.setSelectionBehavior(QTableView.SelectionBehavior.SelectRows)
@@ -84,6 +86,11 @@ class PackageManager(QObject):
         self.__project = projectName
         self.__model = PackageModel(self.__obsLightManager, projectName)
         self.__packageTableView.setModel(self.__model)
+        self.__packageWidget.setEnabled(self.__project is not None)
+        if self.currentPackage() is not None:
+            self.__fileManager.setCurrentPackage(self.__project, self.currentPackage())
+        else:
+            self.__fileManager.setCurrentPackage(None, None)
         
     def on_packageIndex_clicked(self, index):
         if index.isValid():

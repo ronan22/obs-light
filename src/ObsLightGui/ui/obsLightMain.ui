@@ -60,7 +60,7 @@
         </property>
         <item>
          <widget class="QWidget" name="directoryWidget" native="true">
-          <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,1,2">
            <property name="margin">
             <number>0</number>
            </property>
@@ -282,7 +282,7 @@
                  <item row="1" column="1">
                   <widget class="QLabel" name="packageNameLabelValue">
                    <property name="text">
-                    <string> </string>
+                    <string/>
                    </property>
                   </widget>
                  </item>
