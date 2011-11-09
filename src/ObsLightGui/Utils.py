@@ -43,9 +43,10 @@ class ProgressRunnable(QRunnable, QObject):
     '''
     __progressDialog = None
     __isInfinite = False
-    __cb = None
     # Create two signals: one with no parameter, the other with one integer parameter
     __finished = Signal((), (int, ))
+    finished = Signal()
+    finishedWithException = Signal(BaseException)
 
     def __init__(self, func, *args, **kwargs):
         '''
@@ -70,13 +71,6 @@ class ProgressRunnable(QRunnable, QObject):
         self.__progressDialog = dialog
         if self.__progressDialog is not None:
             self.__isInfinite = self.__progressDialog.minimum() < self.__progressDialog.maximum()
-            
-    def setErrorCallback(self, cb):
-        '''
-        Set the function that will be called if an exception is caught.
-        The function must take exactly one parameter (the exception).
-        '''
-        self.__cb = cb
         
     def __updateValue(self):
         if self.__progressDialog is not None:
@@ -93,13 +87,16 @@ class ProgressRunnable(QRunnable, QObject):
                 self.__finished.disconnect(self.__progressDialog.reset)
 
     def run(self):
+        caughtException = None
         try:
             self.func(*self.params, **self.kwargs)
         except BaseException as e:
-            if self.__cb is not None:
-                self.__cb(e)
+            caughtException = e
         finally:
             self.__updateValue()
+            if caughtException is not None:
+                self.finishedWithException.emit(e)
+            self.finished.emit()
 
 def detachWithProgress(title, minDuration=500):
     '''

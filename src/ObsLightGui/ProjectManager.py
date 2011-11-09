@@ -77,6 +77,11 @@ class ProjectManager(QObject):
         self.__projectLinkLabel = mainWindow.findChild(QLabel, "projectPageLinkLabel")
         self.__chrootPathLineEdit = mainWindow.findChild(QLineEdit, "chrootPathLineEdit")
         self.__progress = QProgressDialog(mainWindow)
+        self.__progress.setMinimumDuration(500)
+        self.__progress.setWindowModality(Qt.WindowModal)
+        self.__progress.setCancelButton(None)
+        # make the progress "infinite"
+        self.__progress.setRange(0, 0)
         
         
     def loadProjectList(self):
@@ -128,25 +133,23 @@ class ProjectManager(QObject):
         if projectName is not None:
             if obslightManager.isChRootInit(projectName):
                 currentPackage = self.__packageManager.currentPackage()
+                runnable = None
                 if currentPackage is None:
-                    self.__gui.getObsLightManager().goToChRoot(projectName,
-                                                               detach=True)
+                    runnable = ProgressRunnable(obslightManager.goToChRoot, projectName,
+                                                detach=True)
                 else:
-                    self.__gui.getObsLightManager().goToChRoot(projectName,
-                                                               currentPackage,
-                                                               detach=True)
+                    runnable = ProgressRunnable(obslightManager.goToChRoot, projectName,
+                                                currentPackage, detach=True)
+                    
+                runnable.finishedWithException.connect(self.__gui.obsLightErrorCallback2)
+                QThreadPool.globalInstance().start(runnable)
             else:
                 self.__progress.setLabelText("Creating chroot")
-                self.__progress.setMinimumDuration(500)
-                self.__progress.setWindowModality(Qt.WindowModal)
-                # make the progress "infinite"
-                self.__progress.setRange(0, 0)
                 self.__progress.show()
                 runnable = ProgressRunnable(obslightManager.createChRoot, projectName)
                 runnable.setProgressDialog(self.__progress)
-                runnable.setErrorCallback(self.__gui.obsLightErrorCallback)
+                runnable.finishedWithException.connect(self.__gui.obsLightErrorCallback2)
                 QThreadPool.globalInstance().start(runnable)
-                #self.__gui.getObsLightManager().createChRoot(projectName)
 
     @popupOnException
     def on_addRepoInChrootButton_clicked(self):
