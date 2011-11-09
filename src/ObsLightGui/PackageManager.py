@@ -65,7 +65,9 @@ class PackageManager(QObject):
         self.__makePatchButton.clicked.connect(self.on_makePatchButton_clicked)
         self.__progress = QProgressDialog(gui.getMainWindow())
         self.__progress.setMinimumDuration(500)
+        #self.__progress.setWindowModality(Qt.NonModal)
         self.__progress.setWindowModality(Qt.WindowModal)
+        self.__progress.setCancelButton(None)
         # make the progress "infinite"
         self.__progress.setRange(0, 0)
         
@@ -113,7 +115,7 @@ class PackageManager(QObject):
             self.__progress.show()
             runnable = ProgressRunnable(self.__model.addPackage, packageName)
             runnable.setProgressDialog(self.__progress)
-            runnable.setErrorCallback(self.__gui.obsLightErrorCallback)
+            runnable.finishedWithException.connect(self.__gui.obsLightErrorCallback2)
             QThreadPool.globalInstance().start(runnable)
 
     @popupOnException
@@ -142,5 +144,5 @@ class PackageManager(QObject):
             runnable = ProgressRunnable(self.__obsLightManager.makePatch,
                                         project, package, patchName)
             runnable.setProgressDialog(self.__progress)
-            runnable.setErrorCallback(self.__gui.obsLightErrorCallback)
+            runnable.finishedWithException.connect(self.__gui.obsLightErrorCallback2)
             QThreadPool.globalInstance().start(runnable)

@@ -24,7 +24,7 @@ import sys
 from os.path import dirname, join
 
 from PySide.QtCore import QIODevice, QFile, QMetaObject, QObject, Signal
-from PySide.QtGui import QApplication, QStatusBar
+from PySide.QtGui import QApplication, QMessageBox, QStatusBar
 from PySide.QtUiTools import QUiLoader
 
 from ObsLight.ObsLightErr import OBSLightBaseError
@@ -92,6 +92,12 @@ class Gui(QObject):
             self.sendStatusBarMessage("OBS Light error: %s" % error.msg, 30000)
         else:
             self.sendStatusBarMessage("Caught exception: %s" % str(error), 30000)
+
+    def obsLightErrorCallback2(self, error):
+        if isinstance(error, OBSLightBaseError):
+            QMessageBox.warning(None, "Exception occurred", error.msg)
+        else:
+            QMessageBox.critical(None, "Exception occurred", str(error))
     
     def sendStatusBarMessage(self, message, timeout=0):
         '''
