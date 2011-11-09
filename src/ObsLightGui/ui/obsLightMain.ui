@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>842</width>
-    <height>522</height>
+    <width>800</width>
+    <height>600</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -24,6 +24,9 @@
     </sizepolicy>
    </property>
    <layout class="QGridLayout" name="gridLayout">
+    <property name="margin">
+     <number>0</number>
+    </property>
     <item row="0" column="0">
      <widget class="QTabWidget" name="mainTabWidget">
       <property name="sizePolicy">
@@ -51,275 +54,379 @@
        <attribute name="title">
         <string>OBS Projects</string>
        </attribute>
-       <layout class="QGridLayout" name="gridLayout_2">
-        <item row="5" column="0">
-         <widget class="QPushButton" name="newObsProjectButton">
-          <property name="locale">
-           <locale language="English" country="UnitedStates"/>
-          </property>
-          <property name="text">
-           <string>New</string>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="1">
-         <widget class="QPushButton" name="deleteObsProjectButton">
-          <property name="text">
-           <string>Delete</string>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="2">
-         <widget class="QPushButton" name="modifyObsProjectButton">
-          <property name="text">
-           <string>Modify</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="3" rowspan="7">
-         <widget class="Line" name="line">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="5">
-         <widget class="QPushButton" name="newPackageButton">
-          <property name="text">
-           <string>New</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="8" rowspan="6">
-         <widget class="Line" name="line_2">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="9">
-         <widget class="QPushButton" name="addFileButton">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>Add file</string>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="10">
-         <widget class="QPushButton" name="deleteFileButton">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>Delete file</string>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="11">
-         <widget class="QPushButton" name="updateFileButton">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>Update file</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="5">
-         <widget class="QLabel" name="packagesLabel">
-          <property name="font">
-           <font>
-            <pointsize>12</pointsize>
-            <weight>75</weight>
-            <bold>true</bold>
-            <underline>true</underline>
-           </font>
-          </property>
-          <property name="text">
-           <string>Packages</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="projectLabel">
-          <property name="font">
-           <font>
-            <pointsize>12</pointsize>
-            <weight>75</weight>
-            <bold>true</bold>
-            <underline>true</underline>
-           </font>
-          </property>
-          <property name="text">
-           <string>Projects</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="9">
-         <widget class="QPushButton" name="generatePatchButton">
-          <property name="text">
-           <string>Generate patch</string>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="10">
-         <widget class="QPushButton" name="buildPackageButton">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>Build Package</string>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="6">
-         <widget class="QPushButton" name="addRepoInChrootButton">
-          <property name="text">
-           <string>Add repository in chroot</string>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="5">
-         <widget class="QPushButton" name="deletePackageButton">
-          <property name="text">
-           <string>Delete</string>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="6">
-         <widget class="QPushButton" name="importRpmButton">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="text">
-           <string>Import source RPM</string>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="0">
-         <widget class="QLabel" name="projectPageLabel">
-          <property name="text">
-           <string>Project page :</string>
-          </property>
-          <property name="textFormat">
-           <enum>Qt::RichText</enum>
-          </property>
-          <property name="openExternalLinks">
-           <bool>true</bool>
-          </property>
-          <property name="textInteractionFlags">
-           <set>Qt::TextBrowserInteraction</set>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0" colspan="3">
-         <widget class="QListWidget" name="obsProjectsListWidget"/>
-        </item>
-        <item row="1" column="5" colspan="2">
-         <widget class="QTableView" name="packageTableView">
-          <attribute name="verticalHeaderVisible">
-           <bool>false</bool>
-          </attribute>
-         </widget>
-        </item>
-        <item row="1" column="9" colspan="5">
-         <widget class="QTreeView" name="fileTreeView"/>
-        </item>
-        <item row="6" column="1" colspan="2">
-         <widget class="QLabel" name="projectPageLinkLabel">
-          <property name="text">
-           <string>link</string>
-          </property>
-          <property name="openExternalLinks">
-           <bool>true</bool>
-          </property>
-          <property name="textInteractionFlags">
-           <set>Qt::LinksAccessibleByMouse</set>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0" colspan="3">
-         <widget class="QGroupBox" name="projectGroupBox">
-          <property name="accessibleName">
-           <string/>
-          </property>
-          <property name="title">
-           <string>projectTitle</string>
-          </property>
-          <property name="flat">
-           <bool>false</bool>
-          </property>
-          <layout class="QGridLayout" name="gridLayout_9">
-           <item row="3" column="0">
-            <widget class="QLabel" name="projectDescriptionlabel">
-             <property name="text">
-              <string>Description</string>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <property name="margin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QWidget" name="directoryWidget" native="true">
+          <layout class="QGridLayout" name="gridLayout_15">
+           <property name="margin">
+            <number>0</number>
+           </property>
+           <item row="0" column="2">
+            <widget class="QTabWidget" name="tabWidget">
+             <property name="enabled">
+              <bool>true</bool>
              </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item row="3" column="5" rowspan="2" colspan="2">
-         <widget class="QGroupBox" name="packageGroupBox">
-          <property name="title">
-           <string>Package title</string>
-          </property>
-          <layout class="QGridLayout" name="gridLayout_10">
-           <item row="0" column="0">
-            <widget class="QLabel" name="ProjectDescriptionlabel">
-             <property name="text">
-              <string>Description</string>
+             <property name="currentIndex">
+              <number>1</number>
              </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item row="3" column="9" colspan="3">
-         <widget class="QGroupBox" name="groupBox">
-          <property name="title">
-           <string>GroupBox</string>
-          </property>
-          <layout class="QGridLayout" name="gridLayout_11">
-           <item row="0" column="0">
-            <widget class="QLabel" name="chrootLabel">
-             <property name="text">
-              <string>Chroot path:</string>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-             </property>
+             <widget class="QWidget" name="tab">
+              <attribute name="title">
+               <string>Local directory</string>
+              </attribute>
+              <layout class="QGridLayout" name="gridLayout_12">
+               <item row="0" column="0" rowspan="2" colspan="2">
+                <widget class="QTreeView" name="fileTreeView"/>
+               </item>
+               <item row="2" column="0">
+                <widget class="QWidget" name="widget" native="true">
+                 <layout class="QGridLayout" name="gridLayout_11">
+                  <property name="horizontalSpacing">
+                   <number>-1</number>
+                  </property>
+                  <property name="verticalSpacing">
+                   <number>0</number>
+                  </property>
+                  <property name="margin">
+                   <number>0</number>
+                  </property>
+                  <item row="6" column="2">
+                   <widget class="QPushButton" name="buildPackageButton">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
+                    <property name="text">
+                     <string>Build Package</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="6" column="1">
+                   <widget class="QPushButton" name="deleteFileButton">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
+                    <property name="text">
+                     <string>Delete file</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="5" column="1">
+                   <widget class="QPushButton" name="generatePatchButton">
+                    <property name="text">
+                     <string>Generate patch</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="5" column="2">
+                   <widget class="QPushButton" name="addFileButton">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
+                    <property name="text">
+                     <string>Add file</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="7" column="1">
+                   <widget class="QPushButton" name="updateFileButton">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
+                    <property name="text">
+                     <string>Update file</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+             <widget class="QWidget" name="tab_2">
+              <attribute name="title">
+               <string>chroot</string>
+              </attribute>
+              <layout class="QGridLayout" name="gridLayout_13">
+               <item row="0" column="0" rowspan="2" colspan="2">
+                <widget class="QListView" name="listView"/>
+               </item>
+               <item row="2" column="0">
+                <widget class="QWidget" name="widget_2" native="true">
+                 <layout class="QGridLayout" name="gridLayout_14">
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="chrootLabel">
+                    <property name="text">
+                     <string>Chroot path:</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="1">
+                   <widget class="QPushButton" name="createChrootButton">
+                    <property name="text">
+                     <string>Create chroot</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1">
+                   <widget class="QLineEdit" name="chrootPathLineEdit">
+                    <property name="readOnly">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+              </layout>
+             </widget>
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="QLineEdit" name="chrootPathLineEdit">
-             <property name="readOnly">
+            <widget class="QWidget" name="packageWidget" native="true">
+             <property name="enabled">
               <bool>true</bool>
              </property>
+             <layout class="QVBoxLayout" name="verticalLayout_2">
+              <property name="margin">
+               <number>0</number>
+              </property>
+              <item>
+               <widget class="QTableView" name="packageTableView">
+                <attribute name="verticalHeaderVisible">
+                 <bool>false</bool>
+                </attribute>
+               </widget>
+              </item>
+              <item>
+               <widget class="QWidget" name="packageWidget" native="true">
+                <layout class="QGridLayout" name="gridLayout_10">
+                 <item row="3" column="0">
+                  <widget class="QLabel" name="ProjectDescriptionlabel">
+                   <property name="text">
+                    <string>Description</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="4" column="0">
+                  <widget class="QPushButton" name="newPackageButton">
+                   <property name="text">
+                    <string>New</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="6" column="0">
+                  <widget class="QPushButton" name="addRepoInChrootButton">
+                   <property name="text">
+                    <string>Add repository in chroot</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="4" column="1">
+                  <widget class="QPushButton" name="importRpmButton">
+                   <property name="enabled">
+                    <bool>true</bool>
+                   </property>
+                   <property name="text">
+                    <string>Import source RPM</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="6" column="1">
+                  <widget class="QPushButton" name="deletePackageButton">
+                   <property name="text">
+                    <string>Delete</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="0">
+                  <widget class="QLabel" name="label_2">
+                   <property name="text">
+                    <string>Package:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="0">
+                  <widget class="QLabel" name="label_4">
+                   <property name="text">
+                    <string>TextLabel</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QWidget" name="projectsWidget" native="true">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout">
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <item>
+               <widget class="QListWidget" name="obsProjectsListWidget">
+                <property name="autoScrollMargin">
+                 <number>16</number>
+                </property>
+                <property name="resizeMode">
+                 <enum>QListView::Adjust</enum>
+                </property>
+                <property name="sortingEnabled">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QWidget" name="projectWidget" native="true">
+                <property name="accessibleName">
+                 <string/>
+                </property>
+                <layout class="QGridLayout" name="gridLayout_9">
+                 <item row="4" column="0">
+                  <widget class="QLabel" name="projectDescriptionlabel">
+                   <property name="text">
+                    <string>Description</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="5" column="0">
+                  <widget class="QLabel" name="projectPageLabel_2">
+                   <property name="text">
+                    <string>Project OBS page :</string>
+                   </property>
+                   <property name="textFormat">
+                    <enum>Qt::RichText</enum>
+                   </property>
+                   <property name="openExternalLinks">
+                    <bool>true</bool>
+                   </property>
+                   <property name="textInteractionFlags">
+                    <set>Qt::TextBrowserInteraction</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="9" column="0">
+                  <widget class="QPushButton" name="modifyObsProjectButton_2">
+                   <property name="text">
+                    <string>Modify</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="5" column="1">
+                  <widget class="QLabel" name="projectPageLinkLabel_2">
+                   <property name="text">
+                    <string>link</string>
+                   </property>
+                   <property name="openExternalLinks">
+                    <bool>true</bool>
+                   </property>
+                   <property name="textInteractionFlags">
+                    <set>Qt::LinksAccessibleByMouse</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="8" column="1">
+                  <widget class="QPushButton" name="newObsProjectButton_2">
+                   <property name="locale">
+                    <locale language="English" country="UnitedStates"/>
+                   </property>
+                   <property name="text">
+                    <string>New</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="8" column="0">
+                  <widget class="QPushButton" name="deleteObsProjectButton">
+                   <property name="text">
+                    <string>Delete</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="7" column="0">
+                  <widget class="QPushButton" name="importObsProjectButton">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="text">
+                    <string>Import</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="7" column="1">
+                  <widget class="QPushButton" name="exportObsProjectButton">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="text">
+                    <string>Export</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="0">
+                  <widget class="QLabel" name="projectLabel_2">
+                   <property name="text">
+                    <string>Project:</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="0">
+                  <widget class="QLabel" name="projectTitleLabel">
+                   <property name="text">
+                    <string>projectTitle</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="6" column="0">
+                  <widget class="QLabel" name="projectRepoPageLabel">
+                   <property name="text">
+                    <string>Project repo :</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="6" column="1">
+                  <widget class="QLabel" name="projectRepoPageLinkLabel">
+                   <property name="text">
+                    <string>repo link</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="1">
+                  <widget class="QLabel" name="projectObsLightName">
+                   <property name="text">
+                    <string/>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+             </layout>
             </widget>
            </item>
           </layout>
-         </widget>
-        </item>
-        <item row="6" column="11">
-         <widget class="QPushButton" name="createChrootButton">
-          <property name="text">
-           <string>Create chroot</string>
-          </property>
          </widget>
         </item>
        </layout>
       </widget>
       <widget class="QWidget" name="imagerProjectTab">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <attribute name="title">
         <string>Imager Projects</string>
        </attribute>
@@ -670,7 +777,7 @@
             <item row="1" column="1">
              <widget class="QTextEdit" name="packageDescriptionTextEdit">
               <property name="enabled">
-               <bool>true</bool>
+               <bool>false</bool>
               </property>
               <property name="readOnly">
                <bool>true</bool>
@@ -815,7 +922,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>842</width>
+     <width>800</width>
      <height>20</height>
     </rect>
    </property>
@@ -836,6 +943,11 @@
     <property name="title">
      <string>Project</string>
     </property>
+    <addaction name="actionNew"/>
+    <addaction name="actionDelete"/>
+    <addaction name="actionMofify"/>
+    <addaction name="actionNew_2"/>
+    <addaction name="actionExport"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -863,9 +975,50 @@
     <string>OBS servers</string>
    </property>
   </action>
+  <action name="actionNew">
+   <property name="text">
+    <string>Import</string>
+   </property>
+  </action>
+  <action name="actionDelete">
+   <property name="text">
+    <string>Delete</string>
+   </property>
+  </action>
+  <action name="actionMofify">
+   <property name="text">
+    <string>Mofify</string>
+   </property>
+  </action>
+  <action name="actionNew_2">
+   <property name="text">
+    <string>New</string>
+   </property>
+  </action>
+  <action name="actionExport">
+   <property name="text">
+    <string>Export</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections>
+  <connection>
+   <sender>actionExit</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>219</y>
+    </hint>
+   </hints>
+  </connection>
   <connection>
    <sender>preScriptRadioButton</sender>
    <signal>toggled(bool)</signal>
@@ -911,22 +1064,6 @@
     <hint type="destinationlabel">
      <x>800</x>
      <y>185</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>actionExit</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>close()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>399</x>
-     <y>219</y>
     </hint>
    </hints>
   </connection>
