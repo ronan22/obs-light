@@ -67,10 +67,10 @@
            <item row="0" column="2">
             <widget class="QTabWidget" name="tabWidget">
              <property name="enabled">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
              <property name="currentIndex">
-              <number>1</number>
+              <number>0</number>
              </property>
              <widget class="QWidget" name="tab">
               <attribute name="title">
@@ -189,7 +189,7 @@
            <item row="0" column="1">
             <widget class="QWidget" name="packageWidget" native="true">
              <property name="enabled">
-              <bool>true</bool>
+              <bool>false</bool>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_2">
               <property name="margin">
@@ -205,38 +205,38 @@
               <item>
                <widget class="QWidget" name="packageWidget" native="true">
                 <layout class="QGridLayout" name="gridLayout_10">
-                 <item row="3" column="0">
+                 <item row="4" column="0">
                   <widget class="QLabel" name="ProjectDescriptionlabel">
                    <property name="text">
                     <string>Description</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="4" column="0">
+                 <item row="5" column="0">
                   <widget class="QPushButton" name="newPackageButton">
                    <property name="text">
                     <string>New</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="6" column="0">
+                 <item row="7" column="0">
                   <widget class="QPushButton" name="addRepoInChrootButton">
                    <property name="text">
                     <string>Add repository in chroot</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="4" column="1">
+                 <item row="5" column="1">
                   <widget class="QPushButton" name="importRpmButton">
                    <property name="enabled">
-                    <bool>true</bool>
+                    <bool>false</bool>
                    </property>
                    <property name="text">
                     <string>Import source RPM</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="6" column="1">
+                 <item row="7" column="1">
                   <widget class="QPushButton" name="deletePackageButton">
                    <property name="text">
                     <string>Delete</string>
@@ -250,8 +250,15 @@
                    </property>
                   </widget>
                  </item>
-                 <item row="2" column="0">
+                 <item row="3" column="0">
                   <widget class="QLabel" name="label_4">
+                   <property name="text">
+                    <string>TextLabel</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="1">
+                  <widget class="QLabel" name="label">
                    <property name="text">
                     <string>TextLabel</string>
                    </property>
@@ -305,7 +312,7 @@
                   </widget>
                  </item>
                  <item row="5" column="0">
-                  <widget class="QLabel" name="projectPageLabel_2">
+                  <widget class="QLabel" name="projectPageLabel">
                    <property name="text">
                     <string>Project OBS page :</string>
                    </property>
@@ -321,14 +328,14 @@
                   </widget>
                  </item>
                  <item row="9" column="0">
-                  <widget class="QPushButton" name="modifyObsProjectButton_2">
+                  <widget class="QPushButton" name="modifyObsProjectButton">
                    <property name="text">
                     <string>Modify</string>
                    </property>
                   </widget>
                  </item>
                  <item row="5" column="1">
-                  <widget class="QLabel" name="projectPageLinkLabel_2">
+                  <widget class="QLabel" name="projectPageLinkLabel">
                    <property name="text">
                     <string>link</string>
                    </property>
@@ -341,7 +348,7 @@
                   </widget>
                  </item>
                  <item row="8" column="1">
-                  <widget class="QPushButton" name="newObsProjectButton_2">
+                  <widget class="QPushButton" name="newObsProjectButton">
                    <property name="locale">
                     <locale language="English" country="UnitedStates"/>
                    </property>
@@ -378,7 +385,7 @@
                   </widget>
                  </item>
                  <item row="2" column="0">
-                  <widget class="QLabel" name="projectLabel_2">
+                  <widget class="QLabel" name="projectLabel">
                    <property name="text">
                     <string>Project:</string>
                    </property>
@@ -402,6 +409,9 @@
                   <widget class="QLabel" name="projectRepoPageLinkLabel">
                    <property name="text">
                     <string>repo link</string>
+                   </property>
+                   <property name="openExternalLinks">
+                    <bool>true</bool>
                    </property>
                   </widget>
                  </item>
@@ -469,7 +479,7 @@
         <item row="0" column="4" rowspan="6" colspan="2">
          <widget class="QTabWidget" name="imagerProjectsTabWidget">
           <property name="currentIndex">
-           <number>0</number>
+           <number>2</number>
           </property>
           <widget class="QWidget" name="kickstartMainTab">
            <attribute name="title">
@@ -943,10 +953,10 @@
     <property name="title">
      <string>Project</string>
     </property>
-    <addaction name="actionNew"/>
+    <addaction name="actionImport"/>
     <addaction name="actionDelete"/>
     <addaction name="actionMofify"/>
-    <addaction name="actionNew_2"/>
+    <addaction name="actionNew"/>
     <addaction name="actionExport"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
@@ -975,7 +985,7 @@
     <string>OBS servers</string>
    </property>
   </action>
-  <action name="actionNew">
+  <action name="actionImport">
    <property name="text">
     <string>Import</string>
    </property>
@@ -990,7 +1000,7 @@
     <string>Mofify</string>
    </property>
   </action>
-  <action name="actionNew_2">
+  <action name="actionNew">
    <property name="text">
     <string>New</string>
    </property>
