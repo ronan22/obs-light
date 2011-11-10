@@ -196,8 +196,8 @@ class ProjectManager(QObject):
             projectLink = obslightManager.getProjectWebPage(project)
             projectObsName = obslightManager.getProjectParameter(project,
                                                                  "projectObsName")
-            obsServer = obslightManager.getProjectParameter(project, "obsServer")
-            repoLink = obslightManager.getRepo(obsServer)
+            target = obslightManager.getProjectParameter(project, "projectTarget")
+            repoLink = obslightManager.getProjectRepository(project)
             projectTitle = obslightManager.getProjectParameter(project, "projectTitle")
             projectDescription = obslightManager.getProjectParameter(project, "description")
             
@@ -207,7 +207,7 @@ class ProjectManager(QObject):
             self.__projectLinkLabel.setText('<a href="%s">%s</a>' % (projectLink,
                                                                      projectObsName))
             self.__projectRepoLinkLabel.setText('<a href="%s">%s</a>' % (repoLink,
-                                                                         obsServer))
+                                                                         target))
 
     @popupOnException
     def updateChrootPathAndButtons(self):

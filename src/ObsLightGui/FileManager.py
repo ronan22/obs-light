@@ -89,9 +89,12 @@ class FileManager(QObject):
     def on_path_loaded(self, path):
         if path == self.__packageDir:
             self.__fileTreeView.setRootIndex(self.__localModel.index(path))
+            self.__fileTreeView.resizeColumnToContents(0)
 
     def on_chrootPath_loaded(self, path):
         if path == self.__chrootPath:
             self.__chrootTreeView.setRootIndex(self.__chrootModel.index(path))
-        if path == self.__packageInChrootDir:
+            self.__chrootTreeView.resizeColumnToContents(0)
+        elif path == self.__packageInChrootDir:
             self.__chrootTreeView.setCurrentIndex(self.__chrootModel.index(path))
+            self.__chrootTreeView.resizeColumnToContents(0)

@@ -686,9 +686,9 @@ class ObsLightManager(object):
 
         return  self.__myObsLightProjects.setPackageParameter(projectLocalName=projectLocalName, package=package, parameter=parameter, value=value)
 
-    def getReposProject(self, projectLocalName):
+    def getProjectRepository(self, projectLocalName):
         '''
-        Return the URL of the Repo of the Project
+        Return the URL of the repository of the project
         '''
         if not isNonEmptyString(projectLocalName):
             raise ObsLightProjectsError(" invalid project name: " + str(projectLocalName))
