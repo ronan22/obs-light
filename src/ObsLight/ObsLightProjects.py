@@ -297,6 +297,12 @@ class ObsLightProjects(object):
         else:
             raise ObsLightErr.ObsLightProjectsError("Error in removeProject, can't remove project directory.")
 
+    def getReposProject(self, projectLocalName):
+        '''
+        Return the URL of the Repo of the Project
+        '''
+        return self.__dicOBSLightProjects[projectLocalName].getReposProject()
+
     def getChRootPath(self, projectLocalName):
         '''
         Return the path of aChRoot of a project

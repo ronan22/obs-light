@@ -444,7 +444,7 @@ class ObsLightProject(object):
 
     def getReposProject(self):
         '''
-        
+        Return the URL of the Repo of the Project
         '''
         return os.path.join(self.__obsServers.getRepo(obsServer=self.__obsServer), self.__projectObsName.replace(":", ":/"), self.__projectTarget)
 
