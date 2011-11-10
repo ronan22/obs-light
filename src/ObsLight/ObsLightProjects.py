@@ -273,6 +273,15 @@ class ObsLightProjects(object):
         package = self.__dicOBSLightProjects[projectLocalName].getPackage(packageName)
         return package.getOscDirectory()
 
+    def getPackageDirectoryInChRoot(self, projectLocalName, packageName):
+        package = self.__dicOBSLightProjects[projectLocalName].getPackage(packageName)
+        return package.getPackageDirectory()
+
+    def setProjectparameter(self, projectLocalName=None, parameter=None, value=None):
+        '''
+        
+        '''
+        self.__dicOBSLightProjects[projectLocalName].setProjectparameter(parameter=parameter, value=value)
 
     def removeProject(self, projectLocalName=None):
         '''

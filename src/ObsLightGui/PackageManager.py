@@ -21,7 +21,7 @@ Created on 2 nov. 2011
 '''
 
 from PySide.QtCore import QObject, QThreadPool, Qt
-from PySide.QtGui import QInputDialog, QProgressDialog, QPushButton, QTableView, QWidget
+from PySide.QtGui import QLabel, QInputDialog, QProgressDialog, QPushButton, QTableView, QWidget
 
 from PackageModel import PackageModel
 from ObsLightGui.FileManager import FileManager
@@ -36,12 +36,15 @@ class PackageManager(QObject):
     __gui = None
     __obsLightManager = None
     __project = None
-    __model = None
+    __localModel = None
     __fileManager = None
     __progress = None
 
     __packageWidget = None
     __packageTableView = None
+    __packageNameLabel = None
+    __packageTitleLabel = None
+    __packageDescriptionLabel = None
     __newPackageButton = None
     __deletePackageButton = None
     __makePatchButton = None
@@ -65,6 +68,7 @@ class PackageManager(QObject):
         self.__makePatchButton = gui.getMainWindow().findChild(QPushButton,
                                                                "generatePatchButton")
         self.__makePatchButton.clicked.connect(self.on_makePatchButton_clicked)
+        self.__packageNameLabel = gui.getMainWindow().findChild(QLabel, "packageNameLabelValue")
         self.__progress = QProgressDialog(gui.getMainWindow())
         self.__progress.setMinimumDuration(500)
         #self.__progress.setWindowModality(Qt.NonModal)
@@ -84,8 +88,8 @@ class PackageManager(QObject):
         if projectName is not None and len(projectName) < 1:
             projectName = None
         self.__project = projectName
-        self.__model = PackageModel(self.__obsLightManager, projectName)
-        self.__packageTableView.setModel(self.__model)
+        self.__localModel = PackageModel(self.__obsLightManager, projectName)
+        self.__packageTableView.setModel(self.__localModel)
         self.__packageWidget.setEnabled(self.__project is not None)
         if self.currentPackage() is not None:
             self.__fileManager.setCurrentPackage(self.__project, self.currentPackage())
@@ -95,6 +99,13 @@ class PackageManager(QObject):
     def on_packageIndex_clicked(self, index):
         if index.isValid():
             self.__fileManager.setCurrentPackage(self.__project, self.currentPackage())
+            self.updateLabels()
+
+    def updateLabels(self):
+        currentPackage = self.currentPackage()
+        if currentPackage is not None:
+            self.__packageNameLabel.setText(currentPackage)
+
         
     def currentPackage(self):
         '''
@@ -104,7 +115,7 @@ class PackageManager(QObject):
         index = self.__packageTableView.currentIndex()
         if index.isValid():
             row = index.row()
-            packageName = self.__model.data(self.__model.createIndex(row,
+            packageName = self.__localModel.data(self.__localModel.createIndex(row,
                                                                  PackageModel.PackageNameColumn))
             return packageName
         else:
@@ -120,7 +131,7 @@ class PackageManager(QObject):
         if accepted:
             self.__progress.setLabelText("Adding package")
             self.__progress.show()
-            runnable = ProgressRunnable(self.__model.addPackage, packageName)
+            runnable = ProgressRunnable(self.__localModel.addPackage, packageName)
             runnable.setProgressDialog(self.__progress)
             runnable.finishedWithException.connect(self.__gui.obsLightErrorCallback2)
             QThreadPool.globalInstance().start(runnable)
@@ -131,10 +142,10 @@ class PackageManager(QObject):
         if project is None:
             return
         row = self.__packageTableView.currentIndex().row()
-        packageName = self.__model.data(self.__model.createIndex(row,
+        packageName = self.__localModel.data(self.__localModel.createIndex(row,
                                                                  PackageModel.PackageNameColumn))
         if packageName is not None and len(packageName) > 0:
-            self.__model.removePackage(packageName)
+            self.__localModel.removePackage(packageName)
 
     @popupOnException
     def on_makePatchButton_clicked(self):
