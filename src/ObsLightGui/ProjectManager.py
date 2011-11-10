@@ -169,7 +169,14 @@ class ProjectManager(QObject):
         packageName = self.__packageManager.currentPackage()
         if projectName is not None and packageName is not None:
             obslightManager = self.__gui.getObsLightManager()
-            obslightManager.addPackageSourceInChRoot(projectName, packageName)
+            self.__progress.setLabelText("Importing source in chroot")
+            self.__progress.show()
+            runnable = ProgressRunnable(obslightManager.addPackageSourceInChRoot,
+                                        projectName, packageName)
+            runnable.setProgressDialog(self.__progress)
+            runnable.finishedWithException.connect(self.__gui.obsLightErrorCallback2)
+            QThreadPool.globalInstance().start(runnable)
+            #obslightManager.addPackageSourceInChRoot(projectName, packageName)
 
     def on_projectSelected(self, _project):
         project = self.getCurrentProjectName()

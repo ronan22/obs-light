@@ -155,22 +155,6 @@ class ObsLightProject(object):
                 packageFromSave["yamlFile"] = yamlFile
                 packageFromSave["listFile"] = listFile
 
-            toUpDate = False
-            if "listFile" in packageFromSave.keys():
-                listFile = packageFromSave["listFile"]
-            for aFile in listFile:
-                if not os.path.isfile(os.path.join(packagePath, aFile)):
-                    toUpDate = True
-
-            if "specFile" in packageFromSave.keys():
-                specFilePath = packageFromSave["specFile"]
-                if not os.path.isfile(specFilePath):
-                    toUpDate = True
-            if "yamlFile" in packageFromSave.keys() and packageFromSave["yamlFile"] is not None:
-                yamlFilePath = packageFromSave["yamlFile"]
-                if not os.path.isfile(yamlFilePath):
-                    toUpDate = True
-
             if importFile == True:
                 toUpDate = False
                 if "listFile" in packageFromSave.keys():listFile = packageFromSave["listFile"]
