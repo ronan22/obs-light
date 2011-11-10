@@ -410,6 +410,21 @@ class ObsLightManager(object):
             raise ObsLightProjectsError(projectLocalName + " is not a local project")
         return self.__myObsLightProjects.getPackageDirectory(projectLocalName, packageName)
 
+    def getPackageDirectoryInChRoot(self, projectLocalName, packageName):
+        '''
+        Return the directory in the chroot where the uncompressed package files live.
+        '''
+        if not isNonEmptyString(projectLocalName):
+            raise ObsLightObsServers(" invalid project name provided")
+        if not isNonEmptyString(packageName):
+            raise ObsLightObsServers(" invalid package: " + str(packageName))
+        if not self.isALocalProject(projectLocalName):
+            raise ObsLightProjectsError(projectLocalName + " is not a local project")
+        if not self.isChRootInit(projectLocalName):
+            raise ObsLightProjectsError("The project '" + projectLocalName
+                                        + "' has not chroot at the moment")
+        return self.__myObsLightProjects.getPackageDirectoryInChRoot(projectLocalName, packageName)
+
     def addPackage(self, projectLocalName, package):
         '''
         Add a package to a local project. The package must exist on the
