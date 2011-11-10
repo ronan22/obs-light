@@ -497,9 +497,9 @@ class ObsLightManager(object):
 
         return self.__myObsLightProjects.isChRootInit(projectLocalName=projectLocalName)
 
-    def isInstallInChroot(self, projectLocalName, package):
+    def isInstalledInChRoot(self, projectLocalName, package):
         '''
-        Return True if the package is install into the chroot of the project.
+        Return True if the package is installed into the chroot of the project.
         '''
 
         if not isNonEmptyString(projectLocalName):
