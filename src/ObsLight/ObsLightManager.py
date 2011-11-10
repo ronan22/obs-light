@@ -483,7 +483,7 @@ class ObsLightManager(object):
         elif not self.isALocalProject(projectLocalName):
             raise ObsLightProjectsError(projectLocalName + " is not a local project")
 
-        self.__myObsLightProjects.getChRootPath(projectLocalName)
+        return self.__myObsLightProjects.getChRootPath(projectLocalName)
 
     def isChRootInit(self, projectLocalName):
         '''

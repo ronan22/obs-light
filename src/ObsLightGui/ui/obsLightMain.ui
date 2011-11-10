@@ -86,7 +86,7 @@
                 </property>
                 <layout class="QGridLayout" name="gridLayout_9">
                  <item row="4" column="0">
-                  <widget class="QLabel" name="projectDescriptionlabel">
+                  <widget class="QLabel" name="projectDescriptionLabel">
                    <property name="text">
                     <string>Description</string>
                    </property>
@@ -242,7 +242,7 @@
                <widget class="QWidget" name="packageWidget" native="true">
                 <layout class="QGridLayout" name="gridLayout_10">
                  <item row="4" column="0">
-                  <widget class="QLabel" name="packageDescriptionlabel">
+                  <widget class="QLabel" name="packageDescriptionLabel">
                    <property name="text">
                     <string>Package Description</string>
                    </property>
@@ -273,7 +273,7 @@
                   </widget>
                  </item>
                  <item row="3" column="0">
-                  <widget class="QLabel" name="ProjectDescriptionlabel">
+                  <widget class="QLabel" name="packageTitleLabel">
                    <property name="text">
                     <string>PackageTitle</string>
                    </property>
@@ -479,7 +479,7 @@
         <item row="0" column="4" rowspan="6" colspan="2">
          <widget class="QTabWidget" name="imagerProjectsTabWidget">
           <property name="currentIndex">
-           <number>2</number>
+           <number>3</number>
           </property>
           <widget class="QWidget" name="kickstartMainTab">
            <attribute name="title">
@@ -795,7 +795,7 @@
              </widget>
             </item>
             <item row="0" column="1">
-             <widget class="QLabel" name="packageDescriptionLabel">
+             <widget class="QLabel" name="kickstartPackageDescriptionLabel">
               <property name="text">
                <string>Description</string>
               </property>

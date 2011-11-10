@@ -14,7 +14,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 #
-from ObsLight.ObsServer import ObsServer
 '''
 Created on 27 sept. 2011
 
@@ -80,6 +79,7 @@ class ProjectManager(QObject):
         self.__importRpmButton.clicked.connect(self.on_importRpmButton_clicked)
         self.__projectLinkLabel = mainWindow.findChild(QLabel, "projectPageLinkLabel")
         self.__projectRepoLinkLabel = mainWindow.findChild(QLabel, "projectRepoPageLinkLabel")
+        self.__projectDescriptionLabel = mainWindow.findChild(QLabel, "projectDescriptionLabel")
         self.__projectTitleLabel = mainWindow.findChild(QLabel, "projectTitleLabel")
         self.__projectLabel = mainWindow.findChild(QLabel, "projectLabelValue")
         self.__chrootPathLineEdit = mainWindow.findChild(QLineEdit, "chrootPathLineEdit")
@@ -182,9 +182,11 @@ class ProjectManager(QObject):
             obsServer = obslightManager.getProjectParameter(project, "obsServer")
             repoLink = obslightManager.getRepo(obsServer)
             projectTitle = obslightManager.getProjectParameter(project, "projectTitle")
+            projectDescription = obslightManager.getProjectParameter(project, "description")
             
             self.__projectLabel.setText(project)
             self.__projectTitleLabel.setText(projectTitle)
+            self.__projectDescriptionLabel.setText(projectDescription)
             self.__projectLinkLabel.setText('<a href="%s">%s</a>' % (projectLink,
                                                                      projectObsName))
             self.__projectRepoLinkLabel.setText('<a href="%s">%s</a>' % (repoLink,
