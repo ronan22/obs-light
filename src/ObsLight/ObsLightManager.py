@@ -108,9 +108,10 @@ class ObsLightManager(object):
         return res
 
     def getProjectParameter(self, projectLocalName, parameter):
+        # TODO: check valid parameters
         '''
         Get the value of a project parameter:
-        the valide info is :
+        the valide parameter is :
             projectLocalName
             projectObsName
             projectDirectory
@@ -132,7 +133,7 @@ class ObsLightManager(object):
                              "description"]:
             raise ObsLightProjectsError(parameter + " is not a parameter of a local project ")
 
-        return self.__myObsLightProjects.getProjectInfo(projectLocalName, parameter)
+        return self.__myObsLightProjects.getProjectParameter(projectLocalName, parameter)
 
     def setProjectParameter(self, projectLocalName, parameter, value):
         # TODO: check valid parameters
@@ -142,7 +143,7 @@ class ObsLightManager(object):
         if not self.isALocalProject(projectLocalName):
             raise ObsLightProjectsError(projectLocalName + " is not a local project")
 
-        res = self.__myObsLightProjects.setProjectparameter(projectLocalName,
+        res = self.__myObsLightProjects.setProjectParameter(projectLocalName,
                                                             parameter, value)
         self.__myObsLightProjects.save()
         return res
@@ -624,6 +625,35 @@ class ObsLightManager(object):
             raise ObsLightProjectsError(projectLocalName + " is not a local project")
 
         return self.__myObsLightProjects.getWebProjectPage(projectLocalName)
+
+    def getPackageParameter(self, projectLocalName, package, parameter=None):
+        '''
+        Get the value of a project parameter:
+        the valid parameter is :
+            name
+            listFile
+            status
+            specFile
+            yamlFile
+            packageDirectory
+            description
+            packageTitle
+        '''
+        return  self.__myObsLightProjects.getPackageParameter(projectLocalName=projectLocalName, package=package, parameter=parameter)
+
+    def setPackageParameter(self, projectLocalName, package, parameter=None, value=None):
+        '''
+        return the value  of the parameter of the Package:
+        the valid parameter is :
+            specFile
+            yamlFile
+            packageDirectory
+            description
+            packageTitle
+        '''
+        return  self.__myObsLightProjects.setPackageParameter(projectLocalName=projectLocalName, package=package, parameter=parameter, value=value)
+
+
 
 __myObsLightManager = None
 

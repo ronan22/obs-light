@@ -220,10 +220,10 @@ class ObsLightProjects(object):
         '''
         return self.__dicOBSLightProjects[projectLocalName].getProjectObsName()
 
-    def getProjectInfo(self, projectLocalName=None, info=None):
+    def getProjectParameter(self, projectLocalName=None, parameter=None):
         '''
         Get the value of a project parameter:
-        the valide info is :
+        the valid parameter is :
             projectLocalName
             projectObsName
             projectDirectory
@@ -233,17 +233,46 @@ class ObsLightProjects(object):
             projectTitle
             description
         '''
-        return self.__dicOBSLightProjects[projectLocalName].getProjectInfo(info=info)
+        return self.__dicOBSLightProjects[projectLocalName].getProjectParameter(parameter=parameter)
+
+    def setProjectParameter(self, projectLocalName=None, parameter=None, value=None):
+        '''
+        
+        '''
+        self.__dicOBSLightProjects[projectLocalName].setProjectParameter(parameter=parameter, value=value)
+
+    def getPackageParameter(self, projectLocalName, package, parameter=None):
+        '''
+        Get the value of a project parameter:
+        the valid parameter is :
+            name
+            listFile
+            status
+            specFile
+            yamlFile
+            packageDirectory
+            description
+            packageTitle
+        '''
+        return  self.__dicOBSLightProjects[projectLocalName].getPackageParameter(package=package, parameter=parameter)
+
+    def setPackageParameter(self, projectLocalName, package, parameter=None, value=None):
+        '''
+        return the value  of the parameter of the Package:
+        the valid parameter is :
+            specFile
+            yamlFile
+            packageDirectory
+            description
+            packageTitle
+        '''
+        return  self.__dicOBSLightProjects[projectLocalName].setPackageParameter(package=package, parameter=parameter, value=value)
+
 
     def getPackageDirectory(self, projectLocalName, packageName):
         package = self.__dicOBSLightProjects[projectLocalName].getPackage(packageName)
         return package.getOscDirectory()
 
-    def setProjectparameter(self, projectLocalName=None, parameter=None, value=None):
-        '''
-        
-        '''
-        self.__dicOBSLightProjects[projectLocalName].setProjectparameter(parameter=parameter, value=value)
 
     def removeProject(self, projectLocalName=None):
         '''

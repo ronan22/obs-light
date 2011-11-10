@@ -33,21 +33,21 @@ class ObsLightPackages(object):
         Constructor
         '''
         self.__dicOBSLightPackages = {}
-        
-        
+
+
         if fromSave == None:
             self.__currentPackage = ""
         else:
             for name in fromSave["savePackages"].keys():
                 self.__dicOBSLightPackages[name] = ObsLightPackage(fromSave=fromSave["savePackages"][name])
             self.__currentPackage = fromSave["currentPackage"]
-    
+
     def getListPackages(self):
         '''
         
         '''
         return self.__dicOBSLightPackages.keys()
-    
+
     def getDic(self):
         '''
         
@@ -55,13 +55,13 @@ class ObsLightPackages(object):
         aDic = {}
         for pack in self.getListPackages():
             aDic[pack] = self.__dicOBSLightPackages[pack].getDic()
-        
-        saveconfigPackages = {}    
+
+        saveconfigPackages = {}
         saveconfigPackages["savePackages"] = aDic
         saveconfigPackages["currentPackage"] = self.__currentPackage
-        
+
         return saveconfigPackages
-          
+
     def addPackage(self,
                    name=None,
                    specFile=None,
@@ -74,38 +74,38 @@ class ObsLightPackages(object):
         self.__currentPackage = name
         if listFile == None:
             listFile = []
-        
+
         self.__dicOBSLightPackages[name] = ObsLightPackage(name=name,
                                                            specFile=specFile,
                                                            yamlFile=yamlFile,
                                                            listFile=listFile,
                                                            status=status)
-        
-    def isInstallInChroot(self,name):
+
+    def isInstallInChroot(self, name):
         '''
         Return True if the package is install into the chroot.
         '''
         return self.__dicOBSLightPackages[name].isInstallInChroot()
-    
+
     def getPackageStatus(self, name=None):
         '''
         
         '''
         return self.__dicOBSLightPackages[name].getStatus()
-        
+
     def getSpecFile(self, name=None):
         '''
         
         '''
         return self.__dicOBSLightPackages[name].getSpecFile()
-        
+
     def getOscDirectory(self, name=None):
         '''
         
         '''
         return self.__dicOBSLightPackages[name].getOscDirectory()
-        
-        
+
+
     def getPackage(self, package):
         '''
         
@@ -113,26 +113,53 @@ class ObsLightPackages(object):
         if not package in self.__dicOBSLightPackages:
             raise ObsLightErr.ObsLightPackageErr("No such package: " + str(package))
         return self.__dicOBSLightPackages[package]
-    
+
     def getPackageDirectory(self, package=None):
         '''
         
         '''
         return self.__dicOBSLightPackages[package].getPackageDirectory()
-        
-    def removePackage(self,package=None):
+
+    def getPackageParameter(self, package, parameter=None):
+        '''
+        Get the value of a project parameter:
+        the valid parameter is :
+            name
+            listFile
+            status
+            specFile
+            yamlFile
+            packageDirectory
+            description
+            packageTitle
+        '''
+        return self.__dicOBSLightPackages[package].getPackageParameter(parameter=parameter)
+
+    def setPackageParameter(self, package, parameter=None, value=None):
+        '''
+        return the value  of the parameter of the Package:
+        the valid parameter is :
+            specFile
+            yamlFile
+            packageDirectory
+            description
+            packageTitle
+        '''
+        return self.__dicOBSLightPackages[package].setPackageParameter(parameter=parameter, value=value)
+
+    def removePackage(self, package=None):
         '''
         
         '''
         self.__dicOBSLightPackages[package].destroy()
         del self.__dicOBSLightPackages[package]
         return 0
-        
-    def updatePackage(self,name,status=None):
+
+    def updatePackage(self, name, status=None):
         '''
         
         '''
         self.__dicOBSLightPackages[name].update(status=status)
-        
-        
-        
+
+
+

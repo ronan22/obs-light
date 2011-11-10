@@ -42,14 +42,18 @@ class ObsLightPackage(object):
                  yamlFile=None,
                  listFile=None,
                  status="Unknown",
+                 description="",
+                 packageTitle="",
                  fromSave=None):
         '''
         Constructor
         '''
         self.__mySubprocessCrt = SubprocessCrt()
-        self.__yamlFile=None
+        self.__yamlFile = None
         self.__specFile = None
-        
+        self.__description = description
+        self.__packageTitle = packageTitle
+
         if fromSave == None:
             self.__name = name
             if listFile == None:
@@ -60,6 +64,8 @@ class ObsLightPackage(object):
             self.__specFile = specFile
             self.__yamlFile = yamlFile
             self.__packageDirectory = None
+            self.__description = ""
+            self.__packageTitle = ""
         else:
             if "name" in fromSave.keys():
                 self.__name = fromSave["name"]
@@ -73,44 +79,48 @@ class ObsLightPackage(object):
                 self.__yamlFile = fromSave["yamlFile"]
             if "packageDirectory" in fromSave.keys():
                 self.__packageDirectory = fromSave["packageDirectory"]
-            if self.__status in [None,"None",""]:
-                self.__status="Unknown"
-            
-        
-        if not self.__yamlFile in (None,'None',""):
-            self.__myYamlFile = ObsLightYaml(path=self.__yamlFile,specPath=self.__specFile)
+            if self.__status in [None, "None", ""]:
+                self.__status = "Unknown"
+            if  "description" in fromSave.keys():
+                self.__description = fromSave["description"]
+            if  "packageTitle" in fromSave.keys():
+                self.__packageTitle = fromSave["packageTitle"]
+
+
+        if not self.__yamlFile in (None, 'None', ""):
+            self.__myYamlFile = ObsLightYaml(path=self.__yamlFile, specPath=self.__specFile)
             self.__mySpecFile = None
-            if self.__specFile in (None,'None',""):
+            if self.__specFile in (None, 'None', ""):
                 self.__specFile = self.__myYamlFile.getSpecFile()
         else:
             self.__myYamlFile = None
-            if not self.__specFile in (None,'None',""):    
+            if not self.__specFile in (None, 'None', ""):
                 self.__mySpecFile = ObsLightSpec(self.__specFile)
             else:
                 self.__mySpecFile = None
-            
+
     def isInstallInChroot(self):
         '''
         Return True if the package is install into the chroot.
         '''
-        if self.__packageDirectory in (None,""):
+        if self.__packageDirectory in (None, ""):
             return False
         else:
-            return True   
-               
-    def update(self,status=None):
+            return True
+
+    def update(self, status=None):
         '''
         
         '''
-        if status not in [None,"","None"]:
-            self.__status=status
-            
+        if status not in [None, "", "None"]:
+            self.__status = status
+
     def __subprocess(self, command=None, waitMess=False):
         '''
         
         '''
         return self.__mySubprocessCrt.execSubprocess(command=command, waitMess=waitMess)
-            
+
     def getName(self):
         '''
         return the name of the package.
@@ -128,100 +138,161 @@ class ObsLightPackage(object):
         aDic["specFile"] = self.__specFile
         aDic["yamlFile"] = self.__yamlFile
         aDic["packageDirectory"] = self.__packageDirectory
+        aDic["description"] = self.__description
+        aDic["packageTitle"] = self.__packageTitle
+
         return aDic
-            
+
+    def getPackageParameter(self, parameter=None):
+        '''
+        Get the value of a project parameter:
+        the valid parameter is :
+            name
+            listFile
+            status
+            specFile
+            yamlFile
+            packageDirectory
+            description
+            packageTitle
+        '''
+        if parameter == "name":
+            return self.__name
+        elif parameter == "listFile":
+            return self.__listFile
+        elif parameter == "status":
+            return self.__status
+        elif parameter == "specFile":
+            return self.__specFile
+        elif parameter == "yamlFile":
+            return self.__yamlFile
+        elif parameter == "packageDirectory":
+            return self.__packageDirectory
+        elif parameter == "description":
+            return self.__description
+        elif parameter == "packageTitle":
+            return self.__packageTitle
+        else:
+            raise ObsLightPackageErr("parameter value is not valid for getProjectParameter")
+
+
+    def setPackageParameter(self, parameter=None, value=None):
+        '''
+        return the value  of the parameter of the Package:
+        the valid parameter is :
+            specFile
+            yamlFile
+            packageDirectory
+            description
+            packageTitle
+        '''
+        if parameter == "specFile":
+            self.__specFile = value
+        elif parameter == "yamlFile":
+            self.__yamlFile = value
+        elif parameter == "packageDirectory":
+            self.__packageDirectory = value
+        elif parameter == "description":
+            self.__description = value
+        elif parameter == "packageTitle":
+            self.__packageTitle = value
+        else:
+            raise ObsLightPackageErr("parameter value is not valid for setProjectParameter")
+
+        return 0
+
     def getStatus(self):
         '''
         return the Status of the package.
         '''
         return self.__status
-            
+
     def getSpecFile(self):
         '''
         return the absolute path of the spec file or yaml.
         '''
         return self.__specFile
-         
+
     def getOscDirectory(self):
         '''
         Return the absolute path of the osc directory of the package (base on the directory of the spec file).
         '''
         return os.path.dirname(self.__specFile)
-            
+
     def setDirectoryBuild(self, packageDirectory=None):
         '''
         Set the directory of the package into the chroot.
         '''
         self.__packageDirectory = packageDirectory
-        
+
     def getPackageDirectory(self):
         '''
         Return the directory of the package into the chroot.
         '''
         return self.__packageDirectory
-    
+
     def addPatch(self, aFile=None):
         '''
         add a Patch aFile to package, the patch is automatically add to the spec aFile.
         '''
-        if self.__myYamlFile!=None:
+        if self.__myYamlFile != None:
             if self.__myYamlFile.addpatch(aFile) == 1:
                 ObsLightPrintManager.obsLightPrint("WARNING: Patch already exist the yaml file will not be changed.")
-        elif self.__mySpecFile!=None:
+        elif self.__mySpecFile != None:
             if self.__mySpecFile.addpatch(aFile) == 1:
                 ObsLightPrintManager.obsLightPrint("WARNING: Patch already exist the spec file will not be changed.")
         else:
             raise ObsLightPackageErr("No Spec or Yaml in the package")
-          
+
         self.addFile(aFile)
-    
+
     def addFile(self, aFile=None):
         '''
         Add a aFile to the package.
         '''
         self.__listFile.append(aFile)
-    
-    
+
+
     def save(self):
         '''
         Save the Spec file.
         '''
-        if self.__myYamlFile!=None:
+        if self.__myYamlFile != None:
             self.__myYamlFile.save()
-        elif self.__mySpecFile!=None:
+        elif self.__mySpecFile != None:
             self.__mySpecFile.save()
         else:
             raise ObsLightPackageErr("No Spec or Yaml in the package")
-        
+
 
     def addFileToSpec(self, baseFile=None, aFile=None):
         '''
         Add a delete command of a aFile to the spec aFile.
         '''
-        if self.__myYamlFile!=None:
+        if self.__myYamlFile != None:
             return self.__myYamlFile.addFile(baseFile=baseFile, aFile=aFile)
-        elif self.__mySpecFile!=None:
+        elif self.__mySpecFile != None:
             return self.__mySpecFile.addFile(baseFile=baseFile, aFile=aFile)
         else:
-            raise ObsLightPackageErr("No Spec or Yaml in the package") 
-            
+            raise ObsLightPackageErr("No Spec or Yaml in the package")
+
     def delFileToSpec(self, aFile=None):
         '''
         Add a delete command of a aFile to the spec aFile.
         '''
-        if self.__myYamlFile!=None:
+        if self.__myYamlFile != None:
             return self.__myYamlFile.delFile(aFile=aFile)
-        elif self.__mySpecFile!=None:
+        elif self.__mySpecFile != None:
             return self.__mySpecFile.delFile(aFile=aFile)
         else:
-            raise ObsLightPackageErr("No Spec or Yaml in the package") 
-    
+            raise ObsLightPackageErr("No Spec or Yaml in the package")
+
     def commitToObs(self, message=None):
         '''
         commit the package to the OBS server.
         '''
         ObsLightOsc().commitProject(path=self.getOscDirectory(), message=message)
-    
+
     def addRemoveFileToTheProject(self):
         '''
         add new file and remove file to the project.
@@ -233,7 +304,7 @@ class ObsLightPackage(object):
         
         '''
         return self.__subprocess(command="rm -r  " + self.getOscDirectory())
-    
-    
-    
-    
+
+
+
+

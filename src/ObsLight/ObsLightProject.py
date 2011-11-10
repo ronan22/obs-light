@@ -192,10 +192,10 @@ class ObsLightProject(object):
 
         return ObsLightPackages(fromSave)
 
-    def getProjectInfo(self, info=None):
+    def getProjectParameter(self, parameter=None):
         '''
         Get the value of a project parameter:
-        the valide info is :
+        the valid parameter is :
             projectLocalName
             projectObsName
             projectDirectory
@@ -205,29 +205,29 @@ class ObsLightProject(object):
             projectTitle
             description
         '''
-        if info == "projectLocalName":
+        if parameter == "projectLocalName":
             return self.__projectLocalName
-        elif info == "projectObsName":
+        elif parameter == "projectObsName":
             return self.__projectObsName
-        elif info == "projectDirectory":
+        elif parameter == "projectDirectory":
             return self.__projectDirectory
-        elif info == "obsServer":
+        elif parameter == "obsServer":
             return self.__obsServer
-        elif info == "projectTarget":
+        elif parameter == "projectTarget":
             return self.__projectTarget
-        elif info == "projectArchitecture":
+        elif parameter == "projectArchitecture":
             return self.__projectArchitecture
-        elif info == "projectTitle":
+        elif parameter == "projectTitle":
             return self.__projectTitle
-        elif info == "description":
+        elif parameter == "description":
             return self.__description
         else:
-            raise ObsLightErr.ObsLightProjectsError("info value is not valide for getProjectInfo")
+            raise ObsLightErr.ObsLightProjectsError("parameter value is not valid for getProjectParameter")
 
-    def setProjectparameter(self, parameter=None, value=None):
+    def setProjectParameter(self, parameter=None, value=None):
         '''
         return the value  of the parameter of the project:
-        the valide parameter is :
+        the valid parameter is :
             projectTarget
             projectArchitecture
             projectTitle
@@ -242,7 +242,35 @@ class ObsLightProject(object):
         elif parameter == "description":
             self.__description = value
         else:
-            raise ObsLightErr.ObsLightProjectsError("parameter value is not valide for getProjectInfo")
+            raise ObsLightErr.ObsLightProjectsError("parameter value is not valid for setProjectParameter")
+
+    def getPackageParameter(self, package, parameter=None):
+        '''
+        Get the value of a project parameter:
+        the valid parameter is :
+            name
+            listFile
+            status
+            specFile
+            yamlFile
+            packageDirectory
+            description
+            packageTitle
+        '''
+        return self.__packages.getPackageParameter(package=package, parameter=parameter)
+
+    def setPackageParameter(self, package, parameter=None, value=None):
+        '''
+        return the value  of the parameter of the Package:
+        the valid parameter is :
+            specFile
+            yamlFile
+            packageDirectory
+            description
+            packageTitle
+        '''
+        return self.__packages.setPackageParameter(package=package, parameter=parameter, value=value)
+
 
     def __subprocess(self, command=None, waitMess=False):
         '''
