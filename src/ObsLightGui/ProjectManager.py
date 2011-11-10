@@ -175,6 +175,16 @@ class ProjectManager(QObject):
         project = self.getCurrentProjectName()
         self.__packageManager.setCurrentProject(project)
         if project is not None:
+            self.updateProjectLabels()
+            self.updateChrootPathAndButtons()
+
+    @popupOnException
+    def updateProjectLabels(self):
+        '''
+        Update the different labels according to project parameters.
+        '''
+        project = self.getCurrentProjectName()
+        if project is not None:
             obslightManager = self.__gui.getObsLightManager()
             projectLink = obslightManager.getProjectWebPage(project)
             projectObsName = obslightManager.getProjectParameter(project,
@@ -191,13 +201,14 @@ class ProjectManager(QObject):
                                                                      projectObsName))
             self.__projectRepoLinkLabel.setText('<a href="%s">%s</a>' % (repoLink,
                                                                          obsServer))
-            
-            self.updateChrootPath()
-                
-    def updateChrootPath(self):
+
+    @popupOnException
+    def updateChrootPathAndButtons(self):
         '''
         Update the chroot path displayed in the main window
         with the one of the currently selected project.
+        Enable/disable some buttons according to the state
+        of the chroot.
         '''
         project = self.getCurrentProjectName()
         if project is not None:
@@ -212,6 +223,7 @@ class ProjectManager(QObject):
                 self.__createChrootButton.setText("Create chroot")
                 self.__addRepoInChrootButton.setEnabled(False)
                 self.__importRpmButton.setEnabled(False)
+
 
 class ProjectConfigManager(QObject):
     '''
@@ -250,6 +262,7 @@ class ProjectConfigManager(QObject):
     def __loadFieldObjects(self):
         self.__localNameField = self.__configDialog.findChild(QLineEdit,
                                                               "projectLocalNameLineEdit")
+        # obslight do not like whitespace characters
         noSpaceValidator = QRegExpValidator()
         noSpaceValidator.setRegExp(QRegExp("\\S+"))
         self.__localNameField.setValidator(noSpaceValidator)
@@ -382,6 +395,7 @@ class ProjectConfigManager(QObject):
 
     def on_configDialog_rejected(self):
         self.finished.emit(False)
+
 
 class RepoConfigManager(QObject):
     '''

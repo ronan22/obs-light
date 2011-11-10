@@ -29,7 +29,8 @@ class PackageModel(QAbstractTableModel):
     '''
     
     PackageNameColumn = 0
-    PackageStatusColumn = 1
+    PackageServerStatusColumn = 1
+    PackageChrootStatusColumn = 2
     
     __obsLightManager = None
     __project = None
@@ -52,7 +53,7 @@ class PackageModel(QAbstractTableModel):
         return len(self.__getPackageList())
     
     def columnCount(self, _parent=None):
-        return 2
+        return 3
 
     def headerData(self, section, orientation, role):
         if role == Qt.DisplayRole:
@@ -61,8 +62,10 @@ class PackageModel(QAbstractTableModel):
             else:
                 if section == self.PackageNameColumn:
                     return "Package"
-                elif section == self.PackageStatusColumn:
-                    return "Status"
+                elif section == self.PackageServerStatusColumn:
+                    return "Status on server"
+                elif section == self.PackageChrootStatusColumn:
+                    return "Status in chroot"
                 else:
                     return None
         
@@ -73,8 +76,11 @@ class PackageModel(QAbstractTableModel):
             packageName = self.__getPackageList()[index.row()]
             if index.column() == self.PackageNameColumn:
                 return packageName
-            elif index.column() == self.PackageStatusColumn:
+            elif index.column() == self.PackageServerStatusColumn:
                 return self.__obsLightManager.getPackageStatus(self.__project, packageName)
+            elif index.column() == self.PackageChrootStatusColumn:
+                installed = self.__obsLightManager.isInstalledInChRoot(self.__project, packageName)
+                return "Installed" if installed else "Not installed"
         else:
             return None
 
