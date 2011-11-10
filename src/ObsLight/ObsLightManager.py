@@ -654,6 +654,15 @@ class ObsLightManager(object):
             description
             packageTitle
         '''
+        if not isNonEmptyString(projectLocalName):
+            raise ObsLightProjectsError(" invalid project name: " + str(projectLocalName))
+        elif not self.isALocalProject(projectLocalName):
+            raise ObsLightProjectsError(projectLocalName + " is not a local projectLocalName")
+        elif not isNonEmptyString(package):
+            raise ObsLightObsServers(" invalid package name: " + str(package))
+        elif not package in self.getLocalProjectPackageList(name=projectLocalName, local=1):
+            raise ObsLightObsServers(package + " is not a local package of " + projectLocalName)
+
         return  self.__myObsLightProjects.getPackageParameter(projectLocalName=projectLocalName, package=package, parameter=parameter)
 
     def setPackageParameter(self, projectLocalName, package, parameter=None, value=None):
@@ -666,9 +675,27 @@ class ObsLightManager(object):
             description
             packageTitle
         '''
+        if not isNonEmptyString(projectLocalName):
+            raise ObsLightProjectsError(" invalid project name: " + str(projectLocalName))
+        elif not self.isALocalProject(projectLocalName):
+            raise ObsLightProjectsError(projectLocalName + " is not a local projectLocalName")
+        elif not isNonEmptyString(package):
+            raise ObsLightObsServers(" invalid package name: " + str(package))
+        elif not package in self.getLocalProjectPackageList(name=projectLocalName, local=1):
+            raise ObsLightObsServers(package + " is not a local package of " + projectLocalName)
+
         return  self.__myObsLightProjects.setPackageParameter(projectLocalName=projectLocalName, package=package, parameter=parameter, value=value)
 
+    def getReposProject(self, projectLocalName):
+        '''
+        Return the URL of the Repo of the Project
+        '''
+        if not isNonEmptyString(projectLocalName):
+            raise ObsLightProjectsError(" invalid project name: " + str(projectLocalName))
+        elif not self.isALocalProject(projectLocalName):
+            raise ObsLightProjectsError(projectLocalName + " is not a local projectLocalName")
 
+        return self.__myObsLightProjects.getReposProject(projectLocalName=projectLocalName)
 
 __myObsLightManager = None
 
