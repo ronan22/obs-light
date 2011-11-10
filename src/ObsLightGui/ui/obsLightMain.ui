@@ -312,7 +312,7 @@
               <bool>false</bool>
              </property>
              <property name="currentIndex">
-              <number>0</number>
+              <number>1</number>
              </property>
              <widget class="QWidget" name="localDirectoryTab">
               <attribute name="title">
@@ -422,7 +422,7 @@
                 </widget>
                </item>
                <item row="2" column="0">
-                <widget class="QListView" name="listView"/>
+                <widget class="QTreeView" name="chrootTreeView"/>
                </item>
               </layout>
              </widget>
