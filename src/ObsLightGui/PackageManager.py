@@ -69,6 +69,9 @@ class PackageManager(QObject):
                                                                "generatePatchButton")
         self.__makePatchButton.clicked.connect(self.on_makePatchButton_clicked)
         self.__packageNameLabel = gui.getMainWindow().findChild(QLabel, "packageNameLabelValue")
+        self.__packageTitleLabel = gui.getMainWindow().findChild(QLabel, "packageTitleLabel")
+        self.__packageDescriptionLabel = gui.getMainWindow().findChild(QLabel,
+                                                                       "packageDescriptionLabel")
         self.__progress = QProgressDialog(gui.getMainWindow())
         self.__progress.setMinimumDuration(500)
         #self.__progress.setWindowModality(Qt.NonModal)
@@ -102,9 +105,16 @@ class PackageManager(QObject):
             self.updateLabels()
 
     def updateLabels(self):
-        currentPackage = self.currentPackage()
-        if currentPackage is not None:
-            self.__packageNameLabel.setText(currentPackage)
+        package = self.currentPackage()
+        project = self.getCurrentProject()
+        if package is not None:
+            self.__packageNameLabel.setText(package)
+            packageTitle = self.__obsLightManager.getPackageParameter(project, package,
+                                                                      "packageTitle")
+            description = self.__obsLightManager.getPackageParameter(project, package,
+                                                                     "description")
+            self.__packageTitleLabel.setText(packageTitle)
+            self.__packageDescriptionLabel.setText(description)
 
         
     def currentPackage(self):
