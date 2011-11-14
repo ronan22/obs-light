@@ -136,7 +136,7 @@ class ObsLightProjects(object):
         if not (name in self.__dicOBSLightProjects.keys()):
             self.__dicOBSLightProjects[name] = ObsLightProject(obsServers=self.__obsServers, fromSave=fromSave, importFile=importFile)
         else:
-            ObsLightPrintManager.obsLightPrint("Can't import: " + name + ", The Project already exist.")
+            raise ObsLightErr.ObsLightProjectsError("Can't import: " + name + ", The Project already exists.")
 
     def getListPackage(self, name=None, local=0):
         '''

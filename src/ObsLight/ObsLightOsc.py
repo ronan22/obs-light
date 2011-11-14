@@ -20,10 +20,7 @@ Created on 3 oct. 2011
 @author: ronan
 '''
 
-
-
 import os
-
 
 from osc import conf
 from osc import core

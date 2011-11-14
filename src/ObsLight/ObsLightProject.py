@@ -373,9 +373,9 @@ class ObsLightProject(object):
                                                     package=name, repo=self.__projectTarget,
                                                     arch=self.__projectArchitecture)
 
-        description = self.__obsServers.getPackageTitle(obsServer=self.__obsServer, projectObsName=self.__projectObsName, package=name)
+        packageTitle = self.__obsServers.getPackageTitle(obsServer=self.__obsServer, projectObsName=self.__projectObsName, package=name)
+        description = self.__obsServers.getPackageDescription(obsServer=self.__obsServer, projectObsName=self.__projectObsName, package=name)
 
-        packageTitle = self.__obsServers.getPackageDescription(obsServer=self.__obsServer, projectObsName=self.__projectObsName, package=name)
 
         self.__packages.addPackage(name=name,
                                    description=description,

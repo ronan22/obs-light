@@ -64,8 +64,7 @@ class ObsLightPackage(object):
             self.__specFile = specFile
             self.__yamlFile = yamlFile
             self.__packageDirectory = None
-            self.__description = ""
-            self.__packageTitle = ""
+
         else:
             if "name" in fromSave.keys():
                 self.__name = fromSave["name"]

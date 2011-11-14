@@ -647,7 +647,7 @@ class ObsLightManager(object):
 
         return self.__myObsLightProjects.getWebProjectPage(projectLocalName)
 
-    def getPackageParameter(self, projectLocalName, package, parameter=None):
+    def getPackageParameter(self, projectLocalName, package, parameter):
         '''
         Get the value of a project parameter:
         the valid parameter is :
