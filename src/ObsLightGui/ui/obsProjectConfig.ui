@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>254</width>
-    <height>170</height>
+    <height>379</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,6 +17,9 @@
    <bool>true</bool>
   </property>
   <layout class="QFormLayout" name="formLayout">
+   <property name="fieldGrowthPolicy">
+    <enum>QFormLayout::ExpandingFieldsGrow</enum>
+   </property>
    <item row="0" column="0">
     <widget class="QLabel" name="projectLocalNameLabel">
      <property name="text">
@@ -27,13 +30,37 @@
    <item row="0" column="1">
     <widget class="QLineEdit" name="projectLocalNameLineEdit"/>
    </item>
-   <item row="6" column="1">
-    <widget class="QDialogButtonBox" name="obsProjectConfigButtonBox">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+   <item row="1" column="0">
+    <widget class="QLabel" name="projectServerLabel">
+     <property name="text">
+      <string>OBS Server:</string>
      </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QComboBox" name="projectServerComboBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="projectObsNameLabel">
+     <property name="text">
+      <string>Name on OBS:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QLineEdit" name="projectObsNameLineEdit"/>
+   </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="projectTargetLabel">
+     <property name="text">
+      <string>Target:</string>
      </property>
     </widget>
    </item>
@@ -50,10 +77,10 @@
      </property>
     </widget>
    </item>
-   <item row="4" column="0">
-    <widget class="QLabel" name="projectTargetLabel">
+   <item row="5" column="0">
+    <widget class="QLabel" name="projectArchitectureLabel">
      <property name="text">
-      <string>Target:</string>
+      <string>Architecture:</string>
      </property>
     </widget>
    </item>
@@ -67,37 +94,33 @@
      </property>
     </widget>
    </item>
-   <item row="5" column="0">
-    <widget class="QLabel" name="projectArchitectureLabel">
-     <property name="text">
-      <string>Architecture:</string>
+   <item row="8" column="1">
+    <widget class="QDialogButtonBox" name="obsProjectConfigButtonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
      </property>
     </widget>
    </item>
-   <item row="2" column="0">
-    <widget class="QLabel" name="projectObsNameLabel">
+   <item row="7" column="1">
+    <widget class="QTextEdit" name="projectDescriptionTextEdit"/>
+   </item>
+   <item row="7" column="0">
+    <widget class="QLabel" name="projectDescriptionLabel">
      <property name="text">
-      <string>Name on OBS:</string>
+      <string>Description:</string>
      </property>
     </widget>
    </item>
-   <item row="2" column="1">
-    <widget class="QLineEdit" name="projectObsNameLineEdit"/>
+   <item row="6" column="1">
+    <widget class="QLineEdit" name="projectTitleLineEdit"/>
    </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="projectServerLabel">
+   <item row="6" column="0">
+    <widget class="QLabel" name="projectTitleLabel">
      <property name="text">
-      <string>OBS Server:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1">
-    <widget class="QComboBox" name="projectServerComboBox">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
+      <string>Project title:</string>
      </property>
     </widget>
    </item>

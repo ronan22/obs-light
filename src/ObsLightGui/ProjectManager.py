@@ -21,7 +21,7 @@ Created on 27 sept. 2011
 '''
  
 from PySide.QtCore import QObject, QRegExp, QThreadPool, Signal, Qt
-from PySide.QtGui import QPushButton, QListWidget, QLineEdit, QLabel, QComboBox
+from PySide.QtGui import QTextEdit, QPushButton, QListWidget, QLineEdit, QLabel, QComboBox
 from PySide.QtGui import QRegExpValidator, QRadioButton, QProgressDialog
 
 from Utils import QRunnableImpl, ProgressRunnable, popupOnException
@@ -196,8 +196,8 @@ class ProjectManager(QObject):
             projectLink = obslightManager.getProjectWebPage(project)
             projectObsName = obslightManager.getProjectParameter(project,
                                                                  "projectObsName")
-            obsServer = obslightManager.getProjectParameter(project, "obsServer")
-            repoLink = obslightManager.getRepo(obsServer)
+            target = obslightManager.getProjectParameter(project, "projectTarget")
+            repoLink = obslightManager.getProjectRepository(project)
             projectTitle = obslightManager.getProjectParameter(project, "projectTitle")
             projectDescription = obslightManager.getProjectParameter(project, "description")
             
@@ -207,7 +207,7 @@ class ProjectManager(QObject):
             self.__projectLinkLabel.setText('<a href="%s">%s</a>' % (projectLink,
                                                                      projectObsName))
             self.__projectRepoLinkLabel.setText('<a href="%s">%s</a>' % (repoLink,
-                                                                         obsServer))
+                                                                         target))
 
     @popupOnException
     def updateChrootPathAndButtons(self):
@@ -247,6 +247,8 @@ class ProjectConfigManager(QObject):
     __serverCBox = None
     __targetCBox = None
     __archCBox = None
+    __titleLineEdit = None
+    __descriptionTextEdit = None
     
     finished = Signal(bool)
     __projectObsNameEdited = False
@@ -285,6 +287,10 @@ class ProjectConfigManager(QObject):
         self.__targetCBox.currentIndexChanged.connect(self.handleTargetIndexChanged)
         self.__archCBox = self.__configDialog.findChild(QComboBox,
                                                         "projectArchitectureComboBox")
+        self.__titleLineEdit = self.__configDialog.findChild(QLineEdit,
+                                                             "projectTitleLineEdit")
+        self.__descriptionTextEdit = self.__configDialog.findChild(QTextEdit,
+                                                                   "projectDescriptionTextEdit")
 
     def __loadInitialFieldValues(self):
         self.__serverCBox.clear()
@@ -320,6 +326,14 @@ class ProjectConfigManager(QObject):
             lineIndex = self.__archCBox.findText(arch)
             if lineIndex >= 0:
                 self.__archCBox.setCurrentIndex(lineIndex)
+            # load project title
+            title = self.__obsLightManager.getProjectParameter(self.__projectAlias,
+                                                               "projectTitle")
+            self.__titleLineEdit.setText(title)
+            # load project description
+            description = self.__obsLightManager.getProjectParameter(self.__projectAlias,
+                                                                     "description")
+            self.__descriptionTextEdit.setText(description)
             
     def __loadTargetPossibilities(self):
         '''
@@ -376,6 +390,12 @@ class ProjectConfigManager(QObject):
     def getCurrentArch(self):
         return self.__archCBox.currentText()
 
+    def getCurrentTitle(self):
+        return self.__titleLineEdit.text()
+
+    def getCurrentDescription(self):
+        return self.__descriptionTextEdit.toPlainText()
+
     @popupOnException
     def on_configDialog_accepted(self):
         if self.__isNewProject():
@@ -383,7 +403,9 @@ class ProjectConfigManager(QObject):
                                               self.getCurrentProjectObsName(),
                                               self.getCurrentTarget(),
                                               self.getCurrentArch(),
-                                              projectLocalName=self.getCurrentProjectLocalName())
+                                              projectLocalName=self.getCurrentProjectLocalName(),
+                                              description=self.getCurrentDescription(),
+                                              projectTitle=self.getCurrentTitle())
         else:
             # Currently we can't relocate a project.
 #            self.__obsLightManager.setProjectParameter(self.getCurrentProjectLocalName(),
@@ -393,11 +415,17 @@ class ProjectConfigManager(QObject):
 #                                                  "obsServer",
 #                                                  self.getCurrentServerAlias())
             self.__obsLightManager.setProjectParameter(self.getCurrentProjectLocalName(),
-                                                  "projectTarget",
-                                                  self.getCurrentTarget())
+                                                       "projectTarget",
+                                                       self.getCurrentTarget())
             self.__obsLightManager.setProjectParameter(self.getCurrentProjectLocalName(),
-                                                  "projectArchitecture",
-                                                  self.getCurrentArch())
+                                                       "projectArchitecture",
+                                                       self.getCurrentArch())
+            self.__obsLightManager.setProjectParameter(self.getCurrentProjectLocalName(),
+                                                       "projectTitle",
+                                                       self.getCurrentTitle())
+            self.__obsLightManager.setProjectParameter(self.getCurrentProjectLocalName(),
+                                                       "description",
+                                                       self.getCurrentDescription())
         self.finished.emit(True)
 
     def on_configDialog_rejected(self):

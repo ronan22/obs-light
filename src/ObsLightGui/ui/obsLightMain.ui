@@ -95,7 +95,7 @@
                  <item row="5" column="0">
                   <widget class="QLabel" name="projectPageLabel">
                    <property name="text">
-                    <string>Project OBS page :</string>
+                    <string>Project OBS page:</string>
                    </property>
                    <property name="textFormat">
                     <enum>Qt::RichText</enum>
@@ -182,7 +182,7 @@
                  <item row="6" column="0">
                   <widget class="QLabel" name="projectRepoPageLabel">
                    <property name="text">
-                    <string>Project repo :</string>
+                    <string>Project repository:</string>
                    </property>
                   </widget>
                  </item>
@@ -312,7 +312,7 @@
               <bool>false</bool>
              </property>
              <property name="currentIndex">
-              <number>1</number>
+              <number>0</number>
              </property>
              <widget class="QWidget" name="localDirectoryTab">
               <attribute name="title">
@@ -361,13 +361,6 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="8" column="2">
-                   <widget class="QPushButton" name="generatePatchButton">
-                    <property name="text">
-                     <string>Generate patch</string>
-                    </property>
-                   </widget>
-                  </item>
                   <item row="7" column="1">
                    <widget class="QPushButton" name="addFileButton">
                     <property name="enabled">
@@ -375,6 +368,20 @@
                     </property>
                     <property name="text">
                      <string>Add file</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="7" column="2">
+                   <widget class="QPushButton" name="generatePatchButton">
+                    <property name="text">
+                     <string>Generate patch</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="8" column="2">
+                   <widget class="QPushButton" name="addAndCommitButton">
+                    <property name="text">
+                     <string>Commit changes</string>
                     </property>
                    </widget>
                   </item>

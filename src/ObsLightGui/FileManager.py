@@ -66,21 +66,25 @@ class FileManager(QObject):
         self.__chrootModel = QFileSystemModel()
         if self.__project is not None and self.__package is not None:
             path = self.__obsLightManager.getPackageDirectory(self.__project, self.__package)
-            pathInChRoot = self.__obsLightManager.getPackageDirectoryInChRoot(self.__project,
-                                                                              self.__package)
-            chrootPath = self.__obsLightManager.getChRootPath(self.__project)
+            if self.__obsLightManager.isChRootInit(self.__project):
+                self.__chrootTreeView.setEnabled(True)
+                pathInChRoot = self.__obsLightManager.getPackageDirectoryInChRoot(self.__project,
+                                                                                  self.__package)
+                chrootPath = self.__obsLightManager.getChRootPath(self.__project)
+                self.__chrootModel.directoryLoaded.connect(self.on_chrootPath_loaded)
+                self.__packageInChrootDir = chrootPath
+                if pathInChRoot is not None:
+                    self.__packageInChrootDir += pathInChRoot
+                self.__chrootPath = chrootPath
+                self.__chrootModel.setRootPath(self.__chrootPath)
+                if self.__chrootPath != self.__packageInChrootDir:
+                    self.__chrootModel.setRootPath(self.__packageInChrootDir)
+            else:
+                self.__chrootTreeView.setEnabled(False)
             self.__localModel.directoryLoaded.connect(self.on_path_loaded)
-            self.__chrootModel.directoryLoaded.connect(self.on_chrootPath_loaded)
             self.__packageDir = path
-            self.__packageInChrootDir = chrootPath
-            if pathInChRoot is not None:
-                self.__packageInChrootDir += pathInChRoot
-            self.__chrootPath = chrootPath
             self.__localModel.setRootPath(path)
             self.__packageTabWidget.setEnabled(True)
-            self.__chrootModel.setRootPath(self.__chrootPath)
-            if self.__chrootPath != self.__packageInChrootDir:
-                self.__chrootModel.setRootPath(self.__packageInChrootDir)
         else:
             self.__packageTabWidget.setEnabled(False)
         self.__fileTreeView.setModel(self.__localModel)
@@ -89,9 +93,12 @@ class FileManager(QObject):
     def on_path_loaded(self, path):
         if path == self.__packageDir:
             self.__fileTreeView.setRootIndex(self.__localModel.index(path))
+            self.__fileTreeView.resizeColumnToContents(0)
 
     def on_chrootPath_loaded(self, path):
         if path == self.__chrootPath:
             self.__chrootTreeView.setRootIndex(self.__chrootModel.index(path))
-        if path == self.__packageInChrootDir:
+            self.__chrootTreeView.resizeColumnToContents(0)
+        elif path == self.__packageInChrootDir:
             self.__chrootTreeView.setCurrentIndex(self.__chrootModel.index(path))
+            self.__chrootTreeView.resizeColumnToContents(0)
