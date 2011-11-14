@@ -148,7 +148,7 @@
                  <item row="7" column="0">
                   <widget class="QPushButton" name="importObsProjectButton">
                    <property name="enabled">
-                    <bool>false</bool>
+                    <bool>true</bool>
                    </property>
                    <property name="text">
                     <string>Import</string>
