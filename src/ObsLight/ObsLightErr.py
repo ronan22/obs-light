@@ -21,7 +21,7 @@ class OBSLightBaseError(Exception):
         Exception.__init__(self)
         self.args = args
     def __str__(self):
-        return ''.join(self.args)
+        return ''.join(self.args) + " " + str(self.msg)
 
 
 class SignalInterrupt(Exception):

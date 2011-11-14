@@ -423,7 +423,7 @@ class ObsLightManager(object):
             raise ObsLightProjectsError(projectLocalName + " is not a local project")
         if not self.isChRootInit(projectLocalName):
             raise ObsLightProjectsError("The project '" + projectLocalName
-                                        + "' has not chroot at the moment")
+                                        + "' has no chroot at the moment")
         return self.__myObsLightProjects.getPackageDirectoryInChRoot(projectLocalName, packageName)
 
     def addPackage(self, projectLocalName, package):
