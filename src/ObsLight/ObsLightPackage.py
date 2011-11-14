@@ -178,7 +178,7 @@ class ObsLightPackage(object):
 
     def setPackageParameter(self, parameter=None, value=None):
         '''
-        return the value  of the parameter of the Package:
+        return the value  of the parameter of the package:
         the valid parameter is :
             specFile
             yamlFile

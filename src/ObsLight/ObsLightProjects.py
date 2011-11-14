@@ -115,15 +115,18 @@ class ObsLightProjects(object):
         '''
         
         '''
+        projectTitle = self.__obsServers.getProjectTitle(obsServer=obsServer, projectObsName=projectObsName)
+        description = self.__obsServers.getProjectDescription(obsServer=obsServer, projectObsName=projectObsName)
+
         self.__dicOBSLightProjects[projectLocalName] = ObsLightProject(obsServers=self.__obsServers,
                                                                        projectLocalName=projectLocalName,
                                                                        projectObsName=projectObsName,
                                                                        projectTitle=projectTitle,
+                                                                       description=description,
                                                                        projectDirectory=projectDirectory,
                                                                        chrootDirectory=chrootDirectory,
                                                                        obsServer=obsServer,
                                                                        projectTarget=projectTarget,
-                                                                       description=description,
                                                                        projectArchitecture=projectArchitecture)
 
     def __addProjectFromSave(self, name=None, fromSave=None, importFile=None):
@@ -258,7 +261,7 @@ class ObsLightProjects(object):
 
     def setPackageParameter(self, projectLocalName, package, parameter=None, value=None):
         '''
-        return the value  of the parameter of the Package:
+        return the value  of the parameter of the package:
         the valid parameter is :
             specFile
             yamlFile

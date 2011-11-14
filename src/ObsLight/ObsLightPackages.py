@@ -63,7 +63,9 @@ class ObsLightPackages(object):
         return saveconfigPackages
 
     def addPackage(self,
-                   name=None,
+                   name,
+                   description,
+                   packageTitle,
                    specFile=None,
                    yamlFile=None,
                    listFile=None,
@@ -77,6 +79,8 @@ class ObsLightPackages(object):
 
         self.__dicOBSLightPackages[name] = ObsLightPackage(name=name,
                                                            specFile=specFile,
+                                                           description=description,
+                                                           packageTitle=packageTitle,
                                                            yamlFile=yamlFile,
                                                            listFile=listFile,
                                                            status=status)
@@ -137,7 +141,7 @@ class ObsLightPackages(object):
 
     def setPackageParameter(self, package, parameter=None, value=None):
         '''
-        return the value  of the parameter of the Package:
+        return the value  of the parameter of the package:
         the valid parameter is :
             specFile
             yamlFile

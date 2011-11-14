@@ -209,10 +209,16 @@ class ObsLightManager(object):
         else:
             return False
 
-    def addProject(self, obsServer, projectObsName, projectTarget,
-                   projectArchitecture, projectTitle=None,
-                   projectDirectory=None, chrootDirectory=None,
-                   description=None, projectLocalName=None):
+    def addProject(self,
+                   obsServer,
+                   projectObsName,
+                   projectTarget,
+                   projectArchitecture,
+                   projectTitle=None,
+                   projectDirectory=None,
+                   chrootDirectory=None,
+                   description=None,
+                   projectLocalName=None):
         '''
         Create a local project associated with an OBS project.
         '''
@@ -667,7 +673,7 @@ class ObsLightManager(object):
 
     def setPackageParameter(self, projectLocalName, package, parameter=None, value=None):
         '''
-        return the value  of the parameter of the Package:
+        return the value  of the parameter of the package:
         the valid parameter is :
             specFile
             yamlFile

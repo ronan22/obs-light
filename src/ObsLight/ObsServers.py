@@ -168,12 +168,35 @@ class ObsServers(object):
         '''
         
         '''
-        return self.__dicOBSLightServers[obsServer].setObsServerParameter(parameter=parameter, value=value)
+        return self.__dicOBSLightServers[obsServer].setObsServerParameter(parameter=parameter,
+                                                                          value=value)
 
 
+    def getProjectTitle(self, obsServer, projectObsName):
+        '''
+        
+        '''
+        return self.__dicOBSLightServers[obsServer].getProjectTitle(projectObsName=projectObsName)
 
+    def getProjectDescription(self, obsServer, projectObsName):
+        '''
+        
+        '''
+        return self.__dicOBSLightServers[obsServer].getProjectDescription(projectObsName=projectObsName)
 
+    def getPackageTitle(self, obsServer, projectObsName, package):
+        '''
+        
+        '''
+        return self.__dicOBSLightServers[obsServer].getPackageTitle(projectObsName=projectObsName,
+                                                                     package=package)
 
+    def getPackageDescription(self, obsServer, projectObsName, package):
+        '''
+        
+        '''
+        return self.__dicOBSLightServers[obsServer].getPackageDescription(projectObsName=projectObsName,
+                                                                           package=package)
 
 
 

@@ -38,11 +38,11 @@ class ObsLightProject(object):
     def __init__(self, obsServers,
                        projectLocalName=None,
                        projectObsName=None,
-                       projectTitle=None,
                        projectDirectory=None,
                        chrootDirectory=None,
                        obsServer=None ,
                        projectTarget=None,
+                       projectTitle=None,
                        description=None,
                        projectArchitecture=None,
                        fromSave=None,
@@ -241,11 +241,12 @@ class ObsLightProject(object):
             description
             packageTitle
         '''
-        return self.__packages.getPackageParameter(package=package, parameter=parameter)
+        return self.__packages.getPackageParameter(package=package,
+                                                   parameter=parameter)
 
     def setPackageParameter(self, package, parameter=None, value=None):
         '''
-        return the value  of the parameter of the Package:
+        return the value  of the parameter of the package:
         the valid parameter is :
             specFile
             yamlFile
@@ -253,14 +254,17 @@ class ObsLightProject(object):
             description
             packageTitle
         '''
-        return self.__packages.setPackageParameter(package=package, parameter=parameter, value=value)
+        return self.__packages.setPackageParameter(package=package,
+                                                   parameter=parameter,
+                                                   value=value)
 
 
     def __subprocess(self, command=None, waitMess=False):
         '''
         
         '''
-        return self.__mySubprocessCrt.execSubprocess(command=command, waitMess=waitMess)
+        return self.__mySubprocessCrt.execSubprocess(command=command,
+                                                     waitMess=waitMess)
 
     def removeProject(self):
         '''
@@ -318,7 +322,7 @@ class ObsLightProject(object):
         '''
         if local == 0:
             return self.__obsServers.getObsProjectPackageList(obsServer=self.__obsServer,
-                                                                                  projectLocalName=self.__projectObsName)
+                                                              projectLocalName=self.__projectObsName)
         else:
             return self.__packages.getListPackages()
 
@@ -364,8 +368,18 @@ class ObsLightProject(object):
         add a package to the projectLocalName.
         '''
         specFile, yamlFile, listFile = self.checkoutPackage(package=name)
-        status = self.__obsServers.getPackageStatus(obsServer=self.__obsServer, project=self.__projectObsName, package=name, repo=self.__projectTarget, arch=self.__projectArchitecture)
+        status = self.__obsServers.getPackageStatus(obsServer=self.__obsServer,
+                                                    project=self.__projectObsName,
+                                                    package=name, repo=self.__projectTarget,
+                                                    arch=self.__projectArchitecture)
+
+        description = self.__obsServers.getPackageTitle(obsServer=self.__obsServer, projectObsName=self.__projectObsName, package=name)
+
+        packageTitle = self.__obsServers.getPackageDescription(obsServer=self.__obsServer, projectObsName=self.__projectObsName, package=name)
+
         self.__packages.addPackage(name=name,
+                                   description=description,
+                                   packageTitle=packageTitle,
                                    specFile=specFile,
                                    yamlFile=yamlFile,
                                    listFile=listFile,
@@ -383,7 +397,11 @@ class ObsLightProject(object):
         
         '''
         for name in self.__packages.getListPackages():
-            status = self.__obsServers.getPackageStatus(obsServer=self.__obsServer, project=self.__projectObsName, package=name, repo=self.__projectTarget, arch=self.__projectArchitecture)
+            status = self.__obsServers.getPackageStatus(obsServer=self.__obsServer,
+                                                        project=self.__projectObsName,
+                                                        package=name,
+                                                        repo=self.__projectTarget,
+                                                        arch=self.__projectArchitecture)
 
             self.__packages.updatePackage(name=name, status=status)
 
