@@ -22,6 +22,7 @@ Created on 2 nov. 2011
 
 from PySide.QtCore import QObject, QThreadPool, Qt
 from PySide.QtGui import QLabel, QInputDialog, QProgressDialog, QPushButton, QTableView, QWidget
+from PySide.QtGui import QMenu, QContextMenuEvent
 
 from PackageModel import PackageModel
 from ObsLightGui.FileManager import FileManager
@@ -48,6 +49,9 @@ class PackageManager(QObject):
     __newPackageButton = None
     __deletePackageButton = None
     __makePatchButton = None
+    __addAndCommitButton = None
+    
+    __menu = None
 
     def __init__(self, gui):
         QObject.__init__(self)
@@ -68,6 +72,9 @@ class PackageManager(QObject):
         self.__makePatchButton = gui.getMainWindow().findChild(QPushButton,
                                                                "generatePatchButton")
         self.__makePatchButton.clicked.connect(self.on_makePatchButton_clicked)
+        self.__addAndCommitButton = gui.getMainWindow().findChild(QPushButton,
+                                                                  "addAndCommitButton")
+        self.__addAndCommitButton.clicked.connect(self.on_addAndCommitButton_clicked)
         self.__packageNameLabel = gui.getMainWindow().findChild(QLabel, "packageNameLabelValue")
         self.__packageTitleLabel = gui.getMainWindow().findChild(QLabel, "packageTitleLabel")
         self.__packageDescriptionLabel = gui.getMainWindow().findChild(QLabel,
@@ -79,6 +86,8 @@ class PackageManager(QObject):
         self.__progress.setCancelButton(None)
         # make the progress "infinite"
         self.__progress.setRange(0, 0)
+        #self.__packageWidget.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        #self.__packageWidget.customContextMenuRequested.connect(self.on_contextMenu_requested)
         
     def getCurrentProject(self):
         return self.__project
@@ -98,11 +107,12 @@ class PackageManager(QObject):
             self.__fileManager.setCurrentPackage(self.__project, self.currentPackage())
         else:
             self.__fileManager.setCurrentPackage(None, None)
+        self.updateLabels()
         
     def on_packageIndex_clicked(self, index):
         if index.isValid():
             self.__fileManager.setCurrentPackage(self.__project, self.currentPackage())
-            self.updateLabels()
+        self.updateLabels()
 
     def updateLabels(self):
         package = self.currentPackage()
@@ -115,6 +125,10 @@ class PackageManager(QObject):
                                                                      "description")
             self.__packageTitleLabel.setText(packageTitle)
             self.__packageDescriptionLabel.setText(description)
+        else:
+            self.__packageNameLabel.setText("No package selected")
+            self.__packageTitleLabel.setText("")
+            self.__packageDescriptionLabel.setText("")
 
         
     def currentPackage(self):
@@ -174,3 +188,29 @@ class PackageManager(QObject):
             runnable.setProgressDialog(self.__progress)
             runnable.finishedWithException.connect(self.__gui.obsLightErrorCallback2)
             QThreadPool.globalInstance().start(runnable)
+
+    @popupOnException
+    def on_addAndCommitButton_clicked(self):
+        project = self.getCurrentProject()
+        package = self.currentPackage()
+        if project is None or package is None:
+            return
+        message, accepted = QInputDialog.getText(self.__gui.getMainWindow(),
+                                                 u"Enter commit message...",
+                                                 u"Commit message:")
+        if accepted:
+            self.__progress.setLabelText("Committing changes")
+            self.__progress.show()
+            runnable = ProgressRunnable(self.__obsLightManager.addAndCommitChanges,
+                                        project, package, message)
+            runnable.setProgressDialog(self.__progress)
+            runnable.finishedWithException.connect(self.__gui.obsLightErrorCallback2)
+            QThreadPool.globalInstance().start(runnable)
+
+    def on_contextMenu_requested(self, point):
+        self.__menu = QMenu("Package", self.__packageWidget)
+        self.__menu.addAction("toto")
+        self.__menu.addSeparator()
+        self.__menu.addAction("tata")
+        destPoint = self.__packageWidget.mapToParent(point)
+        self.__menu.popup(destPoint)
