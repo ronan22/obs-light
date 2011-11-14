@@ -22,7 +22,7 @@ Created on 2 nov. 2011
 
 from PySide.QtCore import QObject, QThreadPool, Qt
 from PySide.QtGui import QLabel, QInputDialog, QProgressDialog, QPushButton, QTableView, QWidget
-from PySide.QtGui import QMenu, QContextMenuEvent
+from PySide.QtGui import QMenu
 
 from PackageModel import PackageModel
 from ObsLightGui.FileManager import FileManager
@@ -158,6 +158,7 @@ class PackageManager(QObject):
             runnable = ProgressRunnable(self.__localModel.addPackage, packageName)
             runnable.setProgressDialog(self.__progress)
             runnable.finishedWithException.connect(self.__gui.obsLightErrorCallback2)
+            runnable.finished.connect(self.updateLabels)
             QThreadPool.globalInstance().start(runnable)
 
     @popupOnException
@@ -170,6 +171,7 @@ class PackageManager(QObject):
                                                                  PackageModel.PackageNameColumn))
         if packageName is not None and len(packageName) > 0:
             self.__localModel.removePackage(packageName)
+            self.__fileManager.setCurrentPackage(None, None)
 
     @popupOnException
     def on_makePatchButton_clicked(self):

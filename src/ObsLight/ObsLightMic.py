@@ -179,7 +179,7 @@ class ObsLightMic(object):
                     if os.readlink(procfile) == chrootdir:
                         pid = int(procfile.split("/")[2])
                         os.kill(pid, 9)
-                except Exception:
+                except BaseException:
                     return None
         self.__chroot_lockfd.close()
         bind_unmount(self.__globalmounts)
@@ -339,9 +339,7 @@ class ObsLightMic(object):
             command = "sudo  chmod o-w /proc/sys/fs/binfmt_misc/arm"
             self.__subprocess(command=command)
 #            subprocess.call(["sudo", "echo", qemu_unregister_string, ">", "/proc/sys/fs/binfmt_misc/arm"])
-    
-        #TODO
-        # register qemu emulator for interpreting other arch executable file
+
         if not os.path.exists(node):
             qemu_arm_string = ":arm:M::\\x7fELF\\x01\\x01\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x02\\x00\\x28\\x00:\\xff\\xff\\xff\\xff\\xff\\xff\\xff\\x00\\xff\\xff\\xff\\xff\\xff\\xff\\xff\\xff\\xfa\\xff\\xff\\xff:%s:\n" % qemu_emulator
             command = "sudo chmod o+w /proc/sys/fs/binfmt_misc/register"

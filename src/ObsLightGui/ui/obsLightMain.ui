@@ -134,7 +134,7 @@
                     <locale language="English" country="UnitedStates"/>
                    </property>
                    <property name="text">
-                    <string>New</string>
+                    <string>Import OBS project</string>
                    </property>
                   </widget>
                  </item>
@@ -148,7 +148,7 @@
                  <item row="7" column="0">
                   <widget class="QPushButton" name="importObsProjectButton">
                    <property name="enabled">
-                    <bool>false</bool>
+                    <bool>true</bool>
                    </property>
                    <property name="text">
                     <string>Import</string>
@@ -241,7 +241,7 @@
               <item>
                <widget class="QWidget" name="packageWidget" native="true">
                 <layout class="QGridLayout" name="gridLayout_10">
-                 <item row="4" column="0">
+                 <item row="4" column="0" colspan="2">
                   <widget class="QLabel" name="packageDescriptionLabel">
                    <property name="text">
                     <string>Package Description</string>
@@ -272,7 +272,7 @@
                    </property>
                   </widget>
                  </item>
-                 <item row="3" column="0">
+                 <item row="3" column="0" colspan="2">
                   <widget class="QLabel" name="packageTitleLabel">
                    <property name="text">
                     <string>PackageTitle</string>
@@ -971,6 +971,7 @@
      <string>Help</string>
     </property>
     <addaction name="actionAbout"/>
+    <addaction name="actionAbout_Qt"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuProject"/>
@@ -1015,6 +1016,11 @@
   <action name="actionExport">
    <property name="text">
     <string>Export</string>
+   </property>
+  </action>
+  <action name="actionAbout_Qt">
+   <property name="text">
+    <string>About Qt</string>
    </property>
   </action>
  </widget>

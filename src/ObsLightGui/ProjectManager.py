@@ -22,7 +22,7 @@ Created on 27 sept. 2011
  
 from PySide.QtCore import QObject, QRegExp, QThreadPool, Signal, Qt
 from PySide.QtGui import QTextEdit, QPushButton, QListWidget, QLineEdit, QLabel, QComboBox
-from PySide.QtGui import QRegExpValidator, QRadioButton, QProgressDialog
+from PySide.QtGui import QRegExpValidator, QRadioButton, QProgressDialog, QFileDialog
 
 from Utils import QRunnableImpl, ProgressRunnable, popupOnException
 from PackageManager import PackageManager
@@ -37,6 +37,8 @@ class ProjectManager(QObject):
     __newObsProjectButton = None
     __modifyObsProjectButton = None
     __deleteObsProjectButton = None
+    __importObsProjectButton = None
+    __exportObsProjectButton = None
     __createChrootButton = None
     __addRepoInChrootButton = None
     __importRpmButton = None
@@ -69,6 +71,12 @@ class ProjectManager(QObject):
         self.__deleteObsProjectButton = mainWindow.findChild(QPushButton,
                                                              "deleteObsProjectButton")
         self.__deleteObsProjectButton.clicked.connect(self.on_deleteObsProjectButton_clicked)
+        self.__importObsProjectButton = mainWindow.findChild(QPushButton,
+                                                             "importObsProjectButton")
+        self.__importObsProjectButton.clicked.connect(self.on_importObsProjectButton_clicked)
+        self.__exportObsProjectButton = mainWindow.findChild(QPushButton,
+                                                             "exportObsProjectButton")
+        self.__exportObsProjectButton.clicked.connect(self.on_exportObsProjectButton_clicked)
         self.__createChrootButton = mainWindow.findChild(QPushButton,
                                                          "createChrootButton")
         self.__createChrootButton.clicked.connect(self.on_createChrootButton_clicked)
@@ -127,11 +135,42 @@ class ProjectManager(QObject):
         projectName = self.getCurrentProjectName()
         self.__gui.getObsLightManager().removeProject(projectName)
         self.loadProjectList()
+        self.on_projectSelected(None)
+
+    @popupOnException
+    def on_importObsProjectButton_clicked(self):
+        filePath, _filter = QFileDialog.getOpenFileName(self.__gui.getMainWindow(),
+                                                        "Select project to import")
+        obslightManager = self.__gui.getObsLightManager()
+        self.__progress.setLabelText("Importing project...")
+        self.__progress.show()
+        runnable = ProgressRunnable(obslightManager.importProject, filePath)
+        runnable.setProgressDialog(self.__progress)
+        runnable.finishedWithException.connect(self.__gui.obsLightErrorCallback2)
+        runnable.finished.connect(self.loadProjectList)
+        QThreadPool.globalInstance().start(runnable)
+
+    @popupOnException
+    def on_exportObsProjectButton_clicked(self):
+        project = self.getCurrentProjectName()
+        if project is None:
+            return
+        filePath, _filter = QFileDialog.getSaveFileName(self.__gui.getMainWindow(),
+                                                        "Select file to export")
+        self.__progress.setLabelText("Importing project...")
+        self.__progress.show()
+        obslightManager = self.__gui.getObsLightManager()
+        runnable = ProgressRunnable(obslightManager.exportProject, project, filePath)
+        runnable.setProgressDialog(self.__progress)
+        runnable.finishedWithException.connect(self.__gui.obsLightErrorCallback2)
+        runnable.finished.connect(self.loadProjectList)
+        QThreadPool.globalInstance().start(runnable)
 
     @popupOnException
     def on_projectConfigManager_finished(self, success):
         if success:
             self.loadProjectList()
+            self.on_projectSelected(None)
 
     @popupOnException
     def on_createChrootButton_clicked(self):
@@ -176,7 +215,6 @@ class ProjectManager(QObject):
             runnable.setProgressDialog(self.__progress)
             runnable.finishedWithException.connect(self.__gui.obsLightErrorCallback2)
             QThreadPool.globalInstance().start(runnable)
-            #obslightManager.addPackageSourceInChRoot(projectName, packageName)
 
     def on_projectSelected(self, _project):
         project = self.getCurrentProjectName()
@@ -208,6 +246,9 @@ class ProjectManager(QObject):
                                                                      projectObsName))
             self.__projectRepoLinkLabel.setText('<a href="%s">%s</a>' % (repoLink,
                                                                          target))
+            self.__exportObsProjectButton.setEnabled(True)
+        else:
+            self.__exportObsProjectButton.setEnabled(False)
 
     @popupOnException
     def updateChrootPathAndButtons(self):
@@ -330,10 +371,12 @@ class ProjectConfigManager(QObject):
             title = self.__obsLightManager.getProjectParameter(self.__projectAlias,
                                                                "projectTitle")
             self.__titleLineEdit.setText(title)
+            self.__titleLineEdit.setEnabled(True)
             # load project description
             description = self.__obsLightManager.getProjectParameter(self.__projectAlias,
                                                                      "description")
             self.__descriptionTextEdit.setText(description)
+            self.__descriptionTextEdit.setEnabled(True)
             
     def __loadTargetPossibilities(self):
         '''
@@ -359,7 +402,7 @@ class ProjectConfigManager(QObject):
                                                                self.getCurrentProjectObsName(),
                                                                self.getCurrentTarget())
             self.__archCBox.addItems(archs)
-            
+
     def handleObsNameEdited(self, _ignore):
         self.__projectObsNameEdited = True
         
@@ -403,9 +446,7 @@ class ProjectConfigManager(QObject):
                                               self.getCurrentProjectObsName(),
                                               self.getCurrentTarget(),
                                               self.getCurrentArch(),
-                                              projectLocalName=self.getCurrentProjectLocalName(),
-                                              description=self.getCurrentDescription(),
-                                              projectTitle=self.getCurrentTitle())
+                                              projectLocalName=self.getCurrentProjectLocalName())
         else:
             # Currently we can't relocate a project.
 #            self.__obsLightManager.setProjectParameter(self.getCurrentProjectLocalName(),
