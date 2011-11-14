@@ -127,11 +127,13 @@ class ProjectManager(QObject):
         projectName = self.getCurrentProjectName()
         self.__gui.getObsLightManager().removeProject(projectName)
         self.loadProjectList()
+        self.on_projectSelected(None)
 
     @popupOnException
     def on_projectConfigManager_finished(self, success):
         if success:
             self.loadProjectList()
+            self.on_projectSelected(None)
 
     @popupOnException
     def on_createChrootButton_clicked(self):
@@ -176,7 +178,6 @@ class ProjectManager(QObject):
             runnable.setProgressDialog(self.__progress)
             runnable.finishedWithException.connect(self.__gui.obsLightErrorCallback2)
             QThreadPool.globalInstance().start(runnable)
-            #obslightManager.addPackageSourceInChRoot(projectName, packageName)
 
     def on_projectSelected(self, _project):
         project = self.getCurrentProjectName()
@@ -330,10 +331,12 @@ class ProjectConfigManager(QObject):
             title = self.__obsLightManager.getProjectParameter(self.__projectAlias,
                                                                "projectTitle")
             self.__titleLineEdit.setText(title)
+            self.__titleLineEdit.setEnabled(True)
             # load project description
             description = self.__obsLightManager.getProjectParameter(self.__projectAlias,
                                                                      "description")
             self.__descriptionTextEdit.setText(description)
+            self.__descriptionTextEdit.setEnabled(True)
             
     def __loadTargetPossibilities(self):
         '''
@@ -359,7 +362,7 @@ class ProjectConfigManager(QObject):
                                                                self.getCurrentProjectObsName(),
                                                                self.getCurrentTarget())
             self.__archCBox.addItems(archs)
-            
+
     def handleObsNameEdited(self, _ignore):
         self.__projectObsNameEdited = True
         
@@ -403,9 +406,7 @@ class ProjectConfigManager(QObject):
                                               self.getCurrentProjectObsName(),
                                               self.getCurrentTarget(),
                                               self.getCurrentArch(),
-                                              projectLocalName=self.getCurrentProjectLocalName(),
-                                              description=self.getCurrentDescription(),
-                                              projectTitle=self.getCurrentTitle())
+                                              projectLocalName=self.getCurrentProjectLocalName())
         else:
             # Currently we can't relocate a project.
 #            self.__obsLightManager.setProjectParameter(self.getCurrentProjectLocalName(),
