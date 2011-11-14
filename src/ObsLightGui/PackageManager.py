@@ -22,7 +22,7 @@ Created on 2 nov. 2011
 
 from PySide.QtCore import QObject, QThreadPool, Qt
 from PySide.QtGui import QLabel, QInputDialog, QProgressDialog, QPushButton, QTableView, QWidget
-from PySide.QtGui import QMenu, QContextMenuEvent
+from PySide.QtGui import QMenu
 
 from PackageModel import PackageModel
 from ObsLightGui.FileManager import FileManager

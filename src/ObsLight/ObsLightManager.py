@@ -21,7 +21,7 @@ Created on 17 juin 2011
 @author: Florent Vennetier
 '''
 
-import os, urllib2
+import os
 
 from ObsLightErr import ObsLightObsServers
 from ObsLightErr import ObsLightProjectsError
@@ -66,15 +66,14 @@ class ObsLightManager(object):
         return self.__myObsServers.getObsServerList()
 
     def getObsServerParameter(self, obsServerAlias, parameter):
-        # TODO: check valid parameters
         '''
         Get the value of an OBS server parameter.
         Valid parameters are:
-            obssOBSConnected
+            isOBSConnected
             serverWeb
             serverAPI
-            serverRepos
-            aliases
+            serverRepo
+            alias
             user
             passw
         '''
@@ -85,15 +84,14 @@ class ObsLightManager(object):
                                                          parameter=parameter)
 
     def setObsServerParameter(self, obsServerAlias, parameter, value):
-        # TODO: check valid parameters
         '''
         Change the value of an OBS server parameter.
         Valid parameters are:
-            obssOBSConnected
+            isOBSConnected
             serverWeb
             serverAPI
-            serverRepos
-            aliases
+            serverRepo
+            alias
             user
             passw
         '''
@@ -108,10 +106,9 @@ class ObsLightManager(object):
         return res
 
     def getProjectParameter(self, projectLocalName, parameter):
-        # TODO: check valid parameters
         '''
-        Get the value of a project parameter:
-        the valide parameter is :
+        Get the value of a project parameter.
+        Valid parameter are:
             projectLocalName
             projectObsName
             projectDirectory
@@ -136,9 +133,13 @@ class ObsLightManager(object):
         return self.__myObsLightProjects.getProjectParameter(projectLocalName, parameter)
 
     def setProjectParameter(self, projectLocalName, parameter, value):
-        # TODO: check valid parameters
         '''
         Get the value of a project parameter.
+        Valid parameters are:
+            projectTarget
+            projectArchitecture
+            projectTitle
+            description
         '''
         if not self.isALocalProject(projectLocalName):
             raise ObsLightProjectsError(projectLocalName + " is not a local project")

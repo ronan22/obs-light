@@ -86,7 +86,7 @@ class ObsServer(object):
         '''
         return the value of the parameter "parameter"
         the valid parameter is:
-            obssOBSConnected
+            isOBSConnected
             serverWeb
             serverAPI
             serverRepo
@@ -95,7 +95,7 @@ class ObsServer(object):
             passw
         '''
 
-        if parameter == "obssOBSConnected":
+        if parameter == "isOBSConnected":
             return self.__isOBSConnected
         elif parameter == "serverWeb":
             return self.__serverWeb
@@ -103,7 +103,7 @@ class ObsServer(object):
             return self.__serverAPI
         elif parameter == "serverRepo":
             return self.__serverRepo
-        elif parameter == "aliases":
+        elif parameter == "alias":
             return self.__alias
         elif parameter == "user":
             return self.__user

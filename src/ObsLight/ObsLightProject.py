@@ -118,7 +118,7 @@ class ObsLightProject(object):
                     absPackagePath = self.getAbsPackagePath(name=packageName)
                     if absPackagePath != None:
                         if not os.path.isdir(absPackagePath) :
-                                self.addPackageSourceInChRoot(package=packageName)
+                            self.addPackageSourceInChRoot(package=packageName)
 
         if not os.path.isdir(self.__projectDirectory):
             os.makedirs(self.__projectDirectory)
@@ -210,8 +210,8 @@ class ObsLightProject(object):
 
     def setProjectParameter(self, parameter=None, value=None):
         '''
-        return the value  of the parameter of the project:
-        the valid parameter is :
+        Return the value of a parameter of the project:
+        Valid parameters are:
             projectTarget
             projectArchitecture
             projectTitle
