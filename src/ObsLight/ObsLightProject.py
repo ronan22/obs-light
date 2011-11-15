@@ -36,10 +36,9 @@ class ObsLightProject(object):
     '''
 
     def __init__(self, obsServers,
-                       projectLocalName=None,
+                       workingDirectory,
                        projectObsName=None,
-                       projectDirectory=None,
-                       chrootDirectory=None,
+                       projectLocalName=None,
                        obsServer=None ,
                        projectTarget=None,
                        projectTitle=None,
@@ -55,23 +54,18 @@ class ObsLightProject(object):
         self.__obsServers = obsServers
 
         self.__chrootIsInit = False
+        self.__WorkingDirectory = workingDirectory
 
         if fromSave == None:
             self.__projectLocalName = projectLocalName
             self.__projectObsName = projectObsName
-            self.__projectDirectory = projectDirectory
             self.__obsServer = obsServer
             self.__projectTarget = projectTarget
             self.__projectArchitecture = projectArchitecture
             self.__projectTitle = projectTitle
             self.__description = description
 
-            if chrootDirectory == None:
-                chrootDirectory = os.path.join(projectDirectory, "aChroot")
-
-            self.__chroot = ObsLightChRoot(chrootDirectory=chrootDirectory,
-                                         chrootDirTransfert=projectDirectory + "/chrootTransfert",
-                                         dirTransfert="/chrootTransfert")
+            self.__chroot = ObsLightChRoot(projectDirectory=self.getDirectory())
             self.__packages = ObsLightPackages()
 
             #perhaps a trusted_prj must be had
@@ -82,8 +76,6 @@ class ObsLightProject(object):
                 self.__projectLocalName = fromSave["projectLocalName"]
             if "projectObsName" in fromSave.keys():
                 self.__projectObsName = fromSave["projectObsName"]
-            if "projectDirectory" in fromSave.keys():
-                self.__projectDirectory = fromSave["projectDirectory"]
             if "obsServer" in fromSave.keys():
                 self.__obsServer = fromSave["obsServer"]
             if "projectTarget" in fromSave.keys():
@@ -95,12 +87,14 @@ class ObsLightProject(object):
             if "description" in fromSave.keys():
                 self.__description = fromSave["description"]
             if "aChroot" in fromSave.keys():
-                self.__chroot = ObsLightChRoot(fromSave=fromSave["aChroot"])
+                self.__chroot = ObsLightChRoot(projectDirectory=self.getDirectory(),
+                                               fromSave=fromSave["aChroot"])
             else:
                 raise ObsLightErr.ObsLightProjectsError("aChroot is not ")
 
             if "packages" in fromSave.keys():
-                self.__packages = self.__addPackagesFromSave(fromSave=fromSave["packages"], importFile=importFile)
+                self.__packages = self.__addPackagesFromSave(fromSave=fromSave["packages"],
+                                                             importFile=importFile)
 
             if "chrootIsInit" in fromSave.keys():
                 self.__chrootIsInit = fromSave["chrootIsInit"]
@@ -119,8 +113,14 @@ class ObsLightProject(object):
                         if not os.path.isdir(absPackagePath) :
                             self.addPackageSourceInChRoot(package=packageName)
 
-        if not os.path.isdir(self.__projectDirectory):
-            os.makedirs(self.__projectDirectory)
+        if not os.path.isdir(self.getDirectory()):
+            os.makedirs(self.getDirectory())
+
+    def getDirectory(self):
+        '''
+        Return the project directory.
+        '''
+        return os.path.join(self.__WorkingDirectory, self.__projectLocalName)
 
     def getAbsPackagePath(self, name):
         '''
@@ -134,11 +134,6 @@ class ObsLightProject(object):
         else:
             return None
 
-    def getDirectory(self):
-        '''
-        Return the project directory.
-        '''
-        return self.__projectDirectory
 
     def __addPackagesFromSave(self, fromSave, importFile):
         '''
@@ -146,17 +141,20 @@ class ObsLightProject(object):
         '''
         for packageName in fromSave["savePackages"].keys():
             packageFromSave = fromSave["savePackages"][packageName]
-            if "name" in packageFromSave.keys(): name = packageFromSave["name"]
+            if "name" in packageFromSave.keys():
+                name = packageFromSave["name"]
             packagePath = self.__getPackagePath(name)
             if not os.path.isdir(self.__getPackagePath(name)):
-                specFile, yamlFile, listFile = self.checkoutPackage(package=name)
+                packagePath, specFile, yamlFile, listFile = self.checkoutPackage(package=name)
+
                 packageFromSave["specFile"] = specFile
                 packageFromSave["yamlFile"] = yamlFile
                 packageFromSave["listFile"] = listFile
 
             if importFile == True:
                 toUpDate = False
-                if "listFile" in packageFromSave.keys():listFile = packageFromSave["listFile"]
+                if "listFile" in packageFromSave.keys():
+                    listFile = packageFromSave["listFile"]
                 for aFile in listFile:
                     if not os.path.isfile(os.path.join(packagePath, aFile)):
                         toUpDate = True
@@ -173,7 +171,8 @@ class ObsLightProject(object):
 
             fromSave["savePackages"][packageName] = packageFromSave
 
-        return ObsLightPackages(fromSave)
+        return ObsLightPackages(projectOscPath=self.__getProjectOscPath(),
+                                fromSave=fromSave)
 
     def getProjectParameter(self, parameter=None):
         '''
@@ -193,7 +192,7 @@ class ObsLightProject(object):
         elif parameter == "projectObsName":
             return self.__projectObsName
         elif parameter == "projectDirectory":
-            return self.__projectDirectory
+            return self.getDirectory()
         elif parameter == "obsServer":
             return self.__obsServer
         elif parameter == "projectTarget":
@@ -273,7 +272,7 @@ class ObsLightProject(object):
         self.__chrootIsInit = False
 
         if res == 0:
-            return shutil.rmtree(self.__projectDirectory)
+            return shutil.rmtree(self.getDirectory())
         else:
             raise ObsLightErr.ObsLightProjectsError("Error in removeProject, can't remove chroot")
 
@@ -298,7 +297,6 @@ class ObsLightProject(object):
         aDic = {}
         aDic["projectLocalName"] = self.__projectLocalName
         aDic["projectObsName"] = self.__projectObsName
-        aDic["projectDirectory"] = self.__projectDirectory
         aDic["obsServer"] = self.__obsServer
         aDic["projectTarget"] = self.__projectTarget
         aDic["projectArchitecture"] = self.__projectArchitecture
@@ -329,16 +327,22 @@ class ObsLightProject(object):
         '''
         
         '''
-        return os.path.join(self.__projectDirectory, self.__projectObsName, package)
+        return os.path.join(self.getDirectory(), self.__projectObsName, package)
+
+    def __getProjectOscPath(self):
+        '''
+        
+        '''
+        return os.path.join(self.getDirectory(), self.__projectObsName)
 
     def checkoutPackage(self, package=None):
         '''
         
         '''
         ObsLightOsc.getObsLightOsc().checkoutPackage(obsServer=self.__obsServer,
-                                                    projectObsName=self.__projectObsName,
-                                                    package=package,
-                                                    directory=self.__projectDirectory)
+                                                     projectObsName=self.__projectObsName,
+                                                     package=package,
+                                                     directory=self.getDirectory())
 
         packagePath = self.__getPackagePath(package)
 
@@ -350,11 +354,11 @@ class ObsLightProject(object):
 
         for f in listFile:
             if f.endswith(".spec"):
-                specFile = os.path.join(packagePath, f)
+                specFile = f
             elif f.endswith(".yaml"):
-                yamlFile = os.path.join(packagePath, f)
+                yamlFile = f
 
-        return specFile, yamlFile, listFile
+        return packagePath, specFile, yamlFile, listFile
 
     def getPackageStatus(self, package=None):
         '''
@@ -366,17 +370,23 @@ class ObsLightProject(object):
         '''
         add a package to the projectLocalName.
         '''
-        specFile, yamlFile, listFile = self.checkoutPackage(package=name)
+        packagePath, specFile, yamlFile, listFile = self.checkoutPackage(package=name)
+
         status = self.__obsServers.getPackageStatus(obsServer=self.__obsServer,
                                                     project=self.__projectObsName,
                                                     package=name, repo=self.__projectTarget,
                                                     arch=self.__projectArchitecture)
 
-        packageTitle = self.__obsServers.getPackageTitle(obsServer=self.__obsServer, projectObsName=self.__projectObsName, package=name)
-        description = self.__obsServers.getPackageDescription(obsServer=self.__obsServer, projectObsName=self.__projectObsName, package=name)
+        packageTitle = self.__obsServers.getPackageTitle(obsServer=self.__obsServer,
+                                                         projectObsName=self.__projectObsName,
+                                                         package=name)
 
+        description = self.__obsServers.getPackageDescription(obsServer=self.__obsServer,
+                                                              projectObsName=self.__projectObsName,
+                                                              package=name)
 
         self.__packages.addPackage(name=name,
+                                   packagePath=packagePath,
                                    description=description,
                                    packageTitle=packageTitle,
                                    specFile=specFile,
@@ -427,18 +437,15 @@ class ObsLightProject(object):
         '''
         Init a chroot.
         '''
-        self.__chroot.createChRoot(
-                                    repos=self.__projectTarget,
-                                    arch=self.__projectArchitecture,
-                                    apiurl=self.__obsServer,
-                                    obsProject=self.__projectObsName,
-                                    )
+        self.__chroot.createChRoot(repos=self.__projectTarget,
+                                   arch=self.__projectArchitecture,
+                                   apiurl=self.__obsServer,
+                                   obsProject=self.__projectObsName)
         self.__chrootIsInit = True
 
-    def addRepo(self,
-                 repos=None,
-                 alias=None,
-                 chroot=None):
+    def addRepo(self, repos=None,
+                      alias=None,
+                      chroot=None):
         '''
         
         '''
@@ -462,7 +469,9 @@ class ObsLightProject(object):
         '''
         Return the URL of the Repo of the Project
         '''
-        return os.path.join(self.__obsServers.getRepo(obsServer=self.__obsServer), self.__projectObsName.replace(":", ":/"), self.__projectTarget)
+        return os.path.join(self.__obsServers.getRepo(obsServer=self.__obsServer),
+                            self.__projectObsName.replace(":", ":/"),
+                            self.__projectTarget)
 
     def goToChRoot(self, package=None, detach=False):
         '''
@@ -482,7 +491,8 @@ class ObsLightProject(object):
         '''
          
         '''
-        specFile = os.path.basename(self.__packages.getSpecFile(package))
+        specFile = self.__packages.getSpecFile(package)
+
         self.__chroot.addPackageSourceInChRoot(package=self.__packages.getPackage(package),
                                                specFile=specFile,
                                                repo=self.__projectObsName)
@@ -493,7 +503,6 @@ class ObsLightProject(object):
         '''
         self.__chroot.makePatch(package=self.__packages.getPackage(package),
                                 patch=patch)
-
 
     def commitToObs(self, message=None, package=None):
         '''
@@ -507,7 +516,6 @@ class ObsLightProject(object):
         add new file and remove file to the project.
         '''
         self.__packages.getPackage(package).addRemoveFileToTheProject()
-
 
     def getPackage(self, package=None):
         '''

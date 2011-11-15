@@ -49,9 +49,9 @@ class ObsLightManager(object):
         if not os.path.isdir(self.__workingDirectory):
             os.makedirs(self.__workingDirectory)
 
-        self.__myObsServers = ObsServers(workingDirectory=self.__workingDirectory)
+        self.__myObsServers = ObsServers(workingDirectory=self.getObsLightWorkingDirectory())
         self.__myObsLightProjects = ObsLightProjects(obsServers=self.__myObsServers,
-                                                     workingDirectory=self.__workingDirectory)
+                                                     workingDirectory=self.getObsLightWorkingDirectory())
 
 
     def getObsLightWorkingDirectory(self):
@@ -217,20 +217,11 @@ class ObsLightManager(object):
                    projectTarget,
                    projectArchitecture,
                    projectTitle=None,
-                   projectDirectory=None,
-                   chrootDirectory=None,
                    description=None,
                    projectLocalName=None):
         '''
         Create a local project associated with an OBS project.
         '''
-
-        if projectLocalName == None:
-            projectLocalName = projectObsName.replace(":", "_")
-
-        if projectDirectory == None:
-            projectDirectory = os.path.join(self.__workingDirectory,
-                                            projectLocalName)
 
         if ":" in projectLocalName:
             raise ObsLightProjectsError("You can't use ':' in projectLocalName " + projectLocalName)
@@ -259,8 +250,6 @@ class ObsLightManager(object):
         self.__myObsLightProjects.addProject(projectLocalName=projectLocalName,
                                              projectObsName=projectObsName,
                                              projectTitle=projectTitle,
-                                             projectDirectory=projectDirectory,
-                                             chrootDirectory=chrootDirectory,
                                              obsServer=obsServer ,
                                              projectTarget=projectTarget,
                                              description=description,

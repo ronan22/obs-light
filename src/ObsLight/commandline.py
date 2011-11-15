@@ -319,11 +319,11 @@ class ObsLight():
                     raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
 
             ObsLightManager.getManager().addObsServer(serverWeb=serverWeb,
-                                                 serverApi=serverApi,
-                                                 serverRepo=serverRepo,
-                                                 alias=alias,
-                                                 user=user,
-                                                 password=password)
+                                                      serverApi=serverApi,
+                                                      serverRepo=serverRepo,
+                                                      alias=alias,
+                                                      user=user,
+                                                      password=password)
 
         elif self.__isHelp(listArgv[0]):
             ObsLightPrintManager.obsLightPrint(__HELP__)
@@ -341,20 +341,16 @@ class ObsLight():
         __HELP__ += "\t--projectLocalName name: if no name is defined, the projectLocalName is equal to projectObsName, the ':' characters are replaced by '_'\n"
         __HELP__ += "\t--projectObsName name (required)\n"
         __HELP__ += "\t--projectTitle title\n"
-        __HELP__ += "\t--projectDirectory path\n"
-        __HELP__ += "\t--chrootDirectory path\n"
         __HELP__ += "\t--obsServer api_url|alias (require)\n"
         __HELP__ += "\t--projectTarget name\n"
         __HELP__ += "\t--description description\n"
         __HELP__ += "\t--projectArch architecture\n"
         __HELP__ += __DICO_HELP__[__COMMAND__]
 
-        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (9 * 2)):
+        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (7 * 2)):
             projectLocalName = None
             projectObsName = None
             projectTitle = None
-            projectDirectory = None
-            chrootDirectory = None
             obsServer = None
             projectTarget = None
             description = None
@@ -367,10 +363,6 @@ class ObsLight():
                     projectLocalName = listArgv[i + 1]
                 elif listArgv[i] == "--projectTitle":
                     projectTitle = listArgv[i + 1]
-                elif listArgv[i] == "--projectDirectory":
-                    projectDirectory = listArgv[i + 1]
-                elif listArgv[i] == "--chrootDirectory":
-                    chrootDirectory = listArgv[i + 1]
                 elif listArgv[i] == "--obsServer":
                     obsServer = listArgv[i + 1]
                 elif listArgv[i] == "--projectTarget":
@@ -385,8 +377,6 @@ class ObsLight():
             ObsLightManager.getManager().addProject(projectLocalName=projectLocalName,
                                                 projectObsName=projectObsName,
                                                 projectTitle=projectTitle,
-                                                projectDirectory=projectDirectory,
-                                                chrootDirectory=chrootDirectory,
                                                 obsServer=obsServer ,
                                                 projectTarget=projectTarget,
                                                 description=description,

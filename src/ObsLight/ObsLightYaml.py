@@ -30,17 +30,18 @@ import subprocess
 class ObsLightYaml:
     '''
     '''
-    def __init__(self, path=None, specPath=None):
+    def __init__(self, packagePath, file=None, specFile=None):
         '''
         
         '''
-        self.__path = path
+        self.__path = os.path.join(packagePath, file)
+        self.__yamlFile = file
+        self.__packagePath = packagePath
 
-        if specPath in (None, 'None', ""):
-            self.__specPath = self.__path[:self.__path.rfind(".")] + ".spec"
+        if specFile in (None, 'None', ""):
+            self.__specFile = self.__yamlFile[:self.__yamlFile.rfind(".")] + ".spec"
         else:
-            self.__specPath = specPath
-
+            self.__specFile = specFile
 
         self.__introduction_section = "introduction_section"
         self.__Name__ = "Name"
@@ -156,8 +157,8 @@ class ObsLightYaml:
         self.__orderList = []
         self.__yamlDico = {}
 
-        if path != None:
-            self.parseFile(path)
+        if self.__path != None:
+            self.parseFile(self.__path)
 
     def __cleanline(self, line):
         '''
@@ -267,16 +268,16 @@ class ObsLightYaml:
         '''
         
         '''
-        return self.__specPath
+        return self.__specFile
 
     def generateSpecFile(self):
         '''
         
         '''
-        command = "specify --not-download --non-interactive " + self.__path + " --output=" + self.__specPath
+        command = "specify --not-download --non-interactive " + self.__path + " --output=" + os.path.join(self.__packagePath, self.__specFile)
         res = subprocess.Popen(shlex.split(command),
-                           stdout=subprocess.PIPE,
-                           stderr=subprocess.PIPE)
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE)
 
         res.wait()
         return res

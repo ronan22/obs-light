@@ -20,7 +20,10 @@ Created on 30 sept. 2011
 
 @author: ronan
 '''
+import os
+
 from ObsLightPackage import ObsLightPackage
+
 
 class ObsLightPackages(object):
     '''
@@ -28,7 +31,7 @@ class ObsLightPackages(object):
     '''
 
 
-    def __init__(self, fromSave=None):
+    def __init__(self, projectOscPath=None, fromSave=None):
         '''
         Constructor
         '''
@@ -37,10 +40,13 @@ class ObsLightPackages(object):
 
         if fromSave == None:
             self.__currentPackage = ""
-        else:
+        elif projectOscPath != None:
             for name in fromSave["savePackages"].keys():
-                self.__dicOBSLightPackages[name] = ObsLightPackage(fromSave=fromSave["savePackages"][name])
+                self.__dicOBSLightPackages[name] = ObsLightPackage(packagePath=os.path.join(projectOscPath, name),
+                                                                   fromSave=fromSave["savePackages"][name])
             self.__currentPackage = fromSave["currentPackage"]
+        else:
+            raise ObsLightErr.ObsLightPackageErr("Not projectOscPath for the ObsLightPackages init")
 
     def getListPackages(self):
         '''
@@ -64,6 +70,7 @@ class ObsLightPackages(object):
 
     def addPackage(self,
                    name,
+                   packagePath,
                    description,
                    packageTitle,
                    specFile=None,
@@ -78,6 +85,7 @@ class ObsLightPackages(object):
             listFile = []
 
         self.__dicOBSLightPackages[name] = ObsLightPackage(name=name,
+                                                           packagePath=packagePath,
                                                            specFile=specFile,
                                                            description=description,
                                                            packageTitle=packageTitle,
