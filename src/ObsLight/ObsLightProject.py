@@ -78,6 +78,8 @@ class ObsLightProject(object):
                 self.__projectObsName = fromSave["projectObsName"]
             if "obsServer" in fromSave.keys():
                 self.__obsServer = fromSave["obsServer"]
+                if not (self.__obsServer in self.__obsServers.getObsServerList()):
+                    raise ObsLightErr.ObsLightObsServers(self.__obsServer + " is not a defined OBS server ")
             if "projectTarget" in fromSave.keys():
                 self.__projectTarget = fromSave["projectTarget"]
             if "projectArchitecture" in fromSave.keys():
@@ -91,7 +93,9 @@ class ObsLightProject(object):
                                                fromSave=fromSave["aChroot"])
             else:
                 raise ObsLightErr.ObsLightProjectsError("aChroot is not ")
-
+            #perhaps a trusted_prj must be had
+            self.__obsServers.getObsServer(name=self.__obsServer).initConfigProject(projet=self.__projectObsName,
+                                                                                    repos=self.__projectTarget)
             if "packages" in fromSave.keys():
                 self.__packages = self.__addPackagesFromSave(fromSave=fromSave["packages"],
                                                              importFile=importFile)

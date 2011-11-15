@@ -252,7 +252,7 @@ class ObsLightManager(object):
             raise ObsLightProjectsError(obsServer + " is not an OBS server")
         elif not projectTarget in self.getTargetList(obsServer, projectObsName):
             raise ObsLightProjectsError(projectTarget + " is not a valid target")
-        elif not projectArchitecture in self.getArchitectureList(obsServer=obsServer ,
+        elif not projectArchitecture in self.getArchitectureList(obsServer=obsServer,
                                                                  projectObsName=projectObsName,
                                                                  projectTarget=projectTarget):
             raise ObsLightProjectsError(projectArchitecture + " is not a valid architecture")
