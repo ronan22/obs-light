@@ -418,14 +418,14 @@ class ObsLight():
 
             if (obsServer != None) and (projectLocalName != None):
                 res = ObsLightManager.getManager().getObsProjectPackageList(obsServer=obsServer,
-                                                                           projectLocalName=projectLocalName)
+                                                                           projectObsName=projectLocalName)
             elif (projectLocalName != None) and (localPackage in ["0", "1"]):
-                res = ObsLightManager.getManager().getLocalProjectPackageList(name=projectLocalName,
+                res = ObsLightManager.getManager().getLocalProjectPackageList(projectLocalName=projectLocalName,
                                                                              local=int(localPackage))
             else:
                 raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
 
-            if len(res) != 0:
+            if res is not None and len(res) > 0:
                 for pk in res:
                     ObsLightPrintManager.obsLightPrint(pk)
             else:

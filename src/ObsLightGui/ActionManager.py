@@ -39,16 +39,11 @@ class MainWindowActionManager(object):
         mainWindow = self.__gui.getMainWindow()
         actionOBS_servers = mainWindow.findChild(QAction, "actionOBS_servers")
         actionOBS_servers.triggered.connect(self.on_actionOBS_servers_triggered)
-        actionAbout_Qt = mainWindow.findChild(QAction, "actionAbout_Qt")
-        actionAbout_Qt.triggered.connect(self.on_actionAbout_qt_triggered)
         actionAbout = mainWindow.findChild(QAction, "actionAbout")
         actionAbout.triggered.connect(self.on_actionAbout_triggered)
         
     def on_actionOBS_servers_triggered(self):
         self.__serverListManager = ServerListManager(self.__gui)
-
-    def on_actionAbout_qt_triggered(self):
-        QMessageBox.aboutQt(self.__gui.getMainWindow())
 
     def on_actionAbout_triggered(self):
         QMessageBox.about(self.__gui.getMainWindow(), "About OBS Light",

@@ -319,7 +319,7 @@ class ObsLightProject(object):
         '''
         if local == 0:
             return self.__obsServers.getObsProjectPackageList(obsServer=self.__obsServer,
-                                                              projectLocalName=self.__projectObsName)
+                                                              projectObsName=self.__projectObsName)
         else:
             return self.__packages.getListPackages()
 

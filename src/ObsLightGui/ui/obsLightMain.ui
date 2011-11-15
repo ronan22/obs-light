@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>822</width>
-    <height>610</height>
+    <height>605</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -233,6 +233,18 @@
               </property>
               <item>
                <widget class="QTableView" name="packageTableView">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>80</height>
+                 </size>
+                </property>
                 <attribute name="verticalHeaderVisible">
                  <bool>false</bool>
                 </attribute>
@@ -241,17 +253,27 @@
               <item>
                <widget class="QWidget" name="packageWidget" native="true">
                 <layout class="QGridLayout" name="gridLayout_10">
+                 <item row="1" column="1">
+                  <widget class="QLabel" name="packageNameLabelValue">
+                   <property name="text">
+                    <string/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="0">
+                  <widget class="QLabel" name="packageNameLabel">
+                   <property name="text">
+                    <string>Package:</string>
+                   </property>
+                  </widget>
+                 </item>
                  <item row="4" column="0" colspan="2">
                   <widget class="QLabel" name="packageDescriptionLabel">
                    <property name="text">
                     <string>Package Description</string>
                    </property>
-                  </widget>
-                 </item>
-                 <item row="5" column="0">
-                  <widget class="QPushButton" name="newPackageButton">
-                   <property name="text">
-                    <string>New</string>
+                   <property name="wordWrap">
+                    <bool>true</bool>
                    </property>
                   </widget>
                  </item>
@@ -265,24 +287,13 @@
                    </property>
                   </widget>
                  </item>
-                 <item row="1" column="0">
-                  <widget class="QLabel" name="packageNameLabel">
-                   <property name="text">
-                    <string>Package:</string>
-                   </property>
-                  </widget>
-                 </item>
                  <item row="3" column="0" colspan="2">
                   <widget class="QLabel" name="packageTitleLabel">
                    <property name="text">
                     <string>PackageTitle</string>
                    </property>
-                  </widget>
-                 </item>
-                 <item row="1" column="1">
-                  <widget class="QLabel" name="packageNameLabelValue">
-                   <property name="text">
-                    <string/>
+                   <property name="wordWrap">
+                    <bool>true</bool>
                    </property>
                   </widget>
                  </item>
@@ -290,6 +301,13 @@
                   <widget class="QPushButton" name="deletePackageButton">
                    <property name="text">
                     <string>Delete</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="5" column="0">
+                  <widget class="QPushButton" name="newPackageButton">
+                   <property name="text">
+                    <string>New</string>
                    </property>
                   </widget>
                  </item>
