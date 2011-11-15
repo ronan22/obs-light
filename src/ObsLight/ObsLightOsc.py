@@ -58,7 +58,9 @@ class ObsLightOsc(object):
         init a configuation for a API.
         '''
         if not os.path.isfile(self.__confFile):
-            conf.write_initial_config(self.__confFile, {'apiurl':api, 'user' : user, 'pass' : passw })
+            conf.write_initial_config(self.__confFile, {'apiurl':api,
+                                                        'user' : user,
+                                                        'pass' : passw })
 
         aOscConfigParser = conf.get_configParser(self.__confFile)
 

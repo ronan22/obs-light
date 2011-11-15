@@ -28,11 +28,16 @@ import ObsLightErr
 class ObsLightSpec:
     '''
     '''
-    def __init__(self, path=None):
+    def __init__(self, packagePath, file=None):
         '''
         
         '''
-        self.__path = path
+        self.__packagePath = packagePath
+        self.__file = file
+        self.__path = os.path.join(self.__packagePath, self.__file)
+        print "self.__packagePath", self.__packagePath
+        print "self.__file", self.__file
+        print "self.__path", self.__path
 
         self.__introduction_section = "introduction_section"
         self.__prepFlag = "%prep"
@@ -57,8 +62,9 @@ class ObsLightSpec:
         #deprecated if you use order dico
         self.__orderList = []
         self.__spectDico = {}
-        if path != None:
-            self.parseFile(path)
+
+        if self.__path != None:
+            self.parseFile(self.__path)
 
     def __cleanline(self, line):
         '''

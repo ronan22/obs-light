@@ -23,7 +23,6 @@ import os
 import pickle
 from ObsLightProject import ObsLightProject
 import ObsLightErr
-import ObsLightPrintManager
 
 class ObsLightProjects(object):
     '''
@@ -36,11 +35,16 @@ class ObsLightProjects(object):
         self.__dicOBSLightProjects = {}
         self.__obsServers = obsServers
         self.__currentProjects = None
-
-        self.__pathFile = os.path.join(workingDirectory , "ObsLightProjectsConfig")
+        self.__workingDirectory = workingDirectory
+        self.__pathFile = os.path.join(self.getObsLightWorkingDirectory() , "ObsLightProjectsConfig")
 
         self.__load()
 
+    def getObsLightWorkingDirectory(self):
+        '''
+        Returns the OBS Light working directory, usually /home/<user>/OBSLight.
+        '''
+        return self.__workingDirectory
 
     def save(self, aFile=None, ProjectName=None):
         '''
@@ -106,8 +110,6 @@ class ObsLightProjects(object):
                    projectLocalName=None,
                    projectObsName=None,
                    projectTitle=None,
-                   projectDirectory=None,
-                   chrootDirectory=None,
                    obsServer=None ,
                    projectTarget=None,
                    description=None,
@@ -119,12 +121,11 @@ class ObsLightProjects(object):
         description = self.__obsServers.getProjectDescription(obsServer=obsServer, projectObsName=projectObsName)
 
         self.__dicOBSLightProjects[projectLocalName] = ObsLightProject(obsServers=self.__obsServers,
+                                                                       workingDirectory=self.getObsLightWorkingDirectory(),
                                                                        projectLocalName=projectLocalName,
                                                                        projectObsName=projectObsName,
                                                                        projectTitle=projectTitle,
                                                                        description=description,
-                                                                       projectDirectory=projectDirectory,
-                                                                       chrootDirectory=chrootDirectory,
                                                                        obsServer=obsServer,
                                                                        projectTarget=projectTarget,
                                                                        projectArchitecture=projectArchitecture)
@@ -134,7 +135,10 @@ class ObsLightProjects(object):
         
         '''
         if not (name in self.__dicOBSLightProjects.keys()):
-            self.__dicOBSLightProjects[name] = ObsLightProject(obsServers=self.__obsServers, fromSave=fromSave, importFile=importFile)
+            self.__dicOBSLightProjects[name] = ObsLightProject(obsServers=self.__obsServers,
+                                                               workingDirectory=self.getObsLightWorkingDirectory(),
+                                                               fromSave=fromSave,
+                                                               importFile=importFile)
         else:
             raise ObsLightErr.ObsLightProjectsError("Can't import: " + name + ", The Project already exists.")
 
@@ -214,7 +218,8 @@ class ObsLightProjects(object):
         if fromProject != None:
             self.__dicOBSLightProjects[fromProject].addRepo(chroot=self.__dicOBSLightProjects[projectLocalName].getChRoot())
         else:
-            self.__dicOBSLightProjects[projectLocalName].addRepo(repos=repos, alias=alias)
+            self.__dicOBSLightProjects[projectLocalName].addRepo(repos=repos,
+                                                                 alias=alias)
 
 
     def getProjectObsName(self, projectLocalName=None):
@@ -242,7 +247,8 @@ class ObsLightProjects(object):
         '''
         
         '''
-        self.__dicOBSLightProjects[projectLocalName].setProjectParameter(parameter=parameter, value=value)
+        self.__dicOBSLightProjects[projectLocalName].setProjectParameter(parameter=parameter,
+                                                                         value=value)
 
     def getPackageParameter(self, projectLocalName, package, parameter=None):
         '''
@@ -257,7 +263,8 @@ class ObsLightProjects(object):
             description
             packageTitle
         '''
-        return  self.__dicOBSLightProjects[projectLocalName].getPackageParameter(package=package, parameter=parameter)
+        return  self.__dicOBSLightProjects[projectLocalName].getPackageParameter(package=package,
+                                                                                 parameter=parameter)
 
     def setPackageParameter(self, projectLocalName, package, parameter=None, value=None):
         '''
@@ -269,7 +276,9 @@ class ObsLightProjects(object):
             description
             packageTitle
         '''
-        return  self.__dicOBSLightProjects[projectLocalName].setPackageParameter(package=package, parameter=parameter, value=value)
+        return  self.__dicOBSLightProjects[projectLocalName].setPackageParameter(package=package,
+                                                                                 parameter=parameter,
+                                                                                 value=value)
 
 
     def getPackageDirectory(self, projectLocalName, packageName):
@@ -284,7 +293,8 @@ class ObsLightProjects(object):
         '''
         
         '''
-        self.__dicOBSLightProjects[projectLocalName].setProjectparameter(parameter=parameter, value=value)
+        self.__dicOBSLightProjects[projectLocalName].setProjectparameter(parameter=parameter,
+                                                                         value=value)
 
     def removeProject(self, projectLocalName=None):
         '''

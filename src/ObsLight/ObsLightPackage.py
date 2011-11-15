@@ -37,7 +37,8 @@ class ObsLightPackage(object):
 
 
     def __init__(self,
-                 name="",
+                 packagePath,
+                 name=None,
                  specFile=None,
                  yamlFile=None,
                  listFile=None,
@@ -48,6 +49,7 @@ class ObsLightPackage(object):
         '''
         Constructor
         '''
+        self.__packagePath = packagePath
         self.__mySubprocessCrt = SubprocessCrt()
         self.__yamlFile = None
         self.__specFile = None
@@ -87,14 +89,16 @@ class ObsLightPackage(object):
 
 
         if not self.__yamlFile in (None, 'None', ""):
-            self.__myYamlFile = ObsLightYaml(path=self.__yamlFile, specPath=self.__specFile)
-            self.__mySpecFile = None
+            self.__myYamlFile = ObsLightYaml(packagePath=packagePath,
+                                             file=self.__yamlFile,
+                                             specFile=self.__specFile)
             if self.__specFile in (None, 'None', ""):
                 self.__specFile = self.__myYamlFile.getSpecFile()
         else:
             self.__myYamlFile = None
             if not self.__specFile in (None, 'None', ""):
-                self.__mySpecFile = ObsLightSpec(self.__specFile)
+                self.__mySpecFile = ObsLightSpec(packagePath=packagePath,
+                                                 file=self.__specFile)
             else:
                 self.__mySpecFile = None
 
@@ -118,7 +122,8 @@ class ObsLightPackage(object):
         '''
         
         '''
-        return self.__mySubprocessCrt.execSubprocess(command=command, waitMess=waitMess)
+        return self.__mySubprocessCrt.execSubprocess(command=command,
+                                                     waitMess=waitMess)
 
     def getName(self):
         '''
@@ -208,7 +213,7 @@ class ObsLightPackage(object):
 
     def getSpecFile(self):
         '''
-        return the absolute path of the spec file or yaml.
+        return the  spec file.
         '''
         return self.__specFile
 
@@ -216,7 +221,7 @@ class ObsLightPackage(object):
         '''
         Return the absolute path of the osc directory of the package (base on the directory of the spec file).
         '''
-        return os.path.dirname(self.__specFile)
+        return self.__packagePath
 
     def setDirectoryBuild(self, packageDirectory=None):
         '''

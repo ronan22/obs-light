@@ -40,46 +40,42 @@ class ObsLightChRoot(object):
     '''
 
 
-    def __init__(self, chrootDirectory=None,
-                        chrootDirTransfert=None,
-                        dirTransfert=None,
+    def __init__(self, projectDirectory,
                         fromSave=None):
 
         '''
         Constructor
         '''
+        self.__chrootDirectory = os.path.join(projectDirectory, "aChroot")
+        self.__chrootDirTransfert = os.path.join(projectDirectory, "chrootTransfert")
+        self.__dirTransfert = "/chrootTransfert"
+        self.__chrootrpmbuildDirectory = "/root/rpmbuild"
+
         self.__mySubprocessCrt = SubprocessCrt()
 
         if fromSave == None:
-            self.__chrootDirectory = chrootDirectory
-            self.__chrootrpmbuildDirectory = "/root/rpmbuild"
-            self.__chrootDirTransfert = chrootDirTransfert
-            self.__dirTransfert = dirTransfert
             self.__dicoRepos = {}
         else:
-            if "chrootDirectory" in fromSave.keys():
-                self.__chrootDirectory = fromSave["chrootDirectory"]
-            if "rpmbuildDirectory" in fromSave.keys():
-                self.__chrootrpmbuildDirectory = fromSave["rpmbuildDirectory"]
-            if "chrootDirTransfert" in fromSave.keys():
-                self.__chrootDirTransfert = fromSave["chrootDirTransfert"]
-            if "dirTransfert" in fromSave.keys():
-                self.__dirTransfert = fromSave["dirTransfert"]
             if "dicoRepos" in fromSave.keys():
                 self.__dicoRepos = fromSave["dicoRepos"]
 
         self.initChRoot()
 
+    def getDirectory(self):
+        '''
+        Return the path of aChRoot of a project
+        '''
+        return self.__chrootDirectory
+
     def removeChRoot(self):
         '''
         
         '''
-        if  ObsLightMic.getObsLightMic(name=self.__chrootDirectory).isInit():
-            ObsLightMic.destroy(name=self.__chrootDirectory)
+        if  ObsLightMic.getObsLightMic(name=self.getDirectory()).isInit():
+            ObsLightMic.destroy(name=self.getDirectory())
 
-
-        if os.path.isdir(self.__chrootDirectory):
-            return self.__subprocess(command="sudo rm -r  " + self.__chrootDirectory)
+        if os.path.isdir(self.getDirectory()):
+            return self.__subprocess(command="sudo rm -r  " + self.getDirectory())
 
         return 0
 
@@ -95,10 +91,6 @@ class ObsLightChRoot(object):
         
         '''
         saveconfigPackages = {}
-        saveconfigPackages["chrootDirectory"] = self.__chrootDirectory
-        saveconfigPackages["rpmbuildDirectory"] = self.__chrootrpmbuildDirectory
-        saveconfigPackages["chrootDirTransfert"] = self.__chrootDirTransfert
-        saveconfigPackages["dirTransfert"] = self.__dirTransfert
         saveconfigPackages["dicoRepos"] = self.__dicoRepos
         return saveconfigPackages
 
@@ -110,7 +102,7 @@ class ObsLightChRoot(object):
         '''
         
         '''
-        res = ObsLightOsc.getObsLightOsc().createChRoot(chrootDir=self.__chrootDirectory,
+        res = ObsLightOsc.getObsLightOsc().createChRoot(chrootDir=self.getDirectory(),
                                                         repos=repos,
                                                         arch=arch,
                                                         apiurl=apiurl,
@@ -122,14 +114,14 @@ class ObsLightChRoot(object):
         if res != 0:
             raise ObsLightErr.ObsLightChRootError("Can't create the chroot")
 
-        self.__subprocess(command="sudo chown root:users " + self.__chrootDirectory)
-        self.__subprocess(command="sudo chown root:users " + self.__chrootDirectory + "/root")
-        self.__subprocess(command="sudo chown root:users " + self.__chrootDirectory + "/etc")
-        self.__subprocess(command="sudo chmod g+rw " + self.__chrootDirectory)
-        self.__subprocess(command="sudo chmod g+r " + self.__chrootDirectory + "/root")
-        self.__subprocess(command="sudo chmod g+rw " + self.__chrootDirectory + "/etc")
+        self.__subprocess(command="sudo chown root:users " + self.getDirectory())
+        self.__subprocess(command="sudo chown root:users " + self.getDirectory() + "/root")
+        self.__subprocess(command="sudo chown root:users " + self.getDirectory() + "/etc")
+        self.__subprocess(command="sudo chmod g+rw " + self.getDirectory())
+        self.__subprocess(command="sudo chmod g+r " + self.getDirectory() + "/root")
+        self.__subprocess(command="sudo chmod g+rw " + self.getDirectory() + "/etc")
 
-        self.prepareChroot(self.__chrootDirectory)
+        self.prepareChroot(self.getDirectory())
 
     def __subprocess(self, command=None, waitMess=False):
         '''
@@ -142,7 +134,7 @@ class ObsLightChRoot(object):
         '''
         Return the directory of where the package were installed.
         '''
-        pathBuild = self.__chrootDirectory + "/" + self.__chrootrpmbuildDirectory + "/" + "BUILD"
+        pathBuild = self.getDirectory() + "/" + self.__chrootrpmbuildDirectory + "/" + "BUILD"
         #Find the Package Directory
 
         if package == None:
@@ -181,7 +173,7 @@ class ObsLightChRoot(object):
         command.append("zypper --non-interactive si " + "--repo " + repo + " " + packageName)
         self.execCommand(command=command)
 
-        if os.path.isdir(self.__chrootDirectory + "/" + self.__chrootrpmbuildDirectory + "/SPECS/"):
+        if os.path.isdir(self.getDirectory() + "/" + self.__chrootrpmbuildDirectory + "/SPECS/"):
             aspecFile = self.__chrootrpmbuildDirectory + "/SPECS/" + specFile
 
             self.buildPrepRpm(specFile=aspecFile)
@@ -191,8 +183,7 @@ class ObsLightChRoot(object):
             package.setDirectoryBuild(packageDirectory)
             self.initGitWatch(path=packageDirectory)
         else:
-            raise ObsLightErr.ObsLightChRootError(packageName + " source is not installed in " + self.__chrootDirectory)
-
+            raise ObsLightErr.ObsLightChRootError(packageName + " source is not installed in " + self.getDirectory())
 
     def execCommand(self, command=None):
         '''
@@ -201,10 +192,10 @@ class ObsLightChRoot(object):
         if command == None:
             return
 
-        if not ObsLightMic.getObsLightMic(name=self.__chrootDirectory).isInit():
-            ObsLightMic.getObsLightMic(name=self.__chrootDirectory).initChroot(chrootDirectory=self.__chrootDirectory,
-                                                 chrootTransfertDirectory=self.__chrootDirTransfert,
-                                                 transfertDirectory=self.__dirTransfert)
+        if not ObsLightMic.getObsLightMic(name=self.getDirectory()).isInit():
+            ObsLightMic.getObsLightMic(name=self.getDirectory()).initChroot(chrootDirectory=self.getDirectory(),
+                                                                               chrootTransfertDirectory=self.__chrootDirTransfert,
+                                                                               transfertDirectory=self.__dirTransfert)
 
         timeString = time.strftime("%Y-%m-%d_%Hh%Mm%S")
         scriptName = "runMe_" + timeString + ".sh"
@@ -220,7 +211,7 @@ class ObsLightChRoot(object):
 
         os.chmod(scriptPath, 0654)
 
-        aCommand = "sudo -H chroot " + self.__chrootDirectory + " " + self.__dirTransfert + "/" + scriptName
+        aCommand = "sudo -H chroot " + self.getDirectory() + " " + self.__dirTransfert + "/" + scriptName
 
         if platform.machine() == 'x86_64':
             aCommand = "linux32 " + aCommand
@@ -270,16 +261,15 @@ class ObsLightChRoot(object):
         Go to the chroot.
         Open a Bash in the chroot.
         '''
-        if not os.path.isdir(self.__chrootDirectory):
+        if not os.path.isdir(self.getDirectory()):
             raise ObsLightErr.ObsLightChRootError("goToChRoot: chroot is not initialized, use createChRoot")
-        elif not os.path.isdir(self.__chrootDirectory):
-            raise ObsLightErr.ObsLightChRootError("goToChRoot: the path: " + self.__chrootDirectory + " is not a directory")
+        elif not os.path.isdir(self.getDirectory()):
+            raise ObsLightErr.ObsLightChRootError("goToChRoot: the path: " + self.getDirectory() + " is not a directory")
 
-        if  not ObsLightMic.getObsLightMic(name=self.__chrootDirectory).isInit():
-            ObsLightMic.getObsLightMic(name=self.__chrootDirectory).initChroot(chrootDirectory=self.__chrootDirectory,
-                                                 chrootTransfertDirectory=self.__chrootDirTransfert,
-                                                 transfertDirectory=self.__dirTransfert)
-
+        if  not ObsLightMic.getObsLightMic(name=self.getDirectory()).isInit():
+            ObsLightMic.getObsLightMic(name=self.getDirectory()).initChroot(chrootDirectory=self.getDirectory(),
+                                                                               chrootTransfertDirectory=self.__chrootDirTransfert,
+                                                                               transfertDirectory=self.__dirTransfert)
 
         pathScript = self.__chrootDirTransfert + "/runMe.sh"
         f = open(pathScript, 'w')
@@ -292,7 +282,7 @@ class ObsLightChRoot(object):
 
         os.chmod(pathScript, 0654)
 
-        command = "sudo -H chroot " + self.__chrootDirectory + " " + self.__dirTransfert + "/runMe.sh"
+        command = "sudo -H chroot " + self.getDirectory() + " " + self.__dirTransfert + "/runMe.sh"
         if detach is True:
             command = "xterm -e " + command
         if platform.machine() == 'x86_64':
@@ -332,6 +322,7 @@ class ObsLightChRoot(object):
         package.addPatch(aFile=patch)
         self.__getAddRemoveFiles(package=package)
         package.save()
+
 
     def __getAddRemoveFiles(self, package=None):
         '''
@@ -388,11 +379,7 @@ class ObsLightChRoot(object):
 
         package.save()
 
-    def getDirectory(self):
-        '''
-        Return the path of aChRoot of a project
-        '''
-        return self.__chrootDirectory
+
 
     def prepareChroot(self, chrootDir):
         '''
@@ -403,7 +390,7 @@ class ObsLightChRoot(object):
         '''
         command = []
 
-        if ObsLightMic.getObsLightMic(name=self.__chrootDirectory).isArmArch(chrootDir):
+        if ObsLightMic.getObsLightMic(name=self.getDirectory()).isArmArch(chrootDir):
             # If rpm and rpmbuild binaries are not ARM, replace them by ARM versions
             command.append('[ -z "$(file /bin/rpm | grep ARM)" -a -f /bin/rpm.orig-arm ]'
                 + ' && cp /bin/rpm /bin/rpm.x86 && cp /bin/rpm.orig-arm /bin/rpm')
