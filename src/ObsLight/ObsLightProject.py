@@ -76,7 +76,7 @@ class ObsLightProject(object):
 
             #perhaps a trusted_prj must be had
             self.__obsServers.getObsServer(name=self.__obsServer).initConfigProject(projet=self.__projectObsName,
-                                                                                                    repos=self.__projectTarget)
+                                                                                    repos=self.__projectTarget)
         else:
             if "projectLocalName" in fromSave.keys():
                 self.__projectLocalName = fromSave["projectLocalName"]
@@ -94,7 +94,6 @@ class ObsLightProject(object):
                 self.__projectTitle = fromSave["projectTitle"]
             if "description" in fromSave.keys():
                 self.__description = fromSave["description"]
-
             if "aChroot" in fromSave.keys():
                 self.__chroot = ObsLightChRoot(fromSave=fromSave["aChroot"])
             else:
@@ -107,11 +106,11 @@ class ObsLightProject(object):
                 self.__chrootIsInit = fromSave["chrootIsInit"]
                 if self.__chrootIsInit == True:
                     if not os.path.isdir(self.__chroot.getDirectory()):
-                        self.createChRoot()
+                        self.__initChRoot()
+                        self.__chroot.initRepos()
                 else:
                     if os.path.isdir(self.__chroot.getDirectory()):
                         self.__chrootIsInit = True
-
 
             if self.__chrootIsInit:
                 for packageName in self.__packages.getListPackages():
@@ -419,23 +418,22 @@ class ObsLightProject(object):
 
     def createChRoot(self):
         '''
-        
+        Init a chroot and add the project repository. 
         '''
-        #I hope this will change, because we don't need to build a pakage to creat a chroot. 
-        for pk in self.__packages.getListPackages():
-            #if self.__packages.getPackageStatus(pk)=="succeeded":
-            specPath = self.__packages.getSpecFile(pk)
-            projectDir = self.__packages.getOscDirectory(pk)
-            break
+        self.__initChRoot()
+        self.addRepo()
 
-
-        self.__chroot.createChRoot(#obsApi=self.__obsServer,
-                                    projectDir=projectDir ,
+    def __initChRoot(self):
+        '''
+        Init a chroot.
+        '''
+        self.__chroot.createChRoot(
                                     repos=self.__projectTarget,
                                     arch=self.__projectArchitecture,
-                                    specPath=specPath)
+                                    apiurl=self.__obsServer,
+                                    obsProject=self.__projectObsName,
+                                    )
         self.__chrootIsInit = True
-        self.addRepo()
 
     def addRepo(self,
                  repos=None,

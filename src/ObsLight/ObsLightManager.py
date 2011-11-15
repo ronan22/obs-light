@@ -50,7 +50,8 @@ class ObsLightManager(object):
             os.makedirs(self.__workingDirectory)
 
         self.__myObsServers = ObsServers(workingDirectory=self.__workingDirectory)
-        self.__myObsLightProjects = ObsLightProjects(obsServers=self.__myObsServers, workingDirectory=self.__workingDirectory)
+        self.__myObsLightProjects = ObsLightProjects(obsServers=self.__myObsServers,
+                                                     workingDirectory=self.__workingDirectory)
 
 
     def getObsLightWorkingDirectory(self):
@@ -670,7 +671,9 @@ class ObsLightManager(object):
         elif not package in self.getLocalProjectPackageList(name=projectLocalName, local=1):
             raise ObsLightObsServers(package + " is not a local package of " + projectLocalName)
 
-        return  self.__myObsLightProjects.getPackageParameter(projectLocalName=projectLocalName, package=package, parameter=parameter)
+        return  self.__myObsLightProjects.getPackageParameter(projectLocalName=projectLocalName,
+                                                              package=package,
+                                                              parameter=parameter)
 
     def setPackageParameter(self, projectLocalName, package, parameter=None, value=None):
         '''
@@ -691,7 +694,10 @@ class ObsLightManager(object):
         elif not package in self.getLocalProjectPackageList(name=projectLocalName, local=1):
             raise ObsLightObsServers(package + " is not a local package of " + projectLocalName)
 
-        return  self.__myObsLightProjects.setPackageParameter(projectLocalName=projectLocalName, package=package, parameter=parameter, value=value)
+        return  self.__myObsLightProjects.setPackageParameter(projectLocalName=projectLocalName,
+                                                              package=package,
+                                                              parameter=parameter,
+                                                              value=value)
 
     def getProjectRepository(self, projectLocalName):
         '''
