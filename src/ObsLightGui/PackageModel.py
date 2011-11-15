@@ -48,7 +48,11 @@ class PackageModel(QAbstractTableModel):
         if self.getProject() is None:
             return self.__emptyList
         pkgList = self.__obsLightManager.getLocalProjectPackageList(self.getProject(), local=1)
-        return pkgList if pkgList is not None else self.__emptyList
+        print pkgList
+        if pkgList is None:
+            return self.__emptyList
+        else:
+            return pkgList
     
     def rowCount(self, _parent=None):
         return len(self.__getPackageList())

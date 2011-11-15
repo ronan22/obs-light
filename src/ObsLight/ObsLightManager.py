@@ -44,7 +44,7 @@ def checkProjectLocalName(position=None):
                     and not mngr.isALocalProject(kwargs["projectLocalName"])):
                 raise ObsLightProjectsError("'" + str(kwargs["projectLocalName"])
                                             + "' is not a local project")
-            f(*args, **kwargs)
+            return f(*args, **kwargs)
         return checkProjectLocalName2
     return checkProjectLocalName1
 
@@ -221,7 +221,6 @@ class ObsLightManager(object):
         else:
             return False
 
-    @checkProjectLocalName(9)
     def addProject(self,
                    obsServer,
                    projectObsName,
