@@ -21,14 +21,19 @@ Created on 3 oct. 2011
 '''
 
 import os
+from xml.etree import ElementTree
 
 from osc import conf
 from osc import core
 #from osc import build
 
-from xml.etree import ElementTree
+
 
 from ObsLightSubprocess import SubprocessCrt
+
+
+
+EMPTYPROJECTPATH = os.path.join(os.path.dirname(__file__), "emptySpec")
 
 class ObsLightOsc(object):
     '''
@@ -180,63 +185,31 @@ class ObsLightOsc(object):
         return aElement.attrib["code"]
 
     def createChRoot(self,
-                     #obsApi=None,doesn't work
-                     chrootDir=None,
-                     projectDir=None ,
-                     repos=None,
-                     arch=None,
-                     specPath=None):
+                     chrootDir,
+                     repos,
+                     arch,
+                     apiurl,
+                     project,
+                     listExtraPkgs=["vim",
+                                    "git",
+                                    "zypper",
+                                    "strace",
+                                    "iputils",
+                                    "ncurses-devel",
+                                    ],
+                     ):
         '''
         create a chroot
         TODO: create chroot without build a package
         TODO: Build without a subprocess
         '''
-        os.chdir(projectDir)
+        os.chdir(EMPTYPROJECTPATH)
 
-        #doesn't work
-        #apiurl=obsApi
-        #apts=optparse.OptionContainer()
-        #opts ={}
-        #opts['rsyncsrc']= None
-        #opts['linksources']= None
-        #opts['build_uid']= None
-        #opts['oldpackages']= None
-        #opts['userootforbuild']= None
-        #opts['vm_type']= None
-        #opts['overlay']= None
-        #opts['disable_debuginfo']= None
-        #opts['prefer_pkgs']= None
-        #opts['no_changelog']= None
-        #opts['icecream']= None
-        #opts['disable_cpio_bulk_download']= None
-        #opts['ccache']= None
-        #opts['offline']= None
-        #opts['define']= None
-        #opts['preload']= None
-        #opts['extra_pkgs']= ['vim', 'git', 'strace', 'iputils', 'yum', 'yum-utils', 'ncurses-devel', 'zypper']
-        #opts['shell']= None
-        #opts['jobs']= None
-        #opts['clean']= None
-        #opts['baselibs']= None
-        #opts['debuginfo']= None
-        #opts['noservice']= True
-        #opts['nochecks']= None
-        #opts['noinit']= None
-        #opts['local_package']= None
-        #opts['download_api_only']= None
-        #opts['rsyncdest']= None
-        #opts['alternative_project']= None
-        #opts['keep_pkgs']= None
-        #opts['without']= None
-        #opts['no_verify']= True
-        #opts['release']= None
-        #opts['root']= chrootDir
-        #opts['_with']= None
-        #argv=(repos, arch, specPath)
+        extraPkgs = ""
+        for pkg in listExtraPkgs:
+            extraPkgs += "-x " + pkg + " "
 
-        #build.main(apiurl=apiurl, opts=opts, argv=argv)
-
-        command = "osc build --root=" + chrootDir + " -x vim -x git -x strace -x iputils -x yum -x yum-utils -x ncurses-devel -x zypper --noservice --no-verify " + repos + " " + arch + " " + specPath
+        command = "osc -A " + apiurl + " build --root=" + chrootDir + " " + extraPkgs + " --noservice --no-verify --alternative-project " + project + " " + repos + " " + arch + " --local-package"
         return self.__subprocess(command=command, waitMess=True)
 
 
