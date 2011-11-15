@@ -573,7 +573,7 @@ class ObsLightManager(object):
             raise ObsLightProjectsError(" invalid project name: " + str(projectLocalName))
         elif not isNonEmptyString(package):
             raise ObsLightProjectsError(" invalid package name: " + str(package))
-        elif isNonEmptyString(message):
+        elif not isNonEmptyString(message):
             raise ObsLightProjectsError(" no commit message")
         elif not package in self.getLocalProjectPackageList(projectLocalName, local=1):
             raise ObsLightProjectsError(package + " is not a local package")

@@ -133,9 +133,14 @@ class ProjectManager(QObject):
     @popupOnException
     def on_deleteObsProjectButton_clicked(self):
         projectName = self.getCurrentProjectName()
-        self.__gui.getObsLightManager().removeProject(projectName)
-        self.loadProjectList()
-        self.on_projectSelected(None)
+        obslightManager = self.__gui.getObsLightManager()
+        self.__progress.setLabelText("Deleting project...")
+        self.__progress.show()
+        runnable = ProgressRunnable(obslightManager.removeProject, projectName)
+        runnable.setProgressDialog(self.__progress)
+        runnable.finishedWithException.connect(self.__gui.obsLightErrorCallback2)
+        runnable.finished.connect(self.loadProjectList)
+        QThreadPool.globalInstance().start(runnable)
 
     @popupOnException
     def on_importObsProjectButton_clicked(self):
@@ -192,6 +197,7 @@ class ProjectManager(QObject):
                                                 currentPackage, detach=True)
                     
                 runnable.finishedWithException.connect(self.__gui.obsLightErrorCallback2)
+                runnable.finished.connect(self.refresh)
                 QThreadPool.globalInstance().start(runnable)
             else:
                 self.__progress.setLabelText("Creating chroot")
@@ -199,6 +205,7 @@ class ProjectManager(QObject):
                 runnable = ProgressRunnable(obslightManager.createChRoot, projectName)
                 runnable.setProgressDialog(self.__progress)
                 runnable.finishedWithException.connect(self.__gui.obsLightErrorCallback2)
+                runnable.finished.connect(self.refresh)
                 QThreadPool.globalInstance().start(runnable)
 
     @popupOnException
@@ -223,9 +230,11 @@ class ProjectManager(QObject):
     def on_projectSelected(self, _project):
         project = self.getCurrentProjectName()
         self.__packageManager.setCurrentProject(project)
-        if project is not None:
-            self.updateProjectLabels()
-            self.updateChrootPathAndButtons()
+        self.refresh()
+            
+    def refresh(self):
+        self.updateProjectLabels()
+        self.updateChrootPathAndButtons()
 
     @popupOnException
     def updateProjectLabels(self):
