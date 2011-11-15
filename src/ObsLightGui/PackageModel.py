@@ -48,7 +48,6 @@ class PackageModel(QAbstractTableModel):
         if self.getProject() is None:
             return self.__emptyList
         pkgList = self.__obsLightManager.getLocalProjectPackageList(self.getProject(), local=1)
-        print pkgList
         if pkgList is None:
             return self.__emptyList
         else:
