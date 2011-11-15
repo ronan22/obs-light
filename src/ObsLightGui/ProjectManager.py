@@ -141,6 +141,8 @@ class ProjectManager(QObject):
     def on_importObsProjectButton_clicked(self):
         filePath, _filter = QFileDialog.getOpenFileName(self.__gui.getMainWindow(),
                                                         "Select project to import")
+        if len(filePath) < 1:
+            return
         obslightManager = self.__gui.getObsLightManager()
         self.__progress.setLabelText("Importing project...")
         self.__progress.show()
@@ -157,6 +159,8 @@ class ProjectManager(QObject):
             return
         filePath, _filter = QFileDialog.getSaveFileName(self.__gui.getMainWindow(),
                                                         "Select file to export")
+        if len(filePath) < 1:
+            return
         self.__progress.setLabelText("Importing project...")
         self.__progress.show()
         obslightManager = self.__gui.getObsLightManager()
