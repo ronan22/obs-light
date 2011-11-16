@@ -38,12 +38,12 @@ def checkProjectLocalName(position=None):
             mngr = getManager()
             if (position is not None and position < len(args)
                 and not mngr.isALocalProject(args[position])):
-                raise ObsLightProjectsError("'" + str(args[position])
-                                            + "' is not a local project")
+                raise ObsLightProjectsError("'" + str(args[position]) +
+                                            "' is not a local project")
             elif ("projectLocalName" in kwargs
                     and not mngr.isALocalProject(kwargs["projectLocalName"])):
-                raise ObsLightProjectsError("'" + str(kwargs["projectLocalName"])
-                                            + "' is not a local project")
+                raise ObsLightProjectsError("'" + str(kwargs["projectLocalName"]) +
+                                            "' is not a local project")
             return f(*args, **kwargs)
         return checkProjectLocalName2
     return checkProjectLocalName1

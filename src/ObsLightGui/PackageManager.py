@@ -140,7 +140,7 @@ class PackageManager(QObject):
         if index.isValid():
             row = index.row()
             packageName = self.__localModel.data(self.__localModel.createIndex(row,
-                                                                 PackageModel.PackageNameColumn))
+                                                                               PackageModel.PackageNameColumn))
             return packageName
         else:
             return None
@@ -168,7 +168,7 @@ class PackageManager(QObject):
             return
         row = self.__packageTableView.currentIndex().row()
         packageName = self.__localModel.data(self.__localModel.createIndex(row,
-                                                                 PackageModel.PackageNameColumn))
+                                                                           PackageModel.PackageNameColumn))
         if packageName is not None and len(packageName) > 0:
             self.__localModel.removePackage(packageName)
             self.__fileManager.setCurrentPackage(None, None)
