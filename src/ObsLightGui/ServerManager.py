@@ -74,7 +74,7 @@ class ServerListManager(QObject):
         self.__serverConfigManager.finished.connect(self.on_serverConfigManager_finished)
 
     def on_modifyServerButton_clicked(self):
-        currentItem = self.__listWidget.currentItem() 
+        currentItem = self.__listWidget.currentItem()
         if currentItem is not None:
             self.__serverConfigManager = ServerConfigManager(self.__gui,
                                                              currentItem.text())
@@ -104,7 +104,7 @@ class ServerConfigManager(QObject):
     __aliasLineEdit = None
     __userLineEdit = None
     __passLineEdit = None
-    
+
     finished = Signal(bool)
 
     def __init__(self, gui, serverAlias=None):
@@ -122,7 +122,7 @@ class ServerConfigManager(QObject):
             self.__loadInitialFieldValues()
         self.__srvConfDialog.finished.connect(self.on_obsServerConfigDialog_finished)
         self.__srvConfDialog.show()
-        
+
     def __loadFieldObjects(self):
         self.__webUrlLineEdit = self.__srvConfDialog.findChild(QLineEdit,
                                                                "serverWebUrlLineEdit")
@@ -135,44 +135,49 @@ class ServerConfigManager(QObject):
         self.__apiUrlLineEdit.setValidator(httpValidator)
         self.__apiUrlLineEdit.setPlaceholderText("http://myObs:81")
         self.__repoUrlLineEdit = self.__srvConfDialog.findChild(QLineEdit,
-                                                               "serverRepoLineEdit")
+                                                                "serverRepoLineEdit")
         self.__repoUrlLineEdit.setValidator(httpValidator)
         self.__repoUrlLineEdit.setPlaceholderText("http://myObs:82")
         self.__aliasLineEdit = self.__srvConfDialog.findChild(QLineEdit,
-                                                               "serverAliasLineEdit")
+                                                              "serverAliasLineEdit")
         noSpaceValidator = QRegExpValidator()
         noSpaceValidator.setRegExp(QRegExp("\\S+"))
         self.__aliasLineEdit.setValidator(noSpaceValidator)
         self.__userLineEdit = self.__srvConfDialog.findChild(QLineEdit,
-                                                               "usernameLineEdit")
+                                                             "usernameLineEdit")
         self.__passLineEdit = self.__srvConfDialog.findChild(QLineEdit,
-                                                               "passwordLineEdit")
-        
+                                                             "passwordLineEdit")
+
     def __loadInitialFieldValues(self):
         manager = self.__gui.getObsLightManager()
         self.__aliasLineEdit.setText(self.__serverAlias)
         self.__aliasLineEdit.setReadOnly(True)
-        self.__webUrlLineEdit.setText(manager.getObsServerParameter(self.__serverAlias, "serverWeb"))
-        self.__apiUrlLineEdit.setText(manager.getObsServerParameter(self.__serverAlias, "serverAPI"))
-        self.__repoUrlLineEdit.setText(manager.getObsServerParameter(self.__serverAlias, "serverRepo"))
-        self.__userLineEdit.setText(manager.getObsServerParameter(self.__serverAlias, "user"))
-        self.__passLineEdit.setText(manager.getObsServerParameter(self.__serverAlias, "passw"))
+        self.__webUrlLineEdit.setText(manager.getObsServerParameter(self.__serverAlias,
+                                                                    "serverWeb"))
+        self.__apiUrlLineEdit.setText(manager.getObsServerParameter(self.__serverAlias,
+                                                                    "serverAPI"))
+        self.__repoUrlLineEdit.setText(manager.getObsServerParameter(self.__serverAlias,
+                                                                     "serverRepo"))
+        self.__userLineEdit.setText(manager.getObsServerParameter(self.__serverAlias,
+                                                                  "user"))
+        self.__passLineEdit.setText(manager.getObsServerParameter(self.__serverAlias,
+                                                                  "passw"))
 
     def getWebIfaceUrl(self):
         return self.__webUrlLineEdit.text()
-    
+
     def getApiUrl(self):
         return self.__apiUrlLineEdit.text()
-    
+
     def getRepoUrl(self):
         return self.__repoUrlLineEdit.text()
-    
+
     def getAlias(self):
         return self.__aliasLineEdit.text()
-    
+
     def getUser(self):
         return self.__userLineEdit.text()
-    
+
     def getPass(self):
         return self.__passLineEdit.text()
 

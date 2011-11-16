@@ -19,7 +19,7 @@ Created on 27 sept. 2011
 
 @author: Florent Vennetier
 '''
- 
+
 from PySide.QtCore import QObject, QRegExp, QThreadPool, Signal, Qt
 from PySide.QtGui import QTextEdit, QPushButton, QListWidget, QLineEdit, QLabel, QComboBox
 from PySide.QtGui import QRegExpValidator, QRadioButton, QProgressDialog, QFileDialog
@@ -97,8 +97,8 @@ class ProjectManager(QObject):
         self.__progress.setCancelButton(None)
         # make the progress "infinite"
         self.__progress.setRange(0, 0)
-        
-        
+
+
     def loadProjectList(self):
         '''
         Load (or reload) the local project list in the obsProjectsListWidget.
@@ -195,7 +195,7 @@ class ProjectManager(QObject):
                 else:
                     runnable = ProgressRunnable(obslightManager.goToChRoot, projectName,
                                                 currentPackage, detach=True)
-                    
+
                 runnable.finishedWithException.connect(self.__gui.obsLightErrorCallback2)
                 runnable.finished.connect(self.refresh)
                 QThreadPool.globalInstance().start(runnable)
@@ -231,7 +231,7 @@ class ProjectManager(QObject):
         project = self.getCurrentProjectName()
         self.__packageManager.setCurrentProject(project)
         self.refresh()
-            
+
     def refresh(self):
         self.updateProjectLabels()
         self.updateChrootPathAndButtons()
@@ -251,7 +251,7 @@ class ProjectManager(QObject):
             repoLink = obslightManager.getProjectRepository(project)
             projectTitle = obslightManager.getProjectParameter(project, "projectTitle")
             projectDescription = obslightManager.getProjectParameter(project, "description")
-            
+
             self.__projectLabel.setText(project)
             self.__projectTitleLabel.setText(projectTitle)
             self.__projectDescriptionLabel.setText(projectDescription)
@@ -290,12 +290,12 @@ class ProjectConfigManager(QObject):
     '''
     Manages the project configuration dialog.
     '''
-    
+
     __gui = None
     __projectAlias = None
     __obsLightManager = None
     __configDialog = None
-    
+
     __localNameField = None
     __obsNameField = None
     __serverCBox = None
@@ -303,11 +303,11 @@ class ProjectConfigManager(QObject):
     __archCBox = None
     __titleLineEdit = None
     __descriptionTextEdit = None
-    
+
     finished = Signal(bool)
     __projectObsNameEdited = False
-    
-    def __init__(self, gui, projectAlias = None):
+
+    def __init__(self, gui, projectAlias=None):
         QObject.__init__(self)
         self.__gui = gui
         self.__projectAlias = projectAlias
@@ -318,10 +318,10 @@ class ProjectConfigManager(QObject):
         self.__configDialog.accepted.connect(self.on_configDialog_accepted)
         self.__configDialog.rejected.connect(self.on_configDialog_rejected)
         self.__configDialog.show()
-        
+
     def __isNewProject(self):
         return self.__projectAlias is None
-    
+
     def __loadFieldObjects(self):
         self.__localNameField = self.__configDialog.findChild(QLineEdit,
                                                               "projectLocalNameLineEdit")
@@ -349,34 +349,34 @@ class ProjectConfigManager(QObject):
     def __loadInitialFieldValues(self):
         self.__serverCBox.clear()
         self.__serverCBox.addItems(self.__obsLightManager.getObsServerList())
-        
+
         if not self.__isNewProject():
             # load project local name
             self.__localNameField.setText(self.__projectAlias)
             self.__localNameField.setReadOnly(True)
             # load OBS server list and select appropriate current server
             obsServerAlias = self.__obsLightManager.getProjectParameter(self.__projectAlias,
-                                                                   "obsServer")
+                                                                        "obsServer")
             lineIndex = self.__serverCBox.findText(obsServerAlias)
             if lineIndex >= 0:
                 self.__serverCBox.setCurrentIndex(lineIndex)
             self.__serverCBox.setEnabled(False)
             # load project OBS name
             projectObsName = self.__obsLightManager.getProjectParameter(self.__projectAlias,
-                                                                   "projectObsName")
+                                                                        "projectObsName")
             self.__obsNameField.setText(projectObsName)
             self.__obsNameField.setReadOnly(True)
             # load target list and select appropriate current target
             self.__loadTargetPossibilities()
             target = self.__obsLightManager.getProjectParameter(self.__projectAlias,
-                                                           "projectTarget")
+                                                                "projectTarget")
             lineIndex = self.__targetCBox.findText(target)
             if lineIndex >= 0:
                 self.__targetCBox.setCurrentIndex(lineIndex)
             # load arch list and select appropriate current arch
             self.__loadArchPossibilities()
             arch = self.__obsLightManager.getProjectParameter(self.__projectAlias,
-                                                         "projectArchitecture")
+                                                              "projectArchitecture")
             lineIndex = self.__archCBox.findText(arch)
             if lineIndex >= 0:
                 self.__archCBox.setCurrentIndex(lineIndex)
@@ -390,7 +390,7 @@ class ProjectConfigManager(QObject):
                                                                      "description")
             self.__descriptionTextEdit.setText(description)
             self.__descriptionTextEdit.setEnabled(True)
-            
+
     def __loadTargetPossibilities(self):
         '''
         Load the target possibilities into the target ComboBox,
@@ -418,31 +418,31 @@ class ProjectConfigManager(QObject):
 
     def handleObsNameEdited(self, _ignore):
         self.__projectObsNameEdited = True
-        
+
     def handleObsNameEditingFinished(self):
         if self.__projectObsNameEdited:
             self.__projectObsNameEdited = False
             task = QRunnableImpl()
             task.run = self.__loadTargetPossibilities
             QThreadPool.globalInstance().start(task)
-            
+
     def handleTargetIndexChanged(self):
         task = QRunnableImpl()
         task.run = self.__loadArchPossibilities
         QThreadPool.globalInstance().start(task)
-    
+
     def getCurrentServerAlias(self):
         return self.__serverCBox.currentText()
-    
+
     def getCurrentProjectLocalName(self):
         return self.__localNameField.text()
-    
+
     def getCurrentProjectObsName(self):
         return self.__obsNameField.text()
-    
+
     def getCurrentTarget(self):
         return self.__targetCBox.currentText()
-    
+
     def getCurrentArch(self):
         return self.__archCBox.currentText()
 
@@ -496,14 +496,14 @@ class RepoConfigManager(QObject):
     __gui = None
     __projectAlias = None
     __obsLightManager = None
-    
+
     __configDialog = None
     __projectComboBox = None
     __urlLineEdit = None
     __aliasLineEdit = None
     __fromProjectRadio = None
     __fromUrlRadio = None
-    
+
     def __init__(self, gui, projectAlias):
         QObject.__init__(self)
         self.__gui = gui
@@ -528,16 +528,16 @@ class RepoConfigManager(QObject):
     def __loadProjectPossibilities(self):
         projects = self.__obsLightManager.getLocalProjectList()
         self.__projectComboBox.addItems(projects)
-        
+
     def getRepoAlias(self):
         return self.__aliasLineEdit.text()
-    
+
     def getRepoUrl(self):
         return self.__urlLineEdit.text()
-    
+
     def getProject(self):
         return self.__projectComboBox.currentText()
-    
+
     def addFromUrl(self):
         return self.__fromUrlRadio.isChecked()
 

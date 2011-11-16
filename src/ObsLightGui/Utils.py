@@ -44,7 +44,7 @@ class ProgressRunnable(QRunnable, QObject):
     __progressDialog = None
     __isInfinite = False
     # Create two signals: one with no parameter, the other with one integer parameter
-    __finished = Signal((), (int, ))
+    __finished = Signal((), (int,))
     finished = Signal()
     finishedWithException = Signal(BaseException)
 
@@ -71,7 +71,7 @@ class ProgressRunnable(QRunnable, QObject):
         self.__progressDialog = dialog
         if self.__progressDialog is not None:
             self.__isInfinite = self.__progressDialog.minimum() < self.__progressDialog.maximum()
-        
+
     def __updateValue(self):
         if self.__progressDialog is not None:
             if self.__isInfinite:
