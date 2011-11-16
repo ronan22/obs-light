@@ -24,6 +24,7 @@ import pickle
 import os
 
 from ObsServer import ObsServer
+from ObsLightErr import ObsLightObsServers
 
 class ObsServers(object):
     '''
@@ -91,8 +92,13 @@ class ObsServers(object):
         self.__dicOBSLightServers[aOBSServer.getName()] = aOBSServer
 
 
-    def addObsServer(self, serverWeb="", serverAPI=None, serverRepo="",
-                    alias=None, user=None, passw=None):
+    def addObsServer(self,
+                     serverWeb="",
+                     serverAPI=None,
+                     serverRepo="",
+                     alias=None,
+                     user=None,
+                     passw=None):
         '''
         
         '''
@@ -104,6 +110,16 @@ class ObsServers(object):
                                passw=passw)
         self.__dicOBSLightServers[aOBSServer.getName()] = aOBSServer
 
+    def delObsServer(self, alias):
+        '''
+        
+        '''
+        if alias in self.getObsServerList():
+            print "self.getObsServerList()", self.getObsServerList()
+            del self.__dicOBSLightServers[alias]
+            print "self.getObsServerList()", self.getObsServerList()
+        else:
+            raise ObsLightObsServers("'" + alias + "' can't be deleted, it's not an OBS Server")
 
     def getLocalProjectList(self, server=None):
         '''
@@ -118,8 +134,11 @@ class ObsServers(object):
         '''
         return self.__dicOBSLightServers[obsServer].getListPackage(projectLocalName=projectLocalName)
 
-    def checkoutPackage(self, obsServer=None, projectObsName=None,
-                        package=None, directory=None):
+    def checkoutPackage(self,
+                        obsServer=None,
+                        projectObsName=None,
+                        package=None,
+                        directory=None):
         '''
         
         '''
@@ -189,14 +208,14 @@ class ObsServers(object):
         
         '''
         return self.__dicOBSLightServers[obsServer].getPackageTitle(projectObsName=projectObsName,
-                                                                     package=package)
+                                                                    package=package)
 
     def getPackageDescription(self, obsServer, projectObsName, package):
         '''
         
         '''
         return self.__dicOBSLightServers[obsServer].getPackageDescription(projectObsName=projectObsName,
-                                                                           package=package)
+                                                                          package=package)
 
 
 

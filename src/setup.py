@@ -12,7 +12,7 @@ class build_obslight(distutils.command.build.build, object):
 
     def run(self):
         super(build_obslight, self).run()
-        
+
 
 
 setup(name='obslight',
@@ -28,15 +28,19 @@ setup(name='obslight',
       download_url='https://meego.gitorious.org/meego-developer-tools/obs-light',
 
       packages=['ObsLight', 'ObsLight.util', 'ObsLightGui'],
-      package_data={'ObsLightGui' : ['ui/*.ui']},
-      scripts=['obslight-wrapper.py', 'obslightgui-wrapper.py',
-                 'script/obstag', 'script/obs2obscopy', 'script/obsextractgroups'],
+      package_data={'ObsLightGui' : ['ui/*.ui'],
+                    'ObsLight' : ['emptySpec/empty*']},
+      scripts=['obslight-wrapper.py',
+               'obslightgui-wrapper.py',
+               'script/obstag',
+               'script/obs2obscopy',
+               'script/obsextractgroups'],
       provides=['ObsLight', 'ObsLightGui'],
       requires=['osc (>=0.132.5)', 'xml.etree.ElementTree'],
       data_files=[('/etc', ['sudoers.obslight']),
                   ('/etc/bash_completion.d/', ['obslight.sh'])],
-      
-      
+
+
       cmdclass={
         'build': build_obslight,
         }

@@ -159,7 +159,8 @@ class ObsLightManager(object):
             description
         '''
         res = self.__myObsLightProjects.setProjectParameter(projectLocalName,
-                                                            parameter, value)
+                                                            parameter,
+                                                            value)
         self.__myObsLightProjects.save()
         return res
 
@@ -188,8 +189,13 @@ class ObsLightManager(object):
         self.__myObsLightProjects.save()
         return res
 
-    def addObsServer(self, serverApi, user, password,
-                     alias=None, serverRepo="", serverWeb=""):
+    def addObsServer(self,
+                     serverApi,
+                     user,
+                     password,
+                     alias=None,
+                     serverRepo="",
+                     serverWeb=""):
         '''
         Add a new OBS server.
         '''
@@ -210,6 +216,18 @@ class ObsLightManager(object):
                                          alias=alias,
                                          user=user,
                                          passw=password)
+        self.__myObsServers.save()
+
+    def delObsServer(self, alias):
+        '''
+        Delete an OBS server.
+        '''
+        if not isNonEmptyString(alias):
+            raise ObsLightObsServers("Can't create a OBSServer: invalid API:" + str(alias))
+        elif not self.isAnObsServer(alias):
+            raise ObsLightObsServers(alias + " is not an OBS server")
+        self.__myObsServers.delObsServer(alias=alias)
+
         self.__myObsServers.save()
 
     def isAnObsServer(self, name):
@@ -260,7 +278,7 @@ class ObsLightManager(object):
         self.__myObsLightProjects.addProject(projectLocalName=projectLocalName,
                                              projectObsName=projectObsName,
                                              projectTitle=projectTitle,
-                                             obsServer=obsServer ,
+                                             obsServer=obsServer,
                                              projectTarget=projectTarget,
                                              description=description,
                                              projectArchitecture=projectArchitecture)

@@ -38,6 +38,7 @@ MAN_FOOTER = r"""
 __PRGNAME__ = "ObsLight"
 __getListObsServers__ = "getObsServerList"
 __addObsServer__ = "addObsServer"
+__delObsServer__ = "delObsServer"
 __getListLocalProject__ = "getLocalProjectList"
 __addProject__ = "addProject"
 __removeProject__ = "removeProject"
@@ -64,6 +65,8 @@ __DICO_HELP__[__getListObsServers__] = "Print the list of OBS servers."
 __DICO_HELP__[__getListLocalProject__] = "Print the list of local projects."
 __DICO_HELP__[__getListPackage__] = "Print the list of packages of a project."
 __DICO_HELP__[__addObsServer__] = "Add an OBS server."
+__DICO_HELP__[__delObsServer__] = "Del an OBS server."
+
 __DICO_HELP__[__addProject__] = "Create a local project based on an existing project on an OBS server."
 __DICO_HELP__[__addPackage__] = "Create a local package in a local project, based on an existing package in a project on an OBS server."
 __DICO_HELP__[__createChRoot__] = "Create a chroot, built from a local project."
@@ -135,11 +138,13 @@ class ObsLight():
         __HELP__ += "Type " + __PRGNAME__ + " <command> --help to get help on a specific command." + "\n"
         __HELP__ += "Commands:" + "\n"
         __HELP__ += "\n"
-        __HELP__ += "\t" + __getListObsServers__ + ":" + "\t" + __DICO_HELP__[__getListObsServers__] + "\n"
         __HELP__ += "\t" + __getListLocalProject__ + ":" + "\t" + __DICO_HELP__[__getListLocalProject__] + "\n"
         __HELP__ += "\t" + __getListPackage__ + ":" + "\t\t" + __DICO_HELP__[__getListPackage__] + "\n"
         __HELP__ += "\n"
+        __HELP__ += "\t" + __getListObsServers__ + ":" + "\t" + __DICO_HELP__[__getListObsServers__] + "\n"
         __HELP__ += "\t" + __addObsServer__ + ":" + "\t\t" + __DICO_HELP__[__addObsServer__] + "\n"
+        __HELP__ += "\t" + __delObsServer__ + ":" + "\t\t" + __DICO_HELP__[__delObsServer__] + "\n"
+        __HELP__ += "\n"
         __HELP__ += "\t" + __addProject__ + ":" + "\t\t" + __DICO_HELP__[__addProject__] + "\n"
         __HELP__ += "\t" + __exportProject__ + ":" + "\t\t" + __DICO_HELP__[__exportProject__] + "\n"
         __HELP__ += "\t" + __importProject__ + ":" + "\t\t" + __DICO_HELP__[__importProject__] + "\n"
@@ -227,6 +232,8 @@ class ObsLight():
                     return self.importProject(listArgv[1:])
                 elif (listArgv[0] == __getWebProjectPage__):
                     return self.getWebProjectPage(listArgv[1:])
+                elif (listArgv[0] == __delObsServer__):
+                    return self.delObsServer(listArgv[1:])
                 else:
                     raise ObsLightErr.ArgError(listArgv[0] + " is not a valid command")
 
@@ -387,6 +394,33 @@ class ObsLight():
         else:
             raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
         return 0
+
+    def delObsServer(self, listArgv):
+        '''
+        Add a project to OBS Light.
+        '''
+        __COMMAND__ = __addProject__
+        __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
+        __HELP__ += "\t--obsServer alias (require)\n"
+        __HELP__ += __DICO_HELP__[__COMMAND__]
+
+        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (1 * 2)):
+            obsServer = None
+
+            for i in range(0, len(listArgv), 2):
+                if listArgv[i] == "--obsServer":
+                    obsServer = listArgv[i + 1]
+                else:
+                    raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
+
+            ObsLightManager.getManager().delObsServer(alias=obsServer)
+
+        elif self.__isHelp(listArgv[0]):
+            ObsLightPrintManager.obsLightPrint(__HELP__)
+        else:
+            raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
+        return 0
+
 
 
     def getListPackage(self, listArgv):

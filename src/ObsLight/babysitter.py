@@ -5,11 +5,11 @@
 
 import sys
 import signal
- 
- 
+
+
 from ObsLight import ObsLightErr
 from mic import imgcreate
-
+from osc.oscerr import ConfigError
 import ObsLightMic
 
 def catchterm(*args):
@@ -20,7 +20,7 @@ def catchterm(*args):
 
 for name in 'SIGBREAK', 'SIGHUP', 'SIGTERM':
     num = getattr(signal, name, None)
-    if num: 
+    if num:
         signal.signal(num, catchterm)
 
 def run(prg=None):
@@ -45,40 +45,42 @@ def run(prg=None):
     except KeyboardInterrupt:
         print >> sys.stderr, 'interrupted!'
         return 1
-    
+
     except ObsLightErr.ArgError, err:
         print >> sys.stderr, 'Argument Error:', err.msg
         return 1
-    
+
     except ObsLightErr.ManagerError, err:
         print >> sys.stderr, 'Manager Error:', err.msg
         return 1
-    
+
     except ObsLightErr.ObsLightProjectsError, err:
         print >> sys.stderr, 'Projects Error:', err.msg
         return 1
-    
+
     except ObsLightErr.ObsLightObsServers, err:
         print >> sys.stderr, 'OBS Error', err.msg
         return 1
-        
+
     except ObsLightErr.ObsLightChRootError, err:
         print >> sys.stderr, 'Chroot Error', err.msg
         return 1
-          
+
     except ObsLightErr.ObsLightSpec, err:
         print >> sys.stderr, 'Spec Error', err.msg
         return 1
-          
+
     except imgcreate.MountError, err:
         print >> sys.stderr, 'Mic Error', err
         return 1
-          
+
     except imgcreate.CreatorError, err:
         print >> sys.stderr, 'Mic Error', err
         return 1
-    
 
-    
+    except ConfigError, err:
+        print >> sys.stderr, 'Osc Error', err
+        return 1
 
-    
+
+
