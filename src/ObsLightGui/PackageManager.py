@@ -50,7 +50,7 @@ class PackageManager(QObject):
     __deletePackageButton = None
     __makePatchButton = None
     __addAndCommitButton = None
-    
+
     __menu = None
 
     def __init__(self, gui):
@@ -60,7 +60,7 @@ class PackageManager(QObject):
         self.__fileManager = FileManager(self.__gui)
         self.__packageWidget = gui.getMainWindow().findChild(QWidget, "packageWidget")
         self.__packageTableView = gui.getMainWindow().findChild(QTableView,
-                                                                  "packageTableView")
+                                                                "packageTableView")
         self.__packageTableView.setSelectionBehavior(QTableView.SelectionBehavior.SelectRows)
         self.__packageTableView.activated.connect(self.on_packageIndex_clicked)
         self.__newPackageButton = gui.getMainWindow().findChild(QPushButton,
@@ -88,10 +88,10 @@ class PackageManager(QObject):
         self.__progress.setRange(0, 0)
         #self.__packageWidget.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         #self.__packageWidget.customContextMenuRequested.connect(self.on_contextMenu_requested)
-        
+
     def getCurrentProject(self):
         return self.__project
-    
+
     def setCurrentProject(self, projectName):
         '''
         Set the current active project. It will refresh package list.
@@ -108,7 +108,7 @@ class PackageManager(QObject):
         else:
             self.__fileManager.setCurrentPackage(None, None)
         self.updateLabels()
-        
+
     def on_packageIndex_clicked(self, index):
         if index.isValid():
             self.__fileManager.setCurrentPackage(self.__project, self.currentPackage())
@@ -130,7 +130,7 @@ class PackageManager(QObject):
             self.__packageTitleLabel.setText("")
             self.__packageDescriptionLabel.setText("")
 
-        
+
     def currentPackage(self):
         '''
         Get the name of the package that is currently selected in the

@@ -44,15 +44,15 @@ class Gui(QObject):
     __obsLightManager = None
     __obsProjectManager = None
     __mainWindowActionManager = None
-    
+
     __messageSignal = Signal((str, int))
-    
+
     def __init__(self, obsLightManager=None):
         QObject.__init__(self)
         self.application = QApplication(sys.argv)
         self.uiLoader = QUiLoader()
         self.__obsLightManager = obsLightManager
-        
+
     def loadWindow(self, uiFile):
         '''
         Load a Window from UI file.
@@ -64,26 +64,26 @@ class Gui(QObject):
         windowFile.close()
         QMetaObject.connectSlotsByName(window)
         return window
-        
+
     def __loadMainWindow(self):
         self.__mainWindow = self.loadWindow("obsLightMain.ui")
         self.__mainWindowActionManager = MainWindowActionManager(self)
         self.__statusBar = self.__mainWindow.findChild(QStatusBar, "mainStatusBar")
         self.__messageSignal.connect(self.__statusBar.showMessage)
         self.__mainWindow.show()
-        
+
     def getMainWindow(self):
         '''
         Returns the main window object (may be None).
         '''
         return self.__mainWindow
-    
+
     def getObsLightManager(self):
         '''
         Get the unique ObsLightManager instance.
         '''
         return self.__obsLightManager
-    
+
     def obsLightErrorCallback(self, error):
         '''
         Display errors in the status bar of the main window.
@@ -98,7 +98,7 @@ class Gui(QObject):
             QMessageBox.warning(None, "Exception occurred", error.msg)
         else:
             QMessageBox.critical(None, "Exception occurred", str(error))
-    
+
     def sendStatusBarMessage(self, message, timeout=0):
         '''
         Display a message in the status bar of the main window.

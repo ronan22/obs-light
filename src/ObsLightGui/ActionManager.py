@@ -41,13 +41,13 @@ class MainWindowActionManager(object):
         actionOBS_servers.triggered.connect(self.on_actionOBS_servers_triggered)
         actionAbout = mainWindow.findChild(QAction, "actionAbout")
         actionAbout.triggered.connect(self.on_actionAbout_triggered)
-        
+
     def on_actionOBS_servers_triggered(self):
         self.__serverListManager = ServerListManager(self.__gui)
 
     def on_actionAbout_triggered(self):
         QMessageBox.about(self.__gui.getMainWindow(), "About OBS Light",
-            "OBS Light, a lighter version of OBS.<br /><br />"
-            + "The full description of OBS Light can be found at "
-            + "<a href=\"http://wiki.meego.com/OBS_Light\">http://wiki.meego.com/OBS_Light</a><br />"
-            + "and the FAQ is at <a href=\"http://wiki.meego.com/OBS_Light_FAQ\">http://wiki.meego.com/OBS_Light_FAQ</a>")
+            "OBS Light, a lighter version of OBS.<br /><br />" +
+            "The full description of OBS Light can be found at " +
+            "<a href=\"http://wiki.meego.com/OBS_Light\">http://wiki.meego.com/OBS_Light</a><br />" +
+            "and the FAQ is at <a href=\"http://wiki.meego.com/OBS_Light_FAQ\">http://wiki.meego.com/OBS_Light_FAQ</a>")
