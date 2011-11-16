@@ -46,7 +46,10 @@ class ObsServers(object):
         '''
         
         '''
-        return self.__dicOBSLightServers[name]
+        if name in self.getObsServerList():
+            return self.__dicOBSLightServers[name]
+        else:
+            return None
 
     def getObsServerList(self):
         '''
@@ -115,9 +118,7 @@ class ObsServers(object):
         
         '''
         if alias in self.getObsServerList():
-            print "self.getObsServerList()", self.getObsServerList()
             del self.__dicOBSLightServers[alias]
-            print "self.getObsServerList()", self.getObsServerList()
         else:
             raise ObsLightObsServers("'" + alias + "' can't be deleted, it's not an OBS Server")
 

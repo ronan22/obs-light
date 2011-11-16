@@ -30,6 +30,8 @@ from ObsLightSubprocess import SubprocessCrt
 import ObsLightOsc
 import urllib
 
+import ObsLightPrintManager
+
 class ObsLightProject(object):
     '''
     classdocs
@@ -79,7 +81,7 @@ class ObsLightProject(object):
             if "obsServer" in fromSave.keys():
                 self.__obsServer = fromSave["obsServer"]
                 if not (self.__obsServer in self.__obsServers.getObsServerList()):
-                    raise ObsLightErr.ObsLightObsServers("'" + self.__obsServer + "' is not a defined OBS server ")
+                    ObsLightPrintManager.obsLightPrint("WARNING: '" + self.__obsServer + "' is not a defined OBS server ")
             if "projectTarget" in fromSave.keys():
                 self.__projectTarget = fromSave["projectTarget"]
             if "projectArchitecture" in fromSave.keys():
@@ -94,7 +96,8 @@ class ObsLightProject(object):
             else:
                 raise ObsLightErr.ObsLightProjectsError("aChroot is not ")
             #perhaps a trusted_prj must be had
-            self.__obsServers.getObsServer(name=self.__obsServer).initConfigProject(projet=self.__projectObsName,
+            if self.__obsServer in self.__obsServers.getObsServerList():
+                self.__obsServers.getObsServer(name=self.__obsServer).initConfigProject(projet=self.__projectObsName,
                                                                                     repos=self.__projectTarget)
             if "packages" in fromSave.keys():
                 self.__packages = self.__addPackagesFromSave(fromSave=fromSave["packages"],
@@ -322,8 +325,11 @@ class ObsLightProject(object):
         
         '''
         if local == 0:
-            return self.__obsServers.getObsProjectPackageList(obsServer=self.__obsServer,
-                                                              projectObsName=self.__projectObsName)
+            if self.__obsServer in self.__obsServers.getObsServerList():
+                return self.__obsServers.getObsProjectPackageList(obsServer=self.__obsServer,
+                                                                  projectObsName=self.__projectObsName)
+            else:
+                return  None
         else:
             return self.__packages.getListPackages()
 
@@ -537,10 +543,15 @@ class ObsLightProject(object):
         '''
         
         '''
-        serverWeb = self.__obsServers.getObsServer(name=self.__obsServer).getUrlServerWeb()
+        obsServer = self.__obsServers.getObsServer(name=self.__obsServer)
+
+        if obsServer == None:
+            return ""
+        serverWeb = obsServer.getUrlServerWeb()
 
         if serverWeb in (None, "None", ""):
             raise ObsLightErr.ObsLightProjectsError("No Web Server")
-        return urllib.basejoin(serverWeb , "project/show?project=" + self.__projectObsName)
+        res = urllib.basejoin(serverWeb , "project/show?project=" + self.__projectObsName)
+        return res
 
 
