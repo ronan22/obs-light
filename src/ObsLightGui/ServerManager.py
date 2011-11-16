@@ -27,9 +27,9 @@ from PySide.QtGui import QRegExpValidator
 from Utils import popupOnException
 
 class ServerListManager(QObject):
-    '''
+    """
     Manage the OBS server list window.
-    '''
+    """
     __gui = None
     __obsLightManager = None
     __srvListDialog = None
@@ -37,9 +37,9 @@ class ServerListManager(QObject):
     __serverConfigManager = None
 
     def __init__(self, gui):
-        '''
+        """
         Load and display the OBS server list window.
-        '''
+        """
         QObject.__init__(self)
         self.__gui = gui
         self.__obsLightManager = self.__gui.getObsLightManager()
@@ -56,12 +56,14 @@ class ServerListManager(QObject):
         modifyServerButton = self.__srvListDialog.findChild(QPushButton,
                                                             "modifyServerButton")
         modifyServerButton.clicked.connect(self.on_modifyServerButton_clicked)
+        deleteServerButton = self.__srvListDialog.findChild(QPushButton, "deleteServerButton")
+        deleteServerButton.clicked.connect(self.on_deleteServerButton_clicked)
         self.__srvListDialog.show()
 
     def loadServerList(self):
-        '''
+        """
         Clear and reload the list of OBS servers into the list widget.
-        '''
+        """
         self.__listWidget.clear()
         self.__listWidget.addItems(self.__obsLightManager.getObsServerList())
 
@@ -81,8 +83,12 @@ class ServerListManager(QObject):
 
     @popupOnException
     def on_deleteServerButton_clicked(self):
-        # TODO: implement server deletion
-        pass
+        currentItem = self.__listWidget.currentItem()
+        if currentItem is not None:
+            serverAlias = currentItem.text()
+            if len(serverAlias) > 0:
+                self.__obsLightManager.delObsServer(serverAlias)
+            self.loadServerList()
 
     @popupOnException
     def on_serverConfigManager_finished(self, serverListModified):
