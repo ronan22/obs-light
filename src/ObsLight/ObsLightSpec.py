@@ -35,9 +35,6 @@ class ObsLightSpec:
         self.__packagePath = packagePath
         self.__file = file
         self.__path = os.path.join(self.__packagePath, self.__file)
-        print "self.__packagePath", self.__packagePath
-        print "self.__file", self.__file
-        print "self.__path", self.__path
 
         self.__introduction_section = "introduction_section"
         self.__prepFlag = "%prep"

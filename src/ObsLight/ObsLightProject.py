@@ -79,7 +79,7 @@ class ObsLightProject(object):
             if "obsServer" in fromSave.keys():
                 self.__obsServer = fromSave["obsServer"]
                 if not (self.__obsServer in self.__obsServers.getObsServerList()):
-                    raise ObsLightErr.ObsLightObsServers(self.__obsServer + " is not a defined OBS server ")
+                    raise ObsLightErr.ObsLightObsServers("'" + self.__obsServer + "' is not a defined OBS server ")
             if "projectTarget" in fromSave.keys():
                 self.__projectTarget = fromSave["projectTarget"]
             if "projectArchitecture" in fromSave.keys():

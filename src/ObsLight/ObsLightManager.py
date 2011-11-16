@@ -199,9 +199,9 @@ class ObsLightManager(object):
             raise ObsLightObsServers(serverApi + " is already an OBS server")
         elif self.isAnObsServer(alias):
             raise ObsLightObsServers(alias + " is already an OBS alias")
-        elif user == None:
+        elif user in ["None", "", None]:
             raise ObsLightObsServers("Can't create a OBSServer: no user")
-        elif password == None:
+        elif password in ["None", "", None]:
             raise ObsLightObsServers("Can't create a OBSServer: no password")
 
         self.__myObsServers.addObsServer(serverWeb=serverWeb,
