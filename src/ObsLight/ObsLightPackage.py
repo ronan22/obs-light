@@ -20,6 +20,7 @@ Created on 30 sept. 2011
 @author: ronan
 '''
 import os
+import shutil
 
 from ObsLightSpec import ObsLightSpec
 from ObsLightYaml import ObsLightYaml
@@ -101,6 +102,8 @@ class ObsLightPackage(object):
                                                  file=self.__specFile)
             else:
                 self.__mySpecFile = None
+
+
 
     def isInstallInChroot(self):
         '''
@@ -250,12 +253,29 @@ class ObsLightPackage(object):
 
         self.addFile(aFile)
 
-    def addFile(self, aFile=None):
+
+    def addFile(self, path):
         '''
         Add a aFile to the package.
         '''
-        self.__listFile.append(aFile)
+        if not os.path.exists(path):
+            raise ObsLightPackageErr("'" + path + "' is not a path, can't add to package")
 
+        name = os.path.basename(path)
+        shutil.copy2(path, os.path.join(self.getOscDirectory(), name))
+        self.__listFile.append(name)
+        ObsLightOsc().add(path=self.getOscDirectory(), file=name)
+
+    def delFile(self, name):
+        '''
+        
+        '''
+        path = os.path.join(self.getOscDirectory(), name)
+        if not os.path.exists(path):
+            raise ObsLightPackageErr("'" + path + "' not in package directory.")
+        os.remove(path)
+        self.__listFile.remove(name)
+        ObsLightOsc().remove(path=self.getOscDirectory(), file=name)
 
     def save(self):
         '''

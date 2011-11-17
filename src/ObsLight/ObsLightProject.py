@@ -554,4 +554,14 @@ class ObsLightProject(object):
         res = urllib.basejoin(serverWeb , "project/show?project=" + self.__projectObsName)
         return res
 
+    def addFileToPackage(self, package, path):
+        '''
+        
+        '''
+        self.__packages.addFile(package=package, path=path)
 
+    def delFileToPackage(self, package, name):
+        '''
+        
+        '''
+        self.__packages.delFile(package=package, name=name)

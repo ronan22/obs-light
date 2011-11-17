@@ -382,12 +382,12 @@ class ObsLight():
                     raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
 
             ObsLightManager.getManager().addProject(projectLocalName=projectLocalName,
-                                                projectObsName=projectObsName,
-                                                projectTitle=projectTitle,
-                                                obsServer=obsServer ,
-                                                projectTarget=projectTarget,
-                                                description=description,
-                                                projectArchitecture=projectArchitecture)
+                                                    projectObsName=projectObsName,
+                                                    projectTitle=projectTitle,
+                                                    obsServer=obsServer ,
+                                                    projectTarget=projectTarget,
+                                                    description=description,
+                                                    projectArchitecture=projectArchitecture)
 
         elif self.__isHelp(listArgv[0]):
             ObsLightPrintManager.obsLightPrint(__HELP__)

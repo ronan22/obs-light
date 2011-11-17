@@ -517,9 +517,12 @@ class RepoConfigManager(QObject):
         self.__configDialog.show()
 
     def __loadFieldObjects(self):
-        self.__projectComboBox = self.__configDialog.findChild(QComboBox, "projectComboBox")
-        self.__urlLineEdit = self.__configDialog.findChild(QLineEdit, "repoUrlLineEdit")
-        self.__aliasLineEdit = self.__configDialog.findChild(QLineEdit, "repoAliasLineEdit")
+        self.__projectComboBox = self.__configDialog.findChild(QComboBox,
+                                                               "projectComboBox")
+        self.__urlLineEdit = self.__configDialog.findChild(QLineEdit,
+                                                           "repoUrlLineEdit")
+        self.__aliasLineEdit = self.__configDialog.findChild(QLineEdit,
+                                                             "repoAliasLineEdit")
         self.__fromProjectRadio = self.__configDialog.findChild(QRadioButton,
                                                                 "repoFromProjectRadioButton")
         self.__fromUrlRadio = self.__configDialog.findChild(QRadioButton,

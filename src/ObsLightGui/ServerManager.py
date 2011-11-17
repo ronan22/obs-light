@@ -190,7 +190,9 @@ class ServerConfigManager(QObject):
         # so create a new server.
         elif self.__serverAlias is None:
             manager = self.__gui.getObsLightManager()
-            manager.addObsServer(self.getApiUrl(), self.getUser(), self.getPass(),
+            manager.addObsServer(self.getApiUrl(),
+                                 self.getUser(),
+                                 self.getPass(),
                                  serverRepo=self.getRepoUrl(),
                                  alias=self.getAlias(),
                                  serverWeb=self.getWebIfaceUrl())
@@ -199,9 +201,19 @@ class ServerConfigManager(QObject):
         # so modify it.
         else:
             manager = self.__gui.getObsLightManager()
-            manager.setObsServerParameter(self.__serverAlias, "serverWeb", self.getWebIfaceUrl())
-            manager.setObsServerParameter(self.__serverAlias, "serverAPI", self.getApiUrl())
-            manager.setObsServerParameter(self.__serverAlias, "serverRepo", self.getRepoUrl())
-            manager.setObsServerParameter(self.__serverAlias, "user", self.getUser())
-            manager.setObsServerParameter(self.__serverAlias, "passw", self.getPass())
+            manager.setObsServerParameter(self.__serverAlias,
+                                          "serverWeb",
+                                          self.getWebIfaceUrl())
+            manager.setObsServerParameter(self.__serverAlias,
+                                          "serverAPI",
+                                          self.getApiUrl())
+            manager.setObsServerParameter(self.__serverAlias,
+                                          "serverRepo",
+                                          self.getRepoUrl())
+            manager.setObsServerParameter(self.__serverAlias,
+                                          "user",
+                                          self.getUser())
+            manager.setObsServerParameter(self.__serverAlias,
+                                          "passw",
+                                          self.getPass())
             self.finished.emit(True)

@@ -54,7 +54,6 @@ class ObsLightManager(object):
     All interactions should be done with this class, no other class should
     be imported in external projects.
     '''
-
     def __init__(self):
         '''
         Initialize the OBS Light Manager.
@@ -68,7 +67,6 @@ class ObsLightManager(object):
         self.__myObsServers = ObsServers(workingDirectory=self.getObsLightWorkingDirectory())
         self.__myObsLightProjects = ObsLightProjects(obsServers=self.__myObsServers,
                                                      workingDirectory=self.getObsLightWorkingDirectory())
-
 
     def getObsLightWorkingDirectory(self):
         '''
@@ -700,6 +698,39 @@ class ObsLightManager(object):
             raise ObsLightProjectsError(" invalid project name: " + str(projectLocalName))
 
         return self.__myObsLightProjects.getReposProject(projectLocalName=projectLocalName)
+
+    @checkProjectLocalName(1)
+    def addFileToPackage(self, projectLocalName, package, path):
+        '''
+        Add a file to a package.
+        '''
+        if not isNonEmptyString(package):
+            raise ObsLightProjectsError(" invalid package name: " + str(package))
+
+        if not isNonEmptyString(path):
+            raise ObsLightProjectsError(" invalid path name: " + str(path))
+
+        if not package in self.getLocalProjectPackageList(projectLocalName=projectLocalName, local=1):
+            raise ObsLightObsServers(package + " is not a local package of " + projectLocalName)
+
+        self.__myObsLightProjects.addFileToPackage(projectLocalName=projectLocalName, package=package, path=path)
+
+    @checkProjectLocalName(1)
+    def delFileToPackage(self, projectLocalName, package, name):
+        '''
+        Del a file to a package.
+        '''
+        if not isNonEmptyString(package):
+            raise ObsLightProjectsError(" invalid package name: " + str(package))
+
+        if not isNonEmptyString(name):
+            raise ObsLightProjectsError(" invalid path name: " + str(name))
+
+        if not package in self.getLocalProjectPackageList(projectLocalName=projectLocalName, local=1):
+            raise ObsLightObsServers(package + " is not a local package of " + projectLocalName)
+
+        self.__myObsLightProjects.delFileToPackage(projectLocalName=projectLocalName, package=package, name=name)
+
 
 __myObsLightManager = None
 
