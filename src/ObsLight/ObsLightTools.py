@@ -19,7 +19,10 @@ def testHost(host):
         (host, port) = netloc.split(":")
     else:
         host = netloc
-        port = "80"
+        if scheme == "https":
+            port = "443"
+        else:
+            port = "80"
 
     test = httplib.HTTPConnection(host=host, port=port, timeout=SOCKETTIMEOUT)
     try:
