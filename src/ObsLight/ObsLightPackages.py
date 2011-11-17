@@ -174,4 +174,15 @@ class ObsLightPackages(object):
         self.__dicOBSLightPackages[name].update(status=status)
 
 
+    def addFile(self, package, path):
+        '''
+        
+        '''
+        self.__dicOBSLightPackages[package].addFile(path)
+    def delFile(self, package, name):
+        '''
+        
+        '''
+        self.__dicOBSLightPackages[package].delFile(name)
+
 

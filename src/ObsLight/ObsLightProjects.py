@@ -366,6 +366,19 @@ class ObsLightProjects(object):
         return self.__dicOBSLightProjects[projectLocalName].isInstallInChroot(package=package)
 
 
+    def addFileToPackage(self, projectLocalName, package, path):
+        '''
+        
+        '''
+        self.__dicOBSLightProjects[projectLocalName].addFileToPackage(package=package,
+                                                                      path=path)
+
+    def delFileToPackage(self, projectLocalName, package, name):
+        '''
+        
+        '''
+        self.__dicOBSLightProjects[projectLocalName].delFileToPackage(package=package,
+                                                                      name=name)
 
 
 

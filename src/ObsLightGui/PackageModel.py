@@ -27,11 +27,11 @@ class PackageModel(QAbstractTableModel):
     QAbstractTableModel subclass to do the interface between the
     "packageTableWidget" and the ObsLightManager.
     '''
-    
+
     PackageNameColumn = 0
     PackageServerStatusColumn = 1
     PackageChrootStatusColumn = 2
-    
+
     __obsLightManager = None
     __project = None
     __emptyList = []
@@ -40,22 +40,23 @@ class PackageModel(QAbstractTableModel):
         QAbstractTableModel.__init__(self)
         self.__obsLightManager = obsLightManager
         self.__project = projectName
-        
+
     def getProject(self):
         return self.__project
-        
+
     def __getPackageList(self):
         if self.getProject() is None:
             return self.__emptyList
-        pkgList = self.__obsLightManager.getLocalProjectPackageList(self.getProject(), local=1)
+        pkgList = self.__obsLightManager.getLocalProjectPackageList(self.getProject(),
+                                                                    local=1)
         if pkgList is None:
             return self.__emptyList
         else:
             return pkgList
-    
+
     def rowCount(self, _parent=None):
         return len(self.__getPackageList())
-    
+
     def columnCount(self, _parent=None):
         return 3
 
@@ -72,7 +73,7 @@ class PackageModel(QAbstractTableModel):
                     return "Status in chroot"
                 else:
                     return None
-        
+
     def data(self, index, role=Qt.DisplayRole):
         if not index.isValid():
             return None
@@ -81,9 +82,11 @@ class PackageModel(QAbstractTableModel):
             if index.column() == self.PackageNameColumn:
                 return packageName
             elif index.column() == self.PackageServerStatusColumn:
-                return self.__obsLightManager.getPackageStatus(self.__project, packageName)
+                return self.__obsLightManager.getPackageStatus(self.__project,
+                                                               packageName)
             elif index.column() == self.PackageChrootStatusColumn:
-                installed = self.__obsLightManager.isInstalledInChRoot(self.__project, packageName)
+                installed = self.__obsLightManager.isInstalledInChRoot(self.__project,
+                                                                       packageName)
                 return "Installed" if installed else "Not installed"
         else:
             return None

@@ -186,7 +186,9 @@ class PackageManager(QObject):
             self.__progress.setLabelText("Creating patch")
             self.__progress.show()
             runnable = ProgressRunnable(self.__obsLightManager.makePatch,
-                                        project, package, patchName)
+                                        project,
+                                        package,
+                                        patchName)
             runnable.setProgressDialog(self.__progress)
             runnable.finishedWithException.connect(self.__gui.obsLightErrorCallback2)
             QThreadPool.globalInstance().start(runnable)
@@ -204,7 +206,9 @@ class PackageManager(QObject):
             self.__progress.setLabelText("Committing changes")
             self.__progress.show()
             runnable = ProgressRunnable(self.__obsLightManager.addAndCommitChanges,
-                                        project, package, message)
+                                        project,
+                                        package,
+                                        message)
             runnable.setProgressDialog(self.__progress)
             runnable.finishedWithException.connect(self.__gui.obsLightErrorCallback2)
             QThreadPool.globalInstance().start(runnable)

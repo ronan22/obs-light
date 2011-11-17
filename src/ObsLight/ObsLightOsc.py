@@ -110,6 +110,7 @@ class ObsLightOsc(object):
         '''
         
         '''
+        conf.get_config()
         url = apiurl + "/source/" + projet + "/_meta"
         aElement = ElementTree.fromstring(core.http_request("GET", url).read())
 
@@ -155,7 +156,8 @@ class ObsLightOsc(object):
         '''
         
         '''
-        return self.__mySubprocessCrt.execSubprocess(command=command, waitMess=waitMess)
+        return self.__mySubprocessCrt.execSubprocess(command=command,
+                                                     waitMess=waitMess)
 
 
     def getPackageStatus(self,
@@ -167,19 +169,34 @@ class ObsLightOsc(object):
         '''
         Return the status of a package for a repo and arch
         The status can be:
-        succeeded: Package has built successfully and can be used to build further packages.
-        failed: The package does not build successfully. No packages have been created. Packages that depend on this package will be built using any previously created packages, if they exist.
-        unresolvable: The build can not begin, because required packages are either missing or not explicitly defined.
-        broken: The sources either contain no build description (eg specfile) or a source link does not work.
-        blocked: This package waits for other packages to be built. These can be in the same or other projects.
-        dispatching: A package is being copied to a build host. This is an intermediate state before building.
-        scheduled: A package has been marked for building, but the build has not started yet.
+        succeeded: Package has built successfully and can be used to build 
+                   further packages.
+        failed: The package does not build successfully.
+                No packages have been created.
+                Packages that depend on this package will be built using any
+                previously created packages, if they exist.
+        unresolvable: The build can not begin, because required packages are
+                      either missing or not explicitly defined.
+        broken: The sources either contain no build description (eg specfile) 
+                or a source link does not work.
+        blocked: This package waits for other packages to be built. 
+                 These can be in the same or other projects.
+        dispatching: A package is being copied to a build host.
+                    This is an intermediate state before building.
+        scheduled: A package has been marked for building,
+                   but the build has not started yet.
         building: The package is currently being built.
         signing: The package has been built and is assigned to get signed.
-        finished: The package has been built and signed, but has not yet been picked up by the scheduler. This is an intermediate state prior to 'succeeded' or 'failed'.
-        disabled: The package has been disabled from building in project or package metadata.
-        excluded: The package build has been disabled in package build description (for example in the .spec file) or does not provide a matching build description for the target.
-        unknown: The scheduler has not yet evaluated this package. Should be a short intermediate state for new packages.
+        finished: The package has been built and signed, but has not yet been
+                  picked up by the scheduler. This is an intermediate state 
+                  prior to 'succeeded' or 'failed'.
+        disabled: The package has been disabled from building in project or 
+                  package metadata.
+        excluded: The package build has been disabled in package build 
+                  description (for example in the .spec file) or does not 
+                  provide a matching build description for the target.
+        unknown: The scheduler has not yet evaluated this package. Should be a 
+                 short intermediate state for new packages.
         '''
         url = obsServer + "/build/" + project + "/" + repo + "/" + arch + "/" + package + "/_status"
         fileXML = core.http_request("GET", url).read()
@@ -298,6 +315,21 @@ class ObsLightOsc(object):
         command = "osc ar"
         self.__subprocess(command=command)
 
+    def remove (self, path, file):
+        '''
+        Mark files or package directories to be deleted upon
+        '''
+        os.chdir(path)
+        command = "osc del " + file
+        self.__subprocess(command=command)
+
+    def add (self, path, file):
+        '''
+        Mark files to be added upon the next commit
+        '''
+        os.chdir(path)
+        command = "osc add " + file
+        self.__subprocess(command=command)
 
     def getProjectParameter(self, projectObsName, apiurl, parameter):
         '''
@@ -347,7 +379,12 @@ class ObsLightOsc(object):
             if parameter == desc.tag:
                 return desc.text
 
-    def setPackageParameter(self, projectObsName, package, apiurl, parameter, value):
+    def setPackageParameter(self,
+                            projectObsName,
+                            package,
+                            apiurl,
+                            parameter,
+                            value):
         '''
         Set the value of the package of the projectObsName.
         valid parameter:
