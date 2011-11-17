@@ -88,21 +88,38 @@ class ObsLightPackage(object):
             if  "packageTitle" in fromSave.keys():
                 self.__packageTitle = fromSave["packageTitle"]
 
+        self.__initConfigureFile()
 
+
+    def __initConfigureFile(self):
+        '''
+        Init the  spec or yaml file.
+        '''
         if not self.__yamlFile in (None, 'None', ""):
-            self.__myYamlFile = ObsLightYaml(packagePath=packagePath,
-                                             file=self.__yamlFile,
-                                             specFile=self.__specFile)
-            if self.__specFile in (None, 'None', ""):
-                self.__specFile = self.__myYamlFile.getSpecFile()
+            self.__initYamlFile()
         else:
             self.__myYamlFile = None
             if not self.__specFile in (None, 'None', ""):
-                self.__mySpecFile = ObsLightSpec(packagePath=packagePath,
-                                                 file=self.__specFile)
+                self.__initSpecFile()
             else:
                 self.__mySpecFile = None
 
+    def __initYamlFile(self):
+        '''
+        
+        '''
+        self.__myYamlFile = ObsLightYaml(packagePath=self.__packagePath,
+                                 file=self.__yamlFile,
+                                 specFile=self.__specFile)
+        if self.__specFile in (None, 'None', ""):
+            self.__specFile = self.__myYamlFile.getSpecFile()
+
+    def __initSpecFile(self):
+        '''
+        
+        '''
+        self.__mySpecFile = ObsLightSpec(packagePath=self.__packagePath,
+                                                 file=self.__specFile)
 
 
     def isInstallInChroot(self):
@@ -253,6 +270,17 @@ class ObsLightPackage(object):
 
         self.addFile(aFile)
 
+    def __isASpecfile(self, file):
+        '''
+        
+        '''
+        return file.endswith(".spec")
+
+    def __isAyamlfile(self, file):
+        '''
+        
+        '''
+        return file.endswith(".yaml")
 
     def addFile(self, path):
         '''
@@ -265,6 +293,17 @@ class ObsLightPackage(object):
         shutil.copy2(path, os.path.join(self.getOscDirectory(), name))
         self.__listFile.append(name)
         ObsLightOsc().add(path=self.getOscDirectory(), file=name)
+
+
+        if self.__isASpecfile(name):
+            self.__specFile = name
+            self.__initSpecFile()
+        elif self.__isAyamlfile(name):
+            self.__yamlFile = name
+            self.__initYamlFile()
+
+
+
 
     def delFile(self, name):
         '''

@@ -363,12 +363,24 @@ class ObsLightProject(object):
         yamlFile = None
 
         for f in listFile:
-            if f.endswith(".spec"):
+            if self.__isASpecfile(f):
                 specFile = f
-            elif f.endswith(".yaml"):
+            elif self.__isAyamlfile(f):
                 yamlFile = f
 
         return packagePath, specFile, yamlFile, listFile
+
+    def __isASpecfile(self, file):
+        '''
+        
+        '''
+        return file.endswith(".spec")
+
+    def __isAyamlfile(self, file):
+        '''
+        
+        '''
+        return file.endswith(".yaml")
 
     def getPackageStatus(self, package=None):
         '''
@@ -558,7 +570,9 @@ class ObsLightProject(object):
         '''
         
         '''
+
         self.__packages.addFile(package=package, path=path)
+
 
     def delFileToPackage(self, package, name):
         '''

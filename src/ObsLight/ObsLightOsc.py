@@ -23,17 +23,12 @@ Created on 3 oct. 2011
 import os
 from xml.etree import ElementTree
 
-
-
 from osc import conf
 from osc import core
 
 from ObsLightSubprocess import SubprocessCrt
 
-
-
 EMPTYPROJECTPATH = os.path.join(os.path.dirname(__file__), "emptySpec")
-
 
 class ObsLightOsc(object):
     '''
@@ -48,10 +43,6 @@ class ObsLightOsc(object):
 
         if os.path.isfile(self.__confFile):
             conf.get_config()
-
-
-
-
 
     def initConf(self,
                  api=None,
@@ -116,7 +107,7 @@ class ObsLightOsc(object):
         
         '''
         conf.get_config()
-        url = apiurl + "/source/" + projet + "/_meta"
+        url = str(apiurl + "/source/" + projet + "/_meta")
         aElement = ElementTree.fromstring(core.http_request("GET", url).read())
 
         result = []
@@ -133,7 +124,7 @@ class ObsLightOsc(object):
         '''
             return the list of a projectLocalName
         '''
-        list_package = core.meta_get_packagelist(obsServer, projectLocalName)
+        list_package = core.meta_get_packagelist(str(obsServer), str(projectLocalName))
         return list_package
 
     def checkoutPackage(self,
@@ -203,7 +194,7 @@ class ObsLightOsc(object):
         unknown: The scheduler has not yet evaluated this package. Should be a 
                  short intermediate state for new packages.
         '''
-        url = obsServer + "/build/" + project + "/" + repo + "/" + arch + "/" + package + "/_status"
+        url = str(obsServer + "/build/" + project + "/" + repo + "/" + arch + "/" + package + "/_status")
         fileXML = core.http_request("GET", url).read()
         aElement = ElementTree.fromstring(fileXML)
         return aElement.attrib["code"]
@@ -243,7 +234,7 @@ class ObsLightOsc(object):
         '''
         conf.get_config()
         try:
-            res = core.meta_get_project_list(obsServer)
+            res = core.meta_get_project_list(str(obsServer))
         except Exception, e:
             print "WARNING: Error obsServer:", obsServer
             raise e
@@ -252,7 +243,7 @@ class ObsLightOsc(object):
         '''
         return the list of the repos of a OBS Server.
         '''
-        url = apiurl + "/distributions"
+        url = str(apiurl + "/distributions")
         aElement = ElementTree.fromstring(core.http_request("GET", url).read())
 
         result = []
@@ -279,7 +270,7 @@ class ObsLightOsc(object):
         '''
         return the list of Target of a projectObsProject for a OBS server.
         '''
-        url = obsServer + "/build/" + projectObsName
+        url = str(obsServer + "/build/" + projectObsName)
         aElement = ElementTree.fromstring(core.http_request("GET", url).read())
         res = []
         for directory in aElement:
@@ -294,7 +285,7 @@ class ObsLightOsc(object):
         '''
         return the list of Archictecture of the target of the projectObsName for a OBS server.
         '''
-        url = obsServer + "/build/" + projectObsName + "/" + projectTarget
+        url = str(obsServer + "/build/" + projectObsName + "/" + projectTarget)
 
         aElement = ElementTree.fromstring(core.http_request("GET", url).read())
         res = []
@@ -317,7 +308,7 @@ class ObsLightOsc(object):
             command += "--skip-validation"
         self.__subprocess(command=command)
 
-    def addremove (self, path=None):
+    def addremove(self, path=None):
         '''
         Adds new files, removes disappeared files
         '''
@@ -325,7 +316,7 @@ class ObsLightOsc(object):
         command = "osc ar"
         self.__subprocess(command=command)
 
-    def remove (self, path, file):
+    def remove(self, path, file):
         '''
         Mark files or package directories to be deleted upon
         '''
@@ -333,7 +324,7 @@ class ObsLightOsc(object):
         command = "osc del " + file
         self.__subprocess(command=command)
 
-    def add (self, path, file):
+    def add(self, path, file):
         '''
         Mark files to be added upon the next commit
         '''
@@ -349,7 +340,7 @@ class ObsLightOsc(object):
         description
         '''
         conf.get_config()
-        url = apiurl + "/source/" + projectObsName + "/_meta"
+        url = str(apiurl + "/source/" + projectObsName + "/_meta")
 
         aElement = ElementTree.fromstring(core.http_request("GET", url).read())
         for desc in aElement:
@@ -364,7 +355,7 @@ class ObsLightOsc(object):
         description
         '''
         conf.get_config()
-        url = apiurl + "/source/" + projectObsName + "/_meta"
+        url = str(apiurl + "/source/" + projectObsName + "/_meta")
 
         aElement = ElementTree.fromstring(core.http_request("GET", url).read())
 
@@ -382,7 +373,7 @@ class ObsLightOsc(object):
         description
         '''
         conf.get_config()
-        url = apiurl + "/source/" + projectObsName + "/" + package + "/_meta"
+        url = str(apiurl + "/source/" + projectObsName + "/" + package + "/_meta")
 
         aElement = ElementTree.fromstring(core.http_request("GET", url).read())
         for desc in aElement:
@@ -402,7 +393,7 @@ class ObsLightOsc(object):
         description
         '''
         conf.get_config()
-        url = apiurl + "/source/" + projectObsName + "/" + package + "/_meta"
+        url = str(apiurl + "/source/" + projectObsName + "/" + package + "/_meta")
 
         aElement = ElementTree.fromstring(core.http_request("GET", url).read())
 
