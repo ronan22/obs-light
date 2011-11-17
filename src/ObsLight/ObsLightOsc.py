@@ -23,17 +23,17 @@ Created on 3 oct. 2011
 import os
 from xml.etree import ElementTree
 
+
+
 from osc import conf
 from osc import core
-#from osc import build
-
-
 
 from ObsLightSubprocess import SubprocessCrt
 
 
 
 EMPTYPROJECTPATH = os.path.join(os.path.dirname(__file__), "emptySpec")
+
 
 class ObsLightOsc(object):
     '''
@@ -48,6 +48,10 @@ class ObsLightOsc(object):
 
         if os.path.isfile(self.__confFile):
             conf.get_config()
+
+
+
+
 
     def initConf(self,
                  api=None,
@@ -75,6 +79,7 @@ class ObsLightOsc(object):
 
         aFile = open(self.__confFile, 'w')
         aOscConfigParser.write(aFile, True)
+
         if aFile:
             aFile.close()
 
@@ -236,8 +241,14 @@ class ObsLightOsc(object):
         '''
         return a list of the project of a OBS Server.
         '''
-        return core.meta_get_project_list(obsServer)
-
+        conf.get_config()
+        print "getLocalProjectList obsServer:", obsServer
+        try:
+            res = core.meta_get_project_list(obsServer)
+        except Exception, e:
+            print "WARNING: Error obsServer:", obsServer
+            raise e
+        return res
     def getListRepos(self, apiurl):
         '''
         return the list of the repos of a OBS Server.

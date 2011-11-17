@@ -19,9 +19,14 @@ Created on 29 sept. 2011
 
 @author: ronan
 '''
+from urlparse import urlparse
+import httplib
+import socket
 
 import ObsLightOsc
 import ObsLightErr
+
+SOCKETTIMEOUT = 1
 
 class ObsServer(object):
     '''
@@ -63,8 +68,8 @@ class ObsServer(object):
             self.__isOBSConnected = False
             self.__serverWeb = serverWeb
             self.__serverAPI = serverAPI
-
             self.__serverRepo = serverRepo
+
             self.__alias = alias
 
             self.__user = user
@@ -80,6 +85,51 @@ class ObsServer(object):
                                            user=self.__user,
                                            passw=self.__passw,
                                            alias=self.__alias)
+        print "self.__alias", self.__alias, self.testServer()
+
+    def __testHost(self, host):
+        '''
+        
+        '''
+        (scheme, netloc, path, params, query, fragment) = urlparse(str(host))
+        if ":" in netloc:
+            (host, port) = netloc.split(":")
+        else:
+            host = netloc
+            port = "80"
+
+        test = httplib.HTTPConnection(host=host, port=port, timeout=SOCKETTIMEOUT)
+        try:
+            test.connect()
+        except :
+            return False
+        return True
+
+    def testServer(self):
+        '''
+        
+        '''
+        return (self.testServerAPI() and
+                self.testServerRepo() and
+                self.testServerWeb())
+
+    def testServerAPI(self):
+        '''
+        
+        '''
+        return self.__testHost(host=self.__serverAPI)
+
+    def testServerRepo(self):
+        '''
+        
+        '''
+        return self.__testHost(host=self.__serverRepo)
+
+    def testServerWeb(self):
+        '''
+        
+        '''
+        return self.__testHost(host=self.__serverWeb)
 
 
     def getObsServerParameter(self, parameter=None):

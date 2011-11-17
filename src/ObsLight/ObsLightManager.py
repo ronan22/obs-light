@@ -731,6 +731,14 @@ class ObsLightManager(object):
 
         self.__myObsLightProjects.delFileToPackage(projectLocalName=projectLocalName, package=package, name=name)
 
+    def testServer(self, obsServer):
+        '''
+        return True if obsServer is reachable otherwise return false
+        '''
+        if not self.isAnObsServer(obsServer):
+            raise ObsLightObsServers(obsServer + " is not an OBS server")
+
+        return self.__myObsServers.testServer(obsServer=obsServer)
 
 __myObsLightManager = None
 

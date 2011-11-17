@@ -218,7 +218,10 @@ class ObsServers(object):
         return self.__dicOBSLightServers[obsServer].getPackageDescription(projectObsName=projectObsName,
                                                                           package=package)
 
-
-
+    def testServer(self, obsServer):
+        '''
+        
+        '''
+        return self.__dicOBSLightServers[obsServer].testServer()
 
 

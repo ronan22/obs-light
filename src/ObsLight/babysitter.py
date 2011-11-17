@@ -10,6 +10,9 @@ import signal
 from ObsLight import ObsLightErr
 from mic import imgcreate
 from osc.oscerr import ConfigError
+
+import urllib2
+
 import ObsLightMic
 
 def catchterm(*args):
@@ -79,6 +82,10 @@ def run(prg=None):
         return 1
 
     except ConfigError, err:
+        print >> sys.stderr, 'Osc Error', err
+        return 1
+
+    except urllib2.URLError, err:
         print >> sys.stderr, 'Osc Error', err
         return 1
 

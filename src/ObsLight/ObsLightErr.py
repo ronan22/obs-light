@@ -32,7 +32,7 @@ class ArgError(OBSLightBaseError):
     def __init__(self, msg):
         OBSLightBaseError.__init__(self)
         self.msg = msg
-        
+
     def __str__(self):
         return self.msg
 
@@ -43,7 +43,7 @@ class ArgNumError(ArgError):
         self.command = command
         self.argNumber = argNumber
         ArgError.__init__(self, self.makeMessage(msg))
-        
+
     def makeMessage(self, remark=None):
         message = "Wrong number of arguments"
         if self.argNumber is not None:
@@ -60,7 +60,7 @@ class ArgUnknownError(ArgError):
         self.command = command
         self.param = param
         ArgError.__init__(self, self.makeMessage())
-        
+
     def makeMessage(self):
         message = "Unknown parameter"
         if self.param is not None:
@@ -75,41 +75,48 @@ class ManagerError(OBSLightBaseError):
     def __init__(self, msg):
         OBSLightBaseError.__init__(self)
         self.msg = msg
-    
+
 class ObsLightObsServers(OBSLightBaseError):
     '''Exception raised in ObsServers'''
     def __init__(self, msg):
         OBSLightBaseError.__init__(self)
-        self.msg = msg 
+        self.msg = msg
 
 class ObsLightCommandLineError(OBSLightBaseError):
     '''Exception raised in ObsServers'''
     def __init__(self, msg):
         OBSLightBaseError.__init__(self)
-        self.msg = msg 
-   
-        
+        self.msg = msg
+
+
 class ObsLightProjectsError(OBSLightBaseError):
     '''Exception raised in ObsLightProjects'''
     def __init__(self, msg):
         OBSLightBaseError.__init__(self)
         self.msg = msg
-                          
-                            
+
+
 class ObsLightChRootError(OBSLightBaseError):
     ''''Exception raised in ChRoot'''
     def __init__(self, msg):
         OBSLightBaseError.__init__(self)
-        self.msg = msg          
-                            
+        self.msg = msg
+
 class ObsLightSpec(OBSLightBaseError):
     ''''Exception raised in ObsLightSpec'''
     def __init__(self, msg):
         OBSLightBaseError.__init__(self)
-        self.msg = msg             
-   
+        self.msg = msg
+
 class ObsLightPackageErr(OBSLightBaseError):
     ''''Exception raised in ObsLightPackage'''
     def __init__(self, msg):
         OBSLightBaseError.__init__(self)
-        self.msg = msg    
+        self.msg = msg
+
+class ObsLightOscErr(OBSLightBaseError):
+    ''''Exception raised in ObsLightOsc'''
+    def __init__(self, msg):
+        OBSLightBaseError.__init__(self)
+        self.msg = msg
+
