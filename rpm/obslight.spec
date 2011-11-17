@@ -1,6 +1,6 @@
 %define name obslight
-%define version 0.4.0
-%define unmangled_version 0.4.0
+%define version 0.4.1
+%define unmangled_version 0.4.1
 %define release 1
 
 Summary: OBS Light
@@ -76,23 +76,33 @@ ln -s obslight-wrapper.py %{buildroot}/%{_bindir}/obslight
 ln -s obslightgui-wrapper.py %{buildroot}/%{_bindir}/obslightgui
 
 %post base
+echo "Trying to add OBS Light sudoers rule..."
 if [ ! -f "%{_sysconfdir}/sudoers.tmp" ]; then
   touch %{_sysconfdir}/sudoers.tmp
   if [ -z "$(grep sudoers.obslight %{_sysconfdir}/sudoers)" ]; then
     echo "#include %{_sysconfdir}/sudoers.obslight" >> %{_sysconfdir}/sudoers
+    echo " DONE"
+  else
+    echo " sudoers rule already configured"
   fi
   rm %{_sysconfdir}/sudoers.tmp
+else
+  echo "Cannot modify sudoers file";
 fi
 
 %preun base
-if [ $1 -lt "1" ]; then
+echo "Trying to remove OBS Light sudoers rule..."
+if [ $1 -eq "0" ]; then
   if [ ! -f "%{_sysconfdir}/sudoers.tmp" ]; then
     touch %{_sysconfdir}/sudoers.tmp
     sed -i s/"#include .*sudoers\.obslight"// %{_sysconfdir}/sudoers
-    rm %{_sysconfdir}/sudoers.tmp;
+    rm %{_sysconfdir}/sudoers.tmp
+    echo " DONE"
   else
-    echo "Cannot modify sudoers rules";
+    echo "Cannot modify sudoers file"
   fi
+else
+  echo " just updating, sudoers rule not modified"
 fi
 
 %clean
@@ -121,6 +131,9 @@ rm -rf %{buildroot}
 %{_bindir}/obsextractgroups
 
 %changelog
+* Thu Nov 17 2011 Florent Vennetier (Intel OTC) <florent@fridu.net> 0.4.1-1
+- Working GUI
+
 * Wed Oct 27 2011 Ronan Le Martret (Intel OTC) <ronan@fridu.net> 0.4.0-2
 - Add completion 
 

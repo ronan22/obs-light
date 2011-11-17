@@ -1,4 +1,7 @@
-obslight (0.4.0-1) stable; urgency=low
+obslight (0.4.1-1) stable; urgency=low
+
+  * Version 0.4.1
+    Working GUI
 
   * Version 0.4.0
     First stable version
@@ -18,4 +21,4 @@ obslight (0.4.0-1) stable; urgency=low
 
   * Initial Release
 
- -- Florent Vennetier <florent@fridu.net>  Wed, 26 Oct 2011 10:55:48 +0200
+ -- Florent Vennetier <florent@fridu.net>  Thu, 17 Nov 2011 11:19:24 +0100
