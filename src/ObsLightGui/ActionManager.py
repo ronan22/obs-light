@@ -20,7 +20,7 @@ Created on 27 oct. 2011
 @author: Florent Vennetier
 '''
 
-from PySide.QtGui import QAction, QMessageBox
+from PySide.QtGui import QAction
 
 from ServerManager import ServerListManager
 
@@ -32,6 +32,7 @@ class MainWindowActionManager(object):
     __gui = None
     __obsLightManager = None
     __serverListManager = None
+    __aboutDialog = None
 
     def __init__(self, gui):
         self.__gui = gui
@@ -39,15 +40,12 @@ class MainWindowActionManager(object):
         mainWindow = self.__gui.getMainWindow()
         actionOBS_servers = mainWindow.findChild(QAction, "actionOBS_servers")
         actionOBS_servers.triggered.connect(self.on_actionOBS_servers_triggered)
+        self.__aboutDialog = self.__gui.loadWindow("obsLightAbout.ui")
         actionAbout = mainWindow.findChild(QAction, "actionAbout")
-        actionAbout.triggered.connect(self.on_actionAbout_triggered)
+        actionAbout.triggered.connect(self.__aboutDialog.show)
 
     def on_actionOBS_servers_triggered(self):
         self.__serverListManager = ServerListManager(self.__gui)
 
     def on_actionAbout_triggered(self):
-        QMessageBox.about(self.__gui.getMainWindow(), "About OBS Light",
-            "OBS Light, a lighter version of OBS.<br /><br />" +
-            "The full description of OBS Light can be found at " +
-            "<a href=\"http://wiki.meego.com/OBS_Light\">http://wiki.meego.com/OBS_Light</a><br />" +
-            "and the FAQ is at <a href=\"http://wiki.meego.com/OBS_Light_FAQ\">http://wiki.meego.com/OBS_Light_FAQ</a>")
+        self.__aboutDialog.show()
