@@ -21,7 +21,9 @@ Created on 4 nov. 2011
 '''
 
 from PySide.QtCore import QObject
-from PySide.QtGui import QFileSystemModel, QTabWidget, QTreeView
+from PySide.QtGui import QFileDialog, QFileSystemModel, QPushButton, QTabWidget, QTreeView
+
+from Utils import popupOnException
 
 class FileManager(QObject):
     '''
@@ -29,7 +31,7 @@ class FileManager(QObject):
     '''
 
     __gui = None
-    __localModel = None
+    __localFsModel = None
     __chrootModel = None
     __obsLightManager = None
     __project = None
@@ -48,6 +50,10 @@ class FileManager(QObject):
         self.__fileTreeView = gui.getMainWindow().findChild(QTreeView, "fileTreeView")
         self.__chrootTreeView = gui.getMainWindow().findChild(QTreeView, "chrootTreeView")
         self.__packageTabWidget = gui.getMainWindow().findChild(QTabWidget, "packageTabWidget")
+        addFileButton = gui.getMainWindow().findChild(QPushButton, "addFileButton")
+        addFileButton.clicked.connect(self.on_addFileButton_clicked)
+        deleteFileButton = gui.getMainWindow().findChild(QPushButton, "deleteFileButton")
+        deleteFileButton.clicked.connect(self.on_deleteFileButton_clicked)
 
     def setCurrentPackage(self, project, package):
         '''
@@ -62,7 +68,7 @@ class FileManager(QObject):
             self.__chrootModel = QFileSystemModel()
         self.__project = project
         self.__package = package
-        self.__localModel = QFileSystemModel()
+        self.__localFsModel = QFileSystemModel()
         self.__chrootModel = QFileSystemModel()
         if self.__project is not None and self.__package is not None:
             path = self.__obsLightManager.getPackageDirectory(self.__project, self.__package)
@@ -81,18 +87,18 @@ class FileManager(QObject):
                     self.__chrootModel.setRootPath(self.__packageInChrootDir)
             else:
                 self.__chrootTreeView.setEnabled(False)
-            self.__localModel.directoryLoaded.connect(self.on_path_loaded)
+            self.__localFsModel.directoryLoaded.connect(self.on_path_loaded)
             self.__packageDir = path
-            self.__localModel.setRootPath(path)
+            self.__localFsModel.setRootPath(path)
             self.__packageTabWidget.setEnabled(True)
         else:
             self.__packageTabWidget.setEnabled(False)
-        self.__fileTreeView.setModel(self.__localModel)
+        self.__fileTreeView.setModel(self.__localFsModel)
         self.__chrootTreeView.setModel(self.__chrootModel)
 
     def on_path_loaded(self, path):
         if path == self.__packageDir:
-            self.__fileTreeView.setRootIndex(self.__localModel.index(path))
+            self.__fileTreeView.setRootIndex(self.__localFsModel.index(path))
             self.__fileTreeView.resizeColumnToContents(0)
 
     def on_chrootPath_loaded(self, path):
@@ -102,3 +108,17 @@ class FileManager(QObject):
         elif path == self.__packageInChrootDir:
             self.__chrootTreeView.setCurrentIndex(self.__chrootModel.index(path))
             self.__chrootTreeView.resizeColumnToContents(0)
+
+    @popupOnException
+    def on_addFileButton_clicked(self):
+        fileNames, _selectedFilter = QFileDialog.getOpenFileNames(self.__gui.getMainWindow(),
+                                                                  "Select file to add")
+        for fileName in fileNames:
+            self.__obsLightManager.addFileToPackage(self.__project, self.__package, fileName)
+
+    @popupOnException
+    def on_deleteFileButton_clicked(self):
+        currentIndex = self.__fileTreeView.currentIndex()
+        if currentIndex.isValid():
+            fileName = self.__localFsModel.fileName(currentIndex)
+            self.__obsLightManager.deleteFileFromPackage(self.__project, self.__package, fileName)

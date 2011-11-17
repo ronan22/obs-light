@@ -446,9 +446,6 @@
                   </item>
                   <item row="6" column="1">
                    <widget class="QPushButton" name="deleteFileButton">
-                    <property name="enabled">
-                     <bool>false</bool>
-                    </property>
                     <property name="text">
                      <string>Delete file</string>
                     </property>
@@ -466,9 +463,6 @@
                   </item>
                   <item row="7" column="1">
                    <widget class="QPushButton" name="addFileButton">
-                    <property name="enabled">
-                     <bool>false</bool>
-                    </property>
                     <property name="text">
                      <string>Add file</string>
                     </property>

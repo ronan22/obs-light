@@ -720,7 +720,7 @@ class ObsLightManager(object):
         self.__myObsLightProjects.addFileToPackage(projectLocalName=projectLocalName, package=package, path=path)
 
     @checkProjectLocalName(1)
-    def delFileToPackage(self, projectLocalName, package, name):
+    def deleteFileFromPackage(self, projectLocalName, package, name):
         '''
         Del a file to a package.
         '''
