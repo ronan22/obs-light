@@ -47,6 +47,7 @@ class ObsServer(object):
         '''
         self.__alias = None
         self.__serverRepo = None
+        self.__isReachable = None
 
         if fromSave != None:
             if "isOBSConnected" in fromSave.keys():
@@ -85,7 +86,7 @@ class ObsServer(object):
                                            user=self.__user,
                                            passw=self.__passw,
                                            alias=self.__alias)
-        print "self.__alias", self.__alias, self.testServer()
+
 
     def __testHost(self, host):
         '''
@@ -109,9 +110,11 @@ class ObsServer(object):
         '''
         
         '''
-        return (self.testServerAPI() and
-                self.testServerRepo() and
-                self.testServerWeb())
+
+        self.__isReachable = (self.testServerAPI() and
+                             self.testServerRepo() and
+                             self.testServerWeb())
+        return self.__isReachable
 
     def testServerAPI(self):
         '''
@@ -131,6 +134,13 @@ class ObsServer(object):
         '''
         return self.__testHost(host=self.__serverWeb)
 
+    def isReachable(self):
+        '''
+        
+        '''
+        if self.__isReachable == None:
+            self.__isReachable = self.testServer()
+        return self.__isReachable
 
     def getObsServerParameter(self, parameter=None):
         '''

@@ -74,11 +74,15 @@ class ObsLightManager(object):
         '''
         return self.__workingDirectory
 
-    def getObsServerList(self):
+    def getObsServerList(self, reachable=False):
         '''
         Returns the list of available OBS servers.
+        if reachable =False 
+            return all ObsServer
+        else
+            return only the available ObsServer
         '''
-        return self.__myObsServers.getObsServerList()
+        return self.__myObsServers.getObsServerList(reachable=reachable)
 
     def getObsServerParameter(self, obsServerAlias, parameter):
         '''

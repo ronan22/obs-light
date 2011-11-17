@@ -348,7 +348,7 @@ class ProjectConfigManager(QObject):
 
     def __loadInitialFieldValues(self):
         self.__serverCBox.clear()
-        self.__serverCBox.addItems(self.__obsLightManager.getObsServerList())
+        self.__serverCBox.addItems(self.__obsLightManager.getObsServerList(reachable=True))
 
         if not self.__isNewProject():
             # load project local name

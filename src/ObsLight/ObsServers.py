@@ -51,11 +51,18 @@ class ObsServers(object):
         else:
             return None
 
-    def getObsServerList(self):
+    def getObsServerList(self, reachable=False):
         '''
         
         '''
-        return self.__dicOBSLightServers.keys()
+        if reachable == False:
+            return self.__dicOBSLightServers.keys()
+        else:
+            res = []
+            for serverName in self.__dicOBSLightServers.keys():
+                if self.getObsServer(serverName).isReachable():
+                    res.append(serverName)
+            return res
 
     def save(self):
         '''
