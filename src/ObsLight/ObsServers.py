@@ -25,6 +25,7 @@ import os
 
 from ObsServer import ObsServer
 from ObsLightErr import ObsLightObsServers
+import ObsLightTools
 
 class ObsServers(object):
     '''
@@ -229,6 +230,10 @@ class ObsServers(object):
         '''
         
         '''
-        return self.__dicOBSLightServers[obsServer].testServer()
 
+
+        if obsServer in self.getObsServerList():
+            return self.__dicOBSLightServers[obsServer].testServer()
+        else:
+            return ObsLightTools.testHost(obsServer)
 
