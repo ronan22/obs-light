@@ -19,14 +19,11 @@ Created on 29 sept. 2011
 
 @author: ronan
 '''
-from urlparse import urlparse
-import httplib
-import socket
+
 
 import ObsLightOsc
 import ObsLightErr
-
-SOCKETTIMEOUT = 1
+import ObsLightTools
 
 class ObsServer(object):
     '''
@@ -87,25 +84,6 @@ class ObsServer(object):
                                            passw=self.__passw,
                                            alias=self.__alias)
 
-
-    def __testHost(self, host):
-        '''
-        
-        '''
-        (scheme, netloc, path, params, query, fragment) = urlparse(str(host))
-        if ":" in netloc:
-            (host, port) = netloc.split(":")
-        else:
-            host = netloc
-            port = "80"
-
-        test = httplib.HTTPConnection(host=host, port=port, timeout=SOCKETTIMEOUT)
-        try:
-            test.connect()
-        except :
-            return False
-        return True
-
     def testServer(self):
         '''
         
@@ -120,19 +98,19 @@ class ObsServer(object):
         '''
         
         '''
-        return self.__testHost(host=self.__serverAPI)
+        return ObsLightTools.testHost(host=self.__serverAPI)
 
     def testServerRepo(self):
         '''
         
         '''
-        return self.__testHost(host=self.__serverRepo)
+        return ObsLightTools.testHost(host=self.__serverRepo)
 
     def testServerWeb(self):
         '''
         
         '''
-        return self.__testHost(host=self.__serverWeb)
+        return ObsLightTools.testHost(host=self.__serverWeb)
 
     def isReachable(self):
         '''

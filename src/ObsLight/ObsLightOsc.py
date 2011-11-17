@@ -242,7 +242,6 @@ class ObsLightOsc(object):
         return a list of the project of a OBS Server.
         '''
         conf.get_config()
-        print "getLocalProjectList obsServer:", obsServer
         try:
             res = core.meta_get_project_list(obsServer)
         except Exception, e:
