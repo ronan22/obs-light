@@ -22,7 +22,7 @@ Created on 27 oct. 2011
 
 from PySide.QtGui import QAction
 
-from ServerManager import ServerListManager
+from ServerListManager import ServerListManager
 
 class MainWindowActionManager(object):
     '''
