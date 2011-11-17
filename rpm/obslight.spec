@@ -85,10 +85,14 @@ if [ ! -f "%{_sysconfdir}/sudoers.tmp" ]; then
 fi
 
 %preun base
-if [ ! -f "%{_sysconfdir}/sudoers.tmp" ]; then
-  touch %{_sysconfdir}/sudoers.tmp
-  sed -i s/"#include .*sudoers\.obslight"// %{_sysconfdir}/sudoers
-  rm %{_sysconfdir}/sudoers.tmp
+if [ $1 -lt "1" ]; then
+  if [ ! -f "%{_sysconfdir}/sudoers.tmp" ]; then
+    touch %{_sysconfdir}/sudoers.tmp
+    sed -i s/"#include .*sudoers\.obslight"// %{_sysconfdir}/sudoers
+    rm %{_sysconfdir}/sudoers.tmp;
+  else
+    echo "Cannot modify sudoers rules";
+  fi
 fi
 
 %clean
