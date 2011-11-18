@@ -1,6 +1,6 @@
 %define name obslight
-%define version 0.4.1
-%define unmangled_version 0.4.1
+%define version 0.4.2
+%define unmangled_version 0.4.2
 %define release 1
 
 Summary: OBS Light
@@ -131,6 +131,10 @@ rm -rf %{buildroot}
 %{_bindir}/obsextractgroups
 
 %changelog
+* Fri Nov 18 2011 Florent Vennetier (Intel OTC) <florent@fridu.net> 0.4.2-1
+- added check connection button
+- fixed unicode problems
+
 * Thu Nov 17 2011 Florent Vennetier (Intel OTC) <florent@fridu.net> 0.4.1-1
 - Working GUI
 
