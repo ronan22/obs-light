@@ -23,8 +23,8 @@ Created on 27 sept. 2011
 import sys
 from os.path import dirname, join
 
-from PySide.QtCore import QIODevice, QFile, QMetaObject, QObject, Signal
-from PySide.QtGui import QApplication, QMessageBox, QStatusBar
+from PySide.QtCore import QIODevice, QFile, QMetaObject, QObject, Qt, Signal
+from PySide.QtGui import QApplication, QMessageBox, QProgressDialog, QStatusBar
 from PySide.QtUiTools import QUiLoader
 
 from ObsLight.ObsLightErr import OBSLightBaseError
@@ -44,6 +44,7 @@ class Gui(QObject):
     __obsLightManager = None
     __obsProjectManager = None
     __mainWindowActionManager = None
+    __progress = None
 
     __messageSignal = Signal((str, int))
 
@@ -72,11 +73,24 @@ class Gui(QObject):
         self.__messageSignal.connect(self.__statusBar.showMessage)
         self.__mainWindow.show()
 
+    def __createProgressDialog(self):
+        self.__progress = QProgressDialog(self.__mainWindow)
+        self.__progress.setMinimumDuration(500)
+        self.__progress.setWindowModality(Qt.WindowModal)
+        self.__progress.setCancelButton(None)
+        # make the progress "infinite"
+        self.__progress.setRange(0, 0)
+
     def getMainWindow(self):
         '''
         Returns the main window object (may be None).
         '''
         return self.__mainWindow
+
+    def getProgressDialog(self):
+        if self.__progress is None:
+            self.__createProgressDialog()
+        return self.__progress
 
     def getObsLightManager(self):
         '''

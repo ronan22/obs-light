@@ -20,9 +20,9 @@ Created on 27 sept. 2011
 @author: Florent Vennetier
 '''
 
-from PySide.QtCore import QObject, QThreadPool, Qt
+from PySide.QtCore import QObject, QThreadPool
 from PySide.QtGui import QPushButton, QListWidget, QLineEdit, QLabel
-from PySide.QtGui import QProgressDialog, QFileDialog
+from PySide.QtGui import QFileDialog
 
 from Utils import  ProgressRunnable, popupOnException
 from PackageManager import PackageManager
@@ -53,7 +53,6 @@ class ProjectManager(QObject):
     __repoConfigManager = None
     __packageManager = None
     __statusBar = None
-    __progress = None
 
     def __init__(self, gui):
         QObject.__init__(self)
@@ -93,13 +92,6 @@ class ProjectManager(QObject):
         self.__projectTitleLabel = mainWindow.findChild(QLabel, "projectTitleLabel")
         self.__projectLabel = mainWindow.findChild(QLabel, "projectLabelValue")
         self.__chrootPathLineEdit = mainWindow.findChild(QLineEdit, "chrootPathLineEdit")
-        self.__progress = QProgressDialog(mainWindow)
-        self.__progress.setMinimumDuration(500)
-        self.__progress.setWindowModality(Qt.WindowModal)
-        self.__progress.setCancelButton(None)
-        # make the progress "infinite"
-        self.__progress.setRange(0, 0)
-
 
     def loadProjectList(self):
         '''
@@ -136,10 +128,11 @@ class ProjectManager(QObject):
     def on_deleteObsProjectButton_clicked(self):
         projectName = self.getCurrentProjectName()
         obslightManager = self.__gui.getObsLightManager()
-        self.__progress.setLabelText("Deleting project...")
-        self.__progress.show()
+        progress = self.__gui.getProgressDialog()
+        progress.setLabelText("Deleting project...")
+        progress.show()
         runnable = ProgressRunnable(obslightManager.removeProject, projectName)
-        runnable.setProgressDialog(self.__progress)
+        runnable.setProgressDialog(progress)
         runnable.finishedWithException.connect(self.__gui.obsLightErrorCallback2)
         runnable.finished.connect(self.loadProjectList)
         QThreadPool.globalInstance().start(runnable)
@@ -151,10 +144,11 @@ class ProjectManager(QObject):
         if len(filePath) < 1:
             return
         obslightManager = self.__gui.getObsLightManager()
-        self.__progress.setLabelText("Importing project...")
-        self.__progress.show()
+        progress = self.__gui.getProgressDialog()
+        progress.setLabelText("Importing project...")
+        progress.show()
         runnable = ProgressRunnable(obslightManager.importProject, filePath)
-        runnable.setProgressDialog(self.__progress)
+        runnable.setProgressDialog(progress)
         runnable.finishedWithException.connect(self.__gui.obsLightErrorCallback2)
         runnable.finished.connect(self.loadProjectList)
         QThreadPool.globalInstance().start(runnable)
@@ -168,11 +162,12 @@ class ProjectManager(QObject):
                                                         "Select file to export")
         if len(filePath) < 1:
             return
-        self.__progress.setLabelText("Importing project...")
-        self.__progress.show()
+        progress = self.__gui.getProgressDialog()
+        progress.setLabelText("Importing project...")
+        progress.show()
         obslightManager = self.__gui.getObsLightManager()
         runnable = ProgressRunnable(obslightManager.exportProject, project, filePath)
-        runnable.setProgressDialog(self.__progress)
+        runnable.setProgressDialog(progress)
         runnable.finishedWithException.connect(self.__gui.obsLightErrorCallback2)
         runnable.finished.connect(self.loadProjectList)
         QThreadPool.globalInstance().start(runnable)
@@ -202,10 +197,11 @@ class ProjectManager(QObject):
                 runnable.finished.connect(self.refresh)
                 QThreadPool.globalInstance().start(runnable)
             else:
-                self.__progress.setLabelText("Creating chroot")
-                self.__progress.show()
+                progress = self.__gui.getProgressDialog()
+                progress.setLabelText("Creating chroot")
+                progress.show()
                 runnable = ProgressRunnable(obslightManager.createChRoot, projectName)
-                runnable.setProgressDialog(self.__progress)
+                runnable.setProgressDialog(progress)
                 runnable.finishedWithException.connect(self.__gui.obsLightErrorCallback2)
                 runnable.finished.connect(self.refresh)
                 QThreadPool.globalInstance().start(runnable)
@@ -221,11 +217,12 @@ class ProjectManager(QObject):
         packageName = self.__packageManager.currentPackage()
         if projectName is not None and packageName is not None:
             obslightManager = self.__gui.getObsLightManager()
-            self.__progress.setLabelText("Importing source in chroot")
-            self.__progress.show()
+            progress = self.__gui.getProgressDialog()
+            progress.setLabelText("Importing source in chroot")
+            progress.show()
             runnable = ProgressRunnable(obslightManager.addPackageSourceInChRoot,
                                         projectName, packageName)
-            runnable.setProgressDialog(self.__progress)
+            runnable.setProgressDialog(progress)
             runnable.finishedWithException.connect(self.__gui.obsLightErrorCallback2)
             QThreadPool.globalInstance().start(runnable)
 

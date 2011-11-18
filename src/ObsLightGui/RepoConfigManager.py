@@ -20,10 +20,10 @@ Created on 17 nov. 2011
 @author: Florent Vennetier
 '''
 
-from PySide.QtCore import QObject
+from PySide.QtCore import QObject, QThreadPool
 from PySide.QtGui import QComboBox, QLineEdit, QRadioButton
 
-from Utils import popupOnException
+from Utils import popupOnException, ProgressRunnable
 
 class RepoConfigManager(QObject):
     '''
@@ -85,15 +85,28 @@ class RepoConfigManager(QObject):
 
     @popupOnException
     def on_configDialog_accepted(self):
+        obslightManager = self.__obsLightManager
+        progress = self.__gui.getProgressDialog()
+        progress.setLabelText("Importing repository in chroot...")
         if self.addFromUrl():
             if len(self.getRepoUrl()) > 0 and len(self.getRepoAlias()) > 0:
-                self.__obsLightManager.addRepo(self.__projectAlias,
-                                               repoUrl=self.getRepoUrl(),
-                                               alias=self.getRepoAlias())
+                progress.show()
+                runnable = ProgressRunnable(obslightManager.addRepo,
+                                            self.__projectAlias,
+                                            repoUrl=self.getRepoUrl(),
+                                            alias=self.getRepoAlias())
+                runnable.setProgressDialog(progress)
+                runnable.finishedWithException.connect(self.__gui.obsLightErrorCallback2)
+                QThreadPool.globalInstance().start(runnable)
         else:
             if len(self.getProject()) > 0:
-                self.__obsLightManager.addRepo(self.__projectAlias,
-                                               fromProject=self.getProject())
+                progress.show()
+                runnable = ProgressRunnable(obslightManager.addRepo,
+                                            self.__projectAlias,
+                                            fromProject=self.getProject())
+                runnable.setProgressDialog(progress)
+                runnable.finishedWithException.connect(self.__gui.obsLightErrorCallback2)
+                QThreadPool.globalInstance().start(runnable)
 
     def on_configDialog_rejected(self):
         pass

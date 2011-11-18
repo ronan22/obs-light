@@ -39,7 +39,6 @@ class PackageManager(QObject):
     __project = None
     __localModel = None
     __fileManager = None
-    __progress = None
 
     __packageWidget = None
     __packageTableView = None
@@ -79,13 +78,6 @@ class PackageManager(QObject):
         self.__packageTitleLabel = gui.getMainWindow().findChild(QLabel, "packageTitleLabel")
         self.__packageDescriptionLabel = gui.getMainWindow().findChild(QLabel,
                                                                        "packageDescriptionLabel")
-        self.__progress = QProgressDialog(gui.getMainWindow())
-        self.__progress.setMinimumDuration(500)
-        #self.__progress.setWindowModality(Qt.NonModal)
-        self.__progress.setWindowModality(Qt.WindowModal)
-        self.__progress.setCancelButton(None)
-        # make the progress "infinite"
-        self.__progress.setRange(0, 0)
         #self.__packageWidget.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         #self.__packageWidget.customContextMenuRequested.connect(self.on_contextMenu_requested)
 
@@ -153,10 +145,11 @@ class PackageManager(QObject):
                                                      u"Choose package name...",
                                                      u"Package name (must exist on server):")
         if accepted:
-            self.__progress.setLabelText("Adding package")
-            self.__progress.show()
+            progress = self.__gui.getProgressDialog()
+            progress.setLabelText("Adding package")
+            progress.show()
             runnable = ProgressRunnable(self.__localModel.addPackage, packageName)
-            runnable.setProgressDialog(self.__progress)
+            runnable.setProgressDialog(progress)
             runnable.finishedWithException.connect(self.__gui.obsLightErrorCallback2)
             runnable.finished.connect(self.updateLabels)
             QThreadPool.globalInstance().start(runnable)
@@ -183,13 +176,14 @@ class PackageManager(QObject):
                                                    u"Choose patch name...",
                                                    u"Patch name:")
         if accepted:
-            self.__progress.setLabelText("Creating patch")
-            self.__progress.show()
+            progress = self.__gui.getProgressDialog()
+            progress.setLabelText("Creating patch")
+            progress.show()
             runnable = ProgressRunnable(self.__obsLightManager.makePatch,
                                         project,
                                         package,
                                         patchName)
-            runnable.setProgressDialog(self.__progress)
+            runnable.setProgressDialog(progress)
             runnable.finishedWithException.connect(self.__gui.obsLightErrorCallback2)
             QThreadPool.globalInstance().start(runnable)
 
@@ -203,13 +197,14 @@ class PackageManager(QObject):
                                                  u"Enter commit message...",
                                                  u"Commit message:")
         if accepted:
-            self.__progress.setLabelText("Committing changes")
-            self.__progress.show()
+            progress = self.__gui.getProgressDialog()
+            progress.setLabelText("Committing changes")
+            progress.show()
             runnable = ProgressRunnable(self.__obsLightManager.addAndCommitChanges,
                                         project,
                                         package,
                                         message)
-            runnable.setProgressDialog(self.__progress)
+            runnable.setProgressDialog(progress)
             runnable.finishedWithException.connect(self.__gui.obsLightErrorCallback2)
             QThreadPool.globalInstance().start(runnable)
 
