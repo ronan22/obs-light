@@ -1,4 +1,8 @@
-obslight (0.4.1-1) stable; urgency=low
+obslight (0.4.2-1) stable; urgency=low
+
+  * Version 0.4.2
+    Added check connection button
+    Fixed unicode problems
 
   * Version 0.4.1
     Working GUI
@@ -21,4 +25,4 @@ obslight (0.4.1-1) stable; urgency=low
 
   * Initial Release
 
- -- Florent Vennetier <florent@fridu.net>  Thu, 17 Nov 2011 11:19:24 +0100
+ -- Florent Vennetier <florent@fridu.net>  Fri, 18 Nov 2011 11:13:15 +0100
