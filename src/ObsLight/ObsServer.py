@@ -80,9 +80,9 @@ class ObsServer(object):
 
 
         ObsLightOsc.getObsLightOsc().initConf(api=self.__serverAPI,
-                                           user=self.__user,
-                                           passw=self.__passw,
-                                           alias=self.__alias)
+                                              user=self.__user,
+                                              passw=self.__passw,
+                                              alias=self.__alias)
 
     def testServer(self):
         '''
@@ -189,12 +189,13 @@ class ObsServer(object):
         '''
         #if the repository is link to a listDepProject
         res = ObsLightOsc.getObsLightOsc().getDepProject(apiurl=self.__serverAPI,
-                                                      projet=projet,
-                                                      repos=repos)
+                                                         projet=projet,
+                                                         repos=repos)
+
         #the listDepProject must be trust(add to .oscrc )
         if res != None:
             ObsLightOsc.getObsLightOsc().trustRepos(api=self.__serverAPI,
-                                                 listDepProject=res)
+                                                    listDepProject=res)
 
 
 

@@ -268,7 +268,7 @@ class ObsLightPackage(object):
         else:
             raise ObsLightPackageErr("No Spec or Yaml in the package")
 
-        self.addFile(aFile)
+        self.__addFile(aFile)
 
     def __isASpecfile(self, file):
         '''
@@ -282,6 +282,12 @@ class ObsLightPackage(object):
         '''
         return file.endswith(".yaml")
 
+    def __addFile(self, file):
+        '''
+        
+        '''
+        self.__listFile.append(file)
+
     def addFile(self, path):
         '''
         Add a aFile to the package.
@@ -291,7 +297,7 @@ class ObsLightPackage(object):
 
         name = os.path.basename(path)
         shutil.copy2(path, os.path.join(self.getOscDirectory(), name))
-        self.__listFile.append(name)
+        self.__addFile(name)
         ObsLightOsc().add(path=self.getOscDirectory(), file=name)
 
 
