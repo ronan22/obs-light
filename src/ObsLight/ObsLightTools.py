@@ -30,3 +30,6 @@ def testHost(host):
     except :
         return False
     return True
+
+def isNonEmptyString(theString):
+    return isinstance(theString, basestring) and len(theString) > 0

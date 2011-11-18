@@ -21,7 +21,10 @@ Created on 17 nov. 2011
 '''
 
 from PySide.QtCore import QObject, QRegExp, Signal
-from PySide.QtGui import QDialog, QLineEdit, QRegExpValidator
+from PySide.QtGui import QDialog, QGraphicsColorizeEffect, QLineEdit, QColor
+from PySide.QtGui import QPushButton, QRegExpValidator
+
+from ObsLight.ObsLightTools import isNonEmptyString
 
 from Utils import popupOnException
 
@@ -32,6 +35,7 @@ class ServerConfigManager(QObject):
     __gui = None
     __serverAlias = None
     __srvConfDialog = None
+    __checkConnectionButton = None
 
     __webUrlLineEdit = None
     __apiUrlLineEdit = None
@@ -82,6 +86,9 @@ class ServerConfigManager(QObject):
                                                              "usernameLineEdit")
         self.__passLineEdit = self.__srvConfDialog.findChild(QLineEdit,
                                                              "passwordLineEdit")
+        self.__checkConnectionButton = self.__srvConfDialog.findChild(QPushButton,
+                                                                      "checkConnectionButton")
+        self.__checkConnectionButton.clicked.connect(self.on_checkConnectionButton_clicked)
 
     def __loadInitialFieldValues(self):
         manager = self.__gui.getObsLightManager()
@@ -152,3 +159,31 @@ class ServerConfigManager(QObject):
                                           "passw",
                                           self.getPass())
             self.finished.emit(True)
+
+    @popupOnException
+    def on_checkConnectionButton_clicked(self):
+        obsLightManager = self.__gui.getObsLightManager()
+        web = self.getWebIfaceUrl()
+        api = self.getApiUrl()
+        repo = self.getRepoUrl()
+
+        effect = QGraphicsColorizeEffect(self.__webUrlLineEdit)
+        if isNonEmptyString(web) and obsLightManager.testServer(web):
+            effect.setColor(QColor("green"))
+        else:
+            effect.setColor(QColor("red"))
+        self.__webUrlLineEdit.setGraphicsEffect(effect)
+
+        effect = QGraphicsColorizeEffect(self.__apiUrlLineEdit)
+        if isNonEmptyString(api) and obsLightManager.testServer(api):
+            effect.setColor(QColor("green"))
+        else:
+            effect.setColor(QColor("red"))
+        self.__apiUrlLineEdit.setGraphicsEffect(effect)
+
+        effect = QGraphicsColorizeEffect(self.__repoUrlLineEdit)
+        if isNonEmptyString(repo) and obsLightManager.testServer(repo):
+            effect.setColor(QColor("green"))
+        else:
+            effect.setColor(QColor("red"))
+        self.__repoUrlLineEdit.setGraphicsEffect(effect)

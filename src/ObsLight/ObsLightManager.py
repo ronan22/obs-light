@@ -27,10 +27,7 @@ from ObsLightErr import ObsLightObsServers
 from ObsLightErr import ObsLightProjectsError
 from ObsServers import ObsServers
 from ObsLightProjects import ObsLightProjects
-
-
-def isNonEmptyString(theString):
-    return isinstance(theString, basestring) and len(theString) > 0
+from ObsLightTools import isNonEmptyString
 
 def checkProjectLocalName(position=None):
     def checkProjectLocalName1(f):
@@ -724,7 +721,7 @@ class ObsLightManager(object):
     @checkProjectLocalName(1)
     def deleteFileFromPackage(self, projectLocalName, package, name):
         '''
-        Del a file to a package.
+        Delete a file from a package.
         '''
         if not isNonEmptyString(package):
             raise ObsLightProjectsError(" invalid package name: " + str(package))
@@ -739,11 +736,9 @@ class ObsLightManager(object):
 
     def testServer(self, obsServer):
         '''
-        return True if obsServer is reachable otherwise return false
+        Return True if obsServer is reachable, false otherwise.
+        obsServer may be an OBS server alias or an HTTP(S) URL.
         '''
-        if not self.isAnObsServer(obsServer):
-            raise ObsLightObsServers(obsServer + " is not an OBS server")
-
         return self.__myObsServers.testServer(obsServer=obsServer)
 
 __myObsLightManager = None
@@ -757,7 +752,3 @@ def getManager():
         __myObsLightManager = ObsLightManager()
 
     return __myObsLightManager
-
-
-
-
