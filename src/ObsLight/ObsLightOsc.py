@@ -30,6 +30,8 @@ from ObsLightSubprocess import SubprocessCrt
 
 EMPTYPROJECTPATH = os.path.join(os.path.dirname(__file__), "emptySpec")
 
+import urllib2
+
 class ObsLightOsc(object):
     '''
     ObsLightOsc interact with osc, when possible, do it directly by python API
@@ -108,7 +110,12 @@ class ObsLightOsc(object):
         '''
         conf.get_config()
         url = str(apiurl + "/source/" + projet + "/_meta")
-        aElement = ElementTree.fromstring(core.http_request("GET", url).read())
+        try:
+            res = core.http_request("GET", url)
+        except urllib2.URLError:
+            print "apiurl " + str(apiurl) + " is not reachable"
+            return None
+        aElement = ElementTree.fromstring(res.read())
 
         result = []
         for project in aElement:

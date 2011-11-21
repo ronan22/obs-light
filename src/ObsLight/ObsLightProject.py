@@ -98,7 +98,7 @@ class ObsLightProject(object):
             #perhaps a trusted_prj must be had
             if self.__obsServer in self.__obsServers.getObsServerList():
                 self.__obsServers.getObsServer(name=self.__obsServer).initConfigProject(projet=self.__projectObsName,
-                                                                                    repos=self.__projectTarget)
+                                                                                        repos=self.__projectTarget)
             if "packages" in fromSave.keys():
                 self.__packages = self.__addPackagesFromSave(fromSave=fromSave["packages"],
                                                              importFile=importFile)

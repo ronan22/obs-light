@@ -58,7 +58,6 @@ class ObsLightChRoot(object):
         else:
             if "dicoRepos" in fromSave.keys():
                 self.__dicoRepos = fromSave["dicoRepos"]
-
         self.initChRoot()
 
     def getDirectory(self):

@@ -297,8 +297,6 @@ class ObsLightManager(object):
         elif not self.isAnObsServer(obsServer):
             raise ObsLightProjectsError(obsServer + " is not an OBS server")
         elif not projectObsName in self.getObsServerProjectList(obsServer):
-            print "projectObsName", projectObsName
-            print "self.getObsServerProjectList(obsServer)", self.getObsServerProjectList(obsServer)
             raise ObsLightObsServers(projectObsName + " is not a valid projectObsName")
 
         return self.__myObsServers.getTargetList(obsServer=obsServer,
