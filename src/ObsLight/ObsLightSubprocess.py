@@ -12,11 +12,9 @@ import time
 
 from threading import Thread
 import ObsLightPrintManager
-
+import select
 
 BREAKPROCESS = False
-
-
 
 class SubprocessCrt(object):
     '''
@@ -37,11 +35,32 @@ class SubprocessCrt(object):
             -A message "." is print every second during the sub process,
             -A message "work finish" is print at the end of the sub process
         '''
-        ObsLightPrintManager.obsLightPrint("command: " + command, isDebug=True)
+        #ObsLightPrintManager.obsLightPrint("command: " + command, isDebug=True)
+        ObsLightPrintManager.getLogger().debug("command: " + command)
         #need Python 2.7.3 to do shlex.split(command) 
         splittedCommand = shlex.split(str(command))
 
-        if ObsLightPrintManager.VERBOSE == True:
+        p = subprocess.Popen(splittedCommand,
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE)
+        outputs = {p.stdout: {"EOF": False, "logcmd": ObsLightPrintManager.getLogger().info},
+                   p.stderr: {"EOF": False, "logcmd": ObsLightPrintManager.getLogger().error}}
+        while (not outputs[p.stdout]["EOF"] and
+               not outputs[p.stderr]["EOF"]):
+            for fd in select.select([p.stdout, p.stderr], [], [])[0]:
+                output = fd.readline()
+                if output == b"":
+                    outputs[fd]["EOF"] = True
+                else:
+                    outputs[fd]["logcmd"](output.rstrip())
+                    #outputs[fd]["logcmd"](output.decode().rstrip())
+        res = p.returncode
+        if res == None:
+            res = 0
+        ObsLightPrintManager.getLogger().debug("command finished: " + command + ", return code: " + str(res))
+        return res
+
+"""        if ObsLightPrintManager.VERBOSE == True:
             return subprocess.call(splittedCommand,
                                    stdin=open(os.devnull, 'rw'),
                                    close_fds=True)
@@ -69,9 +88,9 @@ class SubprocessCrt(object):
                 sys.stdout.flush()
                 sys.stderr.write(fileErr)
                 sys.stderr.flush()
-            return res.returncode
+            return res.returncode"""
 
-    def printWaitMess(self):
+"""    def printWaitMess(self):
         '''
         
         '''
@@ -88,5 +107,8 @@ class SubprocessCrt(object):
                 i += 1
 
         sys.stdout.write("work finish\n")
-        sys.stdout.flush()
+        sys.stdout.flush()"""
+
+
+
 

@@ -35,11 +35,6 @@ def run(prg=None):
             return prg()
         except:
             raise
-        finally:
-            try:
-                ObsLightMic.destroy()
-            except:
-                raise
 
     except ObsLightErr.SignalInterrupt:
         print >> sys.stderr, 'killed!'
@@ -88,6 +83,5 @@ def run(prg=None):
     except urllib2.URLError, err:
         print >> sys.stderr, 'Osc Error', err
         return 1
-
 
 

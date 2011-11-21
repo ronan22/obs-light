@@ -120,6 +120,7 @@ class ObsLightProject(object):
                         if not os.path.isdir(absPackagePath) :
                             self.addPackageSourceInChRoot(package=packageName)
 
+
         if not os.path.isdir(self.getDirectory()):
             os.makedirs(self.getDirectory())
 
@@ -275,8 +276,7 @@ class ObsLightProject(object):
         '''
         
         '''
-        res = self.__chroot.removeChRoot()
-        self.__chrootIsInit = False
+        res = self.removeChRoot()
 
         if res == 0:
             return shutil.rmtree(self.getDirectory())
@@ -284,6 +284,14 @@ class ObsLightProject(object):
             raise ObsLightErr.ObsLightProjectsError("Error in removeProject, can't remove chroot")
 
         return 0
+
+    def removeChRoot(self):
+        '''
+        
+        '''
+        res = self.__chroot.removeChRoot()
+        self.__chrootIsInit = False
+        return res
 
     def getProjectObsName(self):
         '''

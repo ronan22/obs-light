@@ -17,7 +17,7 @@
 '''
 Created on 3 oct. 2011
 
-@author: ronan
+@author: ronan@fridu.net
 '''
 
 import os
@@ -27,7 +27,7 @@ from osc import conf
 from osc import core
 
 from ObsLightSubprocess import SubprocessCrt
-
+import ObsLightPrintManager
 EMPTYPROJECTPATH = os.path.join(os.path.dirname(__file__), "emptySpec")
 
 import urllib2
@@ -113,7 +113,7 @@ class ObsLightOsc(object):
         try:
             res = core.http_request("GET", url)
         except urllib2.URLError:
-            print "apiurl " + str(apiurl) + " is not reachable"
+            ObsLightPrintManager.obsLightPrint("apiurl " + str(apiurl) + " is not reachable")
             return None
         aElement = ElementTree.fromstring(res.read())
 
@@ -207,7 +207,7 @@ class ObsLightOsc(object):
         try:
             res = core.http_request("GET", url)
         except urllib2.URLError:
-            print "apiurl " + str(obsServer) + " is not reachable"
+            ObsLightPrintManager.obsLightPrint("apiurl " + str(obsServer) + " is not reachable")
             return None
 
         fileXML = res.read()
@@ -252,7 +252,7 @@ class ObsLightOsc(object):
         try:
             res = core.meta_get_project_list(str(obsServer))
         except Exception, e:
-            print "WARNING: Error obsServer:", obsServer
+            ObsLightPrintManager.obsLightPrint("WARNING: Error obsServer:" + str(obsServer))
             raise e
         return res
 

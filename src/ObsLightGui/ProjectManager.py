@@ -41,7 +41,8 @@ class ProjectManager(QObject):
     __deleteObsProjectButton = None
     __loadObsProjectButton = None
     __saveObsProjectButton = None
-    __createChrootButton = None
+    __newChrootButton = None
+    __deleteChrootButton = None
     __addRepoInChrootButton = None
     __importRpmButton = None
     __projectLinkLabel = None
@@ -78,20 +79,30 @@ class ProjectManager(QObject):
         self.__saveObsProjectButton = mainWindow.findChild(QPushButton,
                                                              "saveObsProjectButton")
         self.__saveObsProjectButton.clicked.connect(self.on_exportObsProjectButton_clicked)
-        self.__createChrootButton = mainWindow.findChild(QPushButton,
-                                                         "createChrootButton")
-        self.__createChrootButton.clicked.connect(self.on_createChrootButton_clicked)
+        self.__newChrootButton = mainWindow.findChild(QPushButton,
+                                                         "newChrootButton")
+        self.__newChrootButton.clicked.connect(self.on_newChrootButton_clicked)
+        self.__deleteChrootButton = mainWindow.findChild(QPushButton,
+                                                         "deleteChrootButton")
+        self.__deleteChrootButton.clicked.connect(self.on_deleteChrootButton_clicked)
         self.__addRepoInChrootButton = mainWindow.findChild(QPushButton,
                                                             "addRepoInChrootButton")
         self.__addRepoInChrootButton.clicked.connect(self.on_addRepoInChrootButton_clicked)
-        self.__importRpmButton = mainWindow.findChild(QPushButton, "importRpmButton")
+        self.__importRpmButton = mainWindow.findChild(QPushButton,
+                                                      "importRpmButton")
         self.__importRpmButton.clicked.connect(self.on_importRpmButton_clicked)
-        self.__projectLinkLabel = mainWindow.findChild(QLabel, "projectPageLinkLabel")
-        self.__projectRepoLinkLabel = mainWindow.findChild(QLabel, "projectRepoPageLinkLabel")
-        self.__projectDescriptionLabel = mainWindow.findChild(QLabel, "projectDescriptionLabel")
-        self.__projectTitleLabel = mainWindow.findChild(QLabel, "projectTitleLabel")
-        self.__projectLabel = mainWindow.findChild(QLabel, "projectLabelValue")
-        self.__chrootPathLineEdit = mainWindow.findChild(QLineEdit, "chrootPathLineEdit")
+        self.__projectLinkLabel = mainWindow.findChild(QLabel,
+                                                       "projectPageLinkLabel")
+        self.__projectRepoLinkLabel = mainWindow.findChild(QLabel,
+                                                           "projectRepoPageLinkLabel")
+        self.__projectDescriptionLabel = mainWindow.findChild(QLabel,
+                                                              "projectDescriptionLabel")
+        self.__projectTitleLabel = mainWindow.findChild(QLabel,
+                                                        "projectTitleLabel")
+        self.__projectLabel = mainWindow.findChild(QLabel,
+                                                   "projectLabelValue")
+        self.__chrootPathLineEdit = mainWindow.findChild(QLineEdit,
+                                                         "chrootPathLineEdit")
 
     def loadProjectList(self):
         '''
@@ -179,7 +190,7 @@ class ProjectManager(QObject):
             self.on_projectSelected(None)
 
     @popupOnException
-    def on_createChrootButton_clicked(self):
+    def on_newChrootButton_clicked(self):
         projectName = self.getCurrentProjectName()
         obslightManager = self.__gui.getObsLightManager()
         if projectName is not None:
@@ -187,11 +198,14 @@ class ProjectManager(QObject):
                 currentPackage = self.__packageManager.currentPackage()
                 runnable = None
                 if currentPackage is None:
-                    runnable = ProgressRunnable(obslightManager.goToChRoot, projectName,
+                    runnable = ProgressRunnable(obslightManager.goToChRoot,
+                                                projectName,
                                                 detach=True)
                 else:
-                    runnable = ProgressRunnable(obslightManager.goToChRoot, projectName,
-                                                currentPackage, detach=True)
+                    runnable = ProgressRunnable(obslightManager.goToChRoot,
+                                                projectName,
+                                                currentPackage,
+                                                detach=True)
 
                 runnable.finishedWithException.connect(self.__gui.obsLightErrorCallback2)
                 runnable.finished.connect(self.refresh)
@@ -200,11 +214,27 @@ class ProjectManager(QObject):
                 progress = self.__gui.getProgressDialog()
                 progress.setLabelText("Creating chroot")
                 progress.show()
-                runnable = ProgressRunnable(obslightManager.createChRoot, projectName)
+                runnable = ProgressRunnable(obslightManager.createChRoot,
+                                            projectName)
                 runnable.setProgressDialog(progress)
                 runnable.finishedWithException.connect(self.__gui.obsLightErrorCallback2)
                 runnable.finished.connect(self.refresh)
                 QThreadPool.globalInstance().start(runnable)
+
+    @popupOnException
+    def on_deleteChrootButton_clicked(self):
+        projectName = self.getCurrentProjectName()
+        obslightManager = self.__gui.getObsLightManager()
+        if projectName is not None:
+            progress = self.__gui.getProgressDialog()
+            progress.setLabelText("Delete chroot")
+            progress.show()
+            runnable = ProgressRunnable(obslightManager.removeChRoot,
+                                        projectName)
+            runnable.setProgressDialog(progress)
+            runnable.finishedWithException.connect(self.__gui.obsLightErrorCallback2)
+            runnable.finished.connect(self.refresh)
+            QThreadPool.globalInstance().start(runnable)
 
     @popupOnException
     def on_addRepoInChrootButton_clicked(self):
@@ -276,10 +306,10 @@ class ProjectManager(QObject):
             if obslightManager.isChRootInit(project):
                 chrootPath = obslightManager.getChRootPath(project)
                 self.__chrootPathLineEdit.setText(chrootPath)
-                self.__createChrootButton.setText("Open chroot")
+                self.__newChrootButton.setText("Open chroot")
                 self.__addRepoInChrootButton.setEnabled(True)
                 self.__importRpmButton.setEnabled(True)
             else:
-                self.__createChrootButton.setText("Create chroot")
+                self.__newChrootButton.setText("Create chroot")
                 self.__addRepoInChrootButton.setEnabled(False)
                 self.__importRpmButton.setEnabled(False)

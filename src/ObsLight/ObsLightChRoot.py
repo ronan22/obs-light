@@ -70,6 +70,7 @@ class ObsLightChRoot(object):
         '''
         
         '''
+
         if  ObsLightMic.getObsLightMic(name=self.getDirectory()).isInit():
             ObsLightMic.destroy(name=self.getDirectory())
 
@@ -107,8 +108,6 @@ class ObsLightChRoot(object):
                                                         apiurl=apiurl,
                                                         project=obsProject,
                                                         )
-
-
 
         if res != 0:
             raise ObsLightErr.ObsLightChRootError("Can't create the chroot")

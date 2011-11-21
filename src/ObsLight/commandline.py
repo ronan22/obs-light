@@ -188,14 +188,18 @@ class ObsLight():
                         ObsLightPrintManager.obsLightPrint(__HELP__)
                         return None
                     elif ObsLightPrintManager.DEBUG == 1:
-                        for k in __DICO_HELP__.keys():print k
+                        for k in __DICO_HELP__.keys():
+                            print k
                         return None
                     elif ObsLightPrintManager.DEBUG == 2:
-                        for k in __DICO_OPTION_HELP__.keys():print k
+                        for k in __DICO_OPTION_HELP__.keys():
+                            print k
                         return None
                     elif ObsLightPrintManager.DEBUG == 3:
-                        for k in __DICO_HELP__.keys():print k
-                        for k in __DICO_OPTION_HELP__.keys():print k
+                        for k in __DICO_HELP__.keys():
+                            print k
+                        for k in __DICO_OPTION_HELP__.keys():
+                            print k
                         return None
 
                 elif (listArgv[0] == __getListObsServers__):
@@ -881,7 +885,7 @@ class ObsLight():
                     raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
             if (projectLocalName != None):
 
-                print ObsLightManager.getManager().getProjectWebPage(projectLocalName=projectLocalName)
+                ObsLightPrintManager.obsLightPrint(ObsLightManager.getManager().getProjectWebPage(projectLocalName=projectLocalName))
 
             else:
                 raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)

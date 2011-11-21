@@ -60,7 +60,7 @@
         </property>
         <item>
          <widget class="QWidget" name="directoryWidget" native="true">
-          <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,1,2">
+          <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,1,0">
            <property name="margin">
             <number>0</number>
            </property>
@@ -320,14 +320,14 @@
                    </property>
                   </widget>
                  </item>
-                 <item row="8" column="0">
+                 <item row="9" column="0">
                   <widget class="QPushButton" name="deletePackageButton">
                    <property name="text">
                     <string>Delete</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="5" column="0">
+                 <item row="6" column="0">
                   <widget class="QPushButton" name="importPackageButton">
                    <property name="text">
                     <string>Import</string>
@@ -347,7 +347,7 @@
                      <rect>
                       <x>0</x>
                       <y>0</y>
-                      <width>169</width>
+                      <width>268</width>
                       <height>126</height>
                      </rect>
                     </property>
@@ -396,7 +396,7 @@
                    </widget>
                   </widget>
                  </item>
-                 <item row="4" column="0">
+                 <item row="5" column="0">
                   <widget class="QPushButton" name="newPackageButton">
                    <property name="enabled">
                     <bool>false</bool>
@@ -406,7 +406,7 @@
                    </property>
                   </widget>
                  </item>
-                 <item row="9" column="0">
+                 <item row="10" column="0">
                   <widget class="QPushButton" name="modifyPackageButton">
                    <property name="enabled">
                     <bool>false</bool>
@@ -416,7 +416,7 @@
                    </property>
                   </widget>
                  </item>
-                 <item row="9" column="1">
+                 <item row="10" column="1">
                   <widget class="QPushButton" name="importRpmButton">
                    <property name="enabled">
                     <bool>false</bool>
@@ -438,7 +438,7 @@
               <bool>false</bool>
              </property>
              <property name="currentIndex">
-              <number>0</number>
+              <number>1</number>
              </property>
              <widget class="QWidget" name="localDirectoryTab">
               <attribute name="title">
@@ -528,6 +528,26 @@
                     </property>
                    </widget>
                   </item>
+                  <item row="0" column="1">
+                   <widget class="QLabel" name="fileLabel">
+                    <property name="text">
+                     <string>File</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="2">
+                   <widget class="QLabel" name="label">
+                    <property name="text">
+                     <string>OSC</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignCenter</set>
+                    </property>
+                   </widget>
+                  </item>
                  </layout>
                 </widget>
                </item>
@@ -544,7 +564,14 @@
                <item row="3" column="0">
                 <widget class="QWidget" name="widget_2" native="true">
                  <layout class="QGridLayout" name="gridLayout_14">
-                  <item row="2" column="0">
+                  <item row="0" column="1">
+                   <widget class="QLineEdit" name="chrootPathLineEdit">
+                    <property name="readOnly">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="0">
                    <widget class="QLabel" name="chrootLabel">
                     <property name="text">
                      <string>Chroot path:</string>
@@ -554,24 +581,77 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="1" column="1">
-                   <widget class="QPushButton" name="createChrootButton">
+                  <item row="3" column="0">
+                   <widget class="QPushButton" name="addRepoInChrootButton">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
                     <property name="text">
-                     <string>Create chroot</string>
+                     <string>Import</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="0">
+                   <widget class="QPushButton" name="new_2">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
+                    <property name="text">
+                     <string>New</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="4" column="0">
+                   <widget class="QPushButton" name="pushButton_2">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
+                    <property name="text">
+                     <string>Delete</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="5" column="0">
+                   <widget class="QPushButton" name="pushButton_3">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
+                    <property name="text">
+                     <string>Modify</string>
                     </property>
                    </widget>
                   </item>
                   <item row="2" column="1">
-                   <widget class="QLineEdit" name="chrootPathLineEdit">
-                    <property name="readOnly">
-                     <bool>true</bool>
+                   <widget class="QPushButton" name="newChrootButton">
+                    <property name="text">
+                     <string>New</string>
                     </property>
                    </widget>
                   </item>
-                  <item row="0" column="1">
-                   <widget class="QPushButton" name="addRepoInChrootButton">
+                  <item row="4" column="1">
+                   <widget class="QPushButton" name="deleteChrootButton">
                     <property name="text">
-                     <string>Add repository in chroot</string>
+                     <string>Delete</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="RepositoryLabel">
+                    <property name="text">
+                     <string>Repository</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1">
+                   <widget class="QLabel" name="ChrootLabel">
+                    <property name="text">
+                     <string>Chroot</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignCenter</set>
                     </property>
                    </widget>
                   </item>

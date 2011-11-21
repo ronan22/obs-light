@@ -29,9 +29,11 @@ from ObsLightErr import ObsLightProjectsError
 from ObsServers import ObsServers
 from ObsLightProjects import ObsLightProjects
 from ObsLightTools import isNonEmptyString
+import ObsLightPrintManager
 
 OBSLIGHTDIRNAME = "OBSLight"
 OBSLIGHTCONFIG = "obslight_config"
+
 
 def checkProjectLocalName(position=None):
     def checkProjectLocalName1(f):
@@ -71,6 +73,12 @@ class ObsLightManager(object):
         self.__myObsServers = ObsServers(workingDirectory=self.getObsLightWorkingDirectory())
         self.__myObsLightProjects = ObsLightProjects(obsServers=self.__myObsServers,
                                                      workingDirectory=self.getObsLightWorkingDirectory())
+
+    def addLoggerHandler(self, handler):
+        '''
+        Add a Handler object to the logger of obslight.
+        '''
+        ObsLightPrintManager.addHandler(handler)
 
     def getConfigPath(self):
         '''
@@ -185,6 +193,13 @@ class ObsLightManager(object):
 
         self.__myObsLightProjects.save()
         return res
+
+    @checkProjectLocalName(1)
+    def removeChRoot(self, projectLocalName):
+        '''
+        
+        '''
+        self.__myObsLightProjects.removeChRoot(projectLocalName)
 
     @checkProjectLocalName(1)
     def removePackage(self, projectLocalName, package):
