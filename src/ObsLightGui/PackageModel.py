@@ -66,11 +66,11 @@ class PackageModel(QAbstractTableModel):
                 return section
             else:
                 if section == self.PackageNameColumn:
-                    return "Package"
+                    return u"Package"
                 elif section == self.PackageServerStatusColumn:
-                    return "Status on server"
+                    return u"Status on server"
                 elif section == self.PackageChrootStatusColumn:
-                    return "Status in chroot"
+                    return u"Status in chroot"
                 else:
                     return None
 
@@ -87,7 +87,7 @@ class PackageModel(QAbstractTableModel):
             elif index.column() == self.PackageChrootStatusColumn:
                 installed = self.__obsLightManager.isInstalledInChRoot(self.__project,
                                                                        packageName)
-                return "Installed" if installed else "Not installed"
+                return u"Installed" if installed else u"Not installed"
         else:
             return None
 

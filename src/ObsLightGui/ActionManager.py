@@ -38,14 +38,19 @@ class MainWindowActionManager(object):
         self.__gui = gui
         self.__obsLightManager = self.__gui.getObsLightManager()
         mainWindow = self.__gui.getMainWindow()
-        actionOBS_servers = mainWindow.findChild(QAction, "actionOBS_servers")
+        actionOBS_servers = mainWindow.findChild(QAction, u"actionOBS_servers")
         actionOBS_servers.triggered.connect(self.on_actionOBS_servers_triggered)
-        self.__aboutDialog = self.__gui.loadWindow("obsLightAbout.ui")
-        actionAbout = mainWindow.findChild(QAction, "actionAbout")
+        self.__aboutDialog = self.__gui.loadWindow(u"obsLightAbout.ui")
+        actionAbout = mainWindow.findChild(QAction, u"actionAbout")
         actionAbout.triggered.connect(self.__aboutDialog.show)
+        actionLog = mainWindow.findChild(QAction, u"actionShow_log")
+        actionLog.triggered.connect(self.on_actionLog_triggered)
 
     def on_actionOBS_servers_triggered(self):
         self.__serverListManager = ServerListManager(self.__gui)
 
     def on_actionAbout_triggered(self):
         self.__aboutDialog.show()
+
+    def on_actionLog_triggered(self):
+        self.__gui.getLogManager().show()

@@ -117,53 +117,27 @@ def detachWithProgress(title, minDuration=500):
         return showProgress2
     return showProgress1
 
-
-# Attempt to write a "run on UI thread" function.
-# Does not work because of an obscure threading bug that I did not
-# manage to solve.
-
-#class UiThreadRunner(QObject):
-#    
-#    class FuncParam(object):
-#        func = None
-#        args = None
-#        
-#    __runSignal = Signal(FuncParam)
-#    
-#    def __init__(self):
-#        QObject.__init__(self)
-#        self.__runSignal.connect(self.__runInUiThread)
-#
-#    def __runInUiThread(self, funcParam):
-#        print "in __runInUiThread(), thread %s" % currentThread()
-#        print funcParam.args
-#        funcParam.func(*funcParam.args)
-#
-#    def run(self, func, *args):
-#        print "in run(), thread %s" % currentThread()
-#        param = UiThreadRunner.FuncParam()
-#        param.func = func
-#        param.args = args
-#        self.__runSignal.emit(param)
-#
-#uiThreadRunner = UiThreadRunner()
-#
-#def runInUiThread(func, *args):
-#    uiThreadRunner.run(func, *args)
-
+def exceptionToMessageBox(exception, parent=None):
+    '''
+    Display an exception in a QMessageBox.
+    OBSLightBaseErrors are displayed as warnings, other types of
+    exceptions are displayed as critical.
+    To be called only from UI thread.
+    '''
+    if isinstance(exception, ObsLightErr.OBSLightBaseError):
+        QMessageBox.warning(parent, u"Exception occurred", exception.msg)
+    else:
+        QMessageBox.critical(parent, u"Exception occurred", unicode(exception))
 
 def popupOnException(f):
     '''
     Decorator to catch the exceptions a function may return and display them
     in a warning QMessageBox.
-    To be used only in UI thread.
+    To be used only on methods running in UI thread.
     '''
     def catchException(*args, **kwargs):
         try:
             f(*args, **kwargs)
-        except ObsLightErr.OBSLightBaseError as e:
-            #runInUiThread(QMessageBox.warning, None, "Exception occurred", e.msg)
-            QMessageBox.warning(None, "Exception occurred", e.msg)
         except BaseException as e:
-            QMessageBox.critical(None, "Exception occurred", str(e))
+            exceptionToMessageBox(e)
     return catchException

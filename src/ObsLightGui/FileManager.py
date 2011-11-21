@@ -47,12 +47,12 @@ class FileManager(QObject):
         QObject.__init__(self)
         self.__gui = gui
         self.__obsLightManager = gui.getObsLightManager()
-        self.__fileTreeView = gui.getMainWindow().findChild(QTreeView, "fileTreeView")
-        self.__chrootTreeView = gui.getMainWindow().findChild(QTreeView, "chrootTreeView")
-        self.__packageTabWidget = gui.getMainWindow().findChild(QTabWidget, "packageTabWidget")
-        addFileButton = gui.getMainWindow().findChild(QPushButton, "addFileButton")
+        self.__fileTreeView = gui.getMainWindow().findChild(QTreeView, u"fileTreeView")
+        self.__chrootTreeView = gui.getMainWindow().findChild(QTreeView, u"chrootTreeView")
+        self.__packageTabWidget = gui.getMainWindow().findChild(QTabWidget, u"packageTabWidget")
+        addFileButton = gui.getMainWindow().findChild(QPushButton, u"addFileButton")
         addFileButton.clicked.connect(self.on_addFileButton_clicked)
-        deleteFileButton = gui.getMainWindow().findChild(QPushButton, "deleteFileButton")
+        deleteFileButton = gui.getMainWindow().findChild(QPushButton, u"deleteFileButton")
         deleteFileButton.clicked.connect(self.on_deleteFileButton_clicked)
 
     def setCurrentPackage(self, project, package):
@@ -112,7 +112,7 @@ class FileManager(QObject):
     @popupOnException
     def on_addFileButton_clicked(self):
         fileNames, _selectedFilter = QFileDialog.getOpenFileNames(self.__gui.getMainWindow(),
-                                                                  "Select file to add")
+                                                                  u"Select file to add")
         for fileName in fileNames:
             self.__obsLightManager.addFileToPackage(self.__project, self.__package, fileName)
 

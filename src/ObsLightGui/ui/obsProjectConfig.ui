@@ -28,7 +28,11 @@
     </widget>
    </item>
    <item row="0" column="1">
-    <widget class="QLineEdit" name="projectLocalNameLineEdit"/>
+    <widget class="QLineEdit" name="projectLocalNameLineEdit">
+     <property name="toolTip">
+      <string>The name that will be used to designate this project. No whitespace. Not modifiable after creation.</string>
+     </property>
+    </widget>
    </item>
    <item row="1" column="0">
     <widget class="QLabel" name="projectServerLabel">
@@ -45,6 +49,9 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="toolTip">
+      <string>The server from which to import the project.</string>
+     </property>
     </widget>
    </item>
    <item row="2" column="0">
@@ -55,7 +62,11 @@
     </widget>
    </item>
    <item row="2" column="1">
-    <widget class="QLineEdit" name="projectObsNameLineEdit"/>
+    <widget class="QLineEdit" name="projectObsNameLineEdit">
+     <property name="toolTip">
+      <string>The name of the project on the OBS server.</string>
+     </property>
+    </widget>
    </item>
    <item row="4" column="0">
     <widget class="QLabel" name="projectTargetLabel">
@@ -71,6 +82,9 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
+     </property>
+     <property name="toolTip">
+      <string>The &quot;target&quot; of the project. The list is loaded automatically.</string>
      </property>
      <property name="editable">
       <bool>false</bool>
@@ -91,6 +105,9 @@
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
+     </property>
+     <property name="toolTip">
+      <string>The target architecture of the project. The list is loaded automatically.</string>
      </property>
     </widget>
    </item>

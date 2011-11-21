@@ -48,7 +48,7 @@ class RepoConfigManager(QObject):
         self.__gui = gui
         self.__projectAlias = projectAlias
         self.__obsLightManager = self.__gui.getObsLightManager()
-        self.__configDialog = self.__gui.loadWindow("obsRepoConfig.ui")
+        self.__configDialog = self.__gui.loadWindow(u"obsRepoConfig.ui")
         self.__loadFieldObjects()
         self.__loadProjectPossibilities()
         self.__configDialog.accepted.connect(self.on_configDialog_accepted)
@@ -57,15 +57,15 @@ class RepoConfigManager(QObject):
 
     def __loadFieldObjects(self):
         self.__projectComboBox = self.__configDialog.findChild(QComboBox,
-                                                               "projectComboBox")
+                                                               u"projectComboBox")
         self.__urlLineEdit = self.__configDialog.findChild(QLineEdit,
-                                                           "repoUrlLineEdit")
+                                                           u"repoUrlLineEdit")
         self.__aliasLineEdit = self.__configDialog.findChild(QLineEdit,
-                                                             "repoAliasLineEdit")
+                                                             u"repoAliasLineEdit")
         self.__fromProjectRadio = self.__configDialog.findChild(QRadioButton,
-                                                                "repoFromProjectRadioButton")
+                                                                u"repoFromProjectRadioButton")
         self.__fromUrlRadio = self.__configDialog.findChild(QRadioButton,
-                                                            "repoFromUrlRadioButton")
+                                                            u"repoFromUrlRadioButton")
 
     def __loadProjectPossibilities(self):
         projects = self.__obsLightManager.getLocalProjectList()
@@ -87,7 +87,7 @@ class RepoConfigManager(QObject):
     def on_configDialog_accepted(self):
         obslightManager = self.__obsLightManager
         progress = self.__gui.getProgressDialog()
-        progress.setLabelText("Importing repository in chroot...")
+        progress.setLabelText(u"Importing repository in chroot...")
         if self.addFromUrl():
             if len(self.getRepoUrl()) > 0 and len(self.getRepoAlias()) > 0:
                 progress.show()
@@ -96,7 +96,7 @@ class RepoConfigManager(QObject):
                                             repoUrl=self.getRepoUrl(),
                                             alias=self.getRepoAlias())
                 runnable.setProgressDialog(progress)
-                runnable.finishedWithException.connect(self.__gui.obsLightErrorCallback2)
+                runnable.finishedWithException.connect(self.__gui.popupErrorCallback)
                 QThreadPool.globalInstance().start(runnable)
         else:
             if len(self.getProject()) > 0:
@@ -105,7 +105,7 @@ class RepoConfigManager(QObject):
                                             self.__projectAlias,
                                             fromProject=self.getProject())
                 runnable.setProgressDialog(progress)
-                runnable.finishedWithException.connect(self.__gui.obsLightErrorCallback2)
+                runnable.finishedWithException.connect(self.__gui.popupErrorCallback)
                 QThreadPool.globalInstance().start(runnable)
 
     def on_configDialog_rejected(self):

@@ -60,49 +60,52 @@ class ProjectManager(QObject):
         self.__gui = gui
         mainWindow = gui.getMainWindow()
         self.__obsProjectsListWidget = mainWindow.findChild(QListWidget,
-                                                            "obsProjectsListWidget")
+                                                            u"obsProjectsListWidget")
         self.__obsProjectsListWidget.currentTextChanged.connect(self.on_projectSelected)
         self.loadProjectList()
         self.__packageManager = PackageManager(self.__gui)
         self.__newObsProjectButton = mainWindow.findChild(QPushButton,
-                                                          "newObsProjectButton")
+                                                          u"newObsProjectButton")
         self.__newObsProjectButton.clicked.connect(self.on_newObsProjectButton_clicked)
         self.__modifyObsProjectButton = mainWindow.findChild(QPushButton,
-                                                             "modifyObsProjectButton")
+                                                             u"modifyObsProjectButton")
         self.__modifyObsProjectButton.clicked.connect(self.on_modifyObsProjectButton_clicked)
         self.__deleteObsProjectButton = mainWindow.findChild(QPushButton,
-                                                             "deleteObsProjectButton")
+                                                             u"deleteObsProjectButton")
         self.__deleteObsProjectButton.clicked.connect(self.on_deleteObsProjectButton_clicked)
         self.__loadObsProjectButton = mainWindow.findChild(QPushButton,
-                                                             "loadObsProjectButton")
+                                                           u"loadObsProjectButton")
         self.__loadObsProjectButton.clicked.connect(self.on_importObsProjectButton_clicked)
         self.__saveObsProjectButton = mainWindow.findChild(QPushButton,
-                                                             "saveObsProjectButton")
+                                                           u"saveObsProjectButton")
         self.__saveObsProjectButton.clicked.connect(self.on_exportObsProjectButton_clicked)
+
         self.__newChrootButton = mainWindow.findChild(QPushButton,
-                                                         "newChrootButton")
+                                                         u"newChrootButton")
         self.__newChrootButton.clicked.connect(self.on_newChrootButton_clicked)
         self.__deleteChrootButton = mainWindow.findChild(QPushButton,
-                                                         "deleteChrootButton")
+                                                         u"deleteChrootButton")
         self.__deleteChrootButton.clicked.connect(self.on_deleteChrootButton_clicked)
+
         self.__addRepoInChrootButton = mainWindow.findChild(QPushButton,
-                                                            "addRepoInChrootButton")
+                                                            u"addRepoInChrootButton")
         self.__addRepoInChrootButton.clicked.connect(self.on_addRepoInChrootButton_clicked)
+
         self.__importRpmButton = mainWindow.findChild(QPushButton,
-                                                      "importRpmButton")
+                                                      u"importRpmButton")
         self.__importRpmButton.clicked.connect(self.on_importRpmButton_clicked)
         self.__projectLinkLabel = mainWindow.findChild(QLabel,
-                                                       "projectPageLinkLabel")
+                                                       u"projectPageLinkLabel")
         self.__projectRepoLinkLabel = mainWindow.findChild(QLabel,
-                                                           "projectRepoPageLinkLabel")
+                                                           u"projectRepoPageLinkLabel")
         self.__projectDescriptionLabel = mainWindow.findChild(QLabel,
-                                                              "projectDescriptionLabel")
+                                                              u"projectDescriptionLabel")
         self.__projectTitleLabel = mainWindow.findChild(QLabel,
-                                                        "projectTitleLabel")
+                                                        u"projectTitleLabel")
         self.__projectLabel = mainWindow.findChild(QLabel,
-                                                   "projectLabelValue")
+                                                   u"projectLabelValue")
         self.__chrootPathLineEdit = mainWindow.findChild(QLineEdit,
-                                                         "chrootPathLineEdit")
+                                                         u"chrootPathLineEdit")
 
     def loadProjectList(self):
         '''
@@ -132,35 +135,39 @@ class ProjectManager(QObject):
     @popupOnException
     def on_modifyObsProjectButton_clicked(self):
         projectName = self.getCurrentProjectName()
+        if projectName is None:
+            return
         self.__projectConfigManager = ProjectConfigManager(self.__gui, projectName)
         self.__projectConfigManager.finished.connect(self.on_projectConfigManager_finished)
 
     @popupOnException
     def on_deleteObsProjectButton_clicked(self):
         projectName = self.getCurrentProjectName()
+        if projectName is None:
+            return
         obslightManager = self.__gui.getObsLightManager()
         progress = self.__gui.getProgressDialog()
-        progress.setLabelText("Deleting project...")
+        progress.setLabelText(u"Deleting project...")
         progress.show()
         runnable = ProgressRunnable(obslightManager.removeProject, projectName)
         runnable.setProgressDialog(progress)
-        runnable.finishedWithException.connect(self.__gui.obsLightErrorCallback2)
+        runnable.finishedWithException.connect(self.__gui.popupErrorCallback)
         runnable.finished.connect(self.loadProjectList)
         QThreadPool.globalInstance().start(runnable)
 
     @popupOnException
     def on_importObsProjectButton_clicked(self):
         filePath, _filter = QFileDialog.getOpenFileName(self.__gui.getMainWindow(),
-                                                        "Select project to import")
+                                                        u"Select project to import")
         if len(filePath) < 1:
             return
         obslightManager = self.__gui.getObsLightManager()
         progress = self.__gui.getProgressDialog()
-        progress.setLabelText("Importing project...")
+        progress.setLabelText(u"Importing project...")
         progress.show()
         runnable = ProgressRunnable(obslightManager.importProject, filePath)
         runnable.setProgressDialog(progress)
-        runnable.finishedWithException.connect(self.__gui.obsLightErrorCallback2)
+        runnable.finishedWithException.connect(self.__gui.popupErrorCallback)
         runnable.finished.connect(self.loadProjectList)
         QThreadPool.globalInstance().start(runnable)
 
@@ -170,16 +177,16 @@ class ProjectManager(QObject):
         if project is None:
             return
         filePath, _filter = QFileDialog.getSaveFileName(self.__gui.getMainWindow(),
-                                                        "Select file to export")
+                                                        u"Select file to export")
         if len(filePath) < 1:
             return
         progress = self.__gui.getProgressDialog()
-        progress.setLabelText("Importing project...")
+        progress.setLabelText(u"Importing project...")
         progress.show()
         obslightManager = self.__gui.getObsLightManager()
         runnable = ProgressRunnable(obslightManager.exportProject, project, filePath)
         runnable.setProgressDialog(progress)
-        runnable.finishedWithException.connect(self.__gui.obsLightErrorCallback2)
+        runnable.finishedWithException.connect(self.__gui.popupErrorCallback)
         runnable.finished.connect(self.loadProjectList)
         QThreadPool.globalInstance().start(runnable)
 
@@ -207,17 +214,17 @@ class ProjectManager(QObject):
                                                 currentPackage,
                                                 detach=True)
 
-                runnable.finishedWithException.connect(self.__gui.obsLightErrorCallback2)
+                runnable.finishedWithException.connect(self.__gui.popupErrorCallback)
                 runnable.finished.connect(self.refresh)
                 QThreadPool.globalInstance().start(runnable)
             else:
                 progress = self.__gui.getProgressDialog()
-                progress.setLabelText("Creating chroot")
+                progress.setLabelText(u"Creating chroot")
                 progress.show()
                 runnable = ProgressRunnable(obslightManager.createChRoot,
                                             projectName)
                 runnable.setProgressDialog(progress)
-                runnable.finishedWithException.connect(self.__gui.obsLightErrorCallback2)
+                runnable.finishedWithException.connect(self.__gui.popupErrorCallback)
                 runnable.finished.connect(self.refresh)
                 QThreadPool.globalInstance().start(runnable)
 
@@ -248,12 +255,12 @@ class ProjectManager(QObject):
         if projectName is not None and packageName is not None:
             obslightManager = self.__gui.getObsLightManager()
             progress = self.__gui.getProgressDialog()
-            progress.setLabelText("Importing source in chroot")
+            progress.setLabelText(u"Importing source in chroot")
             progress.show()
             runnable = ProgressRunnable(obslightManager.addPackageSourceInChRoot,
                                         projectName, packageName)
             runnable.setProgressDialog(progress)
-            runnable.finishedWithException.connect(self.__gui.obsLightErrorCallback2)
+            runnable.finishedWithException.connect(self.__gui.popupErrorCallback)
             QThreadPool.globalInstance().start(runnable)
 
     def on_projectSelected(self, _project):
@@ -275,19 +282,19 @@ class ProjectManager(QObject):
             obslightManager = self.__gui.getObsLightManager()
             projectLink = obslightManager.getProjectWebPage(project)
             projectObsName = obslightManager.getProjectParameter(project,
-                                                                 "projectObsName")
-            target = obslightManager.getProjectParameter(project, "projectTarget")
+                                                                 u"projectObsName")
+            target = obslightManager.getProjectParameter(project, u"projectTarget")
             repoLink = obslightManager.getProjectRepository(project)
-            projectTitle = obslightManager.getProjectParameter(project, "projectTitle")
-            projectDescription = obslightManager.getProjectParameter(project, "description")
+            projectTitle = obslightManager.getProjectParameter(project, u"projectTitle")
+            projectDescription = obslightManager.getProjectParameter(project, u"description")
 
             self.__projectLabel.setText(project)
             self.__projectTitleLabel.setText(projectTitle)
             self.__projectDescriptionLabel.setText(projectDescription)
-            self.__projectLinkLabel.setText('<a href="%s">%s</a>' % (projectLink,
-                                                                     projectObsName))
-            self.__projectRepoLinkLabel.setText('<a href="%s">%s</a>' % (repoLink,
-                                                                         target))
+            self.__projectLinkLabel.setText(u'<a href="%s">%s</a>' % (projectLink,
+                                                                      projectObsName))
+            self.__projectRepoLinkLabel.setText(u'<a href="%s">%s</a>' % (repoLink,
+                                                                          target))
             self.__saveObsProjectButton.setEnabled(True)
         else:
             self.__saveObsProjectButton.setEnabled(False)
@@ -306,10 +313,12 @@ class ProjectManager(QObject):
             if obslightManager.isChRootInit(project):
                 chrootPath = obslightManager.getChRootPath(project)
                 self.__chrootPathLineEdit.setText(chrootPath)
-                self.__newChrootButton.setText("Open chroot")
+
+                self.__newChrootButton.setText(u"Open chroot")
                 self.__addRepoInChrootButton.setEnabled(True)
                 self.__importRpmButton.setEnabled(True)
             else:
-                self.__newChrootButton.setText("Create chroot")
+                self.__newChrootButton.setText(u"New")
+
                 self.__addRepoInChrootButton.setEnabled(False)
                 self.__importRpmButton.setEnabled(False)
