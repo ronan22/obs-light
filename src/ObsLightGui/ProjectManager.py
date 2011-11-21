@@ -39,8 +39,8 @@ class ProjectManager(QObject):
     __newObsProjectButton = None
     __modifyObsProjectButton = None
     __deleteObsProjectButton = None
-    __importObsProjectButton = None
-    __exportObsProjectButton = None
+    __loadObsProjectButton = None
+    __saveObsProjectButton = None
     __createChrootButton = None
     __addRepoInChrootButton = None
     __importRpmButton = None
@@ -72,12 +72,12 @@ class ProjectManager(QObject):
         self.__deleteObsProjectButton = mainWindow.findChild(QPushButton,
                                                              "deleteObsProjectButton")
         self.__deleteObsProjectButton.clicked.connect(self.on_deleteObsProjectButton_clicked)
-        self.__importObsProjectButton = mainWindow.findChild(QPushButton,
-                                                             "importObsProjectButton")
-        self.__importObsProjectButton.clicked.connect(self.on_importObsProjectButton_clicked)
-        self.__exportObsProjectButton = mainWindow.findChild(QPushButton,
-                                                             "exportObsProjectButton")
-        self.__exportObsProjectButton.clicked.connect(self.on_exportObsProjectButton_clicked)
+        self.__loadObsProjectButton = mainWindow.findChild(QPushButton,
+                                                             "loadObsProjectButton")
+        self.__loadObsProjectButton.clicked.connect(self.on_importObsProjectButton_clicked)
+        self.__saveObsProjectButton = mainWindow.findChild(QPushButton,
+                                                             "saveObsProjectButton")
+        self.__saveObsProjectButton.clicked.connect(self.on_exportObsProjectButton_clicked)
         self.__createChrootButton = mainWindow.findChild(QPushButton,
                                                          "createChrootButton")
         self.__createChrootButton.clicked.connect(self.on_createChrootButton_clicked)
@@ -258,9 +258,9 @@ class ProjectManager(QObject):
                                                                      projectObsName))
             self.__projectRepoLinkLabel.setText('<a href="%s">%s</a>' % (repoLink,
                                                                          target))
-            self.__exportObsProjectButton.setEnabled(True)
+            self.__saveObsProjectButton.setEnabled(True)
         else:
-            self.__exportObsProjectButton.setEnabled(False)
+            self.__saveObsProjectButton.setEnabled(False)
 
     @popupOnException
     def updateChrootPathAndButtons(self):

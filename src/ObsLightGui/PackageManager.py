@@ -45,7 +45,7 @@ class PackageManager(QObject):
     __packageNameLabel = None
     __packageTitleLabel = None
     __packageDescriptionLabel = None
-    __newPackageButton = None
+    __importPackageButton = None
     __deletePackageButton = None
     __makePatchButton = None
     __addAndCommitButton = None
@@ -62,9 +62,9 @@ class PackageManager(QObject):
                                                                 "packageTableView")
         self.__packageTableView.setSelectionBehavior(QTableView.SelectionBehavior.SelectRows)
         self.__packageTableView.activated.connect(self.on_packageIndex_clicked)
-        self.__newPackageButton = gui.getMainWindow().findChild(QPushButton,
-                                                                "newPackageButton")
-        self.__newPackageButton.clicked.connect(self.on_newPackageButton_clicked)
+        self.__importPackageButton = gui.getMainWindow().findChild(QPushButton,
+                                                                "importPackageButton")
+        self.__importPackageButton.clicked.connect(self.on_newPackageButton_clicked)
         self.__deletePackageButton = gui.getMainWindow().findChild(QPushButton,
                                                                    "deletePackageButton")
         self.__deletePackageButton.clicked.connect(self.on_deletePackageButton_clicked)

@@ -202,7 +202,16 @@ class ObsLightOsc(object):
                  short intermediate state for new packages.
         '''
         url = str(obsServer + "/build/" + project + "/" + repo + "/" + arch + "/" + package + "/_status")
-        fileXML = core.http_request("GET", url).read()
+
+
+        try:
+            res = core.http_request("GET", url)
+        except urllib2.URLError:
+            print "apiurl " + str(obsServer) + " is not reachable"
+            return None
+
+        fileXML = res.read()
+
         aElement = ElementTree.fromstring(fileXML)
         return aElement.attrib["code"]
 
@@ -246,6 +255,7 @@ class ObsLightOsc(object):
             print "WARNING: Error obsServer:", obsServer
             raise e
         return res
+
     def getListRepos(self, apiurl):
         '''
         return the list of the repos of a OBS Server.

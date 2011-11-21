@@ -92,47 +92,17 @@
                  <string/>
                 </property>
                 <layout class="QGridLayout" name="gridLayout_9">
-                 <item row="6" column="0">
+                 <item row="7" column="0">
                   <widget class="QPushButton" name="modifyObsProjectButton">
                    <property name="text">
                     <string>Modify</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="5" column="1">
-                  <widget class="QPushButton" name="newObsProjectButton">
-                   <property name="locale">
-                    <locale language="English" country="UnitedStates"/>
-                   </property>
-                   <property name="text">
-                    <string>Import OBS project</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="5" column="0">
+                 <item row="6" column="0">
                   <widget class="QPushButton" name="deleteObsProjectButton">
                    <property name="text">
                     <string>Delete</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="4" column="0">
-                  <widget class="QPushButton" name="importObsProjectButton">
-                   <property name="enabled">
-                    <bool>true</bool>
-                   </property>
-                   <property name="text">
-                    <string>Import</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="4" column="1">
-                  <widget class="QPushButton" name="exportObsProjectButton">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
-                   <property name="text">
-                    <string>Export</string>
                    </property>
                   </widget>
                  </item>
@@ -164,7 +134,7 @@
                       <x>0</x>
                       <y>0</y>
                       <width>242</width>
-                      <height>153</height>
+                      <height>134</height>
                      </rect>
                     </property>
                     <layout class="QGridLayout" name="gridLayout_2">
@@ -259,6 +229,46 @@
                    </widget>
                   </widget>
                  </item>
+                 <item row="4" column="0">
+                  <widget class="QPushButton" name="newProjectButton">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="text">
+                    <string>New</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="5" column="0">
+                  <widget class="QPushButton" name="newObsProjectButton">
+                   <property name="locale">
+                    <locale language="English" country="UnitedStates"/>
+                   </property>
+                   <property name="text">
+                    <string>Import</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="7" column="1">
+                  <widget class="QPushButton" name="loadObsProjectButton">
+                   <property name="enabled">
+                    <bool>true</bool>
+                   </property>
+                   <property name="text">
+                    <string>Load</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="6" column="1">
+                  <widget class="QPushButton" name="saveObsProjectButton">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="text">
+                    <string>Save</string>
+                   </property>
+                  </widget>
+                 </item>
                 </layout>
                </widget>
               </item>
@@ -310,34 +320,17 @@
                    </property>
                   </widget>
                  </item>
-                 <item row="4" column="1">
-                  <widget class="QPushButton" name="importRpmButton">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
-                   <property name="text">
-                    <string>Import source RPM</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="7" column="0">
+                 <item row="8" column="0">
                   <widget class="QPushButton" name="deletePackageButton">
                    <property name="text">
                     <string>Delete</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="4" column="0">
-                  <widget class="QPushButton" name="newPackageButton">
+                 <item row="5" column="0">
+                  <widget class="QPushButton" name="importPackageButton">
                    <property name="text">
-                    <string>New</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="7" column="1">
-                  <widget class="QPushButton" name="addRepoInChrootButton">
-                   <property name="text">
-                    <string>Add repository in chroot</string>
+                    <string>Import</string>
                    </property>
                   </widget>
                  </item>
@@ -354,8 +347,8 @@
                      <rect>
                       <x>0</x>
                       <y>0</y>
-                      <width>215</width>
-                      <height>180</height>
+                      <width>169</width>
+                      <height>126</height>
                      </rect>
                     </property>
                     <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -403,6 +396,36 @@
                    </widget>
                   </widget>
                  </item>
+                 <item row="4" column="0">
+                  <widget class="QPushButton" name="newPackageButton">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="text">
+                    <string>New</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="9" column="0">
+                  <widget class="QPushButton" name="modifyPackageButton">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="text">
+                    <string>Modify</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="9" column="1">
+                  <widget class="QPushButton" name="importRpmButton">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="text">
+                    <string>Install Source</string>
+                   </property>
+                  </widget>
+                 </item>
                 </layout>
                </widget>
               </item>
@@ -434,7 +457,7 @@
                   <property name="margin">
                    <number>0</number>
                   </property>
-                  <item row="6" column="2">
+                  <item row="8" column="2">
                    <widget class="QPushButton" name="buildPackageButton">
                     <property name="enabled">
                      <bool>false</bool>
@@ -444,41 +467,64 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="6" column="1">
-                   <widget class="QPushButton" name="deleteFileButton">
-                    <property name="text">
-                     <string>Delete file</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="8" column="1">
-                   <widget class="QPushButton" name="updateFileButton">
-                    <property name="enabled">
-                     <bool>false</bool>
-                    </property>
-                    <property name="text">
-                     <string>Update file</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="7" column="1">
-                   <widget class="QPushButton" name="addFileButton">
-                    <property name="text">
-                     <string>Add file</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="7" column="2">
+                  <item row="9" column="2">
                    <widget class="QPushButton" name="generatePatchButton">
                     <property name="text">
                      <string>Generate patch</string>
                     </property>
                    </widget>
                   </item>
-                  <item row="8" column="2">
+                  <item row="10" column="2">
                    <widget class="QPushButton" name="addAndCommitButton">
                     <property name="text">
                      <string>Commit changes</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="6" column="1">
+                   <widget class="QPushButton" name="newFileButton">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
+                    <property name="text">
+                     <string>New</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="9" column="1">
+                   <widget class="QPushButton" name="deleteFileButton">
+                    <property name="text">
+                     <string>Delete</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="8" column="1">
+                   <widget class="QPushButton" name="addFileButton">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
+                    <property name="text">
+                     <string>Import</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="6" column="2">
+                   <widget class="QPushButton" name="updateFileButton">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
+                    <property name="text">
+                     <string>Update files</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="10" column="1">
+                   <widget class="QPushButton" name="modifyFileButton">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
+                    <property name="text">
+                     <string>Modify</string>
                     </property>
                    </widget>
                   </item>
@@ -498,7 +544,7 @@
                <item row="3" column="0">
                 <widget class="QWidget" name="widget_2" native="true">
                  <layout class="QGridLayout" name="gridLayout_14">
-                  <item row="1" column="0">
+                  <item row="2" column="0">
                    <widget class="QLabel" name="chrootLabel">
                     <property name="text">
                      <string>Chroot path:</string>
@@ -508,17 +554,24 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="0" column="1">
+                  <item row="1" column="1">
                    <widget class="QPushButton" name="createChrootButton">
                     <property name="text">
                      <string>Create chroot</string>
                     </property>
                    </widget>
                   </item>
-                  <item row="1" column="1">
+                  <item row="2" column="1">
                    <widget class="QLineEdit" name="chrootPathLineEdit">
                     <property name="readOnly">
                      <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="1">
+                   <widget class="QPushButton" name="addRepoInChrootButton">
+                    <property name="text">
+                     <string>Add repository in chroot</string>
                     </property>
                    </widget>
                   </item>
@@ -1069,8 +1122,16 @@
     </property>
     <addaction name="actionAbout"/>
    </widget>
+   <widget class="QMenu" name="menuWindow">
+    <property name="title">
+     <string>Window</string>
+    </property>
+    <addaction name="actionShow_Log"/>
+    <addaction name="actionConfig"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuProject"/>
+   <addaction name="menuWindow"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="mainStatusBar"/>
@@ -1117,6 +1178,16 @@
   <action name="actionAbout_Qt">
    <property name="text">
     <string>About Qt</string>
+   </property>
+  </action>
+  <action name="actionShow_Log">
+   <property name="text">
+    <string>Show Log</string>
+   </property>
+  </action>
+  <action name="actionConfig">
+   <property name="text">
+    <string>Show Config</string>
    </property>
   </action>
  </widget>
