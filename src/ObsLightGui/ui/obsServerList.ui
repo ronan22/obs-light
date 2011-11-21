@@ -25,6 +25,9 @@
    </item>
    <item row="0" column="1" rowspan="2">
     <widget class="QPushButton" name="addExistingServerButton">
+     <property name="toolTip">
+      <string>Configure an already running OBS server</string>
+     </property>
      <property name="text">
       <string>Add existing server</string>
      </property>
@@ -34,6 +37,9 @@
     <widget class="QPushButton" name="deleteServerButton">
      <property name="enabled">
       <bool>true</bool>
+     </property>
+     <property name="toolTip">
+      <string>Delete the selected server</string>
      </property>
      <property name="text">
       <string>Delete</string>
@@ -45,6 +51,9 @@
      <property name="enabled">
       <bool>false</bool>
      </property>
+     <property name="toolTip">
+      <string>Create a new OBS server using OBS Light's appliance</string>
+     </property>
      <property name="text">
       <string>Create virtual server</string>
      </property>
@@ -52,6 +61,9 @@
    </item>
    <item row="4" column="1">
     <widget class="QPushButton" name="modifyServerButton">
+     <property name="toolTip">
+      <string>Modify the selected server</string>
+     </property>
      <property name="text">
       <string>Modify</string>
      </property>
@@ -84,6 +96,9 @@
     <widget class="QPushButton" name="checkConnectionButton">
      <property name="enabled">
       <bool>true</bool>
+     </property>
+     <property name="toolTip">
+      <string>Test if the currently server is reachable. Will display result in a pop-up.</string>
      </property>
      <property name="text">
       <string>Check Connection</string>

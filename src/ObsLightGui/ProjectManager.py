@@ -121,12 +121,16 @@ class ProjectManager(QObject):
     @popupOnException
     def on_modifyObsProjectButton_clicked(self):
         projectName = self.getCurrentProjectName()
+        if projectName is None:
+            return
         self.__projectConfigManager = ProjectConfigManager(self.__gui, projectName)
         self.__projectConfigManager.finished.connect(self.on_projectConfigManager_finished)
 
     @popupOnException
     def on_deleteObsProjectButton_clicked(self):
         projectName = self.getCurrentProjectName()
+        if projectName is None:
+            return
         obslightManager = self.__gui.getObsLightManager()
         progress = self.__gui.getProgressDialog()
         progress.setLabelText("Deleting project...")

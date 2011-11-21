@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>822</width>
-    <height>605</height>
+    <width>840</width>
+    <height>560</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -75,6 +75,18 @@
               </property>
               <item>
                <widget class="QListWidget" name="obsProjectsListWidget">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>80</height>
+                 </size>
+                </property>
                 <property name="autoScrollMargin">
                  <number>16</number>
                 </property>
@@ -94,6 +106,9 @@
                 <layout class="QGridLayout" name="gridLayout_9">
                  <item row="7" column="0">
                   <widget class="QPushButton" name="modifyObsProjectButton">
+                   <property name="toolTip">
+                    <string>Modify the configuration of the selected project.</string>
+                   </property>
                    <property name="text">
                     <string>Modify</string>
                    </property>
@@ -101,6 +116,9 @@
                  </item>
                  <item row="6" column="0">
                   <widget class="QPushButton" name="deleteObsProjectButton">
+                   <property name="toolTip">
+                    <string>Delete the selected project.</string>
+                   </property>
                    <property name="text">
                     <string>Delete</string>
                    </property>
@@ -234,6 +252,9 @@
                    <property name="enabled">
                     <bool>false</bool>
                    </property>
+                   <property name="toolTip">
+                    <string>Create a new project.</string>
+                   </property>
                    <property name="text">
                     <string>New</string>
                    </property>
@@ -241,6 +262,9 @@
                  </item>
                  <item row="5" column="0">
                   <widget class="QPushButton" name="newObsProjectButton">
+                   <property name="toolTip">
+                    <string>Import a project that already exists on an OBS server.</string>
+                   </property>
                    <property name="locale">
                     <locale language="English" country="UnitedStates"/>
                    </property>
@@ -254,6 +278,9 @@
                    <property name="enabled">
                     <bool>true</bool>
                    </property>
+                   <property name="toolTip">
+                    <string>Load a project from a file.</string>
+                   </property>
                    <property name="text">
                     <string>Load</string>
                    </property>
@@ -263,6 +290,9 @@
                   <widget class="QPushButton" name="saveObsProjectButton">
                    <property name="enabled">
                     <bool>false</bool>
+                   </property>
+                   <property name="toolTip">
+                    <string>Save the current project to a file.</string>
                    </property>
                    <property name="text">
                     <string>Save</string>
@@ -322,6 +352,9 @@
                  </item>
                  <item row="8" column="0">
                   <widget class="QPushButton" name="deletePackageButton">
+                   <property name="toolTip">
+                    <string>Remove the selected package from project.</string>
+                   </property>
                    <property name="text">
                     <string>Delete</string>
                    </property>
@@ -329,6 +362,9 @@
                  </item>
                  <item row="5" column="0">
                   <widget class="QPushButton" name="importPackageButton">
+                   <property name="toolTip">
+                    <string>Import an existing package in project.</string>
+                   </property>
                    <property name="text">
                     <string>Import</string>
                    </property>
@@ -347,8 +383,8 @@
                      <rect>
                       <x>0</x>
                       <y>0</y>
-                      <width>169</width>
-                      <height>126</height>
+                      <width>175</width>
+                      <height>104</height>
                      </rect>
                     </property>
                     <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -421,6 +457,9 @@
                    <property name="enabled">
                     <bool>false</bool>
                    </property>
+                   <property name="toolTip">
+                    <string>Install the source of the selected package into the chroot.</string>
+                   </property>
                    <property name="text">
                     <string>Install Source</string>
                    </property>
@@ -469,6 +508,9 @@
                   </item>
                   <item row="9" column="2">
                    <widget class="QPushButton" name="generatePatchButton">
+                    <property name="toolTip">
+                     <string>Generate a patch from the changes made into the chroot, and add this patch to the package.</string>
+                    </property>
                     <property name="text">
                      <string>Generate patch</string>
                     </property>
@@ -476,6 +518,9 @@
                   </item>
                   <item row="10" column="2">
                    <widget class="QPushButton" name="addAndCommitButton">
+                    <property name="toolTip">
+                     <string>Commit all modifications made to the package files.</string>
+                    </property>
                     <property name="text">
                      <string>Commit changes</string>
                     </property>
@@ -493,6 +538,9 @@
                   </item>
                   <item row="9" column="1">
                    <widget class="QPushButton" name="deleteFileButton">
+                    <property name="toolTip">
+                     <string>Remove the selected file from the package.</string>
+                    </property>
                     <property name="text">
                      <string>Delete</string>
                     </property>
@@ -500,8 +548,8 @@
                   </item>
                   <item row="8" column="1">
                    <widget class="QPushButton" name="addFileButton">
-                    <property name="enabled">
-                     <bool>false</bool>
+                    <property name="toolTip">
+                     <string>Import files into the package.</string>
                     </property>
                     <property name="text">
                      <string>Import</string>
@@ -556,6 +604,9 @@
                   </item>
                   <item row="1" column="1">
                    <widget class="QPushButton" name="createChrootButton">
+                    <property name="toolTip">
+                     <string>Create (or open if it exists) the chroot of the project. If a package is selected, the chroot will open in this package's source directory.</string>
+                    </property>
                     <property name="text">
                      <string>Create chroot</string>
                     </property>
@@ -563,6 +614,9 @@
                   </item>
                   <item row="2" column="1">
                    <widget class="QLineEdit" name="chrootPathLineEdit">
+                    <property name="toolTip">
+                     <string>The path of the chroot on the local filesystem.</string>
+                    </property>
                     <property name="readOnly">
                      <bool>true</bool>
                     </property>
@@ -570,6 +624,9 @@
                   </item>
                   <item row="0" column="1">
                    <widget class="QPushButton" name="addRepoInChrootButton">
+                    <property name="toolTip">
+                     <string>Make a package repository accessible from the chroot (using zypper).</string>
+                    </property>
                     <property name="text">
                      <string>Add repository in chroot</string>
                     </property>
@@ -1089,7 +1146,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>822</width>
+     <width>840</width>
      <height>20</height>
     </rect>
    </property>
@@ -1148,6 +1205,9 @@
   <action name="actionOBS_servers">
    <property name="text">
     <string>OBS servers</string>
+   </property>
+   <property name="toolTip">
+    <string>Open OBS servers configuration dialog</string>
    </property>
   </action>
   <action name="actionImport">

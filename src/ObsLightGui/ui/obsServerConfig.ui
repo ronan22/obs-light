@@ -85,6 +85,9 @@
           <height>0</height>
          </size>
         </property>
+        <property name="toolTip">
+         <string>URL of server's web interface. Must start with &quot;http://&quot; or &quot;https://&quot;</string>
+        </property>
        </widget>
       </item>
       <item row="1" column="0">
@@ -95,7 +98,11 @@
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="QLineEdit" name="serverApiLineEdit"/>
+       <widget class="QLineEdit" name="serverApiLineEdit">
+        <property name="toolTip">
+         <string>URL of server's OBS API. Must start with &quot;http://&quot; or &quot;https://&quot;. On port 81 on OBS Light appliance.</string>
+        </property>
+       </widget>
       </item>
       <item row="2" column="0">
        <widget class="QLabel" name="serverRepositoryLabel">
@@ -105,7 +112,11 @@
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="QLineEdit" name="serverRepoLineEdit"/>
+       <widget class="QLineEdit" name="serverRepoLineEdit">
+        <property name="toolTip">
+         <string>URL of server's package repository. Must start with &quot;http://&quot; or &quot;https://&quot;. On port 82 on OBS Light appliance.</string>
+        </property>
+       </widget>
       </item>
       <item row="3" column="0">
        <widget class="QLabel" name="serverAliasLabel">
@@ -115,7 +126,11 @@
        </widget>
       </item>
       <item row="3" column="1">
-       <widget class="QLineEdit" name="serverAliasLineEdit"/>
+       <widget class="QLineEdit" name="serverAliasLineEdit">
+        <property name="toolTip">
+         <string>The name that will be used to designate this server. No whitespace. Not modifiable after creation.</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
@@ -140,6 +155,9 @@
      <layout class="QFormLayout" name="formLayout_2">
       <item row="0" column="1">
        <widget class="QLineEdit" name="usernameLineEdit">
+        <property name="toolTip">
+         <string>Username that will be used when contacting OBS API.</string>
+        </property>
         <property name="echoMode">
          <enum>QLineEdit::Normal</enum>
         </property>
@@ -147,6 +165,9 @@
       </item>
       <item row="1" column="1">
        <widget class="QLineEdit" name="passwordLineEdit">
+        <property name="toolTip">
+         <string>Password associated with username. May be stored in plain text in OSC configuration file.</string>
+        </property>
         <property name="echoMode">
          <enum>QLineEdit::Password</enum>
         </property>
@@ -193,6 +214,9 @@
    </item>
    <item row="5" column="1">
     <widget class="QPushButton" name="checkConnectionButton">
+     <property name="toolTip">
+      <string>Check if the 3 URLs are reachable. Green ones are OK, red ones are invalid or offline.</string>
+     </property>
      <property name="text">
       <string>Check connection</string>
      </property>
