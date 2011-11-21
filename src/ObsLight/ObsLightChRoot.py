@@ -31,7 +31,7 @@ import ObsLightOsc
 import ObsLightMic
 
 import ObsLightErr
-
+import ObsLightConfig
 from ObsLightSubprocess import SubprocessCrt
 
 class ObsLightChRoot(object):
@@ -283,7 +283,7 @@ class ObsLightChRoot(object):
 
         command = "sudo -H chroot " + self.getDirectory() + " " + self.__dirTransfert + "/runMe.sh"
         if detach is True:
-            command = "xterm -e " + command
+            command = ObsLightConfig.getConsole() + " " + command
         if platform.machine() == 'x86_64':
             command = "linux32 " + command
 

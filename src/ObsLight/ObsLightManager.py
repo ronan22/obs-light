@@ -22,12 +22,16 @@ Created on 17 juin 2011
 '''
 
 import os
+import shutil
 
 from ObsLightErr import ObsLightObsServers
 from ObsLightErr import ObsLightProjectsError
 from ObsServers import ObsServers
 from ObsLightProjects import ObsLightProjects
 from ObsLightTools import isNonEmptyString
+
+OBSLIGHTDIRNAME = "OBSLight"
+OBSLIGHTCONFIG = "obslight_config"
 
 def checkProjectLocalName(position=None):
     def checkProjectLocalName1(f):
@@ -56,14 +60,23 @@ class ObsLightManager(object):
         Initialize the OBS Light Manager.
         '''
 
-        self.__workingDirectory = os.path.join(os.environ['HOME'], "OBSLight")
+        self.__workingDirectory = os.path.join(os.environ['HOME'], OBSLIGHTDIRNAME)
         # If not exists, create the obsLight directory for the user.
         if not os.path.isdir(self.__workingDirectory):
             os.makedirs(self.__workingDirectory)
+        self.__configPath = os.path.join(self.__workingDirectory, OBSLIGHTCONFIG)
+        if not  os.path.exists(self.__configPath):
+            shutil.copy2(os.path.join(os.path.dirname(__file__), "config", OBSLIGHTCONFIG), self.__configPath)
 
         self.__myObsServers = ObsServers(workingDirectory=self.getObsLightWorkingDirectory())
         self.__myObsLightProjects = ObsLightProjects(obsServers=self.__myObsServers,
                                                      workingDirectory=self.getObsLightWorkingDirectory())
+
+    def getConfigPath(self):
+        '''
+        Return the path of the config file.
+        '''
+        return self.__configPath
 
     def getObsLightWorkingDirectory(self):
         '''
