@@ -383,7 +383,7 @@
                      <rect>
                       <x>0</x>
                       <y>0</y>
-                      <width>175</width>
+                      <width>286</width>
                       <height>104</height>
                      </rect>
                     </property>
@@ -609,11 +609,47 @@
                <string>chroot</string>
               </attribute>
               <layout class="QGridLayout" name="gridLayout_13">
+               <item row="2" column="0">
+                <widget class="QTreeView" name="chrootTreeView"/>
+               </item>
                <item row="3" column="0">
                 <widget class="QWidget" name="widget_2" native="true">
                  <layout class="QGridLayout" name="gridLayout_14">
+                  <item row="2" column="0">
+                   <widget class="QPushButton" name="newRepositoryButton">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
+                    <property name="text">
+                     <string>New</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="4" column="0">
+                   <widget class="QPushButton" name="DeleteRepositoryButton">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
+                    <property name="text">
+                     <string>Delete</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="5" column="0">
+                   <widget class="QPushButton" name="modifiRepositoryButton">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
+                    <property name="text">
+                     <string>Modify</string>
+                    </property>
+                   </widget>
+                  </item>
                   <item row="0" column="1">
                    <widget class="QLineEdit" name="chrootPathLineEdit">
+                    <property name="toolTip">
+                     <string>The path of the chroot on the local filesystem.</string>
+                    </property>
                     <property name="readOnly">
                      <bool>true</bool>
                     </property>
@@ -629,66 +665,40 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="1" column="1">
-                   <widget class="QPushButton" name="createChrootButton">
+                  <item row="2" column="1">
+                   <widget class="QPushButton" name="newChrootButton">
                     <property name="toolTip">
                      <string>Create (or open if it exists) the chroot of the project. If a package is selected, the chroot will open in this package's source directory.</string>
-                    </property>
-                    <property name="text">
-                     <string>Import</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="0">
-                   <widget class="QPushButton" name="new_2">
-                    <property name="enabled">
-                     <bool>false</bool>
                     </property>
                     <property name="text">
                      <string>New</string>
                     </property>
                    </widget>
                   </item>
-                  <item row="4" column="0">
-                   <widget class="QPushButton" name="pushButton_2">
-                    <property name="enabled">
-                     <bool>false</bool>
-                    </property>
-                    <property name="text">
-                     <string>Delete</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="5" column="0">
-                   <widget class="QPushButton" name="pushButton_3">
-                    <property name="enabled">
-                     <bool>false</bool>
-                    </property>
-                    <property name="text">
-                     <string>Modify</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="1">
-                   <widget class="QLineEdit" name="chrootPathLineEdit">
-                    <property name="toolTip">
-                     <string>The path of the chroot on the local filesystem.</string>
-                    </property>
-                    <property name="readOnly">
-                     <bool>true</bool>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="1">
-                   <widget class="QPushButton" name="addRepoInChrootButton">
-                    <property name="toolTip">
-                     <string>Make a package repository accessible from the chroot (using zypper).</string>
-                    </property>
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="repositoryLabel">
                     <property name="text">
                      <string>Repository</string>
                     </property>
                     <property name="alignment">
                      <set>Qt::AlignCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="0">
+                   <widget class="QPushButton" name="addRepoInChrootButton">
+                    <property name="toolTip">
+                     <string>Make a package repository accessible from the chroot (using zypper).</string>
+                    </property>
+                    <property name="text">
+                     <string>import</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="4" column="1">
+                   <widget class="QPushButton" name="deleteChrootButton">
+                    <property name="text">
+                     <string>Delete</string>
                     </property>
                    </widget>
                   </item>
@@ -704,9 +714,6 @@
                   </item>
                  </layout>
                 </widget>
-               </item>
-               <item row="2" column="0">
-                <widget class="QTreeView" name="chrootTreeView"/>
                </item>
               </layout>
              </widget>
