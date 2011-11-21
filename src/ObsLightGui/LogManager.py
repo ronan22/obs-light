@@ -20,37 +20,53 @@ Created on 21 nov. 2011
 @author: Florent Vennetier
 '''
 
-from logging import Handler
+from logging import Formatter, Handler
 
 from PySide.QtCore import QObject, Signal
 from PySide.QtGui import QPlainTextEdit
 
-class LogManager(QObject, Handler):
+class LogManager(QObject):
     '''
     
     '''
+
+    class MyHandler(Handler):
+
+        reEmit = None
+
+        def __init__(self, reEmitMethod):
+            Handler.__init__(self)
+            self.reEmit = reEmitMethod
+
+        def emit(self, record):
+            self.reEmit(record)
+
+
     __gui = None
     __logDialog = None
     __logTextEdit = None
+    __myHandler = None
 
-    __newMessage = Signal((unicode))
+    appendMessage = Signal(unicode)
 
     def __init__(self, gui):
         '''
         
         '''
         QObject.__init__(self)
-        Handler.__init__(self)
         self.__gui = gui
         self.__logDialog = self.__gui.loadWindow(u"obsLightLog.ui")
         self.__logTextEdit = self.__logDialog.findChild(QPlainTextEdit, u"logTextEdit")
-        self.__newMessage.connect(self.__logTextEdit.appendPlainText)
+        self.appendMessage.connect(self.__logTextEdit.appendPlainText)
+        self.__myHandler = LogManager.MyHandler(self.emitRecord)
+        #formatter = Formatter(u"%(asctime)s <font color=\"#0000FF\">%(name)s</font>: %(message)s")
+        #self.__myHandler.setFormatter(formatter)
+        self.__gui.getObsLightManager().addLoggerHandler(self.__myHandler)
 
-    def emit(self, record):
-        if not isinstance(record, unicode):
-            record = unicode(record)
-        self.__newMessage.emit(record)
+    def emitRecord(self, record):
+        formatted = self.__myHandler.format(record)
+        self.appendMessage.emit(unicode(formatted))
 
     def show(self):
         self.__logDialog.show()
-        #self.__logDialog.setFocus()
+        self.__logDialog.activateWindow()
