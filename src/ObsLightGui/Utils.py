@@ -125,9 +125,9 @@ def exceptionToMessageBox(exception, parent=None):
     To be called only from UI thread.
     '''
     if isinstance(exception, ObsLightErr.OBSLightBaseError):
-        QMessageBox.warning(parent, "Exception occurred", exception.msg)
+        QMessageBox.warning(parent, u"Exception occurred", exception.msg)
     else:
-        QMessageBox.critical(parent, "Exception occurred", str(exception))
+        QMessageBox.critical(parent, u"Exception occurred", unicode(exception))
 
 def popupOnException(f):
     '''

@@ -51,7 +51,7 @@ class ProjectConfigManager(QObject):
         self.__gui = gui
         self.__projectAlias = projectAlias
         self.__obsLightManager = self.__gui.getObsLightManager()
-        self.__configDialog = self.__gui.loadWindow("obsProjectConfig.ui")
+        self.__configDialog = self.__gui.loadWindow(u"obsProjectConfig.ui")
         self.__loadFieldObjects()
         self.__loadInitialFieldValues()
         self.__configDialog.accepted.connect(self.on_configDialog_accepted)
@@ -63,27 +63,27 @@ class ProjectConfigManager(QObject):
 
     def __loadFieldObjects(self):
         self.__localNameField = self.__configDialog.findChild(QLineEdit,
-                                                              "projectLocalNameLineEdit")
+                                                              u"projectLocalNameLineEdit")
         # obslight do not like whitespace characters
         noSpaceValidator = QRegExpValidator()
-        noSpaceValidator.setRegExp(QRegExp("\\S+"))
+        noSpaceValidator.setRegExp(QRegExp(u"\\S+"))
         self.__localNameField.setValidator(noSpaceValidator)
         self.__obsNameField = self.__configDialog.findChild(QLineEdit,
-                                                            "projectObsNameLineEdit")
+                                                            u"projectObsNameLineEdit")
         self.__obsNameField.textEdited.connect(self.handleObsNameEdited)
         self.__obsNameField.editingFinished.connect(self.handleObsNameEditingFinished)
         self.__serverCBox = self.__configDialog.findChild(QComboBox,
-                                                          "projectServerComboBox")
+                                                          u"projectServerComboBox")
         self.__serverCBox.currentIndexChanged.connect(self.handleObsNameEditingFinished)
         self.__targetCBox = self.__configDialog.findChild(QComboBox,
-                                                          "projectTargetComboBox")
+                                                          u"projectTargetComboBox")
         self.__targetCBox.currentIndexChanged.connect(self.handleTargetIndexChanged)
         self.__archCBox = self.__configDialog.findChild(QComboBox,
-                                                        "projectArchitectureComboBox")
+                                                        u"projectArchitectureComboBox")
         self.__titleLineEdit = self.__configDialog.findChild(QLineEdit,
-                                                             "projectTitleLineEdit")
+                                                             u"projectTitleLineEdit")
         self.__descriptionTextEdit = self.__configDialog.findChild(QTextEdit,
-                                                                   "projectDescriptionTextEdit")
+                                                                   u"projectDescriptionTextEdit")
 
     def __loadInitialFieldValues(self):
         self.__serverCBox.clear()
@@ -95,38 +95,38 @@ class ProjectConfigManager(QObject):
             self.__localNameField.setReadOnly(True)
             # load OBS server list and select appropriate current server
             obsServerAlias = self.__obsLightManager.getProjectParameter(self.__projectAlias,
-                                                                        "obsServer")
+                                                                        u"obsServer")
             lineIndex = self.__serverCBox.findText(obsServerAlias)
             if lineIndex >= 0:
                 self.__serverCBox.setCurrentIndex(lineIndex)
             self.__serverCBox.setEnabled(False)
             # load project OBS name
             projectObsName = self.__obsLightManager.getProjectParameter(self.__projectAlias,
-                                                                        "projectObsName")
+                                                                        u"projectObsName")
             self.__obsNameField.setText(projectObsName)
             self.__obsNameField.setReadOnly(True)
             # load target list and select appropriate current target
             self.__loadTargetPossibilities()
             target = self.__obsLightManager.getProjectParameter(self.__projectAlias,
-                                                                "projectTarget")
+                                                                u"projectTarget")
             lineIndex = self.__targetCBox.findText(target)
             if lineIndex >= 0:
                 self.__targetCBox.setCurrentIndex(lineIndex)
             # load arch list and select appropriate current arch
             self.__loadArchPossibilities()
             arch = self.__obsLightManager.getProjectParameter(self.__projectAlias,
-                                                              "projectArchitecture")
+                                                              u"projectArchitecture")
             lineIndex = self.__archCBox.findText(arch)
             if lineIndex >= 0:
                 self.__archCBox.setCurrentIndex(lineIndex)
             # load project title
             title = self.__obsLightManager.getProjectParameter(self.__projectAlias,
-                                                               "projectTitle")
+                                                               u"projectTitle")
             self.__titleLineEdit.setText(title)
             self.__titleLineEdit.setEnabled(True)
             # load project description
             description = self.__obsLightManager.getProjectParameter(self.__projectAlias,
-                                                                     "description")
+                                                                     u"description")
             self.__descriptionTextEdit.setText(description)
             self.__descriptionTextEdit.setEnabled(True)
 
@@ -208,16 +208,16 @@ class ProjectConfigManager(QObject):
 #                                                  "obsServer",
 #                                                  self.getCurrentServerAlias())
             self.__obsLightManager.setProjectParameter(self.getCurrentProjectLocalName(),
-                                                       "projectTarget",
+                                                       u"projectTarget",
                                                        self.getCurrentTarget())
             self.__obsLightManager.setProjectParameter(self.getCurrentProjectLocalName(),
-                                                       "projectArchitecture",
+                                                       u"projectArchitecture",
                                                        self.getCurrentArch())
             self.__obsLightManager.setProjectParameter(self.getCurrentProjectLocalName(),
-                                                       "projectTitle",
+                                                       u"projectTitle",
                                                        self.getCurrentTitle())
             self.__obsLightManager.setProjectParameter(self.getCurrentProjectLocalName(),
-                                                       "description",
+                                                       u"description",
                                                        self.getCurrentDescription())
         self.finished.emit(True)
 

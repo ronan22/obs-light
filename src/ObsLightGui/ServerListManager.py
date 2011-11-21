@@ -43,29 +43,29 @@ class ServerListManager(QObject):
         QObject.__init__(self)
         self.__gui = gui
         self.__obsLightManager = self.__gui.getObsLightManager()
-        self.__srvListDialog = self.__gui.loadWindow("obsServerList.ui")
+        self.__srvListDialog = self.__gui.loadWindow(u"obsServerList.ui")
         self.__listWidget = self.__srvListDialog.findChild(QListWidget,
-                                                           "obsServersListWidget")
+                                                           u"obsServersListWidget")
         self.loadServerList()
         addExistingServerButton = self.__srvListDialog.findChild(QPushButton,
-                                                                 "addExistingServerButton")
+                                                                 u"addExistingServerButton")
         addExistingServerButton.clicked.connect(self.on_addExistingServerButton_clicked)
         createVirtualServerButton = self.__srvListDialog.findChild(QPushButton,
-                                                                   "createVirtualServerButton")
+                                                                   u"createVirtualServerButton")
         createVirtualServerButton.clicked.connect(self.on_createVirtualServerButton_clicked)
         modifyServerButton = self.__srvListDialog.findChild(QPushButton,
-                                                            "modifyServerButton")
+                                                            u"modifyServerButton")
         modifyServerButton.clicked.connect(self.on_modifyServerButton_clicked)
-        deleteServerButton = self.__srvListDialog.findChild(QPushButton, "deleteServerButton")
+        deleteServerButton = self.__srvListDialog.findChild(QPushButton, u"deleteServerButton")
         deleteServerButton.clicked.connect(self.on_deleteServerButton_clicked)
-        testServerButton = self.__srvListDialog.findChild(QPushButton, "checkConnectionButton")
+        testServerButton = self.__srvListDialog.findChild(QPushButton, u"checkConnectionButton")
         testServerButton.clicked.connect(self.on_testServerButton_clicked)
         self.__srvListDialog.show()
 
     def loadServerList(self):
-        """
+        '''
         Clear and reload the list of OBS servers into the list widget.
-        """
+        '''
         self.__listWidget.clear()
         self.__listWidget.addItems(self.__obsLightManager.getObsServerList())
 
@@ -105,6 +105,6 @@ class ServerListManager(QObject):
             if len(serverAlias) > 0:
                 isJoinable = self.__obsLightManager.testServer(serverAlias)
                 if isJoinable:
-                    QMessageBox.information(None, "Server OK", "Server is reachable")
+                    QMessageBox.information(None, u"Server OK", u"Server is reachable")
                 else:
-                    QMessageBox.warning(None, "Server not reachable", "Server is not reachable")
+                    QMessageBox.warning(None, u"Server not reachable", u"Server is not reachable")

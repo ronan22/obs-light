@@ -55,7 +55,7 @@ class ServerConfigManager(QObject):
         QObject.__init__(self)
         self.__gui = gui
         self.__serverAlias = serverAlias
-        self.__srvConfDialog = self.__gui.loadWindow("obsServerConfig.ui")
+        self.__srvConfDialog = self.__gui.loadWindow(u"obsServerConfig.ui")
         self.__loadFieldObjects()
         if self.__serverAlias is not None:
             self.__loadInitialFieldValues()
@@ -64,30 +64,30 @@ class ServerConfigManager(QObject):
 
     def __loadFieldObjects(self):
         self.__webUrlLineEdit = self.__srvConfDialog.findChild(QLineEdit,
-                                                               "serverWebUrlLineEdit")
+                                                               u"serverWebUrlLineEdit")
         httpValidator = QRegExpValidator()
-        httpValidator.setRegExp(QRegExp("http[s]?://.+"))
+        httpValidator.setRegExp(QRegExp(u"http[s]?://.+"))
         self.__webUrlLineEdit.setValidator(httpValidator)
-        self.__webUrlLineEdit.setPlaceholderText("http://myObs")
+        self.__webUrlLineEdit.setPlaceholderText(u"http://myObs")
         self.__apiUrlLineEdit = self.__srvConfDialog.findChild(QLineEdit,
-                                                               "serverApiLineEdit")
+                                                               u"serverApiLineEdit")
         self.__apiUrlLineEdit.setValidator(httpValidator)
-        self.__apiUrlLineEdit.setPlaceholderText("http://myObs:81")
+        self.__apiUrlLineEdit.setPlaceholderText(u"http://myObs:81")
         self.__repoUrlLineEdit = self.__srvConfDialog.findChild(QLineEdit,
-                                                                "serverRepoLineEdit")
+                                                                u"serverRepoLineEdit")
         self.__repoUrlLineEdit.setValidator(httpValidator)
-        self.__repoUrlLineEdit.setPlaceholderText("http://myObs:82")
+        self.__repoUrlLineEdit.setPlaceholderText(u"http://myObs:82")
         self.__aliasLineEdit = self.__srvConfDialog.findChild(QLineEdit,
-                                                              "serverAliasLineEdit")
+                                                              u"serverAliasLineEdit")
         noSpaceValidator = QRegExpValidator()
-        noSpaceValidator.setRegExp(QRegExp("\\S+"))
+        noSpaceValidator.setRegExp(QRegExp(u"\\S+"))
         self.__aliasLineEdit.setValidator(noSpaceValidator)
         self.__userLineEdit = self.__srvConfDialog.findChild(QLineEdit,
-                                                             "usernameLineEdit")
+                                                             u"usernameLineEdit")
         self.__passLineEdit = self.__srvConfDialog.findChild(QLineEdit,
-                                                             "passwordLineEdit")
+                                                             u"passwordLineEdit")
         self.__checkConnectionButton = self.__srvConfDialog.findChild(QPushButton,
-                                                                      "checkConnectionButton")
+                                                                      u"checkConnectionButton")
         self.__checkConnectionButton.clicked.connect(self.on_checkConnectionButton_clicked)
 
     def __loadInitialFieldValues(self):
@@ -95,15 +95,15 @@ class ServerConfigManager(QObject):
         self.__aliasLineEdit.setText(self.__serverAlias)
         self.__aliasLineEdit.setReadOnly(True)
         self.__webUrlLineEdit.setText(manager.getObsServerParameter(self.__serverAlias,
-                                                                    "serverWeb"))
+                                                                    u"serverWeb"))
         self.__apiUrlLineEdit.setText(manager.getObsServerParameter(self.__serverAlias,
-                                                                    "serverAPI"))
+                                                                    u"serverAPI"))
         self.__repoUrlLineEdit.setText(manager.getObsServerParameter(self.__serverAlias,
-                                                                     "serverRepo"))
+                                                                     u"serverRepo"))
         self.__userLineEdit.setText(manager.getObsServerParameter(self.__serverAlias,
-                                                                  "user"))
+                                                                  u"user"))
         self.__passLineEdit.setText(manager.getObsServerParameter(self.__serverAlias,
-                                                                  "passw"))
+                                                                  u"passw"))
 
     def getWebIfaceUrl(self):
         return self.__webUrlLineEdit.text()
@@ -144,19 +144,19 @@ class ServerConfigManager(QObject):
         else:
             manager = self.__gui.getObsLightManager()
             manager.setObsServerParameter(self.__serverAlias,
-                                          "serverWeb",
+                                          u"serverWeb",
                                           self.getWebIfaceUrl())
             manager.setObsServerParameter(self.__serverAlias,
-                                          "serverAPI",
+                                          u"serverAPI",
                                           self.getApiUrl())
             manager.setObsServerParameter(self.__serverAlias,
-                                          "serverRepo",
+                                          u"serverRepo",
                                           self.getRepoUrl())
             manager.setObsServerParameter(self.__serverAlias,
-                                          "user",
+                                          u"user",
                                           self.getUser())
             manager.setObsServerParameter(self.__serverAlias,
-                                          "passw",
+                                          u"passw",
                                           self.getPass())
             self.finished.emit(True)
 
@@ -169,21 +169,21 @@ class ServerConfigManager(QObject):
 
         effect = QGraphicsColorizeEffect(self.__webUrlLineEdit)
         if isNonEmptyString(web) and obsLightManager.testServer(web):
-            effect.setColor(QColor("green"))
+            effect.setColor(QColor(u"green"))
         else:
-            effect.setColor(QColor("red"))
+            effect.setColor(QColor(u"red"))
         self.__webUrlLineEdit.setGraphicsEffect(effect)
 
         effect = QGraphicsColorizeEffect(self.__apiUrlLineEdit)
         if isNonEmptyString(api) and obsLightManager.testServer(api):
-            effect.setColor(QColor("green"))
+            effect.setColor(QColor(u"green"))
         else:
-            effect.setColor(QColor("red"))
+            effect.setColor(QColor(u"red"))
         self.__apiUrlLineEdit.setGraphicsEffect(effect)
 
         effect = QGraphicsColorizeEffect(self.__repoUrlLineEdit)
         if isNonEmptyString(repo) and obsLightManager.testServer(repo):
-            effect.setColor(QColor("green"))
+            effect.setColor(QColor(u"green"))
         else:
-            effect.setColor(QColor("red"))
+            effect.setColor(QColor(u"red"))
         self.__repoUrlLineEdit.setGraphicsEffect(effect)

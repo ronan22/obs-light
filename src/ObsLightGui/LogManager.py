@@ -42,8 +42,8 @@ class LogManager(QObject, Handler):
         QObject.__init__(self)
         Handler.__init__(self)
         self.__gui = gui
-        self.__logDialog = self.__gui.loadWindow("obsLightLog.ui")
-        self.__logTextEdit = self.__logDialog.findChild(QPlainTextEdit, "logTextEdit")
+        self.__logDialog = self.__gui.loadWindow(u"obsLightLog.ui")
+        self.__logTextEdit = self.__logDialog.findChild(QPlainTextEdit, u"logTextEdit")
         self.__newMessage.connect(self.__logTextEdit.appendPlainText)
 
     def emit(self, record):
@@ -53,4 +53,4 @@ class LogManager(QObject, Handler):
 
     def show(self):
         self.__logDialog.show()
-        self.__logDialog.setFocus()
+        #self.__logDialog.setFocus()

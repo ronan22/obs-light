@@ -61,7 +61,7 @@ class Gui(QObject):
         '''
         Load a Window from UI file.
         '''
-        path = join(dirname(__file__), "ui", uiFile)
+        path = join(dirname(__file__), u"ui", uiFile)
         windowFile = QFile(path)
         windowFile.open(QIODevice.ReadOnly | QIODevice.Text)
         # Make all loaded windows children of mainWindow, except mainWindow itself
@@ -71,9 +71,9 @@ class Gui(QObject):
         return window
 
     def __loadMainWindow(self):
-        self.__mainWindow = self.loadWindow("obsLightMain.ui")
+        self.__mainWindow = self.loadWindow(u"obsLightMain.ui")
         self.__mainWindowActionManager = MainWindowActionManager(self)
-        self.__statusBar = self.__mainWindow.findChild(QStatusBar, "mainStatusBar")
+        self.__statusBar = self.__mainWindow.findChild(QStatusBar, u"mainStatusBar")
         self.__messageSignal.connect(self.__statusBar.showMessage)
         self.__mainWindow.show()
 
@@ -116,9 +116,9 @@ class Gui(QObject):
         Display errors in the status bar of the main window.
         '''
         if isinstance(error, OBSLightBaseError):
-            self.sendStatusBarMessage("OBS Light error: %s" % error.msg, 30000)
+            self.sendStatusBarMessage(u"OBS Light error: %s" % error.msg, 30000)
         else:
-            self.sendStatusBarMessage("Caught exception: %s" % str(error), 30000)
+            self.sendStatusBarMessage(u"Caught exception: %s" % str(error), 30000)
 
     def popupErrorCallback(self, error):
         '''
