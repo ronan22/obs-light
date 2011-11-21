@@ -39,7 +39,6 @@ class ObsLightChRoot(object):
     classdocs
     '''
 
-
     def __init__(self, projectDirectory,
                         fromSave=None):
 
@@ -118,6 +117,8 @@ class ObsLightChRoot(object):
         self.__subprocess(command="sudo chmod g+rw " + self.getDirectory())
         self.__subprocess(command="sudo chmod g+r " + self.getDirectory() + "/root")
         self.__subprocess(command="sudo chmod g+rw " + self.getDirectory() + "/etc")
+
+        self.initRepos()
 
         self.prepareChroot(self.getDirectory())
 
@@ -236,6 +237,15 @@ class ObsLightChRoot(object):
         for alias in self.__dicoRepos.keys():
             self.__addRepo(repos=self.__dicoRepos[alias], alias=alias)
 
+    def isAlreadyAReposAlias(self, alias):
+        '''
+        
+        '''
+        if alias in self.__dicoRepos.keys():
+            return True
+        else:
+            return False
+
     def __addRepo(self, repos=None, alias=None):
         '''
         
@@ -244,7 +254,6 @@ class ObsLightChRoot(object):
         command.append("zypper ar " + repos + " " + alias)
         command.append("zypper --no-gpg-checks --gpg-auto-import-keys ref")
         self.execCommand(command=command)
-
 
     def buildPrepRpm(self, specFile=None):
         '''

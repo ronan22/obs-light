@@ -121,6 +121,11 @@ class ObsLightPackage(object):
         self.__mySpecFile = ObsLightSpec(packagePath=self.__packagePath,
                                                  file=self.__specFile)
 
+    def delFromChroot(self):
+        '''
+        
+        '''
+        self.__packageDirectory = None
 
     def isInstallInChroot(self):
         '''

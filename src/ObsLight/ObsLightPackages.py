@@ -24,12 +24,10 @@ import os
 
 from ObsLightPackage import ObsLightPackage
 
-
 class ObsLightPackages(object):
     '''
     classdocs
     '''
-
 
     def __init__(self, projectOscPath=None, fromSave=None):
         '''
@@ -98,6 +96,12 @@ class ObsLightPackages(object):
         Return True if the package is install into the chroot.
         '''
         return self.__dicOBSLightPackages[name].isInstallInChroot()
+
+    def delFromChroot(self, package):
+        '''
+        
+        '''
+        return self.__dicOBSLightPackages[package].delFromChroot()
 
     def getPackageStatus(self, name=None):
         '''

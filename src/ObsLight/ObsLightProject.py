@@ -289,6 +289,10 @@ class ObsLightProject(object):
         '''
         
         '''
+        for package in self.__packages.getListPackages():
+            if self.__packages.isInstallInChroot(package):
+                self.__packages.delFromChroot(package)
+
         res = self.__chroot.removeChRoot()
         self.__chrootIsInit = False
         return res
@@ -492,8 +496,10 @@ class ObsLightProject(object):
         else:
             __anAlias = alias
 
-        __aChroot.addRepo(repos=__aRepos  , alias=__anAlias)
-
+        if not __aChroot.isAlreadyAReposAlias(__anAlias):
+            __aChroot.addRepo(repos=__aRepos  , alias=__anAlias)
+        else:
+            ObsLightPrintManager.getLogger().info(__anAlias + " is already installed in the chroot")
 
     def getReposProject(self):
         '''

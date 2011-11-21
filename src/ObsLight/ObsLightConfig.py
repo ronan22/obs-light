@@ -30,6 +30,6 @@ def getConsole():
     if 'editor' in aConfigParser.sections():
         return aConfigParser.get('editor', 'console')
     else:
-        return 'xterm'
+        return 'xterm -e'
 
 

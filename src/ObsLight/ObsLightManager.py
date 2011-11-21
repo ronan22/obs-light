@@ -200,6 +200,7 @@ class ObsLightManager(object):
         
         '''
         self.__myObsLightProjects.removeChRoot(projectLocalName)
+        self.__myObsLightProjects.save()
 
     @checkProjectLocalName(1)
     def removePackage(self, projectLocalName, package):
