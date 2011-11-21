@@ -24,13 +24,15 @@ import sys
 from os.path import dirname, join
 
 from PySide.QtCore import QIODevice, QFile, QMetaObject, QObject, Qt, Signal
-from PySide.QtGui import QApplication, QMessageBox, QProgressDialog, QStatusBar
+from PySide.QtGui import QApplication, QProgressDialog, QStatusBar
 from PySide.QtUiTools import QUiLoader
 
 from ObsLight.ObsLightErr import OBSLightBaseError
 
 from ProjectManager import ProjectManager
 from ActionManager import MainWindowActionManager
+from LogManager import LogManager
+from Utils import exceptionToMessageBox
 
 class Gui(QObject):
     '''
@@ -43,6 +45,7 @@ class Gui(QObject):
     __statusBar = None
     __obsLightManager = None
     __obsProjectManager = None
+    __logManager = None
     __mainWindowActionManager = None
     __progress = None
 
@@ -61,7 +64,8 @@ class Gui(QObject):
         path = join(dirname(__file__), "ui", uiFile)
         windowFile = QFile(path)
         windowFile.open(QIODevice.ReadOnly | QIODevice.Text)
-        window = self.uiLoader.load(windowFile)
+        # Make all loaded windows children of mainWindow, except mainWindow itself
+        window = self.uiLoader.load(windowFile, self.__mainWindow)
         windowFile.close()
         QMetaObject.connectSlotsByName(window)
         return window
@@ -88,6 +92,10 @@ class Gui(QObject):
         return self.__mainWindow
 
     def getProgressDialog(self):
+        '''
+        Get the main QProgressDialog. It is window-modal, has no cancel
+        button and is infinite.
+        '''
         if self.__progress is None:
             self.__createProgressDialog()
         return self.__progress
@@ -98,7 +106,12 @@ class Gui(QObject):
         '''
         return self.__obsLightManager
 
-    def obsLightErrorCallback(self, error):
+    def getLogManager(self):
+        if self.__logManager is None:
+            self.__logManager = LogManager(self)
+        return self.__logManager
+
+    def statusBarErrorCallback(self, error):
         '''
         Display errors in the status bar of the main window.
         '''
@@ -107,11 +120,12 @@ class Gui(QObject):
         else:
             self.sendStatusBarMessage("Caught exception: %s" % str(error), 30000)
 
-    def obsLightErrorCallback2(self, error):
-        if isinstance(error, OBSLightBaseError):
-            QMessageBox.warning(None, "Exception occurred", error.msg)
-        else:
-            QMessageBox.critical(None, "Exception occurred", str(error))
+    def popupErrorCallback(self, error):
+        '''
+        Display errors in a popup. Must be called from UI thread, or
+        with a Qt signal.
+        '''
+        exceptionToMessageBox(error, self.__mainWindow)
 
     def sendStatusBarMessage(self, message, timeout=0):
         '''

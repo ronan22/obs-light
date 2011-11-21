@@ -137,7 +137,7 @@ class ProjectManager(QObject):
         progress.show()
         runnable = ProgressRunnable(obslightManager.removeProject, projectName)
         runnable.setProgressDialog(progress)
-        runnable.finishedWithException.connect(self.__gui.obsLightErrorCallback2)
+        runnable.finishedWithException.connect(self.__gui.popupErrorCallback)
         runnable.finished.connect(self.loadProjectList)
         QThreadPool.globalInstance().start(runnable)
 
@@ -153,7 +153,7 @@ class ProjectManager(QObject):
         progress.show()
         runnable = ProgressRunnable(obslightManager.importProject, filePath)
         runnable.setProgressDialog(progress)
-        runnable.finishedWithException.connect(self.__gui.obsLightErrorCallback2)
+        runnable.finishedWithException.connect(self.__gui.popupErrorCallback)
         runnable.finished.connect(self.loadProjectList)
         QThreadPool.globalInstance().start(runnable)
 
@@ -172,7 +172,7 @@ class ProjectManager(QObject):
         obslightManager = self.__gui.getObsLightManager()
         runnable = ProgressRunnable(obslightManager.exportProject, project, filePath)
         runnable.setProgressDialog(progress)
-        runnable.finishedWithException.connect(self.__gui.obsLightErrorCallback2)
+        runnable.finishedWithException.connect(self.__gui.popupErrorCallback)
         runnable.finished.connect(self.loadProjectList)
         QThreadPool.globalInstance().start(runnable)
 
@@ -197,7 +197,7 @@ class ProjectManager(QObject):
                     runnable = ProgressRunnable(obslightManager.goToChRoot, projectName,
                                                 currentPackage, detach=True)
 
-                runnable.finishedWithException.connect(self.__gui.obsLightErrorCallback2)
+                runnable.finishedWithException.connect(self.__gui.popupErrorCallback)
                 runnable.finished.connect(self.refresh)
                 QThreadPool.globalInstance().start(runnable)
             else:
@@ -206,7 +206,7 @@ class ProjectManager(QObject):
                 progress.show()
                 runnable = ProgressRunnable(obslightManager.createChRoot, projectName)
                 runnable.setProgressDialog(progress)
-                runnable.finishedWithException.connect(self.__gui.obsLightErrorCallback2)
+                runnable.finishedWithException.connect(self.__gui.popupErrorCallback)
                 runnable.finished.connect(self.refresh)
                 QThreadPool.globalInstance().start(runnable)
 
@@ -227,7 +227,7 @@ class ProjectManager(QObject):
             runnable = ProgressRunnable(obslightManager.addPackageSourceInChRoot,
                                         projectName, packageName)
             runnable.setProgressDialog(progress)
-            runnable.finishedWithException.connect(self.__gui.obsLightErrorCallback2)
+            runnable.finishedWithException.connect(self.__gui.popupErrorCallback)
             QThreadPool.globalInstance().start(runnable)
 
     def on_projectSelected(self, _project):

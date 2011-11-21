@@ -150,7 +150,7 @@ class PackageManager(QObject):
             progress.show()
             runnable = ProgressRunnable(self.__localModel.addPackage, packageName)
             runnable.setProgressDialog(progress)
-            runnable.finishedWithException.connect(self.__gui.obsLightErrorCallback2)
+            runnable.finishedWithException.connect(self.__gui.popupErrorCallback)
             runnable.finished.connect(self.updateLabels)
             QThreadPool.globalInstance().start(runnable)
 
@@ -184,7 +184,7 @@ class PackageManager(QObject):
                                         package,
                                         patchName)
             runnable.setProgressDialog(progress)
-            runnable.finishedWithException.connect(self.__gui.obsLightErrorCallback2)
+            runnable.finishedWithException.connect(self.__gui.popupErrorCallback)
             QThreadPool.globalInstance().start(runnable)
 
     @popupOnException
@@ -205,7 +205,7 @@ class PackageManager(QObject):
                                         package,
                                         message)
             runnable.setProgressDialog(progress)
-            runnable.finishedWithException.connect(self.__gui.obsLightErrorCallback2)
+            runnable.finishedWithException.connect(self.__gui.popupErrorCallback)
             QThreadPool.globalInstance().start(runnable)
 
     def on_contextMenu_requested(self, point):

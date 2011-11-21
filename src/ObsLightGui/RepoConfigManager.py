@@ -96,7 +96,7 @@ class RepoConfigManager(QObject):
                                             repoUrl=self.getRepoUrl(),
                                             alias=self.getRepoAlias())
                 runnable.setProgressDialog(progress)
-                runnable.finishedWithException.connect(self.__gui.obsLightErrorCallback2)
+                runnable.finishedWithException.connect(self.__gui.popupErrorCallback)
                 QThreadPool.globalInstance().start(runnable)
         else:
             if len(self.getProject()) > 0:
@@ -105,7 +105,7 @@ class RepoConfigManager(QObject):
                                             self.__projectAlias,
                                             fromProject=self.getProject())
                 runnable.setProgressDialog(progress)
-                runnable.finishedWithException.connect(self.__gui.obsLightErrorCallback2)
+                runnable.finishedWithException.connect(self.__gui.popupErrorCallback)
                 QThreadPool.globalInstance().start(runnable)
 
     def on_configDialog_rejected(self):

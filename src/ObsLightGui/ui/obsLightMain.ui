@@ -1183,7 +1183,7 @@
     <property name="title">
      <string>Window</string>
     </property>
-    <addaction name="actionShow_Log"/>
+    <addaction name="actionShow_log"/>
     <addaction name="actionConfig"/>
    </widget>
    <addaction name="menuFile"/>
@@ -1240,7 +1240,7 @@
     <string>About Qt</string>
    </property>
   </action>
-  <action name="actionShow_Log">
+  <action name="actionShow_log">
    <property name="text">
     <string>Show Log</string>
    </property>
