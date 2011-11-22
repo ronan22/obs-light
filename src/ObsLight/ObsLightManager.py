@@ -31,23 +31,21 @@ from ObsLightProjects import ObsLightProjects
 from ObsLightTools import isNonEmptyString
 import ObsLightPrintManager
 
-OBSLIGHTDIRNAME = "OBSLight"
-OBSLIGHTCONFIG = "obslightConfig"
+import ObsLightConfig
 
+VERSION = "0.4.2"
 
-WORKINGDIRECTORY = os.path.join(os.environ['HOME'], OBSLIGHTDIRNAME)
-# If not exists, create the obsLight directory for the user.
-if not os.path.isdir(WORKINGDIRECTORY):
-    os.makedirs(WORKINGDIRECTORY)
-CONFIGPATH = os.path.join(WORKINGDIRECTORY, OBSLIGHTCONFIG)
-if not  os.path.exists(CONFIGPATH):
-    shutil.copy2(os.path.join(os.path.dirname(__file__), "config", OBSLIGHTCONFIG), CONFIGPATH)
+def getVersion():
+    '''
+    
+    '''
+    return VERSION
 
 def getConfigPath():
     '''
     Return the path of the config file.
     '''
-    return CONFIGPATH
+    return ObsLightConfig.CONFIGPATH
 
 def checkProjectLocalName(position=None):
     def checkProjectLocalName1(f):
@@ -79,7 +77,7 @@ class ObsLightManager(object):
         Initialize the OBS Light Manager.
         '''
 
-        self.__workingDirectory = WORKINGDIRECTORY
+        self.__workingDirectory = ObsLightConfig.WORKINGDIRECTORY
 
         self.__myObsServers = ObsServers(workingDirectory=self.getObsLightWorkingDirectory())
         self.__myObsLightProjects = ObsLightProjects(obsServers=self.__myObsServers,

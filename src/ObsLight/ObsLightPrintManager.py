@@ -5,22 +5,38 @@ Created on 24 oct. 2011
 '''
 import logging
 import ObsLightConfig
-VERBOSE = 0
+QUIET = 0
 DEBUG = 0
 
 logger = logging.getLogger('obslight')
+handler = logging.StreamHandler()
+
+
+logger.addHandler(handler)
 
 def obsLightPrint(text, isDebug=False, isVerbose=False):
     '''
     
     '''
-    logger.debug(text)
+    if (isDebug == False) or (DEBUG > 0):
+        logger.info(text)
+    else:
+        logger.debug(text)
 
 def setLoggerLevel(level):
     '''
     Set the Level of the logger
     '''
-    logger.setLevel(level)
+    if level == 'DEBUG':
+        logger.setLevel(logging.DEBUG)
+    elif level == 'INFO':
+        logger.setLevel(logging.INFO)
+    elif level == 'WARNING':
+        logger.setLevel(logging.WARNING)
+    elif level == 'ERROR':
+        logger.setLevel(logging.ERROR)
+    elif level == 'CRITICAL':
+        logger.setLevel(logging.CRITICAL)
 
 def addHandler(handler):
     '''
@@ -34,17 +50,14 @@ def removeHandler(handler):
     '''
     logger.removeHandler(handler)
 
-ch = logging.StreamHandler()
-ch.setLevel(logging.DEBUG)
 
 formatter = logging.Formatter(ObsLightConfig.getObslightFormatter())
-ch.setFormatter(formatter)
-
-setLoggerLevel(logging.DEBUG)
-addHandler(ch)
+handler.setFormatter(formatter)
+setLoggerLevel('DEBUG')
+addHandler(handler)
 
 def getLogger():
     '''
-    
+        
     '''
     return logger

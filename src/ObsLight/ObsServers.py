@@ -32,7 +32,6 @@ class ObsServers(object):
     classdocs
     '''
 
-
     def __init__(self, workingDirectory):
         '''
         Constructor

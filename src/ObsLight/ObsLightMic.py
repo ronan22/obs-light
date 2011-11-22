@@ -208,7 +208,6 @@ class ObsLightMic(object):
                 os.unlink(self.__chrootDirectory + "/etc/mtab")
             kill_processes(self.__chrootDirectory)
 
-        print "self.__chrootDirectory", bindmounts
         self.cleanup_mountdir(self.__chrootDirectory, bindmounts)
         if self.__qemu_emulator:
 
