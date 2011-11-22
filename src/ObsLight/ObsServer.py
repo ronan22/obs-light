@@ -20,7 +20,6 @@ Created on 29 sept. 2011
 @author: ronan
 '''
 
-
 import ObsLightOsc
 import ObsLightErr
 import ObsLightTools
@@ -29,7 +28,6 @@ class ObsServer(object):
     '''
     classdocs
     '''
-
 
     def __init__(self,
                  serverWeb="",
@@ -61,7 +59,6 @@ class ObsServer(object):
                 self.__user = fromSave["user"]
             if "passw" in fromSave.keys():
                 self.__passw = fromSave["passw"]
-
         else:
             self.__isOBSConnected = False
             self.__serverWeb = serverWeb
@@ -73,11 +70,8 @@ class ObsServer(object):
             self.__user = user
             self.__passw = passw
 
-
         if (self.__alias == None) or (len(self.__alias) < 1):
             self.__alias = self.__serverAPI
-
-
 
         ObsLightOsc.getObsLightOsc().initConf(api=self.__serverAPI,
                                               user=self.__user,
@@ -162,20 +156,25 @@ class ObsServer(object):
         '''
         if value == None:
             raise ObsLightErr.ObsLightObsServers("value is not valid for setObsServerParameter")
-
         if parameter == "isOBSConnected":
             self.__isOBSConnected = value
         elif parameter == "serverWeb":
             self.__serverWeb = value
         elif parameter == "serverAPI":
+            ObsLightOsc.getObsLightOsc().changeAPI(api=self.__serverAPI,
+                                                   newApi=value)
             self.__serverAPI = value
         elif parameter == "serverRepo":
             self.__serverRepo = value
         elif parameter == "alias":
             self.__alias = value
         elif parameter == "user":
+            ObsLightOsc.getObsLightOsc().changeUser(api=self.__serverAPI,
+                                                    user=value)
             self.__user = value
         elif parameter == "passw":
+            ObsLightOsc.getObsLightOsc().changePassw(api=self.__serverAPI,
+                                                     passw=value)
             self.__passw = value
         else:
             raise ObsLightErr.ObsLightObsServers("parameter is not valid for setObsServerParameter")

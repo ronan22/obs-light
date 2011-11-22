@@ -76,12 +76,46 @@ class ObsLightOsc(object):
         if aFile:
             aFile.close()
 
+    def changeAPI(self, api, newApi):
+        '''
+        
+        '''
+        f = open(self.__confFile, 'r')
+        txt = f.read()
+        f.close()
+        f = open(self.__confFile, 'w')
+        f.write(txt.replace("[" + api + "]", "[" + newApi + "]"))
+        f.close()
+
+    def changeUser(self, api, user):
+        '''
+        
+        '''
+        conf.get_config()
+        aOscConfigParser = conf.get_configParser(self.__confFile, force_read=True)
+        aOscConfigParser.set(api, 'user', user)
+
+        aFile = open(self.__confFile, 'w')
+        aOscConfigParser.write(aFile, True)
+
+    def changePassw(self, api, passw):
+        '''
+        
+        '''
+        conf.get_config()
+        aOscConfigParser = conf.get_configParser(self.__confFile)
+        aOscConfigParser.set(api, 'pass', passw)
+
+        aFile = open(self.__confFile, 'w')
+        aOscConfigParser.write(aFile, True)
+
     def trustRepos(self,
                    api=None,
                    listDepProject=None):
         '''
         
         '''
+        conf.get_config()
         aOscConfigParser = conf.get_configParser(self.__confFile)
 
         if aOscConfigParser.has_option(api, "trusted_prj"):

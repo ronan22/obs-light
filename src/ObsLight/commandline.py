@@ -130,10 +130,14 @@ class ObsLight():
         Execute a list of arguments.
         """
         __DESCRIPTION__ = "ObsLight:" + "\n"
-        __DESCRIPTION__ += "\t" + "Provides a tool to manage an OBS project on your local machine" + "\n"
-        __DESCRIPTION__ += "\t" + "For informations, see" + "\n"
-        __DESCRIPTION__ += "\t" + "For additional informations, see" + "\n"
-        __DESCRIPTION__ += "\t" + "* http://wiki.meego.com/OBS_Light" + "\n"
+        __DESCRIPTION__ += "\t" + "Provides a tool to manage an OBS project on your local machine in command line" + "\n"
+        __DESCRIPTION__ += "\t" + "For informations, see the help section" + "\n"
+        __DESCRIPTION__ += "\t\t" + "obslight --help" + "\n"
+        __DESCRIPTION__ += "\t" + "The gui for obslight is obslightgui" + "\n"
+        __DESCRIPTION__ += "\t" + "A FAQ is available at:" + "\n"
+        __DESCRIPTION__ += "\t\t" + "*http://wiki.meego.com/OBS_Light_FAQ" + "\n"
+        __DESCRIPTION__ += "\t" + "For additional informations, see:" + "\n"
+        __DESCRIPTION__ += "\t\t" + "* http://wiki.meego.com/OBS_Light" + "\n"
 
         __HELP__ = "Usage: " + __PRGNAME__ + " [global command] <command> [--command-options]" + "\n"
         __HELP__ += "\n"
@@ -191,7 +195,7 @@ class ObsLight():
                     continue
                 elif (listArgv[0] == __version__):
                     listArgv = listArgv[1:]
-                    print "obsversion", ObsLightManager.getVersion()
+                    print "OBS Light version", ObsLightManager.getVersion()
                     return None
                 elif self.__isHelp(listArgv[0]):
                     if ObsLightPrintManager.DEBUG == 0:

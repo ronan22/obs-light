@@ -154,7 +154,12 @@ class ObsServers(object):
                                                              package=package,
                                                              directory=directory)
 
-    def getPackageStatus(self, obsServer=None, project=None, package=None, repo=None, arch=None):
+    def getPackageStatus(self,
+                         obsServer=None,
+                         project=None,
+                         package=None,
+                         repo=None,
+                         arch=None):
         '''
         
         '''

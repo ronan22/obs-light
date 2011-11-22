@@ -63,9 +63,6 @@ def checkProjectLocalName(position=None):
         return checkProjectLocalName2
     return checkProjectLocalName1
 
-
-
-
 class ObsLightManager(object):
     '''
     Application Programming Interface between clients (command line, GUI) and OBS Light.
@@ -146,7 +143,6 @@ class ObsLightManager(object):
 
         if not self.isAnObsServer(obsServerAlias):
             raise ObsLightObsServers(obsServerAlias + " is not an OBS server")
-
         res = self.__myObsServers.setObsServerParameter(obsServer=obsServerAlias,
                                                         parameter=parameter,
                                                         value=value)
