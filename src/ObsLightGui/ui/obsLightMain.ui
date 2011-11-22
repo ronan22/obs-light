@@ -230,7 +230,7 @@
                        <property name="sizeHint" stdset="0">
                         <size>
                          <width>20</width>
-                         <height>40</height>
+                         <height>0</height>
                         </size>
                        </property>
                       </spacer>
@@ -466,7 +466,7 @@
                        <property name="sizeHint" stdset="0">
                         <size>
                          <width>20</width>
-                         <height>40</height>
+                         <height>0</height>
                         </size>
                        </property>
                       </spacer>
@@ -719,6 +719,12 @@
                     <property name="enabled">
                      <bool>false</bool>
                     </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>80</width>
+                      <height>0</height>
+                     </size>
+                    </property>
                     <property name="text">
                      <string>New</string>
                     </property>
@@ -744,7 +750,7 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="0" column="2">
+                  <item row="0" column="2" colspan="2">
                    <widget class="QLineEdit" name="chrootPathLineEdit">
                     <property name="toolTip">
                      <string>The path of the chroot on the local filesystem.</string>
@@ -766,6 +772,12 @@
                   </item>
                   <item row="2" column="2">
                    <widget class="QPushButton" name="newChrootButton">
+                    <property name="minimumSize">
+                     <size>
+                      <width>80</width>
+                      <height>0</height>
+                     </size>
+                    </property>
                     <property name="toolTip">
                      <string>Create (or open if it exists) the chroot of the project. If a package is selected, the chroot will open in this package's source directory.</string>
                     </property>
@@ -830,6 +842,19 @@
                      <string>Modify</string>
                     </property>
                    </widget>
+                  </item>
+                  <item row="4" column="3">
+                   <spacer name="horizontalSpacer_4">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
                   </item>
                  </layout>
                 </widget>
