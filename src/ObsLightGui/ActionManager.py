@@ -20,7 +20,7 @@ Created on 27 oct. 2011
 @author: Florent Vennetier
 '''
 
-from PySide.QtGui import QAction
+from PySide.QtGui import QAction, QLabel
 
 from ServerListManager import ServerListManager
 
@@ -41,6 +41,8 @@ class MainWindowActionManager(object):
         actionOBS_servers = mainWindow.findChild(QAction, u"actionOBS_servers")
         actionOBS_servers.triggered.connect(self.on_actionOBS_servers_triggered)
         self.__aboutDialog = self.__gui.loadWindow(u"obsLightAbout.ui")
+        versionLabel = self.__aboutDialog.findChild(QLabel, "versionLabel")
+        versionLabel.setText(u"Version: %s" % self.__obsLightManager.getVersion())
         actionAbout = mainWindow.findChild(QAction, u"actionAbout")
         actionAbout.triggered.connect(self.__aboutDialog.show)
         actionLog = mainWindow.findChild(QAction, u"actionShow_log")

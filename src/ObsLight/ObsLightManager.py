@@ -779,6 +779,9 @@ class ObsLightManager(object):
         '''
         return self.__myObsServers.testServer(obsServer=obsServer)
 
+    def getVersion(self):
+        return VERSION
+
 __myObsLightManager = None
 
 def getManager():
