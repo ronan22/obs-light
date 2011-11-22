@@ -21,15 +21,42 @@ class ObsLightConfig(object):
 
 def getConsole():
     '''
-    
+    Return the name of the term
     '''
     aConfigParser = ConfigParser.ConfigParser()
     aConfigFile = open(ObsLightManager.getManager().getConfigPath(), 'rw')
 
     aConfigParser.readfp(aConfigFile)
-    if 'editor' in aConfigParser.sections():
+    if ('editor' in aConfigParser.sections()) and ('console' in aConfigParser.options('editor')):
         return aConfigParser.get('editor', 'console')
     else:
         return 'xterm -e'
+
+def getObslightFormatter():
+    '''
+    return the formatter for obslight
+    '''
+    aConfigParser = ConfigParser.ConfigParser()
+    aConfigFile = open(ObsLightManager.getManager().getConfigPath(), 'rw')
+
+    aConfigParser.readfp(aConfigFile)
+    if ('logger' in aConfigParser.sections()) and ('obslight' in aConfigParser.options('logger')):
+        return aConfigParser.get('logger', 'obslight', raw=True)
+    else:
+        return '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+
+def getObslightguiFormatter():
+    '''
+    return the formatter for obslightgui
+    '''
+    aConfigParser = ConfigParser.ConfigParser()
+    aConfigFile = open(ObsLightManager.getManager().getConfigPath(), 'rw')
+
+    aConfigParser.readfp(aConfigFile)
+    if ('logger' in aConfigParser.sections()) and ('obslightgui' in aConfigParser.options('logger')):
+        return aConfigParser.get('logger', 'obslightgui', raw=True)
+    else:
+        return '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+
 
 

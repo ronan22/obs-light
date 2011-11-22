@@ -32,7 +32,7 @@ from ObsLightTools import isNonEmptyString
 import ObsLightPrintManager
 
 OBSLIGHTDIRNAME = "OBSLight"
-OBSLIGHTCONFIG = "obslight_config"
+OBSLIGHTCONFIG = "obslightConfig"
 
 
 def checkProjectLocalName(position=None):

@@ -4,7 +4,7 @@ Created on 24 oct. 2011
 @author: meego
 '''
 import logging
-
+import ObsLightConfig
 VERBOSE = 0
 DEBUG = 0
 
@@ -36,7 +36,7 @@ def removeHandler(handler):
 
 ch = logging.StreamHandler()
 ch.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+formatter = logging.Formatter(ObsLightConfig.getObslightFormatter())
 ch.setFormatter(formatter)
 
 setLoggerLevel(logging.DEBUG)

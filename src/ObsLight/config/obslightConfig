@@ -1,0 +1,5 @@
+[editor]
+console:xterm -e
+[logger]
+obslight:'%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+obslightgui:'%(asctime)s - %(name)s - %(levelname)s - %(message)s'
