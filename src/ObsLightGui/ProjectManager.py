@@ -264,11 +264,11 @@ class ProjectManager(QObject):
             QThreadPool.globalInstance().start(runnable)
 
     def on_projectSelected(self, _project):
-        project = self.getCurrentProjectName()
-        self.__packageManager.setCurrentProject(project)
         self.refresh()
 
     def refresh(self):
+        project = self.getCurrentProjectName()
+        self.__packageManager.setCurrentProject(project)
         self.updateProjectLabels()
         self.updateChrootPathAndButtons()
 

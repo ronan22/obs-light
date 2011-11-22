@@ -23,6 +23,7 @@ Created on 4 nov. 2011
 from PySide.QtCore import QObject
 from PySide.QtGui import QFileDialog, QFileSystemModel, QPushButton, QTabWidget, QTreeView
 
+from ObsLight.ObsLightTools import isNonEmptyString
 from Utils import popupOnException
 
 class FileManager(QObject):
@@ -60,14 +61,15 @@ class FileManager(QObject):
         Set the package that you want this class to operate on.
         None is valid.
         '''
-        if project is not None and len(project) < 1:
+        if not isNonEmptyString(project):
             project = None
-        if package is not None and len(package) < 1:
+        if not isNonEmptyString(package):
             package = None
-        if project != self.__project or self.__chrootModel is None:
-            self.__chrootModel = QFileSystemModel()
         self.__project = project
         self.__package = package
+        self.refresh()
+
+    def refresh(self):
         self.__localFsModel = QFileSystemModel()
         self.__chrootModel = QFileSystemModel()
         if self.__project is not None and self.__package is not None:

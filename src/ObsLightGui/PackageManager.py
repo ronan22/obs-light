@@ -91,19 +91,24 @@ class PackageManager(QObject):
         '''
         if projectName is not None and len(projectName) < 1:
             projectName = None
-        self.__project = projectName
-        self.__localModel = PackageModel(self.__obsLightManager, projectName)
-        self.__packageTableView.setModel(self.__localModel)
-        self.__packageWidget.setEnabled(self.__project is not None)
+        if projectName != self.__project:
+            self.__project = projectName
+            self.__localModel = PackageModel(self.__obsLightManager, projectName)
+            self.__packageTableView.setModel(self.__localModel)
+            self.__packageWidget.setEnabled(self.__project is not None)
         if self.currentPackage() is not None:
             self.__fileManager.setCurrentPackage(self.__project, self.currentPackage())
         else:
             self.__fileManager.setCurrentPackage(None, None)
-        self.updateLabels()
+        self.refresh()
 
     def on_packageIndex_clicked(self, index):
         if index.isValid():
             self.__fileManager.setCurrentPackage(self.__project, self.currentPackage())
+        self.refresh()
+
+    def refresh(self):
+        self.__fileManager.refresh()
         self.updateLabels()
 
     def updateLabels(self):
@@ -151,7 +156,7 @@ class PackageManager(QObject):
             runnable = ProgressRunnable(self.__localModel.addPackage, packageName)
             runnable.setProgressDialog(progress)
             runnable.finishedWithException.connect(self.__gui.popupErrorCallback)
-            runnable.finished.connect(self.updateLabels)
+            runnable.finished.connect(self.refresh)
             QThreadPool.globalInstance().start(runnable)
 
     @popupOnException
