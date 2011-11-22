@@ -21,8 +21,8 @@ Created on 17 nov. 2011
 '''
 
 from PySide.QtCore import QObject, QRegExp, Signal
-from PySide.QtGui import QDialog, QGraphicsColorizeEffect, QLineEdit, QColor
-from PySide.QtGui import QPushButton, QRegExpValidator
+from PySide.QtGui import QColor, QDialog, QDialogButtonBox, QGraphicsColorizeEffect
+from PySide.QtGui import QLineEdit, QPushButton, QRegExpValidator
 
 from ObsLight.ObsLightTools import isNonEmptyString
 
@@ -37,6 +37,7 @@ class ServerConfigManager(QObject):
     __srvConfDialog = None
     __checkConnectionButton = None
 
+    __dialogButtonBox = None
     __webUrlLineEdit = None
     __apiUrlLineEdit = None
     __repoUrlLineEdit = None
@@ -63,20 +64,26 @@ class ServerConfigManager(QObject):
         self.__srvConfDialog.show()
 
     def __loadFieldObjects(self):
+        self.__dialogButtonBox = self.__srvConfDialog.findChild(QDialogButtonBox,
+                                                                "obsServerConfigButtonBox")
+        self.disableOkButton()
         self.__webUrlLineEdit = self.__srvConfDialog.findChild(QLineEdit,
                                                                u"serverWebUrlLineEdit")
         httpValidator = QRegExpValidator()
         httpValidator.setRegExp(QRegExp(u"http[s]?://.+"))
         self.__webUrlLineEdit.setValidator(httpValidator)
         self.__webUrlLineEdit.setPlaceholderText(u"http://myObs")
+        self.__webUrlLineEdit.textEdited.connect(self.disableOkButton)
         self.__apiUrlLineEdit = self.__srvConfDialog.findChild(QLineEdit,
                                                                u"serverApiLineEdit")
         self.__apiUrlLineEdit.setValidator(httpValidator)
         self.__apiUrlLineEdit.setPlaceholderText(u"http://myObs:81")
+        self.__apiUrlLineEdit.textEdited.connect(self.disableOkButton)
         self.__repoUrlLineEdit = self.__srvConfDialog.findChild(QLineEdit,
                                                                 u"serverRepoLineEdit")
         self.__repoUrlLineEdit.setValidator(httpValidator)
         self.__repoUrlLineEdit.setPlaceholderText(u"http://myObs:82")
+        self.__repoUrlLineEdit.textEdited.connect(self.disableOkButton)
         self.__aliasLineEdit = self.__srvConfDialog.findChild(QLineEdit,
                                                               u"serverAliasLineEdit")
         noSpaceValidator = QRegExpValidator()
@@ -160,17 +167,23 @@ class ServerConfigManager(QObject):
                                           self.getPass())
             self.finished.emit(True)
 
+    def disableOkButton(self, _=None):
+        # We need a parameter ^ in order to call this method from textEdited signal
+        self.__dialogButtonBox.button(QDialogButtonBox.Ok).setEnabled(False)
+
     @popupOnException
     def on_checkConnectionButton_clicked(self):
         obsLightManager = self.__gui.getObsLightManager()
         web = self.getWebIfaceUrl()
         api = self.getApiUrl()
         repo = self.getRepoUrl()
+        allOk = True
 
         effect = QGraphicsColorizeEffect(self.__webUrlLineEdit)
         if isNonEmptyString(web) and obsLightManager.testServer(web):
             effect.setColor(QColor(u"green"))
         else:
+            allOk = False
             effect.setColor(QColor(u"red"))
         self.__webUrlLineEdit.setGraphicsEffect(effect)
 
@@ -178,6 +191,7 @@ class ServerConfigManager(QObject):
         if isNonEmptyString(api) and obsLightManager.testServer(api):
             effect.setColor(QColor(u"green"))
         else:
+            allOk = False
             effect.setColor(QColor(u"red"))
         self.__apiUrlLineEdit.setGraphicsEffect(effect)
 
@@ -185,5 +199,8 @@ class ServerConfigManager(QObject):
         if isNonEmptyString(repo) and obsLightManager.testServer(repo):
             effect.setColor(QColor(u"green"))
         else:
+            allOk = False
             effect.setColor(QColor(u"red"))
         self.__repoUrlLineEdit.setGraphicsEffect(effect)
+
+        self.__dialogButtonBox.button(QDialogButtonBox.Ok).setEnabled(allOk)

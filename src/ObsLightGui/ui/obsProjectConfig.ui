@@ -84,7 +84,7 @@
       </sizepolicy>
      </property>
      <property name="toolTip">
-      <string>The &quot;target&quot; of the project. The list is loaded automatically.</string>
+      <string>The &quot;target&quot; of the project. The list is loaded automatically after a valid name has been selected.</string>
      </property>
      <property name="editable">
       <bool>false</bool>
@@ -107,7 +107,7 @@
       </sizepolicy>
      </property>
      <property name="toolTip">
-      <string>The target architecture of the project. The list is loaded automatically.</string>
+      <string>The target architecture of the project. The list is loaded automatically after a valid target has been selected.</string>
      </property>
     </widget>
    </item>
