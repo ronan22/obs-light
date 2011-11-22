@@ -45,7 +45,7 @@ def getObslightFormatter():
     else:
         return '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 
-def getObslightguiFormatter():
+def getObsLightGuiFormatterString():
     '''
     return the formatter for obslightgui
     '''
@@ -56,7 +56,7 @@ def getObslightguiFormatter():
     if ('logger' in aConfigParser.sections()) and ('obslightgui' in aConfigParser.options('logger')):
         return aConfigParser.get('logger', 'obslightgui', raw=True)
     else:
-        return '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        return u'%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 
 
 

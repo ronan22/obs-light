@@ -2,4 +2,4 @@
 console:xterm -e
 [logger]
 obslight:'%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-obslightgui:'%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+obslightgui:<font color="#0000FF">%(asctime)s</font> <font color="#009F00">%(name)s %(levelname)s</font>: %(message)s

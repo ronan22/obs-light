@@ -21,10 +21,12 @@ Created on 21 nov. 2011
 '''
 
 from logging import Handler
-#from logging import Formatter
+from logging import Formatter
 
 from PySide.QtCore import QObject, Signal
 from PySide.QtGui import QPlainTextEdit
+
+from ObsLight import ObsLightConfig
 
 class LogManager(QObject):
     '''
@@ -61,14 +63,17 @@ class LogManager(QObject):
         self.connectLogger()
 
     def connectLogger(self):
-        self.appendMessage.connect(self.__logTextEdit.appendPlainText)
+        #self.appendMessage.connect(self.__logTextEdit.appendPlainText)
+        self.appendMessage.connect(self.__logTextEdit.appendHtml)
         self.__myHandler = LogManager.MyHandler(self.emitRecord)
         #formatter = Formatter(u"%(asctime)s <font color=\"#0000FF\">%(name)s</font>: %(message)s")
-        #self.__myHandler.setFormatter(formatter)
+        formatter = Formatter(ObsLightConfig.getObsLightGuiFormatterString())
+        self.__myHandler.setFormatter(formatter)
         self.__gui.getObsLightManager().addLoggerHandler(self.__myHandler)
 
     def disconnectLogger(self):
-        self.appendMessage.disconnect(self.__logTextEdit.appendPlainText)
+        #self.appendMessage.disconnect(self.__logTextEdit.appendPlainText)
+        self.appendMessage.disconnect(self.__logTextEdit.appendHtml)
         self.__gui.getObsLightManager().removeLoggerHandler(self.__myHandler)
 
     def emitRecord(self, record):
