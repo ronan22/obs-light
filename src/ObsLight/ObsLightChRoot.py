@@ -77,6 +77,19 @@ class ObsLightChRoot(object):
 
         return 0
 
+    def isInit(self):
+        '''
+        
+        '''
+        res = os.path.isdir(self.getDirectory())
+
+        if res and os.path.isfile(os.path.join(self.getDirectory(), ".chroot.lock")):
+            if not ObsLightMic.isInit(name=self.getDirectory()):
+                ObsLightMic.getObsLightMic(name=self.getDirectory()).initChroot(chrootDirectory=self.getDirectory(),
+                                                                                chrootTransfertDirectory=self.__chrootDirTransfert,
+                                                                                transfertDirectory=self.__dirTransfert)
+        return res
+
     def initChRoot(self):
         '''
         
@@ -192,8 +205,8 @@ class ObsLightChRoot(object):
 
         if not ObsLightMic.getObsLightMic(name=self.getDirectory()).isInit():
             ObsLightMic.getObsLightMic(name=self.getDirectory()).initChroot(chrootDirectory=self.getDirectory(),
-                                                                               chrootTransfertDirectory=self.__chrootDirTransfert,
-                                                                               transfertDirectory=self.__dirTransfert)
+                                                                            chrootTransfertDirectory=self.__chrootDirTransfert,
+                                                                            transfertDirectory=self.__dirTransfert)
 
         timeString = time.strftime("%Y-%m-%d_%Hh%Mm%S")
         scriptName = "runMe_" + timeString + ".sh"

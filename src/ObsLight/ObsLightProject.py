@@ -106,11 +106,11 @@ class ObsLightProject(object):
             if "chrootIsInit" in fromSave.keys():
                 self.__chrootIsInit = fromSave["chrootIsInit"]
                 if self.__chrootIsInit == True:
-                    if not os.path.isdir(self.__chroot.getDirectory()):
+                    if not self.__chroot.isInit():
                         self.__initChRoot()
                         self.__chroot.initRepos()
                 else:
-                    if os.path.isdir(self.__chroot.getDirectory()):
+                    if self.__chroot.isInit():
                         self.__chrootIsInit = True
 
             if self.__chrootIsInit:
@@ -119,7 +119,6 @@ class ObsLightProject(object):
                     if absPackagePath != None:
                         if not os.path.isdir(absPackagePath) :
                             self.addPackageSourceInChRoot(package=packageName)
-
 
         if not os.path.isdir(self.getDirectory()):
             os.makedirs(self.getDirectory())

@@ -36,6 +36,7 @@ def removeHandler(handler):
 
 ch = logging.StreamHandler()
 ch.setLevel(logging.DEBUG)
+
 formatter = logging.Formatter(ObsLightConfig.getObslightFormatter())
 ch.setFormatter(formatter)
 

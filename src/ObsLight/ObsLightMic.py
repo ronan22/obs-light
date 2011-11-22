@@ -163,7 +163,6 @@ class ObsLightMic(object):
 
     def cleanup_chrootenv(self, bindmounts=None):
 
-
         def bind_unmount(chrootmounts):
             chrootmounts.reverse()
             for b in chrootmounts:
@@ -193,11 +192,15 @@ class ObsLightMic(object):
             if os.path.exists(self.__chrootDirectory + "/etc/mtab"):
                 os.unlink(self.__chrootDirectory + "/etc/mtab")
             kill_processes(self.__chrootDirectory)
+
         self.cleanup_mountdir(self.__chrootDirectory, bindmounts)
         if self.__qemu_emulator:
 
             command = "sudo rm " + self.__chrootDirectory + self.__qemu_emulator
             self.__subprocess(command=command)
+
+        command = "sudo rm " + self.__chroot_lock
+        self.__subprocess(command=command)
 
     def cleanup_mountdir(self, chrootdir, bindmounts):
         if bindmounts == "" or bindmounts == None:
@@ -428,6 +431,8 @@ class BindChrootMount:
 
 __myListObsLightMic = {}
 
+
+
 def getObsLightMic(name=None):
     '''
     
@@ -438,6 +443,14 @@ def getObsLightMic(name=None):
     return __myListObsLightMic[name]
 
 
+def isInit(name=None):
+    '''
+    
+    '''
+    if  (name in __myListObsLightMic.keys()):
+        return True
+    else:
+        return False
 
 @atexit.register
 def destroy(name=None):

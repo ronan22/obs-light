@@ -35,6 +35,20 @@ OBSLIGHTDIRNAME = "OBSLight"
 OBSLIGHTCONFIG = "obslightConfig"
 
 
+WORKINGDIRECTORY = os.path.join(os.environ['HOME'], OBSLIGHTDIRNAME)
+# If not exists, create the obsLight directory for the user.
+if not os.path.isdir(WORKINGDIRECTORY):
+    os.makedirs(WORKINGDIRECTORY)
+CONFIGPATH = os.path.join(WORKINGDIRECTORY, OBSLIGHTCONFIG)
+if not  os.path.exists(CONFIGPATH):
+    shutil.copy2(os.path.join(os.path.dirname(__file__), "config", OBSLIGHTCONFIG), CONFIGPATH)
+
+def getConfigPath():
+    '''
+    Return the path of the config file.
+    '''
+    return CONFIGPATH
+
 def checkProjectLocalName(position=None):
     def checkProjectLocalName1(f):
         def checkProjectLocalName2(*args, **kwargs):
@@ -51,6 +65,9 @@ def checkProjectLocalName(position=None):
         return checkProjectLocalName2
     return checkProjectLocalName1
 
+
+
+
 class ObsLightManager(object):
     '''
     Application Programming Interface between clients (command line, GUI) and OBS Light.
@@ -62,17 +79,23 @@ class ObsLightManager(object):
         Initialize the OBS Light Manager.
         '''
 
-        self.__workingDirectory = os.path.join(os.environ['HOME'], OBSLIGHTDIRNAME)
-        # If not exists, create the obsLight directory for the user.
-        if not os.path.isdir(self.__workingDirectory):
-            os.makedirs(self.__workingDirectory)
-        self.__configPath = os.path.join(self.__workingDirectory, OBSLIGHTCONFIG)
-        if not  os.path.exists(self.__configPath):
-            shutil.copy2(os.path.join(os.path.dirname(__file__), "config", OBSLIGHTCONFIG), self.__configPath)
+        self.__workingDirectory = WORKINGDIRECTORY
 
         self.__myObsServers = ObsServers(workingDirectory=self.getObsLightWorkingDirectory())
         self.__myObsLightProjects = ObsLightProjects(obsServers=self.__myObsServers,
                                                      workingDirectory=self.getObsLightWorkingDirectory())
+
+    def getObslightFormatter(self):
+        '''
+        
+        '''
+        return ObsLightPrintManager.getObslightFormatter()
+
+    def getObslightguiFormatter(self):
+        '''
+        
+        '''
+        return ObsLightPrintManager.getObslightFormatter()
 
     def addLoggerHandler(self, handler):
         '''
@@ -86,11 +109,6 @@ class ObsLightManager(object):
         '''
         ObsLightPrintManager.removeHandler(handler)
 
-    def getConfigPath(self):
-        '''
-        Return the path of the config file.
-        '''
-        return self.__configPath
 
     def getObsLightWorkingDirectory(self):
         '''
