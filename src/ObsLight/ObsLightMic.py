@@ -61,6 +61,20 @@ class ObsLightMic(object):
         if self.__isInit == True:
             self.cleanup_chrootenv(bindmounts=self.__bindmounts)
 
+#        dev_null = os.open("/dev/null", os.O_WRONLY)
+#        proc_mounts = subprocess.Popen([ 'cat', "/proc/mounts" ], stdout=subprocess.PIPE, stderr=dev_null)
+#        outputs = proc_mounts.communicate()[0].strip().split("\n")
+#        for line in outputs:
+#            if line.find(os.path.abspath(self.__chrootDirectory)) >= 0:
+#                if os.path.abspath(self.__chrootDirectory) == line.split()[1]:
+#                    continue
+#                point = line.split()[1]
+#                ret = subprocess.call([ "umount", "-l", point ], stdout=dev_null, stderr=dev_null)
+#                if ret != 0:
+#                    print "ERROR: failed to unmount %s" % point
+#                    os.close(dev_null)
+#                    return ret
+#        os.close(dev_null)"""
 
     def isInit(self):
         '''
@@ -119,10 +133,10 @@ class ObsLightMic(object):
                     srcdst[1] = None
                 else:
                     srcdst[1] = os.path.abspath(os.path.expanduser(srcdst[1]))
-                    if os.path.isdir(chrootdir + "/" + srcdst[1]):
-                        #chroot.pwarning("%s has existed in %s , skip it." % (srcdst[1], chrootdir))
-                        self.__obsLightPrint("%s has existed in %s , skip it." % (srcdst[1], chrootdir) , isDebug=True)
-                        continue
+                    #if os.path.isdir(chrootdir + "/" + srcdst[1]):
+                    #    #chroot.pwarning("%s has existed in %s , skip it." % (srcdst[1], chrootdir))
+                    #    self.__obsLightPrint("%s has existed in %s , skip it." % (srcdst[1], chrootdir) , isDebug=True)
+                    #    continue
                 chrootmounts.append(BindChrootMount(srcdst[0], chrootdir, srcdst[1]))
 
             #"""Default bind mounts"""
@@ -183,6 +197,7 @@ class ObsLightMic(object):
                 except BaseException:
                     return None
         self.__chroot_lockfd.close()
+
         bind_unmount(self.__globalmounts)
         if not imgcreate.my_fuser(self.__chroot_lock):
             #cleanup_resolv(self.__chrootDirectory)
@@ -193,6 +208,7 @@ class ObsLightMic(object):
                 os.unlink(self.__chrootDirectory + "/etc/mtab")
             kill_processes(self.__chrootDirectory)
 
+        print "self.__chrootDirectory", bindmounts
         self.cleanup_mountdir(self.__chrootDirectory, bindmounts)
         if self.__qemu_emulator:
 

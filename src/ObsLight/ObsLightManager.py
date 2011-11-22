@@ -85,17 +85,6 @@ class ObsLightManager(object):
         self.__myObsLightProjects = ObsLightProjects(obsServers=self.__myObsServers,
                                                      workingDirectory=self.getObsLightWorkingDirectory())
 
-    def getObslightFormatter(self):
-        '''
-        
-        '''
-        return ObsLightPrintManager.getObslightFormatter()
-
-    def getObslightguiFormatter(self):
-        '''
-        
-        '''
-        return ObsLightPrintManager.getObslightFormatter()
 
     def addLoggerHandler(self, handler):
         '''

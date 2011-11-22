@@ -202,12 +202,10 @@ class ObsLightChRoot(object):
         '''
         if command == None:
             return
-
         if not ObsLightMic.getObsLightMic(name=self.getDirectory()).isInit():
             ObsLightMic.getObsLightMic(name=self.getDirectory()).initChroot(chrootDirectory=self.getDirectory(),
                                                                             chrootTransfertDirectory=self.__chrootDirTransfert,
                                                                             transfertDirectory=self.__dirTransfert)
-
         timeString = time.strftime("%Y-%m-%d_%Hh%Mm%S")
         scriptName = "runMe_" + timeString + ".sh"
         scriptPath = self.__chrootDirTransfert + "/" + scriptName
@@ -215,7 +213,6 @@ class ObsLightChRoot(object):
         f = open(scriptPath, 'w')
         f.write("#!/bin/sh\n")
         f.write("# Created by obslight\n")
-
         for c in command:
             f.write(c + "\n")
         f.close()
@@ -223,7 +220,6 @@ class ObsLightChRoot(object):
         os.chmod(scriptPath, 0654)
 
         aCommand = "sudo -H chroot " + self.getDirectory() + " " + self.__dirTransfert + "/" + scriptName
-
         if platform.machine() == 'x86_64':
             aCommand = "linux32 " + aCommand
 
@@ -234,7 +230,6 @@ class ObsLightChRoot(object):
         '''
         Add a repository in the chroot's zypper configuration file.
         '''
-
         if alias in self.__dicoRepos.keys():
             raise ObsLightErr.ObsLightChRootError("can't add " + alias + " , already configure in the chroot")
         else:
