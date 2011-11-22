@@ -645,7 +645,7 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="0" column="1">
+                  <item row="0" column="2">
                    <widget class="QLineEdit" name="chrootPathLineEdit">
                     <property name="toolTip">
                      <string>The path of the chroot on the local filesystem.</string>
@@ -665,7 +665,7 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="2" column="1">
+                  <item row="2" column="2">
                    <widget class="QPushButton" name="newChrootButton">
                     <property name="toolTip">
                      <string>Create (or open if it exists) the chroot of the project. If a package is selected, the chroot will open in this package's source directory.</string>
@@ -695,20 +695,40 @@
                     </property>
                    </widget>
                   </item>
-                  <item row="4" column="1">
+                  <item row="4" column="2">
                    <widget class="QPushButton" name="deleteChrootButton">
                     <property name="text">
                      <string>Delete</string>
                     </property>
                    </widget>
                   </item>
-                  <item row="1" column="1">
+                  <item row="1" column="2">
                    <widget class="QLabel" name="ChrootLabel">
                     <property name="text">
                      <string>Chroot</string>
                     </property>
                     <property name="alignment">
                      <set>Qt::AlignCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="2">
+                   <widget class="QPushButton" name="pushButton">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
+                    <property name="text">
+                     <string>import</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="5" column="2">
+                   <widget class="QPushButton" name="pushButton_2">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
+                    <property name="text">
+                     <string>Modify</string>
                     </property>
                    </widget>
                   </item>

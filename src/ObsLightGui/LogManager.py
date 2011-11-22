@@ -65,7 +65,7 @@ class LogManager(QObject):
 
     def emitRecord(self, record):
         formatted = self.__myHandler.format(record)
-        self.appendMessage.emit(unicode(formatted))
+        self.appendMessage.emit(unicode(formatted, errors='ignore'))
 
     def show(self):
         self.__logDialog.show()

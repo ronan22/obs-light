@@ -80,6 +80,12 @@ class ObsLightManager(object):
         '''
         ObsLightPrintManager.addHandler(handler)
 
+    def removeLoggerHandler(self, handler):
+        '''
+        Remove a Handler object to the logger of obslight.
+        '''
+        ObsLightPrintManager.removeHandler(handler)
+
     def getConfigPath(self):
         '''
         Return the path of the config file.

@@ -69,7 +69,6 @@ class ObsLightChRoot(object):
         '''
         
         '''
-
         if  ObsLightMic.getObsLightMic(name=self.getDirectory()).isInit():
             ObsLightMic.destroy(name=self.getDirectory())
 

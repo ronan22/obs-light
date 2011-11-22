@@ -14,22 +14,25 @@ def obsLightPrint(text, isDebug=False, isVerbose=False):
     '''
     
     '''
-    if ((VERBOSE == 1) and (isVerbose == 1)) or\
-       ((DEBUG == 1) and (isDebug == 1)) or\
-       (isDebug == False) and (isVerbose == False):
-        logger.debug(text)
+    logger.debug(text)
 
 def setLoggerLevel(level):
     '''
-    
+    Set the Level of the logger
     '''
     logger.setLevel(level)
 
 def addHandler(handler):
     '''
-    
+    Add a Handler to the logger
     '''
     logger.addHandler(handler)
+
+def removeHandler(handler):
+    '''
+    Remove a Handler to the logger
+    '''
+    logger.removeHandler(handler)
 
 ch = logging.StreamHandler()
 ch.setLevel(logging.DEBUG)
