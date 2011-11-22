@@ -52,8 +52,8 @@ class SubprocessCrt(object):
                 if output == b"":
                     outputs[fd]["EOF"] = True
                 else:
-                    outputs[fd]["logcmd"](output.rstrip())
-                    #outputs[fd]["logcmd"](output.decode().rstrip())
+                    #outputs[fd]["logcmd"](output.rstrip())
+                    outputs[fd]["logcmd"](output.decode("utf8", errors="replace").rstrip())
         res = p.returncode
         if res == None:
             res = 0

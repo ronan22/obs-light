@@ -54,8 +54,15 @@ class Gui(QObject):
     def __init__(self, obsLightManager=None):
         QObject.__init__(self)
         self.application = QApplication(sys.argv)
+        self.application.aboutToQuit.connect(self.__beforeQuitting)
         self.uiLoader = QUiLoader()
         self.__obsLightManager = obsLightManager
+        self.__loadMainWindow()
+        self.__obsProjectManager = ProjectManager(self)
+        self.__logManager = LogManager(self)
+
+    def __beforeQuitting(self):
+        self.__logManager.disconnectLogger()
 
     def loadWindow(self, uiFile):
         '''
@@ -107,8 +114,6 @@ class Gui(QObject):
         return self.__obsLightManager
 
     def getLogManager(self):
-        if self.__logManager is None:
-            self.__logManager = LogManager(self)
         return self.__logManager
 
     def statusBarErrorCallback(self, error):
@@ -135,8 +140,6 @@ class Gui(QObject):
         self.__messageSignal.emit(message, timeout)
 
     def main(self):
-        self.__loadMainWindow()
-        self.__obsProjectManager = ProjectManager(self)
         return self.application.exec_()
 
 
