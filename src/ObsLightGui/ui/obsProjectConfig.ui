@@ -126,6 +126,9 @@
      <property name="enabled">
       <bool>false</bool>
      </property>
+     <property name="toolTip">
+      <string>Description of the project. Imported from OBS when the local project is created, and then modifiable.</string>
+     </property>
     </widget>
    </item>
    <item row="7" column="0">
@@ -139,6 +142,9 @@
     <widget class="QLineEdit" name="projectTitleLineEdit">
      <property name="enabled">
       <bool>false</bool>
+     </property>
+     <property name="toolTip">
+      <string>Title of the project. Imported from OBS when the local project is created, and then modifiable.</string>
      </property>
     </widget>
    </item>
