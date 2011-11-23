@@ -48,6 +48,7 @@ class ProjectConfigManager(QObject):
     __titleLineEdit = None
     __descriptionTextEdit = None
     __colorEffect = None
+
     finished = Signal(bool)
     __projectObsNameEdited = False
 
@@ -60,6 +61,7 @@ class ProjectConfigManager(QObject):
         self.__colorEffect = QGraphicsColorizeEffect(self.__configDialog)
         self.__loadFieldObjects()
         self.__loadInitialFieldValues()
+        self.__makeConnections()
         self.__configDialog.accepted.connect(self.on_configDialog_accepted)
         self.__configDialog.rejected.connect(self.on_configDialog_rejected)
         self.__configDialog.show()
@@ -85,14 +87,10 @@ class ProjectConfigManager(QObject):
         self.__localNameField.setValidator(noSpaceValidator)
         self.__obsNameField = self.__configDialog.findChild(QLineEdit,
                                                             u"projectObsNameLineEdit")
-        self.__obsNameField.textEdited.connect(self.handleObsNameEdited)
-        self.__obsNameField.editingFinished.connect(self.handleObsNameEditingFinished)
         self.__serverCBox = self.__configDialog.findChild(QComboBox,
                                                           u"projectServerComboBox")
-        self.__serverCBox.currentIndexChanged.connect(self.handleServerChanged)
         self.__targetCBox = self.__configDialog.findChild(QComboBox,
                                                           u"projectTargetComboBox")
-        self.__targetCBox.currentIndexChanged.connect(self.handleTargetIndexChanged)
         self.__archCBox = self.__configDialog.findChild(QComboBox,
                                                         u"projectArchitectureComboBox")
         self.__titleLineEdit = self.__configDialog.findChild(QLineEdit,
@@ -145,6 +143,14 @@ class ProjectConfigManager(QObject):
             self.__descriptionTextEdit.setText(description)
             self.__descriptionTextEdit.setEnabled(True)
 
+    def __makeConnections(self):
+        if self.__isNewProject():
+            self.__obsNameField.textEdited.connect(self.handleObsNameEdited)
+            self.__obsNameField.editingFinished.connect(self.handleObsNameEditingFinished)
+            self.__obsNameField.returnPressed.connect(self.handleObsNameReturnPressed)
+            self.__serverCBox.currentIndexChanged.connect(self.handleServerChanged)
+        self.__targetCBox.currentIndexChanged.connect(self.handleTargetIndexChanged)
+
     def __loadTargetPossibilities(self):
         '''
         Load the target possibilities into the target ComboBox,
@@ -160,7 +166,7 @@ class ProjectConfigManager(QObject):
                 self.__targetCBox.addItems(targets)
                 self.__colorEffect.setColor(QColor('green'))
                 self.__obsNameField.setGraphicsEffect(self.__colorEffect)
-            except ObsLightObsServers:
+            except BaseException:
                 self.__colorEffect.setColor(QColor('red'))
                 self.__obsNameField.setGraphicsEffect(self.__colorEffect)
 
@@ -195,6 +201,10 @@ class ProjectConfigManager(QObject):
             task = QRunnableImpl()
             task.run = self.__loadTargetPossibilities
             QThreadPool.globalInstance().start(task)
+
+    def handleObsNameReturnPressed(self):
+        self.handleObsNameEdited(None)
+        self.handleObsNameEditingFinished()
 
     def handleTargetIndexChanged(self):
         task = QRunnableImpl()
