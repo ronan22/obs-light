@@ -228,7 +228,7 @@ class ObsLightManager(object):
                      serverApi,
                      user,
                      password,
-                     alias=None,
+                     alias,
                      serverRepo="",
                      serverWeb=""):
         '''
@@ -240,6 +240,8 @@ class ObsLightManager(object):
             raise ObsLightObsServers(serverApi + " is already an OBS server")
         elif self.isAnObsServer(alias):
             raise ObsLightObsServers(alias + " is already an OBS alias")
+        elif self.isAnObsServerOscAlias(serverApi, alias):
+            raise ObsLightObsServers(alias + " is already an OBS alias define in ~/.oscrc ")
         elif user in ["None", "", None]:
             raise ObsLightObsServers("Can't create a OBSServer: no user")
         elif password in ["None", "", None]:
@@ -273,6 +275,12 @@ class ObsLightManager(object):
             return True
         else:
             return False
+    def isAnObsServerOscAlias(self, api, alias):
+        '''
+        Test if alias is define in the ~/.oscrc
+        '''
+        return self.__myObsServers.isAnObsServerOscAlias(api, alias)
+
 
     def addProject(self,
                    obsServer,

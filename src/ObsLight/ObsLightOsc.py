@@ -59,7 +59,7 @@ class ObsLightOsc(object):
                                                         'user' : user,
                                                         'pass' : passw })
 
-        aOscConfigParser = conf.get_configParser(self.__confFile)
+        aOscConfigParser = conf.get_configParser(self.__confFile, force_read=True)
 
         if not (api in  aOscConfigParser.sections()):
             aOscConfigParser.add_section(api)
@@ -103,11 +103,41 @@ class ObsLightOsc(object):
         
         '''
         conf.get_config()
-        aOscConfigParser = conf.get_configParser(self.__confFile)
+        aOscConfigParser = conf.get_configParser(self.__confFile, force_read=True)
         aOscConfigParser.set(api, 'pass', passw)
 
         aFile = open(self.__confFile, 'w')
         aOscConfigParser.write(aFile, True)
+
+    def getServersFromOsc(self):
+        '''
+        
+        '''
+        conf.get_config()
+        aOscConfigParser = conf.get_configParser(self.__confFile, force_read=True)
+        result = {}
+        for api in aOscConfigParser.sections():
+            if api != 'general':
+                server = {}
+                option = aOscConfigParser.options(api)
+                if 'aliases' in option:
+                    aliases = aOscConfigParser.get(api, 'aliases')
+                else:
+                    aliases = ""
+                if 'user' in option:
+                    user = aOscConfigParser.get(api, 'user')
+                else:
+                    user = ""
+                if 'passw' in option:
+                    passw = aOscConfigParser.get(api, 'passw')
+                else:
+                    passw = ""
+                server['api'] = api
+                server['aliases'] = aliases
+                server['user'] = user
+                server['passw'] = passw
+                result[api] = server
+        return result
 
     def trustRepos(self,
                    api=None,
@@ -116,7 +146,7 @@ class ObsLightOsc(object):
         
         '''
         conf.get_config()
-        aOscConfigParser = conf.get_configParser(self.__confFile)
+        aOscConfigParser = conf.get_configParser(self.__confFile, force_read=True)
 
         if aOscConfigParser.has_option(api, "trusted_prj"):
             options = aOscConfigParser.get(api, "trusted_prj")

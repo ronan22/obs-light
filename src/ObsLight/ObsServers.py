@@ -22,7 +22,7 @@ Created on 29 sept. 2011
 
 import pickle
 import os
-
+import ObsLightOsc
 from ObsServer import ObsServer
 from ObsLightErr import ObsLightObsServers
 import ObsLightTools
@@ -37,10 +37,41 @@ class ObsServers(object):
         Constructor
         '''
         self.__dicOBSLightServers = {}
+        self.__blackList = {}
         self.__currentServer = None
         self.__pathFile = os.path.join(workingDirectory , "ObsServersConfig")
         self.__currentOBSServer = None
+        self.__initServersFromOsc()
         self.__load()
+
+    def __initServersFromOsc(self):
+        '''
+        
+        '''
+        self.__blackList = ObsLightOsc.getObsLightOsc().getServersFromOsc()
+
+    def isAnObsServerOscAlias(self, api, alias):
+        '''
+        
+        '''
+        for aApi in self.__blackList.keys():
+            if (alias == self.__blackList[aApi]['aliases']) and (api != aApi):
+                return True
+        return False
+
+    def __load(self):
+        '''
+        
+        '''
+        if os.path.isfile(self.__pathFile):
+            aFile = open(self.__pathFile, 'r')
+            saveconfigServers = pickle.load(aFile)
+            aFile.close()
+            saveServers = saveconfigServers["saveServers"]
+            for projetName in saveServers.keys():
+                aServer = saveServers[projetName]
+                self.__addOBSServerFromSave(fromSave=aServer)
+            self.__currentOBSServer = saveconfigServers["currentObsServer"]
 
     def getObsServer(self, name=None):
         '''
@@ -79,20 +110,6 @@ class ObsServers(object):
         aFile = open(self.__pathFile, 'w')
         pickle.dump(saveconfigServers, aFile)
         aFile.close()
-
-    def __load(self):
-        '''
-        
-        '''
-        if os.path.isfile(self.__pathFile):
-            aFile = open(self.__pathFile, 'r')
-            saveconfigServers = pickle.load(aFile)
-            aFile.close()
-            saveServers = saveconfigServers["saveServers"]
-            for projetName in saveServers.keys():
-                aServer = saveServers[projetName]
-                self.__addOBSServerFromSave(fromSave=aServer)
-            self.__currentOBSServer = saveconfigServers["currentObsServer"]
 
     def __addOBSServerFromSave(self, fromSave=None):
         '''
