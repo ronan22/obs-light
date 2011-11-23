@@ -190,7 +190,10 @@ class ObsServer(object):
         res = ObsLightOsc.getObsLightOsc().getDepProject(apiurl=self.__serverAPI,
                                                          projet=projet,
                                                          repos=repos)
-
+        print "self.__serverAPI", self.__serverAPI
+        print "projet", projet
+        print "repos", repos
+        print "res", res
         #the listDepProject must be trust(add to .oscrc )
         if res != None:
             ObsLightOsc.getObsLightOsc().trustRepos(api=self.__serverAPI,

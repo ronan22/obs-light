@@ -55,8 +55,9 @@ class ObsServers(object):
         
         '''
         for aApi in self.__blackList.keys():
-            if (alias == self.__blackList[aApi]['aliases']) and (api != aApi):
-                return True
+            for aAlias in self.__blackList[aApi]['aliases']:
+                if (alias == aAlias) and (api != aApi):
+                    return True
         return False
 
     def __load(self):

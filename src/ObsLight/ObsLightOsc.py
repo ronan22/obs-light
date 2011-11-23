@@ -22,6 +22,7 @@ Created on 3 oct. 2011
 
 import os
 from xml.etree import ElementTree
+import urlparse
 
 from osc import conf
 from osc import core
@@ -66,7 +67,19 @@ class ObsLightOsc(object):
 
         aOscConfigParser.set(api, 'user', user)
         aOscConfigParser.set(api, 'pass', passw)
-        aOscConfigParser.set(api, 'aliases', alias)
+
+        option = aOscConfigParser.options(api)
+        aliases = []
+        if 'aliases' in option:
+            aliasesRes = aOscConfigParser.get(api, 'aliases')
+            if aliasesRes != None:
+                aliases = aliasesRes.split(",")
+            else:
+                aliases = []
+
+        if not alias in aliases:
+            aliases.append(alias)
+        aOscConfigParser.set(api, 'aliases', (",").join(aliases))
 
         aOscConfigParser.set('general', 'su-wrapper', "sudo")
 
@@ -93,6 +106,7 @@ class ObsLightOsc(object):
         '''
         conf.get_config()
         aOscConfigParser = conf.get_configParser(self.__confFile, force_read=True)
+
         aOscConfigParser.set(api, 'user', user)
 
         aFile = open(self.__confFile, 'w')
@@ -113,15 +127,22 @@ class ObsLightOsc(object):
         '''
         
         '''
+        result = {}
+        if not os.path.isfile(self.__confFile):
+            return result
         conf.get_config()
         aOscConfigParser = conf.get_configParser(self.__confFile, force_read=True)
-        result = {}
+
         for api in aOscConfigParser.sections():
             if api != 'general':
                 server = {}
                 option = aOscConfigParser.options(api)
                 if 'aliases' in option:
                     aliases = aOscConfigParser.get(api, 'aliases')
+                    if aliases != None:
+                        aliases = aliases.split(",")
+                    else:
+                        aliases = []
                 else:
                     aliases = ""
                 if 'user' in option:
@@ -145,6 +166,7 @@ class ObsLightOsc(object):
         '''
         
         '''
+        ObsLightPrintManager.getLogger().debug("api" + api)
         conf.get_config()
         aOscConfigParser = conf.get_configParser(self.__confFile, force_read=True)
 
@@ -154,10 +176,13 @@ class ObsLightOsc(object):
             options = ""
 
         res = options
+        ObsLightPrintManager.getLogger().debug("To Add ?" + ("").join(listDepProject))
+        ObsLightPrintManager.getLogger().debug("Current:" + ("").join(res))
         for depProject in listDepProject:
-            if not depProject in res:
+            if not depProject in res.split(" "):
                 res += " " + depProject
 
+        ObsLightPrintManager.getLogger().debug("Result" + ("").join(res))
         aOscConfigParser.set(api, 'trusted_prj', res)
 
         aFile = open(self.__confFile, 'w')
@@ -173,7 +198,8 @@ class ObsLightOsc(object):
         
         '''
         conf.get_config()
-        url = str(apiurl + "/source/" + projet + "/_meta")
+        url = self.__cleanUrl(str(apiurl + "/source/" + projet + "/_meta"))
+
         try:
             res = core.http_request("GET", url)
         except urllib2.URLError:
@@ -187,6 +213,7 @@ class ObsLightOsc(object):
                 for path in project.getiterator():
                     if path.tag == "path":
                         result.append(path.get("project"))
+
         return result
 
     def getListPackage(self,
@@ -265,7 +292,7 @@ class ObsLightOsc(object):
         unknown: The scheduler has not yet evaluated this package. Should be a 
                  short intermediate state for new packages.
         '''
-        url = str(obsServer + "/build/" + project + "/" + repo + "/" + arch + "/" + package + "/_status")
+        url = self.__cleanUrl(str(obsServer + "/build/" + project + "/" + repo + "/" + arch + "/" + package + "/_status"))
 
 
         try:
@@ -324,7 +351,7 @@ class ObsLightOsc(object):
         '''
         return the list of the repos of a OBS Server.
         '''
-        url = str(apiurl + "/distributions")
+        url = self.__cleanUrl(str(apiurl + "/distributions"))
         aElement = ElementTree.fromstring(core.http_request("GET", url).read())
 
         result = []
@@ -345,14 +372,29 @@ class ObsLightOsc(object):
             result.append([name, project, reponame, repository])
         return result
 
+    def __cleanUrl(self, url):
+        '''
+        
+        '''
+        res = urlparse.urlparse(url)
+
+        return urlparse.urlunsplit((res[0], res[1], res[2].replace("//", "/"), '', ''))
+
+
     def getTargetList(self,
                       obsServer=None,
                       projectObsName=None):
         '''
         return the list of Target of a projectObsProject for a OBS server.
         '''
-        url = str(obsServer + "/build/" + projectObsName)
-        aElement = ElementTree.fromstring(core.http_request("GET", url).read())
+        url = self.__cleanUrl(str(obsServer + "/build/" + projectObsName))
+
+        try:
+            res = core.http_request("GET", url)
+        except Exception, e:
+            ObsLightPrintManager.getLogger().debug("Errot on: " + url)
+            raise e
+        aElement = ElementTree.fromstring(res.read())
         res = []
         for directory in aElement:
             for entry in directory.getiterator():
@@ -366,7 +408,7 @@ class ObsLightOsc(object):
         '''
         return the list of Archictecture of the target of the projectObsName for a OBS server.
         '''
-        url = str(obsServer + "/build/" + projectObsName + "/" + projectTarget)
+        url = self.__cleanUrl(str(obsServer + "/build/" + projectObsName + "/" + projectTarget))
 
         aElement = ElementTree.fromstring(core.http_request("GET", url).read())
         res = []
@@ -421,7 +463,7 @@ class ObsLightOsc(object):
         description
         '''
         conf.get_config()
-        url = str(apiurl + "/source/" + projectObsName + "/_meta")
+        url = self.__cleanUrl(str(apiurl + "/source/" + projectObsName + "/_meta"))
 
         aElement = ElementTree.fromstring(core.http_request("GET", url).read())
         for desc in aElement:
@@ -436,7 +478,7 @@ class ObsLightOsc(object):
         description
         '''
         conf.get_config()
-        url = str(apiurl + "/source/" + projectObsName + "/_meta")
+        url = self.__cleanUrl(str(apiurl + "/source/" + projectObsName + "/_meta"))
 
         aElement = ElementTree.fromstring(core.http_request("GET", url).read())
 
@@ -454,7 +496,7 @@ class ObsLightOsc(object):
         description
         '''
         conf.get_config()
-        url = str(apiurl + "/source/" + projectObsName + "/" + package + "/_meta")
+        url = self.__cleanUrl(str(apiurl + "/source/" + projectObsName + "/" + package + "/_meta"))
 
         aElement = ElementTree.fromstring(core.http_request("GET", url).read())
         for desc in aElement:
@@ -474,7 +516,7 @@ class ObsLightOsc(object):
         description
         '''
         conf.get_config()
-        url = str(apiurl + "/source/" + projectObsName + "/" + package + "/_meta")
+        url = self.__cleanUrl(str(apiurl + "/source/" + projectObsName + "/" + package + "/_meta"))
 
         aElement = ElementTree.fromstring(core.http_request("GET", url).read())
 
@@ -483,12 +525,6 @@ class ObsLightOsc(object):
                 desc.text = value
 
         core.http_request("PUT", url, data=ElementTree.tostring(aElement))
-
-
-
-
-
-
 
 __myObsLightOsc = ObsLightOsc()
 
@@ -499,5 +535,13 @@ def getObsLightOsc():
     return __myObsLightOsc
 
 
-
+if __name__ == '__main__':
+    projet = "home:ronan:OBS_Light:testObsLight_kernel"
+    repos = "Ubuntu_11.10"
+    apiurl = "https://api.pub.meego.com"
+    conf.get_config()
+    url = str(apiurl + "/source/" + projet + "/_meta")
+    print "url: ", url
+    res = core.http_request("GET", url)
+    print getObsLightOsc().getDepProject(apiurl, projet, repos)
 
