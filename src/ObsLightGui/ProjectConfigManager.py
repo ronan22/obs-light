@@ -47,7 +47,7 @@ class ProjectConfigManager(QObject):
     __archCBox = None
     __titleLineEdit = None
     __descriptionTextEdit = None
-
+    __colorEffect = None
     finished = Signal(bool)
     __projectObsNameEdited = False
 
@@ -57,13 +57,14 @@ class ProjectConfigManager(QObject):
         self.__projectAlias = projectAlias
         self.__obsLightManager = self.__gui.getObsLightManager()
         self.__configDialog = self.__gui.loadWindow(u"obsProjectConfig.ui")
+        self.__colorEffect = QGraphicsColorizeEffect(self.__configDialog)
         self.__loadFieldObjects()
         self.__loadInitialFieldValues()
         self.__configDialog.accepted.connect(self.on_configDialog_accepted)
         self.__configDialog.rejected.connect(self.on_configDialog_rejected)
         self.__configDialog.show()
         self.__undefaultButtons()
-        self.__colorEffect = QGraphicsColorizeEffect(self.__configDialog)
+
 
     def __undefaultButtons(self):
         for button in self.__configButtonBox.buttons():
