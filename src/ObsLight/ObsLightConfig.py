@@ -15,8 +15,6 @@ WORKINGDIRECTORY = os.path.join(os.environ['HOME'], OBSLIGHTDIRNAME)
 if not os.path.isdir(WORKINGDIRECTORY):
     os.makedirs(WORKINGDIRECTORY)
 CONFIGPATH = os.path.join(WORKINGDIRECTORY, OBSLIGHTCONFIG)
-if not  os.path.exists(CONFIGPATH):
-    shutil.copy2(os.path.join(os.path.dirname(__file__), "config", OBSLIGHTCONFIG), CONFIGPATH)
 
 class ObsLightConfig(object):
     '''
@@ -43,6 +41,17 @@ def getConsole():
         return aConfigParser.get('editor', 'console')
     else:
         return 'xterm -e'
+
+def setConsole(consoleCommand):
+    print "setConsole %s" % consoleCommand
+    aConfigParser = ConfigParser.ConfigParser()
+    with open(CONFIGPATH, 'r') as aConfigFile:
+        aConfigParser.readfp(aConfigFile)
+    if not aConfigParser.has_section('editor'):
+        aConfigParser.add_section('editor')
+    aConfigParser.set('editor', 'console', consoleCommand)
+    with open(CONFIGPATH, 'w') as aConfigFile:
+        aConfigParser.write(aConfigFile)
 
 def getObslightFormatter():
     '''
@@ -71,4 +80,10 @@ def getObsLightGuiFormatterString():
         return u'%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 
 
-
+if not os.path.exists(CONFIGPATH):
+    shutil.copy2(os.path.join(os.path.dirname(__file__), "config", OBSLIGHTCONFIG), CONFIGPATH)
+    if os.path.exists("/usr/bin/konsole"):
+        setConsole("/usr/bin/konsole -e")
+    elif os.path.exists("/usr/bin/gnome-terminal"):
+        setConsole("/usr/bin/gnome-terminal -x")
+    #else keep default ("xterm -e")
