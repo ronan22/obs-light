@@ -70,6 +70,7 @@ This package contains additional scripts :
 python setup.py build
 
 %install
+echo "%{version}-%{release}" > VERSION
 python setup.py install -O1 --root=%{buildroot} --prefix=%{_prefix}
 %fdupes -s $RPM_BUILD_ROOT/%{python_sitelib}
 ln -s obslight-wrapper.py %{buildroot}/%{_bindir}/obslight
@@ -110,7 +111,7 @@ rm -rf %{buildroot}
 
 %files base
 %defattr(-,root,root)
-%doc README
+%doc README VERSION
 %{_bindir}/obslight
 %{_bindir}/obslight-wrapper.py
 %{python_sitelib}/ObsLight
