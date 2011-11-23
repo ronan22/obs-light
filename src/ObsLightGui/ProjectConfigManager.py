@@ -21,7 +21,7 @@ Created on 17 nov. 2011
 '''
 
 from PySide.QtCore import QObject, QRegExp, QThreadPool, Signal
-from PySide.QtGui import QComboBox, QLineEdit, QRegExpValidator, QTextEdit
+from PySide.QtGui import QComboBox, QDialogButtonBox, QLineEdit, QRegExpValidator, QTextEdit
 
 from Utils import popupOnException, QRunnableImpl
 
@@ -34,6 +34,7 @@ class ProjectConfigManager(QObject):
     __projectAlias = None
     __obsLightManager = None
     __configDialog = None
+    __configButtonBox = None
 
     __localNameField = None
     __obsNameField = None
@@ -57,11 +58,19 @@ class ProjectConfigManager(QObject):
         self.__configDialog.accepted.connect(self.on_configDialog_accepted)
         self.__configDialog.rejected.connect(self.on_configDialog_rejected)
         self.__configDialog.show()
+        self.__undefaultButtons()
+
+    def __undefaultButtons(self):
+        for button in self.__configButtonBox.buttons():
+            button.setAutoDefault(False)
+            button.setDefault(False)
 
     def __isNewProject(self):
         return self.__projectAlias is None
 
     def __loadFieldObjects(self):
+        self.__configButtonBox = self.__configDialog.findChild(QDialogButtonBox,
+                                                               "obsProjectConfigButtonBox")
         self.__localNameField = self.__configDialog.findChild(QLineEdit,
                                                               u"projectLocalNameLineEdit")
         # obslight do not like whitespace characters
