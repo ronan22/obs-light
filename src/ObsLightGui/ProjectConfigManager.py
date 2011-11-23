@@ -22,7 +22,9 @@ Created on 17 nov. 2011
 
 from PySide.QtCore import QObject, QRegExp, QThreadPool, Signal
 from PySide.QtGui import QComboBox, QDialogButtonBox, QLineEdit, QRegExpValidator, QTextEdit
+from PySide.QtGui import QColor, QCompleter, QGraphicsColorizeEffect
 
+from ObsLight.ObsLightErr import OBSLightBaseError, ObsLightObsServers
 from Utils import popupOnException, QRunnableImpl
 
 class ProjectConfigManager(QObject):
@@ -33,6 +35,8 @@ class ProjectConfigManager(QObject):
     __gui = None
     __projectAlias = None
     __obsLightManager = None
+    __obsNameCompleter = None
+
     __configDialog = None
     __configButtonBox = None
 
@@ -59,6 +63,7 @@ class ProjectConfigManager(QObject):
         self.__configDialog.rejected.connect(self.on_configDialog_rejected)
         self.__configDialog.show()
         self.__undefaultButtons()
+        self.__colorEffect = QGraphicsColorizeEffect(self.__configDialog)
 
     def __undefaultButtons(self):
         for button in self.__configButtonBox.buttons():
@@ -75,7 +80,7 @@ class ProjectConfigManager(QObject):
                                                               u"projectLocalNameLineEdit")
         # obslight do not like whitespace characters
         noSpaceValidator = QRegExpValidator()
-        noSpaceValidator.setRegExp(QRegExp(u"\\S+"))
+        noSpaceValidator.setRegExp(QRegExp(u"[^\\s:]+"))
         self.__localNameField.setValidator(noSpaceValidator)
         self.__obsNameField = self.__configDialog.findChild(QLineEdit,
                                                             u"projectObsNameLineEdit")
@@ -83,7 +88,7 @@ class ProjectConfigManager(QObject):
         self.__obsNameField.editingFinished.connect(self.handleObsNameEditingFinished)
         self.__serverCBox = self.__configDialog.findChild(QComboBox,
                                                           u"projectServerComboBox")
-        self.__serverCBox.currentIndexChanged.connect(self.handleObsNameEditingFinished)
+        self.__serverCBox.currentIndexChanged.connect(self.handleServerChanged)
         self.__targetCBox = self.__configDialog.findChild(QComboBox,
                                                           u"projectTargetComboBox")
         self.__targetCBox.currentIndexChanged.connect(self.handleTargetIndexChanged)
@@ -145,11 +150,18 @@ class ProjectConfigManager(QObject):
         according to the current server and project.
         May take some time, so you should run it asynchronously.
         '''
+        self.__archCBox.clear()
         self.__targetCBox.clear()
         if len(self.getCurrentServerAlias()) > 0 and len(self.getCurrentProjectObsName()) > 0:
-            targets = self.__obsLightManager.getTargetList(self.getCurrentServerAlias(),
-                                                           self.getCurrentProjectObsName())
-            self.__targetCBox.addItems(targets)
+            try:
+                targets = self.__obsLightManager.getTargetList(self.getCurrentServerAlias(),
+                                                               self.getCurrentProjectObsName())
+                self.__targetCBox.addItems(targets)
+                self.__colorEffect.setColor(QColor('green'))
+                self.__obsNameField.setGraphicsEffect(self.__colorEffect)
+            except ObsLightObsServers:
+                self.__colorEffect.setColor(QColor('red'))
+                self.__obsNameField.setGraphicsEffect(self.__colorEffect)
 
     def __loadArchPossibilities(self):
         '''
@@ -166,6 +178,15 @@ class ProjectConfigManager(QObject):
 
     def handleObsNameEdited(self, _ignore):
         self.__projectObsNameEdited = True
+
+    def handleServerChanged(self):
+        try:
+            projectList = self.__obsLightManager.getObsServerProjectList(self.getCurrentServerAlias())
+            self.__obsNameCompleter = QCompleter(projectList, self.__configDialog)
+            self.__obsNameField.setCompleter(self.__obsNameCompleter)
+        except OBSLightBaseError:
+            self.__obsNameField.setCompleter(None)
+        self.handleObsNameEditingFinished()
 
     def handleObsNameEditingFinished(self):
         if self.__projectObsNameEdited:
