@@ -88,6 +88,14 @@ class ServerListManager(QObject):
         currentItem = self.__listWidget.currentItem()
         if currentItem is not None:
             serverAlias = currentItem.text()
+            result = QMessageBox.question(self.__gui.getMainWindow(),
+                                      "Are you sure ?",
+                                      "Are you sure you want to delete %s server ?"
+                                        % serverAlias,
+                                      buttons=QMessageBox.Yes | QMessageBox.No,
+                                      defaultButton=QMessageBox.Yes)
+            if result == QMessageBox.No:
+                return
             if len(serverAlias) > 0:
                 self.__obsLightManager.delObsServer(serverAlias)
             self.loadServerList()

@@ -22,7 +22,7 @@ Created on 27 sept. 2011
 
 from PySide.QtCore import QObject, QThreadPool
 from PySide.QtGui import QPushButton, QListWidget, QLineEdit, QLabel
-from PySide.QtGui import QFileDialog
+from PySide.QtGui import QFileDialog, QMessageBox
 
 from Utils import  ProgressRunnable, popupOnException
 from PackageManager import PackageManager
@@ -144,6 +144,14 @@ class ProjectManager(QObject):
         projectName = self.getCurrentProjectName()
         if projectName is None:
             return
+        result = QMessageBox.question(self.__gui.getMainWindow(),
+                                      "Are you sure ?",
+                                      "Are you sure you want to delete %s project ?"
+                                        % projectName,
+                                      buttons=QMessageBox.Yes | QMessageBox.No,
+                                      defaultButton=QMessageBox.Yes)
+        if result == QMessageBox.No:
+            return
         obslightManager = self.__gui.getObsLightManager()
         progress = self.__gui.getInfiniteProgressDialog()
         progress.setLabelText(u"Deleting project...")
@@ -232,6 +240,14 @@ class ProjectManager(QObject):
         projectName = self.getCurrentProjectName()
         obslightManager = self.__gui.getObsLightManager()
         if projectName is not None:
+            result = QMessageBox.question(self.__gui.getMainWindow(),
+                                      "Are you sure ?",
+                                      "Are you sure you want to delete %s's chroot ?"
+                                        % projectName,
+                                      buttons=QMessageBox.Yes | QMessageBox.No,
+                                      defaultButton=QMessageBox.Yes)
+            if result == QMessageBox.No:
+                return
             progress = self.__gui.getInfiniteProgressDialog()
             progress.setLabelText("Delete chroot")
             progress.show()

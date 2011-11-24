@@ -108,6 +108,7 @@ class ProgressRunnable2(QRunnable, QObject):
     __isFinite = False
 
     __progressed = Signal((), (int,))
+    __sentMessage = Signal((unicode))
 
     finished = Signal()
     caughtException = Signal(BaseException)
@@ -180,6 +181,17 @@ class ProgressRunnable2(QRunnable, QObject):
         Emits the caughtException signal with exception as parameter.
         '''
         self.caughtException.emit(exception)
+
+    def setDialogMessage(self, message):
+        '''
+        Set the message displayed in the progress dialog.
+        '''
+        if self.__progressDialog is not None:
+            self.__sentMessage.connect(self.__progressDialog.setLabelText)
+            if not isinstance(message, unicode):
+                message = unicode(message, errors='replace')
+            self.__sentMessage.emit(message)
+            self.__sentMessage.disconnect(self.__progressDialog.setLabelText)
 
 
 def detachWithProgress(title, minDuration=500):

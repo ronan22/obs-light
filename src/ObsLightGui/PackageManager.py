@@ -22,7 +22,7 @@ Created on 2 nov. 2011
 
 from PySide.QtCore import QObject, QThreadPool
 from PySide.QtGui import QLabel, QInputDialog, QPushButton, QTableView, QWidget
-from PySide.QtGui import QMenu
+from PySide.QtGui import QMenu, QMessageBox
 
 from PackageModel import PackageModel
 from ObsLightGui.FileManager import FileManager
@@ -179,17 +179,61 @@ class PackageManager(QObject):
             runnable.finished.connect(self.refresh)
             QThreadPool.globalInstance().start(runnable)
 
+    class __RemovePackages(ProgressRunnable2):
+        project = None
+        packageList = None
+        model = None
+
+        def __init__(self, project, packageList, model, progress):
+            ProgressRunnable2.__init__(self)
+            self.project = project
+            self.packageList = packageList
+            self.model = model
+            self.setProgressDialog(progress)
+
+        def run(self):
+            self.setMax(len(self.packageList))
+            self.setDialogMessage(u"Deleting packages...")
+            for package in self.packageList:
+                try:
+                    self.model.removePackage(package)
+                except BaseException as e:
+                    self.hasCaughtException(e)
+                finally:
+                    self.hasProgressed()
+            self.hasFinished()
+
     @popupOnException
     def on_deletePackageButton_clicked(self):
         project = self.getCurrentProject()
         if project is None:
             return
-        row = self.__packageTableView.currentIndex().row()
-        packageName = self.__localModel.data(self.__localModel.createIndex(row,
-                                                                           PackageModel.PackageNameColumn))
-        if packageName is not None and len(packageName) > 0:
-            self.__localModel.removePackage(packageName)
-            self.__fileManager.setCurrentPackage(None, None)
+        packagesNames = self.selectedPackages()
+        progress = None
+        if len(packagesNames) < 1:
+            return
+        result = QMessageBox.question(self.__gui.getMainWindow(),
+                                      "Are you sure ?",
+                                      "Are you sure you want to remove %d packages ?"
+                                        % len(packagesNames),
+                                      buttons=QMessageBox.Yes | QMessageBox.No,
+                                      defaultButton=QMessageBox.Yes)
+        if result == QMessageBox.No:
+            return
+        # This is to avoid a bug happening with libglib2.0 < 2.29.92
+        # "Assertion `req == dpy->xcb->pending_requests' failed"
+        # that crashed the whole application if calling dialog before
+        # it is visible.
+        if len(packagesNames) > 100:
+            progress = self.__gui.getProgressDialog()
+            progress.setValue(0)
+        runnable = PackageManager.__RemovePackages(project,
+                                                   packagesNames,
+                                                   self.__localModel,
+                                                   progress)
+        runnable.caughtException.connect(self.__gui.popupErrorCallback)
+        self.__fileManager.setCurrentPackage(None, None)
+        QThreadPool.globalInstance().start(runnable)
 
     class __AddPackageSourceInChRoot(ProgressRunnable2):
         project = None
@@ -207,7 +251,7 @@ class PackageManager(QObject):
             self.setMax(len(self.packageList))
             for package in self.packageList:
                 try:
-                    self.getProgressDialog().setLabelText(u"Importing %s source in chroot" % package)
+                    self.setDialogMessage(u"Importing %s source in chroot" % package)
                     self.manager.addPackageSourceInChRoot(self.project, package)
                 except BaseException as e:
                     self.hasCaughtException(e)

@@ -22,6 +22,7 @@ Created on 4 nov. 2011
 
 from PySide.QtCore import QObject
 from PySide.QtGui import QFileDialog, QFileSystemModel, QPushButton, QTabWidget, QTreeView
+from PySide.QtGui import QMessageBox
 
 from ObsLight.ObsLightTools import isNonEmptyString
 from Utils import popupOnException
@@ -123,4 +124,12 @@ class FileManager(QObject):
         currentIndex = self.__fileTreeView.currentIndex()
         if currentIndex.isValid():
             fileName = self.__localFsModel.fileName(currentIndex)
+            result = QMessageBox.question(self.__gui.getMainWindow(),
+                                          "Are you sure ?",
+                                          "Are you sure you want to delete %s file ?"
+                                            % fileName,
+                                          buttons=QMessageBox.Yes | QMessageBox.No,
+                                          defaultButton=QMessageBox.Yes)
+            if result == QMessageBox.No:
+                return
             self.__obsLightManager.deleteFileFromPackage(self.__project, self.__package, fileName)
