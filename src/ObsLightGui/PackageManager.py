@@ -166,9 +166,19 @@ class PackageManager(QObject):
     def on_newPackageButton_clicked(self):
         if self.getCurrentProject() is None:
             return
-        packageName, accepted = QInputDialog.getText(self.__gui.getMainWindow(),
+        server = self.__obsLightManager.getProjectParameter(self.getCurrentProject(),
+                                                            "obsServer")
+        prjObsName = self.__obsLightManager.getProjectParameter(self.getCurrentProject(),
+                                                                "projectObsName")
+        packageList = self.__obsLightManager.getObsProjectPackageList(server,
+                                                                      prjObsName)
+#        packageName, accepted = QInputDialog.getText(self.__gui.getMainWindow(),
+#                                                     u"Choose package name...",
+#                                                     u"Package name (must exist on server):")
+        packageName, accepted = QInputDialog.getItem(self.__gui.getMainWindow(),
                                                      u"Choose package name...",
-                                                     u"Package name (must exist on server):")
+                                                     u"Package:",
+                                                     packageList)
         if accepted:
             progress = self.__gui.getInfiniteProgressDialog()
             progress.setLabelText(u"Adding package")

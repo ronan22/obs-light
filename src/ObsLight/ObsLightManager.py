@@ -22,7 +22,6 @@ Created on 17 juin 2011
 '''
 
 import os
-import shutil
 
 from ObsLightErr import ObsLightObsServers
 from ObsLightErr import ObsLightProjectsError
@@ -33,7 +32,7 @@ import ObsLightPrintManager
 
 import ObsLightConfig
 
-VERSION = "0.4.2-1.2"
+VERSION = "0.4.2-1.1"
 
 def getVersion():
     '''
