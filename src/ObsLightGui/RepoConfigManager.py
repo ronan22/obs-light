@@ -86,7 +86,7 @@ class RepoConfigManager(QObject):
     @popupOnException
     def on_configDialog_accepted(self):
         obslightManager = self.__obsLightManager
-        progress = self.__gui.getProgressDialog()
+        progress = self.__gui.getInfiniteProgressDialog()
         progress.setLabelText(u"Importing repository in chroot...")
         if self.addFromUrl():
             if len(self.getRepoUrl()) > 0 and len(self.getRepoAlias()) > 0:

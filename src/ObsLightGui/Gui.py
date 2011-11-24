@@ -47,6 +47,7 @@ class Gui(QObject):
     __obsProjectManager = None
     __logManager = None
     __mainWindowActionManager = None
+    __infiniteProgress = None
     __progress = None
 
     __messageSignal = Signal((str, int))
@@ -84,13 +85,18 @@ class Gui(QObject):
         self.__messageSignal.connect(self.__statusBar.showMessage)
         self.__mainWindow.show()
 
+    def __createInfiniteProgressDialog(self):
+        self.__infiniteProgress = QProgressDialog(self.__mainWindow)
+        self.__infiniteProgress.setMinimumDuration(500)
+        self.__infiniteProgress.setWindowModality(Qt.WindowModal)
+        self.__infiniteProgress.setCancelButton(None)
+        # make the progress "infinite"
+        self.__infiniteProgress.setRange(0, 0)
+
     def __createProgressDialog(self):
         self.__progress = QProgressDialog(self.__mainWindow)
         self.__progress.setMinimumDuration(500)
         self.__progress.setWindowModality(Qt.WindowModal)
-        self.__progress.setCancelButton(None)
-        # make the progress "infinite"
-        self.__progress.setRange(0, 0)
 
     def getMainWindow(self):
         '''
@@ -98,10 +104,18 @@ class Gui(QObject):
         '''
         return self.__mainWindow
 
-    def getProgressDialog(self):
+    def getInfiniteProgressDialog(self):
         '''
         Get the main QProgressDialog. It is window-modal, has no cancel
         button and is infinite.
+        '''
+        if self.__infiniteProgress is None:
+            self.__createInfiniteProgressDialog()
+        return self.__infiniteProgress
+
+    def getProgressDialog(self):
+        '''
+        Get the
         '''
         if self.__progress is None:
             self.__createProgressDialog()
