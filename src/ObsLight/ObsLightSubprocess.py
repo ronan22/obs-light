@@ -54,7 +54,8 @@ class SubprocessCrt(object):
                 else:
                     #outputs[fd]["logcmd"](output.rstrip())
                     outputs[fd]["logcmd"](output.decode("utf8", errors="replace").rstrip())
-        res = p.returncode
+        # maybe p.wait() is better ?
+        res = p.poll()
         if res == None:
             res = 0
         ObsLightPrintManager.getLogger().debug("command finished: " + command + ", return code: " + str(res))
