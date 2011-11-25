@@ -44,6 +44,7 @@ class ProjectManager(QObject):
     __newChrootButton = None
     __deleteChrootButton = None
     __addRepoInChrootButton = None
+    __importRepoInChrootButton = None
     __importRpmButton = None
     __projectLinkLabel = None
     __projectRepoLinkLabel = None
@@ -90,7 +91,9 @@ class ProjectManager(QObject):
         self.__addRepoInChrootButton = mainWindow.findChild(QPushButton,
                                                             u"addRepoInChrootButton")
         self.__addRepoInChrootButton.clicked.connect(self.on_addRepoInChrootButton_clicked)
-
+        self.__importRepoInChrootButton = mainWindow.findChild(QPushButton,
+                                                               u"importRepoInChrootButton")
+        self.__importRepoInChrootButton.clicked.connect(self.on_importRepoInChrootButton_clicked)
         self.__importRpmButton = mainWindow.findChild(QPushButton,
                                                       u"importRpmButton")
         self.__projectLinkLabel = mainWindow.findChild(QLabel,
@@ -262,6 +265,13 @@ class ProjectManager(QObject):
     def on_addRepoInChrootButton_clicked(self):
         projectName = self.getCurrentProjectName()
         self.__repoConfigManager = RepoConfigManager(self.__gui, projectName)
+        self.__repoConfigManager.importFromUrl()
+
+    @popupOnException
+    def on_importRepoInChrootButton_clicked(self):
+        projectName = self.getCurrentProjectName()
+        self.__repoConfigManager = RepoConfigManager(self.__gui, projectName)
+        self.__repoConfigManager.importFromProject()
 
     def on_projectSelected(self, _project):
         self.refresh()
