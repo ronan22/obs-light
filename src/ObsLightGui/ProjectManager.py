@@ -22,7 +22,7 @@ Created on 27 sept. 2011
 
 from PySide.QtCore import QObject, QThreadPool
 from PySide.QtGui import QPushButton, QListWidget, QLineEdit, QLabel
-from PySide.QtGui import QFileDialog
+from PySide.QtGui import QFileDialog, QMessageBox
 
 from Utils import  ProgressRunnable, popupOnException
 from PackageManager import PackageManager
@@ -44,6 +44,9 @@ class ProjectManager(QObject):
     __newChrootButton = None
     __deleteChrootButton = None
     __addRepoInChrootButton = None
+    __deleteRepoButton = None
+    __modifyRepoButton = None
+    __importRepoInChrootButton = None
     __importRpmButton = None
     __projectLinkLabel = None
     __projectRepoLinkLabel = None
@@ -90,10 +93,17 @@ class ProjectManager(QObject):
         self.__addRepoInChrootButton = mainWindow.findChild(QPushButton,
                                                             u"addRepoInChrootButton")
         self.__addRepoInChrootButton.clicked.connect(self.on_addRepoInChrootButton_clicked)
-
+        self.__deleteRepoButton = mainWindow.findChild(QPushButton,
+                                                       "deleteRepositoryButton")
+        self.__deleteRepoButton.clicked.connect(self.on_deleteRepoButton_clicked)
+        self.__modifyRepoButton = mainWindow.findChild(QPushButton,
+                                                       "modifyRepositoryButton")
+        self.__modifyRepoButton.clicked.connect(self.on_modifyRepoButton_clicked)
+        self.__importRepoInChrootButton = mainWindow.findChild(QPushButton,
+                                                               u"importRepoInChrootButton")
+        self.__importRepoInChrootButton.clicked.connect(self.on_importRepoInChrootButton_clicked)
         self.__importRpmButton = mainWindow.findChild(QPushButton,
                                                       u"importRpmButton")
-        self.__importRpmButton.clicked.connect(self.on_importRpmButton_clicked)
         self.__projectLinkLabel = mainWindow.findChild(QLabel,
                                                        u"projectPageLinkLabel")
         self.__projectRepoLinkLabel = mainWindow.findChild(QLabel,
@@ -145,8 +155,16 @@ class ProjectManager(QObject):
         projectName = self.getCurrentProjectName()
         if projectName is None:
             return
+        result = QMessageBox.question(self.__gui.getMainWindow(),
+                                      "Are you sure ?",
+                                      "Are you sure you want to delete %s project ?"
+                                        % projectName,
+                                      buttons=QMessageBox.Yes | QMessageBox.No,
+                                      defaultButton=QMessageBox.Yes)
+        if result == QMessageBox.No:
+            return
         obslightManager = self.__gui.getObsLightManager()
-        progress = self.__gui.getProgressDialog()
+        progress = self.__gui.getInfiniteProgressDialog()
         progress.setLabelText(u"Deleting project...")
         progress.show()
         runnable = ProgressRunnable(obslightManager.removeProject, projectName)
@@ -162,7 +180,7 @@ class ProjectManager(QObject):
         if len(filePath) < 1:
             return
         obslightManager = self.__gui.getObsLightManager()
-        progress = self.__gui.getProgressDialog()
+        progress = self.__gui.getInfiniteProgressDialog()
         progress.setLabelText(u"Importing project...")
         progress.show()
         runnable = ProgressRunnable(obslightManager.importProject, filePath)
@@ -180,7 +198,7 @@ class ProjectManager(QObject):
                                                         u"Select file to export")
         if len(filePath) < 1:
             return
-        progress = self.__gui.getProgressDialog()
+        progress = self.__gui.getInfiniteProgressDialog()
         progress.setLabelText(u"Importing project...")
         progress.show()
         obslightManager = self.__gui.getObsLightManager()
@@ -218,7 +236,7 @@ class ProjectManager(QObject):
                 runnable.finished.connect(self.refresh)
                 QThreadPool.globalInstance().start(runnable)
             else:
-                progress = self.__gui.getProgressDialog()
+                progress = self.__gui.getInfiniteProgressDialog()
                 progress.setLabelText(u"Creating chroot")
                 progress.show()
                 runnable = ProgressRunnable(obslightManager.createChRoot,
@@ -233,7 +251,15 @@ class ProjectManager(QObject):
         projectName = self.getCurrentProjectName()
         obslightManager = self.__gui.getObsLightManager()
         if projectName is not None:
-            progress = self.__gui.getProgressDialog()
+            result = QMessageBox.question(self.__gui.getMainWindow(),
+                                      "Are you sure ?",
+                                      "Are you sure you want to delete %s's chroot ?"
+                                        % projectName,
+                                      buttons=QMessageBox.Yes | QMessageBox.No,
+                                      defaultButton=QMessageBox.Yes)
+            if result == QMessageBox.No:
+                return
+            progress = self.__gui.getInfiniteProgressDialog()
             progress.setLabelText("Delete chroot")
             progress.show()
             runnable = ProgressRunnable(obslightManager.removeChRoot,
@@ -247,21 +273,25 @@ class ProjectManager(QObject):
     def on_addRepoInChrootButton_clicked(self):
         projectName = self.getCurrentProjectName()
         self.__repoConfigManager = RepoConfigManager(self.__gui, projectName)
+        self.__repoConfigManager.importFromUrl()
 
     @popupOnException
-    def on_importRpmButton_clicked(self):
+    def on_deleteRepoButton_clicked(self):
         projectName = self.getCurrentProjectName()
-        packageName = self.__packageManager.currentPackage()
-        if projectName is not None and packageName is not None:
-            obslightManager = self.__gui.getObsLightManager()
-            progress = self.__gui.getProgressDialog()
-            progress.setLabelText(u"Importing source in chroot")
-            progress.show()
-            runnable = ProgressRunnable(obslightManager.addPackageSourceInChRoot,
-                                        projectName, packageName)
-            runnable.setProgressDialog(progress)
-            runnable.finishedWithException.connect(self.__gui.popupErrorCallback)
-            QThreadPool.globalInstance().start(runnable)
+        self.__repoConfigManager = RepoConfigManager(self.__gui, projectName)
+        self.__repoConfigManager.deleteRepo()
+
+    @popupOnException
+    def on_modifyRepoButton_clicked(self):
+        projectName = self.getCurrentProjectName()
+        self.__repoConfigManager = RepoConfigManager(self.__gui, projectName)
+        self.__repoConfigManager.modifyRepo()
+
+    @popupOnException
+    def on_importRepoInChrootButton_clicked(self):
+        projectName = self.getCurrentProjectName()
+        self.__repoConfigManager = RepoConfigManager(self.__gui, projectName)
+        self.__repoConfigManager.importFromProject()
 
     def on_projectSelected(self, _project):
         self.refresh()

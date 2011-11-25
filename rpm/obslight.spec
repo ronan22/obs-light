@@ -65,6 +65,7 @@ This package contains additional scripts :
 
 %prep
 %setup -n %{name}-%{unmangled_version}
+sed -i s/"VERSION = .*"/"VERSION = \"0.4.2-1.2\""/ ObsLight/ObsLightManager.py
 
 %build
 python setup.py build

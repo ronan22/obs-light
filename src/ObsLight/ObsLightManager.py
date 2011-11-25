@@ -22,7 +22,6 @@ Created on 17 juin 2011
 '''
 
 import os
-import shutil
 
 from ObsLightErr import ObsLightObsServers
 from ObsLightErr import ObsLightProjectsError
@@ -33,7 +32,7 @@ import ObsLightPrintManager
 
 import ObsLightConfig
 
-VERSION = "0.4.2"
+VERSION = "0.4.2-1.1"
 
 def getVersion():
     '''
@@ -655,6 +654,30 @@ class ObsLightManager(object):
                                            alias=alias)
 
         self.__myObsLightProjects.save()
+
+    @checkProjectLocalName(1)
+    def deleteRepo(self, projectLocalName, repoAlias):
+        '''
+        Delete an RPM package repository from the chroot's zypper
+        configuration file.
+        '''
+        # TODO: RLM implement
+        pass
+
+    @checkProjectLocalName(1)
+    def modifyRepo(self, projectLocalName, repoAlias, newUrl, newAlias):
+        # TODO: RLM implement
+        pass
+
+    @checkProjectLocalName(1)
+    def getChRootRepositories(self, projectLocalName):
+        '''
+        Return a dictionary of RPM package repositories configured in the
+        chroot of project 'projectLocalName'. The dictionary has aliases
+        as keys and URL as values.
+        '''
+        # TODO: RLM implement
+        return {"totoAlias": "http://toto.com:82/repo/"}
 
     def importProject(self, path):
         '''

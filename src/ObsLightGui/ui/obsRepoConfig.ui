@@ -1,26 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Dialog</class>
- <widget class="QDialog" name="Dialog">
+ <class>repoConfigDialog</class>
+ <widget class="QDialog" name="repoConfigDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>272</width>
-    <height>166</height>
+    <width>427</width>
+    <height>100</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Repository configuration</string>
   </property>
   <property name="modal">
    <bool>true</bool>
   </property>
   <layout class="QFormLayout" name="formLayout">
-   <item row="1" column="1">
+   <property name="fieldGrowthPolicy">
+    <enum>QFormLayout::ExpandingFieldsGrow</enum>
+   </property>
+   <item row="0" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Repository URL:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
     <widget class="QLineEdit" name="repoUrlLineEdit">
      <property name="toolTip">
       <string>URL of the repository to add.</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>Repository alias:</string>
      </property>
     </widget>
    </item>
@@ -31,8 +48,18 @@
      </property>
     </widget>
    </item>
-   <item row="6" column="0" colspan="2">
-    <widget class="QDialogButtonBox" name="buttonBox">
+   <item row="3" column="0">
+    <widget class="QPushButton" name="checkButton">
+     <property name="toolTip">
+      <string>Test if the URL is reachable (not if it is a real repository !)</string>
+     </property>
+     <property name="text">
+      <string>Check</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QDialogButtonBox" name="repoConfigButtonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
@@ -41,65 +68,14 @@
      </property>
     </widget>
    </item>
-   <item row="5" column="1">
-    <widget class="QComboBox" name="projectComboBox">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="toolTip">
-      <string>The project from which to import the repository.</string>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="0">
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>Project</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="label_2">
-     <property name="text">
-      <string>URL</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0">
-    <widget class="QLabel" name="label_3">
-     <property name="text">
-      <string>Alias</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="0" colspan="2">
-    <widget class="QRadioButton" name="repoFromUrlRadioButton">
-     <property name="text">
-      <string>Add repository from URL</string>
-     </property>
-     <property name="checked">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0" colspan="2">
-    <widget class="QRadioButton" name="repoFromProjectRadioButton">
-     <property name="text">
-      <string>Add repository from a local project</string>
-     </property>
-    </widget>
-   </item>
   </layout>
  </widget>
  <resources/>
  <connections>
   <connection>
-   <sender>buttonBox</sender>
+   <sender>repoConfigButtonBox</sender>
    <signal>accepted()</signal>
-   <receiver>Dialog</receiver>
+   <receiver>repoConfigDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -113,9 +89,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>buttonBox</sender>
+   <sender>repoConfigButtonBox</sender>
    <signal>rejected()</signal>
-   <receiver>Dialog</receiver>
+   <receiver>repoConfigDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

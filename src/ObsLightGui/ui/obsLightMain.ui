@@ -715,15 +715,15 @@
                 <widget class="QWidget" name="widget_2" native="true">
                  <layout class="QGridLayout" name="gridLayout_14">
                   <item row="2" column="0">
-                   <widget class="QPushButton" name="newRepositoryButton">
-                    <property name="enabled">
-                     <bool>false</bool>
-                    </property>
+                   <widget class="QPushButton" name="addRepoInChrootButton">
                     <property name="minimumSize">
                      <size>
                       <width>80</width>
                       <height>0</height>
                      </size>
+                    </property>
+                    <property name="toolTip">
+                     <string>Make a package repository accessible from the chroot (using zypper). Import repository from URL.</string>
                     </property>
                     <property name="text">
                      <string>New</string>
@@ -731,20 +731,14 @@
                    </widget>
                   </item>
                   <item row="4" column="0">
-                   <widget class="QPushButton" name="DeleteRepositoryButton">
-                    <property name="enabled">
-                     <bool>false</bool>
-                    </property>
+                   <widget class="QPushButton" name="deleteRepositoryButton">
                     <property name="text">
                      <string>Delete</string>
                     </property>
                    </widget>
                   </item>
                   <item row="5" column="0">
-                   <widget class="QPushButton" name="modifiRepositoryButton">
-                    <property name="enabled">
-                     <bool>false</bool>
-                    </property>
+                   <widget class="QPushButton" name="modifyRepositoryButton">
                     <property name="text">
                      <string>Modify</string>
                     </property>
@@ -797,12 +791,12 @@
                    </widget>
                   </item>
                   <item row="3" column="0">
-                   <widget class="QPushButton" name="addRepoInChrootButton">
+                   <widget class="QPushButton" name="importRepoInChrootButton">
                     <property name="toolTip">
-                     <string>Make a package repository accessible from the chroot (using zypper).</string>
+                     <string>Make a package repository accessible from the chroot (using zypper). Import repository from another project.</string>
                     </property>
                     <property name="text">
-                     <string>import</string>
+                     <string>Import</string>
                     </property>
                    </widget>
                   </item>
