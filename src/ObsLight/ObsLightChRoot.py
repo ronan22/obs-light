@@ -140,6 +140,44 @@ class ObsLightChRoot(object):
         '''
         return self.__mySubprocessCrt.execSubprocess(command=command, waitMess=waitMess)
 
+    def resolveMacro(self, name):
+        '''
+
+        '''
+        if not os.path.isdir(self.getDirectory()):
+            raise ObsLightErr.ObsLightChRootError("goToChRoot: chroot is not initialized, use createChRoot")
+        elif not os.path.isdir(self.getDirectory()):
+            raise ObsLightErr.ObsLightChRootError("goToChRoot: the path: " + self.getDirectory() + " is not a directory")
+
+        if  not ObsLightMic.getObsLightMic(name=self.getDirectory()).isInit():
+            ObsLightMic.getObsLightMic(name=self.getDirectory()).initChroot(chrootDirectory=self.getDirectory(),
+                                                                               chrootTransfertDirectory=self.__chrootDirTransfert,
+                                                                               transfertDirectory=self.__dirTransfert)
+
+        command = "rpm --eval " + name + " > /chrootTransfert/resultRpmQ.log"
+
+        pathScript = self.__chrootDirTransfert + "/runMe.sh"
+        f = open(pathScript, 'w')
+        f.write("#!/bin/sh\n")
+        f.write("# Created by obslight\n")
+        f.write(command)
+        f.close()
+
+        os.chmod(pathScript, 0654)
+
+        command = "sudo -H chroot " + self.getDirectory() + " " + self.__dirTransfert + "/runMe.sh"
+
+        if platform.machine() == 'x86_64':
+            command = "linux32 " + command
+
+        command = shlex.split(str(command))
+        p = subprocess.Popen(command, stdout=None)
+        p.wait()
+        print "RESULT", self.__chrootDirTransfert + "/resultRpmQ.log"
+        f = open(self.__chrootDirTransfert + "/resultRpmQ.log", 'r')
+        name = f.read().replace("\n", "")
+        f.close()
+        return name
 
     def __findPackageDirectory(self, package=None):
         '''
@@ -148,32 +186,30 @@ class ObsLightChRoot(object):
         pathBuild = self.getDirectory() + "/" + self.__chrootrpmbuildDirectory + "/" + "BUILD"
         #Find the Package Directory
 
-        if package == None:
-            raise ObsLightErr.ObsLightChRootError("in __findPackageDirectory path is not def ")
-        elif not os.path.isdir(pathBuild):
-            raise ObsLightErr.ObsLightChRootError("in the chroot path: " + pathBuild + " is not a directory")
+        name = package.getMacroDirectoryPackageName()
 
-        for  packageDirectory in os.listdir(pathBuild):
-            res = packageDirectory
+        if name != None:
+            name = self.resolveMacro(name)
 
-            #TODO: Find the directory like this is not safely.
-            if packageDirectory.startswith(package):
-                resultPath = self.__chrootrpmbuildDirectory + "/BUILD/" + res
+            if not os.path.isdir(pathBuild):
+                raise ObsLightErr.ObsLightChRootError("in the chroot path: " + pathBuild + " is not a directory")
 
-                subDir = os.listdir(pathBuild + "/" + res)
-                if len(subDir) == 0:
-                    return resultPath
-                elif len(subDir) == 1:
-                    return resultPath + "/" + subDir[0]
-                else:
-                    return resultPath
+            resultPath = self.__chrootrpmbuildDirectory + "/BUILD/" + name
+
+            subDir = os.listdir(pathBuild + "/" + name)
+            if len(subDir) == 0:
+                return resultPath
+            elif len(subDir) == 1:
+                return resultPath + "/" + subDir[0]
+            else:
+                return resultPath
 
         return None
 
 
     def addPackageSourceInChRoot(self, package=None,
-                                        specFile=None,
-                                        repo=None):
+                                       specFile=None,
+                                       repo=None):
 
         '''
         
@@ -190,9 +226,10 @@ class ObsLightChRoot(object):
             self.buildPrepRpm(specFile=aspecFile)
 
             #find the directory to watch
-            packageDirectory = self.__findPackageDirectory(package=packageName)
+            packageDirectory = self.__findPackageDirectory(package=package)
             package.setDirectoryBuild(packageDirectory)
-            self.initGitWatch(path=packageDirectory)
+            if packageDirectory != None:
+                self.initGitWatch(path=packageDirectory)
         else:
             raise ObsLightErr.ObsLightChRootError(packageName + " source is not installed in " + self.getDirectory())
 

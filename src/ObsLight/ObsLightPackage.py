@@ -109,17 +109,19 @@ class ObsLightPackage(object):
         
         '''
         self.__myYamlFile = ObsLightYaml(packagePath=self.__packagePath,
-                                 file=self.__yamlFile,
-                                 specFile=self.__specFile)
+                                         file=self.__yamlFile,
+                                         specFile=self.__specFile)
         if self.__specFile in (None, 'None', ""):
             self.__specFile = self.__myYamlFile.getSpecFile()
+        else:
+            self.__initSpecFile()
 
     def __initSpecFile(self):
         '''
         
         '''
         self.__mySpecFile = ObsLightSpec(packagePath=self.__packagePath,
-                                                 file=self.__specFile)
+                                         file=self.__specFile)
 
     def delFromChroot(self):
         '''
@@ -259,6 +261,31 @@ class ObsLightPackage(object):
         Return the directory of the package into the chroot.
         '''
         return self.__packageDirectory
+
+#    def getDirectoryPackageName(self):
+#        '''
+#        
+#        '''
+#        if self.__mySpecFile != None:
+#            res = self.__mySpecFile.getDirectoryPackageName()
+#            if res != None:
+#                return None
+#            else:
+#                raise ObsLightPackageErr("Error " + self.__name + " Have no spec File.")
+#        else:
+#            raise ObsLightPackageErr("Error " + self.__name + " Have no spec File.")
+#        return None
+
+    def getMacroDirectoryPackageName(self):
+        '''
+        
+        '''
+        name = self.__mySpecFile.getMacroDirectoryPackageName()
+        if name != None:
+            name = self.__mySpecFile.getResolveMacroName(name)
+            return name
+        else:
+            return None
 
     def addPatch(self, aFile=None):
         '''

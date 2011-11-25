@@ -28,7 +28,7 @@ import ObsLightErr
 class ObsLightSpec:
     '''
     '''
-    def __init__(self, packagePath, file=None):
+    def __init__(self, packagePath, file):
         '''
         
         '''
@@ -69,6 +69,205 @@ class ObsLightSpec:
         '''
         return line.replace("\n", "").replace(" ", "")
 
+
+    def __testLine(self, line, valueToFind):
+        '''
+        
+        '''
+        line = line.replace("\n", "")
+        if line.startswith("%define"):
+            line = line.replace("%define", "").strip()
+        elif line.startswith("%global"):
+            line = line.replace("%global", "").strip()
+        elif line.startswith("%{!?"):
+            line = line.strip("%{!?").strip("}").rstrip(" ").strip(" ")
+            macroToTest = line[:line.index(":")]
+            expression = line[line.index(":") + 1:]
+
+            if macroToTest == valueToFind:
+                res = self.__testLine(expression, valueToFind)
+                if res != None:
+                    return res
+
+        if line.startswith(valueToFind):
+            result = line[len(valueToFind):].strip().strip(":").strip().rstrip()
+
+            if "%" in result:
+                if (valueToFind == "Version") and (result == "%{version}"):
+                    res = self.__searchValue("version")
+                    if "%" in result:
+                        return self.getResolveMacroName(res)
+                    else:
+                        return res
+                elif (valueToFind == "Name") and (result == "%{name}"):
+                    res = self.__searchValue("name")
+                    if "%" in result:
+                        return self.getResolveMacroName(res)
+                    else:
+                        return res
+                elif (valueToFind == "Release") and (result == "%{release}"):
+                    res = self.__searchValue("release")
+                    if "%" in result:
+                        return self.getResolveMacroName(res)
+                    else:
+                        return res
+                else:
+                    return self.getResolveMacroName(result)
+            else:
+                return result
+        else:
+            return None
+
+    def __searchValue(self, valueToFind):
+        '''
+        
+        '''
+        for line in self.__spectDico[self.__introduction_section]:
+            res = self.__testLine(line, valueToFind)
+            if res != None:
+                return res
+
+        return  None
+
+    def __getValue(self, value):
+        '''
+        
+        '''
+        if value == "%{}":
+            return ""
+        elif value.strip("%").strip("{").rstrip("}") == "version":
+            valueToFind = "Version"
+        elif value.strip("%").strip("{").rstrip("}") == "name":
+            valueToFind = "Name"
+        elif value.strip("%").strip("{").rstrip("}") == "release":
+            valueToFind = "Release"
+        else:
+            valueToFind = value.strip("%").strip("{").rstrip("}")
+
+        if valueToFind.startswith("?"):
+            valueToFind = valueToFind.strip("?")
+            if ":" in valueToFind:
+                [macroToTest, expression] = valueToFind.split(":")
+                res = self.__searchValue(macroToTest)
+                if res != None:
+                    res = self.__testLine(expression, valueToFind)
+                    if res != None:
+                        return res
+                    else:
+                        return value
+                else:
+                    return ""
+            else:
+                macroToTest = valueToFind
+                res = self.__searchValue(macroToTest)
+                if res != None:
+                    return res
+                else:
+                    return ""
+        elif valueToFind.startswith("!?"):
+            valueToFind = valueToFind.strip("!?")
+            [macroToTest, expression] = valueToFind.split(":")
+            res = self.__searchValue(macroToTest)
+
+            if res != None:
+                return res
+            else:
+                res = self.__testLine(expression, valueToFind)
+                if res != None:
+                    return res
+                else:
+                    return value
+        else:
+            res = self.__searchValue(valueToFind)
+            if res != None:
+                return res
+            else:
+                return value
+
+    def getMacroDirectoryPackageName(self):
+        '''
+        
+        '''
+        if self.__prepFlag in self.__spectDico.keys():
+            for line in self.__spectDico[self.__prepFlag]:
+                if line.startswith('%setup'):
+                    line.replace("\n", "")
+                    if "-n" in line:
+                        name = line.split("-n")[1].strip().strip("./").rstrip().rstrip("//")
+                        if " " in name:
+                            name = name.split(" ")[0]
+                        return name
+                    else:
+                        return "%{Name}-%{Version}"
+            return None
+        else:
+            return None
+
+    def getResolveMacroName(self, name):
+        '''
+        
+        '''
+        listToChange = []
+        tmp = name
+        while ("%" in tmp):
+            i = tmp.index("%")
+            if "{" in tmp:
+                bOpen = 0
+                bClose = 0
+                j = tmp.index("{")
+                p = j
+                for c in tmp[j:]:
+                    if c == "{":
+                        bOpen += 1
+                    elif c == "}":
+                        bClose += 1
+                    if bOpen == bClose:
+                        if bOpen > 1:
+                            res = self.getResolveMacroName(tmp[j + 1:p])
+                            if res.startswith("?"):
+                                toAdd = self.__getValue(res)
+                            else:
+                                toAdd = "%{" + res + "}"
+                        else:
+                            toAdd = tmp[i:p + 1]
+                        break
+                    p += 1
+                if toAdd.count("%") > 1:
+                    print "toAdd", toAdd
+                    raise "Faile to parse  the spec file to get the BUILD/Repository"
+                elif not toAdd == "":
+                    listToChange.append(toAdd)
+                tmp = tmp[p + 1:]
+            else:
+                tmp = tmp[i :]
+                if " " in tmp:
+                    p = tmp.index(" ")
+                    toAdd = tmp[:p]
+                    tmp = tmp[p + 1:]
+                else:
+                    toAdd = tmp
+                    tmp = ""
+                listToChange.append(toAdd)
+
+        for value in listToChange:
+            res = self.__getValue(value)
+            name = name.replace(value , self.__getValue(value))
+        return name
+
+
+    def getPrep(self):
+        '''
+        
+        '''
+        if self.__prepFlag in self.__spectDico.keys():
+            res = ""
+            for line in self.__spectDico[self.__prepFlag]:
+                res += line
+            return res
+        else:
+            return None
+
+
     def parseFile(self, path=None):
         '''
         
@@ -87,8 +286,6 @@ class ObsLightSpec:
                 tmpLineList.append(line)
 
             f.close()
-
-
 
             #init variable
             self.__spectDico = {}
@@ -132,7 +329,7 @@ class ObsLightSpec:
                     ObsLightPrintManager.obsLightPrint(IndexError)
 
         patch_Val_Prep = "Patch" + str(patchID)
-        patch_Val_Build = "%patch" + str(patchID)
+        patch_Val_Build = " % patch" + str(patchID)
 
         self.__spectDico[self.__introduction_section].insert(0, patch_Val_Prep + ": " + aFile + "\n")
         self.__spectDico[self.__introduction_section].insert(0, "# This line is insert automatically , please comment and clean the code\n")
@@ -227,15 +424,41 @@ class ObsLightSpec:
 
 if __name__ == '__main__':
     file1 = sys.argv[1]
-    file2 = sys.argv[1] + ".sav"
-    print "----------------------------file1", file1
-    s = ObsLightSpec(file1)
-    s.addpatch("aPatch.patch")
-    s.save(file2)
-
-
     import subprocess
-    subprocess.call(["diff", file1, file2])
+    import shlex
+    s = ObsLightSpec(packagePath='', file=file1)
+
+    try:
+        name = s.getMacroDirectoryPackageName()
+    except:
+        print "ERROR ", file1
+
+    if name != None:
+        if "%" in name:
+            #try:
+            name = s.getResolveMacroName(name)
+            #except:
+            #    print "ERROR 2", file1
+
+            f = open("/home/meego/OBSLight/meego1.2/chrootTransfert/runMe.sh", 'w')
+            command = "rpm --eval " + name + " > /chrootTransfert/resultRpmQ.log"
+            f.write(command + "\n")
+            f.close()
+            command = "sudo chroot /home/meego/OBSLight/meego1.2/aChroot /chrootTransfert/runMe.sh"
+            p = subprocess.Popen(shlex.split(str(command)), stdout=None)
+            p.wait()
+
+            f = open("/home/meego/OBSLight/meego1.2/chrootTransfert/resultRpmQ.log", 'r')
+            name = f.read().replace("\n", "")
+            f.close()
+
+            #if ("%" in name) :
+            print os.path.basename(file1).ljust(50) + name.replace("\n", "")
+        else:
+            if "%" in name:
+                print os.path.basename(file1).ljust(50) + name.replace("\n", "")
+
+
 
 
 

@@ -318,6 +318,7 @@ class ObsLightOsc(object):
                                     "strace",
                                     "iputils",
                                     "ncurses-devel",
+                                    "rpm",
                                     ],
                      ):
         '''
