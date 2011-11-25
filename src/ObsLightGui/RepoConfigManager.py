@@ -42,6 +42,8 @@ class RepoConfigManager(QObject):
     __checkButton = None
     __repoConfigButtonBox = None
 
+    __oldRepoAlias = None
+
     def __init__(self, gui, projectAlias):
         QObject.__init__(self)
         self.__gui = gui
@@ -66,6 +68,7 @@ class RepoConfigManager(QObject):
         self.__configDialog.accepted.connect(self.on_configDialog_accepted)
         self.__configDialog.rejected.connect(self.on_configDialog_rejected)
         self.__configDialog.show()
+        self.__oldRepoAlias = None
 
     def importFromProject(self):
         projects = self.__obsLightManager.getLocalProjectList()
@@ -87,6 +90,43 @@ class RepoConfigManager(QObject):
         runnable.caughtException.connect(self.__gui.popupErrorCallback)
         QThreadPool.globalInstance().start(runnable)
 
+    def deleteRepo(self):
+        repos = self.__obsLightManager.getChRootRepositories(self.__projectAlias)
+        if repos is None or len(repos) < 1:
+            return
+        selectedAlias, accepted = QInputDialog.getItem(self.__gui.getMainWindow(),
+                                                       "Select repository",
+                                                       "Project repository to delete:",
+                                                       repos.keys(),
+                                                       editable=False)
+        if not accepted:
+            return
+        progress = self.__gui.getInfiniteProgressDialog()
+        runnable = ProgressRunnable2()
+        runnable.setProgressDialog(progress)
+        runnable.setDialogMessage("Deleting repository...")
+        runnable.setRunMethod(self.__obsLightManager.deleteRepo,
+                              self.__projectAlias,
+                              selectedAlias)
+        runnable.caughtException.connect(self.__gui.popupErrorCallback)
+        QThreadPool.globalInstance().start(runnable)
+
+    def modifyRepo(self):
+        repos = self.__obsLightManager.getChRootRepositories(self.__projectAlias)
+        if repos is None or len(repos) < 1:
+            return
+        selectedAlias, accepted = QInputDialog.getItem(self.__gui.getMainWindow(),
+                                                       "Select repository",
+                                                       "Project repository to delete:",
+                                                       repos.keys(),
+                                                       editable=False)
+        if not accepted:
+            return
+        self.importFromUrl()
+        self.__aliasLineEdit.setText(selectedAlias)
+        self.__urlLineEdit.setText(repos[selectedAlias])
+        self.__oldRepoAlias = selectedAlias
+
     def getRepoAlias(self):
         return self.__aliasLineEdit.text()
 
@@ -102,12 +142,19 @@ class RepoConfigManager(QObject):
         progress = self.__gui.getInfiniteProgressDialog()
         runnable = ProgressRunnable2()
         runnable.setProgressDialog(progress)
-        runnable.setDialogMessage("Importing repository...")
-        progress.setLabelText(u"Importing repository in chroot...")
-        runnable.setRunMethod(self.__obsLightManager.addRepo,
-                              self.__projectAlias,
-                              repoUrl=self.getRepoUrl(),
-                              alias=self.getRepoAlias())
+        if self.__oldRepoAlias is None:
+            runnable.setDialogMessage("Importing repository in chroot...")
+            runnable.setRunMethod(self.__obsLightManager.addRepo,
+                                  self.__projectAlias,
+                                  repoUrl=self.getRepoUrl(),
+                                  alias=self.getRepoAlias())
+        else:
+            runnable.setDialogMessage("Modifying repository...")
+            runnable.setRunMethod(self.__obsLightManager.modifyRepo,
+                                  self.__projectAlias,
+                                  self.__oldRepoAlias,
+                                  newUrl=self.getRepoUrl(),
+                                  newAlias=self.getRepoAlias())
         runnable.caughtException.connect(self.__gui.popupErrorCallback)
         QThreadPool.globalInstance().start(runnable)
 

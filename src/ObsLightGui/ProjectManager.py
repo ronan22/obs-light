@@ -44,6 +44,8 @@ class ProjectManager(QObject):
     __newChrootButton = None
     __deleteChrootButton = None
     __addRepoInChrootButton = None
+    __deleteRepoButton = None
+    __modifyRepoButton = None
     __importRepoInChrootButton = None
     __importRpmButton = None
     __projectLinkLabel = None
@@ -91,6 +93,12 @@ class ProjectManager(QObject):
         self.__addRepoInChrootButton = mainWindow.findChild(QPushButton,
                                                             u"addRepoInChrootButton")
         self.__addRepoInChrootButton.clicked.connect(self.on_addRepoInChrootButton_clicked)
+        self.__deleteRepoButton = mainWindow.findChild(QPushButton,
+                                                       "deleteRepositoryButton")
+        self.__deleteRepoButton.clicked.connect(self.on_deleteRepoButton_clicked)
+        self.__modifyRepoButton = mainWindow.findChild(QPushButton,
+                                                       "modifyRepositoryButton")
+        self.__modifyRepoButton.clicked.connect(self.on_modifyRepoButton_clicked)
         self.__importRepoInChrootButton = mainWindow.findChild(QPushButton,
                                                                u"importRepoInChrootButton")
         self.__importRepoInChrootButton.clicked.connect(self.on_importRepoInChrootButton_clicked)
@@ -266,6 +274,18 @@ class ProjectManager(QObject):
         projectName = self.getCurrentProjectName()
         self.__repoConfigManager = RepoConfigManager(self.__gui, projectName)
         self.__repoConfigManager.importFromUrl()
+
+    @popupOnException
+    def on_deleteRepoButton_clicked(self):
+        projectName = self.getCurrentProjectName()
+        self.__repoConfigManager = RepoConfigManager(self.__gui, projectName)
+        self.__repoConfigManager.deleteRepo()
+
+    @popupOnException
+    def on_modifyRepoButton_clicked(self):
+        projectName = self.getCurrentProjectName()
+        self.__repoConfigManager = RepoConfigManager(self.__gui, projectName)
+        self.__repoConfigManager.modifyRepo()
 
     @popupOnException
     def on_importRepoInChrootButton_clicked(self):

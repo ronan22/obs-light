@@ -731,20 +731,14 @@
                    </widget>
                   </item>
                   <item row="4" column="0">
-                   <widget class="QPushButton" name="DeleteRepositoryButton">
-                    <property name="enabled">
-                     <bool>false</bool>
-                    </property>
+                   <widget class="QPushButton" name="deleteRepositoryButton">
                     <property name="text">
                      <string>Delete</string>
                     </property>
                    </widget>
                   </item>
                   <item row="5" column="0">
-                   <widget class="QPushButton" name="modifiRepositoryButton">
-                    <property name="enabled">
-                     <bool>false</bool>
-                    </property>
+                   <widget class="QPushButton" name="modifyRepositoryButton">
                     <property name="text">
                      <string>Modify</string>
                     </property>
