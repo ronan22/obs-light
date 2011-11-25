@@ -181,6 +181,8 @@ class PackageManager(QObject):
         return packageList
 
     def showPackageSelectionDialog(self, packageList):
+        if packageList is None:
+            return
         self.__packagesListWidget.clear()
         self.__packageSelectionDialog.show()
         self.__packagesListWidget.addItems(packageList)
