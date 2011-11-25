@@ -50,6 +50,9 @@
    </item>
    <item row="3" column="0">
     <widget class="QPushButton" name="checkButton">
+     <property name="toolTip">
+      <string>Test if the URL is reachable (not if it is a real repository !)</string>
+     </property>
      <property name="text">
       <string>Check</string>
      </property>

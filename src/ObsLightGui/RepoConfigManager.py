@@ -21,7 +21,8 @@ Created on 17 nov. 2011
 '''
 
 from PySide.QtCore import QObject, QThreadPool
-from PySide.QtGui import QDialogButtonBox, QInputDialog, QLineEdit, QPushButton
+from PySide.QtGui import QColor, QDialogButtonBox, QGraphicsColorizeEffect
+from PySide.QtGui import QInputDialog, QLineEdit, QPushButton
 
 from Utils import popupOnException, ProgressRunnable2
 
@@ -134,8 +135,11 @@ class RepoConfigManager(QObject):
         return self.__urlLineEdit.text()
 
     def on_checkButton_clicked(self):
-        # TODO: do the checks
-        self.__repoConfigButtonBox.button(QDialogButtonBox.Ok).setEnabled(True)
+        result = self.__obsLightManager.testServer(self.getRepoUrl())
+        self.__repoConfigButtonBox.button(QDialogButtonBox.Ok).setEnabled(result)
+        effect = QGraphicsColorizeEffect(self.__urlLineEdit)
+        effect.setColor(QColor("green" if result else "red"))
+        self.__urlLineEdit.setGraphicsEffect(effect)
 
     @popupOnException
     def on_configDialog_accepted(self):
