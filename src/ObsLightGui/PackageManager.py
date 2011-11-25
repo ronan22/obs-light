@@ -26,7 +26,7 @@ from PySide.QtGui import QListWidget, QMenu, QMessageBox
 
 from PackageModel import PackageModel
 from ObsLightGui.FileManager import FileManager
-from Utils import popupOnException, ProgressRunnable, ProgressRunnable2
+from Utils import popupOnException, ProgressRunnable2
 
 class PackageManager(QObject):
     '''
@@ -346,12 +346,13 @@ class PackageManager(QObject):
             progress = self.__gui.getInfiniteProgressDialog()
             progress.setLabelText(u"Creating patch")
             progress.show()
-            runnable = ProgressRunnable(self.__obsLightManager.makePatch,
-                                        project,
-                                        package,
-                                        patchName)
+            runnable = ProgressRunnable2()
+            runnable.setRunMethod(self.__obsLightManager.makePatch,
+                                  project,
+                                  package,
+                                  patchName)
             runnable.setProgressDialog(progress)
-            runnable.finishedWithException.connect(self.__gui.popupErrorCallback)
+            runnable.caughtException.connect(self.__gui.popupErrorCallback)
             QThreadPool.globalInstance().start(runnable)
 
     @popupOnException
@@ -367,12 +368,13 @@ class PackageManager(QObject):
             progress = self.__gui.getInfiniteProgressDialog()
             progress.setLabelText(u"Committing changes")
             progress.show()
-            runnable = ProgressRunnable(self.__obsLightManager.addAndCommitChanges,
-                                        project,
-                                        package,
-                                        message)
+            runnable = ProgressRunnable2()
+            runnable.setRunMethod(self.__obsLightManager.addAndCommitChanges,
+                                  project,
+                                  package,
+                                  message)
             runnable.setProgressDialog(progress)
-            runnable.finishedWithException.connect(self.__gui.popupErrorCallback)
+            runnable.caughtException.connect(self.__gui.popupErrorCallback)
             QThreadPool.globalInstance().start(runnable)
 
     def on_contextMenu_requested(self, point):
