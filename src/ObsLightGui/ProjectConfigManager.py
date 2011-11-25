@@ -24,7 +24,7 @@ from PySide.QtCore import QObject, QRegExp, QThreadPool, Signal
 from PySide.QtGui import QComboBox, QDialogButtonBox, QLineEdit, QRegExpValidator, QTextEdit
 from PySide.QtGui import QColor, QCompleter, QGraphicsColorizeEffect
 
-from ObsLight.ObsLightErr import OBSLightBaseError, ObsLightObsServers
+from ObsLight.ObsLightErr import OBSLightBaseError
 from Utils import popupOnException, QRunnableImpl
 
 class ProjectConfigManager(QObject):

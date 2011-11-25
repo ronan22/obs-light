@@ -169,19 +169,36 @@ class PackageManager(QObject):
                 packages.add(packageName)
         return list(packages)
 
-    @popupOnException
-    def on_newPackageButton_clicked(self):
+    def getPackageListFromServer(self):
         if self.getCurrentProject() is None:
-            return
+            return list()
         server = self.__obsLightManager.getProjectParameter(self.getCurrentProject(),
                                                             "obsServer")
         prjObsName = self.__obsLightManager.getProjectParameter(self.getCurrentProject(),
                                                                 "projectObsName")
         packageList = self.__obsLightManager.getObsProjectPackageList(server,
                                                                       prjObsName)
+        return packageList
+
+    def showPackageSelectionDialog(self, packageList):
         self.__packagesListWidget.clear()
         self.__packageSelectionDialog.show()
         self.__packagesListWidget.addItems(packageList)
+
+    @popupOnException
+    def on_newPackageButton_clicked(self):
+        if self.getCurrentProject() is None:
+            return
+        runnable = ProgressRunnable2()
+        progress = self.__gui.getInfiniteProgressDialog()
+        runnable.setProgressDialog(progress)
+        runnable.setDialogMessage("Loading available packages list")
+        runnable.setRunMethod(self.getPackageListFromServer)
+        runnable.finished[object].connect(self.showPackageSelectionDialog)
+        runnable.caughtException.connect(self.__gui.popupErrorCallback)
+        QThreadPool.globalInstance().start(runnable)
+#        packageList = self.getPackageListFromServer()
+#        self.showPackageSelectionDialog(packageList)
 
     class __AddPackages(ProgressRunnable2):
         packageList = None

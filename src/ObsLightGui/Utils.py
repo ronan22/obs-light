@@ -107,10 +107,11 @@ class ProgressRunnable2(QRunnable, QObject):
     __progressDialog = None
     __isFinite = False
 
+    __started = Signal()
     __progressed = Signal((), (int,))
     __sentMessage = Signal((unicode))
 
-    finished = Signal()
+    finished = Signal((), (object,))
     caughtException = Signal(BaseException)
 
     def __init__(self):
@@ -146,6 +147,16 @@ class ProgressRunnable2(QRunnable, QObject):
             self.__progressDialog.setRange(0, maximum)
             self.__isFinite = True
 
+    def hasStarted(self):
+        '''
+        Inform the progress dialog that the run method has started.
+        (calls its show() method).
+        '''
+        if self.__progressDialog is not None:
+            self.__started.connect(self.__progressDialog.show)
+            self.__started.emit()
+            self.__started.connect(self.__progressDialog.show)
+
     def hasProgressed(self, howMuch=1):
         '''
         Inform the progress dialog that the run method has progressed
@@ -164,7 +175,7 @@ class ProgressRunnable2(QRunnable, QObject):
                 pass
             self.__progressDialog.show()
 
-    def hasFinished(self):
+    def hasFinished(self, result=None):
         '''
         Inform the progress dialog that the run method has finished
         its execution (so it will be hidden). Also emits the finished
@@ -175,6 +186,7 @@ class ProgressRunnable2(QRunnable, QObject):
             self.__progressed.emit()
             self.__progressed.disconnect(self.__progressDialog.reset)
         self.finished.emit()
+        self.finished[object].emit(result)
 
     def hasCaughtException(self, exception):
         '''
@@ -193,6 +205,25 @@ class ProgressRunnable2(QRunnable, QObject):
             self.__sentMessage.emit(message)
             self.__sentMessage.disconnect(self.__progressDialog.setLabelText)
 
+    def setRunMethod(self, method, *args, **kwargs):
+        '''
+        Replace the 'run' method of this instance by one which will
+        run 'method' with arguments 'args' and 'kwargs' (expanded),
+        and will emit caughtException signal if an exception is caught.
+        '''
+        def run():
+            result = None
+            caughtException = None
+            try:
+                self.hasStarted()
+                result = method(*args, **kwargs)
+            except BaseException as e:
+                caughtException = e
+            finally:
+                if caughtException is not None:
+                    self.hasCaughtException(caughtException)
+                self.hasFinished(result)
+        self.run = run
 
 def detachWithProgress(title, minDuration=500):
     '''
