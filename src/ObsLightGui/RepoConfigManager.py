@@ -21,9 +21,9 @@ Created on 17 nov. 2011
 '''
 
 from PySide.QtCore import QObject, QThreadPool
-from PySide.QtGui import QInputDialog, QLineEdit
+from PySide.QtGui import QDialogButtonBox, QInputDialog, QLineEdit, QPushButton
 
-from Utils import popupOnException, ProgressRunnable, ProgressRunnable2
+from Utils import popupOnException, ProgressRunnable2
 
 class RepoConfigManager(QObject):
     '''
@@ -37,35 +37,28 @@ class RepoConfigManager(QObject):
     __obsLightManager = None
 
     __configDialog = None
-#    __projectComboBox = None
     __urlLineEdit = None
     __aliasLineEdit = None
-#    __fromProjectRadio = None
-#    __fromUrlRadio = None
-    __addFromProject = False
+    __checkButton = None
+    __repoConfigButtonBox = None
 
     def __init__(self, gui, projectAlias):
         QObject.__init__(self)
         self.__gui = gui
         self.__projectAlias = projectAlias
         self.__obsLightManager = self.__gui.getObsLightManager()
-#        self.__loadProjectPossibilities()
 
     def __loadFieldObjects(self):
-#        self.__projectComboBox = self.__configDialog.findChild(QComboBox,
-#                                                               u"projectComboBox")
         self.__urlLineEdit = self.__configDialog.findChild(QLineEdit,
                                                            u"repoUrlLineEdit")
         self.__aliasLineEdit = self.__configDialog.findChild(QLineEdit,
                                                              u"repoAliasLineEdit")
-#        self.__fromProjectRadio = self.__configDialog.findChild(QRadioButton,
-#                                                                u"repoFromProjectRadioButton")
-#        self.__fromUrlRadio = self.__configDialog.findChild(QRadioButton,
-#                                                            u"repoFromUrlRadioButton")
-
-#    def __loadProjectPossibilities(self):
-#        projects = self.__obsLightManager.getLocalProjectList()
-#        self.__projectComboBox.addItems(projects)
+        self.__checkButton = self.__configDialog.findChild(QPushButton,
+                                                           "checkButton")
+        self.__checkButton.clicked.connect(self.on_checkButton_clicked)
+        self.__repoConfigButtonBox = self.__configDialog.findChild(QDialogButtonBox,
+                                                                   "repoConfigButtonBox")
+        self.__repoConfigButtonBox.button(QDialogButtonBox.Ok).setEnabled(False)
 
     def importFromUrl(self):
         self.__configDialog = self.__gui.loadWindow(u"obsRepoConfig.ui")
@@ -100,36 +93,23 @@ class RepoConfigManager(QObject):
     def getRepoUrl(self):
         return self.__urlLineEdit.text()
 
-#    def getProject(self):
-#        return self.__projectComboBox.currentText()
-#
-#    def addFromUrl(self):
-#        return self.__fromUrlRadio.isChecked()
+    def on_checkButton_clicked(self):
+        # TODO: do the checks
+        self.__repoConfigButtonBox.button(QDialogButtonBox.Ok).setEnabled(True)
 
     @popupOnException
     def on_configDialog_accepted(self):
-        obslightManager = self.__obsLightManager
         progress = self.__gui.getInfiniteProgressDialog()
+        runnable = ProgressRunnable2()
+        runnable.setProgressDialog(progress)
+        runnable.setDialogMessage("Importing repository...")
         progress.setLabelText(u"Importing repository in chroot...")
-#        if self.addFromUrl():
-        if len(self.getRepoUrl()) > 0 and len(self.getRepoAlias()) > 0:
-            progress.show()
-            runnable = ProgressRunnable(obslightManager.addRepo,
-                                        self.__projectAlias,
-                                        repoUrl=self.getRepoUrl(),
-                                        alias=self.getRepoAlias())
-            runnable.setProgressDialog(progress)
-            runnable.finishedWithException.connect(self.__gui.popupErrorCallback)
-            QThreadPool.globalInstance().start(runnable)
-#        else:
-#            if len(self.getProject()) > 0:
-#                progress.show()
-#                runnable = ProgressRunnable(obslightManager.addRepo,
-#                                            self.__projectAlias,
-#                                            fromProject=self.getProject())
-#                runnable.setProgressDialog(progress)
-#                runnable.finishedWithException.connect(self.__gui.popupErrorCallback)
-#                QThreadPool.globalInstance().start(runnable)
+        runnable.setRunMethod(self.__obsLightManager.addRepo,
+                              self.__projectAlias,
+                              repoUrl=self.getRepoUrl(),
+                              alias=self.getRepoAlias())
+        runnable.caughtException.connect(self.__gui.popupErrorCallback)
+        QThreadPool.globalInstance().start(runnable)
 
     def on_configDialog_rejected(self):
         pass

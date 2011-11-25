@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>272</width>
-    <height>89</height>
+    <width>427</width>
+    <height>100</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Repository configuration</string>
   </property>
   <property name="modal">
    <bool>true</bool>
@@ -49,14 +49,14 @@
     </widget>
    </item>
    <item row="3" column="0">
-    <widget class="QPushButton" name="pushButton">
+    <widget class="QPushButton" name="checkButton">
      <property name="text">
       <string>Check</string>
      </property>
     </widget>
    </item>
    <item row="3" column="1">
-    <widget class="QDialogButtonBox" name="buttonBox">
+    <widget class="QDialogButtonBox" name="repoConfigButtonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
@@ -70,7 +70,7 @@
  <resources/>
  <connections>
   <connection>
-   <sender>buttonBox</sender>
+   <sender>repoConfigButtonBox</sender>
    <signal>accepted()</signal>
    <receiver>repoConfigDialog</receiver>
    <slot>accept()</slot>
@@ -86,7 +86,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>buttonBox</sender>
+   <sender>repoConfigButtonBox</sender>
    <signal>rejected()</signal>
    <receiver>repoConfigDialog</receiver>
    <slot>reject()</slot>
