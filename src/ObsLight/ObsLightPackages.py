@@ -50,7 +50,9 @@ class ObsLightPackages(object):
         '''
         
         '''
-        return self.__dicOBSLightPackages.keys()
+        res = self.__dicOBSLightPackages.keys()
+        res.sort()
+        return res
 
     def getDic(self):
         '''
