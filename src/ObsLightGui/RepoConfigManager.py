@@ -118,7 +118,7 @@ class RepoConfigManager(QObject):
             return
         selectedAlias, accepted = QInputDialog.getItem(self.__gui.getMainWindow(),
                                                        "Select repository",
-                                                       "Project repository to delete:",
+                                                       "Project repository to modify:",
                                                        repos.keys(),
                                                        editable=False)
         if not accepted:

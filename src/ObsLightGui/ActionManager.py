@@ -34,19 +34,23 @@ class MainWindowActionManager(object):
     __serverListManager = None
     __aboutDialog = None
 
+    actionAbout = None
+    actionLog = None
+    actionOBS_servers = None
+
     def __init__(self, gui):
         self.__gui = gui
         self.__obsLightManager = self.__gui.getObsLightManager()
         mainWindow = self.__gui.getMainWindow()
-        actionOBS_servers = mainWindow.findChild(QAction, u"actionOBS_servers")
-        actionOBS_servers.triggered.connect(self.on_actionOBS_servers_triggered)
+        self.actionOBS_servers = mainWindow.findChild(QAction, u"actionOBS_servers")
+        self.actionOBS_servers.triggered.connect(self.on_actionOBS_servers_triggered)
         self.__aboutDialog = self.__gui.loadWindow(u"obsLightAbout.ui")
         versionLabel = self.__aboutDialog.findChild(QLabel, "versionLabel")
         versionLabel.setText(u"Version: %s" % self.__obsLightManager.getVersion())
-        actionAbout = mainWindow.findChild(QAction, u"actionAbout")
-        actionAbout.triggered.connect(self.__aboutDialog.show)
-        actionLog = mainWindow.findChild(QAction, u"actionShow_log")
-        actionLog.triggered.connect(self.on_actionLog_triggered)
+        self.actionAbout = mainWindow.findChild(QAction, u"actionAbout")
+        self.actionAbout.triggered.connect(self.__aboutDialog.show)
+        self.actionLog = mainWindow.findChild(QAction, u"actionShow_log")
+        self.actionLog.triggered.connect(self.on_actionLog_triggered)
 
     def on_actionOBS_servers_triggered(self):
         self.__serverListManager = ServerListManager(self.__gui)
