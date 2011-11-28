@@ -659,3 +659,16 @@ class ObsLightProject(object):
         
         '''
         self.__packages.delFile(package=package, name=name)
+
+    def deleteRepo(self, repoAlias):
+        '''
+        
+        '''
+        self.__chroot.deleteRepo(repoAlias)
+
+    def modifyRepo(self, repoAlias, newUrl, newAlias):
+        '''
+        
+        '''
+        self.__chroot.modifyRepo(repoAlias, newUrl, newAlias)
+

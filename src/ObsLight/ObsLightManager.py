@@ -673,13 +673,11 @@ class ObsLightManager(object):
         Delete an RPM package repository from the chroot's zypper
         configuration file.
         '''
-        # TODO: RLM implement
-        pass
+        return self.__myObsLightProjects.deleteRepo(projectLocalName, repoAlias)
 
     @checkProjectLocalName(1)
     def modifyRepo(self, projectLocalName, repoAlias, newUrl, newAlias):
-        # TODO: RLM implement
-        pass
+        return self.__myObsLightProjects.modifyRepo(projectLocalName, repoAlias, newUrl, newAlias)
 
     @checkProjectLocalName(1)
     def getChRootRepositories(self, projectLocalName):
@@ -688,7 +686,6 @@ class ObsLightManager(object):
         chroot of project 'projectLocalName'. The dictionary has aliases
         as keys and URL as values.
         '''
-        # TODO: RLM implement
         return self.__myObsLightProjects.getChRootRepositories(projectLocalName=projectLocalName)
 
     def importProject(self, path):

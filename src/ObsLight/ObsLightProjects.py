@@ -404,5 +404,15 @@ class ObsLightProjects(object):
         '''
         self.__dicOBSLightProjects[projectLocalName].updatePackage(name=package)
 
+    def deleteRepo(self, projectLocalName, repoAlias):
+        '''
+        
+        '''
+        self.__dicOBSLightProjects[projectLocalName].deleteRepo(repoAlias)
 
+    def modifyRepo(self, projectLocalName, repoAlias, newUrl, newAlias):
+        '''
+        
+        '''
+        self.__dicOBSLightProjects[projectLocalName].modifyRepo(repoAlias, newUrl, newAlias)
 

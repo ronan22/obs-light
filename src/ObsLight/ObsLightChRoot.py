@@ -475,3 +475,24 @@ class ObsLightChRoot(object):
         command.append('echo "alias ll=\\"ls -lh\\"" >> ~/.bashrc')
         command.append('echo "alias la=\\"ls -Alh\\"" >> ~/.bashrc')
         self.execCommand(command=command)
+
+    def deleteRepo(self, repoAlias):
+        '''
+        
+        '''
+        if repoAlias in self.__dicoRepos.keys():
+            command = []
+            command.append("zypper ar " + repoAlias)
+            command.append("zypper --no-gpg-checks --gpg-auto-import-keys ref")
+            self.execCommand(command=command)
+            del self.__dicoRepos[repoAlias]
+        else:
+            raise ObsLightErr.ObsLightChRootError("Can't delete the repo", repoAlias)
+
+    def modifyRepo(self, repoAlias, newUrl, newAlias):
+        '''
+        
+        '''
+        self.deleteRepo(repoAlias)
+        self.__addRepo(newUrl, newAlias)
+
