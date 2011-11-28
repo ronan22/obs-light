@@ -198,14 +198,19 @@ class ObsLightSpec:
                     line.replace("\n", "")
 
                     if "-n" in line:
-                        name = line.split("-n")[1].strip().strip("./").rstrip().rstrip("//")
+                        name = line[line.index("-n") + 2:]
+                        name = name.strip().strip("./").rstrip().rstrip("//")
                         if " " in name:
                             name = name.split(" ")[0]
+                            name = name.strip().strip("./").rstrip().rstrip("//")
                         return name
                     elif "-qn" in line:
-                        name = line.split("-qn")[1].strip().strip("./").rstrip().rstrip("//")
+                        name = line[line.index("-qn") + 2:]
+                        name = name.strip().strip("./").rstrip().rstrip("//")
+
                         if " " in name:
                             name = name.split(" ")[0]
+                            name = name.strip().strip("./").rstrip().rstrip("//")
                         return name
                     else:
                         return "%{Name}-%{Version}"
@@ -244,10 +249,7 @@ class ObsLightSpec:
                             toAdd = tmp[i:p + 1]
                         break
                     p += 1
-                if toAdd.count("%") > 1:
-                    print "toAdd", toAdd
-                    raise ObsLightErr.ObsLightSpec("Faile to parse  the spec '" + self.__file + "' file to get the BUILD/Repository " + name)
-                elif not toAdd == "":
+                if not toAdd == "":
                     listToChange.append(toAdd)
                 tmp = tmp[p + 1:]
             else:
@@ -285,7 +287,6 @@ class ObsLightSpec:
         '''
         if path != None:
             tmpLineList = []
-
 
             if not os.path.exists(path):
                 raise ObsLightErr.ObsLightSpec("parseFile: the path: " + path + ", do not exist")
@@ -340,7 +341,7 @@ class ObsLightSpec:
                     ObsLightPrintManager.obsLightPrint(IndexError)
 
         patch_Val_Prep = "Patch" + str(patchID)
-        patch_Val_Build = " % patch" + str(patchID)
+        patch_Val_Build = "%patch" + str(patchID)
 
         self.__spectDico[self.__introduction_section].insert(0, patch_Val_Prep + ": " + aFile + "\n")
         self.__spectDico[self.__introduction_section].insert(0, "# This line is insert automatically , please comment and clean the code\n")
@@ -439,10 +440,12 @@ if __name__ == '__main__':
     import shlex
     s = ObsLightSpec(packagePath='', file=file1)
 
-    try:
-        name = s.getMacroDirectoryPackageName()
-    except:
-        print "ERROR ", file1
+    #try:
+    name = s.getMacroDirectoryPackageName()
+    #except:
+    #    print "ERROR ", file1
+
+    print "name", name
 
     if name != None:
         if "%" in name:
@@ -456,7 +459,7 @@ if __name__ == '__main__':
             f.write(command + "\n")
             f.close()
             command = "sudo chroot /home/meego/OBSLight/meego1.2.0/aChroot /chrootTransfert/runMe.sh"
-            p = subprocess.Popen(shlex.split(str(command)), stdout=None)
+            p = subprocess.Popen(shlex.split(str(command)), stdout=None, stderr=None)
             p.wait()
 
             f = open("/home/meego/OBSLight/meego1.2.0/chrootTransfert/resultRpmQ.log", 'r')

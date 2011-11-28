@@ -250,8 +250,10 @@ class ObsLightPackage(object):
             self.__packageTitle = value
         elif parameter == "status":
             self.__status = value
+        elif parameter == "listFile":
+            self.__listFile = value
         else:
-            raise ObsLightPackageErr("parameter value is not valid for setProjectParameter")
+            raise ObsLightPackageErr("parameter value is not valid for setPackageParameter")
 
         return 0
 

@@ -230,7 +230,6 @@ class ObsLightChRoot(object):
             raise ObsLightErr.ObsLightChRootError(package.getName() + " has a excluded status, it can't be install")
         elif specFile == None:
             raise ObsLightErr.ObsLightChRootError(package.getName() + " has no spec file")
-
         else:
             packageName = package.getName()
             command = []
