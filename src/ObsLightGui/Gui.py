@@ -92,11 +92,15 @@ class Gui(QObject):
         self.__infiniteProgress.setCancelButton(None)
         # make the progress "infinite"
         self.__infiniteProgress.setRange(0, 0)
+        self.__infiniteProgress.addAction(self.__mainWindowActionManager.actionLog)
+        self.__infiniteProgress.setContextMenuPolicy(Qt.ActionsContextMenu)
 
     def __createProgressDialog(self):
         self.__progress = QProgressDialog(self.__mainWindow)
         self.__progress.setMinimumDuration(500)
         self.__progress.setWindowModality(Qt.WindowModal)
+        self.__progress.addAction(self.__mainWindowActionManager.actionLog)
+        self.__progress.setContextMenuPolicy(Qt.ActionsContextMenu)
 
     def getMainWindow(self):
         '''
