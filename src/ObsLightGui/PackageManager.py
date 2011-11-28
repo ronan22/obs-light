@@ -48,6 +48,7 @@ class PackageManager(QObject):
     __importPackageButton = None
     __deletePackageButton = None
     __importPackageSourceButton = None
+    __updateFilesButton = None
     __makePatchButton = None
     __addAndCommitButton = None
 
@@ -76,6 +77,9 @@ class PackageManager(QObject):
         self.__importPackageSourceButton = gui.getMainWindow().findChild(QPushButton,
                                                                          "importRpmButton")
         self.__importPackageSourceButton.clicked.connect(self.on_importRpmButton_clicked)
+        self.__updateFilesButton = gui.getMainWindow().findChild(QPushButton,
+                                                                 "updateFilesButton")
+        self.__updateFilesButton.clicked.connect(self.on_updateFilesButton_clicked)
         self.__makePatchButton = gui.getMainWindow().findChild(QPushButton,
                                                                u"generatePatchButton")
         self.__makePatchButton.clicked.connect(self.on_makePatchButton_clicked)
@@ -333,6 +337,22 @@ class PackageManager(QObject):
                                                              packagesNames,
                                                              self.__obsLightManager,
                                                              progress)
+        runnable.caughtException.connect(self.__gui.popupErrorCallback)
+        QThreadPool.globalInstance().start(runnable)
+
+    @popupOnException
+    def on_updateFilesButton_clicked(self):
+        project = self.getCurrentProject()
+        package = self.currentPackage()
+        if project is None or package is None:
+            return
+        progress = self.__gui.getInfiniteProgressDialog()
+        progress.setLabelText(u"Updating files...")
+        runnable = ProgressRunnable2()
+        runnable.setRunMethod(self.__obsLightManager.updatePackage,
+                              project,
+                              package)
+        runnable.setProgressDialog(progress)
         runnable.caughtException.connect(self.__gui.popupErrorCallback)
         QThreadPool.globalInstance().start(runnable)
 

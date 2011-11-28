@@ -340,16 +340,21 @@ class ProjectManager(QObject):
         project = self.getCurrentProjectName()
         if project is not None:
             obslightManager = self.__gui.getObsLightManager()
-            if obslightManager.isChRootInit(project):
+            isChrootInit = obslightManager.isChRootInit(project)
+            if isChrootInit:
                 chrootPath = obslightManager.getChRootPath(project)
                 self.__chrootPathLineEdit.setText(chrootPath)
 
                 self.__newChrootButton.setText(u"Open")
-                self.__addRepoInChrootButton.setEnabled(True)
-                self.__importRpmButton.setEnabled(True)
             else:
+                self.__chrootPathLineEdit.setText("")
                 self.__newChrootButton.setText(u"New")
 
-                self.__addRepoInChrootButton.setEnabled(False)
-                self.__importRpmButton.setEnabled(False)
-                self.__chrootPathLineEdit.setText("")
+            self.__importRpmButton.setEnabled(isChrootInit)
+
+            self.__addRepoInChrootButton.setEnabled(isChrootInit)
+            self.__importRepoInChrootButton.setEnabled(isChrootInit)
+            self.__deleteRepoButton.setEnabled(isChrootInit)
+            self.__modifyRepoButton.setEnabled(isChrootInit)
+
+            self.__deleteChrootButton.setEnabled(isChrootInit)
