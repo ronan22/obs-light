@@ -344,7 +344,7 @@ class ProjectManager(QObject):
                 chrootPath = obslightManager.getChRootPath(project)
                 self.__chrootPathLineEdit.setText(chrootPath)
 
-                self.__newChrootButton.setText(u"Open chroot")
+                self.__newChrootButton.setText(u"Open")
                 self.__addRepoInChrootButton.setEnabled(True)
                 self.__importRpmButton.setEnabled(True)
             else:
@@ -352,3 +352,4 @@ class ProjectManager(QObject):
 
                 self.__addRepoInChrootButton.setEnabled(False)
                 self.__importRpmButton.setEnabled(False)
+                self.__chrootPathLineEdit.setText("")
