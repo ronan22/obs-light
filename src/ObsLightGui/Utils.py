@@ -109,6 +109,7 @@ class ProgressRunnable2(QRunnable, QObject):
 
     __started = Signal()
     __progressed = Signal((), (int,))
+    __finished = Signal(())
     __sentMessage = Signal((unicode))
 
     finished = Signal((), (object,))
@@ -173,7 +174,9 @@ class ProgressRunnable2(QRunnable, QObject):
             else:
                 # "Infinite" progress dialog, so do nothing
                 pass
-            self.__progressDialog.show()
+            self.__progressed.connect(self.__progressDialog.show)
+            self.__progressed.emit()
+            self.__progressed.disconnect(self.__progressDialog.show)
 
     def hasFinished(self, result=None):
         '''
@@ -182,9 +185,9 @@ class ProgressRunnable2(QRunnable, QObject):
         signal.
         '''
         if self.__progressDialog is not None:
-            self.__progressed.connect(self.__progressDialog.reset)
-            self.__progressed.emit()
-            self.__progressed.disconnect(self.__progressDialog.reset)
+            self.__finished.connect(self.__progressDialog.reset)
+            self.__finished.emit()
+            self.__finished.disconnect(self.__progressDialog.reset)
         self.finished.emit()
         self.finished[object].emit(result)
 
@@ -254,7 +257,11 @@ def exceptionToMessageBox(exception, parent=None):
     if isinstance(exception, ObsLightErr.OBSLightBaseError):
         QMessageBox.warning(parent, u"Exception occurred", exception.msg)
     else:
-        QMessageBox.critical(parent, u"Exception occurred", unicode(exception))
+        try:
+            message = unicode(exception)
+        except UnicodeError:
+            message = unicode(str(exception), errors="replace")
+        QMessageBox.critical(parent, u"Exception occurred", message)
 
 def popupOnException(f):
     '''

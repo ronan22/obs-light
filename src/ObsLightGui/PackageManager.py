@@ -267,7 +267,6 @@ class PackageManager(QObject):
         if project is None:
             return
         packagesNames = self.selectedPackages()
-        progress = None
         if len(packagesNames) < 1:
             return
         result = QMessageBox.question(self.__gui.getMainWindow(),
@@ -278,13 +277,8 @@ class PackageManager(QObject):
                                       defaultButton=QMessageBox.Yes)
         if result == QMessageBox.No:
             return
-        # This is to avoid a bug happening with libglib2.0 < 2.29.92
-        # "Assertion `req == dpy->xcb->pending_requests' failed"
-        # that crashed the whole application if calling dialog before
-        # it is visible.
-        if len(packagesNames) > 100:
-            progress = self.__gui.getProgressDialog()
-            progress.setValue(0)
+        progress = self.__gui.getProgressDialog()
+        progress.setValue(0)
         runnable = PackageManager.__RemovePackages(packagesNames,
                                                    self.__localModel,
                                                    progress)
