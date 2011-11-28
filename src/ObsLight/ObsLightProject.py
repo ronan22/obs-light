@@ -384,6 +384,27 @@ class ObsLightProject(object):
 
         return packagePath, specFile, yamlFile, listFile
 
+    def __updatePackage(self, package=None):
+        '''
+        
+        '''
+        packagePath = self.__getPackagePath(package)
+        ObsLightOsc.getObsLightOsc().updatePackage(packagePath)
+
+        #Find the spec yaml and file
+        listFile = os.listdir(packagePath)
+
+        specFile = None
+        yamlFile = None
+
+        for f in listFile:
+            if self.__isASpecfile(f):
+                specFile = f
+            elif self.__isAyamlfile(f):
+                yamlFile = f
+
+        return packagePath, specFile, yamlFile, listFile
+
     def __isASpecfile(self, file):
         '''
         
@@ -402,6 +423,8 @@ class ObsLightProject(object):
         '''
         return self.__packages.getPackageStatus(name=package)
 
+
+
     def addPackage(self, name=None):
         '''
         add a package to the projectLocalName.
@@ -410,7 +433,8 @@ class ObsLightProject(object):
 
         status = self.__obsServers.getPackageStatus(obsServer=self.__obsServer,
                                                     project=self.__projectObsName,
-                                                    package=name, repo=self.__projectTarget,
+                                                    package=name,
+                                                    repo=self.__projectTarget,
                                                     arch=self.__projectArchitecture)
 
         packageTitle = self.__obsServers.getPackageTitle(obsServer=self.__obsServer,
@@ -429,6 +453,34 @@ class ObsLightProject(object):
                                    yamlFile=yamlFile,
                                    listFile=listFile,
                                    status=status)
+
+    def updatePackage(self, name=None):
+        '''
+        update a package of the projectLocalName.
+        '''
+        packagePath, specFile, yamlFile, listFile = self.__updatePackage(package=name)
+
+        status = self.__obsServers.getPackageStatus(obsServer=self.__obsServer,
+                                                    project=self.__projectObsName,
+                                                    package=name,
+                                                    repo=self.__projectTarget,
+                                                    arch=self.__projectArchitecture)
+
+        packageTitle = self.__obsServers.getPackageTitle(obsServer=self.__obsServer,
+                                                         projectObsName=self.__projectObsName,
+                                                         package=name)
+
+        description = self.__obsServers.getPackageDescription(obsServer=self.__obsServer,
+                                                              projectObsName=self.__projectObsName,
+                                                              package=name)
+
+        self.__packages.setPackageParameter(package=name, parameter="specFile", value=specFile)
+        self.__packages.setPackageParameter(package=name, parameter="yamlFile", value=yamlFile)
+        self.__packages.setPackageParameter(package=name, parameter="listFile", value=listFile)
+        self.__packages.setPackageParameter(package=name, parameter="status", value=status)
+        self.__packages.setPackageParameter(package=name, parameter="packageTitle", value=packageTitle)
+        self.__packages.setPackageParameter(package=name, parameter="description", value=description)
+
 
     def isInstallInChroot(self, package):
         '''

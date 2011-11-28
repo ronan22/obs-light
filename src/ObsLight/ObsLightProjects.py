@@ -398,7 +398,11 @@ class ObsLightProjects(object):
         self.__dicOBSLightProjects[projectLocalName].delFileToPackage(package=package,
                                                                       name=name)
 
-
+    def updatePackage(self, projectLocalName, package):
+        '''
+        
+        '''
+        self.__dicOBSLightProjects[projectLocalName].updatePackage(name=package)
 
 
 

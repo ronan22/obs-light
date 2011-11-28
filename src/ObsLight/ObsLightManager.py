@@ -768,6 +768,18 @@ class ObsLightManager(object):
                                                               package=package,
                                                               parameter=parameter,
                                                               value=value)
+    @checkProjectLocalName(1)
+    def updatePackage(self, projectLocalName, package):
+        '''
+        
+        '''
+        if not isNonEmptyString(package):
+            raise ObsLightObsServers(" invalid package name: " + str(package))
+        elif not package in self.getLocalProjectPackageList(projectLocalName=projectLocalName, local=1):
+            raise ObsLightObsServers(package + " is not a local package of " + projectLocalName)
+
+        self.__myObsLightProjects.updatePackage(projectLocalName=projectLocalName,
+                                                package=package)
 
     @checkProjectLocalName(1)
     def getProjectRepository(self, projectLocalName):

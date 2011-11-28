@@ -159,7 +159,7 @@ class ObsLightPackages(object):
         '''
         return self.__dicOBSLightPackages[package].getPackageParameter(parameter=parameter)
 
-    def setPackageParameter(self, package, parameter=None, value=None):
+    def setPackageParameter(self, package, parameter, value):
         '''
         return the value  of the parameter of the package:
         the valid parameter is :

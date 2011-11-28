@@ -220,33 +220,30 @@ class ObsLightChRoot(object):
         '''
         return self.__dicoRepos
 
-    def addPackageSourceInChRoot(self, package=None,
-                                       specFile=None,
-                                       repo=None):
+    def addPackageSourceInChRoot(self, package,
+                                       specFile,
+                                       repo):
         '''
         
         '''
         if package.getStatus() == "excluded":
             raise ObsLightErr.ObsLightChRootError(package.getName() + " has a excluded status, it can't be install")
+        elif specFile == None:
+            raise ObsLightErr.ObsLightChRootError(package.getName() + " has no spec file")
+
         else:
             packageName = package.getName()
             command = []
             command.append("zypper --non-interactive si --build-deps-only " + packageName)
             command.append("zypper --non-interactive si " + "--repo " + repo + " " + packageName)
             self.execCommand(command=command)
-            #print "--------1 self.getDirectory()", self.getDirectory(), "self.__chrootrpmbuildDirectory", self.__chrootrpmbuildDirectory
             if os.path.isdir(self.getDirectory() + "/" + self.__chrootrpmbuildDirectory + "/SPECS/"):
                 aspecFile = self.__chrootrpmbuildDirectory + "/SPECS/" + specFile
-                #print "--------2"
                 self.buildPrepRpm(specFile=aspecFile)
-                #print "--------3"
                 #find the directory to watch
                 packageDirectory = self.__findPackageDirectory(package=package)
-                #print "--------4"
                 ObsLightPrintManager.getLogger().debug("for the package " + packageName + " the packageDirectory is used : " + str(packageDirectory))
-                #print "--------5"
                 package.setDirectoryBuild(packageDirectory)
-                #print "--------6"
                 if packageDirectory != None:
                     self.initGitWatch(path=packageDirectory)
                     package.setChRootStatus("Installed")

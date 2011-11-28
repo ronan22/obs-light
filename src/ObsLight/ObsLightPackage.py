@@ -91,7 +91,6 @@ class ObsLightPackage(object):
             if "chRootStatus" in fromSave.keys():
                 self.__chRootStatus = fromSave["chRootStatus"]
 
-
         self.__initConfigureFile()
 
     def getGetChRootStatus(self):
@@ -235,17 +234,22 @@ class ObsLightPackage(object):
             packageDirectory
             description
             packageTitle
+            status
         '''
         if parameter == "specFile":
             self.__specFile = value
+            self.__initConfigureFile()
         elif parameter == "yamlFile":
             self.__yamlFile = value
+            self.__initConfigureFile()
         elif parameter == "packageDirectory":
             self.__packageDirectory = value
         elif parameter == "description":
             self.__description = value
         elif parameter == "packageTitle":
             self.__packageTitle = value
+        elif parameter == "status":
+            self.__status = value
         else:
             raise ObsLightPackageErr("parameter value is not valid for setProjectParameter")
 
