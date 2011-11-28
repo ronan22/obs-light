@@ -1,6 +1,6 @@
 %define name obslight
-%define version 0.4.2
-%define unmangled_version 0.4.2
+%define version 0.4.3
+%define unmangled_version 0.4.3
 %define release 1
 
 Summary: OBS Light
@@ -65,7 +65,7 @@ This package contains additional scripts :
 
 %prep
 %setup -n %{name}-%{unmangled_version}
-sed -i s/"VERSION = .*"/"VERSION = \"0.4.2-1.2\""/ ObsLight/ObsLightManager.py
+sed -i s/"VERSION = .*"/"VERSION = \"%{version}-%{release}\""/ ObsLight/ObsLightManager.py
 
 %build
 python setup.py build
@@ -133,6 +133,10 @@ rm -rf %{buildroot}
 %{_bindir}/obsextractgroups
 
 %changelog
+* Fri Nov 25 2011 Florent Vennetier (Intel OTC) <florent@fridu.net> 0.4.3-1
+- New import dialogs
+- Fixed several bugs
+
 * Fri Nov 18 2011 Florent Vennetier (Intel OTC) <florent@fridu.net> 0.4.2-1
 - added check connection button
 - fixed unicode problems

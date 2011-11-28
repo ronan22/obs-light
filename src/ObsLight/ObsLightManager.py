@@ -32,7 +32,7 @@ import ObsLightPrintManager
 
 import ObsLightConfig
 
-VERSION = "0.4.2-1.1"
+VERSION = "0.4.3-1"
 
 def getVersion():
     '''
