@@ -352,3 +352,4 @@ class ProjectManager(QObject):
 
                 self.__addRepoInChrootButton.setEnabled(False)
                 self.__importRpmButton.setEnabled(False)
+                self.__chrootPathLineEdit.setText("")

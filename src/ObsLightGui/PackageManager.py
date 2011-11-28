@@ -216,6 +216,8 @@ class PackageManager(QObject):
             self.setMax(len(self.packageList))
             self.setDialogMessage(u"Adding packages...")
             for package in self.packageList:
+                if self.wasAskedToCancel():
+                    break
                 try:
                     self.model.addPackage(package)
                 except BaseException as e:
@@ -253,6 +255,8 @@ class PackageManager(QObject):
             self.setMax(len(self.packageList))
             self.setDialogMessage(u"Deleting packages...")
             for package in self.packageList:
+                if self.wasAskedToCancel():
+                    break
                 try:
                     self.model.removePackage(package)
                 except BaseException as e:
@@ -301,6 +305,8 @@ class PackageManager(QObject):
         def run(self):
             self.setMax(len(self.packageList))
             for package in self.packageList:
+                if self.wasAskedToCancel():
+                    break
                 try:
                     self.setDialogMessage(u"Importing %s source in chroot" % package)
                     self.manager.addPackageSourceInChRoot(self.project, package)

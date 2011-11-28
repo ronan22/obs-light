@@ -106,6 +106,7 @@ class ProgressRunnable2(QRunnable, QObject):
     '''
     __progressDialog = None
     __isFinite = False
+    __askedToCancel = False
 
     __started = Signal()
     __progressed = Signal((), (int,))
@@ -123,14 +124,30 @@ class ProgressRunnable2(QRunnable, QObject):
         QRunnable.__init__(self)
         QObject.__init__(self)
 
+    def cancel(self):
+        '''
+        Ask the ProgressRunnable to cancel.
+        This method is internally connected to the ProgressDialog
+        (if there is one) 'canceled' signal.
+        '''
+        self.__askedToCancel = True
+
     def setProgressDialog(self, dialog):
         '''
         Set the QProgressDialog (or QProgressBar) to update when calling
         hasProgressed() and hasFinished(). You can pass None.
         '''
+        if (self.__progressDialog is not None and
+            isinstance(self.__progressDialog, QProgressDialog)):
+            try:
+                self.__progressDialog.canceled.connect(self.cancel)
+            finally:
+                pass
         self.__progressDialog = dialog
         if self.__progressDialog is not None:
             self.__isFinite = self.__progressDialog.minimum() < self.__progressDialog.maximum()
+            if isinstance(self.__progressDialog, QProgressDialog):
+                self.__progressDialog.canceled.connect(self.cancel)
 
     def getProgressDialog(self):
         '''
@@ -184,7 +201,13 @@ class ProgressRunnable2(QRunnable, QObject):
         its execution (so it will be hidden). Also emits the finished
         signal.
         '''
+
         if self.__progressDialog is not None:
+            if isinstance(self.__progressDialog, QProgressDialog):
+                try:
+                    self.__progressDialog.canceled.disconnect(self.cancel)
+                finally:
+                    pass
             self.__finished.connect(self.__progressDialog.reset)
             self.__finished.emit()
             self.__finished.disconnect(self.__progressDialog.reset)
@@ -207,6 +230,13 @@ class ProgressRunnable2(QRunnable, QObject):
                 message = unicode(message, errors='replace')
             self.__sentMessage.emit(message)
             self.__sentMessage.disconnect(self.__progressDialog.setLabelText)
+
+    def wasAskedToCancel(self):
+        '''
+        Returns True if the ProgressRunnable was asked to cancel, using
+        its cancel() method.
+        '''
+        return self.__askedToCancel
 
     def setRunMethod(self, method, *args, **kwargs):
         '''
