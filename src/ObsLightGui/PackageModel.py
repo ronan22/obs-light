@@ -85,9 +85,9 @@ class PackageModel(QAbstractTableModel):
                 return self.__obsLightManager.getPackageStatus(self.__project,
                                                                packageName)
             elif index.column() == self.PackageChrootStatusColumn:
-                installed = self.__obsLightManager.isInstalledInChRoot(self.__project,
-                                                                       packageName)
-                return u"Installed" if installed else u"Not installed"
+                status = self.__obsLightManager.getGetChRootStatus(self.__project,
+                                                                   packageName)
+                return status
         else:
             return None
 

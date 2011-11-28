@@ -34,6 +34,8 @@ import ObsLightErr
 import ObsLightConfig
 from ObsLightSubprocess import SubprocessCrt
 
+import ObsLightPrintManager
+
 class ObsLightChRoot(object):
     '''
     classdocs
@@ -173,7 +175,6 @@ class ObsLightChRoot(object):
         command = shlex.split(str(command))
         p = subprocess.Popen(command, stdout=None)
         p.wait()
-        print "RESULT", self.__chrootDirTransfert + "/resultRpmQ.log"
         f = open(self.__chrootDirTransfert + "/resultRpmQ.log", 'r')
         name = f.read().replace("\n", "")
         f.close()
@@ -183,55 +184,74 @@ class ObsLightChRoot(object):
         '''
         Return the directory of where the package were installed.
         '''
-        pathBuild = self.getDirectory() + "/" + self.__chrootrpmbuildDirectory + "/" + "BUILD"
-        #Find the Package Directory
 
         name = package.getMacroDirectoryPackageName()
 
         if name != None:
-            name = self.resolveMacro(name)
+            prepDirname = self.resolveMacro(name)
+            if prepDirname == None:
+                raise ObsLightErr.ObsLightChRootError(" Can't resolve the macro " + name)
 
+            ObsLightPrintManager.getLogger().debug("for the package " + name + " the prepDirname is: " + str(prepDirname))
+
+            if prepDirname == None:
+                return None
+
+            pathBuild = self.getDirectory() + "/" + self.__chrootrpmbuildDirectory + "/" + "BUILD"
             if not os.path.isdir(pathBuild):
                 raise ObsLightErr.ObsLightChRootError("in the chroot path: " + pathBuild + " is not a directory")
 
-            resultPath = self.__chrootrpmbuildDirectory + "/BUILD/" + name
+            resultPath = self.__chrootrpmbuildDirectory + "/BUILD/" + prepDirname
 
-            subDir = os.listdir(pathBuild + "/" + name)
+            subDir = os.listdir(pathBuild + "/" + prepDirname)
             if len(subDir) == 0:
                 return resultPath
             elif len(subDir) == 1:
                 return resultPath + "/" + subDir[0]
             else:
                 return resultPath
-
+        else:
+            package.setChRootStatus("No build directory")
         return None
 
+    def getChRootRepositories(self):
+        '''
+        
+        '''
+        return self.__dicoRepos
 
     def addPackageSourceInChRoot(self, package=None,
                                        specFile=None,
                                        repo=None):
-
         '''
         
         '''
-        packageName = package.getName()
-        command = []
-        command.append("zypper --non-interactive si --build-deps-only " + packageName)
-        command.append("zypper --non-interactive si " + "--repo " + repo + " " + packageName)
-        self.execCommand(command=command)
-
-        if os.path.isdir(self.getDirectory() + "/" + self.__chrootrpmbuildDirectory + "/SPECS/"):
-            aspecFile = self.__chrootrpmbuildDirectory + "/SPECS/" + specFile
-
-            self.buildPrepRpm(specFile=aspecFile)
-
-            #find the directory to watch
-            packageDirectory = self.__findPackageDirectory(package=package)
-            package.setDirectoryBuild(packageDirectory)
-            if packageDirectory != None:
-                self.initGitWatch(path=packageDirectory)
+        if package.getStatus() == "excluded":
+            raise ObsLightErr.ObsLightChRootError(package.getName() + " has a excluded status, it can't be install")
         else:
-            raise ObsLightErr.ObsLightChRootError(packageName + " source is not installed in " + self.getDirectory())
+            packageName = package.getName()
+            command = []
+            command.append("zypper --non-interactive si --build-deps-only " + packageName)
+            command.append("zypper --non-interactive si " + "--repo " + repo + " " + packageName)
+            self.execCommand(command=command)
+            #print "--------1 self.getDirectory()", self.getDirectory(), "self.__chrootrpmbuildDirectory", self.__chrootrpmbuildDirectory
+            if os.path.isdir(self.getDirectory() + "/" + self.__chrootrpmbuildDirectory + "/SPECS/"):
+                aspecFile = self.__chrootrpmbuildDirectory + "/SPECS/" + specFile
+                #print "--------2"
+                self.buildPrepRpm(specFile=aspecFile)
+                #print "--------3"
+                #find the directory to watch
+                packageDirectory = self.__findPackageDirectory(package=package)
+                #print "--------4"
+                ObsLightPrintManager.getLogger().debug("for the package " + packageName + " the packageDirectory is used : " + str(packageDirectory))
+                #print "--------5"
+                package.setDirectoryBuild(packageDirectory)
+                #print "--------6"
+                if packageDirectory != None:
+                    self.initGitWatch(path=packageDirectory)
+                    package.setChRootStatus("Installed")
+            else:
+                raise ObsLightErr.ObsLightChRootError(packageName + " source is not installed in " + self.getDirectory())
 
     def execCommand(self, command=None):
         '''

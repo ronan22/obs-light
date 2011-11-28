@@ -99,6 +99,12 @@ class ObsLightPackages(object):
         '''
         return self.__dicOBSLightPackages[name].isInstallInChroot()
 
+    def getGetChRootStatus(self, name):
+        '''
+        Return the status of the package  into the chroot.
+        '''
+        return self.__dicOBSLightPackages[name].getGetChRootStatus()
+
     def delFromChroot(self, package):
         '''
         

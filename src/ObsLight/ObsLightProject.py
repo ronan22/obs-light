@@ -58,6 +58,7 @@ class ObsLightProject(object):
         self.__chrootIsInit = False
         self.__WorkingDirectory = workingDirectory
 
+
         if fromSave == None:
             self.__projectLocalName = projectLocalName
             self.__projectObsName = projectObsName
@@ -122,6 +123,8 @@ class ObsLightProject(object):
 
         if not os.path.isdir(self.getDirectory()):
             os.makedirs(self.getDirectory())
+
+        print "init self.__projectLocalName", self.__projectLocalName
 
     def getDirectory(self):
         '''
@@ -433,6 +436,18 @@ class ObsLightProject(object):
         '''
 
         return self.__packages.isInstallInChroot(name=package)
+
+    def getGetChRootStatus(self, package):
+        '''
+        Return the status of the package  into the chroot.
+        '''
+        return self.__packages.getGetChRootStatus(name=package)
+
+    def getChRootRepositories(self):
+        '''
+        
+        '''
+        return self.__chroot.getChRootRepositories()
 
     def updateProject(self):
         '''

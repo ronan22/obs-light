@@ -147,14 +147,16 @@ class ObsLightSpec:
         if valueToFind.startswith("?"):
             valueToFind = valueToFind.strip("?")
             if ":" in valueToFind:
-                [macroToTest, expression] = valueToFind.split(":")
+                #[macroToTest, expression] = valueToFind.split(":")
+                macroToTest = valueToFind[:valueToFind.index(":")]
+                expression = valueToFind[valueToFind.index(":") + 1:]
                 res = self.__searchValue(macroToTest)
-                if res != None:
+                if (res != None) :
                     res = self.__testLine(expression, valueToFind)
                     if res != None:
                         return res
                     else:
-                        return value
+                        return expression
                 else:
                     return ""
             else:
@@ -166,7 +168,9 @@ class ObsLightSpec:
                     return ""
         elif valueToFind.startswith("!?"):
             valueToFind = valueToFind.strip("!?")
-            [macroToTest, expression] = valueToFind.split(":")
+            #[macroToTest, expression] = valueToFind.split(":")
+            macroToTest = valueToFind[:valueToFind.index(":")]
+            expression = valueToFind[valueToFind.index(":") + 1:]
             res = self.__searchValue(macroToTest)
 
             if res != None:
@@ -192,8 +196,14 @@ class ObsLightSpec:
             for line in self.__spectDico[self.__prepFlag]:
                 if line.startswith('%setup'):
                     line.replace("\n", "")
+
                     if "-n" in line:
                         name = line.split("-n")[1].strip().strip("./").rstrip().rstrip("//")
+                        if " " in name:
+                            name = name.split(" ")[0]
+                        return name
+                    elif "-qn" in line:
+                        name = line.split("-qn")[1].strip().strip("./").rstrip().rstrip("//")
                         if " " in name:
                             name = name.split(" ")[0]
                         return name
@@ -223,9 +233,11 @@ class ObsLightSpec:
                         bClose += 1
                     if bOpen == bClose:
                         if bOpen > 1:
-                            res = self.getResolveMacroName(tmp[j + 1:p])
+                            toChange = tmp[j + 1:p]
+                            res = self.getResolveMacroName(toChange)
+                            name = name.replace(toChange , res)
                             if res.startswith("?"):
-                                toAdd = self.__getValue(res)
+                                toAdd = "%{" + res + "}"
                             else:
                                 toAdd = "%{" + res + "}"
                         else:
@@ -234,7 +246,7 @@ class ObsLightSpec:
                     p += 1
                 if toAdd.count("%") > 1:
                     print "toAdd", toAdd
-                    raise "Faile to parse  the spec file to get the BUILD/Repository"
+                    raise ObsLightErr.ObsLightSpec("Faile to parse  the spec '" + self.__file + "' file to get the BUILD/Repository " + name)
                 elif not toAdd == "":
                     listToChange.append(toAdd)
                 tmp = tmp[p + 1:]
@@ -248,10 +260,9 @@ class ObsLightSpec:
                     toAdd = tmp
                     tmp = ""
                 listToChange.append(toAdd)
-
         for value in listToChange:
             res = self.__getValue(value)
-            name = name.replace(value , self.__getValue(value))
+            name = name.replace(value , res)
         return name
 
 
@@ -440,19 +451,19 @@ if __name__ == '__main__':
             #except:
             #    print "ERROR 2", file1
 
-            f = open("/home/meego/OBSLight/meego1.2/chrootTransfert/runMe.sh", 'w')
+            f = open("/home/meego/OBSLight/meego1.2.0/chrootTransfert/runMe.sh", 'w')
             command = "rpm --eval " + name + " > /chrootTransfert/resultRpmQ.log"
             f.write(command + "\n")
             f.close()
-            command = "sudo chroot /home/meego/OBSLight/meego1.2/aChroot /chrootTransfert/runMe.sh"
+            command = "sudo chroot /home/meego/OBSLight/meego1.2.0/aChroot /chrootTransfert/runMe.sh"
             p = subprocess.Popen(shlex.split(str(command)), stdout=None)
             p.wait()
 
-            f = open("/home/meego/OBSLight/meego1.2/chrootTransfert/resultRpmQ.log", 'r')
+            f = open("/home/meego/OBSLight/meego1.2.0/chrootTransfert/resultRpmQ.log", 'r')
             name = f.read().replace("\n", "")
             f.close()
 
-            #if ("%" in name) :
+            #if ("%" in name):
             print os.path.basename(file1).ljust(50) + name.replace("\n", "")
         else:
             if "%" in name:

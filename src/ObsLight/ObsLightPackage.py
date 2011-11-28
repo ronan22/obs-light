@@ -44,6 +44,7 @@ class ObsLightPackage(object):
                  yamlFile=None,
                  listFile=None,
                  status="Unknown",
+                 chRootStatus="Not installed",
                  description="",
                  packageTitle="",
                  fromSave=None):
@@ -56,6 +57,7 @@ class ObsLightPackage(object):
         self.__specFile = None
         self.__description = description
         self.__packageTitle = packageTitle
+        self.__chRootStatus = chRootStatus
 
         if fromSave == None:
             self.__name = name
@@ -67,7 +69,6 @@ class ObsLightPackage(object):
             self.__specFile = specFile
             self.__yamlFile = yamlFile
             self.__packageDirectory = None
-
         else:
             if "name" in fromSave.keys():
                 self.__name = fromSave["name"]
@@ -87,9 +88,23 @@ class ObsLightPackage(object):
                 self.__description = fromSave["description"]
             if  "packageTitle" in fromSave.keys():
                 self.__packageTitle = fromSave["packageTitle"]
+            if "chRootStatus" in fromSave.keys():
+                self.__chRootStatus = fromSave["chRootStatus"]
+
 
         self.__initConfigureFile()
 
+    def getGetChRootStatus(self):
+        '''
+        
+        '''
+        return self.__chRootStatus
+
+    def setChRootStatus(self, status):
+        '''
+        
+        '''
+        self.__chRootStatus = status
 
     def __initConfigureFile(self):
         '''
@@ -171,6 +186,7 @@ class ObsLightPackage(object):
         aDic["packageDirectory"] = self.__packageDirectory
         aDic["description"] = self.__description
         aDic["packageTitle"] = self.__packageTitle
+        aDic["chRootStatus"] = self.__chRootStatus
 
         return aDic
 
@@ -186,6 +202,7 @@ class ObsLightPackage(object):
             packageDirectory
             description
             packageTitle
+            chRootStatus
         '''
         if parameter == "name":
             return self.__name
@@ -203,6 +220,8 @@ class ObsLightPackage(object):
             return self.__description
         elif parameter == "packageTitle":
             return self.__packageTitle
+        elif parameter == "chRootStatus":
+            return self.__chRootStatus
         else:
             raise ObsLightPackageErr("parameter value is not valid for getProjectParameter")
 

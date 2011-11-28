@@ -581,6 +581,19 @@ class ObsLightManager(object):
         return self.__myObsLightProjects.isInstallInChroot(projectLocalName=projectLocalName,
                                                            package=package)
 
+    def getGetChRootStatus(self, projectLocalName, package):
+        '''
+        Return the status of the package  into the chroot.
+        '''
+        if not isNonEmptyString(projectLocalName):
+            raise ObsLightProjectsError(" invalid project name: " + str(projectLocalName))
+        elif not isNonEmptyString(package):
+            raise ObsLightProjectsError(" invalid package name: " + str(package))
+        elif not package in self.getLocalProjectPackageList(projectLocalName, local=1):
+            raise ObsLightProjectsError(package + " is not a local package")
+
+        return self.__myObsLightProjects.getGetChRootStatus(projectLocalName=projectLocalName, package=package)
+
     @checkProjectLocalName(1)
     def addPackageSourceInChRoot(self, projectLocalName, package):
         '''
@@ -652,7 +665,6 @@ class ObsLightManager(object):
                                            fromProject=fromProject,
                                            repos=repoUrl,
                                            alias=alias)
-
         self.__myObsLightProjects.save()
 
     @checkProjectLocalName(1)
@@ -677,7 +689,7 @@ class ObsLightManager(object):
         as keys and URL as values.
         '''
         # TODO: RLM implement
-        return {"totoAlias": "http://toto.com:82/repo/"}
+        return self.__myObsLightProjects.getChRootRepositories(projectLocalName=projectLocalName)
 
     def importProject(self, path):
         '''

@@ -372,6 +372,17 @@ class ObsLightProjects(object):
         '''
         return self.__dicOBSLightProjects[projectLocalName].isInstallInChroot(package=package)
 
+    def getGetChRootStatus(self, projectLocalName, package):
+        '''
+        Return the status of the package  into the chroot.
+        '''
+        return self.__dicOBSLightProjects[projectLocalName].getGetChRootStatus(package=package)
+
+    def getChRootRepositories(self, projectLocalName):
+        '''
+        
+        '''
+        return self.__dicOBSLightProjects[projectLocalName].getChRootRepositories()
 
     def addFileToPackage(self, projectLocalName, package, path):
         '''

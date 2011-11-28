@@ -61,7 +61,8 @@ class PackageManager(QObject):
         self.__gui = gui
         self.__obsLightManager = gui.getObsLightManager()
         self.__fileManager = FileManager(self.__gui)
-        self.__packageWidget = gui.getMainWindow().findChild(QWidget, u"packageWidget")
+        self.__packageWidget = gui.getMainWindow().findChild(QWidget,
+                                                             u"packageWidget")
         self.__packageTableView = gui.getMainWindow().findChild(QTableView,
                                                                 u"packageTableView")
         self.__packageTableView.setSelectionBehavior(QTableView.SelectionBehavior.SelectRows)
@@ -127,9 +128,11 @@ class PackageManager(QObject):
         project = self.getCurrentProject()
         if package is not None:
             self.__packageNameLabel.setText(package)
-            packageTitle = self.__obsLightManager.getPackageParameter(project, package,
+            packageTitle = self.__obsLightManager.getPackageParameter(project,
+                                                                      package,
                                                                       u"packageTitle")
-            description = self.__obsLightManager.getPackageParameter(project, package,
+            description = self.__obsLightManager.getPackageParameter(project,
+                                                                     package,
                                                                      u"description")
             self.__packageTitleLabel.setText(packageTitle)
             self.__packageDescriptionLabel.setText(description)
