@@ -48,6 +48,7 @@ class ProjectManager(QObject):
     __modifyRepoButton = None
     __importRepoInChrootButton = None
     __importRpmButton = None
+    __refreshStatusButton = None
     __projectLinkLabel = None
     __projectRepoLinkLabel = None
     __projectTitleLabel = None
@@ -104,6 +105,9 @@ class ProjectManager(QObject):
         self.__importRepoInChrootButton.clicked.connect(self.on_importRepoInChrootButton_clicked)
         self.__importRpmButton = mainWindow.findChild(QPushButton,
                                                       u"importRpmButton")
+        self.__refreshStatusButton = mainWindow.findChild(QPushButton,
+                                                          "refreshStatusButton")
+        self.__refreshStatusButton.clicked.connect(self.on_refreshStatusButton_clicked)
         self.__projectLinkLabel = mainWindow.findChild(QLabel,
                                                        u"projectPageLinkLabel")
         self.__projectRepoLinkLabel = mainWindow.findChild(QLabel,
@@ -292,6 +296,9 @@ class ProjectManager(QObject):
         projectName = self.getCurrentProjectName()
         self.__repoConfigManager = RepoConfigManager(self.__gui, projectName)
         self.__repoConfigManager.importFromProject()
+
+    def on_refreshStatusButton_clicked(self):
+        self.__gui.getObsLightManager().refreshOscDirectoryStatus(self.getCurrentProjectName())
 
     def on_projectSelected(self, _project):
         self.refresh()
