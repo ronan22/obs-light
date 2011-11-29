@@ -205,7 +205,7 @@ class ObsLightSpec:
                             name = name.strip().strip("./").rstrip().rstrip("//")
                         return name
                     elif "-qn" in line:
-                        name = line[line.index("-qn") + 2:]
+                        name = line[line.index("-qn") + 3:]
                         name = name.strip().strip("./").rstrip().rstrip("//")
 
                         if " " in name:

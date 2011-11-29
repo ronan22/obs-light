@@ -124,7 +124,6 @@ class ObsLightProject(object):
         if not os.path.isdir(self.getDirectory()):
             os.makedirs(self.getDirectory())
 
-        print "init self.__projectLocalName", self.__projectLocalName
 
     def getDirectory(self):
         '''
