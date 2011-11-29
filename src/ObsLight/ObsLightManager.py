@@ -673,11 +673,15 @@ class ObsLightManager(object):
         Delete an RPM package repository from the chroot's zypper
         configuration file.
         '''
-        return self.__myObsLightProjects.deleteRepo(projectLocalName, repoAlias)
+        res = self.__myObsLightProjects.deleteRepo(projectLocalName, repoAlias)
+        self.__myObsLightProjects.save()
+        return res
 
     @checkProjectLocalName(1)
     def modifyRepo(self, projectLocalName, repoAlias, newUrl, newAlias):
-        return self.__myObsLightProjects.modifyRepo(projectLocalName, repoAlias, newUrl, newAlias)
+        res = self.__myObsLightProjects.modifyRepo(projectLocalName, repoAlias, newUrl, newAlias)
+        self.__myObsLightProjects.save()
+        return res
 
     @checkProjectLocalName(1)
     def getChRootRepositories(self, projectLocalName):
