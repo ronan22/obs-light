@@ -544,5 +544,5 @@ if __name__ == '__main__':
     url = str(apiurl + "/source/" + projet + "/_meta")
     print "url: ", url
     res = core.http_request("GET", url)
-    print getObsLightOsc().getDepProject(apiurl, projet, repos)
+    print "res", res
 

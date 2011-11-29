@@ -653,7 +653,6 @@ class ObsLightProject(object):
 
         self.__packages.addFile(package=package, path=path)
 
-
     def delFileToPackage(self, package, name):
         '''
         

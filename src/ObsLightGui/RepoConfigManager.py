@@ -73,7 +73,6 @@ class RepoConfigManager(QObject):
 
     def importFromProject(self):
         projects = self.__obsLightManager.getLocalProjectList()
-        projects.remove(self.__projectAlias)
         selectedProject, accepted = QInputDialog.getItem(self.__gui.getMainWindow(),
                                                          "Select project",
                                                          "Project to import repository from:",

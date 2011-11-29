@@ -28,8 +28,8 @@ from ObsLightErr import ObsLightProjectsError
 from ObsServers import ObsServers
 from ObsLightProjects import ObsLightProjects
 from ObsLightTools import isNonEmptyString
+import ObsLightTools
 import ObsLightPrintManager
-
 import ObsLightConfig
 
 VERSION = "0.4.3-1"
@@ -826,6 +826,18 @@ class ObsLightManager(object):
         obsServer may be an OBS server alias or an HTTP(S) URL.
         '''
         return self.__myObsServers.testServer(obsServer=obsServer)
+
+    def testUrl(self, Url):
+        '''
+        Return True if Url is reachable, false otherwise.
+        '''
+        return ObsLightTools.testUrl(Url)
+
+    def testHost(self, Url):
+        '''
+        Return True if the host of the Url is reachable, false otherwise.
+        '''
+        return ObsLightTools.testHost(Url)
 
     def getVersion(self):
         return VERSION

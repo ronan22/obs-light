@@ -232,6 +232,7 @@ class ObsLightChRoot(object):
             raise ObsLightErr.ObsLightChRootError(package.getName() + " has no spec file")
         else:
             packageName = package.getName()
+
             command = []
             command.append("zypper --non-interactive si --build-deps-only " + packageName)
             command.append("zypper --non-interactive si " + "--repo " + repo + " " + packageName)
@@ -359,7 +360,6 @@ class ObsLightChRoot(object):
         command = shlex.split(str(command))
         subprocess.call(command)
 
-
     def initGitWatch(self, path=None):
         '''
         Initialize a Git repository in the specified path, and 'git add' everything.
@@ -372,7 +372,6 @@ class ObsLightChRoot(object):
         command.append("git --work-tree=" + path + " --git-dir=" + path + "/.git add " + path + "/\*")
         command.append("git --git-dir=" + path + "/.git commit -m \"first commit\"")
         self.execCommand(command=command)
-
 
     def makePatch(self, package=None, patch=None):
         '''
@@ -389,7 +388,6 @@ class ObsLightChRoot(object):
         package.addPatch(aFile=patch)
         self.__getAddRemoveFiles(package=package)
         package.save()
-
 
     def __getAddRemoveFiles(self, package=None):
         '''
@@ -468,7 +466,6 @@ class ObsLightChRoot(object):
             # Force zypper and rpm to use armv7hl architecture
             command.append("echo 'arch = armv7hl' >> /etc/zypp/zypp.conf")
             command.append("echo -n 'armv7hl-meego-linux' > /etc/rpm/platform")
-
 
         command.append("rpm --initdb")
         command.append("rpm --rebuilddb")
