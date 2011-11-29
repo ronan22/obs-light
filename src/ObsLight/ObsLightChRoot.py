@@ -236,7 +236,11 @@ class ObsLightChRoot(object):
             command = []
             command.append("zypper --non-interactive si --build-deps-only " + packageName)
             command.append("zypper --non-interactive si " + "--repo " + repo + " " + packageName)
-            self.execCommand(command=command)
+            res = self.execCommand(command=command)
+
+            if res != 0:
+                raise ObsLightErr.ObsLightChRootError(packageName + " thr zypper Script fail")
+
             if os.path.isdir(self.getDirectory() + "/" + self.__chrootrpmbuildDirectory + "/SPECS/"):
                 aspecFile = self.__chrootrpmbuildDirectory + "/SPECS/" + specFile
                 self.buildPrepRpm(specFile=aspecFile)
@@ -277,7 +281,7 @@ class ObsLightChRoot(object):
         if platform.machine() == 'x86_64':
             aCommand = "linux32 " + aCommand
 
-        self.__subprocess(command=aCommand, waitMess=True)
+        return self.__subprocess(command=aCommand, waitMess=True)
 
 
     def addRepo(self, repos=None, alias=None):

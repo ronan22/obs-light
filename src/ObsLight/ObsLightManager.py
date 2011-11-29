@@ -447,6 +447,7 @@ class ObsLightManager(object):
         self.__myObsLightProjects.save()
 
     #def getPackageStatus(self, obsServer, project, package, target, arch):
+    @checkProjectLocalName(1)
     def getPackageStatus(self, project, package):
         '''
         Return the status of package on the OBS server.
@@ -458,6 +459,18 @@ class ObsLightManager(object):
 
         return self.__myObsLightProjects.getPackageStatus(project=project,
                                                     package=package)
+    @checkProjectLocalName(1)
+    def getOscPackageStatus(self, project, package):
+        '''
+        Return the status of osc in the package directory.
+        '''
+        if not isNonEmptyString(project):
+            raise ObsLightObsServers(" invalid project: " + str(project))
+        elif not isNonEmptyString(package):
+            raise ObsLightObsServers(" invalid package: " + str(package))
+
+        return self.__myObsLightProjects.getOscPackageStatus(project=project,
+                                                             package=package)
 
     @checkProjectLocalName(1)
     def getPackageDirectory(self, projectLocalName, packageName):

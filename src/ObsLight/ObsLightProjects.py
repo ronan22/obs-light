@@ -416,3 +416,11 @@ class ObsLightProjects(object):
         '''
         self.__dicOBSLightProjects[projectLocalName].modifyRepo(repoAlias, newUrl, newAlias)
 
+    def getOscPackageStatus(self, project, package):
+        '''
+        
+        '''
+        self.__dicOBSLightProjects[project].getOscPackageStatus(package)
+
+
+

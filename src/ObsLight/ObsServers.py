@@ -252,10 +252,22 @@ class ObsServers(object):
         '''
         
         '''
-
-
         if obsServer in self.getObsServerList():
             return self.__dicOBSLightServers[obsServer].testServer()
         else:
             return ObsLightTools.testHost(obsServer)
+
+    def getObsProjectPackageList(self, obsServer, projectObsName):
+        """
+        
+        """
+        return self.__dicOBSLightServers[obsServer].getObsProjectPackageList()
+
+
+
+
+
+
+
+
 

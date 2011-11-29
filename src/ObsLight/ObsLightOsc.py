@@ -32,6 +32,9 @@ import ObsLightPrintManager
 EMPTYPROJECTPATH = os.path.join(os.path.dirname(__file__), "emptySpec")
 
 import urllib2
+import M2Crypto
+
+TIMEOUT = 1
 
 class ObsLightOsc(object):
     '''
@@ -201,10 +204,14 @@ class ObsLightOsc(object):
         url = self.__cleanUrl(str(apiurl + "/source/" + projet + "/_meta"))
 
         try:
-            res = core.http_request("GET", url)
+            res = core.http_request("GET", url, timeout=TIMEOUT)
         except urllib2.URLError:
             ObsLightPrintManager.obsLightPrint("apiurl " + str(apiurl) + " is not reachable")
             return None
+        except M2Crypto.SSL.SSLError:
+            ObsLightPrintManager.obsLightPrint("apiurl " + str(apiurl) + " Connection reset by peer")
+            return None
+
         aElement = ElementTree.fromstring(res.read())
 
         result = []
@@ -224,6 +231,33 @@ class ObsLightOsc(object):
         '''
         list_package = core.meta_get_packagelist(str(obsServer), str(projectLocalName))
         return list_package
+
+    def getFilesListPackage(self,
+                            apiurl=None,
+                            projectObsName=None,
+                            package=None):
+        '''
+        
+        '''
+        url = self.__cleanUrl(str(apiurl + "/source/" + projet + "/" + package))
+        try:
+            res = core.http_request("GET", url)
+        except urllib2.URLError:
+            ObsLightPrintManager.obsLightPrint("apiurl " + str(apiurl) + " is not reachable")
+            return None
+
+        aElement = ElementTree.fromstring(res.read())
+
+        result = {}
+        for path in aElement:
+            if (path.tag == "entry"):
+                file = {}
+                file["name"] = path.get("name")
+                file["md5"] = path.get("md5")
+                file["size"] = path.get("size")
+                file["mtime"] = path.get("mtime")
+                result[file["name"]] = file
+        return result
 
     def checkoutPackage(self,
                         obsServer=None,
@@ -296,7 +330,7 @@ class ObsLightOsc(object):
 
 
         try:
-            res = core.http_request("GET", url)
+            res = core.http_request("GET", url, timeout=TIMEOUT)
         except urllib2.URLError:
             ObsLightPrintManager.obsLightPrint("apiurl " + str(obsServer) + " is not reachable")
             return None
@@ -353,7 +387,7 @@ class ObsLightOsc(object):
         return the list of the repos of a OBS Server.
         '''
         url = self.__cleanUrl(str(apiurl + "/distributions"))
-        aElement = ElementTree.fromstring(core.http_request("GET", url).read())
+        aElement = ElementTree.fromstring(core.http_request("GET", url, timeout=TIMEOUT).read())
 
         result = []
         for repos in aElement:
@@ -391,7 +425,7 @@ class ObsLightOsc(object):
         url = self.__cleanUrl(str(obsServer + "/build/" + projectObsName))
 
         try:
-            res = core.http_request("GET", url)
+            res = core.http_request("GET", url, timeout=TIMEOUT)
         except Exception, e:
             ObsLightPrintManager.getLogger().debug("Errot on: " + url)
             raise e
@@ -411,7 +445,7 @@ class ObsLightOsc(object):
         '''
         url = self.__cleanUrl(str(obsServer + "/build/" + projectObsName + "/" + projectTarget))
 
-        aElement = ElementTree.fromstring(core.http_request("GET", url).read())
+        aElement = ElementTree.fromstring(core.http_request("GET", url, timeout=TIMEOUT).read())
         res = []
         for directory in aElement:
             for entry in directory.getiterator():
@@ -466,7 +500,7 @@ class ObsLightOsc(object):
         conf.get_config()
         url = self.__cleanUrl(str(apiurl + "/source/" + projectObsName + "/_meta"))
 
-        aElement = ElementTree.fromstring(core.http_request("GET", url).read())
+        aElement = ElementTree.fromstring(core.http_request("GET", url, timeout=TIMEOUT).read())
         for desc in aElement:
             if parameter == desc.tag:
                 return desc.text
@@ -481,13 +515,13 @@ class ObsLightOsc(object):
         conf.get_config()
         url = self.__cleanUrl(str(apiurl + "/source/" + projectObsName + "/_meta"))
 
-        aElement = ElementTree.fromstring(core.http_request("GET", url).read())
+        aElement = ElementTree.fromstring(core.http_request("GET", url, timeout=TIMEOUT).read())
 
         for desc in aElement:
             if desc.tag == parameter:
                 desc.text = value
 
-        core.http_request("PUT", url, data=ElementTree.tostring(aElement))
+        core.http_request("PUT", url, data=ElementTree.tostring(aElement), timeout=TIMEOUT)
 
     def getPackageParameter(self, projectObsName, package, apiurl, parameter):
         '''
@@ -499,7 +533,7 @@ class ObsLightOsc(object):
         conf.get_config()
         url = self.__cleanUrl(str(apiurl + "/source/" + projectObsName + "/" + package + "/_meta"))
 
-        aElement = ElementTree.fromstring(core.http_request("GET", url).read())
+        aElement = ElementTree.fromstring(core.http_request("GET", url, timeout=TIMEOUT).read())
         for desc in aElement:
             if parameter == desc.tag:
                 return desc.text
@@ -519,13 +553,13 @@ class ObsLightOsc(object):
         conf.get_config()
         url = self.__cleanUrl(str(apiurl + "/source/" + projectObsName + "/" + package + "/_meta"))
 
-        aElement = ElementTree.fromstring(core.http_request("GET", url).read())
+        aElement = ElementTree.fromstring(core.http_request("GET", url, timeout=TIMEOUT).read())
 
         for desc in aElement:
             if desc.tag == parameter:
                 desc.text = value
 
-        core.http_request("PUT", url, data=ElementTree.tostring(aElement))
+        core.http_request("PUT", url, data=ElementTree.tostring(aElement), timeout=TIMEOUT)
 
 __myObsLightOsc = ObsLightOsc()
 
@@ -537,12 +571,10 @@ def getObsLightOsc():
 
 
 if __name__ == '__main__':
-    projet = "home:ronan:OBS_Light:testObsLight_kernel"
-    repos = "Ubuntu_11.10"
-    apiurl = "https://api.pub.meego.com"
-    conf.get_config()
-    url = str(apiurl + "/source/" + projet + "/_meta")
-    print "url: ", url
-    res = core.http_request("GET", url)
-    print "res", res
+    projet = "MeeGo:1.2.0:oss"
+    package = "kernel"
+    apiurl = "http://128.224.218.244:81"
+    print getObsLightOsc().getFilesListPackage(apiurl=apiurl,
+                                               projectObsName=projet,
+                                               package=package)
 

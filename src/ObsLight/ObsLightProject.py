@@ -124,6 +124,8 @@ class ObsLightProject(object):
         if not os.path.isdir(self.getDirectory()):
             os.makedirs(self.getDirectory())
 
+        for pk in self.getListPackage(local=1):
+            print pk, self.getOscPackageStatus(pk)
 
     def getDirectory(self):
         '''
@@ -339,8 +341,8 @@ class ObsLightProject(object):
         '''
         if local == 0:
             if self.__obsServer in self.__obsServers.getObsServerList():
-                return self.__obsServers.getObsProjectPackageList(obsServer=self.__obsServer,
-                                                                  projectObsName=self.__projectObsName)
+                return self.__obsServers.getObsServer(self.__obsServer).getObsProjectPackageList(obsServer=self.__obsServer,
+                                                                                                 projectObsName=self.__projectObsName)
             else:
                 return  None
         else:
@@ -435,15 +437,12 @@ class ObsLightProject(object):
                                                     package=name,
                                                     repo=self.__projectTarget,
                                                     arch=self.__projectArchitecture)
-
         packageTitle = self.__obsServers.getPackageTitle(obsServer=self.__obsServer,
                                                          projectObsName=self.__projectObsName,
                                                          package=name)
-
         description = self.__obsServers.getPackageDescription(obsServer=self.__obsServer,
                                                               projectObsName=self.__projectObsName,
                                                               package=name)
-
         self.__packages.addPackage(name=name,
                                    packagePath=packagePath,
                                    description=description,
@@ -452,6 +451,23 @@ class ObsLightProject(object):
                                    yamlFile=yamlFile,
                                    listFile=listFile,
                                    status=status)
+
+        self.checkOscDirectoryStatus(package=name)
+
+    def checkOscDirectoryStatus(self, package):
+        '''
+        
+        '''
+        dicoListFile = self.__obsServers.getObsServer(self.__obsServer).getFilesListPackage(projectObsName=self.__projectObsName,
+                                                                                            package=package)
+
+        listOscFile = self.__packages.getPackage(package).getPackageParameter(parameter="listFile")
+        for obsFile in dicoListFile.keys():
+            if not obsFile in listOscFile:
+                self.__packages.getPackage(package).setOscStatus("inconsistent state")
+                return None
+        self.__packages.getPackage(package).setOscStatus("Succeeded")
+        return None
 
     def updatePackage(self, name=None):
         '''
@@ -669,4 +685,10 @@ class ObsLightProject(object):
         
         '''
         self.__chroot.modifyRepo(repoAlias, newUrl, newAlias)
+
+    def getOscPackageStatus(self, package):
+        '''
+        
+        '''
+        return self.__packages.getPackage(package).getPackageParameter(parameter="oscStatus")
 

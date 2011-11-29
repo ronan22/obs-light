@@ -114,6 +114,25 @@ class ObsServer(object):
             self.__isReachable = self.testServer()
         return self.__isReachable
 
+    def getObsProjectPackageList(self,
+                                 obsServer,
+                                 projectObsName):
+        '''
+        
+        '''
+        return ObsLightOsc.getObsLightOsc().getListPackage(obsServer=self.__serverAPI,
+                                                           projectLocalName=projectObsName)
+
+    def getFilesListPackage(self,
+                            projectObsName,
+                            package):
+        '''
+         
+        '''
+        return ObsLightOsc.getObsLightOsc().getFilesListPackage(apiurl=self.__serverAPI,
+                                                                projectObsName=projectObsName,
+                                                                package=package)
+
     def getObsServerParameter(self, parameter=None):
         '''
         return the value of the parameter "parameter"
