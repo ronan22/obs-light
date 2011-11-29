@@ -869,6 +869,13 @@ class ObsLightManager(object):
         '''
         return self.__myObsLightProjects.refreshOscDirectoryStatus(projectLocalName)
 
+    @checkProjectLocalName(1)
+    def refreshObsStatus(self, projectLocalName):
+        '''
+        
+        '''
+        return self.__myObsLightProjects.refreshObsStatus(projectLocalName=projectLocalName)
+
 __myObsLightManager = None
 
 def getManager():

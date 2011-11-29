@@ -428,3 +428,10 @@ class ObsLightProjects(object):
         '''
         return self.__dicOBSLightProjects[projectLocalName].refreshOscDirectoryStatus()
 
+    def refreshObsStatus(self, projectLocalName):
+        '''
+        
+        '''
+        return self.__dicOBSLightProjects[projectLocalName].refreshObsStatus()
+
+

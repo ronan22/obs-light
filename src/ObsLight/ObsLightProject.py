@@ -458,6 +458,22 @@ class ObsLightProject(object):
         for pk in self.getListPackage(local=1):
             self.checkOscDirectoryStatus(pk)
 
+    def refreshObsStatus(self):
+        '''
+        
+        '''
+        for pk in self.getListPackage(local=1):
+            status = self.__obsServers.getPackageStatus(obsServer=self.__obsServer,
+                                                    project=self.__projectObsName,
+                                                    package=pk,
+                                                    repo=self.__projectTarget,
+                                                    arch=self.__projectArchitecture)
+
+            self.__packages.setPackageParameter(package=pk,
+                                                parameter="status",
+                                                value=status)
+
+
     def checkOscDirectoryStatus(self, package):
         '''
         
