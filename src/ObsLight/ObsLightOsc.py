@@ -239,7 +239,7 @@ class ObsLightOsc(object):
         '''
         
         '''
-        url = self.__cleanUrl(str(apiurl + "/source/" + projet + "/" + package))
+        url = self.__cleanUrl(str(apiurl + "/source/" + projectObsName + "/" + package))
         try:
             res = core.http_request("GET", url)
         except urllib2.URLError:
