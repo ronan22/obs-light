@@ -479,7 +479,7 @@ class ObsLightChRoot(object):
         '''
         if repoAlias in self.__dicoRepos.keys():
             command = []
-            command.append("zypper ar " + repoAlias)
+            command.append("zypper rr " + repoAlias)
             command.append("zypper --no-gpg-checks --gpg-auto-import-keys ref")
             self.execCommand(command=command)
             del self.__dicoRepos[repoAlias]
