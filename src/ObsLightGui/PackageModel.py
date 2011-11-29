@@ -30,9 +30,10 @@ class PackageModel(QAbstractTableModel):
     '''
 
     PackageNameColumn = 0
-    PackageServerStatusColumn = 1
-    PackageChrootStatusColumn = 2
-    PackageOscStatusColumn = 3
+    PackageOscStatusColumn = 1
+    PackageServerStatusColumn = 2
+    PackageChrootStatusColumn = 3
+
     StatusOnServerColors = {}
     StatusInChRootColors = {}
     StatusInOscColors = {}
@@ -53,6 +54,9 @@ class PackageModel(QAbstractTableModel):
         self.StatusOnServerColors["failed"] = QColor("red")
         self.StatusOnServerColors["unresolvable"] = QColor("darkred")
         self.StatusInChRootColors["Installed"] = QColor("green")
+        self.StatusInOscColors["Unknown"] = QColor("grey")
+        self.StatusInOscColors["Succeeded"] = QColor("green")
+        self.StatusInOscColors["inconsistent state"] = QColor("red")
 
     def getProject(self):
         return self.__project
