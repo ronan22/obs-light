@@ -102,7 +102,10 @@ class ProgressRunnable(QRunnable, QObject):
 class ProgressRunnable2(QRunnable, QObject):
     '''
     QRunnable implementation which can update a QProgressDialog, and
-    send exceptions to a callback. You must implement the run() method.
+    send exceptions to a callback. You must implement the run() method,
+    or call setRunMethod() with a method to run as first parameter.
+    If you implement run() yourself, don't forget to call hasFinished()
+    at the end.
     '''
     __progressDialog = None
     __isFinite = False
@@ -131,22 +134,27 @@ class ProgressRunnable2(QRunnable, QObject):
         (if there is one) 'canceled' signal.
         '''
         self.__askedToCancel = True
+        self.setDialogMessage("Canceled. Waiting for current task to finish...")
 
     def setProgressDialog(self, dialog):
         '''
         Set the QProgressDialog (or QProgressBar) to update when calling
         hasProgressed() and hasFinished(). You can pass None.
         '''
+        # If there was a previous progress dialog, disconnect it.
         if (self.__progressDialog is not None and
             isinstance(self.__progressDialog, QProgressDialog)):
             try:
-                self.__progressDialog.canceled.connect(self.cancel)
+                self.__progressDialog.canceled.disconnect(self.cancel)
             finally:
                 pass
         self.__progressDialog = dialog
         if self.__progressDialog is not None:
             self.__isFinite = self.__progressDialog.minimum() < self.__progressDialog.maximum()
             if isinstance(self.__progressDialog, QProgressDialog):
+                # Disconnect its canceled signal from its cancel method
+                # so it won't close before cancellation is effective.
+                self.__progressDialog.canceled.disconnect(self.__progressDialog.cancel)
                 self.__progressDialog.canceled.connect(self.cancel)
 
     def getProgressDialog(self):
