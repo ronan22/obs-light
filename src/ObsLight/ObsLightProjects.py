@@ -420,7 +420,7 @@ class ObsLightProjects(object):
         '''
         
         '''
-        self.__dicOBSLightProjects[project].getOscPackageStatus(package)
+        return self.__dicOBSLightProjects[project].getOscPackageStatus(package)
 
 
 
