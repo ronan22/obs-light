@@ -134,9 +134,15 @@ class RepoConfigManager(QObject):
         return self.__urlLineEdit.text()
 
     def on_checkButton_clicked(self):
-        result = self.__obsLightManager.testServer(self.getRepoUrl())
         effect = QGraphicsColorizeEffect(self.__urlLineEdit)
-        effect.setColor(QColor("green" if result else "red"))
+        result = self.__obsLightManager.testUrl(self.getRepoUrl())
+        if result:
+            effect.setColor(QColor("green"))
+        else:
+            if self.__obsLightManager.testHost(self.getRepoUrl()):
+                effect.setColor(QColor("orange"))
+            else:
+                effect.setColor(QColor("red"))
         self.__urlLineEdit.setGraphicsEffect(effect)
 
         alias = self.getRepoAlias()
