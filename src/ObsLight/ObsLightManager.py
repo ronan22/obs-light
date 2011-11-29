@@ -867,14 +867,18 @@ class ObsLightManager(object):
         '''
         Refresh the osc status of a package.
         '''
-        return self.__myObsLightProjects.refreshOscDirectoryStatus(projectLocalName)
+        res = self.__myObsLightProjects.refreshOscDirectoryStatus(projectLocalName)
+        self.__myObsLightProjects.save()
+        return res
 
     @checkProjectLocalName(1)
     def refreshObsStatus(self, projectLocalName):
         '''
         
         '''
-        return self.__myObsLightProjects.refreshObsStatus(projectLocalName=projectLocalName)
+        res = self.__myObsLightProjects.refreshObsStatus(projectLocalName=projectLocalName)
+        self.__myObsLightProjects.save()
+        return res
 
 __myObsLightManager = None
 
