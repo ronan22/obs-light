@@ -146,7 +146,7 @@ class ProgressRunnable2(QRunnable, QObject):
             isinstance(self.__progressDialog, QProgressDialog)):
             try:
                 self.__progressDialog.canceled.disconnect(self.cancel)
-            finally:
+            except BaseException:
                 pass
         self.__progressDialog = dialog
         if self.__progressDialog is not None:
@@ -154,7 +154,10 @@ class ProgressRunnable2(QRunnable, QObject):
             if isinstance(self.__progressDialog, QProgressDialog):
                 # Disconnect its canceled signal from its cancel method
                 # so it won't close before cancellation is effective.
-                self.__progressDialog.canceled.disconnect(self.__progressDialog.cancel)
+                try:
+                    self.__progressDialog.canceled.disconnect(self.__progressDialog.cancel)
+                except BaseException:
+                    pass
                 self.__progressDialog.canceled.connect(self.cancel)
 
     def getProgressDialog(self):
@@ -214,7 +217,7 @@ class ProgressRunnable2(QRunnable, QObject):
             if isinstance(self.__progressDialog, QProgressDialog):
                 try:
                     self.__progressDialog.canceled.disconnect(self.cancel)
-                finally:
+                except BaseException:
                     pass
             self.__finished.connect(self.__progressDialog.reset)
             self.__finished.emit()
