@@ -857,7 +857,17 @@ class ObsLightManager(object):
         return ObsLightTools.testHost(Url)
 
     def getVersion(self):
+        '''
+        Return the version of obslight
+        '''
         return VERSION
+
+    @checkProjectLocalName(1)
+    def refreshOscDirectoryStatus(self, projectLocalName):
+        '''
+        Refresh the osc status of a package.
+        '''
+        return self.__myObsLightProjects.refreshOscDirectoryStatus(projectLocalName)
 
 __myObsLightManager = None
 

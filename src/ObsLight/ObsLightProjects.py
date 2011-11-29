@@ -422,5 +422,9 @@ class ObsLightProjects(object):
         '''
         return self.__dicOBSLightProjects[project].getOscPackageStatus(package)
 
-
+    def refreshOscDirectoryStatus(self, projectLocalName):
+        '''
+        
+        '''
+        return self.__dicOBSLightProjects[projectLocalName].refreshOscDirectoryStatus()
 

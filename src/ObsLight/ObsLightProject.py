@@ -124,8 +124,6 @@ class ObsLightProject(object):
         if not os.path.isdir(self.getDirectory()):
             os.makedirs(self.getDirectory())
 
-        for pk in self.getListPackage(local=1):
-            print pk, self.getOscPackageStatus(pk)
 
     def getDirectory(self):
         '''
@@ -451,8 +449,14 @@ class ObsLightProject(object):
                                    yamlFile=yamlFile,
                                    listFile=listFile,
                                    status=status)
-
         self.checkOscDirectoryStatus(package=name)
+
+    def refreshOscDirectoryStatus(self):
+        '''
+        
+        '''
+        for pk in self.getListPackage(local=1):
+            self.checkOscDirectoryStatus(pk)
 
     def checkOscDirectoryStatus(self, package):
         '''
@@ -526,7 +530,6 @@ class ObsLightProject(object):
                                                         package=name,
                                                         repo=self.__projectTarget,
                                                         arch=self.__projectArchitecture)
-
             self.__packages.updatePackage(name=name, status=status)
 
     def getChRootPath(self):
@@ -688,7 +691,7 @@ class ObsLightProject(object):
 
     def getOscPackageStatus(self, package):
         '''
-        
+          
         '''
         return self.__packages.getPackage(package).getPackageParameter(parameter="oscStatus")
 
