@@ -32,8 +32,10 @@ class PackageModel(QAbstractTableModel):
     PackageNameColumn = 0
     PackageServerStatusColumn = 1
     PackageChrootStatusColumn = 2
+    PackageOscStatusColumn = 3
     StatusOnServerColors = {}
     StatusInChRootColors = {}
+    StatusInOscColors = {}
 
     __obsLightManager = None
     __project = None
@@ -43,9 +45,11 @@ class PackageModel(QAbstractTableModel):
         QAbstractTableModel.__init__(self)
         self.__obsLightManager = obsLightManager
         self.__project = projectName
+        # http://www.w3.org/TR/SVG/types.html#ColorKeywords
         self.StatusOnServerColors["succeeded"] = QColor("green")
         self.StatusOnServerColors["excluded"] = QColor("grey")
         self.StatusOnServerColors["broken"] = QColor("red")
+        self.StatusOnServerColors["building"] = QColor("gold")
         self.StatusOnServerColors["failed"] = QColor("red")
         self.StatusOnServerColors["unresolvable"] = QColor("darkred")
         self.StatusInChRootColors["Installed"] = QColor("green")
@@ -67,7 +71,7 @@ class PackageModel(QAbstractTableModel):
         return len(self.__getPackageList())
 
     def columnCount(self, _parent=None):
-        return 3
+        return 4
 
     def headerData(self, section, orientation, role):
         if role == Qt.DisplayRole:
@@ -80,6 +84,8 @@ class PackageModel(QAbstractTableModel):
                     return u"Status on server"
                 elif section == self.PackageChrootStatusColumn:
                     return u"Status in chroot"
+                elif section == self.PackageOscStatusColumn:
+                    return u"Status in local directory"
                 else:
                     return None
 
@@ -104,6 +110,13 @@ class PackageModel(QAbstractTableModel):
                     return status
                 elif role == Qt.ForegroundRole:
                     return self.StatusInChRootColors.get(status, None)
+            elif index.column() == self.PackageOscStatusColumn:
+                status = self.__obsLightManager.getOscPackageStatus(self.__project,
+                                                                    packageName)
+                if role == Qt.DisplayRole:
+                    return status
+                elif role == Qt.ForegroundRole:
+                    return self.StatusInOscColors.get(status, None)
         return None
 
     def sort(self, Ncol, order):
