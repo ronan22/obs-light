@@ -73,7 +73,6 @@ class RepoConfigManager(QObject):
 
     def importFromProject(self):
         projects = self.__obsLightManager.getLocalProjectList()
-        projects.remove(self.__projectAlias)
         selectedProject, accepted = QInputDialog.getItem(self.__gui.getMainWindow(),
                                                          "Select project",
                                                          "Project to import repository from:",
@@ -141,10 +140,11 @@ class RepoConfigManager(QObject):
         self.__urlLineEdit.setGraphicsEffect(effect)
 
         alias = self.getRepoAlias()
+        currentRepos = self.__obsLightManager.getChRootRepositories(self.__projectAlias)
         result2 = True
         if (alias is None or
                 len(alias) < 1 or
-                alias in self.__obsLightManager.getChRootRepositories(self.__projectAlias)):
+                (alias in currentRepos and alias != self.__oldRepoAlias)):
             result2 = False
         effect2 = QGraphicsColorizeEffect(self.__aliasLineEdit)
         effect2.setColor(QColor("green" if result2 else "red"))
