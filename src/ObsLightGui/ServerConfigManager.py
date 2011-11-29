@@ -173,34 +173,59 @@ class ServerConfigManager(QObject):
 
     @popupOnException
     def on_checkConnectionButton_clicked(self):
-        obsLightManager = self.__gui.getObsLightManager()
+        def testAndColorizeUrl(url, widget, user=None, password=None):
+            obsLightManager = self.__gui.getObsLightManager()
+            color = u"pink"
+            isOk = False
+            try:
+                if not isNonEmptyString(url):
+                    color = u"red"
+                elif obsLightManager.testUrl(url):
+                    isOk = True
+                    color = u"green"
+                elif obsLightManager.testHost(url):
+                    # Should not be OK, but at the moment we can't pass
+                    # user and password so we may fall in this case
+                    # whereas everything is fine.
+                    isOk = True
+                    color = u"green"
+                    #color = u"orange"
+                else:
+                    color = u"red"
+            except BaseException as e:
+                print e
+            effect = QGraphicsColorizeEffect(widget)
+            effect.setColor(QColor(color))
+            widget.setGraphicsEffect(effect)
+            return isOk
+
+        def testAndColorizeString(theString, widget):
+            isOk = isNonEmptyString(theString)
+            effect = QGraphicsColorizeEffect(widget)
+            effect.setColor(QColor("green" if isOk else "red"))
+            widget.setGraphicsEffect(effect)
+            return isOk
+
         web = self.getWebIfaceUrl()
         api = self.getApiUrl()
         repo = self.getRepoUrl()
-        allOk = True
 
-        effect = QGraphicsColorizeEffect(self.__webUrlLineEdit)
-        if isNonEmptyString(web) and obsLightManager.testServer(web):
-            effect.setColor(QColor(u"green"))
-        else:
-            allOk = False
-            effect.setColor(QColor(u"red"))
-        self.__webUrlLineEdit.setGraphicsEffect(effect)
 
-        effect = QGraphicsColorizeEffect(self.__apiUrlLineEdit)
-        if isNonEmptyString(api) and obsLightManager.testServer(api):
-            effect.setColor(QColor(u"green"))
-        else:
-            allOk = False
-            effect.setColor(QColor(u"red"))
-        self.__apiUrlLineEdit.setGraphicsEffect(effect)
+        allOk = testAndColorizeUrl(web, self.__webUrlLineEdit)
+        # allOk MUST be second member, otherwise testAndColorizeUrl won't be
+        # executed if the first call returns False
+        allOk = testAndColorizeUrl(api, self.__apiUrlLineEdit) and allOk
+        allOk = testAndColorizeUrl(repo, self.__repoUrlLineEdit) and allOk
+        allOk = testAndColorizeString(self.getUser(), self.__userLineEdit) and allOk
+        allOk = testAndColorizeString(self.getPass(), self.__passLineEdit) and allOk
 
-        effect = QGraphicsColorizeEffect(self.__repoUrlLineEdit)
-        if isNonEmptyString(repo) and obsLightManager.testServer(repo):
-            effect.setColor(QColor(u"green"))
+        srvList = self.__gui.getObsLightManager().getObsServerList()
+        effect = QGraphicsColorizeEffect(self.__aliasLineEdit)
+        if self.getAlias() == self.__serverAlias or self.getAlias() not in srvList:
+            effect.setColor(QColor("green"))
         else:
+            effect.setColor(QColor("red"))
             allOk = False
-            effect.setColor(QColor(u"red"))
-        self.__repoUrlLineEdit.setGraphicsEffect(effect)
+        self.__aliasLineEdit.setGraphicsEffect(effect)
 
         self.__dialogButtonBox.button(QDialogButtonBox.Ok).setEnabled(allOk)

@@ -6,7 +6,6 @@ Created on 17 nov. 2011
 
 from urlparse import urlparse
 import httplib
-import socket
 
 SOCKETTIMEOUT = 1
 
@@ -14,7 +13,7 @@ def testHost(host):
     '''
     
     '''
-    (scheme, netloc, path, params, query, fragment) = urlparse(str(host))
+    (scheme, netloc, _path, _params, _query, _fragment) = urlparse(str(host))
     if ":" in netloc:
         (host, port) = netloc.split(":")
     else:
@@ -27,15 +26,17 @@ def testHost(host):
     test = httplib.HTTPConnection(host=host, port=port, timeout=SOCKETTIMEOUT)
     try:
         test.connect()
-    except :
+    except BaseException:
         return False
+    finally:
+        test.close()
     return True
 
-def testUrl(Url):
+def testUrl(url):
     '''
     
     '''
-    (scheme, netloc, path, params, query, fragment) = urlparse(str(Url))
+    (scheme, netloc, path, _params, _query, _fragment) = urlparse(str(url))
     if ":" in netloc:
         (host, port) = netloc.split(":")
     else:
@@ -47,15 +48,14 @@ def testUrl(Url):
 
     test = httplib.HTTPConnection(host=host, port=port, timeout=SOCKETTIMEOUT)
 
-
     try:
         test.request('HEAD', path)
         response = test.getresponse()
-        test.close()
         return response.status == 200
-    except :
+    except BaseException:
         return False
-
+    finally:
+        test.close()
 
 def isNonEmptyString(theString):
     return isinstance(theString, basestring) and len(theString) > 0
