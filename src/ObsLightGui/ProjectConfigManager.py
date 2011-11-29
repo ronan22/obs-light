@@ -62,6 +62,8 @@ class ProjectConfigManager(QObject):
         self.__loadFieldObjects()
         self.__loadInitialFieldValues()
         self.__makeConnections()
+        if self.__isNewProject():
+            self.handleServerChanged()
         self.__configDialog.accepted.connect(self.on_configDialog_accepted)
         self.__configDialog.rejected.connect(self.on_configDialog_rejected)
         self.__configDialog.show()
