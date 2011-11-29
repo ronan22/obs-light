@@ -480,13 +480,15 @@ class ObsLightProject(object):
         '''
         dicoListFile = self.__obsServers.getObsServer(self.__obsServer).getFilesListPackage(projectObsName=self.__projectObsName,
                                                                                             package=package)
+        if dicoListFile != None:
+            listOscFile = self.__packages.getPackage(package).getPackageParameter(parameter="listFile")
 
-        listOscFile = self.__packages.getPackage(package).getPackageParameter(parameter="listFile")
-        for obsFile in dicoListFile.keys():
-            if not obsFile in listOscFile:
-                self.__packages.getPackage(package).setOscStatus("inconsistent state")
-                return None
-        self.__packages.getPackage(package).setOscStatus("Succeeded")
+            for obsFile in dicoListFile.keys():
+                if not obsFile in listOscFile:
+                    self.__packages.getPackage(package).setOscStatus("inconsistent state")
+                    return None
+            self.__packages.getPackage(package).setOscStatus("Succeeded")
+
         return None
 
     def updatePackage(self, name=None):

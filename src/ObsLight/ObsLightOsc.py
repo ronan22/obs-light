@@ -246,7 +246,12 @@ class ObsLightOsc(object):
             ObsLightPrintManager.obsLightPrint("apiurl " + str(apiurl) + " is not reachable")
             return None
 
-        aElement = ElementTree.fromstring(res.read())
+
+        try:
+            aElement = ElementTree.fromstring(res.read())
+        except :
+            ObsLightPrintManager.obsLightPrint("apiurl " + str(apiurl) + " for package " + package + " is not reachable")
+            return None
 
         result = {}
         for path in aElement:
@@ -561,6 +566,23 @@ class ObsLightOsc(object):
 
         core.http_request("PUT", url, data=ElementTree.tostring(aElement), timeout=TIMEOUT)
 
+    def testApi(self, api):
+        '''
+        
+        '''
+        # Create an OpenerDirector with support for Basic HTTP Authentication...
+        auth_handler = urllib2.HTTPBasicAuthHandler()
+        auth_handler.add_password(realm='test',
+                                  uri='test',
+                                  user='obsuser',
+                                  passwd='opensuse')
+
+        opener = urllib2.build_opener(auth_handler)
+        # ...and install it globally so it can be used with urlopen.
+        urllib2.install_opener(opener)
+        urllib2.urlopen(api)
+        return None
+
 __myObsLightOsc = ObsLightOsc()
 
 def getObsLightOsc():
@@ -574,7 +596,5 @@ if __name__ == '__main__':
     projet = "MeeGo:1.2.0:oss"
     package = "kernel"
     apiurl = "http://128.224.218.244:81"
-    print getObsLightOsc().getFilesListPackage(apiurl=apiurl,
-                                               projectObsName=projet,
-                                               package=package)
+    print getObsLightOsc().testApi(apiurl)
 
