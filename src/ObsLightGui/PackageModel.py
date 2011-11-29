@@ -21,6 +21,7 @@ Created on 2 nov. 2011
 '''
 
 from PySide.QtCore import QAbstractTableModel, Qt
+from PySide.QtGui import QColor
 
 class PackageModel(QAbstractTableModel):
     '''
@@ -31,6 +32,8 @@ class PackageModel(QAbstractTableModel):
     PackageNameColumn = 0
     PackageServerStatusColumn = 1
     PackageChrootStatusColumn = 2
+    StatusOnServerColors = {}
+    StatusInChRootColors = {}
 
     __obsLightManager = None
     __project = None
@@ -40,6 +43,12 @@ class PackageModel(QAbstractTableModel):
         QAbstractTableModel.__init__(self)
         self.__obsLightManager = obsLightManager
         self.__project = projectName
+        self.StatusOnServerColors["succeeded"] = QColor("green")
+        self.StatusOnServerColors["excluded"] = QColor("grey")
+        self.StatusOnServerColors["broken"] = QColor("red")
+        self.StatusOnServerColors["failed"] = QColor("red")
+        self.StatusOnServerColors["unresolvable"] = QColor("darkred")
+        self.StatusInChRootColors["Installed"] = QColor("green")
 
     def getProject(self):
         return self.__project
@@ -77,19 +86,28 @@ class PackageModel(QAbstractTableModel):
     def data(self, index, role=Qt.DisplayRole):
         if not index.isValid():
             return None
-        if role == Qt.DisplayRole:
+        if role == Qt.DisplayRole or role == Qt.ForegroundRole:
             packageName = self.__getPackageList()[index.row()]
-            if index.column() == self.PackageNameColumn:
+            if index.column() == self.PackageNameColumn and role == Qt.DisplayRole:
                 return packageName
             elif index.column() == self.PackageServerStatusColumn:
-                return self.__obsLightManager.getPackageStatus(self.__project,
-                                                               packageName)
+                status = self.__obsLightManager.getPackageStatus(self.__project,
+                                                                  packageName)
+                if role == Qt.DisplayRole:
+                    return status
+                elif role == Qt.ForegroundRole:
+                    return self.StatusOnServerColors.get(status, None)
             elif index.column() == self.PackageChrootStatusColumn:
                 status = self.__obsLightManager.getGetChRootStatus(self.__project,
                                                                    packageName)
-                return status
-        else:
-            return None
+                if role == Qt.DisplayRole:
+                    return status
+                elif role == Qt.ForegroundRole:
+                    return self.StatusInChRootColors.get(status, None)
+        return None
+
+    def sort(self, Ncol, order):
+        print "Sort data according to column ", Ncol
 
     def refresh(self):
         self.layoutChanged.emit()
