@@ -136,10 +136,20 @@ class RepoConfigManager(QObject):
 
     def on_checkButton_clicked(self):
         result = self.__obsLightManager.testServer(self.getRepoUrl())
-        self.__repoConfigButtonBox.button(QDialogButtonBox.Ok).setEnabled(result)
         effect = QGraphicsColorizeEffect(self.__urlLineEdit)
         effect.setColor(QColor("green" if result else "red"))
         self.__urlLineEdit.setGraphicsEffect(effect)
+
+        alias = self.getRepoAlias()
+        result2 = True
+        if (alias is None or
+                len(alias) < 1 or
+                alias in self.__obsLightManager.getChRootRepositories(self.__projectAlias)):
+            result2 = False
+        effect2 = QGraphicsColorizeEffect(self.__aliasLineEdit)
+        effect2.setColor(QColor("green" if result2 else "red"))
+        self.__aliasLineEdit.setGraphicsEffect(effect2)
+        self.__repoConfigButtonBox.button(QDialogButtonBox.Ok).setEnabled(result and result2)
 
     @popupOnException
     def on_configDialog_accepted(self):

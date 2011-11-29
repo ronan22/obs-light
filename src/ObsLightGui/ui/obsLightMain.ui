@@ -358,6 +358,9 @@
                 <height>80</height>
                </size>
               </property>
+              <property name="sortingEnabled">
+               <bool>true</bool>
+              </property>
               <attribute name="verticalHeaderVisible">
                <bool>false</bool>
               </attribute>
@@ -1430,26 +1433,41 @@
    </property>
   </action>
   <action name="actionImport">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Import</string>
    </property>
   </action>
   <action name="actionDelete">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Delete</string>
    </property>
   </action>
   <action name="actionMofify">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Mofify</string>
    </property>
   </action>
   <action name="actionNew">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>New</string>
    </property>
   </action>
   <action name="actionExport">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Export</string>
    </property>
@@ -1465,6 +1483,9 @@
    </property>
   </action>
   <action name="actionConfig">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Show Config</string>
    </property>
