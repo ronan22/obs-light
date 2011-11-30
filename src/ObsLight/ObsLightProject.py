@@ -456,27 +456,41 @@ class ObsLightProject(object):
                                    status=status)
         self.checkOscDirectoryStatus(package=name)
 
-    def refreshOscDirectoryStatus(self):
+    def refreshOscDirectoryStatus(self, package=None):
         '''
         
         '''
-        for pk in self.getListPackage(local=1):
-            self.checkOscDirectoryStatus(pk)
+        if package != None:
+            self.checkOscDirectoryStatus(package)
+        else:
+            for pk in self.getListPackage(local=1):
+                self.checkOscDirectoryStatus(pk)
 
-    def refreshObsStatus(self):
+    def refreshObsStatus(self, package=None):
         '''
         
         '''
-        for pk in self.getListPackage(local=1):
+        if package != None:
             status = self.__obsServers.getPackageStatus(obsServer=self.__obsServer,
-                                                    project=self.__projectObsName,
-                                                    package=pk,
-                                                    repo=self.__projectTarget,
-                                                    arch=self.__projectArchitecture)
+                                                        project=self.__projectObsName,
+                                                        package=package,
+                                                        repo=self.__projectTarget,
+                                                        arch=self.__projectArchitecture)
 
-            self.__packages.setPackageParameter(package=pk,
+            self.__packages.setPackageParameter(package=package,
                                                 parameter="status",
                                                 value=status)
+        else:
+            for pk in self.getListPackage(local=1):
+                status = self.__obsServers.getPackageStatus(obsServer=self.__obsServer,
+                                                        project=self.__projectObsName,
+                                                        package=pk,
+                                                        repo=self.__projectTarget,
+                                                        arch=self.__projectArchitecture)
+
+                self.__packages.setPackageParameter(package=pk,
+                                                    parameter="status",
+                                                    value=status)
 
 
     def checkOscDirectoryStatus(self, package):
