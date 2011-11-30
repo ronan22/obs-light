@@ -26,7 +26,7 @@ from PySide.QtGui import QLineEdit, QPushButton, QRegExpValidator
 
 from ObsLight.ObsLightTools import isNonEmptyString
 
-from Utils import popupOnException
+from Utils import popupOnException, colorizeWidget
 
 class ServerConfigManager(QObject):
     '''
@@ -173,9 +173,9 @@ class ServerConfigManager(QObject):
 
     @popupOnException
     def on_checkConnectionButton_clicked(self):
-        def testAndColorizeUrl(url, widget, user=None, password=None):
+        def testAndColorizeUrl(url, widget):
             obsLightManager = self.__gui.getObsLightManager()
-            color = u"pink"
+            color = u"red"
             isOk = False
             try:
                 if not isNonEmptyString(url):
@@ -184,48 +184,54 @@ class ServerConfigManager(QObject):
                     isOk = True
                     color = u"green"
                 elif obsLightManager.testHost(url):
-                    # Should not be OK, but at the moment we can't pass
-                    # user and password so we may fall in this case
-                    # whereas everything is fine.
-                    isOk = True
-                    color = u"green"
-                    #color = u"orange"
+                    color = u"orange"
                 else:
                     color = u"red"
-            except BaseException as e:
-                print e
-            effect = QGraphicsColorizeEffect(widget)
-            effect.setColor(QColor(color))
-            widget.setGraphicsEffect(effect)
+            finally:
+                colorizeWidget(widget, color)
             return isOk
 
         def testAndColorizeString(theString, widget):
             isOk = isNonEmptyString(theString)
-            effect = QGraphicsColorizeEffect(widget)
-            effect.setColor(QColor("green" if isOk else "red"))
-            widget.setGraphicsEffect(effect)
+            colorizeWidget(widget, "green" if isOk else "red")
             return isOk
 
         web = self.getWebIfaceUrl()
         api = self.getApiUrl()
         repo = self.getRepoUrl()
+        user = self.getUser()
+        password = self.getPass()
+        alias = self.getAlias()
 
+        userPassOk = testAndColorizeString(user, self.__userLineEdit)
+        userPassOk = testAndColorizeString(password, self.__passLineEdit) and userPassOk
 
-        allOk = testAndColorizeUrl(web, self.__webUrlLineEdit)
-        # allOk MUST be second member, otherwise testAndColorizeUrl won't be
-        # executed if the first call returns False
-        allOk = testAndColorizeUrl(api, self.__apiUrlLineEdit) and allOk
+        allOk = userPassOk
+        allOk = testAndColorizeUrl(web, self.__webUrlLineEdit) and allOk
         allOk = testAndColorizeUrl(repo, self.__repoUrlLineEdit) and allOk
-        allOk = testAndColorizeString(self.getUser(), self.__userLineEdit) and allOk
-        allOk = testAndColorizeString(self.getPass(), self.__passLineEdit) and allOk
+
+        if userPassOk:
+            apiRes = self.__gui.getObsLightManager().testApi(api, user, password)
+            if apiRes == 1:
+                colorizeWidget(self.__userLineEdit, "red")
+                colorizeWidget(self.__passLineEdit, "red")
+                allOk = False
+            elif apiRes == 2:
+                colorizeWidget(self.__apiUrlLineEdit, "red")
+                colorizeWidget(self.__userLineEdit, "orange")
+                colorizeWidget(self.__passLineEdit, "orange")
+                allOk = False
+            else:
+                colorizeWidget(self.__apiUrlLineEdit, "green")
+                colorizeWidget(self.__userLineEdit, "green")
+                colorizeWidget(self.__passLineEdit, "green")
 
         srvList = self.__gui.getObsLightManager().getObsServerList()
-        effect = QGraphicsColorizeEffect(self.__aliasLineEdit)
-        if self.getAlias() == self.__serverAlias or self.getAlias() not in srvList:
-            effect.setColor(QColor("green"))
+        if (isNonEmptyString(alias) and
+                (alias == self.__serverAlias or self.getAlias() not in srvList)):
+            colorizeWidget(self.__aliasLineEdit, "green")
         else:
-            effect.setColor(QColor("red"))
             allOk = False
-        self.__aliasLineEdit.setGraphicsEffect(effect)
+            colorizeWidget(self.__aliasLineEdit, "red")
 
         self.__dialogButtonBox.button(QDialogButtonBox.Ok).setEnabled(allOk)
