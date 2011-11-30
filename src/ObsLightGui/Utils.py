@@ -24,6 +24,7 @@ from PySide.QtCore import QObject, QRunnable, QThreadPool, Qt, Signal
 from PySide.QtGui import QMessageBox, QProgressDialog
 
 from ObsLight import ObsLightErr
+from ObsLight.ObsLightTools import isNonEmptyString
 
 class QRunnableImpl(QRunnable):
     '''
@@ -119,13 +120,17 @@ class ProgressRunnable2(QRunnable, QObject):
     finished = Signal((), (object,))
     caughtException = Signal(BaseException)
 
-    def __init__(self):
+    def __init__(self, progressDialog=None):
         '''
         Initialize the ProgressRunnable. Don't forget to call
         ProgressRunnable.__init__(self) when you override.
+        It is possible to pass a QProgressDialog as parameter
+        (equivalent to call setProgressDialog() after instantiation.
         '''
         QRunnable.__init__(self)
         QObject.__init__(self)
+        if progressDialog is not None:
+            self.setProgressDialog(progressDialog)
 
     def cancel(self):
         '''
@@ -268,6 +273,38 @@ class ProgressRunnable2(QRunnable, QObject):
                     self.hasCaughtException(caughtException)
                 self.hasFinished(result)
         self.run = run
+
+    def setFunctionToMap(self, function, iterable, message=None, *otherArgs, **kwargs):
+        '''
+        Replace the 'run' method of this instance by one which will
+        map 'function' on every element of 'iterable'. It is possible to
+        change the progress dialog message with 'message' ("%(arg)s" is
+        replaced by an unicode representation of the current element),
+        and to pass other parameters to the function.
+        '''
+        def run():
+            results = list()
+
+            try:
+                self.setMax(len(iterable))
+                self.hasStarted()
+                for arg in iterable:
+                    caughtException = None
+                    try:
+                        if isNonEmptyString(message):
+                            unicodeArg = unicode(arg)
+                            self.setDialogMessage(message % {"arg":unicodeArg})
+                        results.append(function(arg, *otherArgs, **kwargs))
+                    except BaseException as e:
+                        caughtException = e
+                    finally:
+                        if caughtException is not None:
+                            self.hasCaughtException(caughtException)
+                        self.hasProgressed()
+            finally:
+                self.hasFinished(results)
+        self.run = run
+
 
 def detachWithProgress(title, minDuration=500):
     '''
