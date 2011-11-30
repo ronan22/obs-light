@@ -592,6 +592,14 @@ class ObsLightOsc(object):
         except urllib2.URLError:
             return 2
 
+    def repairOscPackageDirectory(self, path):
+        '''
+        
+        '''
+        os.chdir(path)
+        command = "osc repairwc . ; rm *"
+        self.__subprocess(command=command)
+
 __myObsLightOsc = ObsLightOsc()
 
 def getObsLightOsc():

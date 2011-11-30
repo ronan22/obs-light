@@ -466,6 +466,17 @@ class ObsLightProject(object):
             for pk in self.getListPackage(local=1):
                 self.checkOscDirectoryStatus(pk)
 
+    def repairOscPackageDirectory(self, package):
+        '''
+        
+        '''
+        if package != None:
+            path = self.__getPackagePath(package)
+            ObsLightOsc.getObsLightOsc().repairOscPackageDirectory(path=path)
+            self.updatePackage(name=package)
+        else:
+            return None
+
     def refreshObsStatus(self, package=None):
         '''
         

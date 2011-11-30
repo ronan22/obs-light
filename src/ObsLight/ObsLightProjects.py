@@ -440,4 +440,10 @@ class ObsLightProjects(object):
         '''
         return self.__dicOBSLightProjects[projectLocalName].refreshObsStatus(package=package)
 
+    def repairOscPackageDirectory(self, projectLocalName, package):
+        '''
+        
+        '''
+        return self.__dicOBSLightProjects[projectLocalName].repairOscPackageDirectory(package=package)
+
 

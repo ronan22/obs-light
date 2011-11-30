@@ -896,6 +896,16 @@ class ObsLightManager(object):
         self.__myObsLightProjects.save()
         return res
 
+    @checkProjectLocalName(1)
+    def repairOscPackageDirectory(self, projectLocalName, package):
+        '''
+        
+        '''
+        res = self.__myObsLightProjects.repairOscPackageDirectory(projectLocalName=projectLocalName, package=package)
+        self.__myObsLightProjects.save()
+        return res
+
+
 __myObsLightManager = None
 
 def getManager():
