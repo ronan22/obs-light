@@ -51,6 +51,8 @@ class PackageManager(QObject):
     __updateFilesButton = None
     __makePatchButton = None
     __addAndCommitButton = None
+    __refreshObsStatusButton = None
+    __refreshOscStatusButton = None
 
     __packageSelectionDialog = None
     __packagesListWidget = None
@@ -62,40 +64,48 @@ class PackageManager(QObject):
         self.__gui = gui
         self.__obsLightManager = gui.getObsLightManager()
         self.__fileManager = FileManager(self.__gui)
-        self.__packageWidget = gui.getMainWindow().findChild(QWidget,
-                                                             u"packageWidget")
-        self.__packageTableView = gui.getMainWindow().findChild(QTableView,
-                                                                u"packageTableView")
+        mainWindow = gui.getMainWindow()
+        self.__packageWidget = mainWindow.findChild(QWidget,
+                                                    u"packageWidget")
+        self.__packageTableView = mainWindow.findChild(QTableView,
+                                                       u"packageTableView")
         self.__packageTableView.setSelectionBehavior(QTableView.SelectionBehavior.SelectRows)
         self.__packageTableView.activated.connect(self.on_packageIndex_clicked)
-        self.__importPackageButton = gui.getMainWindow().findChild(QPushButton,
-                                                                u"importPackageButton")
+        self.__importPackageButton = mainWindow.findChild(QPushButton,
+                                                          u"importPackageButton")
         self.__importPackageButton.clicked.connect(self.on_newPackageButton_clicked)
-        self.__deletePackageButton = gui.getMainWindow().findChild(QPushButton,
-                                                                   u"deletePackageButton")
+        self.__deletePackageButton = mainWindow.findChild(QPushButton,
+                                                          u"deletePackageButton")
         self.__deletePackageButton.clicked.connect(self.on_deletePackageButton_clicked)
-        self.__importPackageSourceButton = gui.getMainWindow().findChild(QPushButton,
-                                                                         "importRpmButton")
+        self.__importPackageSourceButton = mainWindow.findChild(QPushButton,
+                                                                "importRpmButton")
         self.__importPackageSourceButton.clicked.connect(self.on_importRpmButton_clicked)
-        self.__updateFilesButton = gui.getMainWindow().findChild(QPushButton,
-                                                                 "updateFilesButton")
+        self.__updateFilesButton = mainWindow.findChild(QPushButton,
+                                                        "updateFilesButton")
         self.__updateFilesButton.clicked.connect(self.on_updateFilesButton_clicked)
-        self.__makePatchButton = gui.getMainWindow().findChild(QPushButton,
-                                                               u"generatePatchButton")
+        self.__makePatchButton = mainWindow.findChild(QPushButton,
+                                                      u"generatePatchButton")
         self.__makePatchButton.clicked.connect(self.on_makePatchButton_clicked)
-        self.__addAndCommitButton = gui.getMainWindow().findChild(QPushButton,
-                                                                  u"addAndCommitButton")
+        self.__addAndCommitButton = mainWindow.findChild(QPushButton,
+                                                         u"addAndCommitButton")
         self.__addAndCommitButton.clicked.connect(self.on_addAndCommitButton_clicked)
-        self.__packageNameLabel = gui.getMainWindow().findChild(QLabel, u"packageNameLabelValue")
-        self.__packageTitleLabel = gui.getMainWindow().findChild(QLabel, u"packageTitleLabel")
-        self.__packageDescriptionLabel = gui.getMainWindow().findChild(QLabel,
-                                                                       u"packageDescriptionLabel")
+        self.__packageNameLabel = mainWindow.findChild(QLabel, u"packageNameLabelValue")
+        self.__packageTitleLabel = mainWindow.findChild(QLabel, u"packageTitleLabel")
+        self.__packageDescriptionLabel = mainWindow.findChild(QLabel,
+                                                              u"packageDescriptionLabel")
         self.__packageSelectionDialog = self.__gui.loadWindow("obsPackageSelector.ui")
         self.__packageSelectionDialog.accepted.connect(self.on_packageSelectionDialog_accepted)
         self.__packagesListWidget = self.__packageSelectionDialog.findChild(QListWidget,
                                                                             "packagesListWidget")
+        self.__refreshObsStatusButton = mainWindow.findChild(QPushButton,
+                                                             "refreshObsStatusButton")
+        self.__refreshObsStatusButton.clicked.connect(self.on_refreshObsStatusButton_clicked)
+        self.__refreshOscStatusButton = mainWindow.findChild(QPushButton,
+                                                             "refreshOscStatusButton")
+        self.__refreshOscStatusButton.clicked.connect(self.on_refreshOscStatusButton_clicked)
         #self.__packageWidget.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         #self.__packageWidget.customContextMenuRequested.connect(self.on_contextMenu_requested)
+
 
     def getCurrentProject(self):
         return self.__project
@@ -198,9 +208,8 @@ class PackageManager(QObject):
     def on_newPackageButton_clicked(self):
         if self.getCurrentProject() is None:
             return
-        runnable = ProgressRunnable2()
         progress = self.__gui.getInfiniteProgressDialog()
-        runnable.setProgressDialog(progress)
+        runnable = ProgressRunnable2(progress)
         runnable.setDialogMessage("Loading available packages list")
         runnable.setRunMethod(self.getPackageListFromServer)
         runnable.finished[object].connect(self.showPackageSelectionDialog)
@@ -208,30 +217,6 @@ class PackageManager(QObject):
         QThreadPool.globalInstance().start(runnable)
 #        packageList = self.getPackageListFromServer()
 #        self.showPackageSelectionDialog(packageList)
-
-    class __AddPackages(ProgressRunnable2):
-        packageList = None
-        model = None
-
-        def __init__(self, packageList, model, progress):
-            ProgressRunnable2.__init__(self)
-            self.packageList = packageList
-            self.model = model
-            self.setProgressDialog(progress)
-
-        def run(self):
-            self.setMax(len(self.packageList))
-            self.setDialogMessage(u"Adding packages...")
-            for package in self.packageList:
-                if self.wasAskedToCancel():
-                    break
-                try:
-                    self.model.addPackage(package)
-                except BaseException as e:
-                    self.hasCaughtException(e)
-                finally:
-                    self.hasProgressed()
-            self.hasFinished()
 
     def on_packageSelectionDialog_accepted(self):
         items = self.__packagesListWidget.selectedItems()
@@ -241,36 +226,13 @@ class PackageManager(QObject):
             packages.add(packageName)
         progress = self.__gui.getProgressDialog()
         progress.setValue(0)
-        runnable = PackageManager.__AddPackages(packages,
-                                                self.__localModel,
-                                                progress)
+        runnable = ProgressRunnable2(progress)
+        runnable.setFunctionToMap(self.__localModel.addPackage,
+                                  packages,
+                                  message=u"Adding package %(arg)s")
         runnable.caughtException.connect(self.__gui.popupErrorCallback)
         #self.__fileManager.setCurrentPackage(None, None)
         QThreadPool.globalInstance().start(runnable)
-
-    class __RemovePackages(ProgressRunnable2):
-        packageList = None
-        model = None
-
-        def __init__(self, packageList, model, progress):
-            ProgressRunnable2.__init__(self)
-            self.packageList = packageList
-            self.model = model
-            self.setProgressDialog(progress)
-
-        def run(self):
-            self.setMax(len(self.packageList))
-            self.setDialogMessage(u"Deleting packages...")
-            for package in self.packageList:
-                if self.wasAskedToCancel():
-                    break
-                try:
-                    self.model.removePackage(package)
-                except BaseException as e:
-                    self.hasCaughtException(e)
-                finally:
-                    self.hasProgressed()
-            self.hasFinished()
 
     @popupOnException
     def on_deletePackageButton_clicked(self):
@@ -281,8 +243,8 @@ class PackageManager(QObject):
         if len(packagesNames) < 1:
             return
         result = QMessageBox.question(self.__gui.getMainWindow(),
-                                      "Are you sure ?",
-                                      "Are you sure you want to remove %d packages ?"
+                                      u"Are you sure ?",
+                                      u"Are you sure you want to remove %d packages ?"
                                         % len(packagesNames),
                                       buttons=QMessageBox.Yes | QMessageBox.No,
                                       defaultButton=QMessageBox.Yes)
@@ -290,38 +252,12 @@ class PackageManager(QObject):
             return
         progress = self.__gui.getProgressDialog()
         progress.setValue(0)
-        runnable = PackageManager.__RemovePackages(packagesNames,
-                                                   self.__localModel,
-                                                   progress)
+        runnable = ProgressRunnable2(progress)
+        runnable.setDialogMessage(u"Deleting packages...")
+        runnable.setFunctionToMap(self.__localModel.removePackage, packagesNames)
         runnable.caughtException.connect(self.__gui.popupErrorCallback)
         self.__fileManager.setCurrentPackage(None, None)
         QThreadPool.globalInstance().start(runnable)
-
-    class __AddPackageSourceInChRoot(ProgressRunnable2):
-        project = None
-        packageList = None
-        manager = None
-
-        def __init__(self, project, packageList, manager, progress):
-            ProgressRunnable2.__init__(self)
-            self.project = project
-            self.packageList = packageList
-            self.manager = manager
-            self.setProgressDialog(progress)
-
-        def run(self):
-            self.setMax(len(self.packageList))
-            for package in self.packageList:
-                if self.wasAskedToCancel():
-                    break
-                try:
-                    self.setDialogMessage(u"Importing %s source in chroot" % package)
-                    self.manager.addPackageSourceInChRoot(self.project, package)
-                except BaseException as e:
-                    self.hasCaughtException(e)
-                finally:
-                    self.hasProgressed()
-            self.hasFinished()
 
     @popupOnException
     def on_importRpmButton_clicked(self):
@@ -333,10 +269,13 @@ class PackageManager(QObject):
             return
         progress = self.__gui.getProgressDialog()
         progress.setValue(0)
-        runnable = PackageManager.__AddPackageSourceInChRoot(projectName,
-                                                             packagesNames,
-                                                             self.__obsLightManager,
-                                                             progress)
+        runnable = ProgressRunnable2(progress)
+        def apsicr(pkg, prj):
+            self.__obsLightManager.addPackageSourceInChRoot(prj, pkg)
+        runnable.setFunctionToMap(apsicr,
+                                  packagesNames,
+                                  u"Importing %(arg)s source in chroot",
+                                  projectName)
         runnable.caughtException.connect(self.__gui.popupErrorCallback)
         QThreadPool.globalInstance().start(runnable)
 
@@ -347,12 +286,11 @@ class PackageManager(QObject):
         if project is None or package is None:
             return
         progress = self.__gui.getInfiniteProgressDialog()
-        progress.setLabelText(u"Updating files...")
-        runnable = ProgressRunnable2()
+        runnable = ProgressRunnable2(progress)
+        runnable.setDialogMessage(u"Updating files...")
         runnable.setRunMethod(self.__obsLightManager.updatePackage,
                               project,
                               package)
-        runnable.setProgressDialog(progress)
         runnable.caughtException.connect(self.__gui.popupErrorCallback)
         QThreadPool.globalInstance().start(runnable)
 
@@ -367,14 +305,12 @@ class PackageManager(QObject):
                                                    u"Patch name:")
         if accepted:
             progress = self.__gui.getInfiniteProgressDialog()
-            progress.setLabelText(u"Creating patch")
-            progress.show()
-            runnable = ProgressRunnable2()
+            runnable = ProgressRunnable2(progress)
+            runnable.setDialogMessage(u"Creating patch")
             runnable.setRunMethod(self.__obsLightManager.makePatch,
                                   project,
                                   package,
                                   patchName)
-            runnable.setProgressDialog(progress)
             runnable.caughtException.connect(self.__gui.popupErrorCallback)
             QThreadPool.globalInstance().start(runnable)
 
@@ -389,16 +325,20 @@ class PackageManager(QObject):
                                                  u"Commit message:")
         if accepted:
             progress = self.__gui.getInfiniteProgressDialog()
-            progress.setLabelText(u"Committing changes")
-            progress.show()
-            runnable = ProgressRunnable2()
+            runnable = ProgressRunnable2(progress)
+            runnable.setDialogMessage(u"Committing changes")
             runnable.setRunMethod(self.__obsLightManager.addAndCommitChanges,
                                   project,
                                   package,
                                   message)
-            runnable.setProgressDialog(progress)
             runnable.caughtException.connect(self.__gui.popupErrorCallback)
             QThreadPool.globalInstance().start(runnable)
+
+    def on_refreshObsStatusButton_clicked(self):
+        self.__obsLightManager.refreshObsStatus(self.getCurrentProject())
+
+    def on_refreshOscStatusButton_clicked(self):
+        self.__obsLightManager.refreshOscDirectoryStatus(self.getCurrentProject())
 
     def on_contextMenu_requested(self, point):
         self.__menu = QMenu(u"Package", self.__packageWidget)
