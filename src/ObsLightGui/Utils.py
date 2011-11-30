@@ -21,7 +21,7 @@ Created on 28 oct. 2011
 '''
 
 from PySide.QtCore import QObject, QRunnable, QThreadPool, Qt, Signal
-from PySide.QtGui import QMessageBox, QProgressDialog
+from PySide.QtGui import QColor, QGraphicsColorizeEffect, QMessageBox, QProgressDialog
 
 from ObsLight import ObsLightErr
 from ObsLight.ObsLightTools import isNonEmptyString
@@ -353,3 +353,10 @@ def popupOnException(f):
         except BaseException as e:
             exceptionToMessageBox(e)
     return catchException
+
+def colorizeWidget(widget, color):
+    effect = QGraphicsColorizeEffect(widget)
+    if not isinstance(color, QColor):
+        color = QColor(color)
+    effect.setColor(color)
+    widget.setGraphicsEffect(effect)
