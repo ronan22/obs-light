@@ -85,11 +85,11 @@ class PackageModel(QAbstractTableModel):
                 if section == self.PackageNameColumn:
                     return u"Package"
                 elif section == self.PackageServerStatusColumn:
-                    return u"Status on server"
+                    return u"OBS status"
                 elif section == self.PackageChrootStatusColumn:
-                    return u"Status in chroot"
+                    return u"Chroot status"
                 elif section == self.PackageOscStatusColumn:
-                    return u"Status in local directory"
+                    return u"OSC status"
                 else:
                     return None
 
