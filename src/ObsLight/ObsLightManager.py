@@ -864,6 +864,14 @@ class ObsLightManager(object):
         '''
         return ObsLightTools.testHost(Url)
 
+    def testApi(self, api, user, passwd):
+        '''
+        return 0 if the API,user and passwd is OK.
+        return 1 if user and passwd  are wrong.
+        return 2 if api is wrong.
+        '''
+        return ObsLightTools.testApi(api=api, user=user, passwd=passwd)
+
     def getVersion(self):
         '''
         Return the version of obslight

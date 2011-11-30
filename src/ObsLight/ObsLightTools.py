@@ -6,6 +6,7 @@ Created on 17 nov. 2011
 
 from urlparse import urlparse
 import httplib
+import ObsLightOsc
 
 SOCKETTIMEOUT = 1
 
@@ -56,6 +57,14 @@ def testUrl(url):
         return False
     finally:
         test.close()
+
+    def testApi(self, api, user, passwd):
+        '''
+        return 0 if the API,user and passwd is OK.
+        return 1 if user and passwd  are wrong.
+        return 2 if api is wrong.
+        '''
+        return ObsLightOsc.getObsLightOsc().testApi(api=api, user=user, passwd=passwd)
 
 def isNonEmptyString(theString):
     return isinstance(theString, basestring) and len(theString) > 0

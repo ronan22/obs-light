@@ -566,22 +566,31 @@ class ObsLightOsc(object):
 
         core.http_request("PUT", url, data=ElementTree.tostring(aElement), timeout=TIMEOUT)
 
-    def testApi(self, api):
+    def testApi(self, api, user, passwd):
         '''
-        
+        return 0 if the API,user and passwd is OK.
+        return 1 if user and passwd  are wrong.
+        return 2 if api is wrong.
         '''
-        # Create an OpenerDirector with support for Basic HTTP Authentication...
-        auth_handler = urllib2.HTTPBasicAuthHandler()
-        auth_handler.add_password(realm='test',
-                                  uri='test',
-                                  user='obsuser',
-                                  passwd='opensuse')
+        url = "/about"
+        auth_handler = urllib2.HTTPBasicAuthHandler(urllib2.HTTPPasswordMgrWithDefaultRealm())
+        auth_handler.add_password(realm=None,
+                                  uri=api,
+                                  user=user,
+                                  passwd=passwd)
 
         opener = urllib2.build_opener(auth_handler)
         # ...and install it globally so it can be used with urlopen.
         urllib2.install_opener(opener)
-        urllib2.urlopen(api)
-        return None
+        try:
+            if isinstance(urllib2.urlopen(api + url).read(), basestring):
+                return 0
+            else:
+                return -1
+        except urllib2.HTTPError:
+            return 1
+        except urllib2.URLError:
+            return 2
 
 __myObsLightOsc = ObsLightOsc()
 
@@ -591,10 +600,14 @@ def getObsLightOsc():
     '''
     return __myObsLightOsc
 
-
 if __name__ == '__main__':
     projet = "MeeGo:1.2.0:oss"
     package = "kernel"
     apiurl = "http://128.224.218.244:81"
-    print getObsLightOsc().testApi(apiurl)
+    apiurl = "https://api.pub.meego.com"
+    user = 'ronan'
+    passwd = 'guirec#22'
 
+    print getObsLightOsc().testApi(api=apiurl,
+                                   passwd=passwd,
+                                   user=user)
