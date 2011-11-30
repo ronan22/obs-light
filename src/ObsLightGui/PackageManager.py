@@ -22,7 +22,7 @@ Created on 2 nov. 2011
 
 from PySide.QtCore import QObject, QThreadPool
 from PySide.QtGui import QLabel, QInputDialog, QPushButton, QTableView, QWidget
-from PySide.QtGui import QListWidget, QMenu, QMessageBox
+from PySide.QtGui import QListWidget, QMessageBox
 
 from PackageModel import PackageModel
 from ObsLightGui.FileManager import FileManager
@@ -107,9 +107,6 @@ class PackageManager(QObject):
         self.__refreshOscStatusButton = mainWindow.findChild(QPushButton,
                                                              "refreshOscStatusButton")
         self.__refreshOscStatusButton.clicked.connect(self.on_refreshOscStatusButton_clicked)
-        #self.__packageWidget.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
-        #self.__packageWidget.customContextMenuRequested.connect(self.on_contextMenu_requested)
-
 
     def getCurrentProject(self):
         return self.__project
@@ -219,8 +216,6 @@ class PackageManager(QObject):
         runnable.finished[object].connect(self.showPackageSelectionDialog)
         runnable.caughtException.connect(self.__gui.popupErrorCallback)
         QThreadPool.globalInstance().start(runnable)
-#        packageList = self.getPackageListFromServer()
-#        self.showPackageSelectionDialog(packageList)
 
     def on_packageSelectionDialog_accepted(self):
         items = self.__packagesListWidget.selectedItems()
@@ -351,16 +346,27 @@ class PackageManager(QObject):
             runnable.caughtException.connect(self.__gui.popupErrorCallback)
             QThreadPool.globalInstance().start(runnable)
 
+    @popupOnException
+    def __refreshStatus(self, method):
+        selectedPackages = self.selectedPackages()
+        runnable = ProgressRunnable2()
+        if len(selectedPackages) == 0:
+            progress = self.__gui.getInfiniteProgressDialog()
+            runnable.setProgressDialog(progress)
+            runnable.setRunMethod(method,
+                                  self.getCurrentProject())
+        else:
+            progress = self.__gui.getProgressDialog()
+            runnable.setProgressDialog(progress)
+            def swapArgs(pkg, prj):
+                return method(prj, pkg)
+            runnable.setFunctionToMap(swapArgs, selectedPackages, None, self.getCurrentProject())
+        runnable.setDialogMessage("Refreshing packages OBS status")
+        runnable.caughtException.connect(self.__gui.popupErrorCallback)
+        QThreadPool.globalInstance().start(runnable)
+
     def on_refreshObsStatusButton_clicked(self):
-        self.__obsLightManager.refreshObsStatus(self.getCurrentProject())
+        self.__refreshStatus(self.__obsLightManager.refreshObsStatus)
 
     def on_refreshOscStatusButton_clicked(self):
-        self.__obsLightManager.refreshOscDirectoryStatus(self.getCurrentProject())
-
-    def on_contextMenu_requested(self, point):
-        self.__menu = QMenu(u"Package", self.__packageWidget)
-        self.__menu.addAction(u"toto")
-        self.__menu.addSeparator()
-        self.__menu.addAction(u"tata")
-        destPoint = self.__packageWidget.mapToParent(point)
-        self.__menu.popup(destPoint)
+        self.__refreshStatus(self.__obsLightManager.refreshOscDirectoryStatus)
