@@ -158,7 +158,7 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>257</width>
+                    <width>255</width>
                     <height>134</height>
                    </rect>
                   </property>
@@ -428,7 +428,7 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>265</width>
+                    <width>270</width>
                     <height>134</height>
                    </rect>
                   </property>
@@ -599,16 +599,6 @@
                 <property name="margin">
                  <number>0</number>
                 </property>
-                <item row="8" column="2">
-                 <widget class="QPushButton" name="buildPackageButton">
-                  <property name="enabled">
-                   <bool>false</bool>
-                  </property>
-                  <property name="text">
-                   <string>Build Package</string>
-                  </property>
-                 </widget>
-                </item>
                 <item row="9" column="2">
                  <widget class="QPushButton" name="generatePatchButton">
                   <property name="toolTip">
@@ -665,19 +655,6 @@
                   </property>
                  </widget>
                 </item>
-                <item row="6" column="2">
-                 <widget class="QPushButton" name="updateFilesButton">
-                  <property name="minimumSize">
-                   <size>
-                    <width>80</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="text">
-                   <string>Update files</string>
-                  </property>
-                 </widget>
-                </item>
                 <item row="10" column="1">
                  <widget class="QPushButton" name="modifyFileButton">
                   <property name="enabled">
@@ -720,6 +697,26 @@
                    </size>
                   </property>
                  </spacer>
+                </item>
+                <item row="8" column="2">
+                 <widget class="QPushButton" name="updateFilesButton">
+                  <property name="minimumSize">
+                   <size>
+                    <width>80</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>Update files</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="6" column="2">
+                 <widget class="QPushButton" name="openTermButton">
+                  <property name="text">
+                   <string>Open terminal</string>
+                  </property>
+                 </widget>
                 </item>
                </layout>
               </widget>

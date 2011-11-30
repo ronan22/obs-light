@@ -345,7 +345,7 @@ class ProjectManager(QObject):
                 chrootPath = obslightManager.getChRootPath(project)
                 self.__chrootPathLineEdit.setText(chrootPath)
 
-                self.__newChrootButton.setText(u"Open")
+                self.__newChrootButton.setText(u"Open terminal")
             else:
                 self.__chrootPathLineEdit.setText("")
                 self.__newChrootButton.setText(u"New")

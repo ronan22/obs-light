@@ -48,6 +48,7 @@ class PackageManager(QObject):
     __importPackageButton = None
     __deletePackageButton = None
     __importPackageSourceButton = None
+    __openTermButton = None
     __updateFilesButton = None
     __makePatchButton = None
     __addAndCommitButton = None
@@ -80,6 +81,9 @@ class PackageManager(QObject):
         self.__importPackageSourceButton = mainWindow.findChild(QPushButton,
                                                                 "importRpmButton")
         self.__importPackageSourceButton.clicked.connect(self.on_importRpmButton_clicked)
+        self.__openTermButton = mainWindow.findChild(QPushButton,
+                                                     "openTermButton")
+        self.__openTermButton.clicked.connect(self.on_openTermButton_clicked)
         self.__updateFilesButton = mainWindow.findChild(QPushButton,
                                                         "updateFilesButton")
         self.__updateFilesButton.clicked.connect(self.on_updateFilesButton_clicked)
@@ -276,6 +280,19 @@ class PackageManager(QObject):
                                   packagesNames,
                                   u"Importing %(arg)s source in chroot",
                                   projectName)
+        runnable.caughtException.connect(self.__gui.popupErrorCallback)
+        QThreadPool.globalInstance().start(runnable)
+
+    @popupOnException
+    def on_openTermButton_clicked(self):
+        project = self.getCurrentProject()
+        package = self.currentPackage()
+        if project is None or package is None:
+            return
+        runnable = ProgressRunnable2()
+        runnable.setRunMethod(self.__obsLightManager.openTerminal,
+                              project,
+                              package)
         runnable.caughtException.connect(self.__gui.popupErrorCallback)
         QThreadPool.globalInstance().start(runnable)
 
