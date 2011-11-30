@@ -22,7 +22,7 @@ Created on 2 nov. 2011
 
 from PySide.QtCore import QObject, QThreadPool
 from PySide.QtGui import QLabel, QInputDialog, QPushButton, QTableView, QWidget
-from PySide.QtGui import QListWidget, QMessageBox
+from PySide.QtGui import QLineEdit, QListWidget, QMessageBox
 
 from PackageModel import PackageModel
 from ObsLightGui.FileManager import FileManager
@@ -54,6 +54,7 @@ class PackageManager(QObject):
     __addAndCommitButton = None
     __refreshObsStatusButton = None
     __refreshOscStatusButton = None
+    __packagePathLineEdit = None
 
     __packageSelectionDialog = None
     __packagesListWidget = None
@@ -107,6 +108,8 @@ class PackageManager(QObject):
         self.__refreshOscStatusButton = mainWindow.findChild(QPushButton,
                                                              "refreshOscStatusButton")
         self.__refreshOscStatusButton.clicked.connect(self.on_refreshOscStatusButton_clicked)
+        self.__packagePathLineEdit = mainWindow.findChild(QLineEdit,
+                                                          "packagePathLineEdit")
 
     def getCurrentProject(self):
         return self.__project
@@ -151,11 +154,13 @@ class PackageManager(QObject):
                                                                      u"description")
             self.__packageTitleLabel.setText(packageTitle)
             self.__packageDescriptionLabel.setText(description)
+            pkgDir = self.__obsLightManager.getPackageDirectory(project, package)
+            self.__packagePathLineEdit.setText(pkgDir)
         else:
             self.__packageNameLabel.setText(u"No package selected")
             self.__packageTitleLabel.setText(u"")
             self.__packageDescriptionLabel.setText(u"")
-
+            self.__packagePathLineEdit.setText("")
 
     def currentPackage(self):
         '''
@@ -361,7 +366,7 @@ class PackageManager(QObject):
             def swapArgs(pkg, prj):
                 return method(prj, pkg)
             runnable.setFunctionToMap(swapArgs, selectedPackages, None, self.getCurrentProject())
-        runnable.setDialogMessage("Refreshing packages OBS status")
+        runnable.setDialogMessage("Refreshing package status")
         runnable.caughtException.connect(self.__gui.popupErrorCallback)
         QThreadPool.globalInstance().start(runnable)
 
