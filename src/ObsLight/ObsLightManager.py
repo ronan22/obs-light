@@ -46,6 +46,9 @@ def getConfigPath():
     '''
     return ObsLightConfig.CONFIGPATH
 
+def getWorkingDirectory():
+    return ObsLightConfig.WORKINGDIRECTORY
+
 def checkProjectLocalName(position=None):
     def checkProjectLocalName1(f):
         def checkProjectLocalName2(*args, **kwargs):
