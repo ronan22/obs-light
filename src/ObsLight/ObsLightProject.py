@@ -32,6 +32,11 @@ import urllib
 
 import ObsLightPrintManager
 
+import ObsLightConfig
+
+import shlex
+import subprocess
+
 class ObsLightProject(object):
     '''
     classdocs
@@ -624,6 +629,26 @@ class ObsLightProject(object):
                 self.__chroot.goToChRoot(detach=detach)
         else:
             self.__chroot.goToChRoot(detach=detach)
+
+    def openTerminal(self, package):
+        '''
+        Open a Bash in the chroot.
+        '''
+        if package != None:
+            pathPackage = self.__packages.getPackageDirectory(package=package)
+            if pathPackage != None:
+                pathScript = self.__chroot.getChrootDirTransfert() + "/runMe.sh"
+                f = open(pathScript, 'w')
+                f.write("#!/bin/sh\n")
+                f.write("# Created by obslight\n")
+                f.write("cd " + pathPackage + "\n")
+                f.write("exec bash\n")
+                f.close()
+
+                command = ObsLightConfig.getConsole() + " " + pathScript
+
+                command = shlex.split(str(command))
+                subprocess.call(command)
 
     def addPackageSourceInChRoot(self, package=None):
         '''

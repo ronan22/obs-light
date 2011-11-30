@@ -61,6 +61,12 @@ class ObsLightChRoot(object):
                 self.__dicoRepos = fromSave["dicoRepos"]
         self.initChRoot()
 
+    def getChrootDirTransfert(self):
+        '''
+        
+        '''
+        return self.__chrootDirTransfert
+
     def getDirectory(self):
         '''
         Return the path of aChRoot of a project

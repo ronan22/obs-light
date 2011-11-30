@@ -169,6 +169,12 @@ class ObsLightProjects(object):
         self.__dicOBSLightProjects[projectLocalName].goToChRoot(package=package,
                                                                 detach=detach)
 
+    def openTerminal(self, projectLocalName, package):
+        '''
+        
+        '''
+        return  self.__dicOBSLightProjects[projectLocalName].openTerminal(package=package)
+
     def addPackageSourceInChRoot(self, projectLocalName=None, package=None):
         '''
         

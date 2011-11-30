@@ -557,6 +557,14 @@ class ObsLightManager(object):
         self.__myObsLightProjects.goToChRoot(projectLocalName, package, detach)
 
     @checkProjectLocalName(1)
+    def openTerminal(self, projectLocalName, package):
+        '''
+        open a terminal into the osc directory of a package.
+        '''
+        return  self.__myObsLightProjects.openTerminal(projectLocalName=projectLocalName,
+                                                       package=package)
+
+    @checkProjectLocalName(1)
     def getChRootPath(self, projectLocalName):
         '''
         Return the path of aChRoot of a project
