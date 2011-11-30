@@ -6,6 +6,7 @@ Created on 21 nov. 2011
 import ConfigParser
 import os
 import shutil
+import re
 
 OBSLIGHTDIRNAME = "OBSLight"
 OBSLIGHTCONFIG = "obslightConfig"
@@ -43,7 +44,10 @@ def getConsole():
         return 'xterm -e'
 
 def setConsole(consoleCommand):
-    print "setConsole %s" % consoleCommand
+    '''
+    Set the editor/console option in config file to 'consoleCommand',
+    with ConfigParser (so comments are removed...).
+    '''
     aConfigParser = ConfigParser.ConfigParser()
     with open(CONFIGPATH, 'r') as aConfigFile:
         aConfigParser.readfp(aConfigFile)
@@ -52,6 +56,17 @@ def setConsole(consoleCommand):
     aConfigParser.set('editor', 'console', consoleCommand)
     with open(CONFIGPATH, 'w') as aConfigFile:
         aConfigParser.write(aConfigFile)
+
+def setConsole2(consoleCommand):
+    '''
+    Set the editor/console option in config file to 'consoleCommand',
+    with a regular expression.
+    '''
+    with open(CONFIGPATH, 'r') as cfgFile:
+        content = cfgFile.read()
+    newContent = re.sub(r'(console\s*[=:]).*', r'\1%s' % consoleCommand, content)
+    with open(CONFIGPATH, 'w') as cfgFile:
+        cfgFile.write(newContent)
 
 def getObslightFormatter():
     '''
@@ -82,8 +97,8 @@ def getObsLightGuiFormatterString():
 
 if not os.path.exists(CONFIGPATH):
     shutil.copy2(os.path.join(os.path.dirname(__file__), "config", OBSLIGHTCONFIG), CONFIGPATH)
-    if os.path.exists("/usr/bin/konsole"):
-        setConsole("/usr/bin/konsole -e")
-    elif os.path.exists("/usr/bin/gnome-terminal"):
-        setConsole("/usr/bin/gnome-terminal -x")
+    if os.path.exists(u"/usr/bin/konsole"):
+        setConsole2(u"/usr/bin/konsole -e")
+    elif os.path.exists(u"/usr/bin/gnome-terminal"):
+        setConsole2(u"/usr/bin/gnome-terminal -x")
     #else keep default ("xterm -e")
