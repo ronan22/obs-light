@@ -21,10 +21,10 @@ Created on 17 nov. 2011
 '''
 
 from PySide.QtCore import QObject, QThreadPool
-from PySide.QtGui import QColor, QDialogButtonBox, QGraphicsColorizeEffect
+from PySide.QtGui import QDialogButtonBox
 from PySide.QtGui import QInputDialog, QLineEdit, QPushButton
 
-from Utils import popupOnException, ProgressRunnable2
+from Utils import popupOnException, ProgressRunnable2, colorizeWidget
 
 class RepoConfigManager(QObject):
     '''
@@ -134,16 +134,14 @@ class RepoConfigManager(QObject):
         return self.__urlLineEdit.text()
 
     def on_checkButton_clicked(self):
-        effect = QGraphicsColorizeEffect(self.__urlLineEdit)
+        color = "green"
         result = self.__obsLightManager.testUrl(self.getRepoUrl())
-        if result:
-            effect.setColor(QColor("green"))
-        else:
+        if not result:
             if self.__obsLightManager.testHost(self.getRepoUrl()):
-                effect.setColor(QColor("orange"))
+                color = "orange"
             else:
-                effect.setColor(QColor("red"))
-        self.__urlLineEdit.setGraphicsEffect(effect)
+                color = "red"
+        colorizeWidget(self.__urlLineEdit, color)
 
         alias = self.getRepoAlias()
         currentRepos = self.__obsLightManager.getChRootRepositories(self.__projectAlias)
@@ -152,9 +150,7 @@ class RepoConfigManager(QObject):
                 len(alias) < 1 or
                 (alias in currentRepos and alias != self.__oldRepoAlias)):
             result2 = False
-        effect2 = QGraphicsColorizeEffect(self.__aliasLineEdit)
-        effect2.setColor(QColor("green" if result2 else "red"))
-        self.__aliasLineEdit.setGraphicsEffect(effect2)
+        colorizeWidget(self.__aliasLineEdit, "green" if result2 else "red")
         self.__repoConfigButtonBox.button(QDialogButtonBox.Ok).setEnabled(result and result2)
 
     @popupOnException

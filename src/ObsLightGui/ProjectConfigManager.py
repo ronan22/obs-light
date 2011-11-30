@@ -25,7 +25,7 @@ from PySide.QtGui import QComboBox, QDialogButtonBox, QLineEdit, QRegExpValidato
 from PySide.QtGui import QColor, QCompleter, QGraphicsColorizeEffect
 
 from ObsLight.ObsLightErr import OBSLightBaseError
-from Utils import popupOnException, QRunnableImpl
+from Utils import popupOnException, QRunnableImpl, colorizeWidget
 
 class ProjectConfigManager(QObject):
     '''
@@ -166,11 +166,9 @@ class ProjectConfigManager(QObject):
                 targets = self.__obsLightManager.getTargetList(self.getCurrentServerAlias(),
                                                                self.getCurrentProjectObsName())
                 self.__targetCBox.addItems(targets)
-                self.__colorEffect.setColor(QColor('green'))
-                self.__obsNameField.setGraphicsEffect(self.__colorEffect)
+                colorizeWidget(self.__obsNameField, 'green')
             except BaseException:
-                self.__colorEffect.setColor(QColor('red'))
-                self.__obsNameField.setGraphicsEffect(self.__colorEffect)
+                colorizeWidget(self.__obsNameField, 'red')
 
     def __loadArchPossibilities(self):
         '''
