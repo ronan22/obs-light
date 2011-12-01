@@ -306,6 +306,17 @@ class ProgressRunnable2(QRunnable, QObject):
         self.run = run
 
 
+def firstArgLast(func):
+    '''
+    Return a function which will call 'func' with first argument
+    as last argument.
+    '''
+    def newFunc(*args, **kwargs):
+        newArgs = list(args[1:])
+        newArgs.append(args[0])
+        return func(*newArgs, **kwargs)
+    return newFunc
+
 def detachWithProgress(title, minDuration=500):
     '''
     Decorator which will make a function run in a QThreadPool while
