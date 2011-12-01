@@ -258,9 +258,9 @@ class ObsLightChRoot(object):
                 package.setDirectoryBuild(packageDirectory)
                 if packageDirectory != None:
                     self.initGitWatch(path=packageDirectory)
-                    package.setChRootStatus("Installed")
-                    self.buildRpm(specFile=None)
+                    self.buildRpm(specFile)
                     self.ignoreGitWatch(path=packageDirectory)
+                    package.setChRootStatus("Installed")
             else:
                 raise ObsLightErr.ObsLightChRootError(packageName + " source is not installed in " + self.getDirectory())
 

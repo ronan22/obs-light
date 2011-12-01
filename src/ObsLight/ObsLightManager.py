@@ -917,7 +917,7 @@ class ObsLightManager(object):
     @checkProjectLocalName(1)
     def refreshObsStatus(self, projectLocalName, package=None):
         '''
-        
+        Refresh the OBS status.
         '''
         res = self.__myObsLightProjects.refreshObsStatus(projectLocalName=projectLocalName, package=package)
         self.__myObsLightProjects.save()
@@ -926,7 +926,7 @@ class ObsLightManager(object):
     @checkProjectLocalName(1)
     def repairOscPackageDirectory(self, projectLocalName, package):
         '''
-        
+        Reset a the osc directory.
         '''
         res = self.__myObsLightProjects.repairOscPackageDirectory(projectLocalName=projectLocalName, package=package)
         self.__myObsLightProjects.save()
