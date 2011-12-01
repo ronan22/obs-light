@@ -660,7 +660,7 @@ class ObsLightProject(object):
         Open a Bash in the chroot.
         '''
         if package != None:
-            pathPackage = self.__packages.getPackageDirectory(package=package)
+            pathPackage = self.getAbsPackagePath(name=package)
             if pathPackage != None:
                 pathScript = self.__chroot.getChrootDirTransfert() + "/runMe.sh"
                 f = open(pathScript, 'w')
@@ -669,13 +669,13 @@ class ObsLightProject(object):
                 f.write("cd " + pathPackage + "\n")
                 f.write("exec bash\n")
                 f.close()
-
+                os.chmod(pathScript, 0755)
                 command = ObsLightConfig.getConsole() + " " + pathScript
 
                 command = shlex.split(str(command))
                 subprocess.call(command)
 
-    def addPackageSourceInChRoot(self, package=None):
+    def addPackageSourceInChRoot(self, package):
         '''
          
         '''
@@ -684,6 +684,27 @@ class ObsLightProject(object):
         self.__chroot.addPackageSourceInChRoot(package=self.__packages.getPackage(package),
                                                specFile=specFile,
                                                repo=self.__projectObsName)
+
+    def buildRpm(self, package):
+        '''
+        
+        '''
+        specFile = self.__packages.getSpecFile(package)
+        self.__chroot.buildRpm(specFile=specFile)
+
+    def installRpm(self, package):
+        '''
+        
+        '''
+        specFile = self.__packages.getSpecFile(package)
+        self.__chroot.installRpm(specFile=specFile)
+
+    def packageRpm(self, package):
+        '''
+        
+        '''
+        specFile = self.__packages.getSpecFile(package)
+        self.__chroot.packageRpm(specFile=specFile)
 
     def makePatch(self, package=None, patch=None):
         '''

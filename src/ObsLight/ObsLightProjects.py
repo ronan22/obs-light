@@ -181,6 +181,24 @@ class ObsLightProjects(object):
         '''
         self.__dicOBSLightProjects[projectLocalName].addPackageSourceInChRoot(package=package)
 
+    def buildRpm(self, projectLocalName, package):
+        '''
+        
+        '''
+        self.__dicOBSLightProjects[projectLocalName].buildRpm(package=package)
+
+    def installRpm(self, projectLocalName, package):
+        '''
+        
+        '''
+        self.__dicOBSLightProjects[projectLocalName].installRpm(package=package)
+
+    def packageRpm(self, projectLocalName, package):
+        '''
+        
+        '''
+        self.__dicOBSLightProjects[projectLocalName].packageRpm(package=package)
+
     def makePatch(self,
                   projectLocalName=None,
                   package=None,
