@@ -208,6 +208,9 @@ class PackageManager(QObject):
                 packages.add(packageName)
         return list(packages)
 
+    def selectAllPackages(self):
+        self.__packageTableView.selectAll()
+
     def getPackageListFromServer(self):
         if self.getCurrentProject() is None:
             return list()
@@ -226,7 +229,8 @@ class PackageManager(QObject):
         self.__packageSelectionDialog.show()
         self.__packagesListWidget.addItems(packageList)
 
-    def __mapOnSelectedPackages(self, method, initialMessage, loopMessage, *args, **kwargs):
+    def __mapOnSelectedPackages(self, method, initialMessage, loopMessage,
+                                callback, *args, **kwargs):
         packagesNames = self.selectedPackages()
         if len(packagesNames) < 1:
             return
@@ -237,6 +241,8 @@ class PackageManager(QObject):
             runnable.setDialogMessage(initialMessage)
         runnable.setFunctionToMap(method, packagesNames, loopMessage, *args, **kwargs)
         runnable.caughtException.connect(self.__gui.popupErrorCallback)
+        if callback is not None:
+            runnable.finished.connect(callback)
         QThreadPool.globalInstance().start(runnable)
 
     @popupOnException
@@ -286,6 +292,7 @@ class PackageManager(QObject):
             return
         self.__mapOnSelectedPackages(self.__localModel.removePackage,
                                      u"Deleting packages...",
+                                     None,
                                      None)
         self.__fileManager.setCurrentPackage(None, None)
 
@@ -297,6 +304,7 @@ class PackageManager(QObject):
         self.__mapOnSelectedPackages(firstArgLast(self.__obsLightManager.addPackageSourceInChRoot),
                                      None,
                                      u"Importing %(arg)s source in chroot and executing %%prep",
+                                     None,
                                      projectName)
 
     @popupOnException
@@ -307,6 +315,7 @@ class PackageManager(QObject):
         self.__mapOnSelectedPackages(firstArgLast(self.__obsLightManager.buildRpm),
                                      None,
                                      u"Executing %%build section of %(arg)s",
+                                     None,
                                      projectName)
 
     @popupOnException
@@ -317,6 +326,7 @@ class PackageManager(QObject):
         self.__mapOnSelectedPackages(firstArgLast(self.__obsLightManager.installRpm),
                                      None,
                                      u"Executing %%install section of %(arg)s",
+                                     None,
                                      projectName)
 
     @popupOnException
@@ -327,6 +337,7 @@ class PackageManager(QObject):
         self.__mapOnSelectedPackages(firstArgLast(self.__obsLightManager.packageRpm),
                                      None,
                                      u"Packaging %(arg)s",
+                                     None,
                                      projectName)
 
     @popupOnException
@@ -399,21 +410,13 @@ class PackageManager(QObject):
 
     @popupOnException
     def __refreshStatus(self, method):
-        selectedPackages = self.selectedPackages()
-        runnable = ProgressRunnable2()
-        if len(selectedPackages) == 0:
-            progress = self.__gui.getInfiniteProgressDialog()
-            runnable.setProgressDialog(progress)
-            runnable.setRunMethod(method,
-                                  self.getCurrentProject())
-            runnable.setDialogMessage("Refreshing package status")
-            runnable.caughtException.connect(self.__gui.popupErrorCallback)
-            QThreadPool.globalInstance().start(runnable)
-        else:
-            self.__mapOnSelectedPackages(firstArgLast(method),
-                                         "Refreshing package status",
-                                         None,
-                                         self.getCurrentProject())
+        if len(self.selectedPackages() == 0):
+            self.selectAllPackages()
+        self.__mapOnSelectedPackages(firstArgLast(method),
+                                     "Refreshing package status",
+                                     None,
+                                     None,
+                                     self.getCurrentProject())
 
     def on_refreshObsStatusButton_clicked(self):
         self.__refreshStatus(self.__obsLightManager.refreshObsStatus)
@@ -428,4 +431,5 @@ class PackageManager(QObject):
         self.__mapOnSelectedPackages(firstArgLast(self.__obsLightManager.repairOscPackageDirectory),
                                      None,
                                      u"Repairing OSC directory of %(arg)s...",
+                                     self.on_refreshOscStatusButton_clicked,
                                      projectName)
