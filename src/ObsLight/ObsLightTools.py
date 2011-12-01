@@ -46,12 +46,17 @@ def testUrl(url):
             port = "443"
         else:
             port = "80"
-
     test = httplib.HTTPConnection(host=host, port=port, timeout=SOCKETTIMEOUT)
 
     try:
         test.request('HEAD', path)
         response = test.getresponse()
+        if response.status == 301 and not path.endswith("/"):
+            test.close()
+            test = httplib.HTTPConnection(host=host, port=port, timeout=SOCKETTIMEOUT)
+            path = path + "/"
+            test.request('HEAD', path)
+            response = test.getresponse()
         return response.status == 200
     except BaseException:
         return False

@@ -3,7 +3,7 @@
 #
 
 [editor]
-# Command to use to start another command in a terminal
+# Command to use to start another command in a terminal emulator
 # "xterm -e" by default, but we suggest:
 #   "/usr/bin/konsole -e" if running KDE
 #   "/usr/bin/gnome-terminal -x" if running Gnome
@@ -11,8 +11,8 @@ console=xterm -e
 
 [logger]
 # Format for the logs, using Python's logging module syntax
-# http://docs.python.org/library/logging.html#logrecord-attributes
-obslight=%(asctime)s %(name)s %(levelname)s: %(message)s'
+# See http://docs.python.org/library/logging.html#logrecord-attributes
+obslight=%(asctime)s %(name)s %(levelname)s: %(message)s
 
 # The GUI also supports HTML tags
 obslightgui=<font color="#0000FF">%(asctime)s</font> <font color="#009F00">%(name)s %(levelname)s</font>: %(message)s
