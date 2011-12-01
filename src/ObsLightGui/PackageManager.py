@@ -26,7 +26,7 @@ from PySide.QtGui import QLineEdit, QListWidget, QMessageBox
 
 from PackageModel import PackageModel
 from ObsLightGui.FileManager import FileManager
-from Utils import popupOnException, ProgressRunnable2
+from Utils import popupOnException, ProgressRunnable2, firstArgLast
 
 class PackageManager(QObject):
     '''
@@ -47,13 +47,17 @@ class PackageManager(QObject):
     __packageDescriptionLabel = None
     __importPackageButton = None
     __deletePackageButton = None
-    __importPackageSourceButton = None
+    __rpmPrepButton = None
+    __rpmBuildButton = None
+    __rpmInstallButton = None
+    __rpmBuildRpmButton = None
     __openTermButton = None
     __updateFilesButton = None
     __makePatchButton = None
     __addAndCommitButton = None
     __refreshObsStatusButton = None
     __refreshOscStatusButton = None
+    __repairOscButton = None
     __packagePathLineEdit = None
 
     __packageSelectionDialog = None
@@ -79,9 +83,18 @@ class PackageManager(QObject):
         self.__deletePackageButton = mainWindow.findChild(QPushButton,
                                                           u"deletePackageButton")
         self.__deletePackageButton.clicked.connect(self.on_deletePackageButton_clicked)
-        self.__importPackageSourceButton = mainWindow.findChild(QPushButton,
-                                                                "importRpmButton")
-        self.__importPackageSourceButton.clicked.connect(self.on_importRpmButton_clicked)
+        self.__rpmPrepButton = mainWindow.findChild(QPushButton,
+                                                    "rpmPrepButton")
+        self.__rpmPrepButton.clicked.connect(self.on_rpmPrepButton_clicked)
+        self.__rpmBuildButton = mainWindow.findChild(QPushButton,
+                                                    "rpmBuildButton")
+        self.__rpmBuildButton.clicked.connect(self.on_rpmBuildButton_clicked)
+        self.__rpmInstallButton = mainWindow.findChild(QPushButton,
+                                                       "rpmInstallButton")
+        self.__rpmInstallButton.clicked.connect(self.on_rpmInstallButton_clicked)
+        self.__rpmBuildRpmButton = mainWindow.findChild(QPushButton,
+                                                        "rpmBuildRpmButton")
+        self.__rpmBuildRpmButton.clicked.connect(self.on_rpmBuildRpmButton_clicked)
         self.__openTermButton = mainWindow.findChild(QPushButton,
                                                      "openTermButton")
         self.__openTermButton.clicked.connect(self.on_openTermButton_clicked)
@@ -108,6 +121,9 @@ class PackageManager(QObject):
         self.__refreshOscStatusButton = mainWindow.findChild(QPushButton,
                                                              "refreshOscStatusButton")
         self.__refreshOscStatusButton.clicked.connect(self.on_refreshOscStatusButton_clicked)
+        self.__repairOscButton = mainWindow.findChild(QPushButton,
+                                                      "repairOscButton")
+        self.__repairOscButton.clicked.connect(self.on_repairOscButton_clicked)
         self.__packagePathLineEdit = mainWindow.findChild(QLineEdit,
                                                           "packagePathLineEdit")
 
@@ -170,8 +186,8 @@ class PackageManager(QObject):
         index = self.__packageTableView.currentIndex()
         if index.isValid():
             row = index.row()
-            packageName = self.__localModel.data(self.__localModel.createIndex(row,
-                                                                               PackageModel.PackageNameColumn))
+            pkgNameIndex = self.__localModel.createIndex(row, PackageModel.PackageNameColumn)
+            packageName = self.__localModel.data(pkgNameIndex)
             return packageName
         else:
             return None
@@ -210,6 +226,19 @@ class PackageManager(QObject):
         self.__packageSelectionDialog.show()
         self.__packagesListWidget.addItems(packageList)
 
+    def __mapOnSelectedPackages(self, method, initialMessage, loopMessage, *args, **kwargs):
+        packagesNames = self.selectedPackages()
+        if len(packagesNames) < 1:
+            return
+        progress = self.__gui.getProgressDialog()
+        progress.setValue(0)
+        runnable = ProgressRunnable2(progress)
+        if initialMessage is not None:
+            runnable.setDialogMessage(initialMessage)
+        runnable.setFunctionToMap(method, packagesNames, loopMessage, *args, **kwargs)
+        runnable.caughtException.connect(self.__gui.popupErrorCallback)
+        QThreadPool.globalInstance().start(runnable)
+
     @popupOnException
     def on_newPackageButton_clicked(self):
         if self.getCurrentProject() is None:
@@ -243,6 +272,7 @@ class PackageManager(QObject):
         project = self.getCurrentProject()
         if project is None:
             return
+
         packagesNames = self.selectedPackages()
         if len(packagesNames) < 1:
             return
@@ -254,34 +284,50 @@ class PackageManager(QObject):
                                       defaultButton=QMessageBox.Yes)
         if result == QMessageBox.No:
             return
-        progress = self.__gui.getProgressDialog()
-        progress.setValue(0)
-        runnable = ProgressRunnable2(progress)
-        runnable.setDialogMessage(u"Deleting packages...")
-        runnable.setFunctionToMap(self.__localModel.removePackage, packagesNames)
-        runnable.caughtException.connect(self.__gui.popupErrorCallback)
+        self.__mapOnSelectedPackages(self.__localModel.removePackage,
+                                     u"Deleting packages...",
+                                     None)
         self.__fileManager.setCurrentPackage(None, None)
-        QThreadPool.globalInstance().start(runnable)
 
     @popupOnException
-    def on_importRpmButton_clicked(self):
+    def on_rpmPrepButton_clicked(self):
         projectName = self.getCurrentProject()
         if projectName is None:
             return
-        packagesNames = self.selectedPackages()
-        if len(packagesNames) < 1:
+        self.__mapOnSelectedPackages(firstArgLast(self.__obsLightManager.addPackageSourceInChRoot),
+                                     None,
+                                     u"Importing %(arg)s source in chroot and executing %%prep",
+                                     projectName)
+
+    @popupOnException
+    def on_rpmBuildButton_clicked(self):
+        projectName = self.getCurrentProject()
+        if projectName is None:
             return
-        progress = self.__gui.getProgressDialog()
-        progress.setValue(0)
-        runnable = ProgressRunnable2(progress)
-        def apsicr(pkg, prj):
-            self.__obsLightManager.addPackageSourceInChRoot(prj, pkg)
-        runnable.setFunctionToMap(apsicr,
-                                  packagesNames,
-                                  u"Importing %(arg)s source in chroot",
-                                  projectName)
-        runnable.caughtException.connect(self.__gui.popupErrorCallback)
-        QThreadPool.globalInstance().start(runnable)
+        self.__mapOnSelectedPackages(firstArgLast(self.__obsLightManager.buildRpm),
+                                     None,
+                                     u"Executing %%build section of %(arg)s",
+                                     projectName)
+
+    @popupOnException
+    def on_rpmInstallButton_clicked(self):
+        projectName = self.getCurrentProject()
+        if projectName is None:
+            return
+        self.__mapOnSelectedPackages(firstArgLast(self.__obsLightManager.installRpm),
+                                     None,
+                                     u"Executing %%install section of %(arg)s",
+                                     projectName)
+
+    @popupOnException
+    def on_rpmBuildRpmButton_clicked(self):
+        projectName = self.getCurrentProject()
+        if projectName is None:
+            return
+        self.__mapOnSelectedPackages(firstArgLast(self.__obsLightManager.packageRpm),
+                                     None,
+                                     u"Packaging %(arg)s",
+                                     projectName)
 
     @popupOnException
     def on_openTermButton_clicked(self):
@@ -360,18 +406,26 @@ class PackageManager(QObject):
             runnable.setProgressDialog(progress)
             runnable.setRunMethod(method,
                                   self.getCurrentProject())
+            runnable.setDialogMessage("Refreshing package status")
+            runnable.caughtException.connect(self.__gui.popupErrorCallback)
+            QThreadPool.globalInstance().start(runnable)
         else:
-            progress = self.__gui.getProgressDialog()
-            runnable.setProgressDialog(progress)
-            def swapArgs(pkg, prj):
-                return method(prj, pkg)
-            runnable.setFunctionToMap(swapArgs, selectedPackages, None, self.getCurrentProject())
-        runnable.setDialogMessage("Refreshing package status")
-        runnable.caughtException.connect(self.__gui.popupErrorCallback)
-        QThreadPool.globalInstance().start(runnable)
+            self.__mapOnSelectedPackages(firstArgLast(method),
+                                         "Refreshing package status",
+                                         None,
+                                         self.getCurrentProject())
 
     def on_refreshObsStatusButton_clicked(self):
         self.__refreshStatus(self.__obsLightManager.refreshObsStatus)
 
     def on_refreshOscStatusButton_clicked(self):
         self.__refreshStatus(self.__obsLightManager.refreshOscDirectoryStatus)
+
+    def on_repairOscButton_clicked(self):
+        projectName = self.getCurrentProject()
+        if projectName is None:
+            return
+        self.__mapOnSelectedPackages(firstArgLast(self.__obsLightManager.repairOscPackageDirectory),
+                                     None,
+                                     u"Repairing OSC directory of %(arg)s...",
+                                     projectName)

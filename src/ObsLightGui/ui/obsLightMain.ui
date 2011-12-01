@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>840</width>
+    <width>800</width>
     <height>560</height>
    </rect>
   </property>
@@ -158,7 +158,7 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>255</width>
+                    <width>241</width>
                     <height>134</height>
                    </rect>
                   </property>
@@ -428,7 +428,7 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>270</width>
+                    <width>257</width>
                     <height>134</height>
                    </rect>
                   </property>
@@ -503,31 +503,6 @@
                  </property>
                 </widget>
                </item>
-               <item row="10" column="1">
-                <widget class="QPushButton" name="importRpmButton">
-                 <property name="enabled">
-                  <bool>false</bool>
-                 </property>
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>80</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="toolTip">
-                  <string>Install the source of the selected package into the chroot.</string>
-                 </property>
-                 <property name="text">
-                  <string>Install Source</string>
-                 </property>
-                </widget>
-               </item>
                <item row="10" column="2">
                 <spacer name="horizontalSpacer">
                  <property name="orientation">
@@ -558,6 +533,13 @@
                  </property>
                  <property name="text">
                   <string>Refresh OBS status</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="10" column="1">
+                <widget class="QPushButton" name="repairOscButton">
+                 <property name="text">
+                  <string>Repair OSC directory</string>
                  </property>
                 </widget>
                </item>
@@ -772,6 +754,9 @@
                 </item>
                 <item row="4" column="0">
                  <widget class="QPushButton" name="deleteRepositoryButton">
+                  <property name="toolTip">
+                   <string>Delete a repository from the chroot.</string>
+                  </property>
                   <property name="text">
                    <string>Delete</string>
                   </property>
@@ -779,12 +764,15 @@
                 </item>
                 <item row="5" column="0">
                  <widget class="QPushButton" name="modifyRepositoryButton">
+                  <property name="toolTip">
+                   <string>Modify the URL or alias of a repository.</string>
+                  </property>
                   <property name="text">
                    <string>Modify</string>
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="2" colspan="2">
+                <item row="0" column="2" colspan="3">
                  <widget class="QLineEdit" name="chrootPathLineEdit">
                   <property name="toolTip">
                    <string>The path of the chroot on the local filesystem.</string>
@@ -842,6 +830,9 @@
                 </item>
                 <item row="4" column="2">
                  <widget class="QPushButton" name="deleteChrootButton">
+                  <property name="toolTip">
+                   <string>Delete the chroot.</string>
+                  </property>
                   <property name="text">
                    <string>Delete</string>
                   </property>
@@ -877,7 +868,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="4" column="3">
+                <item row="4" column="4">
                  <spacer name="horizontalSpacer_4">
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
@@ -889,6 +880,71 @@
                    </size>
                   </property>
                  </spacer>
+                </item>
+                <item row="4" column="3">
+                 <widget class="QPushButton" name="rpmInstallButton">
+                  <property name="toolTip">
+                   <string>Execute the %install section of selected package(s).</string>
+                  </property>
+                  <property name="text">
+                   <string>Install</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="3">
+                 <widget class="QPushButton" name="rpmPrepButton">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>80</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="toolTip">
+                   <string>Install the source of the selected package(s) into the chroot and execute %prep section.</string>
+                  </property>
+                  <property name="text">
+                   <string>Prep</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="3">
+                 <widget class="QPushButton" name="rpmBuildButton">
+                  <property name="toolTip">
+                   <string>Execute the %build section of selected package(s).</string>
+                  </property>
+                  <property name="text">
+                   <string>Build</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="3">
+                 <widget class="QPushButton" name="rpmBuildRpmButton">
+                  <property name="toolTip">
+                   <string>Build the source and binary RPMs of selected package(s).</string>
+                  </property>
+                  <property name="text">
+                   <string>Build RPMs</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="3">
+                 <widget class="QLabel" name="label_2">
+                  <property name="text">
+                   <string>Rpmbuild</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignCenter</set>
+                  </property>
+                 </widget>
                 </item>
                </layout>
               </widget>
@@ -1399,7 +1455,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>840</width>
+     <width>800</width>
      <height>20</height>
     </rect>
    </property>
