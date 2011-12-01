@@ -258,7 +258,7 @@ class ObsLightChRoot(object):
                 package.setDirectoryBuild(packageDirectory)
                 if packageDirectory != None:
                     self.initGitWatch(path=packageDirectory)
-                    self.buildRpm(specFile)
+                    self.buildRpm(aspecFile)
                     self.ignoreGitWatch(path=packageDirectory)
                     package.setChRootStatus("Installed")
             else:
@@ -274,7 +274,8 @@ class ObsLightChRoot(object):
             ObsLightMic.getObsLightMic(name=self.getDirectory()).initChroot(chrootDirectory=self.getDirectory(),
                                                                             chrootTransfertDirectory=self.__chrootDirTransfert,
                                                                             transfertDirectory=self.__dirTransfert)
-        timeString = time.strftime("%Y-%m-%d_%Hh%Mm%S")
+        #Need more then second %S
+        timeString = time.strftime("%Y-%m-%d_%Hh%Mm") + str(time.time() % 1).split(".")[1]
         scriptName = "runMe_" + timeString + ".sh"
         scriptPath = self.__chrootDirTransfert + "/" + scriptName
 
@@ -417,7 +418,7 @@ class ObsLightChRoot(object):
             raise ObsLightErr.ObsLightChRootError("path is not defined in initGitWatch.")
 
         command = []
-        command.append("git --work-tree=" + path + " --git-dir=" + path + "/.git status -u -s | cut -d' ' -f2 >>.gitignore")
+        command.append("git --work-tree=" + path + " --git-dir=" + path + "/.git status -u -s | cut -d' ' -f2 >> " + path + "/.gitignore")
         self.execCommand(command=command)
 
     def makePatch(self, package=None, patch=None):
