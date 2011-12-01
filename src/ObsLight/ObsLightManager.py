@@ -634,6 +634,30 @@ class ObsLightManager(object):
         self.__myObsLightProjects.save()
 
     @checkProjectLocalName(1)
+    def buildRpm(self, projectLocalName, package):
+        '''
+        Execute the %build section of an RPM spec file.
+        '''
+        self.__myObsLightProjects.buildRpm(projectLocalName=projectLocalName,
+                                                              package=package)
+
+    @checkProjectLocalName(1)
+    def installRpm(self, projectLocalName, package):
+        '''
+        Execute the %install section of an RPM spec file.
+        '''
+        self.__myObsLightProjects.installRpm(projectLocalName=projectLocalName,
+                                                                package=package)
+
+    @checkProjectLocalName(1)
+    def packageRpm(self, projectLocalName, package):
+        '''
+        Execute the package section of an RPM spec file.
+        '''
+        self.__myObsLightProjects.packageRpm(projectLocalName=projectLocalName,
+                                                                package=package)
+
+    @checkProjectLocalName(1)
     def makePatch(self, projectLocalName, package, patch):
         '''
         Generate patch, and add it to the local OBS package, modify the spec file.

@@ -245,11 +245,13 @@ class ObsLightChRoot(object):
             res = self.execCommand(command=command)
 
             if res != 0:
-                raise ObsLightErr.ObsLightChRootError(packageName + " thr zypper Script fail")
+                ObsLightPrintManager.getLogger().error(packageName + " the zypper Script fail")
+                return None
+                #raise ObsLightErr.ObsLightChRootError(packageName + " the zypper Script fail")
 
             if os.path.isdir(self.getDirectory() + "/" + self.__chrootrpmbuildDirectory + "/SPECS/"):
                 aspecFile = self.__chrootrpmbuildDirectory + "/SPECS/" + specFile
-                self.buildPrepRpm(specFile=aspecFile)
+                self.prepRpm(specFile=aspecFile)
                 #find the directory to watch
                 packageDirectory = self.__findPackageDirectory(package=package)
                 ObsLightPrintManager.getLogger().debug("for the package " + packageName + " the packageDirectory is used : " + str(packageDirectory))
@@ -257,6 +259,8 @@ class ObsLightChRoot(object):
                 if packageDirectory != None:
                     self.initGitWatch(path=packageDirectory)
                     package.setChRootStatus("Installed")
+                    self.buildRpm(specFile=None)
+                    self.ignoreGitWatch(path=packageDirectory)
             else:
                 raise ObsLightErr.ObsLightChRootError(packageName + " source is not installed in " + self.getDirectory())
 
@@ -326,13 +330,35 @@ class ObsLightChRoot(object):
         command.append("zypper --no-gpg-checks --gpg-auto-import-keys ref")
         self.execCommand(command=command)
 
-    def buildPrepRpm(self, specFile=None):
+    def prepRpm(self, specFile=None):
         '''
         Execute the %prep section of an RPM spec file.
         '''
         command = []
         command.append("rpmbuild -bp --define '_srcdefattr (-,root,root)' " + specFile + " < /dev/null")
         self.execCommand(command=command)
+
+    def buildRpm(self, specFile=None):
+        '''
+        Execute the %build section of an RPM spec file.
+        '''
+        command = []
+        command.append("rpmbuild -bc --short-circuit --define '_srcdefattr (-,root,root)' " + specFile + " < /dev/null")
+        self.execCommand(command=command)
+
+    def installRpm(self, specFile=None):
+        '''
+        Execute the %install section of an RPM spec file.
+        '''
+        command = []
+        command.append("rpmbuild -bi --short-circuit --define '_srcdefattr (-,root,root)' " + specFile + " < /dev/null")
+        self.execCommand(command=command)
+
+    def packageRpm(self, specFile=None):
+        '''
+        Execute the package section of an RPM spec file.
+        '''
+        pass
 
     def goToChRoot(self, path=None, detach=False):
         '''
@@ -381,6 +407,17 @@ class ObsLightChRoot(object):
         command.append("git init " + path)
         command.append("git --work-tree=" + path + " --git-dir=" + path + "/.git add " + path + "/\*")
         command.append("git --git-dir=" + path + "/.git commit -m \"first commit\"")
+        self.execCommand(command=command)
+
+    def ignoreGitWatch(self, path=None):
+        '''
+        Initialize a Git repository in the specified path, and 'git add' everything.
+        '''
+        if path == None:
+            raise ObsLightErr.ObsLightChRootError("path is not defined in initGitWatch.")
+
+        command = []
+        command.append("git --work-tree=" + path + " --git-dir=" + path + "/.git status -u -s | cut -d' ' -f2 >>.gitignore")
         self.execCommand(command=command)
 
     def makePatch(self, package=None, patch=None):
