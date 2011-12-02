@@ -48,6 +48,9 @@ class ProjectManager(QObject):
     __modifyRepoButton = None
     __importRepoInChrootButton = None
     __rpmPrepButton = None
+    __rpmBuildButton = None
+    __rpmInstallButton = None
+    __rpmBuildRpmButton = None
     __projectLinkLabel = None
     __projectRepoLinkLabel = None
     __projectTitleLabel = None
@@ -104,6 +107,12 @@ class ProjectManager(QObject):
         self.__importRepoInChrootButton.clicked.connect(self.on_importRepoInChrootButton_clicked)
         self.__rpmPrepButton = mainWindow.findChild(QPushButton,
                                                     u"rpmPrepButton")
+        self.__rpmBuildButton = mainWindow.findChild(QPushButton,
+                                                     u"rpmBuildButton")
+        self.__rpmInstallButton = mainWindow.findChild(QPushButton,
+                                                       u"rpmInstallButton")
+        self.__rpmBuildRpmButton = mainWindow.findChild(QPushButton,
+                                                        u"rpmBuildRpmButton")
         self.__projectLinkLabel = mainWindow.findChild(QLabel,
                                                        u"projectPageLinkLabel")
         self.__projectRepoLinkLabel = mainWindow.findChild(QLabel,
@@ -351,6 +360,9 @@ class ProjectManager(QObject):
                 self.__newChrootButton.setText(u"New")
 
             self.__rpmPrepButton.setEnabled(isChrootInit)
+            self.__rpmBuildButton.setEnabled(isChrootInit)
+            self.__rpmInstallButton.setEnabled(isChrootInit)
+            self.__rpmBuildRpmButton.setEnabled(isChrootInit)
 
             self.__addRepoInChrootButton.setEnabled(isChrootInit)
             self.__importRepoInChrootButton.setEnabled(isChrootInit)

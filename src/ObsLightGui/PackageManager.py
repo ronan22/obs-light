@@ -84,22 +84,22 @@ class PackageManager(QObject):
                                                           u"deletePackageButton")
         self.__deletePackageButton.clicked.connect(self.on_deletePackageButton_clicked)
         self.__rpmPrepButton = mainWindow.findChild(QPushButton,
-                                                    "rpmPrepButton")
+                                                    u"rpmPrepButton")
         self.__rpmPrepButton.clicked.connect(self.on_rpmPrepButton_clicked)
         self.__rpmBuildButton = mainWindow.findChild(QPushButton,
-                                                    "rpmBuildButton")
+                                                     u"rpmBuildButton")
         self.__rpmBuildButton.clicked.connect(self.on_rpmBuildButton_clicked)
         self.__rpmInstallButton = mainWindow.findChild(QPushButton,
-                                                       "rpmInstallButton")
+                                                       u"rpmInstallButton")
         self.__rpmInstallButton.clicked.connect(self.on_rpmInstallButton_clicked)
         self.__rpmBuildRpmButton = mainWindow.findChild(QPushButton,
-                                                        "rpmBuildRpmButton")
+                                                        u"rpmBuildRpmButton")
         self.__rpmBuildRpmButton.clicked.connect(self.on_rpmBuildRpmButton_clicked)
         self.__openTermButton = mainWindow.findChild(QPushButton,
-                                                     "openTermButton")
+                                                     u"openTermButton")
         self.__openTermButton.clicked.connect(self.on_openTermButton_clicked)
         self.__updateFilesButton = mainWindow.findChild(QPushButton,
-                                                        "updateFilesButton")
+                                                        u"updateFilesButton")
         self.__updateFilesButton.clicked.connect(self.on_updateFilesButton_clicked)
         self.__makePatchButton = mainWindow.findChild(QPushButton,
                                                       u"generatePatchButton")
@@ -111,21 +111,21 @@ class PackageManager(QObject):
         self.__packageTitleLabel = mainWindow.findChild(QLabel, u"packageTitleLabel")
         self.__packageDescriptionLabel = mainWindow.findChild(QLabel,
                                                               u"packageDescriptionLabel")
-        self.__packageSelectionDialog = self.__gui.loadWindow("obsPackageSelector.ui")
+        self.__packageSelectionDialog = self.__gui.loadWindow(u"obsPackageSelector.ui")
         self.__packageSelectionDialog.accepted.connect(self.on_packageSelectionDialog_accepted)
         self.__packagesListWidget = self.__packageSelectionDialog.findChild(QListWidget,
-                                                                            "packagesListWidget")
+                                                                            u"packagesListWidget")
         self.__refreshObsStatusButton = mainWindow.findChild(QPushButton,
-                                                             "refreshObsStatusButton")
+                                                             u"refreshObsStatusButton")
         self.__refreshObsStatusButton.clicked.connect(self.on_refreshObsStatusButton_clicked)
         self.__refreshOscStatusButton = mainWindow.findChild(QPushButton,
-                                                             "refreshOscStatusButton")
+                                                             u"refreshOscStatusButton")
         self.__refreshOscStatusButton.clicked.connect(self.on_refreshOscStatusButton_clicked)
         self.__repairOscButton = mainWindow.findChild(QPushButton,
-                                                      "repairOscButton")
+                                                      u"repairOscButton")
         self.__repairOscButton.clicked.connect(self.on_repairOscButton_clicked)
         self.__packagePathLineEdit = mainWindow.findChild(QLineEdit,
-                                                          "packagePathLineEdit")
+                                                          u"packagePathLineEdit")
 
     def getCurrentProject(self):
         return self.__project
@@ -215,9 +215,9 @@ class PackageManager(QObject):
         if self.getCurrentProject() is None:
             return list()
         server = self.__obsLightManager.getProjectParameter(self.getCurrentProject(),
-                                                            "obsServer")
+                                                            u"obsServer")
         prjObsName = self.__obsLightManager.getProjectParameter(self.getCurrentProject(),
-                                                                "projectObsName")
+                                                                u"projectObsName")
         packageList = self.__obsLightManager.getObsProjectPackageList(server,
                                                                       prjObsName)
         return packageList
@@ -238,7 +238,7 @@ class PackageManager(QObject):
             progress = self.__gui.getInfiniteProgressDialog()
         else:
             progress = self.__gui.getProgressDialog()
-        progress.setValue(0)
+            progress.setValue(0)
         runnable = ProgressRunnable2(progress)
         if initialMessage is not None:
             runnable.setDialogMessage(initialMessage)
@@ -254,7 +254,7 @@ class PackageManager(QObject):
             return
         progress = self.__gui.getInfiniteProgressDialog()
         runnable = ProgressRunnable2(progress)
-        runnable.setDialogMessage("Loading available packages list")
+        runnable.setDialogMessage(u"Loading available packages list")
         runnable.setRunMethod(self.getPackageListFromServer)
         runnable.finished[object].connect(self.showPackageSelectionDialog)
         runnable.caughtException.connect(self.__gui.popupErrorCallback)
@@ -420,7 +420,7 @@ class PackageManager(QObject):
         if len(self.selectedPackages()) == 0:
             self.selectAllPackages()
         self.__mapOnSelectedPackages(firstArgLast(method),
-                                     "Refreshing package status",
+                                     u"Refreshing package status",
                                      None,
                                      None,
                                      self.getCurrentProject())
