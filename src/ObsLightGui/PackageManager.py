@@ -234,7 +234,10 @@ class PackageManager(QObject):
         packagesNames = self.selectedPackages()
         if len(packagesNames) < 1:
             return
-        progress = self.__gui.getProgressDialog()
+        elif len(packagesNames) < 2:
+            progress = self.__gui.getInfiniteProgressDialog()
+        else:
+            progress = self.__gui.getProgressDialog()
         progress.setValue(0)
         runnable = ProgressRunnable2(progress)
         if initialMessage is not None:
@@ -263,8 +266,12 @@ class PackageManager(QObject):
         for item in items:
             packageName = item.text()
             packages.add(packageName)
-        progress = self.__gui.getProgressDialog()
-        progress.setValue(0)
+        progress = None
+        if len(packages) < 2:
+            progress = self.__gui.getInfiniteProgressDialog()
+        else:
+            progress = self.__gui.getProgressDialog()
+            progress.setValue(0)
         runnable = ProgressRunnable2(progress)
         runnable.setFunctionToMap(self.__localModel.addPackage,
                                   packages,
@@ -410,7 +417,7 @@ class PackageManager(QObject):
 
     @popupOnException
     def __refreshStatus(self, method):
-        if len(self.selectedPackages() == 0):
+        if len(self.selectedPackages()) == 0:
             self.selectAllPackages()
         self.__mapOnSelectedPackages(firstArgLast(method),
                                      "Refreshing package status",

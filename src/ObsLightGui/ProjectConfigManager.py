@@ -22,10 +22,11 @@ Created on 17 nov. 2011
 
 from PySide.QtCore import QObject, QRegExp, QThreadPool, Signal
 from PySide.QtGui import QComboBox, QDialogButtonBox, QLineEdit, QRegExpValidator, QTextEdit
-from PySide.QtGui import QColor, QCompleter, QGraphicsColorizeEffect
+from PySide.QtGui import QCompleter, QGraphicsColorizeEffect
 
 from ObsLight.ObsLightErr import OBSLightBaseError
-from Utils import popupOnException, QRunnableImpl, colorizeWidget
+from ObsLight.ObsLightTools import isNonEmptyString
+from Utils import popupOnException, QRunnableImpl, colorizeWidget, removeEffect
 
 class ProjectConfigManager(QObject):
     '''
@@ -64,8 +65,10 @@ class ProjectConfigManager(QObject):
         self.__makeConnections()
         if self.__isNewProject():
             self.handleServerChanged()
+        #self.__configDialog.accepted.disconnect(self.__configDialog.accept)
         self.__configDialog.accepted.connect(self.on_configDialog_accepted)
         self.__configDialog.rejected.connect(self.on_configDialog_rejected)
+        self.__configButtonBox.button(QDialogButtonBox.Ok).clicked.connect(self.validate)
         self.__configDialog.show()
         self.__undefaultButtons()
 
@@ -166,7 +169,7 @@ class ProjectConfigManager(QObject):
                 targets = self.__obsLightManager.getTargetList(self.getCurrentServerAlias(),
                                                                self.getCurrentProjectObsName())
                 self.__targetCBox.addItems(targets)
-                colorizeWidget(self.__obsNameField, 'green')
+                removeEffect(self.__obsNameField)
             except BaseException:
                 colorizeWidget(self.__obsNameField, 'red')
 
@@ -231,6 +234,37 @@ class ProjectConfigManager(QObject):
 
     def getCurrentDescription(self):
         return self.__descriptionTextEdit.toPlainText()
+
+    def validate(self):
+        localName = self.getCurrentProjectLocalName()
+        validated = True
+        if (not isNonEmptyString(localName) or
+                self.__isNewProject() and self.__obsLightManager.isALocalProject(localName)):
+            colorizeWidget(self.__localNameField, "red")
+            validated = False
+        else:
+            removeEffect(self.__localNameField)
+
+        if not isNonEmptyString(self.getCurrentProjectObsName()):
+            colorizeWidget(self.__obsNameField, "red")
+            validated = False
+        else:
+            removeEffect(self.__obsNameField)
+
+        if not isNonEmptyString(self.getCurrentTarget()):
+            colorizeWidget(self.__targetCBox, "red")
+            validated = False
+        else:
+            removeEffect(self.__targetCBox)
+
+        if not isNonEmptyString(self.getCurrentArch()):
+            colorizeWidget(self.__archCBox, "red")
+            validated = False
+        else:
+            removeEffect(self.__archCBox)
+
+        if validated:
+            self.__configDialog.accept()
 
     @popupOnException
     def on_configDialog_accepted(self):

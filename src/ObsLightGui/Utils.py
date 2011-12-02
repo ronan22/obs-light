@@ -286,7 +286,8 @@ class ProgressRunnable2(QRunnable, QObject):
             results = list()
 
             try:
-                self.setMax(len(iterable))
+                if self.__isFinite:
+                    self.setMax(len(iterable))
                 self.hasStarted()
                 for arg in iterable:
                     caughtException = None
@@ -371,3 +372,6 @@ def colorizeWidget(widget, color):
         color = QColor(color)
     effect.setColor(color)
     widget.setGraphicsEffect(effect)
+
+def removeEffect(widget):
+    widget.setGraphicsEffect(None)
