@@ -417,7 +417,7 @@ class PackageManager(QObject):
 
     @popupOnException
     def __refreshStatus(self, method):
-        if len(self.selectedPackages() == 0):
+        if len(self.selectedPackages()) == 0:
             self.selectAllPackages()
         self.__mapOnSelectedPackages(firstArgLast(method),
                                      "Refreshing package status",
