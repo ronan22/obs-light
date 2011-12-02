@@ -1,4 +1,7 @@
-obslight (0.4.3-1) stable; urgency=low
+obslight (0.4.4-1) stable; urgency=low
+%changelog
+  * Version 0.4.4 
+    Add Prep/build/install/build rpm.
 
   * Version 0.4.3
     New import dialogs
@@ -28,5 +31,4 @@ obslight (0.4.3-1) stable; urgency=low
     Added some tests
 
   * Initial Release
-
- -- Florent Vennetier <florent@fridu.net>  Fri, 25 Nov 2011 17:41:31 +0100
+ -- Ronan Le Martret (Intel OTC) <Ronan@fridu.net> Fri, 02 Dec 2011 17:11:18 +0100

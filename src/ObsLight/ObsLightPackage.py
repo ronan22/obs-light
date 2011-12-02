@@ -156,6 +156,7 @@ class ObsLightPackage(object):
         
         '''
         self.__packageDirectory = None
+        chRootStatus = "Not installed"
 
     def isInstallInChroot(self):
         '''

@@ -1,6 +1,6 @@
 %define name obslight
-%define version 0.4.3
-%define unmangled_version 0.4.3
+%define version 0.4.4
+%define unmangled_version 0.4.4
 %define release 1
 
 Summary: OBS Light
@@ -133,6 +133,9 @@ rm -rf %{buildroot}
 %{_bindir}/obsextractgroups
 
 %changelog
+* Fri Dec 02 2011 Ronan Le Martret (Intel OTC) <Ronan@fridu.net> 0.4.4
+-Add Prep/build/install/build rpm.
+
 * Fri Nov 25 2011 Florent Vennetier (Intel OTC) <florent@fridu.net> 0.4.3-1
 - New import dialogs
 - Fixed several bugs
