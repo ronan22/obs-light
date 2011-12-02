@@ -164,22 +164,6 @@
  <connections>
   <connection>
    <sender>obsProjectConfigButtonBox</sender>
-   <signal>accepted()</signal>
-   <receiver>obsProjectConfigDialog</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>157</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>obsProjectConfigButtonBox</sender>
    <signal>rejected()</signal>
    <receiver>obsProjectConfigDialog</receiver>
    <slot>reject()</slot>

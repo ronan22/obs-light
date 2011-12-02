@@ -372,3 +372,6 @@ def colorizeWidget(widget, color):
         color = QColor(color)
     effect.setColor(color)
     widget.setGraphicsEffect(effect)
+
+def removeEffect(widget):
+    widget.setGraphicsEffect(None)
