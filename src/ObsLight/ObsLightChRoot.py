@@ -50,8 +50,8 @@ class ObsLightChRoot(object):
         self.__chrootDirectory = os.path.join(projectDirectory, "aChroot")
         self.__chrootDirTransfert = os.path.join(projectDirectory, "chrootTransfert")
         self.__dirTransfert = "/chrootTransfert"
-        self.__chrootrpmbuildDirectory = "/root/rpmbuild"
-
+        self.__chrootRpmBuildDirectory = "/root/rpmbuild"
+        self.__chrootRpmBuildTmpDirectory = "/root/obslightbuild"
         self.__mySubprocessCrt = SubprocessCrt()
 
         if fromSave == None:
@@ -60,6 +60,12 @@ class ObsLightChRoot(object):
             if "dicoRepos" in fromSave.keys():
                 self.__dicoRepos = fromSave["dicoRepos"]
         self.initChRoot()
+
+    def getChrootRpmBuildDirectory(self):
+        '''
+        
+        '''
+        return self.__chrootRpmBuildDirectory
 
     def getChrootDirTransfert(self):
         '''
@@ -200,19 +206,16 @@ class ObsLightChRoot(object):
 
             ObsLightPrintManager.getLogger().debug("for the package " + name + " the prepDirname is: " + str(prepDirname))
 
-            if prepDirname == None:
-                return None
-
-            pathBuild = self.getDirectory() + "/" + self.__chrootrpmbuildDirectory + "/" + "BUILD"
+            pathBuild = self.getDirectory() + "/" + self.__chrootRpmBuildDirectory + "/" + "BUILD"
             if not os.path.isdir(pathBuild):
                 raise ObsLightErr.ObsLightChRootError("in the chroot path: " + pathBuild + " is not a directory")
 
-            resultPath = self.__chrootrpmbuildDirectory + "/BUILD/" + prepDirname
+            resultPath = self.__chrootRpmBuildDirectory + "/BUILD/" + prepDirname
 
             subDir = os.listdir(pathBuild + "/" + prepDirname)
             if len(subDir) == 0:
                 return resultPath
-            elif len(subDir) == 1:
+            elif (len(subDir) == 1) and os.path.isdir(pathBuild + "/" + prepDirname + "/" + subDir[0]):
                 return resultPath + "/" + subDir[0]
             else:
                 return resultPath
@@ -249,8 +252,8 @@ class ObsLightChRoot(object):
                 return None
                 #raise ObsLightErr.ObsLightChRootError(packageName + " the zypper Script fail")
 
-            if os.path.isdir(self.getDirectory() + "/" + self.__chrootrpmbuildDirectory + "/SPECS/"):
-                aspecFile = self.__chrootrpmbuildDirectory + "/SPECS/" + specFile
+            if os.path.isdir(self.getDirectory() + "/" + self.__chrootRpmBuildDirectory + "/SPECS/"):
+                aspecFile = self.__chrootRpmBuildDirectory + "/SPECS/" + specFile
                 self.prepRpm(specFile=aspecFile)
                 #find the directory to watch
                 packageDirectory = self.__findPackageDirectory(package=package)
@@ -355,11 +358,45 @@ class ObsLightChRoot(object):
         command.append("rpmbuild -bi --short-circuit --define '_srcdefattr (-,root,root)' " + specFile + " < /dev/null")
         self.execCommand(command=command)
 
-    def packageRpm(self, specFile=None):
+    def packageRpm(self,
+                   package,
+                   specFile,
+                   pathPackage,
+                   tarFile
+                   ):
         '''
         Execute the package section of an RPM spec file.
         '''
-        pass
+        tmpPath = pathPackage.replace(self.__chrootRpmBuildDirectory + "/BUILD", "")
+
+        command = []
+        command.append("rm -r " + self.__chrootRpmBuildTmpDirectory)
+        command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/BUILD")
+        command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/BUILDROOT")
+        command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/RPMS")
+        command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/SOURCES")
+        command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/SPECS")
+        command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/SRPMS")
+        command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/TMP")
+        command.append("sudo chown root:users " + self.__chrootRpmBuildTmpDirectory)
+        command.append("sudo chmod g+rw " + self.__chrootRpmBuildTmpDirectory)
+
+        command.append("git --git-dir=" + pathPackage + "/.git --work-tree=" + pathPackage + \
+                       " archive --format=tar --prefix=" + tmpPath + "/ HEAD \
+                       | (cd " + self.__chrootRpmBuildTmpDirectory + "/TMP/" + " && tar xf -)")
+
+        command.append("tar -czvf  " + tarFile + " *")
+        command.append("mv " + tarFile + " ../SOURCES")
+        self.execCommand(command=command)
+        pathToSaveSpec = specFile.replace(self.__chrootRpmBuildDirectory, self.__chrootRpmBuildTmpDirectory)
+
+
+        package.saveTmpSpec(path=pathToSaveSpec,
+                            topdir=self.__chrootRpmBuildTmpDirectory)
+        command = []
+        command.append("rpmbuild -bb " + pathToSaveSpec)
+        #command.append("rm -r " + self.__chrootRpmBuildTmpDirectory)
+        self.execCommand(command=command)
 
     def goToChRoot(self, path=None, detach=False):
         '''

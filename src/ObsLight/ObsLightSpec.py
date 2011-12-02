@@ -428,6 +428,20 @@ class ObsLightSpec:
                 f.write(line)
         f.close()
 
+    def saveTmpSpec(self, path, topdir):
+        '''
+        
+        '''
+        if path == None:
+            return None
+        f = open(path, 'w')
+        f.write("%define _topdir         " + topdir)
+        for section in self.__orderList:
+            for line in self.__spectDico[section]:
+                if (section != "%prep") or (line.startswith('%setup')):
+                    f.write(line)
+        f.close()
+
     def getsection(self):
         '''
         

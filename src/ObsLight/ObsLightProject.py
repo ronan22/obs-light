@@ -660,7 +660,7 @@ class ObsLightProject(object):
         Open a Bash in the chroot.
         '''
         if package != None:
-            pathPackage = self.getAbsPackagePath(name=package)
+            pathPackage = self.__packages.getOscDirectory(name=package)
             if pathPackage != None:
                 pathScript = self.__chroot.getChrootDirTransfert() + "/runMe.sh"
                 f = open(pathScript, 'w')
@@ -690,21 +690,35 @@ class ObsLightProject(object):
         
         '''
         specFile = self.__packages.getSpecFile(package)
-        self.__chroot.buildRpm(specFile=specFile)
+        aspecFile = self.__chroot.getChrootRpmBuildDirectory() + "/SPECS/" + specFile
+        self.__chroot.buildRpm(specFile=aspecFile)
 
     def installRpm(self, package):
         '''
         
         '''
         specFile = self.__packages.getSpecFile(package)
-        self.__chroot.installRpm(specFile=specFile)
+        aspecFile = self.__chroot.getChrootRpmBuildDirectory() + "/SPECS/" + specFile
+        self.__chroot.installRpm(specFile=aspecFile)
 
     def packageRpm(self, package):
         '''
         
         '''
-        specFile = self.__packages.getSpecFile(package)
-        self.__chroot.packageRpm(specFile=specFile)
+        path = self.__packages.getPackage(package=package).getPackageDirectory()
+        rootPath = self.__chroot.getDirectory()
+
+        specFile = self.__packages.getSpecFile(name=package)
+        aspecFile = self.__chroot.getChrootRpmBuildDirectory() + "/SPECS/" + specFile
+        name = self.__packages.getPackage(package=package).getMacroDirectoryPackageName()
+        if name != None:
+            prepDirname = self.__chroot.resolveMacro(name)
+            if name != None:
+                tarFile = prepDirname + ".tar.gz"
+                self.__chroot.packageRpm(package=self.__packages.getPackage(package=package),
+                                         specFile=aspecFile,
+                                         pathPackage=path,
+                                         tarFile=tarFile)
 
     def makePatch(self, package=None, patch=None):
         '''

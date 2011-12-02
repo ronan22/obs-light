@@ -597,7 +597,14 @@ class ObsLightOsc(object):
         
         '''
         os.chdir(path)
-        command = "osc repairwc . ; rm *"
+        command = "pwd"
+        self.__subprocess(command=command)
+        command = "osc repairwc ."
+        self.__subprocess(command=command)
+
+        for f in  os.listdir(path):
+            if not os.path.isdir(path + "/" + f):
+                os.unlink(path + "/" + f)
         self.__subprocess(command=command)
 
 __myObsLightOsc = ObsLightOsc()

@@ -52,10 +52,14 @@ class ObsLightPackage(object):
         '''
         Constructor
         '''
+
         self.__packagePath = packagePath
         self.__mySubprocessCrt = SubprocessCrt()
         self.__yamlFile = None
         self.__specFile = None
+        self.__myYamlFile = None
+        self.__mySpecFile = None
+
         self.__description = description
         self.__packageTitle = packageTitle
         self.__chRootStatus = chRootStatus
@@ -95,6 +99,12 @@ class ObsLightPackage(object):
             if "oscStatus" in fromSave.keys():
                 self.__oscStatus = fromSave["oscStatus"]
         self.__initConfigureFile()
+
+    def getPackagePath(self):
+        '''
+        
+        '''
+        return self.__packagePath
 
     def getGetChRootStatus(self):
         '''
@@ -137,8 +147,9 @@ class ObsLightPackage(object):
         '''
         
         '''
-        self.__mySpecFile = ObsLightSpec(packagePath=self.__packagePath,
-                                         file=self.__specFile)
+        if os.path.isfile(self.__packagePath + "/" + self.__specFile):
+            self.__mySpecFile = ObsLightSpec(packagePath=self.__packagePath,
+                                             file=self.__specFile)
 
     def delFromChroot(self):
         '''
@@ -320,7 +331,21 @@ class ObsLightPackage(object):
         '''
         
         '''
+        print "tic", self.__name
+        print "self.__specFile", self.__specFile
+        print "self.__mySpecFile", self.__mySpecFile
+
+        if self.__mySpecFile == None:
+            self.__initSpecFile()
+
+        print "self.__mySpecFile", self.__mySpecFile
+
+        if self.__mySpecFile == None:
+            return None
+
         name = self.__mySpecFile.getMacroDirectoryPackageName()
+        print "toc"
+
         if name != None:
             name = self.__mySpecFile.getResolveMacroName(name)
             return name
@@ -342,23 +367,23 @@ class ObsLightPackage(object):
 
         self.__addFile(aFile)
 
-    def __isASpecfile(self, file):
+    def __isASpecfile(self, afile):
         '''
         
         '''
-        return file.endswith(".spec")
+        return afile.endswith(".spec")
 
-    def __isAyamlfile(self, file):
+    def __isAyamlfile(self, afile):
         '''
         
         '''
-        return file.endswith(".yaml")
+        return afile.endswith(".yaml")
 
-    def __addFile(self, file):
+    def __addFile(self, afile):
         '''
         
         '''
-        self.__listFile.append(file)
+        self.__listFile.append(afile)
 
     def addFile(self, path):
         '''
@@ -402,6 +427,15 @@ class ObsLightPackage(object):
             self.__myYamlFile.save()
         elif self.__mySpecFile != None:
             self.__mySpecFile.save()
+        else:
+            raise ObsLightPackageErr("No Spec or Yaml in the package")
+
+    def saveTmpSpec(self, path, topdir):
+        '''
+        Save the Spec file.
+        '''
+        if self.__mySpecFile != None:
+            self.__mySpecFile.saveTmpSpec(path=path, topdir=topdir)
         else:
             raise ObsLightPackageErr("No Spec or Yaml in the package")
 

@@ -640,6 +640,7 @@ class ObsLightManager(object):
         '''
         self.__myObsLightProjects.buildRpm(projectLocalName=projectLocalName,
                                                               package=package)
+        self.__myObsLightProjects.save()
 
     @checkProjectLocalName(1)
     def installRpm(self, projectLocalName, package):
@@ -648,6 +649,7 @@ class ObsLightManager(object):
         '''
         self.__myObsLightProjects.installRpm(projectLocalName=projectLocalName,
                                                                 package=package)
+        self.__myObsLightProjects.save()
 
     @checkProjectLocalName(1)
     def packageRpm(self, projectLocalName, package):
@@ -656,6 +658,7 @@ class ObsLightManager(object):
         '''
         self.__myObsLightProjects.packageRpm(projectLocalName=projectLocalName,
                                                                 package=package)
+        self.__myObsLightProjects.save()
 
     @checkProjectLocalName(1)
     def makePatch(self, projectLocalName, package, patch):
