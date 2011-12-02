@@ -290,6 +290,8 @@ class ProgressRunnable2(QRunnable, QObject):
                     self.setMax(len(iterable))
                 self.hasStarted()
                 for arg in iterable:
+                    if self.wasAskedToCancel():
+                        break
                     caughtException = None
                     try:
                         if isNonEmptyString(message):
