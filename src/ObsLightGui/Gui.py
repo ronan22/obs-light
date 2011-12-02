@@ -65,7 +65,7 @@ class Gui(QObject):
     def __beforeQuitting(self):
         self.__logManager.disconnectLogger()
 
-    def loadWindow(self, uiFile):
+    def loadWindow(self, uiFile, mainWindowAsParent=True):
         '''
         Load a Window from UI file.
         '''
@@ -73,7 +73,7 @@ class Gui(QObject):
         windowFile = QFile(path)
         windowFile.open(QIODevice.ReadOnly | QIODevice.Text)
         # Make all loaded windows children of mainWindow, except mainWindow itself
-        window = self.uiLoader.load(windowFile, self.__mainWindow)
+        window = self.uiLoader.load(windowFile, self.__mainWindow if mainWindowAsParent else None)
         windowFile.close()
         QMetaObject.connectSlotsByName(window)
         return window

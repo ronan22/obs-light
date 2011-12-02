@@ -89,3 +89,6 @@ class LogManager(QObject):
     def show(self):
         self.__logDialog.show()
         self.__logDialog.activateWindow()
+
+    def close(self):
+        self.__logDialog.close()
