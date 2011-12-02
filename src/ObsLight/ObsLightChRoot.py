@@ -261,7 +261,7 @@ class ObsLightChRoot(object):
                 package.setDirectoryBuild(packageDirectory)
                 if packageDirectory != None:
                     self.initGitWatch(path=packageDirectory)
-                    self.buildRpm(aspecFile)
+                    self.__buildRpm(aspecFile)
                     self.ignoreGitWatch(path=packageDirectory)
                     package.setChRootStatus("Installed")
             else:
@@ -342,20 +342,103 @@ class ObsLightChRoot(object):
         command.append("rpmbuild -bp --define '_srcdefattr (-,root,root)' " + specFile + " < /dev/null")
         self.execCommand(command=command)
 
-    def buildRpm(self, specFile=None):
+    def __buildRpm(self, specFile=None):
         '''
-        Execute the %build section of an RPM spec file.
+        Execute the %prep section of an RPM spec file.
         '''
         command = []
         command.append("rpmbuild -bc --short-circuit --define '_srcdefattr (-,root,root)' " + specFile + " < /dev/null")
         self.execCommand(command=command)
 
-    def installRpm(self, specFile=None):
+
+    def buildRpm(self,
+                   package,
+                   specFile,
+                   pathPackage,
+                   tarFile
+                   ):
+        '''
+        Execute the %build section of an RPM spec file.
+        '''
+        tmpPath = pathPackage.replace(self.__chrootRpmBuildDirectory + "/BUILD", "").strip("/")
+        tmpPath = tmpPath.strip("/")
+        command = []
+        command.append("rm -r " + self.__chrootRpmBuildTmpDirectory)
+        command.append("rm -r " + self.__chrootRpmBuildDirectory + "/BUILDROOT/*")
+        command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/BUILD")
+        command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/BUILDROOT")
+        command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/RPMS")
+        command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/SOURCES")
+        command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/SPECS")
+        command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/SRPMS")
+        command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/TMP")
+        command.append("chown -R root:users " + self.__chrootRpmBuildTmpDirectory)
+        command.append("chmod -R g+rw " + self.__chrootRpmBuildTmpDirectory)
+
+        command.append("git --git-dir=" + pathPackage + "/.git --work-tree=" + pathPackage + \
+                       " archive --format=tar --prefix=" + tmpPath + "/ HEAD \
+                       | (cd " + self.__chrootRpmBuildTmpDirectory + "/TMP/ && tar xf -)")
+
+        command.append("cd " + self.__chrootRpmBuildTmpDirectory + "/TMP/")
+        command.append("tar -czvf  " + tarFile + " *")
+        command.append("mv " + tarFile + " ../SOURCES")
+        self.execCommand(command=command)
+        pathToSaveSpec = specFile.replace(self.__chrootRpmBuildDirectory,
+                                          self.__chrootRpmBuildTmpDirectory)
+
+        package.saveTmpSpec(path=self.getDirectory() + pathToSaveSpec,
+                            topdir=self.__chrootRpmBuildTmpDirectory,
+                            archive=tarFile)
+        command = []
+        command = []
+        command.append("rpmbuild -bc --define '_srcdefattr (-,root,root)' " + specFile + " < /dev/null")
+        command.append("cp -fprv  " + self.__chrootRpmBuildTmpDirectory + "/BUILD/* " + self.__chrootRpmBuildDirectory + "/BUILD/")
+        command.append("rm -r " + self.__chrootRpmBuildTmpDirectory)
+        self.execCommand(command=command)
+
+    def installRpm(self,
+                   package,
+                   specFile,
+                   pathPackage,
+                   tarFile
+                   ):
         '''
         Execute the %install section of an RPM spec file.
         '''
+        tmpPath = pathPackage.replace(self.__chrootRpmBuildDirectory + "/BUILD", "").strip("/")
+        tmpPath = tmpPath.strip("/")
         command = []
-        command.append("rpmbuild -bi --short-circuit --define '_srcdefattr (-,root,root)' " + specFile + " < /dev/null")
+        command.append("rm -r " + self.__chrootRpmBuildTmpDirectory)
+        command.append("rm -r " + self.__chrootRpmBuildDirectory + "/BUILDROOT/*")
+        command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/BUILD")
+        command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/BUILDROOT")
+        command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/RPMS")
+        command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/SOURCES")
+        command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/SPECS")
+        command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/SRPMS")
+        command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/TMP")
+        command.append("chown -R root:users " + self.__chrootRpmBuildTmpDirectory)
+        command.append("chmod -R g+rw " + self.__chrootRpmBuildTmpDirectory)
+
+        command.append("git --git-dir=" + pathPackage + "/.git --work-tree=" + pathPackage + \
+                       " archive --format=tar --prefix=" + tmpPath + "/ HEAD \
+                       | (cd " + self.__chrootRpmBuildTmpDirectory + "/TMP/ && tar xf -)")
+
+        command.append("cd " + self.__chrootRpmBuildTmpDirectory + "/TMP/")
+        command.append("tar -czvf  " + tarFile + " *")
+        command.append("mv " + tarFile + " ../SOURCES")
+        self.execCommand(command=command)
+        pathToSaveSpec = specFile.replace(self.__chrootRpmBuildDirectory,
+                                          self.__chrootRpmBuildTmpDirectory)
+
+        package.saveTmpSpec(path=self.getDirectory() + pathToSaveSpec,
+                            topdir=self.__chrootRpmBuildTmpDirectory,
+                            archive=tarFile)
+        command = []
+        command.append("rpmbuild -bi --define '_srcdefattr (-,root,root)' " + specFile + " < /dev/null")
+        command.append("cp -fprv  " + self.__chrootRpmBuildTmpDirectory + "/BUILD/* " + self.__chrootRpmBuildDirectory + "/BUILD/")
+        command.append("cp -fprv  " + self.__chrootRpmBuildTmpDirectory + "/BUILDROOT/* " + self.__chrootRpmBuildDirectory + "/BUILDROOT/")
+        command.append("rm -r " + self.__chrootRpmBuildTmpDirectory)
         self.execCommand(command=command)
 
     def packageRpm(self,
@@ -367,10 +450,11 @@ class ObsLightChRoot(object):
         '''
         Execute the package section of an RPM spec file.
         '''
-        tmpPath = pathPackage.replace(self.__chrootRpmBuildDirectory + "/BUILD", "")
-
+        tmpPath = pathPackage.replace(self.__chrootRpmBuildDirectory + "/BUILD", "").strip("/")
+        tmpPath = tmpPath.strip("/")
         command = []
         command.append("rm -r " + self.__chrootRpmBuildTmpDirectory)
+        command.append("rm -r " + self.__chrootRpmBuildDirectory + "/BUILDROOT/*")
         command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/BUILD")
         command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/BUILDROOT")
         command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/RPMS")
@@ -378,24 +462,30 @@ class ObsLightChRoot(object):
         command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/SPECS")
         command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/SRPMS")
         command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/TMP")
-        command.append("sudo chown root:users " + self.__chrootRpmBuildTmpDirectory)
-        command.append("sudo chmod g+rw " + self.__chrootRpmBuildTmpDirectory)
+        command.append("chown -R root:users " + self.__chrootRpmBuildTmpDirectory)
+        command.append("chmod -R g+rw " + self.__chrootRpmBuildTmpDirectory)
 
         command.append("git --git-dir=" + pathPackage + "/.git --work-tree=" + pathPackage + \
                        " archive --format=tar --prefix=" + tmpPath + "/ HEAD \
-                       | (cd " + self.__chrootRpmBuildTmpDirectory + "/TMP/" + " && tar xf -)")
+                       | (cd " + self.__chrootRpmBuildTmpDirectory + "/TMP/ && tar xf -)")
 
+        command.append("cd " + self.__chrootRpmBuildTmpDirectory + "/TMP/")
         command.append("tar -czvf  " + tarFile + " *")
         command.append("mv " + tarFile + " ../SOURCES")
         self.execCommand(command=command)
-        pathToSaveSpec = specFile.replace(self.__chrootRpmBuildDirectory, self.__chrootRpmBuildTmpDirectory)
+        pathToSaveSpec = specFile.replace(self.__chrootRpmBuildDirectory,
+                                          self.__chrootRpmBuildTmpDirectory)
 
-
-        package.saveTmpSpec(path=pathToSaveSpec,
-                            topdir=self.__chrootRpmBuildTmpDirectory)
+        package.saveTmpSpec(path=self.getDirectory() + pathToSaveSpec,
+                            topdir=self.__chrootRpmBuildTmpDirectory,
+                            archive=tarFile)
         command = []
-        command.append("rpmbuild -bb " + pathToSaveSpec)
-        #command.append("rm -r " + self.__chrootRpmBuildTmpDirectory)
+        command.append("rpmbuild -bb --define '_srcdefattr (-,root,root)' " + pathToSaveSpec + " < /dev/null")
+        command.append("cp -fprv  " + self.__chrootRpmBuildTmpDirectory + "/RPMS/* " + self.__chrootRpmBuildDirectory + "/RPMS/")
+        command.append("cp -fprv  " + self.__chrootRpmBuildTmpDirectory + "/SRPMS/* " + self.__chrootRpmBuildDirectory + "/SRPMS/")
+        command.append("cp -fprv  " + self.__chrootRpmBuildTmpDirectory + "/BUILD/* " + self.__chrootRpmBuildDirectory + "/BUILD/")
+        command.append("cp -fprv  " + self.__chrootRpmBuildTmpDirectory + "/BUILDROOT/* " + self.__chrootRpmBuildDirectory + "/BUILDROOT/")
+        command.append("rm -r " + self.__chrootRpmBuildTmpDirectory)
         self.execCommand(command=command)
 
     def goToChRoot(self, path=None, detach=False):

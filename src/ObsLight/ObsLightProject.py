@@ -689,17 +689,39 @@ class ObsLightProject(object):
         '''
         
         '''
-        specFile = self.__packages.getSpecFile(package)
+        path = self.__packages.getPackage(package=package).getPackageDirectory()
+        rootPath = self.__chroot.getDirectory()
+
+        specFile = self.__packages.getSpecFile(name=package)
         aspecFile = self.__chroot.getChrootRpmBuildDirectory() + "/SPECS/" + specFile
-        self.__chroot.buildRpm(specFile=aspecFile)
+        name = self.__packages.getPackage(package=package).getMacroDirectoryPackageName()
+        if name != None:
+            prepDirname = self.__chroot.resolveMacro(name)
+            if name != None:
+                tarFile = prepDirname + ".tar.gz"
+                self.__chroot.buildRpm(package=self.__packages.getPackage(package=package),
+                                       specFile=aspecFile,
+                                       pathPackage=path,
+                                       tarFile=tarFile)
 
     def installRpm(self, package):
         '''
         
         '''
-        specFile = self.__packages.getSpecFile(package)
+        path = self.__packages.getPackage(package=package).getPackageDirectory()
+        rootPath = self.__chroot.getDirectory()
+
+        specFile = self.__packages.getSpecFile(name=package)
         aspecFile = self.__chroot.getChrootRpmBuildDirectory() + "/SPECS/" + specFile
-        self.__chroot.installRpm(specFile=aspecFile)
+        name = self.__packages.getPackage(package=package).getMacroDirectoryPackageName()
+        if name != None:
+            prepDirname = self.__chroot.resolveMacro(name)
+            if name != None:
+                tarFile = prepDirname + ".tar.gz"
+                self.__chroot.installRpm(package=self.__packages.getPackage(package=package),
+                                         specFile=aspecFile,
+                                         pathPackage=path,
+                                         tarFile=tarFile)
 
     def packageRpm(self, package):
         '''

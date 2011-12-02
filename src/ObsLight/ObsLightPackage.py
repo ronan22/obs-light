@@ -331,14 +331,8 @@ class ObsLightPackage(object):
         '''
         
         '''
-        print "tic", self.__name
-        print "self.__specFile", self.__specFile
-        print "self.__mySpecFile", self.__mySpecFile
-
         if self.__mySpecFile == None:
             self.__initSpecFile()
-
-        print "self.__mySpecFile", self.__mySpecFile
 
         if self.__mySpecFile == None:
             return None
@@ -430,12 +424,12 @@ class ObsLightPackage(object):
         else:
             raise ObsLightPackageErr("No Spec or Yaml in the package")
 
-    def saveTmpSpec(self, path, topdir):
+    def saveTmpSpec(self, path, topdir, archive):
         '''
         Save the Spec file.
         '''
         if self.__mySpecFile != None:
-            self.__mySpecFile.saveTmpSpec(path=path, topdir=topdir)
+            self.__mySpecFile.saveTmpSpec(path=path, topdir=topdir, archive=archive)
         else:
             raise ObsLightPackageErr("No Spec or Yaml in the package")
 

@@ -516,7 +516,8 @@
                <item row="9" column="1">
                 <widget class="QPushButton" name="refreshOscStatusButton">
                  <property name="toolTip">
-                  <string>Refresh OSC status column. If no package selected, refresh all (may be long).</string>
+                  <string>Refresh OSC status column.
+ If no package selected, refresh all (may be long).</string>
                  </property>
                  <property name="text">
                   <string>Refresh OSC status</string>
@@ -526,7 +527,8 @@
                <item row="6" column="1">
                 <widget class="QPushButton" name="refreshObsStatusButton">
                  <property name="toolTip">
-                  <string>Refresh OBS status column. If no package selected, refresh all (may be long).</string>
+                  <string>Refresh OBS status column.
+ If no package selected, refresh all (may be long).</string>
                  </property>
                  <property name="text">
                   <string>Refresh OBS status</string>
@@ -584,7 +586,8 @@
                 <item row="10" column="2">
                  <widget class="QPushButton" name="generatePatchButton">
                   <property name="toolTip">
-                   <string>Generate a patch from the changes made into the chroot, and add this patch to the package.</string>
+                   <string>Generate a patch from the changes made into the chroot,
+ and add this patch to the package.</string>
                   </property>
                   <property name="text">
                    <string>Generate patch</string>
@@ -742,7 +745,8 @@
                    </size>
                   </property>
                   <property name="toolTip">
-                   <string>Make a package repository accessible from the chroot (using zypper). Import repository from URL.</string>
+                   <string>Make a package repository accessible from the chroot (using zypper).
+ Import repository from URL.</string>
                   </property>
                   <property name="text">
                    <string>New</string>
@@ -798,7 +802,9 @@
                    </size>
                   </property>
                   <property name="toolTip">
-                   <string>Create (or open if it exists) the chroot of the project. If a package is selected, the chroot will open in this package's source directory.</string>
+                   <string>Create (or open if it exists) the chroot of the project.
+ If a package is selected,
+ the chroot will open in this package's source directory.</string>
                   </property>
                   <property name="text">
                    <string>New</string>
@@ -818,7 +824,8 @@
                 <item row="3" column="0">
                  <widget class="QPushButton" name="importRepoInChrootButton">
                   <property name="toolTip">
-                   <string>Make a package repository accessible from the chroot (using zypper). Import repository from another project.</string>
+                   <string>Make a package repository accessible from the chroot (using zypper).
+ Import repository from another project.</string>
                   </property>
                   <property name="text">
                    <string>Import</string>
@@ -881,7 +888,8 @@
                 <item row="4" column="3">
                  <widget class="QPushButton" name="rpmInstallButton">
                   <property name="toolTip">
-                   <string>Execute the %install section of selected package(s).</string>
+                   <string>Execute to the %install section of selected package(s)
+ in an alternate rpmbuild directory.</string>
                   </property>
                   <property name="text">
                    <string>Install</string>
@@ -906,7 +914,9 @@
                    </size>
                   </property>
                   <property name="toolTip">
-                   <string>Install the source of the selected package(s) into the chroot and execute %prep section.</string>
+                   <string>Install the source of the selected package(s)
+ into the chroot and execute %prep section,
+ init the git and do the first build </string>
                   </property>
                   <property name="text">
                    <string>Prep</string>
@@ -916,7 +926,8 @@
                 <item row="3" column="3">
                  <widget class="QPushButton" name="rpmBuildButton">
                   <property name="toolTip">
-                   <string>Execute the %build section of selected package(s).</string>
+                   <string>Execute to the %build section of selected package(s)
+ in an alternate rpmbuild directory.</string>
                   </property>
                   <property name="text">
                    <string>Build</string>
@@ -926,7 +937,8 @@
                 <item row="5" column="3">
                  <widget class="QPushButton" name="rpmBuildRpmButton">
                   <property name="toolTip">
-                   <string>Build the source and binary RPMs of selected package(s).</string>
+                   <string>Build the source and binary RPMs of selected package(s)
+ in an alternate rpmbuild directory.</string>
                   </property>
                   <property name="text">
                    <string>Build RPMs</string>

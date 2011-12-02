@@ -428,18 +428,30 @@ class ObsLightSpec:
                 f.write(line)
         f.close()
 
-    def saveTmpSpec(self, path, topdir):
+    def saveTmpSpec(self, path, topdir, archive):
         '''
         
         '''
         if path == None:
             return None
         f = open(path, 'w')
-        f.write("%define _topdir         " + topdir)
+        f.write("%define _topdir         " + topdir + "\n")
+        f.write("Source: " + archive + "\n")
         for section in self.__orderList:
             for line in self.__spectDico[section]:
-                if (section != "%prep") or (line.startswith('%setup')):
+                print line,
+                if (section == "%prep"):
+                    if (line.startswith('%prep'))  :
+                        f.write(line)
+                    elif (line.startswith('%setup')):
+                        line = line.replace("-c", "")
+                        f.write(line)
+                elif (section == "introduction_section"):
+                    if not (line.startswith("Source") and (":" in line)):
+                        f.write(line)
+                else:
                     f.write(line)
+            print
         f.close()
 
     def getsection(self):
