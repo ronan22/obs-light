@@ -26,7 +26,7 @@ from PySide.QtGui import QCompleter, QGraphicsColorizeEffect
 
 from ObsLight.ObsLightErr import OBSLightBaseError
 from ObsLight.ObsLightTools import isNonEmptyString
-from Utils import popupOnException, QRunnableImpl, colorizeWidget, removeEffect
+from Utils import popupOnException, QRunnableImpl, colorizeWidget, removeEffect, ProgressRunnable2
 
 class ProjectConfigManager(QObject):
     '''
@@ -269,11 +269,20 @@ class ProjectConfigManager(QObject):
     @popupOnException
     def on_configDialog_accepted(self):
         if self.__isNewProject():
-            self.__obsLightManager.addProject(self.getCurrentServerAlias(),
-                                              self.getCurrentProjectObsName(),
-                                              self.getCurrentTarget(),
-                                              self.getCurrentArch(),
-                                              projectLocalName=self.getCurrentProjectLocalName())
+
+            runnable = ProgressRunnable2(self.__gui.getInfiniteProgressDialog())
+            runnable.setDialogMessage("Importing project...")
+            runnable.caughtException.connect(self.__gui.popupErrorCallback)
+            runnable.setRunMethod(self.__obsLightManager.addProject,
+                                  self.getCurrentServerAlias(),
+                                  self.getCurrentProjectObsName(),
+                                  self.getCurrentTarget(),
+                                  self.getCurrentArch(),
+                                  projectLocalName=self.getCurrentProjectLocalName())
+            def emitFinished():
+                self.finished.emit(True)
+            runnable.finished.connect(emitFinished)
+            QThreadPool.globalInstance().start(runnable)
         else:
             # Currently we can't relocate a project.
 #            self.__obsLightManager.setProjectParameter(self.getCurrentProjectLocalName(),
@@ -294,7 +303,7 @@ class ProjectConfigManager(QObject):
             self.__obsLightManager.setProjectParameter(self.getCurrentProjectLocalName(),
                                                        u"description",
                                                        self.getCurrentDescription())
-        self.finished.emit(True)
+            self.finished.emit(True)
 
     def on_configDialog_rejected(self):
         self.finished.emit(False)
