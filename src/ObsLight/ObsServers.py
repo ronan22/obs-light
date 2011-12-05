@@ -140,6 +140,7 @@ class ObsServers(object):
                                alias=alias,
                                user=user,
                                passw=passw)
+        ObsLightTools.importCert(serverAPI)
         self.__dicOBSLightServers[aOBSServer.getName()] = aOBSServer
 
     def delObsServer(self, alias):
