@@ -353,9 +353,13 @@ class ObsLightPackage(object):
         if self.__myYamlFile != None:
             if self.__myYamlFile.addpatch(aFile) == 1:
                 ObsLightPrintManager.obsLightPrint("WARNING: Patch already exist the yaml file will not be changed.")
+            else:
+                self.save()
         elif self.__mySpecFile != None:
             if self.__mySpecFile.addpatch(aFile) == 1:
                 ObsLightPrintManager.obsLightPrint("WARNING: Patch already exist the spec file will not be changed.")
+            else:
+                self.save()
         else:
             raise ObsLightPackageErr("No Spec or Yaml in the package")
 
@@ -391,16 +395,12 @@ class ObsLightPackage(object):
         self.__addFile(name)
         ObsLightOsc().add(path=self.getOscDirectory(), file=name)
 
-
         if self.__isASpecfile(name):
             self.__specFile = name
             self.__initSpecFile()
         elif self.__isAyamlfile(name):
             self.__yamlFile = name
             self.__initYamlFile()
-
-
-
 
     def delFile(self, name):
         '''
@@ -415,7 +415,7 @@ class ObsLightPackage(object):
 
     def save(self):
         '''
-        Save the Spec file.
+        Save the Spec and yaml file.
         '''
         if self.__myYamlFile != None:
             self.__myYamlFile.save()
@@ -436,23 +436,31 @@ class ObsLightPackage(object):
 
     def addFileToSpec(self, baseFile=None, aFile=None):
         '''
-        Add a delete command of a aFile to the spec aFile.
+        Add a delete command of a aFile to the spec/yaml aFile.
         '''
         if self.__myYamlFile != None:
-            return self.__myYamlFile.addFile(baseFile=baseFile, aFile=aFile)
+            res = self.__myYamlFile.addFile(baseFile=baseFile, aFile=aFile)
+            self.save()
+            return res
         elif self.__mySpecFile != None:
-            return self.__mySpecFile.addFile(baseFile=baseFile, aFile=aFile)
+            self.save()
+            res = self.__mySpecFile.addFile(baseFile=baseFile, aFile=aFile)
+            return res
         else:
             raise ObsLightPackageErr("No Spec or Yaml in the package")
 
     def delFileToSpec(self, aFile=None):
         '''
-        Add a delete command of a aFile to the spec aFile.
+        Add a delete command of a aFile to the spec/yaml aFile.
         '''
         if self.__myYamlFile != None:
-            return self.__myYamlFile.delFile(aFile=aFile)
+            res = self.__myYamlFile.delFile(aFile=aFile)
+            self.save()
+            return res
         elif self.__mySpecFile != None:
-            return self.__mySpecFile.delFile(aFile=aFile)
+            res = self.__mySpecFile.delFile(aFile=aFile)
+            self.save()
+            return res
         else:
             raise ObsLightPackageErr("No Spec or Yaml in the package")
 

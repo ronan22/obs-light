@@ -220,6 +220,7 @@ class ObsLightYaml:
                 return 1
 
         self.__yamlDico[self.__Patches__].append("    - " + aFile + "\n")
+
         return 0
 
     def addFile(self, baseFile=None, aFile=None):
