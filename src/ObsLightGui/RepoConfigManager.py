@@ -134,24 +134,44 @@ class RepoConfigManager(QObject):
         return self.__urlLineEdit.text()
 
     def on_checkButton_clicked(self):
-        color = "green"
-        result = self.__obsLightManager.testUrl(self.getRepoUrl())
-        if not result:
-            if self.__obsLightManager.testHost(self.getRepoUrl()):
-                color = "orange"
-            else:
-                color = "red"
-        colorizeWidget(self.__urlLineEdit, color)
-
+        urlColor = "green"
+        aliasColor = "green"
         alias = self.getRepoAlias()
+        url = self.getRepoUrl()
+
+        resultUrl = self.__obsLightManager.testUrl(url)
+        if not resultUrl:
+            if self.__obsLightManager.testHost(url):
+                urlColor = "orange"
+            else:
+                urlColor = "red"
+        else:
+            url, alias = self.__obsLightManager.testRepo(url, alias)
+            if url != None:
+                self.__urlLineEdit.setText(url)
+            if alias != None:
+                self.__aliasLineEdit.setText(alias)
+            if (url is not None) and (not len(url) < 1):
+                resultUrl = self.__obsLightManager.testUrlRepo(url)
+                if not resultUrl:
+                    urlColor = "red"
+            else:
+                urlColor = "red"
+                resultUrl = False
+
         currentRepos = self.__obsLightManager.getChRootRepositories(self.__projectAlias)
-        result2 = True
-        if (alias is None or
-                len(alias) < 1 or
-                (alias in currentRepos and alias != self.__oldRepoAlias)):
-            result2 = False
-        colorizeWidget(self.__aliasLineEdit, "green" if result2 else "red")
-        self.__repoConfigButtonBox.button(QDialogButtonBox.Ok).setEnabled(result and result2)
+
+        resultAlias = not (alias is None or
+                          len(alias) < 1 or
+                          (alias in currentRepos and alias != self.__oldRepoAlias))
+
+        if not resultAlias :
+            aliasColor = "red"
+
+        colorizeWidget(self.__urlLineEdit, urlColor)
+        colorizeWidget(self.__aliasLineEdit, aliasColor)
+        self.__repoConfigButtonBox.button(QDialogButtonBox.Ok).setEnabled(resultUrl and
+                                                                          resultAlias)
 
     @popupOnException
     def on_configDialog_accepted(self):
