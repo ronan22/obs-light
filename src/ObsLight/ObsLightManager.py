@@ -900,6 +900,21 @@ class ObsLightManager(object):
         '''
         return ObsLightTools.testHost(Url)
 
+    def testRepo(self, url, name):
+        '''
+        return url,name
+        If url is a repo file (*.repo), the file is download,
+        parse and return url and name of the repo directory.
+        "%3a" is replace by ":" into the url.
+        '''
+        return ObsLightTools.testRepo(url=url, name=name)
+
+    def testUrlRepo(self, url):
+        '''
+        return True if the url is a repo.
+        '''
+        return ObsLightTools.testUrlRepo(url=url)
+
     def testApi(self, api, user, passwd):
         '''
         return 0 if the API,user and passwd is OK.
