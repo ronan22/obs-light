@@ -36,7 +36,7 @@ import ObsLightConfig
 VERSION = "0.4.4-1"
 
 if os.getegid() == 0:
-    print "Can't run OBS Light in root mode."
+    print "Sorry, Can't run OBS Light in root mode."
     sys.exit(0)
 
 

@@ -15,7 +15,8 @@ if "--version" in sys.argv:
 
 # Check if another instance is running
 from ObsLight.ObsLightManager import getWorkingDirectory
-pidFilePath = os.path.join(getWorkingDirectory(), u"obslightgui.pid")
+
+pidFilePath = os.path.join(getWorkingDirectory(), u"obslight.pid")
 if os.path.exists(pidFilePath):
     print "Already running... PID file is %s" % pidFilePath
     sys.exit(1)
@@ -23,11 +24,11 @@ else:
     with open(pidFilePath, "w") as pidFile:
         pidFile.write(str(os.getpid()))
 
-# Now we can load the GUI
-from ObsLight import babysitter, ObsLightManager
-from ObsLightGui.Gui import Gui
-
 try:
+    # Now we can load the GUI
+    from ObsLight import babysitter, ObsLightManager
+    from ObsLightGui.Gui import Gui
+
     obsLightManager = ObsLightManager.getManager()
     gui = Gui(obsLightManager)
     sys.exit(babysitter.run(gui.main))
