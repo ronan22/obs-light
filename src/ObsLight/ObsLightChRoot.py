@@ -613,7 +613,6 @@ class ObsLightChRoot(object):
                 shutil.copy(self.__chrootDirTransfert + "/" + baseFile, pathOscPackage + "/" + baseFile)
                 package.addFileToSpec(baseFile=baseFile, aFile=aFile)
 
-
         for fileDef in filesToDel:
             package.delFileToSpec(aFile=fileDef)
 

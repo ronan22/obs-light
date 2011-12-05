@@ -36,7 +36,6 @@ class ObsLightPackage(object):
     classdocs
     '''
 
-
     def __init__(self,
                  packagePath,
                  name=None,

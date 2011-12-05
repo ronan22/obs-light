@@ -433,6 +433,9 @@ class ObsLightProject(object):
         '''
         add a package to the projectLocalName.
         '''
+        if name in self.getListPackage(local=1):
+            return None
+
         packagePath, specFile, yamlFile, listFile = self.checkoutPackage(package=name)
 
         status = self.__obsServers.getPackageStatus(obsServer=self.__obsServer,

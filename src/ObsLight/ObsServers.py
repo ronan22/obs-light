@@ -42,6 +42,10 @@ class ObsServers(object):
         self.__pathFile = os.path.join(workingDirectory , "ObsServersConfig")
         self.__currentOBSServer = None
         self.__initServersFromOsc()
+
+        self.resultLocalProjectList = {}
+        self.resultListPackage = {}
+
         self.__load()
 
     def __initServersFromOsc(self):
@@ -151,13 +155,21 @@ class ObsServers(object):
         '''
         
         '''
-        return self.__dicOBSLightServers[server].getLocalProjectList()
+        if server in self.resultLocalProjectList.keys():
+            self.resultLocalProjectList[server] = self.__dicOBSLightServers[server].getLocalProjectList()
+        else:
+            return self.resultLocalProjectList[server]
 
 
     def getListPackage(self, obsServer=None, projectLocalName=None):
         '''
         
         '''
+        err
+        if obsServer in self.resultListPackage.keys():
+            if self.resultListPackage
+        else:
+
         return self.__dicOBSLightServers[obsServer].getListPackage(projectLocalName=projectLocalName)
 
     def checkoutPackage(self,
