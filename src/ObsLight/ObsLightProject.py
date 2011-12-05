@@ -490,10 +490,10 @@ class ObsLightProject(object):
                                                         package=package,
                                                         repo=self.__projectTarget,
                                                         arch=self.__projectArchitecture)
-
-            self.__packages.setPackageParameter(package=package,
-                                                parameter="status",
-                                                value=status)
+            if status != None:
+                self.__packages.setPackageParameter(package=package,
+                                                    parameter="status",
+                                                    value=status)
         else:
             for pk in self.getListPackage(local=1):
                 status = self.__obsServers.getPackageStatus(obsServer=self.__obsServer,

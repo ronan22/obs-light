@@ -94,6 +94,19 @@ def getObsLightGuiFormatterString():
     else:
         return u'%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 
+def getObslightLoggerLevel():
+    '''
+    return the level of the logger
+    '''
+    aConfigParser = ConfigParser.ConfigParser()
+    aConfigFile = open(CONFIGPATH, 'rw')
+
+    aConfigParser.readfp(aConfigFile)
+    if ('logger' in aConfigParser.sections()) and ('level' in aConfigParser.options('logger')):
+        return aConfigParser.get('logger', 'level', raw=True)
+    else:
+        return u'INFO'
+
 
 if not os.path.exists(CONFIGPATH):
     shutil.copy2(os.path.join(os.path.dirname(__file__), "config", OBSLIGHTCONFIG), CONFIGPATH)
