@@ -75,6 +75,9 @@ def testApi(api, user, passwd):
     return ObsLightOsc.getObsLightOsc().testApi(api=api, user=user, passwd=passwd)
 
 def importCert(url):
+    '''
+    Import the SSL certificate of an HTTPS server into osc configuration.
+    '''
     (scheme, netloc, _path, _params, _query, _fragment) = urlparse(str(url))
     if ":" in netloc:
         (host, port) = netloc.split(":")
@@ -99,7 +102,7 @@ def importCert(url):
         raise
     cert = conn.get_peer_cert()
     dirpath = expanduser('~/.config/osc/trusted-certs')
-    filePath = dirpath + '/%s.pem' % host
+    filePath = dirpath + '/%s_%d.pem' % (host, port)
     cert.save_pem(filePath)
     conn.close()
 
