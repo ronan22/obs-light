@@ -140,15 +140,15 @@ def importCert(url):
     Import the SSL certificate of an HTTPS server into osc configuration.
     '''
     (scheme, netloc, _path, _params, _query, _fragment) = urlparse(str(url))
+    if scheme == "http":
+        return
     if ":" in netloc:
         (host, port) = netloc.split(":")
         port = int(port)
     else:
         host = netloc
-        if scheme == "https":
-            port = 443
-        else:
-            port = 80
+        port = 443
+
     ctx = SSL.Context()
     ctx.set_allow_unknown_ca(True)
     ctx.set_verify(SSL.verify_none, 1)
