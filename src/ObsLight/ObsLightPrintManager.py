@@ -53,7 +53,7 @@ def removeHandler(handler):
 
 formatter = logging.Formatter(ObsLightConfig.getObslightFormatter())
 handler.setFormatter(formatter)
-setLoggerLevel('DEBUG')
+setLoggerLevel(ObsLightConfig.getObslightLoggerLevel())
 addHandler(handler)
 
 def getLogger():

@@ -17,3 +17,5 @@ obslight=%(asctime)s %(name)s %(levelname)s: %(message)s
 # The GUI also supports HTML tags
 obslightgui=<font color="#0000FF">%(asctime)s</font> <font color="#009F00">%(name)s %(levelname)s</font>: %(message)s
 
+# Logger Level {DEBUG,INFO,WARNING,ERROR,CRITICAL}
+level=INFO
