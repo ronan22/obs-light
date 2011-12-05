@@ -156,21 +156,27 @@ class ObsServers(object):
         
         '''
         if server in self.resultLocalProjectList.keys():
-            self.resultLocalProjectList[server] = self.__dicOBSLightServers[server].getLocalProjectList()
-        else:
             return self.resultLocalProjectList[server]
-
+        else:
+            self.resultLocalProjectList[server] = self.__dicOBSLightServers[server].getLocalProjectList()
+            return self.resultLocalProjectList[server]
 
     def getListPackage(self, obsServer=None, projectLocalName=None):
         '''
         
         '''
-        err
         if obsServer in self.resultListPackage.keys():
-            if self.resultListPackage
+            if projectLocalName in self.resultListPackage[obsServer].keys():
+                return self.resultListPackage[obsServer][projectLocalName]
+            else:
+                res = self.__dicOBSLightServers[obsServer].getListPackage(projectLocalName=projectLocalName)
+                self.resultListPackage[obsServer][projectLocalName] = res
+                return res
         else:
-
-        return self.__dicOBSLightServers[obsServer].getListPackage(projectLocalName=projectLocalName)
+            self.resultListPackage[obsServer] = {}
+            res = self.__dicOBSLightServers[obsServer].getListPackage(projectLocalName=projectLocalName)
+            self.resultListPackage[obsServer][projectLocalName] = res
+            return res
 
     def checkoutPackage(self,
                         obsServer=None,
