@@ -17,7 +17,6 @@ def signal_handler(signal, frame):
         print >> sys.stderr, "user escape..."
     else:
         print >> sys.stderr, "kill process..."
-
     sys.exit(0)
 
 signal.signal(signal.SIGINT, signal_handler)
@@ -36,7 +35,6 @@ from ObsLight import babysitter
 obslightcli = commandline.ObsLight()
 
 r = babysitter.run(obslightcli.main)
-
 
 sys.exit(r)
 

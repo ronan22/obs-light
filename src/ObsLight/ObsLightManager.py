@@ -22,6 +22,7 @@ Created on 17 juin 2011
 '''
 
 import os
+import sys
 
 from ObsLightErr import ObsLightObsServers
 from ObsLightErr import ObsLightProjectsError
@@ -33,6 +34,11 @@ import ObsLightPrintManager
 import ObsLightConfig
 
 VERSION = "0.4.4-1"
+
+if os.getegid() == 0:
+    print "Can't run OBS Light in root mode."
+    sys.exit(0)
+
 
 def getVersion():
     '''
