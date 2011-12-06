@@ -26,6 +26,7 @@ import platform
 import shlex
 import shutil
 import subprocess
+import re
 
 import ObsLightOsc
 import ObsLightMic
@@ -50,8 +51,10 @@ class ObsLightChRoot(object):
         self.__chrootDirectory = os.path.join(projectDirectory, "aChroot")
         self.__chrootDirTransfert = os.path.join(projectDirectory, "chrootTransfert")
         self.__dirTransfert = "/chrootTransfert"
-        self.__chrootRpmBuildDirectory = "/root/rpmbuild"
-        self.__chrootRpmBuildTmpDirectory = "/root/obslightbuild"
+        self.__rpmBuildDirectory = "rpmbuild"
+        self.__rpmBuildTmpDirectory = "obslightbuild"
+        self.__chrootRpmBuildDirectory = "/root/" + self.__rpmBuildDirectory
+        self.__chrootRpmBuildTmpDirectory = "/root/" + self.__rpmBuildTmpDirectory
         self.__mySubprocessCrt = SubprocessCrt()
 
         if fromSave == None:
@@ -143,6 +146,9 @@ class ObsLightChRoot(object):
         self.__subprocess(command="sudo chmod g+rw " + self.getDirectory())
         self.__subprocess(command="sudo chmod g+r " + self.getDirectory() + "/root")
         self.__subprocess(command="sudo chmod g+rw " + self.getDirectory() + "/etc")
+        self.__subprocess(command="sudo chown -R root:users " + self.getDirectory() + "/usr/lib/rpm")
+        self.__subprocess(command="sudo chmod -R g+rw " + self.getDirectory() + "/usr/lib/rpm")
+
 
         self.initRepos()
 
@@ -360,18 +366,20 @@ class ObsLightChRoot(object):
         '''
         Execute the %build section of an RPM spec file.
         '''
+        self.__changeTopDir(self.__rpmBuildDirectory)
         tmpPath = pathPackage.replace(self.__chrootRpmBuildDirectory + "/BUILD", "").strip("/")
         tmpPath = tmpPath.strip("/")
         command = []
-        command.append("rm -r " + self.__chrootRpmBuildTmpDirectory)
-        command.append("rm -r " + self.__chrootRpmBuildDirectory + "/BUILDROOT/*")
+
         command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/BUILD")
-        command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/BUILDROOT")
-        command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/RPMS")
-        command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/SOURCES")
         command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/SPECS")
-        command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/SRPMS")
         command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/TMP")
+
+        command.append("ln -sf " + self.__chrootRpmBuildDirectory + "/BUILDROOT " + self.__chrootRpmBuildTmpDirectory)
+        command.append("ln -sf " + self.__chrootRpmBuildDirectory + "/RPMS " + self.__chrootRpmBuildTmpDirectory)
+        command.append("ln -sf " + self.__chrootRpmBuildDirectory + "/SOURCES " + self.__chrootRpmBuildTmpDirectory)
+        command.append("ln -sf " + self.__chrootRpmBuildDirectory + "/SRPMS " + self.__chrootRpmBuildTmpDirectory)
+
         command.append("chown -R root:users " + self.__chrootRpmBuildTmpDirectory)
         command.append("chmod -R g+rw " + self.__chrootRpmBuildTmpDirectory)
 
@@ -390,11 +398,11 @@ class ObsLightChRoot(object):
                             topdir=self.__chrootRpmBuildTmpDirectory,
                             archive=tarFile)
         command = []
-        command = []
         command.append("rpmbuild -bc --define '_srcdefattr (-,root,root)' " + pathToSaveSpec + " < /dev/null")
-        command.append("cp -fprv  " + self.__chrootRpmBuildTmpDirectory + "/BUILD/* " + self.__chrootRpmBuildDirectory + "/BUILD/")
-        command.append("rm -r " + self.__chrootRpmBuildTmpDirectory)
+        #command.append("cp -fpr  " + self.__chrootRpmBuildTmpDirectory + "/BUILD/* " + self.__chrootRpmBuildDirectory + "/BUILD/")
+        command.append("rm -r " + self.__chrootRpmBuildTmpDirectory + "/TMP")
         self.execCommand(command=command)
+        self.__changeTopDir(self.__rpmBuildDirectory)
 
     def installRpm(self,
                    package,
@@ -405,18 +413,20 @@ class ObsLightChRoot(object):
         '''
         Execute the %install section of an RPM spec file.
         '''
+        self.__changeTopDir(self.__rpmBuildDirectory)
         tmpPath = pathPackage.replace(self.__chrootRpmBuildDirectory + "/BUILD", "").strip("/")
         tmpPath = tmpPath.strip("/")
         command = []
-        command.append("rm -r " + self.__chrootRpmBuildTmpDirectory)
-        command.append("rm -r " + self.__chrootRpmBuildDirectory + "/BUILDROOT/*")
+
         command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/BUILD")
-        command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/BUILDROOT")
-        command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/RPMS")
-        command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/SOURCES")
         command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/SPECS")
-        command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/SRPMS")
         command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/TMP")
+
+        command.append("ln -sf " + self.__chrootRpmBuildDirectory + "/BUILDROOT " + self.__chrootRpmBuildTmpDirectory)
+        command.append("ln -sf " + self.__chrootRpmBuildDirectory + "/RPMS " + self.__chrootRpmBuildTmpDirectory)
+        command.append("ln -sf " + self.__chrootRpmBuildDirectory + "/SOURCES " + self.__chrootRpmBuildTmpDirectory)
+        command.append("ln -sf " + self.__chrootRpmBuildDirectory + "/SRPMS " + self.__chrootRpmBuildTmpDirectory)
+
         command.append("chown -R root:users " + self.__chrootRpmBuildTmpDirectory)
         command.append("chmod -R g+rw " + self.__chrootRpmBuildTmpDirectory)
 
@@ -436,10 +446,11 @@ class ObsLightChRoot(object):
                             archive=tarFile)
         command = []
         command.append("rpmbuild -bi --define '_srcdefattr (-,root,root)' " + pathToSaveSpec + " < /dev/null")
-        command.append("cp -fprv  " + self.__chrootRpmBuildTmpDirectory + "/BUILD/* " + self.__chrootRpmBuildDirectory + "/BUILD/")
-        command.append("cp -fprv  " + self.__chrootRpmBuildTmpDirectory + "/BUILDROOT/* " + self.__chrootRpmBuildDirectory + "/BUILDROOT/")
-        command.append("rm -r " + self.__chrootRpmBuildTmpDirectory)
+        #command.append("cp -fpr  " + self.__chrootRpmBuildTmpDirectory + "/BUILD/* " + self.__chrootRpmBuildDirectory + "/BUILD/")
+        #command.append("cp -fpr  " + self.__chrootRpmBuildTmpDirectory + "/BUILDROOT/* " + self.__chrootRpmBuildDirectory + "/BUILDROOT/")
+        command.append("rm -r " + self.__chrootRpmBuildTmpDirectory + "/TMP")
         self.execCommand(command=command)
+        self.__changeTopDir(self.__rpmBuildDirectory)
 
     def packageRpm(self,
                    package,
@@ -450,18 +461,20 @@ class ObsLightChRoot(object):
         '''
         Execute the package section of an RPM spec file.
         '''
+        self.__changeTopDir(self.__rpmBuildDirectory)
         tmpPath = pathPackage.replace(self.__chrootRpmBuildDirectory + "/BUILD", "").strip("/")
         tmpPath = tmpPath.strip("/")
         command = []
-        command.append("rm -r " + self.__chrootRpmBuildTmpDirectory)
-        command.append("rm -r " + self.__chrootRpmBuildDirectory + "/BUILDROOT/*")
+
         command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/BUILD")
-        command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/BUILDROOT")
-        command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/RPMS")
-        command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/SOURCES")
-        command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/SPECS")
-        command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/SRPMS")
         command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/TMP")
+        command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/SPECS")
+
+        command.append("ln -sf " + self.__chrootRpmBuildDirectory + "/BUILDROOT " + self.__chrootRpmBuildTmpDirectory)
+        command.append("ln -sf " + self.__chrootRpmBuildDirectory + "/RPMS " + self.__chrootRpmBuildTmpDirectory)
+        command.append("ln -sf " + self.__chrootRpmBuildDirectory + "/SOURCES " + self.__chrootRpmBuildTmpDirectory)
+        command.append("ln -sf " + self.__chrootRpmBuildDirectory + "/SRPMS " + self.__chrootRpmBuildTmpDirectory)
+
         command.append("chown -R root:users " + self.__chrootRpmBuildTmpDirectory)
         command.append("chmod -R g+rw " + self.__chrootRpmBuildTmpDirectory)
 
@@ -477,16 +490,32 @@ class ObsLightChRoot(object):
                                           self.__chrootRpmBuildTmpDirectory)
 
         package.saveTmpSpec(path=self.getDirectory() + pathToSaveSpec,
-                            topdir=self.__chrootRpmBuildTmpDirectory,
                             archive=tarFile)
         command = []
         command.append("rpmbuild -ba --define '_srcdefattr (-,root,root)' " + pathToSaveSpec + " < /dev/null")
-        command.append("cp -fprv  " + self.__chrootRpmBuildTmpDirectory + "/RPMS/* " + self.__chrootRpmBuildDirectory + "/RPMS/")
-        command.append("cp -fprv  " + self.__chrootRpmBuildTmpDirectory + "/SRPMS/* " + self.__chrootRpmBuildDirectory + "/SRPMS/")
-        command.append("cp -fprv  " + self.__chrootRpmBuildTmpDirectory + "/BUILD/* " + self.__chrootRpmBuildDirectory + "/BUILD/")
-        command.append("cp -fprv  " + self.__chrootRpmBuildTmpDirectory + "/BUILDROOT/* " + self.__chrootRpmBuildDirectory + "/BUILDROOT/")
-        command.append("rm -r " + self.__chrootRpmBuildTmpDirectory)
+        #command.append("cp -fpr  " + self.__chrootRpmBuildTmpDirectory + "/BUILDROOT/* " + self.__chrootRpmBuildDirectory + "/BUILDROOT/")
+        #command.append("cp -fpr  " + self.__chrootRpmBuildTmpDirectory + "/BUILD/* " + self.__chrootRpmBuildDirectory + "/BUILD/")
+        #command.append("cp -fpr  " + self.__chrootRpmBuildTmpDirectory + "/RPMS/* " + self.__chrootRpmBuildDirectory + "/RPMS/")
+        #command.append("cp -fpr  " + self.__chrootRpmBuildTmpDirectory + "/SRPMS/* " + self.__chrootRpmBuildDirectory + "/SRPMS/")
+        command.append("rm -r " + self.__chrootRpmBuildTmpDirectory + "/TMP")
+
         self.execCommand(command=command)
+        self.__changeTopDir(self.__rpmBuildDirectory)
+
+    def __changeTopDir(self, newTopDir):
+        '''
+        
+        '''
+        command = []
+        command.append("chown -R root:users " + "/usr/lib/rpm")
+        command.append("chmod -R g+rw " + "/usr/lib/rpm")
+        self.execCommand(command=command)
+
+        with open(self.getDirectory() + "/usr/lib/rpm/macros", 'r') as cfgFile:
+            content = cfgFile.read()
+        newContent = re.sub(r'(\%_topdir\s*\%{getenv:HOME}/).*', r'\1%s' % newTopDir, content)
+        with open(self.getDirectory() + "/usr/lib/rpm/macros", 'w') as cfgFile:
+            cfgFile.write(newContent)
 
     def goToChRoot(self, path=None, detach=False):
         '''
@@ -617,8 +646,6 @@ class ObsLightChRoot(object):
             package.delFileToSpec(aFile=fileDef)
 
         package.save()
-
-
 
     def prepareChroot(self, chrootDir):
         '''

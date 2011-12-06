@@ -21,6 +21,7 @@ Created on 22 juil. 2011
 '''
 import sys
 import os
+import re
 import ObsLightPrintManager
 
 import ObsLightErr
@@ -428,29 +429,27 @@ class ObsLightSpec:
                 f.write(line)
         f.close()
 
-    def saveTmpSpec(self, path, topdir, archive):
+    def saveTmpSpec(self, path, archive):
         '''
         
         '''
         if path == None:
             return None
-        f = open(path, 'w')
-        f.write("%define _topdir         " + topdir + "\n")
-        f.write("Source: " + archive + "\n")
+        toWrite = ""
         for section in self.__orderList:
             for line in self.__spectDico[section]:
                 if (section == "%prep"):
                     if (line.startswith('%prep'))  :
-                        f.write(line)
+                        toWrite += line
                     elif (line.startswith('%setup')):
                         line = line.replace("-c", "")
-                        f.write(line)
-                elif (section == "introduction_section"):
-                    if not (line.startswith("Source") and (":" in line)):
-                        f.write(line)
+                        toWrite += line
                 else:
-                    f.write(line)
-        f.close()
+                    toWrite += line
+
+        aFile = open(path, 'w')
+        aFile.write(re.sub(r'(Source[0]?\s*:).*', r'\1%s' % archive, toWrite))
+        aFile.close()
 
     def getsection(self):
         '''

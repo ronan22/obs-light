@@ -423,12 +423,12 @@ class ObsLightPackage(object):
         else:
             raise ObsLightPackageErr("No Spec or Yaml in the package")
 
-    def saveTmpSpec(self, path, topdir, archive):
+    def saveTmpSpec(self, path, archive):
         '''
         Save the Spec file.
         '''
         if self.__mySpecFile != None:
-            self.__mySpecFile.saveTmpSpec(path=path, topdir=topdir, archive=archive)
+            self.__mySpecFile.saveTmpSpec(path=path, archive=archive)
         else:
             raise ObsLightPackageErr("No Spec or Yaml in the package")
 
