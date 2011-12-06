@@ -21,13 +21,14 @@ osc -A https://api.pub.meego.com co -c Project:OBS_Light obslight
 rm obslight/obslight*.tar.gz
 cd $PROJECTDIR
 # Copy all project file to the temporary directory
-cp src/dist/obslight*.tar.gz $TMPDIR/obslight
-cp rpm/obslight.spec $TMPDIR/obslight
-cp deb/debian.changelog deb/debian.control deb/debian.postinst deb/debian.prerm deb/debian.rules deb/obslight.dsc $TMPDIR/obslight
+cp -v src/obslight.changes $TMPDIR/obslight.changes
+cp -v src/dist/obslight*.tar.gz $TMPDIR/obslight
+cp -v rpm/obslight.spec $TMPDIR/obslight
+cp -v deb/debian.changelog deb/debian.control deb/debian.postinst deb/debian.prerm deb/debian.rules deb/obslight.dsc $TMPDIR/obslight
 cd $TMPDIR/obslight
 # Add all new files, remove disappeared files, and commit
-osc ar
-osc ci -m "$1"
+osc -v ar 
+osc -v ci -m "$1"
 # Check the return value and delete (or not) the temporary directory
 RETVAL=$?
 cd $PROJECTDIR
