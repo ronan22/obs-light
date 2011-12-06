@@ -32,11 +32,17 @@ echo "---"
 grep --color "obslight_$NEWVERSION" deb/obslight.dsc
 echo "----------------"
 
-grep --color "version $OLDVERSION" rpm/obslight.spec
-sed -i s/"version $OLDVERSION"/"version $NEWVERSION"/ rpm/obslight.spec
+grep --color "Version: $OLDVERSION" rpm/obslight.yaml
+sed -i s/"Version: $OLDVERSION"/"Version: $NEWVERSION"/ rpm/obslight.yaml
 echo "---"
-grep --color "version $NEWVERSION" rpm/obslight.spec
+grep --color "Version: $NEWVERSION" rpm/obslight.yaml
 echo "----------------"
+
+#grep --color "version $OLDVERSION" rpm/obslight.spec
+#sed -i s/"version $OLDVERSION"/"version $NEWVERSION"/ rpm/obslight.spec
+#echo "---"
+#grep --color "version $NEWVERSION" rpm/obslight.spec
+#echo "----------------"
 
 grep --color "version=\"$OLDVERSION\"" src/setup.py
 sed -i s/"version=\"$OLDVERSION\""/"version=\"$NEWVERSION\""/ src/setup.py
