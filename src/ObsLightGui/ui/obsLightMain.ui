@@ -485,6 +485,9 @@
                    <height>0</height>
                   </size>
                  </property>
+                 <property name="toolTip">
+                  <string>Create a package from scratch.</string>
+                 </property>
                  <property name="text">
                   <string>New</string>
                  </property>
@@ -537,6 +540,9 @@
                </item>
                <item row="10" column="1">
                 <widget class="QPushButton" name="repairOscButton">
+                 <property name="toolTip">
+                  <string>Repair the OSC working copy of the selected package(s).</string>
+                 </property>
                  <property name="text">
                   <string>Repair OSC directory</string>
                  </property>
@@ -691,6 +697,9 @@
                     <height>0</height>
                    </size>
                   </property>
+                  <property name="toolTip">
+                   <string>Checkout/update files from the OBS (osc update equivalent).</string>
+                  </property>
                   <property name="text">
                    <string>Update files</string>
                   </property>
@@ -698,6 +707,9 @@
                 </item>
                 <item row="7" column="2">
                  <widget class="QPushButton" name="openTermButton">
+                  <property name="toolTip">
+                   <string>Open a terminal in the package's OSC directory.</string>
+                  </property>
                   <property name="text">
                    <string>Open terminal</string>
                   </property>
@@ -889,7 +901,7 @@
                  <widget class="QPushButton" name="rpmInstallButton">
                   <property name="toolTip">
                    <string>Execute to the %install section of selected package(s)
- in an alternate rpmbuild directory.</string>
+ in an alternative rpmbuild directory.</string>
                   </property>
                   <property name="text">
                    <string>Install</string>
@@ -916,7 +928,7 @@
                   <property name="toolTip">
                    <string>Install the source of the selected package(s)
  into the chroot and execute %prep section,
- init the git and do the first build </string>
+ initialize the git repository and do the first build.</string>
                   </property>
                   <property name="text">
                    <string>Prep</string>
@@ -927,7 +939,7 @@
                  <widget class="QPushButton" name="rpmBuildButton">
                   <property name="toolTip">
                    <string>Execute to the %build section of selected package(s)
- in an alternate rpmbuild directory.</string>
+ in an alternative rpmbuild directory.</string>
                   </property>
                   <property name="text">
                    <string>Build</string>
@@ -938,7 +950,7 @@
                  <widget class="QPushButton" name="rpmBuildRpmButton">
                   <property name="toolTip">
                    <string>Build the source and binary RPMs of selected package(s)
- in an alternate rpmbuild directory.</string>
+ in an alternative rpmbuild directory.</string>
                   </property>
                   <property name="text">
                    <string>Build RPMs</string>
