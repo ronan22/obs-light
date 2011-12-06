@@ -97,12 +97,16 @@ rm -rf %{buildroot}
 # >> install pre
 echo "%{version}-%{release}" > VERSION
 # << install pre
+%if 0%{?suse_version}
+%{__python} setup.py install --root=$RPM_BUILD_ROOT --prefix=%{_prefix}
+%else
 %{__python} setup.py install --root=%{buildroot} -O1
+%endif
 
 # >> install post
-%fdupes -s $RPM_BUILD_ROOT/%{python_sitelib}
-ln -s obslight-wrapper.py %{buildroot}/%{_bindir}/obslight
-ln -s obslightgui-wrapper.py %{buildroot}/%{_bindir}/obslightgui
+%fdupes -s %{buildroot}%{python_sitelib}
+ln -s obslight-wrapper.py %{buildroot}%{_bindir}/obslight
+ln -s obslightgui-wrapper.py %{buildroot}%{_bindir}/obslightgui
 
 # << install post
 
