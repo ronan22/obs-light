@@ -398,7 +398,6 @@ class ObsLightChRoot(object):
                                           self.__chrootRpmBuildTmpDirectory)
 
         package.saveTmpSpec(path=self.getDirectory() + pathToSaveSpec,
-                            topdir=self.__chrootRpmBuildTmpDirectory,
                             archive=tarFile)
         command = []
         command.append("rpmbuild -bc --define '_srcdefattr (-,root,root)' " + pathToSaveSpec + " < /dev/null")
@@ -448,7 +447,6 @@ class ObsLightChRoot(object):
                                           self.__chrootRpmBuildTmpDirectory)
 
         package.saveTmpSpec(path=self.getDirectory() + pathToSaveSpec,
-                            topdir=self.__chrootRpmBuildTmpDirectory,
                             archive=tarFile)
         command = []
         command.append("rpmbuild -bi --define '_srcdefattr (-,root,root)' " + pathToSaveSpec + " < /dev/null")
