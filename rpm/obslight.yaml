@@ -1,0 +1,65 @@
+Name: "%{name}"
+Summary: OBS Light
+Version: "%{version}"
+Release: "%{release}"
+Group: Development/Tools/Building
+License: GPLv2
+URL: http://wiki.meego.com/OBS_Light
+Sources:
+    - "%{name}-%{unmangled_version}.tar.gz"
+Description: Utilities to work with OBS Light, a lighter version of OBS.
+
+Requires:
+    - python >= 2.5.0
+PkgBR:
+    - python >= 2.5.0
+    - python-devel >= 2.5.0
+    - fdupes
+Configure: none
+Builder: python
+BuildArch: noarch
+Prefix: "%{_prefix}"
+Vendor:
+    - Intel Open Source Technology Center (OTC)
+SubPackages:
+    - Name: gui
+      Summary: Utilities to work with OBS Light - graphical interface
+      Group: Development/Tools/Building
+      Description: |
+          Utilities to work with OBS Light, a lighter version of OBS.
+          This package contains the graphical interface.
+      Requires:
+          - python >= 2.5.0
+          - obslight-base
+          - python-pyside
+
+    - Name: base
+      Summary: Utilities to work with OBS Light - command-line client
+      Group: Development/Tools/Building
+      Description: |
+          Utilities to work with OBS Light, a lighter version of OBS.
+          This package contains the command-line client.
+      Requires:
+          - python >= 2.5.0
+          - python-xml
+          - meego-packaging-tools
+          - sudo
+          - qemu
+          - spectacle
+      Provides:
+          - obslight
+
+    - Name: utils
+      Summary: Utilities to work with OBS Light - additional scripts
+      Group: Development/Tools/Building
+      Description: |
+          Utilities to work with OBS Light, a lighter version of OBS.
+          This package contains additional scripts :
+           - obstag:           Tag a project in an OBS
+           - obs2obscopy:      Copy a project from an OBS to an OBS
+           - obsextractgroups: Extracts the packages groups of an OBS repository
+      Requires:
+          - python >= 2.5.0
+          - python-xml
+          - osc
+
