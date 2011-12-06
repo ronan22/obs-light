@@ -1,0 +1,35 @@
+* Fri Dec 02 2011 Ronan Le Martret (Intel OTC) <Ronan@fridu.net> 0.4.4
+-Add Prep/build/install/build rpm.
+
+* Fri Nov 25 2011 Florent Vennetier (Intel OTC) <florent@fridu.net> 0.4.3-1
+- New import dialogs
+- Fixed several bugs
+
+* Fri Nov 18 2011 Florent Vennetier (Intel OTC) <florent@fridu.net> 0.4.2-1
+- added check connection button
+- fixed unicode problems
+
+* Thu Nov 17 2011 Florent Vennetier (Intel OTC) <florent@fridu.net> 0.4.1-1
+- Working GUI
+
+* Wed Oct 27 2011 Ronan Le Martret (Intel OTC) <ronan@fridu.net> 0.4.0-2
+- Add completion 
+
+* Wed Oct 26 2011 Florent Vennetier (Intel OTC) <florent@fridu.net> 0.4.0-1
+- First stable version
+
+* Mon Oct 24 2011 Florent Vennetier (Intel OTC) <florent@fridu.net> 0.3.4-1
+- Improved sudo rules
+- New debug/verbose options
+
+* Thu Oct 20 2011 Florent Vennetier (Intel OTC) <florent@fridu.net> 0.3.3-1
+- Improved (fixed?) patch generation
+
+* Wed Oct 19 2011 Florent Vennetier (Intel OTC) <florent@fridu.net> 0.3.2-1
+- Modified sudo rules so that user doesn't have to type passwords
+
+* Wed Oct 19 2011 Florent Vennetier (Intel OTC) <florent@fridu.net> 0.3.1-1
+- Added some internal tests
+
+* Mon Oct 17 2011 Florent Vennetier (Intel OTC) <florent@fridu.net> 0.3-1
+- First public version

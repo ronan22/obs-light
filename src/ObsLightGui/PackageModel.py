@@ -52,6 +52,7 @@ class PackageModel(QAbstractTableModel):
         self.StatusOnServerColors["broken"] = QColor("red")
         self.StatusOnServerColors["building"] = QColor("gold")
         self.StatusOnServerColors["failed"] = QColor("red")
+        self.StatusOnServerColors["scheduled"] = QColor("blue")
         self.StatusOnServerColors["unresolvable"] = QColor("darkred")
         self.StatusInChRootColors["Installed"] = QColor("green")
         self.StatusInOscColors["Unknown"] = QColor("grey")
