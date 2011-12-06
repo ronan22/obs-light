@@ -308,6 +308,23 @@ class PackageManager(QObject):
         projectName = self.getCurrentProject()
         if projectName is None:
             return
+        alreadyInstalled = list()
+        for package in self.selectedPackages():
+            if self.__obsLightManager.isInstalledInChRoot(self.__project, package):
+                alreadyInstalled.append(package)
+        if len(alreadyInstalled) > 0:
+            questionString = u"The packages <b>%s" % unicode(alreadyInstalled[0])
+            for package in alreadyInstalled[1:]:
+                questionString += u", %s" % unicode(package)
+            questionString += u"</b> are already present in the chroot, do you want to"
+            questionString += u" overwrite them ?"
+            result = QMessageBox.question(self.__gui.getMainWindow(),
+                                          u"Overwrite ?",
+                                          questionString,
+                                          buttons=QMessageBox.Yes | QMessageBox.Cancel,
+                                          defaultButton=QMessageBox.Yes)
+            if result != QMessageBox.Yes:
+                return
         self.__mapOnSelectedPackages(firstArgLast(self.__obsLightManager.addPackageSourceInChRoot),
                                      None,
                                      u"Importing %(arg)s source in chroot and executing %%prep",
