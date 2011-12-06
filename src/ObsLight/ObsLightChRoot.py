@@ -366,6 +366,9 @@ class ObsLightChRoot(object):
         '''
         Execute the %build section of an RPM spec file.
         '''
+        if package.getStatus() == "excluded":
+            raise ObsLightErr.ObsLightChRootError(package.getName() + " has a excluded status, it can't be install")
+
         self.__changeTopDir(self.__rpmBuildDirectory)
         tmpPath = pathPackage.replace(self.__chrootRpmBuildDirectory + "/BUILD", "").strip("/")
         tmpPath = tmpPath.strip("/")
@@ -399,7 +402,7 @@ class ObsLightChRoot(object):
                             archive=tarFile)
         command = []
         command.append("rpmbuild -bc --define '_srcdefattr (-,root,root)' " + pathToSaveSpec + " < /dev/null")
-        #command.append("cp -fpr  " + self.__chrootRpmBuildTmpDirectory + "/BUILD/* " + self.__chrootRpmBuildDirectory + "/BUILD/")
+        command.append("cp -fpr  " + self.__chrootRpmBuildTmpDirectory + "/BUILD/* " + self.__chrootRpmBuildDirectory + "/BUILD/")
         command.append("rm -r " + self.__chrootRpmBuildTmpDirectory + "/TMP")
         self.execCommand(command=command)
         self.__changeTopDir(self.__rpmBuildDirectory)
@@ -413,6 +416,9 @@ class ObsLightChRoot(object):
         '''
         Execute the %install section of an RPM spec file.
         '''
+        if package.getStatus() == "excluded":
+            raise ObsLightErr.ObsLightChRootError(package.getName() + " has a excluded status, it can't be install")
+
         self.__changeTopDir(self.__rpmBuildDirectory)
         tmpPath = pathPackage.replace(self.__chrootRpmBuildDirectory + "/BUILD", "").strip("/")
         tmpPath = tmpPath.strip("/")
@@ -446,8 +452,7 @@ class ObsLightChRoot(object):
                             archive=tarFile)
         command = []
         command.append("rpmbuild -bi --define '_srcdefattr (-,root,root)' " + pathToSaveSpec + " < /dev/null")
-        #command.append("cp -fpr  " + self.__chrootRpmBuildTmpDirectory + "/BUILD/* " + self.__chrootRpmBuildDirectory + "/BUILD/")
-        #command.append("cp -fpr  " + self.__chrootRpmBuildTmpDirectory + "/BUILDROOT/* " + self.__chrootRpmBuildDirectory + "/BUILDROOT/")
+        command.append("cp -fpr  " + self.__chrootRpmBuildTmpDirectory + "/BUILD/* " + self.__chrootRpmBuildDirectory + "/BUILD/")
         command.append("rm -r " + self.__chrootRpmBuildTmpDirectory + "/TMP")
         self.execCommand(command=command)
         self.__changeTopDir(self.__rpmBuildDirectory)
@@ -461,6 +466,9 @@ class ObsLightChRoot(object):
         '''
         Execute the package section of an RPM spec file.
         '''
+        if package.getStatus() == "excluded":
+            raise ObsLightErr.ObsLightChRootError(package.getName() + " has a excluded status, it can't be install")
+
         self.__changeTopDir(self.__rpmBuildDirectory)
         tmpPath = pathPackage.replace(self.__chrootRpmBuildDirectory + "/BUILD", "").strip("/")
         tmpPath = tmpPath.strip("/")
@@ -493,10 +501,7 @@ class ObsLightChRoot(object):
                             archive=tarFile)
         command = []
         command.append("rpmbuild -ba --define '_srcdefattr (-,root,root)' " + pathToSaveSpec + " < /dev/null")
-        #command.append("cp -fpr  " + self.__chrootRpmBuildTmpDirectory + "/BUILDROOT/* " + self.__chrootRpmBuildDirectory + "/BUILDROOT/")
-        #command.append("cp -fpr  " + self.__chrootRpmBuildTmpDirectory + "/BUILD/* " + self.__chrootRpmBuildDirectory + "/BUILD/")
-        #command.append("cp -fpr  " + self.__chrootRpmBuildTmpDirectory + "/RPMS/* " + self.__chrootRpmBuildDirectory + "/RPMS/")
-        #command.append("cp -fpr  " + self.__chrootRpmBuildTmpDirectory + "/SRPMS/* " + self.__chrootRpmBuildDirectory + "/SRPMS/")
+        command.append("cp -fpr  " + self.__chrootRpmBuildTmpDirectory + "/BUILD/* " + self.__chrootRpmBuildDirectory + "/BUILD/")
         command.append("rm -r " + self.__chrootRpmBuildTmpDirectory + "/TMP")
 
         self.execCommand(command=command)
