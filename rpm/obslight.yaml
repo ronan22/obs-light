@@ -19,7 +19,7 @@ Configure: none
 Builder: python
 BuildArch: noarch
 SupportOtherDistros: yes
-Prefix: "%{_prefix}"
+NoFiles: yes
 Vendor:
     - Intel Open Source Technology Center (OTC)
 SubPackages:
