@@ -309,7 +309,7 @@ class ObsLightChRoot(object):
         Add a repository in the chroot's zypper configuration file.
         '''
         if alias in self.__dicoRepos.keys():
-            raise ObsLightErr.ObsLightChRootError("can't add " + alias + " , already configure in the chroot")
+            raise ObsLightErr.ObsLightChRootError("can't add '" + alias + "' , already configure in the chroot")
         else:
             self.__dicoRepos[alias] = repos
 
@@ -336,7 +336,7 @@ class ObsLightChRoot(object):
         
         '''
         command = []
-        command.append("zypper ar " + repos + " " + alias)
+        command.append("zypper ar " + repos + " '" + alias + "'")
         command.append("zypper --no-gpg-checks --gpg-auto-import-keys ref")
         self.execCommand(command=command)
 

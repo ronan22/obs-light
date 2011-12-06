@@ -154,7 +154,7 @@ class RepoConfigManager(QObject):
             if (url is not None) and (not len(url) < 1):
                 resultUrl = self.__obsLightManager.testUrlRepo(url)
                 if not resultUrl:
-                    urlColor = "red"
+                    urlColor = "orange"
             else:
                 urlColor = "red"
                 resultUrl = False
