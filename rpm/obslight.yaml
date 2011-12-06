@@ -1,12 +1,12 @@
-Name: "%{name}"
+Name: obslight
 Summary: OBS Light
-Version: "%{version}"
-Release: "%{release}"
+Version: 0.4.6
+Release: 1
 Group: Development/Tools/Building
 License: GPLv2
 URL: http://wiki.meego.com/OBS_Light
 Sources:
-    - "%{name}-%{unmangled_version}.tar.gz"
+    - "%{name}-%{version}.tar.gz"
 Description: Utilities to work with OBS Light, a lighter version of OBS.
 
 Requires:
@@ -18,8 +18,8 @@ PkgBR:
 Configure: none
 Builder: python
 BuildArch: noarch
-Prefix: "%{_prefix}"
 SupportOtherDistros: yes
+Prefix: "%{_prefix}"
 Vendor:
     - Intel Open Source Technology Center (OTC)
 SubPackages:
