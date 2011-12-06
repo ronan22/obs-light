@@ -1,4 +1,4 @@
-obslight (0.4.5-1) stable; urgency=low
+obslight (0.4.6-1) stable; urgency=low
 %changelog
   * Version 0.4.4 
     Add Prep/build/install/build rpm.
