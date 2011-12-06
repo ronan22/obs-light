@@ -338,7 +338,6 @@ class ObsLightPackage(object):
             return None
 
         name = self.__mySpecFile.getMacroDirectoryPackageName()
-        print "toc"
 
         if name != None:
             name = self.__mySpecFile.getResolveMacroName(name)

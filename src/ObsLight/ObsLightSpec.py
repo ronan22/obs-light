@@ -439,7 +439,6 @@ class ObsLightSpec:
         f.write("Source: " + archive + "\n")
         for section in self.__orderList:
             for line in self.__spectDico[section]:
-                print line,
                 if (section == "%prep"):
                     if (line.startswith('%prep'))  :
                         f.write(line)
@@ -451,7 +450,6 @@ class ObsLightSpec:
                         f.write(line)
                 else:
                     f.write(line)
-            print
         f.close()
 
     def getsection(self):
@@ -471,7 +469,6 @@ if __name__ == '__main__':
     #except:
     #    print "ERROR ", file1
 
-    print "name", name
 
     if name != None:
         if "%" in name:

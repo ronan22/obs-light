@@ -391,7 +391,7 @@ class ObsLightChRoot(object):
                             archive=tarFile)
         command = []
         command = []
-        command.append("rpmbuild -bc --define '_srcdefattr (-,root,root)' " + specFile + " < /dev/null")
+        command.append("rpmbuild -bc --define '_srcdefattr (-,root,root)' " + pathToSaveSpec + " < /dev/null")
         command.append("cp -fprv  " + self.__chrootRpmBuildTmpDirectory + "/BUILD/* " + self.__chrootRpmBuildDirectory + "/BUILD/")
         command.append("rm -r " + self.__chrootRpmBuildTmpDirectory)
         self.execCommand(command=command)
@@ -435,7 +435,7 @@ class ObsLightChRoot(object):
                             topdir=self.__chrootRpmBuildTmpDirectory,
                             archive=tarFile)
         command = []
-        command.append("rpmbuild -bi --define '_srcdefattr (-,root,root)' " + specFile + " < /dev/null")
+        command.append("rpmbuild -bi --define '_srcdefattr (-,root,root)' " + pathToSaveSpec + " < /dev/null")
         command.append("cp -fprv  " + self.__chrootRpmBuildTmpDirectory + "/BUILD/* " + self.__chrootRpmBuildDirectory + "/BUILD/")
         command.append("cp -fprv  " + self.__chrootRpmBuildTmpDirectory + "/BUILDROOT/* " + self.__chrootRpmBuildDirectory + "/BUILDROOT/")
         command.append("rm -r " + self.__chrootRpmBuildTmpDirectory)
@@ -480,7 +480,7 @@ class ObsLightChRoot(object):
                             topdir=self.__chrootRpmBuildTmpDirectory,
                             archive=tarFile)
         command = []
-        command.append("rpmbuild -bb --define '_srcdefattr (-,root,root)' " + pathToSaveSpec + " < /dev/null")
+        command.append("rpmbuild -ba --define '_srcdefattr (-,root,root)' " + pathToSaveSpec + " < /dev/null")
         command.append("cp -fprv  " + self.__chrootRpmBuildTmpDirectory + "/RPMS/* " + self.__chrootRpmBuildDirectory + "/RPMS/")
         command.append("cp -fprv  " + self.__chrootRpmBuildTmpDirectory + "/SRPMS/* " + self.__chrootRpmBuildDirectory + "/SRPMS/")
         command.append("cp -fprv  " + self.__chrootRpmBuildTmpDirectory + "/BUILD/* " + self.__chrootRpmBuildDirectory + "/BUILD/")
@@ -645,6 +645,7 @@ class ObsLightChRoot(object):
         command.append("rpm --rebuilddb")
         command.append('echo "alias ll=\\"ls -lh\\"" >> ~/.bashrc')
         command.append('echo "alias la=\\"ls -Alh\\"" >> ~/.bashrc')
+        command.append('echo "alias vi=\\"vim\\"" >> ~/.bashrc')
         self.execCommand(command=command)
 
     def deleteRepo(self, repoAlias):
