@@ -130,6 +130,8 @@ class ObsLightChRoot(object):
         '''
         
         '''
+
+
         res = ObsLightOsc.getObsLightOsc().createChRoot(chrootDir=self.getDirectory(),
                                                         repos=repos,
                                                         arch=arch,
@@ -369,7 +371,7 @@ class ObsLightChRoot(object):
         if package.getStatus() == "excluded":
             raise ObsLightErr.ObsLightChRootError(package.getName() + " has a excluded status, it can't be install")
 
-        self.__changeTopDir(self.__rpmBuildDirectory)
+        self.__changeTopDir(self.__rpmBuildTmpDirectory)
         tmpPath = pathPackage.replace(self.__chrootRpmBuildDirectory + "/BUILD", "").strip("/")
         tmpPath = tmpPath.strip("/")
         command = []
@@ -418,7 +420,7 @@ class ObsLightChRoot(object):
         if package.getStatus() == "excluded":
             raise ObsLightErr.ObsLightChRootError(package.getName() + " has a excluded status, it can't be install")
 
-        self.__changeTopDir(self.__rpmBuildDirectory)
+        self.__changeTopDir(self.__rpmBuildTmpDirectory)
         tmpPath = pathPackage.replace(self.__chrootRpmBuildDirectory + "/BUILD", "").strip("/")
         tmpPath = tmpPath.strip("/")
         command = []
@@ -449,10 +451,13 @@ class ObsLightChRoot(object):
         package.saveTmpSpec(path=self.getDirectory() + pathToSaveSpec,
                             archive=tarFile)
         command = []
+        print "***************************", pathToSaveSpec
         command.append("rpmbuild -bi --define '_srcdefattr (-,root,root)' " + pathToSaveSpec + " < /dev/null")
+
         command.append("cp -fpr  " + self.__chrootRpmBuildTmpDirectory + "/BUILD/* " + self.__chrootRpmBuildDirectory + "/BUILD/")
         command.append("rm -r " + self.__chrootRpmBuildTmpDirectory + "/TMP")
         self.execCommand(command=command)
+        print "***************************", pathToSaveSpec
         self.__changeTopDir(self.__rpmBuildDirectory)
 
     def packageRpm(self,
@@ -467,7 +472,7 @@ class ObsLightChRoot(object):
         if package.getStatus() == "excluded":
             raise ObsLightErr.ObsLightChRootError(package.getName() + " has a excluded status, it can't be install")
 
-        self.__changeTopDir(self.__rpmBuildDirectory)
+        self.__changeTopDir(self.__rpmBuildTmpDirectory)
         tmpPath = pathPackage.replace(self.__chrootRpmBuildDirectory + "/BUILD", "").strip("/")
         tmpPath = tmpPath.strip("/")
         command = []
@@ -577,7 +582,7 @@ class ObsLightChRoot(object):
             raise ObsLightErr.ObsLightChRootError("path is not defined in initGitWatch.")
 
         command = []
-        command.append("git --work-tree=" + path + " --git-dir=" + path + "/.git status -u -s | cut -d' ' -f2 >> " + path + "/.gitignore")
+        command.append("git --work-tree=" + path + " --git-dir=" + path + "/.git status -u -s | sed -e 's/^[ \t]*//' | cut -d' ' -f2 >> " + path + "/.gitignore")
         self.execCommand(command=command)
 
     def makePatch(self, package=None, patch=None):
@@ -589,7 +594,6 @@ class ObsLightChRoot(object):
         pathOscPackage = package.getOscDirectory()
         command = []
         command.append("git --git-dir=" + pathPackage + "/.git --work-tree=" + pathPackage + " diff -p > " + self.__dirTransfert + "/" + patchFile)
-
         self.execCommand(command=command)
         shutil.copy(self.__chrootDirTransfert + "/" + patchFile, pathOscPackage + "/" + patch)
         package.addPatch(aFile=patch)
@@ -606,13 +610,11 @@ class ObsLightChRoot(object):
         command = []
         command.append("git --git-dir=" + pathPackage + "/.git --work-tree=" + pathPackage + " status -u -s > " + self.__dirTransfert + "/" + resultFile)
         self.execCommand(command=command)
-
         result = []
         f = open(self.__chrootDirTransfert + "/" + resultFile, 'r')
         for line in f:
             result.append(line)
         f.close()
-
         filesToAdd = []
         filesToDel = []
 
@@ -629,22 +631,18 @@ class ObsLightChRoot(object):
                         filesToAdd.append(aFile)
                     elif tag == "D":
                         filesToDel.append(aFile)
-
         command = []
         repoListFilesToAdd = []
         for aFile in filesToAdd:
             baseFile = os.path.basename(aFile)
             command.append("cp " + os.path.join(pathPackage, aFile) + " " + self.__dirTransfert)
             repoListFilesToAdd.append([aFile, baseFile])
-
         if command != []:
             self.execCommand(command=command)
-
             for fileDef in repoListFilesToAdd:
                 [aFile, baseFile] = fileDef
-                shutil.copy(self.__chrootDirTransfert + "/" + baseFile, pathOscPackage + "/" + baseFile)
+                package.addFile(self.__chrootDirTransfert + "/" + baseFile)
                 package.addFileToSpec(baseFile=baseFile, aFile=aFile)
-
         for fileDef in filesToDel:
             package.delFileToSpec(aFile=fileDef)
 

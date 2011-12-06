@@ -155,7 +155,7 @@ class ObsLightPackage(object):
         
         '''
         self.__packageDirectory = None
-        chRootStatus = "Not installed"
+        self.__chRootStatus = "Not installed"
 
     def isInstallInChroot(self):
         '''
@@ -437,6 +437,7 @@ class ObsLightPackage(object):
         '''
         Add a delete command of a aFile to the spec/yaml aFile.
         '''
+
         if self.__myYamlFile != None:
             res = self.__myYamlFile.addFile(baseFile=baseFile, aFile=aFile)
             self.save()

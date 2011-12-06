@@ -231,10 +231,8 @@ class ObsLightYaml:
             self.__orderList.append(self.__Sources__)
             self.__yamlDico[self.__Sources__] = []
             self.__yamlDico[self.__Sources__].append(self.__Sources__ + ":\n")
-        #TO DO add Target cp    
+
         self.__yamlDico[self.__Sources__].append("    - " + baseFile + "\n")
-
-
         return None
 
     def delFile(self, aFile=None):
@@ -275,7 +273,7 @@ class ObsLightYaml:
         '''
         
         '''
-        command = "specify --not-download --non-interactive " + self.__path + " --output=" + os.path.join(self.__packagePath, self.__specFile)
+        command = str("specify --not-download --non-interactive " + self.__path + " --output=" + os.path.join(self.__packagePath, self.__specFile))
         res = subprocess.Popen(shlex.split(command),
                                stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE)

@@ -386,6 +386,7 @@ class ObsLightOsc(object):
                                     "iputils",
                                     "ncurses-devel",
                                     "rpm",
+                                    "sed"
                                     ],
                      ):
         '''
