@@ -518,6 +518,8 @@ class ObsLightProject(object):
 
             for obsFile in dicoListFile.keys():
                 if (not obsFile in listOscFile) and (obsFile != "_link"):
+                    print "obsFile", obsFile
+                    print "(obsFile != _link)", (obsFile != "_link")
                     self.__packages.getPackage(package).setOscStatus("inconsistent state")
                     return None
             self.__packages.getPackage(package).setOscStatus("Succeeded")
