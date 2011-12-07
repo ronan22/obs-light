@@ -57,6 +57,8 @@ class Gui(QObject):
         self.application = QApplication(sys.argv)
         self.application.aboutToQuit.connect(self.__beforeQuitting)
         self.uiLoader = QUiLoader()
+        # Need to set working directory in order to load icons
+        self.uiLoader.setWorkingDirectory(join(dirname(__file__), u"ui"))
         self.__obsLightManager = obsLightManager
         self.__loadMainWindow()
         self.__obsProjectManager = ProjectManager(self)

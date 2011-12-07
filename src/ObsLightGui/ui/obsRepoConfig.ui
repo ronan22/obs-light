@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>Repository configuration</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>meegoIcon.ico</normaloff>meegoIcon.ico</iconset>
+  </property>
   <property name="modal">
    <bool>true</bool>
   </property>
