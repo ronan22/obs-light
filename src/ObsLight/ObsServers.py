@@ -45,6 +45,8 @@ class ObsServers(object):
 
         self.resultLocalProjectList = {}
         self.resultListPackage = {}
+        self.resultTargetList = {}
+        self.resultArchitectureList = {}
 
         self.__load()
 
@@ -171,12 +173,14 @@ class ObsServers(object):
                 return self.resultListPackage[obsServer][projectLocalName]
             else:
                 res = self.__dicOBSLightServers[obsServer].getListPackage(projectLocalName=projectLocalName)
-                self.resultListPackage[obsServer][projectLocalName] = res
+                if res != None:
+                    self.resultListPackage[obsServer][projectLocalName] = res
                 return res
         else:
-            self.resultListPackage[obsServer] = {}
             res = self.__dicOBSLightServers[obsServer].getListPackage(projectLocalName=projectLocalName)
-            self.resultListPackage[obsServer][projectLocalName] = res
+            if res != None:
+                self.resultListPackage[obsServer] = {}
+                self.resultListPackage[obsServer][projectLocalName] = res
             return res
 
     def checkoutPackage(self,
@@ -215,7 +219,20 @@ class ObsServers(object):
         '''
         
         '''
-        return self.__dicOBSLightServers[obsServer].getTargetList(projectObsName=projectObsName)
+        if obsServer in self.resultTargetList.keys():
+            if projectObsName in self.resultTargetList[obsServer].keys():
+                return self.resultTargetList[obsServer][projectObsName]
+            else:
+                res = self.__dicOBSLightServers[obsServer].getTargetList(projectObsName=projectObsName)
+                if res != None:
+                    self.resultTargetList[obsServer][projectObsName] = res
+                return res
+        else:
+            res = self.__dicOBSLightServers[obsServer].getTargetList(projectObsName=projectObsName)
+            if res != None:
+                self.resultTargetList[obsServer] = {}
+                self.resultTargetList[obsServer][projectObsName] = res
+            return res
 
     def getArchitectureList(self, obsServer=None,
                             projectObsName=None,
@@ -223,8 +240,34 @@ class ObsServers(object):
         '''
         
         '''
-        return self.__dicOBSLightServers[obsServer].getArchitectureList(projectObsName=projectObsName,
+        if obsServer in self.resultArchitectureList.keys():
+            if projectObsName in self.resultArchitectureList[obsServer].keys():
+                if projectTarget in self.resultArchitectureList[obsServer][projectObsName].keys():
+                    return self.resultArchitectureList[obsServer][projectObsName][projectTarget]
+                else:
+                    res = self.__dicOBSLightServers[obsServer].getArchitectureList(projectObsName=projectObsName,
                                                                         projectTarget=projectTarget)
+                    if res != None:
+                        self.resultArchitectureList[obsServer][projectObsName][projectTarget] = res
+                    return res
+            else:
+                res = self.__dicOBSLightServers[obsServer].getArchitectureList(projectObsName=projectObsName,
+                                                                        projectTarget=projectTarget)
+                if res != None:
+                    self.resultArchitectureList[obsServer][projectObsName] = {}
+                    self.resultArchitectureList[obsServer][projectObsName][projectTarget] = res
+                return res
+        else:
+            res = self.__dicOBSLightServers[obsServer].getArchitectureList(projectObsName=projectObsName,
+                                                                        projectTarget=projectTarget)
+            if res != None:
+                self.resultArchitectureList[obsServer] = {}
+                self.resultArchitectureList[obsServer][projectObsName] = {}
+                self.resultArchitectureList[obsServer][projectObsName][projectTarget] = res
+            return res
+
+
+
 
 
     def getObsServerParameter(self, obsServerAlias=None, parameter=None):

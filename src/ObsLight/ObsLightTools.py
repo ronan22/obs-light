@@ -28,9 +28,11 @@ def testHost(host):
             port = "80"
 
     test = httplib.HTTPConnection(host=host, port=port, timeout=SOCKETTIMEOUT)
+
     try:
         test.connect()
-    except BaseException:
+    except BaseException, e:
+        print "Test Host Fail on ", host, " ", e
         return False
     finally:
         test.close()

@@ -35,7 +35,7 @@ import urllib2
 import M2Crypto
 
 import socket
-TIMEOUT = 10
+TIMEOUT = 20
 socket.setdefaulttimeout(TIMEOUT)
 
 class ObsLightOsc(object):
