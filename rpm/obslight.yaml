@@ -1,6 +1,6 @@
 Name: obslight
 Summary: OBS Light
-Version: 0.4.6
+Version: 0.4.7
 Release: 1
 Group: Development/Tools/Building
 License: GPLv2
@@ -9,8 +9,6 @@ Sources:
     - "%{name}-%{version}.tar.gz"
 Description: Utilities to work with OBS Light, a lighter version of OBS.
 
-Requires:
-    - python >= 2.5.0
 PkgBR:
     - python >= 2.5.0
     - python-devel >= 2.5.0

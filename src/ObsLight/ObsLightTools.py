@@ -162,10 +162,12 @@ def importCert(url):
     except:
         raise
     cert = conn.get_peer_cert()
-    dirpath = expanduser('~/.config/osc/trusted-certs')
-    filePath = dirpath + '/%s_%d.pem' % (host, port)
-    cert.save_pem(filePath)
-    conn.close()
+    #if the peer did not provide a certificate chain, cert== None.
+    if cert != None:
+        dirpath = expanduser('~/.config/osc/trusted-certs')
+        filePath = dirpath + '/%s_%d.pem' % (host, port)
+        cert.save_pem(filePath)
+        conn.close()
 
 def isNonEmptyString(theString):
     return isinstance(theString, basestring) and len(theString) > 0

@@ -33,7 +33,7 @@ import ObsLightTools
 import ObsLightPrintManager
 import ObsLightConfig
 
-VERSION = "0.4.6-1"
+VERSION = "0.4.7-1"
 
 if os.getegid() == 0:
     print "Sorry, Can't run OBS Light as root."
