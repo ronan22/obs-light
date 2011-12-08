@@ -20,9 +20,9 @@ Created on 2 nov. 2011
 @author: Florent Vennetier
 '''
 
-from PySide.QtCore import QObject, QThreadPool
+from PySide.QtCore import QObject, QThreadPool, QRegExp
 from PySide.QtGui import QLabel, QInputDialog, QPushButton, QTableView, QWidget
-from PySide.QtGui import QLineEdit, QListWidget, QMessageBox
+from PySide.QtGui import QLineEdit, QListWidget, QMessageBox, QRegExpValidator
 
 from PackageModel import PackageModel
 from ObsLightGui.FileManager import FileManager
@@ -389,24 +389,36 @@ class PackageManager(QObject):
         QThreadPool.globalInstance().start(runnable)
 
     @popupOnException
+    def __createPatch(self, patchName):
+        project = self.getCurrentProject()
+        package = self.currentPackage()
+        progress = self.__gui.getInfiniteProgressDialog()
+        runnable = ProgressRunnable2(progress)
+        runnable.setDialogMessage(u"Creating patch")
+        runnable.setRunMethod(self.__obsLightManager.makePatch,
+                              project,
+                              package,
+                              patchName)
+        runnable.caughtException.connect(self.__gui.popupErrorCallback)
+        QThreadPool.globalInstance().start(runnable)
+
+    @popupOnException
     def on_makePatchButton_clicked(self):
         project = self.getCurrentProject()
         package = self.currentPackage()
         if project is None or package is None:
             return
-        patchName, accepted = QInputDialog.getText(self.__gui.getMainWindow(),
-                                                   u"Choose patch name...",
-                                                   u"Patch name:")
-        if accepted:
-            progress = self.__gui.getInfiniteProgressDialog()
-            runnable = ProgressRunnable2(progress)
-            runnable.setDialogMessage(u"Creating patch")
-            runnable.setRunMethod(self.__obsLightManager.makePatch,
-                                  project,
-                                  package,
-                                  patchName)
-            runnable.caughtException.connect(self.__gui.popupErrorCallback)
-            QThreadPool.globalInstance().start(runnable)
+        dialog = QInputDialog(self.__gui.getMainWindow())
+        dialog.setInputMode(QInputDialog.TextInput)
+        dialog.setLabelText(u"Patch name:")
+        dialog.setWindowTitle(u"Choose patch name...")
+        le = dialog.findChildren(QLineEdit)
+        if len(le) > 0:
+            validator = QRegExpValidator(le[0])
+            validator.setRegExp(QRegExp(u"\\S+"))
+            le[0].setValidator(validator)
+        dialog.textValueSelected.connect(self.__createPatch)
+        dialog.show()
 
     @popupOnException
     def on_addAndCommitButton_clicked(self):

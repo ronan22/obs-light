@@ -95,7 +95,7 @@ class PackageModel(QAbstractTableModel):
                     return None
 
     def data(self, index, role=Qt.DisplayRole):
-        if not index.isValid():
+        if not index.isValid() or index.row() >= self.rowCount():
             return None
         if role == Qt.DisplayRole or role == Qt.ForegroundRole:
             packageName = self.__getPackageList()[index.row()]
@@ -103,7 +103,7 @@ class PackageModel(QAbstractTableModel):
                 return packageName
             elif index.column() == self.PackageServerStatusColumn:
                 status = self.__obsLightManager.getPackageStatus(self.__project,
-                                                                  packageName)
+                                                                 packageName)
                 if role == Qt.DisplayRole:
                     return status
                 elif role == Qt.ForegroundRole:
