@@ -685,6 +685,8 @@ class ObsLightChRoot(object):
         for aFile in filesToAdd:
             baseFile = os.path.basename(aFile)
             command.append("cp " + os.path.join(pathPackage, aFile) + " " + self.__dirTransfert)
+
+            command.append("cp " + os.path.join(pathPackage, aFile) + " " + self.__chrootRpmBuildDirectory + "/SOURCES")
             repoListFilesToAdd.append([aFile, baseFile])
         if command != []:
             self.execCommand(command=command)
