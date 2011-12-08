@@ -44,7 +44,7 @@ class SubprocessCrt(object):
                              stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
         outputs = {p.stdout: {"EOF": False, "logcmd": ObsLightPrintManager.getLogger().info},
-                   p.stderr: {"EOF": False, "logcmd": ObsLightPrintManager.getLogger().error}}
+                   p.stderr: {"EOF": False, "logcmd": ObsLightPrintManager.getLogger().warning}}
         while (not outputs[p.stdout]["EOF"] and
                not outputs[p.stderr]["EOF"]):
             for fd in select.select([p.stdout, p.stderr], [], [])[0]:
@@ -58,7 +58,8 @@ class SubprocessCrt(object):
 
         # maybe p.wait() is better ?
         res = p.poll()
-        ObsLightPrintManager.getLogger().debug("command finished: " + command + ", return code: " + str(res))
+        ObsLightPrintManager.getLogger().debug(u"command finished: '%s', return code: %s"
+                                               % (command, unicode(res)))
         if res == None:
             res = 0
         return res
