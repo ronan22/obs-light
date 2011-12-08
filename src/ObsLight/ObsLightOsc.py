@@ -36,7 +36,7 @@ import M2Crypto
 
 import socket
 TIMEOUT = 20
-socket.setdefaulttimeout(TIMEOUT)
+#socket.setdefaulttimeout(TIMEOUT)
 
 class ObsLightOsc(object):
     '''

@@ -102,7 +102,7 @@
                <string/>
               </property>
               <layout class="QGridLayout" name="gridLayout_9">
-               <item row="7" column="0">
+               <item row="8" column="0">
                 <widget class="QPushButton" name="modifyObsProjectButton">
                  <property name="toolTip">
                   <string>Modify the configuration of the selected project.</string>
@@ -112,27 +112,13 @@
                  </property>
                 </widget>
                </item>
-               <item row="6" column="0">
+               <item row="7" column="0">
                 <widget class="QPushButton" name="deleteObsProjectButton">
                  <property name="toolTip">
                   <string>Delete the selected project.</string>
                  </property>
                  <property name="text">
                   <string>Delete</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="0">
-                <widget class="QLabel" name="projectLabel">
-                 <property name="text">
-                  <string>Project:</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="1" colspan="2">
-                <widget class="QLabel" name="projectLabelValue">
-                 <property name="text">
-                  <string/>
                  </property>
                 </widget>
                </item>
@@ -155,7 +141,7 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>223</width>
+                    <width>186</width>
                     <height>134</height>
                    </rect>
                   </property>
@@ -251,7 +237,7 @@
                  </widget>
                 </widget>
                </item>
-               <item row="4" column="0">
+               <item row="5" column="0">
                 <widget class="QPushButton" name="newProjectButton">
                  <property name="enabled">
                   <bool>false</bool>
@@ -270,7 +256,7 @@
                  </property>
                 </widget>
                </item>
-               <item row="5" column="0">
+               <item row="6" column="0">
                 <widget class="QPushButton" name="newObsProjectButton">
                  <property name="toolTip">
                   <string>Import a project that already exists on an OBS server.</string>
@@ -283,7 +269,7 @@
                  </property>
                 </widget>
                </item>
-               <item row="7" column="1">
+               <item row="8" column="1">
                 <widget class="QPushButton" name="loadObsProjectButton">
                  <property name="enabled">
                   <bool>true</bool>
@@ -296,7 +282,7 @@
                  </property>
                 </widget>
                </item>
-               <item row="6" column="1">
+               <item row="7" column="1">
                 <widget class="QPushButton" name="saveObsProjectButton">
                  <property name="enabled">
                   <bool>false</bool>
@@ -315,7 +301,7 @@
                  </property>
                 </widget>
                </item>
-               <item row="6" column="2">
+               <item row="7" column="2">
                 <spacer name="horizontalSpacer_3">
                  <property name="orientation">
                   <enum>Qt::Horizontal</enum>
@@ -327,6 +313,20 @@
                   </size>
                  </property>
                 </spacer>
+               </item>
+               <item row="4" column="0">
+                <widget class="QLabel" name="projectLabel">
+                 <property name="text">
+                  <string>Project:</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="0">
+                <widget class="QLabel" name="projectLabelValue">
+                 <property name="text">
+                  <string/>
+                 </property>
+                </widget>
                </item>
               </layout>
              </widget>
@@ -364,6 +364,13 @@
              </widget>
             </item>
             <item>
+             <widget class="QLabel" name="packageNameLabelValue">
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="QWidget" name="packageWidget" native="true">
               <layout class="QGridLayout" name="gridLayout_10">
                <property name="leftMargin">
@@ -372,20 +379,6 @@
                <property name="rightMargin">
                 <number>0</number>
                </property>
-               <item row="1" column="1" colspan="2">
-                <widget class="QLabel" name="packageNameLabelValue">
-                 <property name="text">
-                  <string/>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="0">
-                <widget class="QLabel" name="packageNameLabel">
-                 <property name="text">
-                  <string>Package:</string>
-                 </property>
-                </widget>
-               </item>
                <item row="9" column="0">
                 <widget class="QPushButton" name="deletePackageButton">
                  <property name="toolTip">
@@ -406,7 +399,7 @@
                  </property>
                 </widget>
                </item>
-               <item row="3" column="0" colspan="3">
+               <item row="3" column="0" colspan="4">
                 <widget class="QScrollArea" name="scrollArea_2">
                  <property name="minimumSize">
                   <size>
@@ -425,7 +418,7 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>245</width>
+                    <width>335</width>
                     <height>134</height>
                    </rect>
                   </property>
@@ -503,7 +496,7 @@
                  </property>
                 </widget>
                </item>
-               <item row="10" column="2">
+               <item row="10" column="3">
                 <spacer name="horizontalSpacer">
                  <property name="orientation">
                   <enum>Qt::Horizontal</enum>
@@ -516,28 +509,6 @@
                  </property>
                 </spacer>
                </item>
-               <item row="9" column="1">
-                <widget class="QPushButton" name="refreshOscStatusButton">
-                 <property name="toolTip">
-                  <string>Refresh OSC status column.
- If no package selected, refresh all (may be long).</string>
-                 </property>
-                 <property name="text">
-                  <string>Refresh OSC status</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="6" column="1">
-                <widget class="QPushButton" name="refreshObsStatusButton">
-                 <property name="toolTip">
-                  <string>Refresh OBS status column.
- If no package selected, refresh all (may be long).</string>
-                 </property>
-                 <property name="text">
-                  <string>Refresh OBS status</string>
-                 </property>
-                </widget>
-               </item>
                <item row="10" column="1">
                 <widget class="QPushButton" name="repairOscButton">
                  <property name="toolTip">
@@ -545,6 +516,60 @@
                  </property>
                  <property name="text">
                   <string>Repair OSC directory</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="10" column="2">
+                <widget class="QPushButton" name="refreshOscStatusButton">
+                 <property name="toolTip">
+                  <string>Refresh OSC status column.
+ If no package selected, refresh all (may be long).</string>
+                 </property>
+                 <property name="text">
+                  <string>Refresh status</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="9" column="1">
+                <widget class="QPushButton" name="addAndCommitButton">
+                 <property name="toolTip">
+                  <string>Commit all modifications made to the package files.</string>
+                 </property>
+                 <property name="text">
+                  <string>Commit changes</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="6" column="1">
+                <widget class="QPushButton" name="updateFilesButton">
+                 <property name="minimumSize">
+                  <size>
+                   <width>80</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="toolTip">
+                  <string>Checkout/update files from the OBS (osc update equivalent).</string>
+                 </property>
+                 <property name="text">
+                  <string>Update files</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="1">
+                <widget class="QLabel" name="label">
+                 <property name="text">
+                  <string>OSC</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="0">
+                <widget class="QLabel" name="packageNameLabel">
+                 <property name="text">
+                  <string>Package:</string>
                  </property>
                 </widget>
                </item>
@@ -589,27 +614,6 @@
                 <property name="spacing">
                  <number>-1</number>
                 </property>
-                <item row="10" column="2">
-                 <widget class="QPushButton" name="generatePatchButton">
-                  <property name="toolTip">
-                   <string>Generate a patch from the changes made into the chroot,
- and add this patch to the package.</string>
-                  </property>
-                  <property name="text">
-                   <string>Generate patch</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="11" column="2">
-                 <widget class="QPushButton" name="addAndCommitButton">
-                  <property name="toolTip">
-                   <string>Commit all modifications made to the package files.</string>
-                  </property>
-                  <property name="text">
-                   <string>Commit changes</string>
-                  </property>
-                 </widget>
-                </item>
                 <item row="7" column="1">
                  <widget class="QPushButton" name="newFileButton">
                   <property name="enabled">
@@ -666,16 +670,6 @@
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="2">
-                 <widget class="QLabel" name="label">
-                  <property name="text">
-                   <string>OSC</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignCenter</set>
-                  </property>
-                 </widget>
-                </item>
                 <item row="10" column="3">
                  <spacer name="horizontalSpacer_2">
                   <property name="orientation">
@@ -688,32 +682,6 @@
                    </size>
                   </property>
                  </spacer>
-                </item>
-                <item row="9" column="2">
-                 <widget class="QPushButton" name="updateFilesButton">
-                  <property name="minimumSize">
-                   <size>
-                    <width>80</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="toolTip">
-                   <string>Checkout/update files from the OBS (osc update equivalent).</string>
-                  </property>
-                  <property name="text">
-                   <string>Update files</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="7" column="2">
-                 <widget class="QPushButton" name="openTermButton">
-                  <property name="toolTip">
-                   <string>Open a terminal in the package's OSC directory.</string>
-                  </property>
-                  <property name="text">
-                   <string>Open terminal</string>
-                  </property>
-                 </widget>
                 </item>
                 <item row="0" column="1">
                  <widget class="QLabel" name="packagePathLabel">
@@ -729,6 +697,27 @@
                  <widget class="QLineEdit" name="packagePathLineEdit">
                   <property name="readOnly">
                    <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="7" column="2">
+                 <widget class="QPushButton" name="openTermButton">
+                  <property name="toolTip">
+                   <string>Open a terminal in the package's OSC directory.</string>
+                  </property>
+                  <property name="text">
+                   <string>Open terminal</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="9" column="2">
+                 <widget class="QPushButton" name="generatePatchButton">
+                  <property name="toolTip">
+                   <string>Generate a patch from the changes made into the chroot,
+ and add this patch to the package.</string>
+                  </property>
+                  <property name="text">
+                   <string>Generate patch</string>
                   </property>
                  </widget>
                 </item>
@@ -904,7 +893,7 @@
  in an alternative rpmbuild directory.</string>
                   </property>
                   <property name="text">
-                   <string>Install</string>
+                   <string>%install</string>
                   </property>
                  </widget>
                 </item>
@@ -931,7 +920,7 @@
  initialize the git repository and do the first build.</string>
                   </property>
                   <property name="text">
-                   <string>Prep</string>
+                   <string>%prep</string>
                   </property>
                  </widget>
                 </item>
@@ -942,7 +931,7 @@
  in an alternative rpmbuild directory.</string>
                   </property>
                   <property name="text">
-                   <string>Build</string>
+                   <string>%build</string>
                   </property>
                  </widget>
                 </item>
@@ -953,14 +942,14 @@
  in an alternative rpmbuild directory.</string>
                   </property>
                   <property name="text">
-                   <string>Build RPMs</string>
+                   <string>%files</string>
                   </property>
                  </widget>
                 </item>
                 <item row="1" column="3">
                  <widget class="QLabel" name="label_2">
                   <property name="text">
-                   <string>Rpmbuild</string>
+                   <string>Spec file</string>
                   </property>
                   <property name="alignment">
                    <set>Qt::AlignCenter</set>
