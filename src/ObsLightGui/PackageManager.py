@@ -55,7 +55,6 @@ class PackageManager(QObject):
     __updateFilesButton = None
     __makePatchButton = None
     __addAndCommitButton = None
-    __refreshObsStatusButton = None
     __refreshOscStatusButton = None
     __repairOscButton = None
     __packagePathLineEdit = None
@@ -115,9 +114,6 @@ class PackageManager(QObject):
         self.__packageSelectionDialog.accepted.connect(self.on_packageSelectionDialog_accepted)
         self.__packagesListWidget = self.__packageSelectionDialog.findChild(QListWidget,
                                                                             u"packagesListWidget")
-#        self.__refreshObsStatusButton = mainWindow.findChild(QPushButton,
-#                                                             u"refreshObsStatusButton")
-#        self.__refreshObsStatusButton.clicked.connect(self.on_refreshObsStatusButton_clicked)
         self.__refreshOscStatusButton = mainWindow.findChild(QPushButton,
                                                              u"refreshOscStatusButton")
         self.__refreshOscStatusButton.clicked.connect(self.on_refreshOscStatusButton_clicked)
@@ -442,11 +438,11 @@ class PackageManager(QObject):
                                      None,
                                      self.getCurrentProject())
 
-    def on_refreshObsStatusButton_clicked(self):
-        self.__refreshStatus(self.__obsLightManager.refreshObsStatus)
-
     def on_refreshOscStatusButton_clicked(self):
-        self.__refreshStatus(self.__obsLightManager.refreshOscDirectoryStatus)
+        def refreshStatuses(*args, **kwargs):
+            self.__obsLightManager.refreshOscDirectoryStatus(*args, **kwargs)
+            self.__obsLightManager.refreshObsStatus(*args, **kwargs)
+        self.__refreshStatus(refreshStatuses)
 
     def on_repairOscButton_clicked(self):
         projectName = self.getCurrentProject()
