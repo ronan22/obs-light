@@ -369,7 +369,7 @@ class ObsLightSpec:
         
         '''
         #init the aId of the Source
-        SourceID = 0
+        SourceID = 1
         for line in self.__spectDico[self.__introduction_section]:
             #a regular expression sould be better
             if line.startswith("Source") and (":" in line):
@@ -446,6 +446,7 @@ class ObsLightSpec:
                         toWrite += line
                 else:
                     toWrite += line
+            print
 
         aFile = open(path, 'w')
         aFile.write(re.sub(r'(Source[0]?\s*:).*', r'\1%s' % archive, toWrite))

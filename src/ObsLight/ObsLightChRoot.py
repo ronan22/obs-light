@@ -622,10 +622,9 @@ class ObsLightChRoot(object):
 
         path = package.getPackageDirectory()
         command = []
+        command.append("git --work-tree=" + path + " --git-dir=" + path + "/.git add " + path + "/\*")
         command.append("git --work-tree=" + path + " --git-dir=" + path + "/.git commit -a -m \"" + mess + "\"")
         self.execCommand(command=command)
-
-
 
     def makePatch(self, package=None, patch=None):
         '''
