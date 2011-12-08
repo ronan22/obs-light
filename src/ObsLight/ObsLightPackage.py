@@ -58,6 +58,7 @@ class ObsLightPackage(object):
         self.__specFile = None
         self.__myYamlFile = None
         self.__mySpecFile = None
+        self.__firstCommitTag = None
 
         self.__description = description
         self.__packageTitle = packageTitle
@@ -97,7 +98,21 @@ class ObsLightPackage(object):
                 self.__chRootStatus = fromSave["chRootStatus"]
             if "oscStatus" in fromSave.keys():
                 self.__oscStatus = fromSave["oscStatus"]
+            if "firstCommitTag" in fromSave.keys():
+                self.__firstCommitTag = fromSave["firstCommitTag"]
         self.__initConfigureFile()
+
+    def setFirstCommit(self, tag):
+        '''
+        
+        '''
+        self.__firstCommitTag = tag
+
+    def getFirstCommit(self):
+        '''
+        
+        '''
+        return self.__firstCommitTag
 
     def getPackagePath(self):
         '''
@@ -201,7 +216,7 @@ class ObsLightPackage(object):
         aDic["packageTitle"] = self.__packageTitle
         aDic["chRootStatus"] = self.__chRootStatus
         aDic["oscStatus"] = self.__oscStatus
-
+        aDic["firstCommitTag"] = self.__firstCommitTag
         return aDic
 
     def getPackageParameter(self, parameter=None):
@@ -239,6 +254,8 @@ class ObsLightPackage(object):
             return self.__chRootStatus
         elif parameter == "oscStatus":
             return  self.__oscStatus
+        elif  parameter == "firstCommitTag":
+            return self.__firstCommitTag
         else:
             raise ObsLightPackageErr("parameter value is not valid for getProjectParameter")
 
@@ -392,7 +409,7 @@ class ObsLightPackage(object):
         name = os.path.basename(path)
         shutil.copy2(path, os.path.join(self.getOscDirectory(), name))
         self.__addFile(name)
-        ObsLightOsc().add(path=self.getOscDirectory(), file=name)
+        ObsLightOsc().add(path=self.getOscDirectory(), afile=name)
 
         if self.__isASpecfile(name):
             self.__specFile = name
@@ -410,7 +427,7 @@ class ObsLightPackage(object):
             raise ObsLightPackageErr("'" + path + "' not in package directory.")
         os.remove(path)
         self.__listFile.remove(name)
-        ObsLightOsc().remove(path=self.getOscDirectory(), file=name)
+        ObsLightOsc().remove(path=self.getOscDirectory(), afile=name)
 
     def save(self):
         '''
