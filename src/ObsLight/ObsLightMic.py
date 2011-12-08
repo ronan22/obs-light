@@ -415,7 +415,15 @@ class BindChrootMount:
 
     def has_chroot_instance(self):
         lock = os.path.join(self.root, ".chroot.lock")
-        return imgcreate.my_fuser(lock)
+        try:
+            return imgcreate.my_fuser(lock)
+        # After reading my_fuser code, it seems that catching
+        # "file not found" exception is equivalent to False.
+        except IOError as e:
+            msg = u"Got an exception while testing if chroot is in use: %s" % unicode(e)
+            d = {'exception': e}
+            ObsLightPrintManager.getLogger().error(msg, extra=d)
+            return False
 
     def mount(self):
         if self.mounted or self.ismounted():
