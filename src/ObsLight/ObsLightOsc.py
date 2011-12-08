@@ -538,20 +538,20 @@ class ObsLightOsc(object):
         command = "osc ar"
         self.__subprocess(command=command)
 
-    def remove(self, path, file):
+    def remove(self, path, afile):
         '''
         Mark files or package directories to be deleted upon
         '''
         os.chdir(path)
-        command = "osc del " + file
+        command = "osc del " + afile
         self.__subprocess(command=command)
 
-    def add(self, path, file):
+    def add(self, path, afile):
         '''
         Mark files to be added upon the next commit
         '''
         os.chdir(path)
-        command = "osc add " + file
+        command = "osc add " + afile
         self.__subprocess(command=command)
 
     def getProjectParameter(self, projectObsName, apiurl, parameter):

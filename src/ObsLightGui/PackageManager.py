@@ -115,9 +115,9 @@ class PackageManager(QObject):
         self.__packageSelectionDialog.accepted.connect(self.on_packageSelectionDialog_accepted)
         self.__packagesListWidget = self.__packageSelectionDialog.findChild(QListWidget,
                                                                             u"packagesListWidget")
-        self.__refreshObsStatusButton = mainWindow.findChild(QPushButton,
-                                                             u"refreshObsStatusButton")
-        self.__refreshObsStatusButton.clicked.connect(self.on_refreshObsStatusButton_clicked)
+#        self.__refreshObsStatusButton = mainWindow.findChild(QPushButton,
+#                                                             u"refreshObsStatusButton")
+#        self.__refreshObsStatusButton.clicked.connect(self.on_refreshObsStatusButton_clicked)
         self.__refreshOscStatusButton = mainWindow.findChild(QPushButton,
                                                              u"refreshOscStatusButton")
         self.__refreshOscStatusButton.clicked.connect(self.on_refreshOscStatusButton_clicked)
