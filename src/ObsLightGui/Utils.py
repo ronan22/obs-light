@@ -14,11 +14,11 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 #
-'''
+u"""
 Created on 28 oct. 2011
 
 @author: Florent Vennetier
-'''
+"""
 
 from PySide.QtCore import QObject, QRunnable, QThreadPool, Qt, Signal
 from PySide.QtGui import QColor, QGraphicsColorizeEffect, QMessageBox, QProgressDialog
@@ -101,13 +101,24 @@ class ProgressRunnable(QRunnable, QObject):
 
 
 class ProgressRunnable2(QRunnable, QObject):
-    '''
+    u"""
     QRunnable implementation which can update a QProgressDialog, and
-    send exceptions to a callback. You must implement the run() method,
-    or call setRunMethod() with a method to run as first parameter.
-    If you implement run() yourself, don't forget to call hasFinished()
-    at the end.
-    '''
+    emit signals when it has finished or caught exceptions.
+    You can implement the `ProgressRunnable2.run()` method, or call
+    `ProgressRunnable2.setRunMethod()` or
+    `ProgressRunnable2.setFunctionToMap()` with a method to run as
+    first parameter. If you implement `ProgressRunnable2.run()`
+    yourself, don't forget to call `ProgressRunnable2.hasFinished()`
+    at the end (an eventually `ProgressRunnable2.hasProgressed()`
+    in the middle).
+    
+    `ProgressRunnable2.finished[object]` and `ProgressRunnable2.finished`
+    signals are emitted after `ProgressRunnable2.hasFinished()`
+    has been called (either by your method or by the one automatically
+    generated), the first with the result of the
+    `ProgressRunnable2.run()` method as parameter (eventually None),
+    the second without parameter.
+    """
     __progressDialog = None
     __isFinite = False
     __askedToCancel = False
@@ -121,31 +132,31 @@ class ProgressRunnable2(QRunnable, QObject):
     caughtException = Signal(BaseException)
 
     def __init__(self, progressDialog=None):
-        '''
+        u"""
         Initialize the ProgressRunnable. Don't forget to call
         ProgressRunnable.__init__(self) when you override.
         It is possible to pass a QProgressDialog as parameter
         (equivalent to call setProgressDialog() after instantiation.
-        '''
+        """
         QRunnable.__init__(self)
         QObject.__init__(self)
         if progressDialog is not None:
             self.setProgressDialog(progressDialog)
 
     def cancel(self):
-        '''
+        u"""
         Ask the ProgressRunnable to cancel.
         This method is internally connected to the ProgressDialog
         (if there is one) 'canceled' signal.
-        '''
+        """
         self.__askedToCancel = True
         self.setDialogMessage("Canceled. Waiting for current task to finish...")
 
     def setProgressDialog(self, dialog):
-        '''
+        u"""
         Set the QProgressDialog (or QProgressBar) to update when calling
         hasProgressed() and hasFinished(). You can pass None.
-        '''
+        """
         # If there was a previous progress dialog, disconnect it.
         if (self.__progressDialog is not None and
             isinstance(self.__progressDialog, QProgressDialog)):
@@ -166,37 +177,37 @@ class ProgressRunnable2(QRunnable, QObject):
                 self.__progressDialog.canceled.connect(self.cancel)
 
     def getProgressDialog(self):
-        '''
+        u"""
         Get the QProgressDialog (or QProgressBar) which has been set using
         setProgressDialog(). Returns None if there is not progress dialog.
-        '''
+        """
         return self.__progressDialog
 
     def setMax(self, maximum):
-        '''
+        u"""
         Set the range of the progress dialog from 0 to maximum.
         An infinite progress dialog will be transformed to a finite one.
-        '''
+        """
         if self.__progressDialog is not None:
             self.__progressDialog.setRange(0, maximum)
             self.__isFinite = True
 
     def hasStarted(self):
-        '''
+        u"""
         Inform the progress dialog that the run method has started.
         (calls its show() method).
-        '''
+        """
         if self.__progressDialog is not None:
             self.__started.connect(self.__progressDialog.show)
             self.__started.emit()
             self.__started.connect(self.__progressDialog.show)
 
     def hasProgressed(self, howMuch=1):
-        '''
+        u"""
         Inform the progress dialog that the run method has progressed
         in its execution. The howMuch parameter allows you to progress
         of more than one step at a time.
-        '''
+        """
         if self.__progressDialog is not None:
             if self.__isFinite:
                 # "Real" progress dialog, so increase value
@@ -212,11 +223,11 @@ class ProgressRunnable2(QRunnable, QObject):
             self.__progressed.disconnect(self.__progressDialog.show)
 
     def hasFinished(self, result=None):
-        '''
+        u"""
         Inform the progress dialog that the run method has finished
         its execution (so it will be hidden). Also emits the finished
         signal.
-        '''
+        """
 
         if self.__progressDialog is not None:
             if isinstance(self.__progressDialog, QProgressDialog):
@@ -227,19 +238,19 @@ class ProgressRunnable2(QRunnable, QObject):
             self.__finished.connect(self.__progressDialog.reset)
             self.__finished.emit()
             self.__finished.disconnect(self.__progressDialog.reset)
-        self.finished.emit()
         self.finished[object].emit(result)
+        self.finished.emit()
 
     def hasCaughtException(self, exception):
-        '''
+        u"""
         Emits the caughtException signal with exception as parameter.
-        '''
+        """
         self.caughtException.emit(exception)
 
     def setDialogMessage(self, message):
-        '''
+        u"""
         Set the message displayed in the progress dialog.
-        '''
+        """
         if self.__progressDialog is not None:
             self.__sentMessage.connect(self.__progressDialog.setLabelText)
             if not isinstance(message, unicode):
@@ -248,18 +259,18 @@ class ProgressRunnable2(QRunnable, QObject):
             self.__sentMessage.disconnect(self.__progressDialog.setLabelText)
 
     def wasAskedToCancel(self):
-        '''
+        u"""
         Returns True if the ProgressRunnable was asked to cancel, using
         its cancel() method.
-        '''
+        """
         return self.__askedToCancel
 
     def setRunMethod(self, method, *args, **kwargs):
-        '''
+        u"""
         Replace the 'run' method of this instance by one which will
         run 'method' with arguments 'args' and 'kwargs' (expanded),
         and will emit caughtException signal if an exception is caught.
-        '''
+        """
         def run():
             result = None
             caughtException = None
@@ -275,13 +286,13 @@ class ProgressRunnable2(QRunnable, QObject):
         self.run = run
 
     def setFunctionToMap(self, function, iterable, message=None, *otherArgs, **kwargs):
-        '''
+        u"""
         Replace the 'run' method of this instance by one which will
         map 'function' on every element of 'iterable'. It is possible to
         change the progress dialog message with 'message' ("%(arg)s" is
         replaced by an unicode representation of the current element),
         and to pass other parameters to the function.
-        '''
+        """
         def run():
             results = list()
 
@@ -310,10 +321,10 @@ class ProgressRunnable2(QRunnable, QObject):
 
 
 def firstArgLast(func):
-    '''
+    u"""
     Return a function which will call 'func' with first argument
     as last argument.
-    '''
+    """
     def newFunc(*args, **kwargs):
         newArgs = list(args[1:])
         newArgs.append(args[0])
@@ -321,10 +332,10 @@ def firstArgLast(func):
     return newFunc
 
 def detachWithProgress(title, minDuration=500):
-    '''
+    u"""
     Decorator which will make a function run in a QThreadPool while
     displaying an infinite QProgressDialog.
-    '''
+    """
     def showProgress1(func):
         def showProgress2(*args):
             progress = QProgressDialog()
@@ -340,12 +351,12 @@ def detachWithProgress(title, minDuration=500):
     return showProgress1
 
 def exceptionToMessageBox(exception, parent=None):
-    '''
+    u"""
     Display an exception in a QMessageBox.
     OBSLightBaseErrors are displayed as warnings, other types of
     exceptions are displayed as critical.
     To be called only from UI thread.
-    '''
+    """
     if isinstance(exception, ObsLightErr.OBSLightBaseError):
         QMessageBox.warning(parent, u"Exception occurred", exception.msg)
     else:
@@ -356,11 +367,11 @@ def exceptionToMessageBox(exception, parent=None):
         QMessageBox.critical(parent, u"Exception occurred", message)
 
 def popupOnException(f):
-    '''
+    u"""
     Decorator to catch the exceptions a function may return and display them
     in a warning QMessageBox.
     To be used only on methods running in UI thread.
-    '''
+    """
     def catchException(*args, **kwargs):
         try:
             f(*args, **kwargs)

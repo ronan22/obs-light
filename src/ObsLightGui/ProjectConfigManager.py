@@ -26,7 +26,7 @@ from PySide.QtGui import QCompleter, QGraphicsColorizeEffect
 
 from ObsLight.ObsLightErr import OBSLightBaseError
 from ObsLight.ObsLightTools import isNonEmptyString
-from Utils import popupOnException, QRunnableImpl, colorizeWidget, removeEffect, ProgressRunnable2
+from Utils import popupOnException, colorizeWidget, removeEffect, ProgressRunnable2
 
 class ProjectConfigManager(QObject):
     '''
@@ -103,50 +103,75 @@ class ProjectConfigManager(QObject):
         self.__descriptionTextEdit = self.__configDialog.findChild(QTextEdit,
                                                                    u"projectDescriptionTextEdit")
 
-    def __loadInitialFieldValues(self):
-        self.__serverCBox.clear()
-        self.__serverCBox.addItems(self.__obsLightManager.getObsServerList(reachable=True))
+    def __loadAliasField(self):
+        self.__localNameField.setText(self.__projectAlias)
+        self.__localNameField.setReadOnly(True)
 
+    def __preselectActualServer(self):
+        obsServerAlias = self.__obsLightManager.getProjectParameter(self.__projectAlias,
+                                                                    u"obsServer")
+        lineIndex = self.__serverCBox.findText(obsServerAlias)
+        if lineIndex >= 0:
+            self.__serverCBox.setCurrentIndex(lineIndex)
+        self.__serverCBox.setEnabled(False)
+
+    def __loadObsNameField(self):
+        projectObsName = self.__obsLightManager.getProjectParameter(self.__projectAlias, u"projectObsName")
+        self.__obsNameField.setText(projectObsName)
+        self.__obsNameField.setReadOnly(True)
+
+    def __preselectActualTarget(self):
+        target = self.__obsLightManager.getProjectParameter(self.__projectAlias, u"projectTarget")
+        lineIndex = self.__targetCBox.findText(target)
+        if lineIndex >= 0:
+            self.__targetCBox.setCurrentIndex(lineIndex)
+
+    def __preselectActualArch(self):
+        arch = self.__obsLightManager.getProjectParameter(self.__projectAlias, u"projectArchitecture")
+        lineIndex = self.__archCBox.findText(arch)
+        if lineIndex >= 0:
+            self.__archCBox.setCurrentIndex(lineIndex)
+
+    def __loadProjectTitle(self):
+        title = self.__obsLightManager.getProjectParameter(self.__projectAlias, u"projectTitle")
+        self.__titleLineEdit.setText(title)
+        self.__titleLineEdit.setEnabled(True)
+
+    def __loadProjectDescription(self):
+        description = self.__obsLightManager.getProjectParameter(self.__projectAlias, u"description")
+        self.__descriptionTextEdit.setText(description)
+        self.__descriptionTextEdit.setEnabled(True)
+
+    def __loadServerList(self, serverList):
+        self.__serverCBox.clear()
+        self.__serverCBox.addItems(serverList)
+
+    def __loadKnownProjectValues(self):
+        # load project local name
+        self.__loadAliasField()
+        # load OBS server list and select appropriate current server
+        self.__preselectActualServer()
+        # load project OBS name
+        self.__loadObsNameField()
+        # load target list and select appropriate current target
+        self.__loadTargetPossibilities()
+        self.__preselectActualTarget()
+        # load arch list and select appropriate current arch
+        self.__loadArchPossibilities()
+        self.__preselectActualArch()
+        # load project title
+        self.__loadProjectTitle()
+        # load project description
+        self.__loadProjectDescription()
+
+    def __loadInitialFieldValues(self):
+        runnable = ProgressRunnable2(self.__gui.getInfiniteProgressDialog())
+        runnable.setDialogMessage("Loading...")
+        runnable.setRunMethod(self.__obsLightManager.getObsServerList, reachable=True)
+        runnable.finished[object].connect(self.__loadServerList)
         if not self.__isNewProject():
-            # load project local name
-            self.__localNameField.setText(self.__projectAlias)
-            self.__localNameField.setReadOnly(True)
-            # load OBS server list and select appropriate current server
-            obsServerAlias = self.__obsLightManager.getProjectParameter(self.__projectAlias,
-                                                                        u"obsServer")
-            lineIndex = self.__serverCBox.findText(obsServerAlias)
-            if lineIndex >= 0:
-                self.__serverCBox.setCurrentIndex(lineIndex)
-            self.__serverCBox.setEnabled(False)
-            # load project OBS name
-            projectObsName = self.__obsLightManager.getProjectParameter(self.__projectAlias,
-                                                                        u"projectObsName")
-            self.__obsNameField.setText(projectObsName)
-            self.__obsNameField.setReadOnly(True)
-            # load target list and select appropriate current target
-            self.__loadTargetPossibilities()
-            target = self.__obsLightManager.getProjectParameter(self.__projectAlias,
-                                                                u"projectTarget")
-            lineIndex = self.__targetCBox.findText(target)
-            if lineIndex >= 0:
-                self.__targetCBox.setCurrentIndex(lineIndex)
-            # load arch list and select appropriate current arch
-            self.__loadArchPossibilities()
-            arch = self.__obsLightManager.getProjectParameter(self.__projectAlias,
-                                                              u"projectArchitecture")
-            lineIndex = self.__archCBox.findText(arch)
-            if lineIndex >= 0:
-                self.__archCBox.setCurrentIndex(lineIndex)
-            # load project title
-            title = self.__obsLightManager.getProjectParameter(self.__projectAlias,
-                                                               u"projectTitle")
-            self.__titleLineEdit.setText(title)
-            self.__titleLineEdit.setEnabled(True)
-            # load project description
-            description = self.__obsLightManager.getProjectParameter(self.__projectAlias,
-                                                                     u"description")
-            self.__descriptionTextEdit.setText(description)
-            self.__descriptionTextEdit.setEnabled(True)
+            runnable.finished.connect(self.__loadKnownProjectValues)
+        QThreadPool.globalInstance().start(runnable)
 
     def __makeConnections(self):
         if self.__isNewProject():
@@ -201,8 +226,8 @@ class ProjectConfigManager(QObject):
     def handleObsNameEditingFinished(self):
         if self.__projectObsNameEdited:
             self.__projectObsNameEdited = False
-            task = QRunnableImpl()
-            task.run = self.__loadTargetPossibilities
+            task = ProgressRunnable2()
+            task.setRunMethod(self.__loadTargetPossibilities)
             QThreadPool.globalInstance().start(task)
 
     def handleObsNameReturnPressed(self):
@@ -210,8 +235,8 @@ class ProjectConfigManager(QObject):
         self.handleObsNameEditingFinished()
 
     def handleTargetIndexChanged(self):
-        task = QRunnableImpl()
-        task.run = self.__loadArchPossibilities
+        task = ProgressRunnable2()
+        task.setRunMethod(self.__loadArchPossibilities)
         QThreadPool.globalInstance().start(task)
 
     def getCurrentServerAlias(self):
