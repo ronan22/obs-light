@@ -375,7 +375,11 @@ class ObsLightProject(object):
         packagePath = self.__getPackagePath(package)
 
         #Find the spec file
-        listFile = os.listdir(packagePath)
+        tmplistFile = os.listdir(packagePath)
+        listFile = []
+        for aFile in tmplistFile:
+            if os.path.isfile(packagePath + "/" + aFile):
+                listFile.append(aFile)
 
         specFile = None
         yamlFile = None
@@ -518,12 +522,9 @@ class ObsLightProject(object):
 
             for obsFile in dicoListFile.keys():
                 if (not obsFile in listOscFile) and (obsFile != "_link"):
-                    print "obsFile", obsFile
-                    print "(obsFile != _link)", (obsFile != "_link")
                     self.__packages.getPackage(package).setOscStatus("inconsistent state")
                     return None
             self.__packages.getPackage(package).setOscStatus("Succeeded")
-
         return None
 
     def updatePackage(self, name=None):
@@ -758,7 +759,6 @@ class ObsLightProject(object):
         '''
         commit the package to the OBS server.
         '''
-
         self.__packages.getPackage(package).commitToObs(message=message)
 
     def addRemoveFileToTheProject(self, package=None):
@@ -821,7 +821,7 @@ class ObsLightProject(object):
 
     def getOscPackageStatus(self, package):
         '''
-          
+        
         '''
         return self.__packages.getPackage(package).getPackageParameter(parameter="oscStatus")
 

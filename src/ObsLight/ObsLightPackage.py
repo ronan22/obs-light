@@ -24,7 +24,7 @@ import shutil
 
 from ObsLightSpec import ObsLightSpec
 from ObsLightYaml import ObsLightYaml
-from ObsLightOsc import ObsLightOsc
+import ObsLightOsc
 
 import ObsLightPrintManager
 from ObsLightSubprocess import SubprocessCrt
@@ -300,6 +300,13 @@ class ObsLightPackage(object):
 
         return 0
 
+    def getListFile(self):
+        '''
+        
+        '''
+        return self.__listFile
+
+
     def getStatus(self):
         '''
         return the Status of the package.
@@ -409,7 +416,7 @@ class ObsLightPackage(object):
         name = os.path.basename(path)
         shutil.copy2(path, os.path.join(self.getOscDirectory(), name))
         self.__addFile(name)
-        ObsLightOsc().add(path=self.getOscDirectory(), afile=name)
+        ObsLightOsc.getObsLightOsc().add(path=self.getOscDirectory(), afile=name)
 
         if self.__isASpecfile(name):
             self.__specFile = name
@@ -427,7 +434,7 @@ class ObsLightPackage(object):
             raise ObsLightPackageErr("'" + path + "' not in package directory.")
         os.remove(path)
         self.__listFile.remove(name)
-        ObsLightOsc().remove(path=self.getOscDirectory(), afile=name)
+        ObsLightOsc.getObsLightOsc().remove(path=self.getOscDirectory(), afile=name)
 
     def save(self):
         '''
@@ -449,6 +456,14 @@ class ObsLightPackage(object):
         else:
             raise ObsLightPackageErr("No Spec or Yaml in the package")
 
+    def saveSpec(self, path):
+        '''
+        Save the Spec file.
+        '''
+        if self.__mySpecFile != None:
+            self.__mySpecFile.save(path=path)
+        else:
+            raise ObsLightPackageErr("No Spec or Yaml in the package")
 
     def addFileToSpec(self, baseFile=None, aFile=None):
         '''

@@ -217,9 +217,7 @@ class ObsLightChRoot(object):
             pathBuild = self.getDirectory() + "/" + self.__chrootRpmBuildDirectory + "/" + "BUILD"
             if not os.path.isdir(pathBuild):
                 raise ObsLightErr.ObsLightChRootError("in the chroot path: " + pathBuild + " is not a directory")
-
             resultPath = self.__chrootRpmBuildDirectory + "/BUILD/" + prepDirname
-
             subDir = os.listdir(pathBuild + "/" + prepDirname)
             if len(subDir) == 0:
                 return resultPath
@@ -252,8 +250,9 @@ class ObsLightChRoot(object):
 
             command = []
             command.append("zypper --non-interactive si --build-deps-only " + packageName)
-            command.append("zypper --non-interactive si " + "--repo " + repo + " " + packageName)
+            #command.append("zypper --non-interactive si " + "--repo " + repo + " " + packageName)
             res = self.execCommand(command=command)
+
 
             if res != 0:
                 ObsLightPrintManager.getLogger().error(packageName + " the zypper Script fail")
@@ -262,8 +261,21 @@ class ObsLightChRoot(object):
 
             if os.path.isdir(self.getDirectory() + "/" + self.__chrootRpmBuildDirectory + "/SPECS/"):
                 aspecFile = self.__chrootRpmBuildDirectory + "/SPECS/" + specFile
-                self.prepRpm(specFile=aspecFile)
+
+                self.__subprocess(command="sudo chown -R root:users " + self.getDirectory() + "/" + self.__chrootRpmBuildDirectory)
+                self.__subprocess(command="sudo chmod -R g+rw " + self.getDirectory() + "/" + self.__chrootRpmBuildDirectory)
+                package.saveSpec(self.getDirectory() + "/" + aspecFile)
                 #find the directory to watch
+                for aFile in package.getListFile():
+                    path = self.getDirectory() + "/" + self.__chrootRpmBuildDirectory + "/SOURCES/" + str(aFile)
+                    if os.path.isfile(path):
+                        os.unlink(path)
+                    shutil.copy2(package.getOscDirectory() + "/" + str(aFile),
+                                 path)
+                    self.__subprocess(command="sudo chown -R root:users " + path)
+
+                self.prepRpm(specFile=aspecFile)
+
                 packageDirectory = self.__findPackageDirectory(package=package)
                 ObsLightPrintManager.getLogger().debug("for the package " + packageName + " the packageDirectory is used : " + str(packageDirectory))
                 package.setDirectoryBuild(packageDirectory)
@@ -618,12 +630,14 @@ class ObsLightChRoot(object):
         '''
         
         '''
-        self.__getAddRemoveFiles(package=package)
+        #self.__getAddRemoveFiles(package=package)
 
         path = package.getPackageDirectory()
         command = []
-        command.append("git --work-tree=" + path + " --git-dir=" + path + "/.git add " + path + "/\*")
-        command.append("git --work-tree=" + path + " --git-dir=" + path + "/.git commit -a -m \"" + mess + "\"")
+        command.append("git --work-tree=" + path + " --git-dir=" + path +
+                       "/.git add " + path + "/\*")
+        command.append("git --work-tree=" + path + " --git-dir=" + path +
+                       "/.git commit -a -m \"" + mess + "\"")
         self.execCommand(command=command)
 
     def makePatch(self, package=None, patch=None):
@@ -642,11 +656,13 @@ class ObsLightChRoot(object):
         tag2 = self.getCommitTag(path=pathPackage)
 
         command = []
-        command.append("git --git-dir=" + pathPackage + "/.git --work-tree=" + pathPackage + " diff -p " + tag1 + " " + tag2 + " > " + self.__dirTransfert + "/" + patchFile)
+        command.append("git --git-dir=" + pathPackage + "/.git --work-tree=" + pathPackage +
+                       " diff -p " + tag1 + " " + tag2 + " > " + self.__dirTransfert + "/" + patchFile)
         self.execCommand(command=command)
         shutil.copy(self.__chrootDirTransfert + "/" + patchFile, pathOscPackage + "/" + patch)
-        package.addPatch(aFile=patch)
 
+        package.addPatch(aFile=patch)
+        ObsLightOsc.getObsLightOsc().add(path=pathOscPackage, afile=patch)
         package.save()
 
     def __getAddRemoveFiles(self, package=None):
