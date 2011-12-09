@@ -152,6 +152,7 @@ class PackageManager(QObject):
     def refresh(self):
         self.__fileManager.refresh()
         self.updateLabels()
+        self.updateButtons()
 
     def updateLabels(self):
         package = self.currentPackage()
@@ -173,6 +174,15 @@ class PackageManager(QObject):
             self.__packageTitleLabel.setText(u"")
             self.__packageDescriptionLabel.setText(u"")
             self.__packagePathLineEdit.setText("")
+
+    def updateButtons(self):
+        package = self.currentPackage()
+        project = self.getCurrentProject()
+        installed = (package is not None and
+                     self.__obsLightManager.isInstalledInChRoot(project, package))
+        self.__rpmBuildButton.setEnabled(installed)
+        self.__rpmInstallButton.setEnabled(installed)
+        self.__rpmBuildRpmButton.setEnabled(installed)
 
     def currentPackage(self):
         '''
