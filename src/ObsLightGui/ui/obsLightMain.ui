@@ -145,7 +145,7 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>187</width>
+                    <width>186</width>
                     <height>134</height>
                    </rect>
                   </property>
@@ -736,7 +736,7 @@
                  </widget>
                 </item>
                 <item row="10" column="2">
-                 <widget class="QPushButton" name="pushButton_3">
+                 <widget class="QPushButton" name="importPatchButton">
                   <property name="enabled">
                    <bool>false</bool>
                   </property>
@@ -746,7 +746,7 @@
                  </widget>
                 </item>
                 <item row="11" column="2">
-                 <widget class="QPushButton" name="pushButton_4">
+                 <widget class="QPushButton" name="deletePatchButton">
                   <property name="enabled">
                    <bool>false</bool>
                   </property>
@@ -756,7 +756,7 @@
                  </widget>
                 </item>
                 <item row="12" column="2">
-                 <widget class="QPushButton" name="pushButton_5">
+                 <widget class="QPushButton" name="modifyPatchButton">
                   <property name="text">
                    <string>Modify</string>
                   </property>
@@ -1010,7 +1010,7 @@
                  </widget>
                 </item>
                 <item row="0" column="0" colspan="3">
-                 <widget class="QPushButton" name="pushButton_6">
+                 <widget class="QPushButton" name="openChrootButton">
                   <property name="text">
                    <string>Open terminal</string>
                   </property>

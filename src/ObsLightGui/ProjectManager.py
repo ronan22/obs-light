@@ -24,7 +24,7 @@ from PySide.QtCore import QObject, QThreadPool
 from PySide.QtGui import QPushButton, QListWidget, QLineEdit, QLabel
 from PySide.QtGui import QFileDialog, QMessageBox
 
-from Utils import  ProgressRunnable, popupOnException
+from Utils import  ProgressRunnable, ProgressRunnable2, popupOnException
 from PackageManager import PackageManager
 from RepoConfigManager import RepoConfigManager
 from ProjectConfigManager import ProjectConfigManager
@@ -87,8 +87,11 @@ class ProjectManager(QObject):
         self.__saveObsProjectButton.clicked.connect(self.on_exportObsProjectButton_clicked)
 
         self.__newChrootButton = mainWindow.findChild(QPushButton,
-                                                         u"newChrootButton")
+                                                      u"newChrootButton")
         self.__newChrootButton.clicked.connect(self.on_newChrootButton_clicked)
+        self.__openChrootButton = mainWindow.findChild(QPushButton,
+                                                       u"openChrootButton")
+        self.__openChrootButton.clicked.connect(self.on_openChrootButton_clicked)
         self.__deleteChrootButton = mainWindow.findChild(QPushButton,
                                                          u"deleteChrootButton")
         self.__deleteChrootButton.clicked.connect(self.on_deleteChrootButton_clicked)
@@ -227,33 +230,37 @@ class ProjectManager(QObject):
     def on_newChrootButton_clicked(self):
         projectName = self.getCurrentProjectName()
         obslightManager = self.__gui.getObsLightManager()
-        if projectName is not None:
-            if obslightManager.isChRootInit(projectName):
-                currentPackage = self.__packageManager.currentPackage()
-                runnable = None
-                if currentPackage is None:
-                    runnable = ProgressRunnable(obslightManager.goToChRoot,
-                                                projectName,
-                                                detach=True)
-                else:
-                    runnable = ProgressRunnable(obslightManager.goToChRoot,
-                                                projectName,
-                                                currentPackage,
-                                                detach=True)
+        if projectName is None or obslightManager.isChRootInit(projectName):
+            return
+        runnable = ProgressRunnable2(self.__gui.getInfiniteProgressDialog())
+        runnable.setDialogMessage(u"Creating chroot...")
+        runnable.setRunMethod(obslightManager.createChRoot,
+                              projectName)
+        runnable.caughtException.connect(self.__gui.popupErrorCallback)
+        runnable.finished.connect(self.refresh)
+        runnable.runOnGlobalInstance()
 
-                runnable.finishedWithException.connect(self.__gui.popupErrorCallback)
-                runnable.finished.connect(self.refresh)
-                QThreadPool.globalInstance().start(runnable)
-            else:
-                progress = self.__gui.getInfiniteProgressDialog()
-                progress.setLabelText(u"Creating chroot")
-                progress.show()
-                runnable = ProgressRunnable(obslightManager.createChRoot,
-                                            projectName)
-                runnable.setProgressDialog(progress)
-                runnable.finishedWithException.connect(self.__gui.popupErrorCallback)
-                runnable.finished.connect(self.refresh)
-                QThreadPool.globalInstance().start(runnable)
+    @popupOnException
+    def on_openChrootButton_clicked(self):
+        projectName = self.getCurrentProjectName()
+        obslightManager = self.__gui.getObsLightManager()
+        if projectName is None or not obslightManager.isChRootInit(projectName):
+            return
+
+        currentPackage = self.__packageManager.currentPackage()
+        runnable = ProgressRunnable2()
+        if currentPackage is None:
+            runnable.setRunMethod(obslightManager.goToChRoot,
+                                  projectName,
+                                  detach=True)
+        else:
+            runnable.setRunMethod(obslightManager.goToChRoot,
+                                  projectName,
+                                  currentPackage,
+                                  detach=True)
+        runnable.caughtException.connect(self.__gui.popupErrorCallback)
+        runnable.finished.connect(self.refresh)
+        runnable.runOnGlobalInstance()
 
     @popupOnException
     def on_deleteChrootButton_clicked(self):
@@ -354,10 +361,12 @@ class ProjectManager(QObject):
                 chrootPath = obslightManager.getChRootPath(project)
                 self.__chrootPathLineEdit.setText(chrootPath)
 
-                self.__newChrootButton.setText(u"Open terminal")
+                self.__newChrootButton.setEnabled(False)
+                self.__openChrootButton.setEnabled(True)
             else:
+                self.__newChrootButton.setEnabled(True)
+                self.__openChrootButton.setEnabled(False)
                 self.__chrootPathLineEdit.setText("")
-                self.__newChrootButton.setText(u"New")
 
             self.__rpmPrepButton.setEnabled(isChrootInit)
             self.__rpmBuildButton.setEnabled(isChrootInit)

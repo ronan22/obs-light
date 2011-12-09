@@ -22,7 +22,7 @@ Created on 17 nov. 2011
 
 from PySide.QtCore import QObject, QRegExp, QThreadPool, Signal
 from PySide.QtGui import QComboBox, QDialogButtonBox, QLineEdit, QRegExpValidator, QTextEdit
-from PySide.QtGui import QCompleter, QGraphicsColorizeEffect
+from PySide.QtGui import QCompleter
 
 from ObsLight.ObsLightErr import OBSLightBaseError
 from ObsLight.ObsLightTools import isNonEmptyString
@@ -48,7 +48,6 @@ class ProjectConfigManager(QObject):
     __archCBox = None
     __titleLineEdit = None
     __descriptionTextEdit = None
-    __colorEffect = None
 
     finished = Signal(bool)
     __projectObsNameEdited = False
@@ -59,13 +58,11 @@ class ProjectConfigManager(QObject):
         self.__projectAlias = projectAlias
         self.__obsLightManager = self.__gui.getObsLightManager()
         self.__configDialog = self.__gui.loadWindow(u"obsProjectConfig.ui")
-        self.__colorEffect = QGraphicsColorizeEffect(self.__configDialog)
         self.__loadFieldObjects()
         self.__loadInitialFieldValues()
         self.__makeConnections()
         if self.__isNewProject():
             self.handleServerChanged()
-        #self.__configDialog.accepted.disconnect(self.__configDialog.accept)
         self.__configDialog.accepted.connect(self.on_configDialog_accepted)
         self.__configDialog.rejected.connect(self.on_configDialog_rejected)
         self.__configButtonBox.button(QDialogButtonBox.Ok).clicked.connect(self.validate)
