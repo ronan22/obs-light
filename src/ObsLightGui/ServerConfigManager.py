@@ -57,13 +57,13 @@ class ServerConfigManager(QObject):
         self.__gui = gui
         self.__serverAlias = serverAlias
         self.__srvConfDialog = self.__gui.loadWindow(u"obsServerConfig.ui")
-        self.__loadFieldObjects()
+        self.__loadWidgets()
         if self.__serverAlias is not None:
             self.__loadInitialFieldValues()
         self.__srvConfDialog.finished.connect(self.on_obsServerConfigDialog_finished)
         self.__srvConfDialog.show()
 
-    def __loadFieldObjects(self):
+    def __loadWidgets(self):
         self.__dialogButtonBox = self.__srvConfDialog.findChild(QDialogButtonBox,
                                                                 "obsServerConfigButtonBox")
         self.disableOkButton()

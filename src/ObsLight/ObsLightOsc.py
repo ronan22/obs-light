@@ -409,17 +409,15 @@ class ObsLightOsc(object):
         return a list of the project of a OBS Server.
         '''
         conf.get_config()
+        res = []
         try:
             res = core.meta_get_project_list(str(obsServer))
         except urllib2.URLError:
             ObsLightPrintManager.getLogger().error("apiurl " + str(obsServer) + " is not reachable")
-            return None
         except M2Crypto.SSL.SSLError:
             ObsLightPrintManager.getLogger().error("apiurl " + str(obsServer) + " Connection reset by peer")
-            return None
         except M2Crypto.SSL.Checker.NoCertificate:
             ObsLightPrintManager.getLogger().error("apiurl " + str(obsServer) + " Peer did not return certificate")
-            return None
         return res
 
     def getListRepos(self, apiurl):
@@ -498,22 +496,24 @@ class ObsLightOsc(object):
         '''
         return the list of Archictecture of the target of the projectObsName for a OBS server.
         '''
+        res = []
         url = self.__cleanUrl(str(obsServer + "/build/" + projectObsName + "/" + projectTarget))
         try:
             aElement = ElementTree.fromstring(core.http_request("GET", url, timeout=TIMEOUT).read())
+
+            for directory in aElement:
+                for entry in directory.getiterator():
+                    res.append(entry.get("name"))
         except urllib2.URLError:
             ObsLightPrintManager.getLogger().error("apiurl " + str(url) + " is not reachable")
-            return None
+#            return None
         except M2Crypto.SSL.SSLError:
             ObsLightPrintManager.getLogger().error("apiurl " + str(url) + " Connection reset by peer")
-            return None
+#            return None
         except M2Crypto.SSL.Checker.NoCertificate:
             ObsLightPrintManager.getLogger().error("apiurl " + str(url) + " Peer did not return certificate")
-            return None
-        res = []
-        for directory in aElement:
-            for entry in directory.getiterator():
-                res.append(entry.get("name"))
+#            return None
+
         return res
 
     def commitProject(self,
