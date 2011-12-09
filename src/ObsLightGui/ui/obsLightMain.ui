@@ -145,7 +145,7 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>186</width>
+                    <width>187</width>
                     <height>134</height>
                    </rect>
                   </property>
@@ -618,7 +618,7 @@
                 <property name="spacing">
                  <number>-1</number>
                 </property>
-                <item row="7" column="1">
+                <item row="8" column="1">
                  <widget class="QPushButton" name="newFileButton">
                   <property name="enabled">
                    <bool>false</bool>
@@ -634,7 +634,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="10" column="1">
+                <item row="11" column="1">
                  <widget class="QPushButton" name="deleteFileButton">
                   <property name="toolTip">
                    <string>Remove the selected file from the package.</string>
@@ -644,7 +644,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="9" column="1">
+                <item row="10" column="1">
                  <widget class="QPushButton" name="addFileButton">
                   <property name="toolTip">
                    <string>Import files into the package.</string>
@@ -654,7 +654,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="11" column="1">
+                <item row="12" column="1">
                  <widget class="QPushButton" name="modifyFileButton">
                   <property name="enabled">
                    <bool>false</bool>
@@ -664,7 +664,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="1">
+                <item row="2" column="1">
                  <widget class="QLabel" name="fileLabel">
                   <property name="text">
                    <string>File</string>
@@ -674,7 +674,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="10" column="3">
+                <item row="11" column="3">
                  <spacer name="horizontalSpacer_2">
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
@@ -687,7 +687,7 @@
                   </property>
                  </spacer>
                 </item>
-                <item row="0" column="1">
+                <item row="1" column="1">
                  <widget class="QLabel" name="packagePathLabel">
                   <property name="text">
                    <string>Package path:</string>
@@ -697,14 +697,35 @@
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="2" colspan="2">
+                <item row="1" column="2" colspan="2">
                  <widget class="QLineEdit" name="packagePathLineEdit">
                   <property name="readOnly">
                    <bool>true</bool>
                   </property>
                  </widget>
                 </item>
-                <item row="7" column="2">
+                <item row="8" column="2">
+                 <widget class="QPushButton" name="generatePatchButton">
+                  <property name="toolTip">
+                   <string>Generate a patch from the changes made into the chroot,
+ and add this patch to the package.</string>
+                  </property>
+                  <property name="text">
+                   <string>New</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="2">
+                 <widget class="QLabel" name="label_3">
+                  <property name="text">
+                   <string>Patch</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1" colspan="2">
                  <widget class="QPushButton" name="openTermButton">
                   <property name="toolTip">
                    <string>Open a terminal in the package's OSC directory.</string>
@@ -714,14 +735,30 @@
                   </property>
                  </widget>
                 </item>
-                <item row="9" column="2">
-                 <widget class="QPushButton" name="generatePatchButton">
-                  <property name="toolTip">
-                   <string>Generate a patch from the changes made into the chroot,
- and add this patch to the package.</string>
+                <item row="10" column="2">
+                 <widget class="QPushButton" name="pushButton_3">
+                  <property name="enabled">
+                   <bool>false</bool>
                   </property>
                   <property name="text">
-                   <string>Generate patch</string>
+                   <string>Import</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="11" column="2">
+                 <widget class="QPushButton" name="pushButton_4">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="text">
+                   <string>Delete</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="12" column="2">
+                 <widget class="QPushButton" name="pushButton_5">
+                  <property name="text">
+                   <string>Modify</string>
                   </property>
                  </widget>
                 </item>
@@ -731,6 +768,12 @@
             </layout>
            </widget>
            <widget class="QWidget" name="chrootTab">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <attribute name="title">
              <string>chroot</string>
             </attribute>
@@ -740,8 +783,14 @@
              </item>
              <item row="3" column="0">
               <widget class="QWidget" name="widget_2" native="true">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
                <layout class="QGridLayout" name="gridLayout_14">
-                <item row="2" column="0">
+                <item row="3" column="0">
                  <widget class="QPushButton" name="addRepoInChrootButton">
                   <property name="minimumSize">
                    <size>
@@ -758,7 +807,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="4" column="0">
+                <item row="5" column="0">
                  <widget class="QPushButton" name="deleteRepositoryButton">
                   <property name="toolTip">
                    <string>Delete a repository from the chroot.</string>
@@ -768,7 +817,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="5" column="0">
+                <item row="6" column="0">
                  <widget class="QPushButton" name="modifyRepositoryButton">
                   <property name="toolTip">
                    <string>Modify the URL or alias of a repository.</string>
@@ -778,7 +827,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="2" colspan="3">
+                <item row="1" column="2" colspan="3">
                  <widget class="QLineEdit" name="chrootPathLineEdit">
                   <property name="toolTip">
                    <string>The path of the chroot on the local filesystem.</string>
@@ -788,7 +837,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="0" column="0">
+                <item row="1" column="0">
                  <widget class="QLabel" name="chrootLabel">
                   <property name="text">
                    <string>Chroot path:</string>
@@ -798,7 +847,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="2" column="2">
+                <item row="3" column="2">
                  <widget class="QPushButton" name="newChrootButton">
                   <property name="minimumSize">
                    <size>
@@ -816,7 +865,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="0">
+                <item row="2" column="0">
                  <widget class="QLabel" name="repositoryLabel">
                   <property name="text">
                    <string>Repository</string>
@@ -826,7 +875,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="3" column="0">
+                <item row="4" column="0">
                  <widget class="QPushButton" name="importRepoInChrootButton">
                   <property name="toolTip">
                    <string>Make a package repository accessible from the chroot (using zypper).
@@ -837,7 +886,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="4" column="2">
+                <item row="5" column="2">
                  <widget class="QPushButton" name="deleteChrootButton">
                   <property name="toolTip">
                    <string>Delete the chroot.</string>
@@ -847,7 +896,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="2">
+                <item row="2" column="2">
                  <widget class="QLabel" name="ChrootLabel">
                   <property name="text">
                    <string>Chroot</string>
@@ -857,7 +906,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="3" column="2">
+                <item row="4" column="2">
                  <widget class="QPushButton" name="pushButton">
                   <property name="enabled">
                    <bool>false</bool>
@@ -867,7 +916,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="5" column="2">
+                <item row="6" column="2">
                  <widget class="QPushButton" name="pushButton_2">
                   <property name="enabled">
                    <bool>false</bool>
@@ -877,7 +926,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="4" column="4">
+                <item row="5" column="4">
                  <spacer name="horizontalSpacer_4">
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
@@ -890,7 +939,7 @@
                   </property>
                  </spacer>
                 </item>
-                <item row="4" column="3">
+                <item row="5" column="3">
                  <widget class="QPushButton" name="rpmInstallButton">
                   <property name="toolTip">
                    <string>Execute to the %install section of selected package(s)
@@ -901,7 +950,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="2" column="3">
+                <item row="3" column="3">
                  <widget class="QPushButton" name="rpmPrepButton">
                   <property name="enabled">
                    <bool>false</bool>
@@ -928,7 +977,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="3" column="3">
+                <item row="4" column="3">
                  <widget class="QPushButton" name="rpmBuildButton">
                   <property name="toolTip">
                    <string>Execute to the %build section of selected package(s)
@@ -939,7 +988,7 @@
                   </property>
                  </widget>
                 </item>
-                <item row="5" column="3">
+                <item row="6" column="3">
                  <widget class="QPushButton" name="rpmBuildRpmButton">
                   <property name="toolTip">
                    <string>Build the source and binary RPMs of selected package(s)
@@ -950,13 +999,20 @@
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="3">
+                <item row="2" column="3">
                  <widget class="QLabel" name="label_2">
                   <property name="text">
                    <string>Spec file</string>
                   </property>
                   <property name="alignment">
                    <set>Qt::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="0" colspan="3">
+                 <widget class="QPushButton" name="pushButton_6">
+                  <property name="text">
+                   <string>Open terminal</string>
                   </property>
                  </widget>
                 </item>
