@@ -53,7 +53,10 @@ class PackageManager(QObject):
     __rpmBuildRpmButton = None
     __openTermButton = None
     __updateFilesButton = None
-    __makePatchButton = None
+    __generatePatchButton = None
+    __importPatchButton = None
+    __deletePatchButton = None
+    __modifyPatchButton = None
     __addAndCommitButton = None
     __refreshOscStatusButton = None
     __repairOscButton = None
@@ -100,9 +103,15 @@ class PackageManager(QObject):
         self.__updateFilesButton = mainWindow.findChild(QPushButton,
                                                         u"updateFilesButton")
         self.__updateFilesButton.clicked.connect(self.on_updateFilesButton_clicked)
-        self.__makePatchButton = mainWindow.findChild(QPushButton,
-                                                      u"generatePatchButton")
-        self.__makePatchButton.clicked.connect(self.on_makePatchButton_clicked)
+        self.__generatePatchButton = mainWindow.findChild(QPushButton,
+                                                          u"generatePatchButton")
+        self.__generatePatchButton.clicked.connect(self.on_makePatchButton_clicked)
+        self.__importPatchButton = mainWindow.findChild(QPushButton,
+                                                        u"importPatchButton")
+        self.__deletePatchButton = mainWindow.findChild(QPushButton,
+                                                        u"deletePatchButton")
+        self.__modifyPatchButton = mainWindow.findChild(QPushButton,
+                                                        u"modifyPatchButton")
         self.__addAndCommitButton = mainWindow.findChild(QPushButton,
                                                          u"addAndCommitButton")
         self.__addAndCommitButton.clicked.connect(self.on_addAndCommitButton_clicked)
