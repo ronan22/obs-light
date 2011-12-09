@@ -20,7 +20,7 @@ Created on 2 nov. 2011
 @author: Florent Vennetier
 '''
 
-from PySide.QtCore import QAbstractTableModel, Qt
+from PySide.QtCore import QAbstractTableModel, QSize, Qt
 from PySide.QtGui import QColor
 
 class PackageModel(QAbstractTableModel):
@@ -29,10 +29,12 @@ class PackageModel(QAbstractTableModel):
     "packageTableWidget" and the ObsLightManager.
     '''
 
-    PackageNameColumn = 0
-    PackageOscStatusColumn = 1
-    PackageServerStatusColumn = 2
-    PackageChrootStatusColumn = 3
+    NameColumn = 0
+    OscStatusColumn = 1
+    OscRevColumn = 2
+    ObsStatusColumn = 3
+    ObsRevColumn = 4
+    ChrootStatusColumn = 5
 
     StatusOnServerColors = {}
     StatusInChRootColors = {}
@@ -76,52 +78,73 @@ class PackageModel(QAbstractTableModel):
         return len(self.__getPackageList())
 
     def columnCount(self, _parent=None):
-        return 4
+        return 6
 
     def headerData(self, section, orientation, role):
         if role == Qt.DisplayRole:
             if orientation == Qt.Orientation.Vertical:
                 return section
             else:
-                if section == self.PackageNameColumn:
+                if section == self.NameColumn:
                     return u"Package"
-                elif section == self.PackageServerStatusColumn:
+                elif section == self.ObsStatusColumn:
                     return u"OBS status"
-                elif section == self.PackageChrootStatusColumn:
+                elif section == self.ChrootStatusColumn:
                     return u"Chroot status"
-                elif section == self.PackageOscStatusColumn:
+                elif section == self.OscStatusColumn:
                     return u"OSC status"
-                else:
-                    return None
+                elif section == self.OscRevColumn:
+                    return u"Rev"
+                elif section == self.ObsRevColumn:
+                    return u"Rev"
+        elif role == Qt.SizeHintRole:
+            if orientation == Qt.Orientation.Vertical:
+                pass
+            else:
+                if section == self.OscRevColumn:
+                    return QSize(32, 0)
+                elif section == self.ObsRevColumn:
+                    return QSize(32, 0)
+        return None
 
     def data(self, index, role=Qt.DisplayRole):
         if not index.isValid() or index.row() >= self.rowCount():
             return None
         if role == Qt.DisplayRole or role == Qt.ForegroundRole:
             packageName = self.__getPackageList()[index.row()]
-            if index.column() == self.PackageNameColumn and role == Qt.DisplayRole:
+            if index.column() == self.NameColumn and role == Qt.DisplayRole:
                 return packageName
-            elif index.column() == self.PackageServerStatusColumn:
+            elif index.column() == self.ObsStatusColumn:
                 status = self.__obsLightManager.getPackageStatus(self.__project,
                                                                  packageName)
                 if role == Qt.DisplayRole:
                     return status
                 elif role == Qt.ForegroundRole:
                     return self.StatusOnServerColors.get(status, None)
-            elif index.column() == self.PackageChrootStatusColumn:
+            elif index.column() == self.ChrootStatusColumn:
                 status = self.__obsLightManager.getGetChRootStatus(self.__project,
                                                                    packageName)
                 if role == Qt.DisplayRole:
                     return status
                 elif role == Qt.ForegroundRole:
                     return self.StatusInChRootColors.get(status, None)
-            elif index.column() == self.PackageOscStatusColumn:
+            elif index.column() == self.OscStatusColumn:
                 status = self.__obsLightManager.getOscPackageStatus(self.__project,
                                                                     packageName)
                 if role == Qt.DisplayRole:
                     return status
                 elif role == Qt.ForegroundRole:
                     return self.StatusInOscColors.get(status, None)
+            elif index.column() == self.OscRevColumn:
+                rev = self.__obsLightManager.getOscPackageRev(self.__project,
+                                                              packageName)
+                if role == Qt.DisplayRole:
+                    return rev
+            elif index.column() == self.ObsRevColumn:
+                rev = self.__obsLightManager.getObsPackageRev(self.__project,
+                                                              packageName)
+                if role == Qt.DisplayRole:
+                    return rev
         return None
 
     def sort(self, Ncol, order):

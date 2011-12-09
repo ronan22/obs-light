@@ -162,6 +162,8 @@ class PackageManager(QObject):
         self.__fileManager.refresh()
         self.updateLabels()
         self.updateButtons()
+        self.__packageTableView.resizeColumnToContents(PackageModel.ObsRevColumn)
+        self.__packageTableView.resizeColumnToContents(PackageModel.OscRevColumn)
 
     def updateLabels(self):
         package = self.currentPackage()
@@ -201,7 +203,7 @@ class PackageManager(QObject):
         index = self.__packageTableView.currentIndex()
         if index.isValid():
             row = index.row()
-            pkgNameIndex = self.__localModel.createIndex(row, PackageModel.PackageNameColumn)
+            pkgNameIndex = self.__localModel.createIndex(row, PackageModel.NameColumn)
             packageName = self.__localModel.data(pkgNameIndex)
             return packageName
         else:
@@ -218,7 +220,7 @@ class PackageManager(QObject):
             if index.isValid():
                 row = index.row()
                 packageNameIndex = self.__localModel.createIndex(row,
-                                                                 PackageModel.PackageNameColumn)
+                                                                 PackageModel.NameColumn)
                 packageName = self.__localModel.data(packageNameIndex)
                 packages.add(packageName)
         return list(packages)
