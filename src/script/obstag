@@ -8,14 +8,13 @@
 import sys
 import time
 
-from os.path import join
 from urllib2 import URLError, HTTPError
 from xml.etree import ElementTree
 
 from osc import conf, core
 
 
-def help(progName="obstag"):
+def help_(progName="obstag"):
     print """HELP
 Function : Tag a project in an OBS (remote obs are managed via a linked project)
         It will create a tag file which constains the MD5 to represent
@@ -70,7 +69,7 @@ class PackageRevision(object):
             return cmp(int(self.rev) or 0, int(other.rev) or 0)
         else:
             return cmp(self.name, other.name)
-        
+
 
 class ObsProject(object):
 
@@ -105,7 +104,7 @@ class ObsProject(object):
         url += packageName + "/_history"
 
         xmlResult = core.http_request("GET", url).read()
-        
+
         xmlRevisionLists = ElementTree.fromstring(xmlResult)
         for xmlRevisionList in xmlRevisionLists.iter("revisionlist"):
             for xmlRevision in xmlRevisionList.iter("revision"):
@@ -115,7 +114,7 @@ class ObsProject(object):
                 for field in xmlRevision.iter():
                     revision.__dict__[field.tag] = field.text
                 revisionsList.append(revision)
-        
+
         revisionsList.sort(reverse=True)
         return revisionsList
 
@@ -148,7 +147,7 @@ def main(apiUrl, projectName, outFilePath):
     except URLError:
         print >> sys.stderr, "The URL you gave seems to be invalid or unreachable:", apiUrl
         sys.exit(1)
-    except ElementTree.ParseError:
+    except ElementTree.ParseError as pe:
         print >> sys.stdout, "An error occured while parsing package list:", str(pe)
         sys.exit(2)
 
@@ -160,23 +159,22 @@ def main(apiUrl, projectName, outFilePath):
     print "Creating a revision tag of source packages as present in ", projectName
     packagesTaggedNumber = 0
     try:
-	failedPackages = []
         for packageName in packageList:
-	    nbError = 0
-	    while (nbError < 5):
+            nbError = 0
+            while (nbError < 5):
                 nbError += 1
                 try:
                     revisions = obsProject.getPackageRevisions(packageName)
                     if len(revisions) > 0:
                         print >> outFile, revisions[0]
-                        # 'print' writes an unwanted space between the dots
                     else:
                         rev = PackageRevision(packageName, "", "")
                         print >> outFile, rev
+                    # 'print' writes an unwanted space between the dots
                     sys.stdout.write(".")
                     sys.stdout.flush()
                     packagesTaggedNumber += 1
-		    break
+                    break
                 except ElementTree.ParseError as pe:
                     print >> sys.stdout, "An error occured while parsing revision"\
                         + " list of package ", packageName, ":", str(pe)
@@ -186,7 +184,7 @@ def main(apiUrl, projectName, outFilePath):
         sys.exit(1)
     except URLError:
         print >> sys.stderr, "The URL you gave seems to be invalid or",
-        print >> sys.stderr, " unreachable:", self.apiUrl
+        print >> sys.stderr, " unreachable:", apiUrl
         sys.exit(1)
 
     outFile.close()
@@ -199,7 +197,7 @@ def main(apiUrl, projectName, outFilePath):
 
 if __name__ == '__main__':
     if len(sys.argv) != 4:
-        help(sys.argv[0])
+        help_(sys.argv[0])
         sys.exit(1)
     apiUrl = sys.argv[1]
     projectName = sys.argv[2]
