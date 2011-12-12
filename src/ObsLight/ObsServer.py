@@ -161,6 +161,16 @@ class ObsServer(object):
         elif parameter == "passw":
             return self.__passw
 
+    def getObsPackageRev(self,
+                         projectObsName,
+                         package):
+        '''
+        
+        '''
+        return ObsLightOsc.getObsLightOsc().getObsPackageRev(apiurl=self.__serverAPI,
+                                                             projectObsName=projectObsName,
+                                                             package=package)
+
     def setObsServerParameter(self, parameter=None, value=None):
         '''
         change the value of the parameter "parameter"

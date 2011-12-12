@@ -464,4 +464,30 @@ class ObsLightProjects(object):
         '''
         return self.__dicOBSLightProjects[projectLocalName].repairOscPackageDirectory(package=package)
 
+    def getOscPackageRev(self,
+                          projectLocalName,
+                          packageName):
+        '''
+        
+        '''
+        return self.__dicOBSLightProjects[projectLocalName].getOscPackageRev(packageName)
+
+    def getObsPackageRev(self,
+                          projectLocalName,
+                          packageName):
+        '''
+        
+        '''
+        return self.__dicOBSLightProjects[projectLocalName].getObsPackageRev(packageName)
+
+
+
+
+
+
+
+
+
+
+
 

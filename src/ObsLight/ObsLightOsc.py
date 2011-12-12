@@ -36,7 +36,7 @@ import M2Crypto
 
 import socket
 TIMEOUT = 20
-socket.setdefaulttimeout(TIMEOUT)
+#socket.setdefaulttimeout(TIMEOUT)
 
 class ObsLightOsc(object):
     '''
@@ -285,6 +285,38 @@ class ObsLightOsc(object):
                 file["mtime"] = path.get("mtime")
                 result[file["name"]] = file
         return result
+
+    def getObsPackageRev(self,
+                         apiurl,
+                         projectObsName,
+                         package):
+        '''
+        
+        '''
+        url = self.__cleanUrl(str(apiurl + "/source/" + projectObsName + "/" + package))
+        try:
+            res = core.http_request("GET", url)
+        except urllib2.URLError:
+            ObsLightPrintManager.getLogger().error("apiurl " + str(url) + " is not reachable")
+            return None
+        except M2Crypto.SSL.SSLError:
+            ObsLightPrintManager.getLogger().error("apiurl " + str(url) + " Connection reset by peer")
+            return None
+        except M2Crypto.SSL.Checker.NoCertificate:
+            ObsLightPrintManager.getLogger().error("apiurl " + str(url) + " Peer did not return certificate")
+            return None
+
+        try:
+            aElement = ElementTree.fromstring(res.read())
+        except :
+            ObsLightPrintManager.obsLightPrint("apiurl " + str(apiurl) + " for package " + package + " is not reachable")
+            return None
+
+        #print "rev" , aElement.get("rev")
+        #print "vrev" , aElement.get("vrev")
+        #print "srcmd5" , aElement.get("srcmd5")
+
+        return aElement.get("rev")
 
     def checkoutPackage(self,
                         obsServer=None,
