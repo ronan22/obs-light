@@ -468,6 +468,15 @@ class ObsLightManager(object):
 
         return self.__myObsLightProjects.getPackageStatus(project=project,
                                                     package=package)
+
+    @checkProjectLocalName(1)
+    def getObsPackageRev(self, projectLocalName, packageName):
+        """
+        Return the revision of the package on server.
+        """
+        # TODO: RLM: implement
+        return 1
+
     @checkProjectLocalName(1)
     def getOscPackageStatus(self, project, package):
         '''
@@ -480,6 +489,14 @@ class ObsLightManager(object):
 
         return self.__myObsLightProjects.getOscPackageStatus(project=project,
                                                              package=package)
+
+    @checkProjectLocalName(1)
+    def getOscPackageRev(self, projectLocalName, packageName):
+        """
+        Return the local revision of the package.
+        """
+        # TODO: RLM: implement
+        return 1
 
     @checkProjectLocalName(1)
     def getPackageDirectory(self, projectLocalName, packageName):

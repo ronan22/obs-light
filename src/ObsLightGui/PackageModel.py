@@ -20,7 +20,7 @@ Created on 2 nov. 2011
 @author: Florent Vennetier
 '''
 
-from PySide.QtCore import QAbstractTableModel, Qt
+from PySide.QtCore import QAbstractTableModel, QSize, Qt
 from PySide.QtGui import QColor
 
 class PackageModel(QAbstractTableModel):
@@ -29,14 +29,14 @@ class PackageModel(QAbstractTableModel):
     "packageTableWidget" and the ObsLightManager.
     '''
 
-    PackageNameColumn = 0
-    PackageOscStatusColumn = 1
-    PackageServerStatusColumn = 2
-    PackageChrootStatusColumn = 3
+    NameColumn = 0
+    OscStatusColumn = 1
+    OscRevColumn = 2
+    ObsStatusColumn = 3
+    ObsRevColumn = 4
+    ChrootStatusColumn = 5
 
-    StatusOnServerColors = {}
-    StatusInChRootColors = {}
-    StatusInOscColors = {}
+    colors = list(({}, {}, {}, {}, {}, {}))
 
     __obsLightManager = None
     __project = None
@@ -46,18 +46,21 @@ class PackageModel(QAbstractTableModel):
         QAbstractTableModel.__init__(self)
         self.__obsLightManager = obsLightManager
         self.__project = projectName
+        self._loadColors()
+
+    def _loadColors(self):
         # http://www.w3.org/TR/SVG/types.html#ColorKeywords
-        self.StatusOnServerColors["succeeded"] = QColor("green")
-        self.StatusOnServerColors["excluded"] = QColor("grey")
-        self.StatusOnServerColors["broken"] = QColor("red")
-        self.StatusOnServerColors["building"] = QColor("gold")
-        self.StatusOnServerColors["failed"] = QColor("red")
-        self.StatusOnServerColors["scheduled"] = QColor("blue")
-        self.StatusOnServerColors["unresolvable"] = QColor("darkred")
-        self.StatusInChRootColors["Installed"] = QColor("green")
-        self.StatusInOscColors["Unknown"] = QColor("grey")
-        self.StatusInOscColors["Succeeded"] = QColor("green")
-        self.StatusInOscColors["inconsistent state"] = QColor("red")
+        self.colors[self.ObsStatusColumn]["succeeded"] = QColor("green")
+        self.colors[self.ObsStatusColumn]["excluded"] = QColor("grey")
+        self.colors[self.ObsStatusColumn]["broken"] = QColor("red")
+        self.colors[self.ObsStatusColumn]["building"] = QColor("gold")
+        self.colors[self.ObsStatusColumn]["failed"] = QColor("red")
+        self.colors[self.ObsStatusColumn]["scheduled"] = QColor("blue")
+        self.colors[self.ObsStatusColumn]["unresolvable"] = QColor("darkred")
+        self.colors[self.ChrootStatusColumn]["Installed"] = QColor("green")
+        self.colors[self.OscStatusColumn]["Unknown"] = QColor("grey")
+        self.colors[self.OscStatusColumn]["Succeeded"] = QColor("green")
+        self.colors[self.OscStatusColumn]["inconsistent state"] = QColor("red")
 
     def getProject(self):
         return self.__project
@@ -76,52 +79,70 @@ class PackageModel(QAbstractTableModel):
         return len(self.__getPackageList())
 
     def columnCount(self, _parent=None):
-        return 4
+        return 6
 
     def headerData(self, section, orientation, role):
         if role == Qt.DisplayRole:
             if orientation == Qt.Orientation.Vertical:
                 return section
             else:
-                if section == self.PackageNameColumn:
+                if section == self.NameColumn:
                     return u"Package"
-                elif section == self.PackageServerStatusColumn:
+                elif section == self.ObsStatusColumn:
                     return u"OBS status"
-                elif section == self.PackageChrootStatusColumn:
+                elif section == self.ChrootStatusColumn:
                     return u"Chroot status"
-                elif section == self.PackageOscStatusColumn:
+                elif section == self.OscStatusColumn:
                     return u"OSC status"
-                else:
-                    return None
+                elif section == self.OscRevColumn:
+                    return u"Rev"
+                elif section == self.ObsRevColumn:
+                    return u"Rev"
+        elif role == Qt.SizeHintRole:
+            if orientation == Qt.Orientation.Vertical:
+                pass
+            else:
+                if section == self.OscRevColumn:
+                    return QSize(32, 0)
+                elif section == self.ObsRevColumn:
+                    return QSize(32, 0)
+        return None
+
+    def displayRoleData(self, index):
+        if not index.isValid() or index.row() >= self.rowCount():
+            return None
+        packageName = self.__getPackageList()[index.row()]
+        retVal = None
+        if index.column() == self.NameColumn:
+            retVal = packageName
+        elif index.column() == self.ObsStatusColumn:
+            retVal = self.__obsLightManager.getPackageStatus(self.__project,
+                                                             packageName)
+        elif index.column() == self.ChrootStatusColumn:
+            retVal = self.__obsLightManager.getGetChRootStatus(self.__project,
+                                                               packageName)
+        elif index.column() == self.OscStatusColumn:
+            retVal = self.__obsLightManager.getOscPackageStatus(self.__project,
+                                                                packageName)
+        elif index.column() == self.OscRevColumn:
+            retVal = self.__obsLightManager.getOscPackageRev(self.__project,
+                                                             packageName)
+        elif index.column() == self.ObsRevColumn:
+            retVal = self.__obsLightManager.getObsPackageRev(self.__project,
+                                                             packageName)
+        return retVal
 
     def data(self, index, role=Qt.DisplayRole):
         if not index.isValid() or index.row() >= self.rowCount():
             return None
         if role == Qt.DisplayRole or role == Qt.ForegroundRole:
-            packageName = self.__getPackageList()[index.row()]
-            if index.column() == self.PackageNameColumn and role == Qt.DisplayRole:
-                return packageName
-            elif index.column() == self.PackageServerStatusColumn:
-                status = self.__obsLightManager.getPackageStatus(self.__project,
-                                                                 packageName)
-                if role == Qt.DisplayRole:
-                    return status
-                elif role == Qt.ForegroundRole:
-                    return self.StatusOnServerColors.get(status, None)
-            elif index.column() == self.PackageChrootStatusColumn:
-                status = self.__obsLightManager.getGetChRootStatus(self.__project,
-                                                                   packageName)
-                if role == Qt.DisplayRole:
-                    return status
-                elif role == Qt.ForegroundRole:
-                    return self.StatusInChRootColors.get(status, None)
-            elif index.column() == self.PackageOscStatusColumn:
-                status = self.__obsLightManager.getOscPackageStatus(self.__project,
-                                                                    packageName)
-                if role == Qt.DisplayRole:
-                    return status
-                elif role == Qt.ForegroundRole:
-                    return self.StatusInOscColors.get(status, None)
+            drData = self.displayRoleData(index)
+            if role == Qt.ForegroundRole:
+                column = index.column()
+                color = self.colors[column].get(drData, None)
+                return color
+            else:
+                return drData
         return None
 
     def sort(self, Ncol, order):

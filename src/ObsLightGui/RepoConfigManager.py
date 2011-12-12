@@ -51,7 +51,7 @@ class RepoConfigManager(QObject):
         self.__projectAlias = projectAlias
         self.__obsLightManager = self.__gui.getObsLightManager()
 
-    def __loadFieldObjects(self):
+    def __loadWidgets(self):
         self.__urlLineEdit = self.__configDialog.findChild(QLineEdit,
                                                            u"repoUrlLineEdit")
         self.__aliasLineEdit = self.__configDialog.findChild(QLineEdit,
@@ -65,7 +65,7 @@ class RepoConfigManager(QObject):
 
     def importFromUrl(self):
         self.__configDialog = self.__gui.loadWindow(u"obsRepoConfig.ui")
-        self.__loadFieldObjects()
+        self.__loadWidgets()
         self.__configDialog.accepted.connect(self.on_configDialog_accepted)
         self.__configDialog.rejected.connect(self.on_configDialog_rejected)
         self.__configDialog.show()

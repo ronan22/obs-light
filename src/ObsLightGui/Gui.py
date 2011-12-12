@@ -145,12 +145,12 @@ class Gui(QObject):
         else:
             self.sendStatusBarMessage(u"Caught exception: %s" % str(error), 30000)
 
-    def popupErrorCallback(self, error):
+    def popupErrorCallback(self, error, traceback=None):
         '''
         Display errors in a popup. Must be called from UI thread, or
         with a Qt signal.
         '''
-        exceptionToMessageBox(error, self.__mainWindow)
+        exceptionToMessageBox(error, self.__mainWindow, traceback)
 
     def sendStatusBarMessage(self, message, timeout=0):
         '''

@@ -53,7 +53,10 @@ class PackageManager(QObject):
     __rpmBuildRpmButton = None
     __openTermButton = None
     __updateFilesButton = None
-    __makePatchButton = None
+    __generatePatchButton = None
+    __importPatchButton = None
+    __deletePatchButton = None
+    __modifyPatchButton = None
     __addAndCommitButton = None
     __refreshOscStatusButton = None
     __repairOscButton = None
@@ -100,9 +103,15 @@ class PackageManager(QObject):
         self.__updateFilesButton = mainWindow.findChild(QPushButton,
                                                         u"updateFilesButton")
         self.__updateFilesButton.clicked.connect(self.on_updateFilesButton_clicked)
-        self.__makePatchButton = mainWindow.findChild(QPushButton,
-                                                      u"generatePatchButton")
-        self.__makePatchButton.clicked.connect(self.on_makePatchButton_clicked)
+        self.__generatePatchButton = mainWindow.findChild(QPushButton,
+                                                          u"generatePatchButton")
+        self.__generatePatchButton.clicked.connect(self.on_makePatchButton_clicked)
+        self.__importPatchButton = mainWindow.findChild(QPushButton,
+                                                        u"importPatchButton")
+        self.__deletePatchButton = mainWindow.findChild(QPushButton,
+                                                        u"deletePatchButton")
+        self.__modifyPatchButton = mainWindow.findChild(QPushButton,
+                                                        u"modifyPatchButton")
         self.__addAndCommitButton = mainWindow.findChild(QPushButton,
                                                          u"addAndCommitButton")
         self.__addAndCommitButton.clicked.connect(self.on_addAndCommitButton_clicked)
@@ -153,6 +162,8 @@ class PackageManager(QObject):
         self.__fileManager.refresh()
         self.updateLabels()
         self.updateButtons()
+        self.__packageTableView.resizeColumnToContents(PackageModel.ObsRevColumn)
+        self.__packageTableView.resizeColumnToContents(PackageModel.OscRevColumn)
 
     def updateLabels(self):
         package = self.currentPackage()
@@ -192,7 +203,7 @@ class PackageManager(QObject):
         index = self.__packageTableView.currentIndex()
         if index.isValid():
             row = index.row()
-            pkgNameIndex = self.__localModel.createIndex(row, PackageModel.PackageNameColumn)
+            pkgNameIndex = self.__localModel.createIndex(row, PackageModel.NameColumn)
             packageName = self.__localModel.data(pkgNameIndex)
             return packageName
         else:
@@ -209,7 +220,7 @@ class PackageManager(QObject):
             if index.isValid():
                 row = index.row()
                 packageNameIndex = self.__localModel.createIndex(row,
-                                                                 PackageModel.PackageNameColumn)
+                                                                 PackageModel.NameColumn)
                 packageName = self.__localModel.data(packageNameIndex)
                 packages.add(packageName)
         return list(packages)

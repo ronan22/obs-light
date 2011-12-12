@@ -200,7 +200,7 @@ class ProgressRunnable2(QRunnable, QObject):
         if self.__progressDialog is not None:
             self.__started.connect(self.__progressDialog.show)
             self.__started.emit()
-            self.__started.connect(self.__progressDialog.show)
+            self.__started.disconnect(self.__progressDialog.show)
 
     def hasProgressed(self, howMuch=1):
         u"""
@@ -273,15 +273,15 @@ class ProgressRunnable2(QRunnable, QObject):
         """
         def run():
             result = None
-            caughtException = None
+            exceptionCaught = None
             try:
                 self.hasStarted()
                 result = method(*args, **kwargs)
             except BaseException as e:
-                caughtException = e
+                exceptionCaught = e
             finally:
-                if caughtException is not None:
-                    self.hasCaughtException(caughtException)
+                if exceptionCaught is not None:
+                    self.hasCaughtException(exceptionCaught)
                 self.hasFinished(result)
         self.run = run
 
@@ -319,6 +319,10 @@ class ProgressRunnable2(QRunnable, QObject):
                 self.hasFinished(results)
         self.run = run
 
+    def runOnGlobalInstance(self):
+        QThreadPool.globalInstance().start(self)
+
+QThreadPool.globalInstance().setExpiryTimeout(0)
 
 def firstArgLast(func):
     u"""
@@ -350,7 +354,7 @@ def detachWithProgress(title, minDuration=500):
         return showProgress2
     return showProgress1
 
-def exceptionToMessageBox(exception, parent=None):
+def exceptionToMessageBox(exception, parent=None, traceback_=None):
     u"""
     Display an exception in a QMessageBox.
     OBSLightBaseErrors are displayed as warnings, other types of
@@ -358,6 +362,9 @@ def exceptionToMessageBox(exception, parent=None):
     To be called only from UI thread.
     """
     if isinstance(exception, ObsLightErr.OBSLightBaseError):
+        message = exception.msg
+        if traceback_ is not None:
+            message += u"\n" + unicode(traceback_)
         QMessageBox.warning(parent, u"Exception occurred", exception.msg)
     else:
         try:
