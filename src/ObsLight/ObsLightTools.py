@@ -1,19 +1,41 @@
+#
+# Copyright 2011, Intel Inc.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Library General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+#
 '''
 Created on 17 nov. 2011
 
-@author: ronan@fridu.net
+@author: Ronan Le Martret
+@author: Florent Vennetier
 '''
 
 from urlparse import urlparse
 import httplib
 from subprocess import call
 import ObsLightOsc
-from ObsLightConfig import getOpenFileCommand
+import ObsLightConfig
+
 
 from M2Crypto import SSL
 from os.path import expanduser
 
 SOCKETTIMEOUT = 1
+
+
+def isNonEmptyString(theString):
+    return isinstance(theString, basestring) and len(theString) > 0
 
 def testHost(host):
     '''
@@ -174,11 +196,8 @@ def importCert(url):
     conn.close()
 
 def openFileWithDefaultProgram(filePath):
-    openCommand = getOpenFileCommand() + " " + filePath
+    openCommand = ObsLightConfig.getOpenFileCommand() + " " + filePath
     return call(openCommand)
-
-def isNonEmptyString(theString):
-    return isinstance(theString, basestring) and len(theString) > 0
 
 if __name__ == '__main__':
 
