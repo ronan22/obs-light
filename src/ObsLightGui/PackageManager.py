@@ -194,6 +194,7 @@ class PackageManager(QObject):
         self.__rpmBuildButton.setEnabled(installed)
         self.__rpmInstallButton.setEnabled(installed)
         self.__rpmBuildRpmButton.setEnabled(installed)
+        self.__generatePatchButton.setEnabled(installed)
 
     def currentPackage(self):
         '''
