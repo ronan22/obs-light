@@ -44,6 +44,7 @@ class ObsLightPackage(object):
                  listFile=None,
                  status="Unknown",
                  oscStatus="Unknown",
+                 oscRev="-1",
                  chRootStatus="Not installed",
                  description="",
                  packageTitle="",
@@ -64,6 +65,7 @@ class ObsLightPackage(object):
         self.__packageTitle = packageTitle
         self.__chRootStatus = chRootStatus
         self.__oscStatus = oscStatus
+        self.__oscRev = oscRev
 
         if fromSave == None:
             self.__name = name
@@ -100,6 +102,9 @@ class ObsLightPackage(object):
                 self.__oscStatus = fromSave["oscStatus"]
             if "firstCommitTag" in fromSave.keys():
                 self.__firstCommitTag = fromSave["firstCommitTag"]
+            if "oscRev" in fromSave.keys():
+                self.__oscRev = fromSave["oscRev"]
+
         self.__initConfigureFile()
 
     def setFirstCommit(self, tag):
@@ -107,6 +112,18 @@ class ObsLightPackage(object):
         
         '''
         self.__firstCommitTag = tag
+
+    def getOscPackageRev(self):
+        '''
+        
+        '''
+        return self.__oscRev
+
+    def setOscPackageRev(self, rev):
+        '''
+        
+        '''
+        self.__oscRev = rev
 
     def getFirstCommit(self):
         '''
@@ -217,6 +234,7 @@ class ObsLightPackage(object):
         aDic["chRootStatus"] = self.__chRootStatus
         aDic["oscStatus"] = self.__oscStatus
         aDic["firstCommitTag"] = self.__firstCommitTag
+        aDic["oscRev"] = self.__oscRev
         return aDic
 
     def getPackageParameter(self, parameter=None):
@@ -233,6 +251,7 @@ class ObsLightPackage(object):
             packageTitle
             chRootStatus
             oscStatus
+            oscRev
         '''
         if parameter == "name":
             return self.__name
@@ -256,6 +275,8 @@ class ObsLightPackage(object):
             return  self.__oscStatus
         elif  parameter == "firstCommitTag":
             return self.__firstCommitTag
+        elif  parameter == "oscRev":
+            return self.__oscRev
         else:
             raise ObsLightPackageErr("parameter value is not valid for getProjectParameter")
 
@@ -295,6 +316,8 @@ class ObsLightPackage(object):
             self.__listFile = value
         elif parameter == "oscStatus":
             self.__oscStatus = value
+        elif parameter == "oscRev":
+            self.__oscRev = value
         else:
             raise ObsLightPackageErr("parameter value is not valid for setPackageParameter")
 

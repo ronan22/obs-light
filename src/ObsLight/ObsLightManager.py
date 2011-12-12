@@ -469,13 +469,7 @@ class ObsLightManager(object):
         return self.__myObsLightProjects.getPackageStatus(project=project,
                                                     package=package)
 
-    @checkProjectLocalName(1)
-    def getObsPackageRev(self, projectLocalName, packageName):
-        """
-        Return the revision of the package on server.
-        """
-        # TODO: RLM: implement
-        return 1
+
 
     @checkProjectLocalName(1)
     def getOscPackageStatus(self, project, package):
@@ -495,8 +489,18 @@ class ObsLightManager(object):
         """
         Return the local revision of the package.
         """
-        # TODO: RLM: implement
-        return 1
+        return self.__myObsLightProjects.getOscPackageRev(projectLocalName=projectLocalName,
+                                                          packageName=packageName)
+
+
+    @checkProjectLocalName(1)
+    def getObsPackageRev(self, projectLocalName, packageName):
+        """
+        Return the revision of the package on server.
+        """
+
+        return self.__myObsLightProjects.getObsPackageRev(projectLocalName=projectLocalName,
+                                                          packageName=packageName)
 
     @checkProjectLocalName(1)
     def getPackageDirectory(self, projectLocalName, packageName):
@@ -639,7 +643,8 @@ class ObsLightManager(object):
         elif not package in self.getLocalProjectPackageList(projectLocalName, local=1):
             raise ObsLightProjectsError(package + " is not a local package")
 
-        return self.__myObsLightProjects.getGetChRootStatus(projectLocalName=projectLocalName, package=package)
+        return self.__myObsLightProjects.getGetChRootStatus(projectLocalName=projectLocalName,
+                                                            package=package)
 
     @checkProjectLocalName(1)
     def addPackageSourceInChRoot(self, projectLocalName, package):
@@ -662,7 +667,7 @@ class ObsLightManager(object):
         Execute the %build section of an RPM spec file.
         '''
         self.__myObsLightProjects.buildRpm(projectLocalName=projectLocalName,
-                                                              package=package)
+                                           package=package)
         self.__myObsLightProjects.save()
 
     @checkProjectLocalName(1)

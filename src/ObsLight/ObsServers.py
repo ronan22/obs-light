@@ -325,8 +325,15 @@ class ObsServers(object):
         """
         return self.__dicOBSLightServers[obsServer].getObsProjectPackageList()
 
-
-
+    def getObsPackageRev(self,
+                         obsServer,
+                         projectObsName,
+                         package):
+        """
+        
+        """
+        return self.__dicOBSLightServers[obsServer].getObsPackageRev(projectObsName=projectObsName,
+                                                                     package=package)
 
 
 

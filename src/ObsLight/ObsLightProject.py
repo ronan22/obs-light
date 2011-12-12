@@ -148,6 +148,21 @@ class ObsLightProject(object):
         else:
             return None
 
+    def getOscPackageRev(self, packageName):
+        '''
+        
+        '''
+        return self.getPackage(packageName).getOscPackageRev()
+
+    def getObsPackageRev(self, packageName):
+        '''
+        
+        '''
+        return self.__obsServers.getObsServer(name=self.__obsServer).getObsPackageRev(projectObsName=self.__projectObsName,
+                                                                                      package=packageName)
+
+
+
 
     def __addPackagesFromSave(self, fromSave, importFile):
         '''
@@ -525,6 +540,11 @@ class ObsLightProject(object):
                     self.__packages.getPackage(package).setOscStatus("inconsistent state")
                     return None
             self.__packages.getPackage(package).setOscStatus("Succeeded")
+
+        rev = self.__obsServers.getObsServer(self.__obsServer).getObsPackageRev(projectObsName=self.__projectObsName,
+                                                                                package=package)
+        self.__packages.getPackage(package).setOscPackageRev(rev)
+
         return None
 
     def updatePackage(self, name=None):
