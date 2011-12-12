@@ -191,10 +191,15 @@ class ObsLightPackages(object):
         
         '''
         self.__dicOBSLightPackages[package].addFile(path)
+
     def delFile(self, package, name):
         '''
         
         '''
         self.__dicOBSLightPackages[package].delFile(name)
 
-
+    def getChrootRpmBuildDirectory(self, name):
+        '''
+        
+        '''
+        return self.__dicOBSLightPackages[name].getChrootRpmBuildDirectory()

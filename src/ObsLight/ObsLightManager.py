@@ -712,6 +712,22 @@ class ObsLightManager(object):
         self.__myObsLightProjects.save()
 
     @checkProjectLocalName(1)
+    def updatePatch(self, projectLocalName, package):
+        '''
+        Generate patch, and add it to the local OBS package, modify the spec file.
+        '''
+        if not isNonEmptyString(projectLocalName):
+            raise ObsLightProjectsError(" invalid project name: " + str(projectLocalName))
+        elif not isNonEmptyString(package):
+            raise ObsLightProjectsError(" invalid package name: " + str(package))
+        elif not package in self.getLocalProjectPackageList(projectLocalName, local=1):
+            raise ObsLightProjectsError(package + " is not a local package")
+
+        self.__myObsLightProjects.updatePatch(projectLocalName, package)
+        self.__myObsLightProjects.save()
+
+
+    @checkProjectLocalName(1)
     def addAndCommitChanges(self, projectLocalName, package, message):
         '''
         Add/Remove file in the local directory of a package, and commit change to the OBS.
@@ -731,6 +747,14 @@ class ObsLightManager(object):
                                               package=package)
 
         self.__myObsLightProjects.save()
+
+    @checkProjectLocalName(1)
+    def patchIsInit(self, ProjectName, packageName):
+        '''
+        
+        '''
+        return self.__myObsLightProjects.patchIsInit(ProjectName=ProjectName,
+                                                     packageName=packageName)
 
     @checkProjectLocalName(1)
     def addRepo(self, projectLocalName, fromProject=None, repoUrl=None, alias=None):

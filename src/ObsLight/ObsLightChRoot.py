@@ -42,8 +42,9 @@ class ObsLightChRoot(object):
     classdocs
     '''
 
-    def __init__(self, projectDirectory,
-                        fromSave=None):
+    def __init__(self,
+                 projectDirectory,
+                 fromSave=None):
 
         '''
         Constructor
@@ -51,10 +52,7 @@ class ObsLightChRoot(object):
         self.__chrootDirectory = os.path.join(projectDirectory, "aChroot")
         self.__chrootDirTransfert = os.path.join(projectDirectory, "chrootTransfert")
         self.__dirTransfert = "/chrootTransfert"
-        self.__rpmBuildDirectory = "rpmbuild"
-        self.__rpmBuildTmpDirectory = "obslightbuild"
-        self.__chrootRpmBuildDirectory = "/root/" + self.__rpmBuildDirectory
-        self.__chrootRpmBuildTmpDirectory = "/root/" + self.__rpmBuildTmpDirectory
+
         self.__mySubprocessCrt = SubprocessCrt()
 
         if fromSave == None:
@@ -64,11 +62,6 @@ class ObsLightChRoot(object):
                 self.__dicoRepos = fromSave["dicoRepos"]
         self.initChRoot()
 
-    def getChrootRpmBuildDirectory(self):
-        '''
-        
-        '''
-        return self.__chrootRpmBuildDirectory
 
     def getChrootDirTransfert(self):
         '''
@@ -204,7 +197,6 @@ class ObsLightChRoot(object):
         '''
         Return the directory of where the package were installed.
         '''
-
         name = package.getMacroDirectoryPackageName()
 
         if name != None:
@@ -214,10 +206,10 @@ class ObsLightChRoot(object):
 
             ObsLightPrintManager.getLogger().debug("for the package " + name + " the prepDirname is: " + str(prepDirname))
 
-            pathBuild = self.getDirectory() + "/" + self.__chrootRpmBuildDirectory + "/" + "BUILD"
+            pathBuild = self.getDirectory() + "/" + package.getChrootRpmBuildDirectory() + "/" + "BUILD"
             if not os.path.isdir(pathBuild):
                 raise ObsLightErr.ObsLightChRootError("in the chroot path: " + pathBuild + " is not a directory")
-            resultPath = self.__chrootRpmBuildDirectory + "/BUILD/" + prepDirname
+            resultPath = package.getChrootRpmBuildDirectory() + "/BUILD/" + prepDirname
             subDir = os.listdir(pathBuild + "/" + prepDirname)
             if len(subDir) == 0:
                 return resultPath
@@ -249,39 +241,48 @@ class ObsLightChRoot(object):
             packageName = package.getName()
 
             command = []
+            command.append("mkdir -p " + package.getChrootRpmBuildDirectory() + "/BUILD")
+            command.append("mkdir -p " + package.getChrootRpmBuildDirectory() + "/SPECS")
+            command.append("mkdir -p " + package.getChrootRpmBuildDirectory() + "/BUILDROOT")
+            command.append("mkdir -p " + package.getChrootRpmBuildDirectory() + "/RPMS")
+            command.append("mkdir -p " + package.getChrootRpmBuildDirectory() + "/SOURCES")
+            command.append("mkdir -p " + package.getChrootRpmBuildDirectory() + "/SRPMS")
+
+            command.append("chown -R root:users " + package.getChrootRpmBuildDirectory())
+            command.append("chmod -R g+rw " + package.getChrootRpmBuildDirectory())
+
             command.append("zypper --non-interactive si --build-deps-only " + packageName)
             #command.append("zypper --non-interactive si " + "--repo " + repo + " " + packageName)
             res = self.execCommand(command=command)
 
-
             if res != 0:
-                ObsLightPrintManager.getLogger().error(packageName + " the zypper Script fail")
+                ObsLightPrintManager.getLogger().error(packageName + " the zypper Script fail to install '" + packageName + "' dependency.")
                 return None
                 #raise ObsLightErr.ObsLightChRootError(packageName + " the zypper Script fail")
 
-            if os.path.isdir(self.getDirectory() + "/" + self.__chrootRpmBuildDirectory + "/SPECS/"):
-                aspecFile = self.__chrootRpmBuildDirectory + "/SPECS/" + specFile
+            if os.path.isdir(self.getDirectory() + "/" + package.getChrootRpmBuildDirectory() + "/SPECS/"):
+                aspecFile = package.getChrootRpmBuildDirectory() + "/SPECS/" + specFile
 
-                self.__subprocess(command="sudo chown -R root:users " + self.getDirectory() + "/" + self.__chrootRpmBuildDirectory)
-                self.__subprocess(command="sudo chmod -R g+rw " + self.getDirectory() + "/" + self.__chrootRpmBuildDirectory)
+                self.__subprocess(command="sudo chown -R root:users " + self.getDirectory() + "/" + package.getChrootRpmBuildDirectory())
+                self.__subprocess(command="sudo chmod -R g+rw " + self.getDirectory() + "/" + package.getChrootRpmBuildDirectory())
                 package.saveSpec(self.getDirectory() + "/" + aspecFile)
                 #find the directory to watch
                 for aFile in package.getListFile():
-                    path = self.getDirectory() + "/" + self.__chrootRpmBuildDirectory + "/SOURCES/" + str(aFile)
+                    path = self.getDirectory() + "/" + package.getChrootRpmBuildDirectory() + "/SOURCES/" + str(aFile)
                     if os.path.isfile(path):
                         os.unlink(path)
                     shutil.copy2(package.getOscDirectory() + "/" + str(aFile),
                                  path)
                     self.__subprocess(command="sudo chown -R root:users " + path)
 
-                self.prepRpm(specFile=aspecFile)
-
+                self.prepRpm(specFile=aspecFile, package=package)
+                package.initCurrentPatch()
                 packageDirectory = self.__findPackageDirectory(package=package)
                 ObsLightPrintManager.getLogger().debug("for the package " + packageName + " the packageDirectory is used : " + str(packageDirectory))
                 package.setDirectoryBuild(packageDirectory)
                 if packageDirectory != None:
                     self.initGitWatch(path=packageDirectory)
-                    self.__buildRpm(aspecFile)
+                    self.__buildRpm(specFile=aspecFile, package=package)
                     self.ignoreGitWatch(path=packageDirectory)
                     package.setFirstCommit(tag=self.getCommitTag(path=packageDirectory))
                     package.setChRootStatus("Installed")
@@ -354,18 +355,22 @@ class ObsLightChRoot(object):
         command.append("zypper --no-gpg-checks --gpg-auto-import-keys ref")
         self.execCommand(command=command)
 
-    def prepRpm(self, specFile=None):
+    def prepRpm(self, specFile, package):
         '''
         Execute the %prep section of an RPM spec file.
         '''
+        self.__changeTopDir(package.getTopDirRpmBuildDirectory())
+
         command = []
+
         command.append("rpmbuild -bp --define '_srcdefattr (-,root,root)' " + specFile + " < /dev/null")
         self.execCommand(command=command)
 
-    def __buildRpm(self, specFile=None):
+    def __buildRpm(self, specFile, package):
         '''
-        Execute the %prep section of an RPM spec file.
+        Execute the %build section of an RPM spec file.
         '''
+        self.__changeTopDir(package.getTopDirRpmBuildDirectory())
         command = []
         command.append("rpmbuild -bc --short-circuit --define '_srcdefattr (-,root,root)' " + specFile + " < /dev/null")
         self.execCommand(command=command)
@@ -385,42 +390,42 @@ class ObsLightChRoot(object):
 
         self.commitGit(mess="build", package=package)
 
-        self.__changeTopDir(self.__rpmBuildTmpDirectory)
-        tmpPath = pathPackage.replace(self.__chrootRpmBuildDirectory + "/BUILD", "").strip("/")
+        self.__changeTopDir(package.getTopDirRpmBuildTmpDirectory())
+        tmpPath = pathPackage.replace(package.getChrootRpmBuildDirectory() + "/BUILD", "").strip("/")
         tmpPath = tmpPath.strip("/")
         command = []
 
-        command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/BUILD")
-        command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/SPECS")
-        command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/TMP")
+        command.append("mkdir -p " + package.getChrootRpmBuildTmpDirectory() + "/BUILD")
+        command.append("mkdir -p " + package.getChrootRpmBuildTmpDirectory() + "/SPECS")
+        command.append("mkdir -p " + package.getChrootRpmBuildTmpDirectory() + "/TMP")
 
-        command.append("ln -sf " + self.__chrootRpmBuildDirectory + "/BUILDROOT " + self.__chrootRpmBuildTmpDirectory)
-        command.append("ln -sf " + self.__chrootRpmBuildDirectory + "/RPMS " + self.__chrootRpmBuildTmpDirectory)
-        command.append("ln -sf " + self.__chrootRpmBuildDirectory + "/SOURCES " + self.__chrootRpmBuildTmpDirectory)
-        command.append("ln -sf " + self.__chrootRpmBuildDirectory + "/SRPMS " + self.__chrootRpmBuildTmpDirectory)
+        command.append("ln -sf " + package.getChrootRpmBuildDirectory() + "/BUILDROOT " + package.getChrootRpmBuildTmpDirectory())
+        command.append("ln -sf " + package.getChrootRpmBuildDirectory() + "/RPMS " + package.getChrootRpmBuildTmpDirectory())
+        command.append("ln -sf " + package.getChrootRpmBuildDirectory() + "/SOURCES " + package.getChrootRpmBuildTmpDirectory())
+        command.append("ln -sf " + package.getChrootRpmBuildDirectory() + "/SRPMS " + package.getChrootRpmBuildTmpDirectory())
 
-        command.append("chown -R root:users " + self.__chrootRpmBuildTmpDirectory)
-        command.append("chmod -R g+rw " + self.__chrootRpmBuildTmpDirectory)
+        command.append("chown -R root:users " + package.getChrootRpmBuildTmpDirectory())
+        command.append("chmod -R g+rw " + package.getChrootRpmBuildTmpDirectory())
 
         command.append("git --git-dir=" + pathPackage + "/.git --work-tree=" + pathPackage + \
                        " archive --format=tar --prefix=" + tmpPath + "/ HEAD \
-                       | (cd " + self.__chrootRpmBuildTmpDirectory + "/TMP/ && tar xf -)")
+                       | (cd " + package.getChrootRpmBuildTmpDirectory() + "/TMP/ && tar xf -)")
 
-        command.append("cd " + self.__chrootRpmBuildTmpDirectory + "/TMP/")
+        command.append("cd " + package.getChrootRpmBuildTmpDirectory() + "/TMP/")
         command.append("tar -czvf  " + tarFile + " *")
         command.append("mv " + tarFile + " ../SOURCES")
         self.execCommand(command=command)
-        pathToSaveSpec = specFile.replace(self.__chrootRpmBuildDirectory,
-                                          self.__chrootRpmBuildTmpDirectory)
+        pathToSaveSpec = specFile.replace(package.getChrootRpmBuildDirectory(),
+                                          package.getChrootRpmBuildTmpDirectory())
 
         package.saveTmpSpec(path=self.getDirectory() + pathToSaveSpec,
                             archive=tarFile)
         command = []
         command.append("rpmbuild -bc --define '_srcdefattr (-,root,root)' " + pathToSaveSpec + " < /dev/null")
-        command.append("cp -fpr  " + self.__chrootRpmBuildTmpDirectory + "/BUILD/* " + self.__chrootRpmBuildDirectory + "/BUILD/")
-        command.append("rm -r " + self.__chrootRpmBuildTmpDirectory + "/TMP")
+        command.append("cp -fpr  " + package.getChrootRpmBuildTmpDirectory() + "/BUILD/* " + package.getChrootRpmBuildDirectory() + "/BUILD/")
+        command.append("rm -r " + package.getChrootRpmBuildTmpDirectory() + "/TMP")
         self.execCommand(command=command)
-        self.__changeTopDir(self.__rpmBuildDirectory)
+        self.__changeTopDir(package.getTopDirRpmBuildDirectory())
 
     def installRpm(self,
                    package,
@@ -436,43 +441,43 @@ class ObsLightChRoot(object):
 
         self.commitGit(mess="install", package=package)
 
-        self.__changeTopDir(self.__rpmBuildTmpDirectory)
-        tmpPath = pathPackage.replace(self.__chrootRpmBuildDirectory + "/BUILD", "").strip("/")
+        self.__changeTopDir(package.getTopDirRpmBuildTmpDirectory())
+        tmpPath = pathPackage.replace(package.getChrootRpmBuildDirectory() + "/BUILD", "").strip("/")
         tmpPath = tmpPath.strip("/")
         command = []
 
-        command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/BUILD")
-        command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/SPECS")
-        command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/TMP")
+        command.append("mkdir -p " + package.getChrootRpmBuildTmpDirectory() + "/BUILD")
+        command.append("mkdir -p " + package.getChrootRpmBuildTmpDirectory() + "/SPECS")
+        command.append("mkdir -p " + package.getChrootRpmBuildTmpDirectory() + "/TMP")
 
-        command.append("ln -sf " + self.__chrootRpmBuildDirectory + "/BUILDROOT " + self.__chrootRpmBuildTmpDirectory)
-        command.append("ln -sf " + self.__chrootRpmBuildDirectory + "/RPMS " + self.__chrootRpmBuildTmpDirectory)
-        command.append("ln -sf " + self.__chrootRpmBuildDirectory + "/SOURCES " + self.__chrootRpmBuildTmpDirectory)
-        command.append("ln -sf " + self.__chrootRpmBuildDirectory + "/SRPMS " + self.__chrootRpmBuildTmpDirectory)
+        command.append("ln -sf " + package.getChrootRpmBuildDirectory() + "/BUILDROOT " + package.getChrootRpmBuildTmpDirectory())
+        command.append("ln -sf " + package.getChrootRpmBuildDirectory() + "/RPMS " + package.getChrootRpmBuildTmpDirectory())
+        command.append("ln -sf " + package.getChrootRpmBuildDirectory() + "/SOURCES " + package.getChrootRpmBuildTmpDirectory())
+        command.append("ln -sf " + package.getChrootRpmBuildDirectory() + "/SRPMS " + package.getChrootRpmBuildTmpDirectory())
 
-        command.append("chown -R root:users " + self.__chrootRpmBuildTmpDirectory)
-        command.append("chmod -R g+rw " + self.__chrootRpmBuildTmpDirectory)
+        command.append("chown -R root:users " + package.getChrootRpmBuildTmpDirectory())
+        command.append("chmod -R g+rw " + package.getChrootRpmBuildTmpDirectory())
 
         command.append("git --git-dir=" + pathPackage + "/.git --work-tree=" + pathPackage + \
                        " archive --format=tar --prefix=" + tmpPath + "/ HEAD \
-                       | (cd " + self.__chrootRpmBuildTmpDirectory + "/TMP/ && tar xf -)")
+                       | (cd " + package.getChrootRpmBuildTmpDirectory() + "/TMP/ && tar xf -)")
 
-        command.append("cd " + self.__chrootRpmBuildTmpDirectory + "/TMP/")
+        command.append("cd " + package.getChrootRpmBuildTmpDirectory() + "/TMP/")
         command.append("tar -czvf  " + tarFile + " *")
         command.append("mv " + tarFile + " ../SOURCES")
         self.execCommand(command=command)
-        pathToSaveSpec = specFile.replace(self.__chrootRpmBuildDirectory,
-                                          self.__chrootRpmBuildTmpDirectory)
+        pathToSaveSpec = specFile.replace(package.getChrootRpmBuildDirectory(),
+                                          package.getChrootRpmBuildTmpDirectory())
 
         package.saveTmpSpec(path=self.getDirectory() + pathToSaveSpec,
                             archive=tarFile)
         command = []
         command.append("rpmbuild -bi --define '_srcdefattr (-,root,root)' " + pathToSaveSpec + " < /dev/null")
 
-        command.append("cp -fpr  " + self.__chrootRpmBuildTmpDirectory + "/BUILD/* " + self.__chrootRpmBuildDirectory + "/BUILD/")
-        command.append("rm -r " + self.__chrootRpmBuildTmpDirectory + "/TMP")
+        command.append("cp -fpr  " + package.getChrootRpmBuildTmpDirectory() + "/BUILD/* " + package.getChrootRpmBuildDirectory() + "/BUILD/")
+        command.append("rm -r " + package.getChrootRpmBuildTmpDirectory() + "/TMP")
         self.execCommand(command=command)
-        self.__changeTopDir(self.__rpmBuildDirectory)
+        self.__changeTopDir(package.getTopDirRpmBuildDirectory())
 
     def packageRpm(self,
                    package,
@@ -485,46 +490,46 @@ class ObsLightChRoot(object):
         '''
         if package.getStatus() == "excluded":
             raise ObsLightErr.ObsLightChRootError(package.getName() + " has a excluded status, it can't be install")
-
+        print "packageRpm1"
         self.commitGit(mess="packageRpm", package=package)
-
-        self.__changeTopDir(self.__rpmBuildTmpDirectory)
-        tmpPath = pathPackage.replace(self.__chrootRpmBuildDirectory + "/BUILD", "").strip("/")
+        print "packageRpm2"
+        self.__changeTopDir(package.getTopDirRpmBuildTmpDirectory())
+        tmpPath = pathPackage.replace(package.getChrootRpmBuildDirectory() + "/BUILD", "").strip("/")
         tmpPath = tmpPath.strip("/")
         command = []
-
-        command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/BUILD")
-        command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/TMP")
-        command.append("mkdir -p " + self.__chrootRpmBuildTmpDirectory + "/SPECS")
-
-        command.append("ln -sf " + self.__chrootRpmBuildDirectory + "/BUILDROOT " + self.__chrootRpmBuildTmpDirectory)
-        command.append("ln -sf " + self.__chrootRpmBuildDirectory + "/RPMS " + self.__chrootRpmBuildTmpDirectory)
-        command.append("ln -sf " + self.__chrootRpmBuildDirectory + "/SOURCES " + self.__chrootRpmBuildTmpDirectory)
-        command.append("ln -sf " + self.__chrootRpmBuildDirectory + "/SRPMS " + self.__chrootRpmBuildTmpDirectory)
-
-        command.append("chown -R root:users " + self.__chrootRpmBuildTmpDirectory)
-        command.append("chmod -R g+rw " + self.__chrootRpmBuildTmpDirectory)
-
+        print "packageRpm3"
+        command.append("mkdir -p " + package.getChrootRpmBuildTmpDirectory() + "/BUILD")
+        command.append("mkdir -p " + package.getChrootRpmBuildTmpDirectory() + "/TMP")
+        command.append("mkdir -p " + package.getChrootRpmBuildTmpDirectory() + "/SPECS")
+        print "packageRpm4"
+        command.append("ln -sf " + package.getChrootRpmBuildDirectory() + "/BUILDROOT " + package.getChrootRpmBuildTmpDirectory())
+        command.append("ln -sf " + package.getChrootRpmBuildDirectory() + "/RPMS " + package.getChrootRpmBuildTmpDirectory())
+        command.append("ln -sf " + package.getChrootRpmBuildDirectory() + "/SOURCES " + package.getChrootRpmBuildTmpDirectory())
+        command.append("ln -sf " + package.getChrootRpmBuildDirectory() + "/SRPMS " + package.getChrootRpmBuildTmpDirectory())
+        print "packageRpm5"
+        command.append("chown -R root:users " + package.getChrootRpmBuildTmpDirectory())
+        command.append("chmod -R g+rw " + package.getChrootRpmBuildTmpDirectory())
+        print "packageRpm6"
         command.append("git --git-dir=" + pathPackage + "/.git --work-tree=" + pathPackage + \
                        " archive --format=tar --prefix=" + tmpPath + "/ HEAD \
-                       | (cd " + self.__chrootRpmBuildTmpDirectory + "/TMP/ && tar xf -)")
-
-        command.append("cd " + self.__chrootRpmBuildTmpDirectory + "/TMP/")
+                       | (cd " + package.getChrootRpmBuildTmpDirectory() + "/TMP/ && tar xf -)")
+        print "packageRpm7"
+        command.append("cd " + package.getChrootRpmBuildTmpDirectory() + "/TMP/")
         command.append("tar -czvf  " + tarFile + " *")
         command.append("mv " + tarFile + " ../SOURCES")
         self.execCommand(command=command)
-        pathToSaveSpec = specFile.replace(self.__chrootRpmBuildDirectory,
-                                          self.__chrootRpmBuildTmpDirectory)
-
+        pathToSaveSpec = specFile.replace(package.getChrootRpmBuildTmpDirectory(),
+                                          package.getChrootRpmBuildTmpDirectory())
+        print "packageRpm8"
         package.saveTmpSpec(path=self.getDirectory() + pathToSaveSpec,
                             archive=tarFile)
         command = []
         command.append("rpmbuild -ba --define '_srcdefattr (-,root,root)' " + pathToSaveSpec + " < /dev/null")
-        command.append("cp -fpr  " + self.__chrootRpmBuildTmpDirectory + "/BUILD/* " + self.__chrootRpmBuildDirectory + "/BUILD/")
-        command.append("rm -r " + self.__chrootRpmBuildTmpDirectory + "/TMP")
-
+        command.append("cp -fpr  " + package.getChrootRpmBuildTmpDirectory() + "/BUILD/* " + package.getChrootRpmBuildDirectory() + "/BUILD/")
+        command.append("rm -r " + package.getChrootRpmBuildTmpDirectory() + "/TMP")
+        print "packageRpm8"
         self.execCommand(command=command)
-        self.__changeTopDir(self.__rpmBuildDirectory)
+        self.__changeTopDir(package.getTopDirRpmBuildDirectory())
 
     def __changeTopDir(self, newTopDir):
         '''
@@ -630,7 +635,6 @@ class ObsLightChRoot(object):
         '''
         
         '''
-        #self.__getAddRemoveFiles(package=package)
 
         path = package.getPackageDirectory()
         command = []
@@ -644,7 +648,8 @@ class ObsLightChRoot(object):
         '''
         Create a patch from modifications made in the package directory.
         '''
-        patchFile = patch
+        if not patch.endswith(".patch"):
+            patch += ".patch"
         pathPackage = package.getPackageDirectory()
         pathOscPackage = package.getOscDirectory()
 
@@ -657,61 +662,35 @@ class ObsLightChRoot(object):
 
         command = []
         command.append("git --git-dir=" + pathPackage + "/.git --work-tree=" + pathPackage +
-                       " diff -p -a --binary " + tag1 + " " + tag2 + " > " + self.__dirTransfert + "/" + patchFile)
+                       " diff -p -a --binary " + tag1 + " " + tag2 + " > " + self.__dirTransfert + "/" + patch)
         self.execCommand(command=command)
-        shutil.copy(self.__chrootDirTransfert + "/" + patchFile, pathOscPackage + "/" + patch)
+        shutil.copy(self.__chrootDirTransfert + "/" + patch, pathOscPackage + "/" + patch)
 
         package.addPatch(aFile=patch)
         ObsLightOsc.getObsLightOsc().add(path=pathOscPackage, afile=patch)
         package.save()
 
-    def __getAddRemoveFiles(self, package=None):
+    def updatePatch(self, package=None):
         '''
-        
+        Update a patch from modifications made in the package directory.
         '''
-        resultFile = "resultGitStatus" + package.getName() + ".log"
+        patch = package.getCurrentPatch()
         pathPackage = package.getPackageDirectory()
         pathOscPackage = package.getOscDirectory()
+
+        self.commitGit(mess="updatePatch", package=package)
+
+        tag1 = package.getFirstCommit()
+        if tag1 == None:
+            raise ObsLightErr.ObsLightChRootError("package: '" + package.getName() + "' has no git first tag.")
+        tag2 = self.getCommitTag(path=pathPackage)
+
         command = []
-        command.append("git --git-dir=" + pathPackage + "/.git --work-tree=" + pathPackage + " status -u -s > " + self.__dirTransfert + "/" + resultFile)
+        command.append("git --git-dir=" + pathPackage + "/.git --work-tree=" + pathPackage +
+                       " diff -p -a --binary " + tag1 + " " + tag2 + " > " + self.__dirTransfert + "/" + patch)
         self.execCommand(command=command)
-        result = []
-        f = open(self.__chrootDirTransfert + "/" + resultFile, 'r')
-        for line in f:
-            result.append(line)
-        f.close()
-        filesToAdd = []
-        filesToDel = []
+        shutil.copy(self.__chrootDirTransfert + "/" + patch, pathOscPackage + "/" + patch)
 
-        for res in result:
-            if " " in res:
-                if res[0] == " ":
-                    res = res[1:]
-
-                if " " in res:
-                    index = res.index(" ")
-                    tag = res[:index]
-                    aFile = res[index + 1:-1]
-                    if tag == "??":
-                        filesToAdd.append(aFile)
-                    elif tag == "D":
-                        filesToDel.append(aFile)
-        command = []
-        repoListFilesToAdd = []
-        for aFile in filesToAdd:
-            baseFile = os.path.basename(aFile)
-            command.append("cp " + os.path.join(pathPackage, aFile) + " " + self.__dirTransfert)
-
-            command.append("cp " + os.path.join(pathPackage, aFile) + " " + self.__chrootRpmBuildDirectory + "/SOURCES")
-            repoListFilesToAdd.append([aFile, baseFile])
-        if command != []:
-            self.execCommand(command=command)
-            for fileDef in repoListFilesToAdd:
-                [aFile, baseFile] = fileDef
-                package.addFile(self.__chrootDirTransfert + "/" + baseFile)
-                package.addFileToSpec(baseFile=baseFile, aFile=aFile)
-        for fileDef in filesToDel:
-            package.delFileToSpec(aFile=fileDef)
         package.save()
 
     def prepareChroot(self, chrootDir):

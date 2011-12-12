@@ -8,7 +8,7 @@ import os
 import shutil
 import re
 
-from ObsLightTools import isNonEmptyString
+import ObsLightTools
 
 OBSLIGHTDIRNAME = "OBSLight"
 OBSLIGHTCONFIG = "obslightConfig"
@@ -78,7 +78,7 @@ def getOpenFileCommand():
     if (aConfigParser.has_section('editor') and
             aConfigParser.has_option('editor', 'openFile')):
         command = aConfigParser.get('editor', 'openFile')
-    if isNonEmptyString(command):
+    if ObsLightTools.isNonEmptyString(command):
         return command
     else:
         return "vi"

@@ -4,13 +4,9 @@ Created on 24 oct. 2011
 @author: meego
 '''
 
-import os
-import sys
 import subprocess
 import shlex
-import time
 
-from threading import Thread
 import ObsLightPrintManager
 import select
 

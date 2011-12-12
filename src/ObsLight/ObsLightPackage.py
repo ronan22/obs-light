@@ -60,6 +60,7 @@ class ObsLightPackage(object):
         self.__myYamlFile = None
         self.__mySpecFile = None
         self.__firstCommitTag = None
+        self.__currentPatch = None
 
         self.__description = description
         self.__packageTitle = packageTitle
@@ -104,8 +105,40 @@ class ObsLightPackage(object):
                 self.__firstCommitTag = fromSave["firstCommitTag"]
             if "oscRev" in fromSave.keys():
                 self.__oscRev = fromSave["oscRev"]
+            if "currentPatch" in fromSave.keys():
+                self.__currentPatch = fromSave["currentPatch"]
+
+        self.__rpmBuildDirectory = "rpmbuild"
+        self.__rpmBuildTmpDirectory = "obslightbuild"
+
+        self.__chrootRpmBuildDirectory = "/root/" + self.__name + "/" + self.__rpmBuildDirectory
+        self.__chrootRpmBuildTmpDirectory = "/root/" + self.__name + "/" + self.__rpmBuildTmpDirectory
 
         self.__initConfigureFile()
+
+    def getChrootRpmBuildDirectory(self):
+        '''
+        
+        '''
+        return self.__chrootRpmBuildDirectory
+
+    def getChrootRpmBuildTmpDirectory(self):
+        '''
+        
+        '''
+        return self.__chrootRpmBuildTmpDirectory
+
+    def getTopDirRpmBuildDirectory(self):
+        '''
+        
+        '''
+        return self.__name + "/" + self.__rpmBuildDirectory
+
+    def getTopDirRpmBuildTmpDirectory(self):
+        '''
+        
+        '''
+        return self.__name + "/" + self.__rpmBuildTmpDirectory
 
     def setFirstCommit(self, tag):
         '''
@@ -235,6 +268,7 @@ class ObsLightPackage(object):
         aDic["oscStatus"] = self.__oscStatus
         aDic["firstCommitTag"] = self.__firstCommitTag
         aDic["oscRev"] = self.__oscRev
+        aDic["currentPatch"] = self.__currentPatch
         return aDic
 
     def getPackageParameter(self, parameter=None):
@@ -277,8 +311,30 @@ class ObsLightPackage(object):
             return self.__firstCommitTag
         elif  parameter == "oscRev":
             return self.__oscRev
+        elif parameter == "currentPatch":
+            return self.__currentPatch
         else:
             raise ObsLightPackageErr("parameter value is not valid for getProjectParameter")
+
+    def initCurrentPatch(self):
+        '''
+        
+        '''
+        self.__currentPatch = None
+
+
+    def patchIsInit(self):
+        '''
+        
+        '''
+        return self.__currentPatch != None
+
+    def getCurrentPatch(self):
+        '''
+        
+        '''
+        return self.__currentPatch != None
+
 
     def setOscStatus(self, status):
         '''
@@ -318,6 +374,8 @@ class ObsLightPackage(object):
             self.__oscStatus = value
         elif parameter == "oscRev":
             self.__oscRev = value
+        elif parameter == "currentPatch":
+            self.__currentPatch = value
         else:
             raise ObsLightPackageErr("parameter value is not valid for setPackageParameter")
 
@@ -396,6 +454,7 @@ class ObsLightPackage(object):
         '''
         add a Patch aFile to package, the patch is automatically add to the spec aFile.
         '''
+        self.__currentPatch = aFile
         if self.__myYamlFile != None:
             if self.__myYamlFile.addpatch(aFile) == 1:
                 ObsLightPrintManager.obsLightPrint("WARNING: Patch already exist the yaml file will not be changed.")

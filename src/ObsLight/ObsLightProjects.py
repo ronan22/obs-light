@@ -46,6 +46,9 @@ class ObsLightProjects(object):
         '''
         return self.__workingDirectory
 
+
+
+
     def save(self, aFile=None, ProjectName=None):
         '''
         
@@ -209,6 +212,11 @@ class ObsLightProjects(object):
         self.__dicOBSLightProjects[projectLocalName].makePatch(package=package,
                                                                patch=patch)
 
+    def updatePatch(self, projectLocalName, package):
+        '''
+        
+        '''
+        self.__dicOBSLightProjects[projectLocalName].updatePatch(package=package)
 
     def getObsServer(self, name=None):
         '''
@@ -480,8 +488,11 @@ class ObsLightProjects(object):
         '''
         return self.__dicOBSLightProjects[projectLocalName].getObsPackageRev(packageName)
 
-
-
+    def patchIsInit(self, ProjectName, packageName):
+        '''
+        
+        '''
+        return self.__dicOBSLightProjects[ProjectName].patchIsInit(packageName=packageName)
 
 
 

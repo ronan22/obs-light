@@ -716,10 +716,10 @@ class ObsLightProject(object):
         
         '''
         path = self.__packages.getPackage(package=package).getPackageDirectory()
-        rootPath = self.__chroot.getDirectory()
+        #rootPath = self.__chroot.getDirectory()
 
         specFile = self.__packages.getSpecFile(name=package)
-        aspecFile = self.__chroot.getChrootRpmBuildDirectory() + "/SPECS/" + specFile
+        aspecFile = self.__packages.getChrootRpmBuildDirectory(name=package) + "/SPECS/" + specFile
         name = self.__packages.getPackage(package=package).getMacroDirectoryPackageName()
         if name != None:
             prepDirname = self.__chroot.resolveMacro(name)
@@ -730,15 +730,21 @@ class ObsLightProject(object):
                                        pathPackage=path,
                                        tarFile=tarFile)
 
+    def patchIsInit(self, packageName):
+        '''
+        
+        '''
+        return self.__packages.getPackage(package=packageName).patchIsInit()
+
     def installRpm(self, package):
         '''
         
         '''
         path = self.__packages.getPackage(package=package).getPackageDirectory()
-        rootPath = self.__chroot.getDirectory()
+        #rootPath = self.__chroot.getDirectory()
 
         specFile = self.__packages.getSpecFile(name=package)
-        aspecFile = self.__chroot.getChrootRpmBuildDirectory() + "/SPECS/" + specFile
+        aspecFile = self.__packages.getChrootRpmBuildDirectory(name=package) + "/SPECS/" + specFile
         name = self.__packages.getPackage(package=package).getMacroDirectoryPackageName()
         if name != None:
             prepDirname = self.__chroot.resolveMacro(name)
@@ -754,10 +760,10 @@ class ObsLightProject(object):
         
         '''
         path = self.__packages.getPackage(package=package).getPackageDirectory()
-        rootPath = self.__chroot.getDirectory()
+        #rootPath = self.__chroot.getDirectory()
 
         specFile = self.__packages.getSpecFile(name=package)
-        aspecFile = self.__chroot.getChrootRpmBuildDirectory() + "/SPECS/" + specFile
+        aspecFile = self.__packages.getChrootRpmBuildDirectory(name=package) + "/SPECS/" + specFile
         name = self.__packages.getPackage(package=package).getMacroDirectoryPackageName()
         if name != None:
             prepDirname = self.__chroot.resolveMacro(name)
@@ -768,12 +774,17 @@ class ObsLightProject(object):
                                          pathPackage=path,
                                          tarFile=tarFile)
 
-    def makePatch(self, package=None, patch=None):
+    def makePatch(self, package, patch):
         '''
         Create a patch
         '''
         self.__chroot.makePatch(package=self.__packages.getPackage(package),
                                 patch=patch)
+    def updatePatch(self, package):
+        '''
+        Update a patch
+        '''
+        self.__chroot.updatePatch(package=self.__packages.getPackage(package))
 
     def commitToObs(self, message=None, package=None):
         '''

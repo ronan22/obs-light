@@ -27,7 +27,7 @@ import urlparse
 from osc import conf
 from osc import core
 
-from ObsLightSubprocess import SubprocessCrt
+import ObsLightSubprocess
 import ObsLightPrintManager
 EMPTYPROJECTPATH = os.path.join(os.path.dirname(__file__), "emptySpec")
 
@@ -47,7 +47,7 @@ class ObsLightOsc(object):
         init 
         '''
         self.__confFile = os.path.join(os.environ['HOME'], ".oscrc")
-        self.__mySubprocessCrt = SubprocessCrt()
+        self.__mySubprocessCrt = ObsLightSubprocess.SubprocessCrt()
 
         if os.path.isfile(self.__confFile):
             conf.get_config()
@@ -740,6 +740,8 @@ def getObsLightOsc():
     '''
     
     '''
+    #if __myObsLightOsc == None:
+    #    __myObsLightOsc = ObsLightOsc()
     return __myObsLightOsc
 
 if __name__ == '__main__':
