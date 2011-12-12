@@ -6,3 +6,5 @@ if [ ! -f "/etc/sudoers.tmp" ]; then
   rm /etc/sudoers.tmp
 fi
 
+xdg-desktop-menu uninstall /usr/share/applications/obslightgui.desktop
+
