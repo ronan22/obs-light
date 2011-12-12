@@ -36,9 +36,7 @@ class PackageModel(QAbstractTableModel):
     ObsRevColumn = 4
     ChrootStatusColumn = 5
 
-    StatusOnServerColors = {}
-    StatusInChRootColors = {}
-    StatusInOscColors = {}
+    colors = list(({}, {}, {}, {}, {}, {}))
 
     __obsLightManager = None
     __project = None
@@ -48,18 +46,21 @@ class PackageModel(QAbstractTableModel):
         QAbstractTableModel.__init__(self)
         self.__obsLightManager = obsLightManager
         self.__project = projectName
+        self._loadColors()
+
+    def _loadColors(self):
         # http://www.w3.org/TR/SVG/types.html#ColorKeywords
-        self.StatusOnServerColors["succeeded"] = QColor("green")
-        self.StatusOnServerColors["excluded"] = QColor("grey")
-        self.StatusOnServerColors["broken"] = QColor("red")
-        self.StatusOnServerColors["building"] = QColor("gold")
-        self.StatusOnServerColors["failed"] = QColor("red")
-        self.StatusOnServerColors["scheduled"] = QColor("blue")
-        self.StatusOnServerColors["unresolvable"] = QColor("darkred")
-        self.StatusInChRootColors["Installed"] = QColor("green")
-        self.StatusInOscColors["Unknown"] = QColor("grey")
-        self.StatusInOscColors["Succeeded"] = QColor("green")
-        self.StatusInOscColors["inconsistent state"] = QColor("red")
+        self.colors[self.ObsStatusColumn]["succeeded"] = QColor("green")
+        self.colors[self.ObsStatusColumn]["excluded"] = QColor("grey")
+        self.colors[self.ObsStatusColumn]["broken"] = QColor("red")
+        self.colors[self.ObsStatusColumn]["building"] = QColor("gold")
+        self.colors[self.ObsStatusColumn]["failed"] = QColor("red")
+        self.colors[self.ObsStatusColumn]["scheduled"] = QColor("blue")
+        self.colors[self.ObsStatusColumn]["unresolvable"] = QColor("darkred")
+        self.colors[self.ChrootStatusColumn]["Installed"] = QColor("green")
+        self.colors[self.OscStatusColumn]["Unknown"] = QColor("grey")
+        self.colors[self.OscStatusColumn]["Succeeded"] = QColor("green")
+        self.colors[self.OscStatusColumn]["inconsistent state"] = QColor("red")
 
     def getProject(self):
         return self.__project
@@ -107,44 +108,41 @@ class PackageModel(QAbstractTableModel):
                     return QSize(32, 0)
         return None
 
+    def displayRoleData(self, index):
+        if not index.isValid() or index.row() >= self.rowCount():
+            return None
+        packageName = self.__getPackageList()[index.row()]
+        retVal = None
+        if index.column() == self.NameColumn:
+            retVal = packageName
+        elif index.column() == self.ObsStatusColumn:
+            retVal = self.__obsLightManager.getPackageStatus(self.__project,
+                                                             packageName)
+        elif index.column() == self.ChrootStatusColumn:
+            retVal = self.__obsLightManager.getGetChRootStatus(self.__project,
+                                                               packageName)
+        elif index.column() == self.OscStatusColumn:
+            retVal = self.__obsLightManager.getOscPackageStatus(self.__project,
+                                                                packageName)
+        elif index.column() == self.OscRevColumn:
+            retVal = self.__obsLightManager.getOscPackageRev(self.__project,
+                                                             packageName)
+        elif index.column() == self.ObsRevColumn:
+            retVal = self.__obsLightManager.getObsPackageRev(self.__project,
+                                                             packageName)
+        return retVal
+
     def data(self, index, role=Qt.DisplayRole):
         if not index.isValid() or index.row() >= self.rowCount():
             return None
         if role == Qt.DisplayRole or role == Qt.ForegroundRole:
-            packageName = self.__getPackageList()[index.row()]
-            if index.column() == self.NameColumn and role == Qt.DisplayRole:
-                return packageName
-            elif index.column() == self.ObsStatusColumn:
-                status = self.__obsLightManager.getPackageStatus(self.__project,
-                                                                 packageName)
-                if role == Qt.DisplayRole:
-                    return status
-                elif role == Qt.ForegroundRole:
-                    return self.StatusOnServerColors.get(status, None)
-            elif index.column() == self.ChrootStatusColumn:
-                status = self.__obsLightManager.getGetChRootStatus(self.__project,
-                                                                   packageName)
-                if role == Qt.DisplayRole:
-                    return status
-                elif role == Qt.ForegroundRole:
-                    return self.StatusInChRootColors.get(status, None)
-            elif index.column() == self.OscStatusColumn:
-                status = self.__obsLightManager.getOscPackageStatus(self.__project,
-                                                                    packageName)
-                if role == Qt.DisplayRole:
-                    return status
-                elif role == Qt.ForegroundRole:
-                    return self.StatusInOscColors.get(status, None)
-            elif index.column() == self.OscRevColumn:
-                rev = self.__obsLightManager.getOscPackageRev(self.__project,
-                                                              packageName)
-                if role == Qt.DisplayRole:
-                    return rev
-            elif index.column() == self.ObsRevColumn:
-                rev = self.__obsLightManager.getObsPackageRev(self.__project,
-                                                              packageName)
-                if role == Qt.DisplayRole:
-                    return rev
+            drData = self.displayRoleData(index)
+            if role == Qt.ForegroundRole:
+                column = index.column()
+                color = self.colors[column].get(drData, None)
+                return color
+            else:
+                return drData
         return None
 
     def sort(self, Ncol, order):
