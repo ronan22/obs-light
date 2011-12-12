@@ -100,7 +100,7 @@ echo "%{version}-%{release}" > VERSION
 %fdupes -s $RPM_BUILD_ROOT/%{python_sitelib}
 ln -s obslight-wrapper.py %{buildroot}/%{_bindir}/obslight
 ln -s obslightgui-wrapper.py %{buildroot}/%{_bindir}/obslightgui
-xdg-desktop-menu install --novendor /usr/share/applications/obslightgui.desktop
+
 # << install post
 desktop-file-install --delete-original       \
   --dir %{buildroot}%{_datadir}/applications             \
