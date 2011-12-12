@@ -80,9 +80,11 @@ class LogManager(QObject):
         formatted = self.__myHandler.format(record)
         try:
             if isinstance(formatted, unicode):
-                self.appendMessage.emit(formatted)
+                message = formatted
             else:
-                self.appendMessage.emit(unicode(formatted, errors='replace'))
+                message = unicode(formatted, errors='replace')
+            message = message.replace(u"\n", u"<br />")
+            self.appendMessage.emit(message)
         except BaseException:
             self.__myHandler.handleError(record)
 
