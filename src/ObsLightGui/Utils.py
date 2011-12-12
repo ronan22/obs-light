@@ -20,6 +20,9 @@ Created on 28 oct. 2011
 @author: Florent Vennetier
 """
 
+import sys
+import traceback
+
 from PySide.QtCore import QObject, QRunnable, QThreadPool, Qt, Signal
 from PySide.QtGui import QColor, QGraphicsColorizeEffect, QMessageBox, QProgressDialog
 
@@ -363,14 +366,16 @@ def exceptionToMessageBox(exception, parent=None, traceback_=None):
     """
     if isinstance(exception, ObsLightErr.OBSLightBaseError):
         message = exception.msg
-        if traceback_ is not None:
-            message += u"\n" + unicode(traceback_)
-        QMessageBox.warning(parent, u"Exception occurred", exception.msg)
+#        if traceback_ is not None:
+#            message += u"\n\n" + u"".join(traceback.format_tb(traceback_))
+        QMessageBox.warning(parent, u"Exception occurred", message)
     else:
         try:
             message = unicode(exception)
         except UnicodeError:
             message = unicode(str(exception), errors="replace")
+#        if traceback_ is not None:
+#            message += u"\n\n" + u"".join(traceback.format_tb(traceback_))
         QMessageBox.critical(parent, u"Exception occurred", message)
 
 def popupOnException(f):
@@ -383,7 +388,8 @@ def popupOnException(f):
         try:
             f(*args, **kwargs)
         except BaseException as e:
-            exceptionToMessageBox(e)
+            traceback_ = sys.exc_info()[2]
+            exceptionToMessageBox(e, traceback_=traceback_)
     return catchException
 
 def colorizeWidget(widget, color):

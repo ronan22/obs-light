@@ -26,7 +26,7 @@ import httplib
 from subprocess import call
 import ObsLightOsc
 import ObsLightConfig
-
+import ObsLightPrintManager
 
 from M2Crypto import SSL
 from os.path import expanduser
@@ -196,8 +196,17 @@ def importCert(url):
     conn.close()
 
 def openFileWithDefaultProgram(filePath):
-    openCommand = ObsLightConfig.getOpenFileCommand() + " " + filePath
-    return call(openCommand)
+    logger = ObsLightPrintManager.getLogger()
+    logger.info("Opening %s", filePath)
+    openCommand = ObsLightConfig.getOpenFileCommand()
+    logger.debug("Running command: '%s %s'", openCommand, filePath)
+    try:
+        retVal = call([openCommand, filePath])
+        return retVal
+    except BaseException:
+        logger.error("Failed to run '%s %s'", openCommand, filePath, exc_info=True)
+        raise
+
 
 if __name__ == '__main__':
 

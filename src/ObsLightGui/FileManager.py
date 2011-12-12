@@ -50,7 +50,9 @@ class FileManager(QObject):
         self.__gui = gui
         self.__obsLightManager = gui.getObsLightManager()
         self.__fileTreeView = gui.getMainWindow().findChild(QTreeView, u"fileTreeView")
+        self.__fileTreeView.doubleClicked.connect(self.on_treeView_activated)
         self.__chrootTreeView = gui.getMainWindow().findChild(QTreeView, u"chrootTreeView")
+        self.__chrootTreeView.doubleClicked.connect(self.on_treeView_activated)
         self.__packageTabWidget = gui.getMainWindow().findChild(QTabWidget, u"packageTabWidget")
         addFileButton = gui.getMainWindow().findChild(QPushButton, u"addFileButton")
         addFileButton.clicked.connect(self.on_addFileButton_clicked)
@@ -133,3 +135,8 @@ class FileManager(QObject):
             if result == QMessageBox.No:
                 return
             self.__obsLightManager.deleteFileFromPackage(self.__project, self.__package, fileName)
+
+    @popupOnException
+    def on_treeView_activated(self, index):
+        filePath = index.model().filePath(index)
+        self.__obsLightManager.openFile(filePath)
