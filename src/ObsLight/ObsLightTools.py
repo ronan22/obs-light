@@ -6,7 +6,9 @@ Created on 17 nov. 2011
 
 from urlparse import urlparse
 import httplib
+from subprocess import call
 import ObsLightOsc
+from ObsLightConfig import getOpenFileCommand
 
 from M2Crypto import SSL
 from os.path import expanduser
@@ -164,12 +166,16 @@ def importCert(url):
     except:
         raise
     cert = conn.get_peer_cert()
-    #if the peer did not provide a certificate chain, cert== None.
-    if cert != None:
+    # if the peer did not provide a certificate chain, cert is None.
+    if cert is not None:
         dirpath = expanduser('~/.config/osc/trusted-certs')
         filePath = dirpath + '/%s_%d.pem' % (host, port)
         cert.save_pem(filePath)
-        conn.close()
+    conn.close()
+
+def openFileWithDefaultProgram(filePath):
+    openCommand = getOpenFileCommand() + " " + filePath
+    return call(openCommand)
 
 def isNonEmptyString(theString):
     return isinstance(theString, basestring) and len(theString) > 0

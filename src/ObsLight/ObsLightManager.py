@@ -26,6 +26,7 @@ import sys
 
 from ObsLightErr import ObsLightObsServers
 from ObsLightErr import ObsLightProjectsError
+from ObsLightErr import ArgError
 from ObsServers import ObsServers
 from ObsLightProjects import ObsLightProjects
 from ObsLightTools import isNonEmptyString
@@ -589,6 +590,11 @@ class ObsLightManager(object):
         '''
         return  self.__myObsLightProjects.openTerminal(projectLocalName=projectLocalName,
                                                        package=package)
+
+    def openFile(self, filePath):
+        if not isNonEmptyString(filePath):
+            raise ArgError(u"openFile: invalid path: '%s'" % filePath)
+        return ObsLightTools.openFileWithDefaultProgram(filePath)
 
     @checkProjectLocalName(1)
     def getChRootPath(self, projectLocalName):
