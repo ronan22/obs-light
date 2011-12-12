@@ -43,6 +43,7 @@ class ObsLightPackage(object):
                  yamlFile=None,
                  listFile=None,
                  status="Unknown",
+                 obsRev= -1,
                  oscStatus="Unknown",
                  oscRev="-1",
                  chRootStatus="Not installed",
@@ -66,6 +67,7 @@ class ObsLightPackage(object):
         self.__chRootStatus = chRootStatus
         self.__oscStatus = oscStatus
         self.__oscRev = oscRev
+        self.__obsRev = obsRev
 
         if fromSave == None:
             self.__name = name
@@ -74,6 +76,7 @@ class ObsLightPackage(object):
             else:
                 self.__listFile = listFile
             self.__status = status
+            self.__obsRev = obsRev
             self.__specFile = specFile
             self.__yamlFile = yamlFile
             self.__packageDirectory = None
@@ -104,6 +107,8 @@ class ObsLightPackage(object):
                 self.__firstCommitTag = fromSave["firstCommitTag"]
             if "oscRev" in fromSave.keys():
                 self.__oscRev = fromSave["oscRev"]
+            if "obsRev" in fromSave.keys():
+                self.__obsRev = fromSave["obsRev"]
 
         self.__initConfigureFile()
 
@@ -235,6 +240,7 @@ class ObsLightPackage(object):
         aDic["oscStatus"] = self.__oscStatus
         aDic["firstCommitTag"] = self.__firstCommitTag
         aDic["oscRev"] = self.__oscRev
+        aDic["obsRev"] = self.__obsRev
         return aDic
 
     def getPackageParameter(self, parameter=None):
@@ -277,6 +283,8 @@ class ObsLightPackage(object):
             return self.__firstCommitTag
         elif  parameter == "oscRev":
             return self.__oscRev
+        elif parameter == "obsRev":
+            return self.__obsRev
         else:
             raise ObsLightPackageErr("parameter value is not valid for getProjectParameter")
 
@@ -318,6 +326,8 @@ class ObsLightPackage(object):
             self.__oscStatus = value
         elif parameter == "oscRev":
             self.__oscRev = value
+        elif parameter == "obsRev":
+            self.__obsRev = value
         else:
             raise ObsLightPackageErr("parameter value is not valid for setPackageParameter")
 
