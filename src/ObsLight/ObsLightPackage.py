@@ -500,13 +500,13 @@ class ObsLightPackage(object):
         '''
         commit the package to the OBS server.
         '''
-        ObsLightOsc().commitProject(path=self.getOscDirectory(), message=message)
+        ObsLightOsc.getObsLightOsc().commitProject(path=self.getOscDirectory(), message=message)
 
     def addRemoveFileToTheProject(self):
         '''
         add new file and remove file to the project.
         '''
-        ObsLightOsc().addremove(path=self.getOscDirectory())
+        ObsLightOsc.getObsLightOsc().addremove(path=self.getOscDirectory())
 
     def destroy(self):
         '''

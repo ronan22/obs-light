@@ -657,7 +657,7 @@ class ObsLightChRoot(object):
 
         command = []
         command.append("git --git-dir=" + pathPackage + "/.git --work-tree=" + pathPackage +
-                       " diff -p " + tag1 + " " + tag2 + " > " + self.__dirTransfert + "/" + patchFile)
+                       " diff -p -a --binary " + tag1 + " " + tag2 + " > " + self.__dirTransfert + "/" + patchFile)
         self.execCommand(command=command)
         shutil.copy(self.__chrootDirTransfert + "/" + patchFile, pathOscPackage + "/" + patch)
 

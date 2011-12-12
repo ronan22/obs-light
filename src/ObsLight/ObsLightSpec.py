@@ -333,9 +333,8 @@ class ObsLightSpec:
 
                     aId = line.split(":")[0].replace("Patch", "")
                     #the aId can be null
-                    if aId != "":
+                    if (aId != "") and  (patchID <= int(aId)):
                         patchID = int(aId) + 1
-
                 except ValueError:
                     ObsLightPrintManager.obsLightPrint(ValueError)
                 except IndexError:
@@ -346,7 +345,6 @@ class ObsLightSpec:
 
         self.__spectDico[self.__introduction_section].insert(0, patch_Val_Prep + ": " + aFile + "\n")
         self.__spectDico[self.__introduction_section].insert(0, "# This line is insert automatically , please comment and clean the code\n")
-
 
         #You can have not %prep section
         #add the patch after the last one or if any patch present in the prep part, at the end.
@@ -359,7 +357,7 @@ class ObsLightSpec:
                     res = i
             if res == 0:
                 res = i
-            self.__spectDico[self.__prepFlag].insert(res, patch_Val_Build + " -p1\n")
+            self.__spectDico[self.__prepFlag].insert(res, patch_Val_Build + " -p1 \n")
             self.__spectDico[self.__prepFlag].insert(res, "# This line is insert automatically, please comment and clean the code\n")
 
         return 0
@@ -379,7 +377,7 @@ class ObsLightSpec:
 
                     aId = line.split(":")[0].replace("Source", "")
                     #the aId can be null
-                    if aId != "":
+                    if (aId != "") and (SourceID <= int(aId)):
                         SourceID = int(aId) + 1
 
                 except ValueError:
