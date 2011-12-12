@@ -9,6 +9,11 @@
 #   "/usr/bin/gnome-terminal -x" if running Gnome
 console=xterm -e
 
+# Command to use to open a file when double clicking on it
+# in the local directory or chroot browsers.
+# We suggest "/usr/bin/xdg-open".
+openFile=
+
 [logger]
 # Format for the logs, using Python's logging module syntax
 # See http://docs.python.org/library/logging.html#logrecord-attributes

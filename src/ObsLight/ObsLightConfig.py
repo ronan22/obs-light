@@ -8,6 +8,8 @@ import os
 import shutil
 import re
 
+from ObsLightTools import isNonEmptyString
+
 OBSLIGHTDIRNAME = "OBSLight"
 OBSLIGHTCONFIG = "obslightConfig"
 
@@ -68,6 +70,31 @@ def setConsole2(consoleCommand):
     with open(CONFIGPATH, 'w') as cfgFile:
         cfgFile.write(newContent)
 
+def getOpenFileCommand():
+    aConfigParser = ConfigParser.ConfigParser()
+    with open(CONFIGPATH, 'r') as aConfigFile:
+        aConfigParser.readfp(aConfigFile)
+    command = ""
+    if (aConfigParser.has_section('editor') and
+            aConfigParser.has_option('editor', 'openFile')):
+        command = aConfigParser.get('editor', 'openFile')
+    if isNonEmptyString(command):
+        return command
+    else:
+        return "vi"
+
+def setOpenFileCommand(command):
+    with open(CONFIGPATH, 'r') as cfgFile:
+        content = cfgFile.read()
+    aConfigParser = ConfigParser.ConfigParser()
+    with open(CONFIGPATH, 'r') as aConfigFile:
+        aConfigParser.readfp(aConfigFile)
+    if not aConfigParser.has_section('editor'):
+        content += "\n[editor]\nopenFile=\n"
+    newContent = re.sub(r'(openFile\s*[=:]).*', r'\1%s' % command, content)
+    with open(CONFIGPATH, 'w') as cfgFile:
+        cfgFile.write(newContent)
+
 def getObslightFormatter():
     '''
     return the formatter for obslight
@@ -108,10 +135,25 @@ def getObslightLoggerLevel():
         return u'INFO'
 
 
-if not os.path.exists(CONFIGPATH):
-    shutil.copy2(os.path.join(os.path.dirname(__file__), "config", OBSLIGHTCONFIG), CONFIGPATH)
+def configureConsole():
     if os.path.exists(u"/usr/bin/konsole"):
         setConsole2(u"/usr/bin/konsole -e")
     elif os.path.exists(u"/usr/bin/gnome-terminal"):
         setConsole2(u"/usr/bin/gnome-terminal -x")
     #else keep default ("xterm -e")
+
+def configureOpenFile():
+    if os.path.exists(u"/usr/bin/xdg-open"):
+        setOpenFileCommand(u"/usr/bin/xdg-open")
+    elif os.path.exists(u"/usr/bin/kde-open"):
+        setOpenFileCommand(u"/usr/bin/kde-open")
+    elif os.path.exists(u"/usr/bin/gnome-open"):
+        setOpenFileCommand(u"/usr/bin/gnome-open")
+    elif os.path.exists(u"/usr/bin/exo-open"):
+        setOpenFileCommand(u"/usr/bin/exo-open")
+
+
+if not os.path.exists(CONFIGPATH):
+    shutil.copy2(os.path.join(os.path.dirname(__file__), "config", OBSLIGHTCONFIG), CONFIGPATH)
+    configureConsole()
+    configureOpenFile()
