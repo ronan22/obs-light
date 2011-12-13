@@ -529,6 +529,14 @@ class ObsLightManager(object):
         return self.__myObsLightProjects.getPackageDirectoryInChRoot(projectLocalName, packageName)
 
     @checkProjectLocalName(1)
+    def getPackageFileInfo(self, projectLocalName, packageName, fileName):
+        '''
+        '''
+        status = [u'A', u'D', u' ', u'M', u'?', u'!', u'C']
+        return {u'Status': status[len(fileName) % len(status)],
+                u"File name length": len(fileName)}
+
+    @checkProjectLocalName(1)
     def addPackage(self, projectLocalName, package):
         '''
         Add a package to a local project. The package must exist on the
