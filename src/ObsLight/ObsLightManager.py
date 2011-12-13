@@ -12,7 +12,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 '''
 Created on 17 juin 2011
@@ -24,15 +24,15 @@ Created on 17 juin 2011
 import os
 import sys
 
-from ObsLightErr import ObsLightObsServers
-from ObsLightErr import ObsLightProjectsError
-from ObsLightErr import ArgError
 from ObsServers import ObsServers
 from ObsLightProjects import ObsLightProjects
 from ObsLightTools import isNonEmptyString
+import ObsLightConfig
 import ObsLightTools
 import ObsLightPrintManager
-import ObsLightConfig
+from ObsLightErr import ObsLightObsServers
+from ObsLightErr import ObsLightProjectsError
+from ObsLightErr import ArgError
 
 VERSION = "0.4.7-1"
 
