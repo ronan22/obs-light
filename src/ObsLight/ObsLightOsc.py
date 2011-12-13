@@ -181,9 +181,9 @@ class ObsLightOsc(object):
             options = ""
 
         res = options
-        ObsLightPrintManager.getLogger().debug("To Add ?" + ("").join(listDepProject))
+        ObsLightPrintManager.getLogger().debug("To Add ?" + ("").join(listDepProject.keys()))
         ObsLightPrintManager.getLogger().debug("Current:" + ("").join(res))
-        for depProject in listDepProject:
+        for depProject in listDepProject.keys():
             if not depProject in res.split(" "):
                 res += " " + depProject
 
@@ -219,12 +219,12 @@ class ObsLightOsc(object):
 
         aElement = ElementTree.fromstring(res.read())
 
-        result = []
+        result = {}
         for project in aElement:
             if (project.tag == "repository") and (project.get("name") == repos):
                 for path in project.getiterator():
                     if path.tag == "path":
-                        result.append(path.get("project"))
+                        result[path.get("project")] = path.get("repository")
 
         return result
 

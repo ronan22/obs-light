@@ -209,9 +209,7 @@ class ObsServer(object):
             raise ObsLightErr.ObsLightObsServers("parameter is not valid for setObsServerParameter")
         return None
 
-    def initConfigProject(self,
-                          projet=None,
-                          repos=None):
+    def initConfigProject(self, projet, repos):
         '''
         
         '''
@@ -219,13 +217,14 @@ class ObsServer(object):
         res = ObsLightOsc.getObsLightOsc().getDepProject(apiurl=self.__serverAPI,
                                                          projet=projet,
                                                          repos=repos)
-
         #the listDepProject must be trust(add to .oscrc )
         if res != None:
             ObsLightOsc.getObsLightOsc().trustRepos(api=self.__serverAPI,
                                                     listDepProject=res)
-
-
+            for aprojet in res.keys():
+                if (aprojet != projet) or (res[aprojet] != repos):
+                    self.initConfigProject(projet=aprojet,
+                                           repos=res[aprojet])
 
     def getDic(self):
         '''

@@ -63,7 +63,6 @@ class ObsLightProject(object):
         self.__chrootIsInit = False
         self.__WorkingDirectory = workingDirectory
 
-
         if fromSave == None:
             self.__projectLocalName = projectLocalName
             self.__projectObsName = projectObsName
