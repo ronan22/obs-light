@@ -42,8 +42,9 @@ class ObsLightPackage(object):
                  specFile=None,
                  yamlFile=None,
                  listFile=None,
+                 listInfoFile=None,
                  status="Unknown",
-                 obsRev= -1,
+                 obsRev="-1",
                  oscStatus="Unknown",
                  oscRev="-1",
                  chRootStatus="Not installed",
@@ -62,7 +63,7 @@ class ObsLightPackage(object):
         self.__mySpecFile = None
         self.__firstCommitTag = None
         self.__currentPatch = None
-
+        self.__listInfoFile = listInfoFile
         self.__description = description
         self.__packageTitle = packageTitle
         self.__chRootStatus = chRootStatus
@@ -112,6 +113,8 @@ class ObsLightPackage(object):
                 self.__obsRev = fromSave["obsRev"]
             if "currentPatch" in fromSave.keys():
                 self.__currentPatch = fromSave["currentPatch"]
+            if "listInfoFile" in fromSave.keys():
+                self.__listInfoFile = fromSave["listInfoFile"]
 
         self.__rpmBuildDirectory = "rpmbuild"
         self.__rpmBuildTmpDirectory = "obslightbuild"
@@ -278,6 +281,7 @@ class ObsLightPackage(object):
         aDic["oscRev"] = self.__oscRev
         aDic["currentPatch"] = self.__currentPatch
         aDic["obsRev"] = self.__obsRev
+        aDic["listInfoFile"] = self.__listInfoFile
         return aDic
 
     def getPackageParameter(self, parameter=None):
@@ -324,6 +328,8 @@ class ObsLightPackage(object):
             return self.__currentPatch
         elif parameter == "obsRev":
             return self.__obsRev
+        elif parameter == "listInfoFile":
+            return self.__listInfoFile
         else:
             raise ObsLightPackageErr("parameter value is not valid for getProjectParameter")
 
@@ -389,6 +395,8 @@ class ObsLightPackage(object):
             self.__currentPatch = value
         elif parameter == "obsRev":
             self.__obsRev = value
+        elif parameter == "listInfoFile":
+            self.__listInfoFile = value
         else:
             raise ObsLightPackageErr("parameter value is not valid for setPackageParameter")
 
@@ -611,4 +619,18 @@ class ObsLightPackage(object):
 
 
 
+    def getPackageFileInfo(self, fileName):
+        '''
+        
+        '''
+        if self.__listInfoFile == None:
+            res = ObsLightOsc.getObsLightOsc().getPackageFileInfo(workingdir=self.__packagePath)
+            if res != None:
+                self.__listInfoFile = {}
+                for status, file in res:
+                    self.__listInfoFile[file] = status
+        if fileName in self.__listInfoFile.keys():
+            return {u'Status': self.__listInfoFile[fileName]}
+        else:
+            return {u'Status': "UnKnow"}
 

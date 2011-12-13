@@ -532,9 +532,14 @@ class ObsLightManager(object):
     def getPackageFileInfo(self, projectLocalName, packageName, fileName):
         '''
         '''
-        status = [u'A', u'D', u' ', u'M', u'?', u'!', u'C']
-        return {u'Status': status[len(fileName) % len(status)],
-                u"File name length": len(fileName)}
+
+        return self.__myObsLightProjects.getPackageFileInfo(projectLocalName,
+                                                            packageName,
+                                                            fileName)
+
+        #status = [u'A', u'D', u' ', u'M', u'?', u'!', u'C']
+        #return {u'Status': status[len(fileName) % len(status)],
+        #        u"File name length": len(fileName)}
 
     @checkProjectLocalName(1)
     def addPackage(self, projectLocalName, package):

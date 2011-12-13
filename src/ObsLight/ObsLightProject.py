@@ -477,6 +477,7 @@ class ObsLightProject(object):
                                    listFile=listFile,
                                    status=status)
         self.checkOscDirectoryStatus(package=name)
+        self.checkOscPackageStatus(package=name)
 
     def refreshOscDirectoryStatus(self, package=None):
         '''
@@ -532,6 +533,12 @@ class ObsLightProject(object):
                                                     value=status)
 
 
+    def checkOscPackageStatus(self, package):
+
+        rev = self.__obsServers.getObsServer(self.__obsServer).getObsPackageRev(projectObsName=self.__projectObsName,
+                                                                                package=package)
+        self.__packages.getPackage(package).setOscPackageRev(rev)
+
     def checkOscDirectoryStatus(self, package):
         '''
         
@@ -547,9 +554,7 @@ class ObsLightProject(object):
                     return None
             self.__packages.getPackage(package).setOscStatus("Succeeded")
 
-        rev = self.__obsServers.getObsServer(self.__obsServer).getObsPackageRev(projectObsName=self.__projectObsName,
-                                                                                package=package)
-        self.__packages.getPackage(package).setOscPackageRev(rev)
+
 
         return None
 
@@ -580,6 +585,8 @@ class ObsLightProject(object):
         self.__packages.setPackageParameter(package=name, parameter="packageTitle", value=packageTitle)
         self.__packages.setPackageParameter(package=name, parameter="description", value=description)
 
+        self.checkOscDirectoryStatus(package=name)
+        self.checkOscPackageStatus(package=name)
 
     def isInstallInChroot(self, package):
         '''
@@ -861,4 +868,11 @@ class ObsLightProject(object):
         
         '''
         return self.__packages.getPackage(package).getPackageParameter(parameter="oscStatus")
+
+    def getPackageFileInfo(self, packageName, fileName):
+        '''
+        
+        '''
+        return self.__packages.getPackage(packageName).getPackageFileInfo(fileName)
+
 

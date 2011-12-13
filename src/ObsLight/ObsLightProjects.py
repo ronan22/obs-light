@@ -47,8 +47,6 @@ class ObsLightProjects(object):
         return self.__workingDirectory
 
 
-
-
     def save(self, aFile=None, ProjectName=None):
         '''
         
@@ -177,6 +175,16 @@ class ObsLightProjects(object):
         
         '''
         return  self.__dicOBSLightProjects[projectLocalName].openTerminal(package=package)
+
+    def getPackageFileInfo(self,
+                           projectLocalName,
+                           packageName,
+                           fileName):
+        '''
+        
+        '''
+        return  self.__dicOBSLightProjects[projectLocalName].getPackageFileInfo(packageName,
+                                                                                fileName)
 
     def addPackageSourceInChRoot(self, projectLocalName=None, package=None):
         '''

@@ -36,7 +36,7 @@ import M2Crypto
 
 import socket
 TIMEOUT = 20
-#socket.setdefaulttimeout(TIMEOUT)
+socket.setdefaulttimeout(TIMEOUT)
 
 class ObsLightOsc(object):
     '''
@@ -267,8 +267,6 @@ class ObsLightOsc(object):
         except M2Crypto.SSL.Checker.NoCertificate:
             ObsLightPrintManager.getLogger().error("apiurl " + str(url) + " Peer did not return certificate")
             return None
-
-
         try:
             aElement = ElementTree.fromstring(res.read())
         except :
@@ -733,6 +731,14 @@ class ObsLightOsc(object):
             if not os.path.isdir(path + "/" + f):
                 os.unlink(path + "/" + f)
         self.__subprocess(command=command)
+
+
+    def getPackageFileInfo(self, workingdir):
+        '''
+        
+        '''
+        pk = core.Package(workingdir=workingdir)
+        return pk.get_status()
 
 __myObsLightOsc = ObsLightOsc()
 
