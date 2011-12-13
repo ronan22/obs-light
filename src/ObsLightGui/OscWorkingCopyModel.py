@@ -22,6 +22,10 @@ Created on 13 déc. 2011
 '''
 
 from PySide.QtCore import QAbstractTableModel, Qt
+from PySide.QtGui import QColor
+
+
+STATUS_STRING = u"Status"
 
 
 class OscWorkingCopyModel(QAbstractTableModel):
@@ -35,6 +39,8 @@ class OscWorkingCopyModel(QAbstractTableModel):
 
     sortKey = None
     sortOrder = Qt.SortOrder.AscendingOrder
+    # dict<unicode, dict<object, QColor>>
+    colors = dict()
 
     def __init__(self, obsLightManager, projectName, packageName):
         QAbstractTableModel.__init__(self)
@@ -42,10 +48,20 @@ class OscWorkingCopyModel(QAbstractTableModel):
         self.__project = projectName
         self.__package = packageName
         self.__columnList = list()
-        self.clearColumns()
         self.__fileList = list()
         self.__fileInfos = dict()
+        self._loadColors()
         self.refresh()
+
+    def _loadColors(self):
+        # http://www.w3.org/TR/SVG/types.html#ColorKeywords
+        self.colors[STATUS_STRING] = {u' ': QColor(u"darkgreen"),
+                                  u'A': QColor(u"green"),
+                                  u'D': QColor(u"lightgray"),
+                                  u'M': QColor(u"blue"),
+                                  u'C': QColor(u"red"),
+                                  u'?': QColor(u"black"),
+                                  u'!': QColor(u"orange")}
 
     def clearColumns(self):
         self.__columnList[:] = []
@@ -72,11 +88,24 @@ class OscWorkingCopyModel(QAbstractTableModel):
             return self.__fileInfos[fileName].get(self.__columnList[column])
         return None
 
+    def foregroundRoleData(self, index):
+        row = index.row()
+        column = index.column()
+        if column == 0 and STATUS_STRING in self.__columnList:
+            column = self.__columnList.index(STATUS_STRING)
+        drData = self.displayRoleData(row, column)
+        columnColors = self.colors.get(self.__columnList[column])
+        if columnColors is not None:
+            return columnColors.get(drData)
+        return None
+
     def data(self, index, role=Qt.DisplayRole):
         if not index.isValid() or index.row() >= self.rowCount():
             return None
         if role == Qt.DisplayRole:
             return self.displayRoleData(index.row(), index.column())
+        elif role == Qt.ForegroundRole:
+            return self.foregroundRoleData(index)
         return None
 
     def sort(self, Ncol, order):
@@ -94,6 +123,7 @@ class OscWorkingCopyModel(QAbstractTableModel):
         files = self.__obsLightManager.getPackageParameter(self.__project,
                                                            self.__package,
                                                            u"listFile")
+        self.clearColumns()
         for fileName in files:
             inf = self.__obsLightManager.getPackageFileInfo(self.__project,
                                                             self.__package,

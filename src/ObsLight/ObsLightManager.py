@@ -531,7 +531,11 @@ class ObsLightManager(object):
     @checkProjectLocalName(1)
     def getPackageFileInfo(self, projectLocalName, packageName, fileName):
         '''
+        Get a dictionary containing file information:
+        - "Status": status returned by osc (one character of " MADC?!")
+        - "File name length": just to test
         '''
+        # TODO: RML: implement
         status = [u'A', u'D', u' ', u'M', u'?', u'!', u'C']
         return {u'Status': status[len(fileName) % len(status)],
                 u"File name length": len(fileName)}
