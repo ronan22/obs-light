@@ -9,3 +9,5 @@ if [ ! -f "/etc/sudoers.tmp" ]; then
   rm /etc/sudoers.tmp
 fi
 
+xdg-desktop-menu install --novendor /usr/share/applications/obslightgui.desktop
+

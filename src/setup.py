@@ -39,7 +39,8 @@ setup(name='obslight',
       provides=['ObsLight', 'ObsLightGui'],
       requires=['osc (>=0.132.5)', 'xml.etree.ElementTree'],
       data_files=[('/etc', ['sudoers.obslight']),
-                  ('/etc/bash_completion.d/', ['obslight.sh'])],
+                  ('/etc/bash_completion.d/', ['obslight.sh']),
+                  ('/usr/share/applications/', ['obslightgui.desktop'])],
 
 
       cmdclass={

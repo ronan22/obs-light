@@ -43,6 +43,7 @@ class ObsLightPackage(object):
                  yamlFile=None,
                  listFile=None,
                  status="Unknown",
+                 obsRev= -1,
                  oscStatus="Unknown",
                  oscRev="-1",
                  chRootStatus="Not installed",
@@ -67,6 +68,7 @@ class ObsLightPackage(object):
         self.__chRootStatus = chRootStatus
         self.__oscStatus = oscStatus
         self.__oscRev = oscRev
+        self.__obsRev = obsRev
 
         if fromSave == None:
             self.__name = name
@@ -75,6 +77,7 @@ class ObsLightPackage(object):
             else:
                 self.__listFile = listFile
             self.__status = status
+            self.__obsRev = obsRev
             self.__specFile = specFile
             self.__yamlFile = yamlFile
             self.__packageDirectory = None
@@ -105,6 +108,8 @@ class ObsLightPackage(object):
                 self.__firstCommitTag = fromSave["firstCommitTag"]
             if "oscRev" in fromSave.keys():
                 self.__oscRev = fromSave["oscRev"]
+            if "obsRev" in fromSave.keys():
+                self.__obsRev = fromSave["obsRev"]
             if "currentPatch" in fromSave.keys():
                 self.__currentPatch = fromSave["currentPatch"]
 
@@ -113,6 +118,9 @@ class ObsLightPackage(object):
 
         self.__chrootRpmBuildDirectory = "/root/" + self.__name + "/" + self.__rpmBuildDirectory
         self.__chrootRpmBuildTmpDirectory = "/root/" + self.__name + "/" + self.__rpmBuildTmpDirectory
+
+
+
 
         self.__initConfigureFile()
 
@@ -269,6 +277,7 @@ class ObsLightPackage(object):
         aDic["firstCommitTag"] = self.__firstCommitTag
         aDic["oscRev"] = self.__oscRev
         aDic["currentPatch"] = self.__currentPatch
+        aDic["obsRev"] = self.__obsRev
         return aDic
 
     def getPackageParameter(self, parameter=None):
@@ -313,6 +322,8 @@ class ObsLightPackage(object):
             return self.__oscRev
         elif parameter == "currentPatch":
             return self.__currentPatch
+        elif parameter == "obsRev":
+            return self.__obsRev
         else:
             raise ObsLightPackageErr("parameter value is not valid for getProjectParameter")
 
@@ -376,6 +387,8 @@ class ObsLightPackage(object):
             self.__oscRev = value
         elif parameter == "currentPatch":
             self.__currentPatch = value
+        elif parameter == "obsRev":
+            self.__obsRev = value
         else:
             raise ObsLightPackageErr("parameter value is not valid for setPackageParameter")
 

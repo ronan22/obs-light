@@ -158,8 +158,9 @@ class ObsLightProject(object):
         '''
         
         '''
-        return self.__obsServers.getObsServer(name=self.__obsServer).getObsPackageRev(projectObsName=self.__projectObsName,
-                                                                                      package=packageName)
+        return self.__packages.getPackageParameter(packageName, "obsRev")
+#        return self.__obsServers.getObsServer(name=self.__obsServer).getObsPackageRev(projectObsName=self.__projectObsName,
+#                                                                                      package=packageName)
 
 
 
@@ -513,6 +514,12 @@ class ObsLightProject(object):
                 self.__packages.setPackageParameter(package=package,
                                                     parameter="status",
                                                     value=status)
+            rev = self.__obsServers.getObsPackageRev(self.__obsServer,
+                                                     self.__projectObsName,
+                                                     package)
+            if rev is not None:
+                self.__packages.setPackageParameter(package, "obsRev", rev)
+
         else:
             for pk in self.getListPackage(local=1):
                 status = self.__obsServers.getPackageStatus(obsServer=self.__obsServer,

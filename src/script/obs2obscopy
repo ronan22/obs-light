@@ -15,7 +15,7 @@ import urlparse
 
 from osc import conf, core
 
-def help(progName="obs2obscopy"):
+def help_(progName="obs2obscopy"):
     print """HELP
 Function : Copy a project from an OBS to an OBS, using as input a package list
            with the desired MD5 to represent the package revision.
@@ -265,7 +265,7 @@ if __name__ == '__main__':
             copyproject(sys.argv[1], sys.argv[2], sys.argv[3],
                  sys.argv[4], sys.argv[5])
         else:
-            help(sys.argv[0])
+            help_(sys.argv[0])
             sys.exit(2)
     except KeyboardInterrupt:
         print >> sys.stderr, "Interrupted by user..."
