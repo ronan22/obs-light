@@ -1,3 +1,4 @@
+# -*- coding: utf8 -*-
 #
 # Copyright 2011, Intel Inc.
 #
@@ -21,11 +22,13 @@ Created on 4 nov. 2011
 '''
 
 from PySide.QtCore import QObject
-from PySide.QtGui import QFileDialog, QFileSystemModel, QPushButton, QTabWidget, QTreeView
-from PySide.QtGui import QMessageBox
+from PySide.QtGui import QFileDialog, QFileSystemModel, QMessageBox, QPushButton
+from PySide.QtGui import QTabWidget, QTableView, QTreeView
 
 from ObsLight.ObsLightTools import isNonEmptyString
 from Utils import popupOnException
+
+from OscWorkingCopyModel import OscWorkingCopyModel
 
 class FileManager(QObject):
     '''
@@ -35,6 +38,7 @@ class FileManager(QObject):
     __gui = None
     __localFsModel = None
     __chrootModel = None
+    __oscWcModel = None
     __obsLightManager = None
     __project = None
     __package = None
@@ -42,6 +46,7 @@ class FileManager(QObject):
     __packageInChrootDir = None
     __chrootPath = None
     __fileTreeView = None
+    __fileTableView = None
     __chrootTreeView = None
     __packageTabWidget = None
 
@@ -51,6 +56,7 @@ class FileManager(QObject):
         self.__obsLightManager = gui.getObsLightManager()
         self.__fileTreeView = gui.getMainWindow().findChild(QTreeView, u"fileTreeView")
         self.__fileTreeView.doubleClicked.connect(self.on_treeView_activated)
+        self.__fileTableView = gui.getMainWindow().findChild(QTableView, u"fileTableView")
         self.__chrootTreeView = gui.getMainWindow().findChild(QTreeView, u"chrootTreeView")
         self.__chrootTreeView.doubleClicked.connect(self.on_treeView_activated)
         self.__packageTabWidget = gui.getMainWindow().findChild(QTabWidget, u"packageTabWidget")
@@ -74,6 +80,7 @@ class FileManager(QObject):
 
     def refresh(self):
         self.__localFsModel = QFileSystemModel()
+
         self.__chrootModel = QFileSystemModel()
         if self.__project is not None and self.__package is not None:
             path = self.__obsLightManager.getPackageDirectory(self.__project, self.__package)
@@ -100,6 +107,16 @@ class FileManager(QObject):
             self.__packageTabWidget.setEnabled(False)
         self.__fileTreeView.setModel(self.__localFsModel)
         self.__chrootTreeView.setModel(self.__chrootModel)
+
+        # --- WIP -----
+        if self.__project is not None and self.__package is not None:
+            self.__oscWcModel = OscWorkingCopyModel(self.__obsLightManager,
+                                                    self.__project,
+                                                    self.__package)
+        else:
+            self.__oscWcModel = None
+        self.__fileTableView.setModel(self.__oscWcModel)
+        # -------------
 
     def on_path_loaded(self, path):
         if path == self.__packageDir:

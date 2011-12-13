@@ -359,9 +359,6 @@
                 <height>80</height>
                </size>
               </property>
-              <property name="sortingEnabled">
-               <bool>true</bool>
-              </property>
               <attribute name="verticalHeaderVisible">
                <bool>false</bool>
               </attribute>
@@ -609,7 +606,7 @@
              <item row="2" column="0">
               <widget class="QTreeView" name="fileTreeView"/>
              </item>
-             <item row="5" column="0">
+             <item row="6" column="0">
               <widget class="QWidget" name="widget" native="true">
                <layout class="QGridLayout" name="gridLayout_11">
                 <property name="margin">
@@ -763,6 +760,16 @@
                  </widget>
                 </item>
                </layout>
+              </widget>
+             </item>
+             <item row="3" column="0">
+              <widget class="QTableView" name="fileTableView">
+               <property name="sortingEnabled">
+                <bool>true</bool>
+               </property>
+               <attribute name="verticalHeaderVisible">
+                <bool>false</bool>
+               </attribute>
               </widget>
              </item>
             </layout>
