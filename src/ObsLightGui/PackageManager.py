@@ -20,7 +20,7 @@ Created on 2 nov. 2011
 @author: Florent Vennetier
 '''
 
-from PySide.QtCore import QObject, QThreadPool, QRegExp
+from PySide.QtCore import QObject, QRegExp
 from PySide.QtGui import QLabel, QInputDialog, QPushButton, QTableView, QWidget
 from PySide.QtGui import QLineEdit, QListWidget, QMessageBox, QRegExpValidator
 
@@ -112,6 +112,7 @@ class PackageManager(QObject):
                                                         u"deletePatchButton")
         self.__modifyPatchButton = mainWindow.findChild(QPushButton,
                                                         u"modifyPatchButton")
+        self.__modifyPatchButton.clicked.connect(self.on_modifyPatchButton_clicked)
         self.__addAndCommitButton = mainWindow.findChild(QPushButton,
                                                          u"addAndCommitButton")
         self.__addAndCommitButton.clicked.connect(self.on_addAndCommitButton_clicked)
@@ -194,7 +195,10 @@ class PackageManager(QObject):
         self.__rpmBuildButton.setEnabled(installed)
         self.__rpmInstallButton.setEnabled(installed)
         self.__rpmBuildRpmButton.setEnabled(installed)
-        self.__generatePatchButton.setEnabled(installed)
+        patchIsInitialized = (package is not None and
+                              self.__obsLightManager.patchIsInit(project, package))
+        self.__generatePatchButton.setEnabled(installed and not patchIsInitialized)
+        self.__modifyPatchButton.setEnabled(installed and patchIsInitialized)
 
     def currentPackage(self):
         '''
@@ -264,7 +268,7 @@ class PackageManager(QObject):
         runnable.caughtException.connect(self.__gui.popupErrorCallback)
         if callback is not None:
             runnable.finished.connect(callback)
-        QThreadPool.globalInstance().start(runnable)
+        runnable.runOnGlobalInstance()
 
     @popupOnException
     def on_newPackageButton_clicked(self):
@@ -276,7 +280,7 @@ class PackageManager(QObject):
         runnable.setRunMethod(self.getPackageListFromServer)
         runnable.finished[object].connect(self.showPackageSelectionDialog)
         runnable.caughtException.connect(self.__gui.popupErrorCallback)
-        QThreadPool.globalInstance().start(runnable)
+        runnable.runOnGlobalInstance()
 
     def on_packageSelectionDialog_accepted(self):
         items = self.__packagesListWidget.selectedItems()
@@ -296,7 +300,7 @@ class PackageManager(QObject):
                                   message=u"Adding package %(arg)s")
         runnable.caughtException.connect(self.__gui.popupErrorCallback)
         #self.__fileManager.setCurrentPackage(None, None)
-        QThreadPool.globalInstance().start(runnable)
+        runnable.runOnGlobalInstance()
 
     @popupOnException
     def on_deletePackageButton_clicked(self):
@@ -393,7 +397,7 @@ class PackageManager(QObject):
                               project,
                               package)
         runnable.caughtException.connect(self.__gui.popupErrorCallback)
-        QThreadPool.globalInstance().start(runnable)
+        runnable.runOnGlobalInstance()
 
     @popupOnException
     def on_updateFilesButton_clicked(self):
@@ -408,7 +412,7 @@ class PackageManager(QObject):
                               project,
                               package)
         runnable.caughtException.connect(self.__gui.popupErrorCallback)
-        QThreadPool.globalInstance().start(runnable)
+        runnable.runOnGlobalInstance()
 
     @popupOnException
     def __createPatch(self, patchName):
@@ -416,13 +420,13 @@ class PackageManager(QObject):
         package = self.currentPackage()
         progress = self.__gui.getInfiniteProgressDialog()
         runnable = ProgressRunnable2(progress)
-        runnable.setDialogMessage(u"Creating patch")
+        runnable.setDialogMessage(u"Creating patch...")
         runnable.setRunMethod(self.__obsLightManager.makePatch,
                               project,
                               package,
                               patchName)
         runnable.caughtException.connect(self.__gui.popupErrorCallback)
-        QThreadPool.globalInstance().start(runnable)
+        runnable.runOnGlobalInstance()
 
     @popupOnException
     def on_makePatchButton_clicked(self):
@@ -432,15 +436,30 @@ class PackageManager(QObject):
             return
         dialog = QInputDialog(self.__gui.getMainWindow())
         dialog.setInputMode(QInputDialog.TextInput)
-        dialog.setLabelText(u"Patch name:")
+        dialog.setLabelText(u"Patch name (should end with <i>.patch</i>):")
         dialog.setWindowTitle(u"Choose patch name...")
         le = dialog.findChildren(QLineEdit)
         if len(le) > 0:
             validator = QRegExpValidator(le[0])
-            validator.setRegExp(QRegExp(u"\\S+"))
+            validator.setRegExp(QRegExp(u"\\S+\.patch"))
+            le[0].setText(u".patch")
             le[0].setValidator(validator)
         dialog.textValueSelected.connect(self.__createPatch)
         dialog.show()
+
+    def on_modifyPatchButton_clicked(self):
+        project = self.getCurrentProject()
+        package = self.currentPackage()
+        if project is None or package is None:
+            return
+        progress = self.__gui.getInfiniteProgressDialog()
+        runnable = ProgressRunnable2(progress)
+        runnable.setDialogMessage(u"Updating patch...")
+        runnable.setRunMethod(self.__obsLightManager.updatePatch,
+                              project,
+                              package)
+        runnable.caughtException.connect(self.__gui.popupErrorCallback)
+        runnable.runOnGlobalInstance()
 
     @popupOnException
     def on_addAndCommitButton_clicked(self):
@@ -460,7 +479,7 @@ class PackageManager(QObject):
                                   package,
                                   message)
             runnable.caughtException.connect(self.__gui.popupErrorCallback)
-            QThreadPool.globalInstance().start(runnable)
+            runnable.runOnGlobalInstance()
 
     @popupOnException
     def __refreshStatus(self, method):
