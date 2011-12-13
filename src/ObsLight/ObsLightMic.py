@@ -26,7 +26,7 @@ import mic.imgcreate as imgcreate
 
 
 import ObsLightPrintManager
-
+import ObsLightErr
 from ObsLightSubprocess import SubprocessCrt
 
 class ObsLightMic(object):
@@ -88,6 +88,7 @@ class ObsLightMic(object):
         '''
         
         '''
+        self.testOwnerChRoot(path=chrootDirectory)
         self.__bindmounts = chrootTransfertDirectory + ":" + transfertDirectory + ";"
         self.__chrootDirectory = chrootDirectory
         self.__findArch()
@@ -95,6 +96,14 @@ class ObsLightMic(object):
         self.setup_chrootenv(bindmounts=self.__bindmounts)
 
         self.__isInit = True
+
+    def testOwnerChRoot(self, path):
+        '''
+        
+        '''
+        if os.stat(path).st_uid != 0:
+            raise ObsLightErr.ObsLightChRootError("the chroot '" + path + "' is not owned by root.")
+
 
     def __subprocess(self, command=None):
         '''

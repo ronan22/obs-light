@@ -299,6 +299,7 @@ class ObsLightChRoot(object):
             ObsLightMic.getObsLightMic(name=self.getDirectory()).initChroot(chrootDirectory=self.getDirectory(),
                                                                             chrootTransfertDirectory=self.__chrootDirTransfert,
                                                                             transfertDirectory=self.__dirTransfert)
+        self.testOwnerChRoot()
         #Need more then second %S
         timeString = time.strftime("%Y-%m-%d_%Hh%Mm") + str(time.time() % 1).split(".")[1]
         scriptName = "runMe_" + timeString + ".sh"
@@ -318,6 +319,13 @@ class ObsLightChRoot(object):
             aCommand = "linux32 " + aCommand
 
         return self.__subprocess(command=aCommand, waitMess=True)
+
+    def testOwnerChRoot(self):
+        '''
+        
+        '''
+        if os.stat(self.getDirectory()).st_uid != 0:
+            raise ObsLightErr.ObsLightChRootError("the chroot '" + self.getDirectory() + "' is not owned by root.")
 
     def addRepo(self, repos=None, alias=None):
         '''
@@ -490,44 +498,44 @@ class ObsLightChRoot(object):
         '''
         if package.getStatus() == "excluded":
             raise ObsLightErr.ObsLightChRootError(package.getName() + " has a excluded status, it can't be install")
-        print "packageRpm1"
+
         self.commitGit(mess="packageRpm", package=package)
-        print "packageRpm2"
+
         self.__changeTopDir(package.getTopDirRpmBuildTmpDirectory())
         tmpPath = pathPackage.replace(package.getChrootRpmBuildDirectory() + "/BUILD", "").strip("/")
         tmpPath = tmpPath.strip("/")
         command = []
-        print "packageRpm3"
+
         command.append("mkdir -p " + package.getChrootRpmBuildTmpDirectory() + "/BUILD")
         command.append("mkdir -p " + package.getChrootRpmBuildTmpDirectory() + "/TMP")
         command.append("mkdir -p " + package.getChrootRpmBuildTmpDirectory() + "/SPECS")
-        print "packageRpm4"
+
         command.append("ln -sf " + package.getChrootRpmBuildDirectory() + "/BUILDROOT " + package.getChrootRpmBuildTmpDirectory())
         command.append("ln -sf " + package.getChrootRpmBuildDirectory() + "/RPMS " + package.getChrootRpmBuildTmpDirectory())
         command.append("ln -sf " + package.getChrootRpmBuildDirectory() + "/SOURCES " + package.getChrootRpmBuildTmpDirectory())
         command.append("ln -sf " + package.getChrootRpmBuildDirectory() + "/SRPMS " + package.getChrootRpmBuildTmpDirectory())
-        print "packageRpm5"
+
         command.append("chown -R root:users " + package.getChrootRpmBuildTmpDirectory())
         command.append("chmod -R g+rw " + package.getChrootRpmBuildTmpDirectory())
-        print "packageRpm6"
+
         command.append("git --git-dir=" + pathPackage + "/.git --work-tree=" + pathPackage + \
                        " archive --format=tar --prefix=" + tmpPath + "/ HEAD \
                        | (cd " + package.getChrootRpmBuildTmpDirectory() + "/TMP/ && tar xf -)")
-        print "packageRpm7"
+
         command.append("cd " + package.getChrootRpmBuildTmpDirectory() + "/TMP/")
         command.append("tar -czvf  " + tarFile + " *")
         command.append("mv " + tarFile + " ../SOURCES")
         self.execCommand(command=command)
         pathToSaveSpec = specFile.replace(package.getChrootRpmBuildTmpDirectory(),
                                           package.getChrootRpmBuildTmpDirectory())
-        print "packageRpm8"
+
         package.saveTmpSpec(path=self.getDirectory() + pathToSaveSpec,
                             archive=tarFile)
         command = []
         command.append("rpmbuild -ba --define '_srcdefattr (-,root,root)' " + pathToSaveSpec + " < /dev/null")
         command.append("cp -fpr  " + package.getChrootRpmBuildTmpDirectory() + "/BUILD/* " + package.getChrootRpmBuildDirectory() + "/BUILD/")
         command.append("rm -r " + package.getChrootRpmBuildTmpDirectory() + "/TMP")
-        print "packageRpm8"
+
         self.execCommand(command=command)
         self.__changeTopDir(package.getTopDirRpmBuildDirectory())
 
