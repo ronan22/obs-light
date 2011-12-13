@@ -50,17 +50,21 @@ class PackageModel(QAbstractTableModel):
 
     def _loadColors(self):
         # http://www.w3.org/TR/SVG/types.html#ColorKeywords
-        self.colors[self.ObsStatusColumn]["succeeded"] = QColor("green")
-        self.colors[self.ObsStatusColumn]["excluded"] = QColor("grey")
-        self.colors[self.ObsStatusColumn]["broken"] = QColor("red")
-        self.colors[self.ObsStatusColumn]["building"] = QColor("gold")
-        self.colors[self.ObsStatusColumn]["failed"] = QColor("red")
-        self.colors[self.ObsStatusColumn]["scheduled"] = QColor("blue")
-        self.colors[self.ObsStatusColumn]["unresolvable"] = QColor("darkred")
-        self.colors[self.ChrootStatusColumn]["Installed"] = QColor("green")
-        self.colors[self.OscStatusColumn]["Unknown"] = QColor("grey")
-        self.colors[self.OscStatusColumn]["Succeeded"] = QColor("green")
-        self.colors[self.OscStatusColumn]["inconsistent state"] = QColor("red")
+        self.colors[self.ObsStatusColumn]["succeeded"] = QColor(u"green")
+        self.colors[self.ObsStatusColumn]["excluded"] = QColor(u"grey")
+        self.colors[self.ObsStatusColumn]["broken"] = QColor(u"red")
+        self.colors[self.ObsStatusColumn]["building"] = QColor(u"gold")
+        self.colors[self.ObsStatusColumn]["failed"] = QColor(u"red")
+        self.colors[self.ObsStatusColumn]["scheduled"] = QColor(u"blue")
+        self.colors[self.ObsStatusColumn]["unresolvable"] = QColor(u"darkred")
+        self.colors[self.ChrootStatusColumn]["Installed"] = QColor(u"green")
+        self.colors[self.OscStatusColumn]["Unknown"] = QColor(u"grey")
+        self.colors[self.OscStatusColumn]["Succeeded"] = QColor(u"green")
+        self.colors[self.OscStatusColumn]["inconsistent state"] = QColor(u"red")
+        # "inferior" means oscRev < obsRev
+        self.colors[self.OscRevColumn][u"inferior"] = QColor(u"orange")
+        # "superior" means oscRev > obsRev, which should never happen
+        self.colors[self.OscRevColumn][u"superior"] = QColor(u"darkred")
 
     def getProject(self):
         return self.__project
@@ -108,41 +112,48 @@ class PackageModel(QAbstractTableModel):
                     return QSize(32, 0)
         return None
 
-    def displayRoleData(self, index):
-        if not index.isValid() or index.row() >= self.rowCount():
-            return None
-        packageName = self.__getPackageList()[index.row()]
+    def displayRoleData(self, row, column):
+        packageName = self.__getPackageList()[row]
         retVal = None
-        if index.column() == self.NameColumn:
+        if column == self.NameColumn:
             retVal = packageName
-        elif index.column() == self.ObsStatusColumn:
+        elif column == self.ObsStatusColumn:
             retVal = self.__obsLightManager.getPackageStatus(self.__project,
                                                              packageName)
-        elif index.column() == self.ChrootStatusColumn:
+        elif column == self.ChrootStatusColumn:
             retVal = self.__obsLightManager.getGetChRootStatus(self.__project,
                                                                packageName)
-        elif index.column() == self.OscStatusColumn:
+        elif column == self.OscStatusColumn:
             retVal = self.__obsLightManager.getOscPackageStatus(self.__project,
                                                                 packageName)
-        elif index.column() == self.OscRevColumn:
+        elif column == self.OscRevColumn:
             retVal = self.__obsLightManager.getOscPackageRev(self.__project,
                                                              packageName)
-        elif index.column() == self.ObsRevColumn:
+        elif column == self.ObsRevColumn:
             retVal = self.__obsLightManager.getObsPackageRev(self.__project,
                                                              packageName)
         return retVal
 
+    def foregroundRoleData(self, index):
+        row = index.row()
+        column = index.column()
+        drData = self.displayRoleData(row, column)
+        if column == self.OscRevColumn:
+            obsRev = self.displayRoleData(row, self.ObsRevColumn)
+            if drData < obsRev:
+                drData = u"inferior"
+            elif drData > obsRev:
+                drData = u"superior"
+        color = self.colors[column].get(drData, None)
+        return color
+
     def data(self, index, role=Qt.DisplayRole):
         if not index.isValid() or index.row() >= self.rowCount():
             return None
-        if role == Qt.DisplayRole or role == Qt.ForegroundRole:
-            drData = self.displayRoleData(index)
-            if role == Qt.ForegroundRole:
-                column = index.column()
-                color = self.colors[column].get(drData, None)
-                return color
-            else:
-                return drData
+        if role == Qt.DisplayRole:
+            return self.displayRoleData(index.row(), index.column())
+        elif role == Qt.ForegroundRole:
+            return self.foregroundRoleData(index)
         return None
 
     def sort(self, Ncol, order):
