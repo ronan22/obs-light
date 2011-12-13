@@ -12,8 +12,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
+
+import ObsLightConfig
 
 class OBSLightBaseError(Exception):
     msg = ""
@@ -68,6 +70,17 @@ class ArgUnknownError(ArgError):
         if self.command is not None:
             message += " for command %s" % self.command
         return message
+
+
+class ConfigurationError(OBSLightBaseError):
+    def __init__(self, msg):
+        OBSLightBaseError.__init__(self)
+        message = msg
+        message += u"\nEdit your configuration file (%s) \
+or remove it to get a new one.\
+The template file is %s ." % (ObsLightConfig.CONFIGPATH,
+                              ObsLightConfig.getTemplateConfigPath())
+        self.msg = message
 
 
 class ManagerError(OBSLightBaseError):

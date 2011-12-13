@@ -1,3 +1,19 @@
+#
+# Copyright 2011, Intel Inc.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Library General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+#
 '''
 Created on 21 nov. 2011
 
@@ -8,7 +24,7 @@ import os
 import shutil
 import re
 
-import ObsLightTools
+from ObsLightTools import isNonEmptyString
 
 OBSLIGHTDIRNAME = "OBSLight"
 OBSLIGHTCONFIG = "obslightConfig"
@@ -31,6 +47,9 @@ class ObsLightConfig(object):
         self.__configFile = open(CONFIGPATH, 'rw')
 
         self.__configParser.readfp(self.__configFile)
+
+def getTemplateConfigPath():
+    return os.path.join(os.path.dirname(__file__), "config", OBSLIGHTCONFIG)
 
 def getConsole():
     '''
@@ -78,10 +97,10 @@ def getOpenFileCommand():
     if (aConfigParser.has_section('editor') and
             aConfigParser.has_option('editor', 'openFile')):
         command = aConfigParser.get('editor', 'openFile')
-    if ObsLightTools.isNonEmptyString(command):
+    if isNonEmptyString(command):
         return command
     else:
-        return "vi"
+        return None
 
 def setOpenFileCommand(command):
     with open(CONFIGPATH, 'r') as cfgFile:
@@ -154,6 +173,6 @@ def configureOpenFile():
 
 
 if not os.path.exists(CONFIGPATH):
-    shutil.copy2(os.path.join(os.path.dirname(__file__), "config", OBSLIGHTCONFIG), CONFIGPATH)
+    shutil.copy2(getTemplateConfigPath(), CONFIGPATH)
     configureConsole()
     configureOpenFile()
