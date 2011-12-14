@@ -617,8 +617,6 @@ class ObsLightPackage(object):
         '''
         return self.__subprocess(command="rm -r  " + self.getOscDirectory())
 
-
-
     def getPackageFileInfo(self, fileName):
         '''
         
@@ -632,5 +630,5 @@ class ObsLightPackage(object):
         if fileName in self.__listInfoFile.keys():
             return {u'Status': self.__listInfoFile[fileName]}
         else:
-            return {u'Status': "UnKnow"}
+            return {u'Status': u"!"}
 

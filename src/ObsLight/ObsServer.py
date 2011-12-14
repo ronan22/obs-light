@@ -171,6 +171,12 @@ class ObsServer(object):
                                                              projectObsName=projectObsName,
                                                              package=package)
 
+    def getOscPackageRev(self, workingdir):
+        '''
+        
+        '''
+        return ObsLightOsc.getObsLightOsc().getOscPackageRev(workingdir=workingdir)
+
     def setObsServerParameter(self, parameter=None, value=None):
         '''
         change the value of the parameter "parameter"

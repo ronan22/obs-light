@@ -485,9 +485,11 @@ class ObsLightProject(object):
         '''
         if package != None:
             self.checkOscDirectoryStatus(package)
+            self.checkOscPackageStatus(package)
         else:
             for pk in self.getListPackage(local=1):
                 self.checkOscDirectoryStatus(pk)
+                self.checkOscPackageStatus(package)
 
     def repairOscPackageDirectory(self, package):
         '''
@@ -534,9 +536,10 @@ class ObsLightProject(object):
 
 
     def checkOscPackageStatus(self, package):
-
-        rev = self.__obsServers.getObsServer(self.__obsServer).getObsPackageRev(projectObsName=self.__projectObsName,
-                                                                                package=package)
+        '''
+        
+        '''
+        rev = self.__obsServers.getObsServer(self.__obsServer).getOscPackageRev(workingdir=self.__packages.getPackage(package).getOscDirectory())
         self.__packages.getPackage(package).setOscPackageRev(rev)
 
     def checkOscDirectoryStatus(self, package):

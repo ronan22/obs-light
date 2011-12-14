@@ -190,8 +190,11 @@ class PackageManager(QObject):
     def updateButtons(self):
         package = self.currentPackage()
         project = self.getCurrentProject()
-        installed = (package is not None and
+        chrootInit = (project is not None and
+                      self.__obsLightManager.isChRootInit(project))
+        installed = (chrootInit and package is not None and
                      self.__obsLightManager.isInstalledInChRoot(project, package))
+        self.__rpmPrepButton.setEnabled(chrootInit)
         self.__rpmBuildButton.setEnabled(installed)
         self.__rpmInstallButton.setEnabled(installed)
         self.__rpmBuildRpmButton.setEnabled(installed)

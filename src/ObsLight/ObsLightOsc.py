@@ -36,7 +36,7 @@ import M2Crypto
 
 import socket
 TIMEOUT = 20
-socket.setdefaulttimeout(TIMEOUT)
+#socket.setdefaulttimeout(TIMEOUT)
 
 class ObsLightOsc(object):
     '''
@@ -315,6 +315,24 @@ class ObsLightOsc(object):
         #print "srcmd5" , aElement.get("srcmd5")
 
         return aElement.get("rev")
+
+    def getOscPackageRev(self, workingdir):
+        '''
+        
+        '''
+        pk = core.Package(workingdir=workingdir)
+        try:
+            aElement = ElementTree.fromstring(pk.get_files_meta())
+        except :
+            ObsLightPrintManager.obsLightPrint("apiurl " + str(apiurl) + " for package " + package + " is not reachable")
+            return None
+
+        #print "rev" , aElement.get("rev")
+        #print "vrev" , aElement.get("vrev")
+        #print "srcmd5" , aElement.get("srcmd5")
+        print "***********************************", aElement.get("rev")
+        return aElement.get("rev")
+
 
     def checkoutPackage(self,
                         obsServer=None,
