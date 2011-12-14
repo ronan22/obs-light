@@ -526,6 +526,15 @@ class PackageManager(QObject):
         projectName = self.getCurrentProject()
         if projectName is None:
             return
+        question = u"<i>Warning:</i> if you have local modifications, they will"
+        question += u" be discarded.<br/>Do you want to continue?"
+        result = QMessageBox.warning(self.__gui.getMainWindow(),
+                                     u"Discard modifications?",
+                                     question,
+                                     buttons=QMessageBox.Yes | QMessageBox.Cancel,
+                                     defaultButton=QMessageBox.Cancel)
+        if result != QMessageBox.Yes:
+            return
         self.__mapOnSelectedPackages(firstArgLast(self.__obsLightManager.repairOscPackageDirectory),
                                      None,
                                      u"Repairing OSC directory of %(arg)s...",
