@@ -238,7 +238,7 @@ class ObsLightProjects(object):
         '''
         commit the package to the OBS server.
         '''
-        self.__dicOBSLightProjects[name].getPackage(package=package).commitToObs(message=message)
+        self.__dicOBSLightProjects[name].commitToObs(message=message, package=package)
 
     def addRemoveFileToTheProject(self, name=None,
                                         package=None):

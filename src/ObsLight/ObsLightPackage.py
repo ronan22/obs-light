@@ -169,6 +169,18 @@ class ObsLightPackage(object):
         '''
         self.__oscRev = rev
 
+    def getObsPackageRev(self):
+        '''
+        
+        '''
+        return self.__obsRev
+
+    def setObsPackageRev(self, rev):
+        '''
+        
+        '''
+        self.__obsRev = rev
+
     def getFirstCommit(self):
         '''
         
@@ -617,6 +629,16 @@ class ObsLightPackage(object):
         '''
         return self.__subprocess(command="rm -r  " + self.getOscDirectory())
 
+    def initPackageFileInfo(self):
+        '''
+        
+        '''
+        res = ObsLightOsc.getObsLightOsc().getPackageFileInfo(workingdir=self.__packagePath)
+        if res != None:
+            self.__listInfoFile = {}
+            for status, aFile in res:
+                self.__listInfoFile[aFile] = status
+
     def getPackageFileInfo(self, fileName):
         '''
         
@@ -625,8 +647,9 @@ class ObsLightPackage(object):
             res = ObsLightOsc.getObsLightOsc().getPackageFileInfo(workingdir=self.__packagePath)
             if res != None:
                 self.__listInfoFile = {}
-                for status, file in res:
-                    self.__listInfoFile[file] = status
+                for status, aFile in res:
+                    self.__listInfoFile[aFile] = status
+
         if fileName in self.__listInfoFile.keys():
             return {u'Status': self.__listInfoFile[fileName]}
         else:

@@ -759,11 +759,13 @@ class ObsLightManager(object):
         elif not package in self.getLocalProjectPackageList(projectLocalName, local=1):
             raise ObsLightProjectsError(package + " is not a local package")
 
+        print "********************************1"
         self.__myObsLightProjects.addRemoveFileToTheProject(projectLocalName, package)
+        print "********************************2"
         self.__myObsLightProjects.commitToObs(name=projectLocalName,
                                               message=message,
                                               package=package)
-
+        print "********************************3"
         self.__myObsLightProjects.save()
 
     @checkProjectLocalName(1)
@@ -892,10 +894,13 @@ class ObsLightManager(object):
         elif not package in self.getLocalProjectPackageList(projectLocalName=projectLocalName, local=1):
             raise ObsLightObsServers(package + " is not a local package of " + projectLocalName)
 
-        return  self.__myObsLightProjects.setPackageParameter(projectLocalName=projectLocalName,
+        res = self.__myObsLightProjects.setPackageParameter(projectLocalName=projectLocalName,
                                                               package=package,
                                                               parameter=parameter,
                                                               value=value)
+        self.__myObsLightProjects.save()
+        return res
+
     @checkProjectLocalName(1)
     def updatePackage(self, projectLocalName, package):
         '''
@@ -908,6 +913,7 @@ class ObsLightManager(object):
 
         self.__myObsLightProjects.updatePackage(projectLocalName=projectLocalName,
                                                 package=package)
+        self.__myObsLightProjects.save()
 
     @checkProjectLocalName(1)
     def getProjectRepository(self, projectLocalName):
@@ -934,6 +940,7 @@ class ObsLightManager(object):
             raise ObsLightObsServers(package + " is not a local package of " + projectLocalName)
 
         self.__myObsLightProjects.addFileToPackage(projectLocalName=projectLocalName, package=package, path=path)
+        self.__myObsLightProjects.save()
 
     @checkProjectLocalName(1)
     def deleteFileFromPackage(self, projectLocalName, package, name):
@@ -950,6 +957,7 @@ class ObsLightManager(object):
             raise ObsLightObsServers(package + " is not a local package of " + projectLocalName)
 
         self.__myObsLightProjects.delFileToPackage(projectLocalName=projectLocalName, package=package, name=name)
+        self.__myObsLightProjects.save()
 
     def testServer(self, obsServer):
         '''

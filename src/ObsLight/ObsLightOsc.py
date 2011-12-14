@@ -330,7 +330,6 @@ class ObsLightOsc(object):
         #print "rev" , aElement.get("rev")
         #print "vrev" , aElement.get("vrev")
         #print "srcmd5" , aElement.get("srcmd5")
-        print "***********************************", aElement.get("rev")
         return aElement.get("rev")
 
 

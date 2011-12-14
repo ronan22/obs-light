@@ -161,9 +161,6 @@ class ObsLightProject(object):
 #        return self.__obsServers.getObsServer(name=self.__obsServer).getObsPackageRev(projectObsName=self.__projectObsName,
 #                                                                                      package=packageName)
 
-
-
-
     def __addPackagesFromSave(self, fromSave, importFile):
         '''
         check and add a package from a save.
@@ -389,11 +386,16 @@ class ObsLightProject(object):
 
         packagePath = self.__getPackagePath(package)
 
+        return self.checkoutFilePackage(packagePath)
+
+    def  checkoutFilePackage(self, packagePath):
         #Find the spec file
         tmplistFile = os.listdir(packagePath)
         listFile = []
         for aFile in tmplistFile:
-            if os.path.isfile(packagePath + "/" + aFile):
+            if os.path.isfile(packagePath + "/" + aFile) and\
+               not (aFile.startswith(".")) and\
+               not (aFile.endswith("~")):
                 listFile.append(aFile)
 
         specFile = None
@@ -407,26 +409,15 @@ class ObsLightProject(object):
 
         return packagePath, specFile, yamlFile, listFile
 
-    def __updatePackage(self, package=None):
+    def __updatePackage(self, package, noOscUpdate=False):
         '''
         
         '''
         packagePath = self.__getPackagePath(package)
-        ObsLightOsc.getObsLightOsc().updatePackage(packagePath)
+        if noOscUpdate == False:
+            ObsLightOsc.getObsLightOsc().updatePackage(packagePath)
 
-        #Find the spec yaml and file
-        listFile = os.listdir(packagePath)
-
-        specFile = None
-        yamlFile = None
-
-        for f in listFile:
-            if self.__isASpecfile(f):
-                specFile = f
-            elif self.__isAyamlfile(f):
-                yamlFile = f
-
-        return packagePath, specFile, yamlFile, listFile
+        return self.checkoutFilePackage(packagePath)
 
     def __isASpecfile(self, file):
         '''
@@ -484,12 +475,16 @@ class ObsLightProject(object):
         
         '''
         if package != None:
-            self.checkOscDirectoryStatus(package)
-            self.checkOscPackageStatus(package)
+            self.updatePackage(name=package, noOscUpdate=True)
+            #self.checkOscDirectoryStatus(package)
+            self.__packages.getPackage(package).initPackageFileInfo()
+            #self.checkOscPackageStatus(package)
         else:
             for pk in self.getListPackage(local=1):
-                self.checkOscDirectoryStatus(pk)
-                self.checkOscPackageStatus(package)
+                self.updatePackage(name=pk, noOscUpdate=True)
+                #self.checkOscDirectoryStatus(pk)
+                self.__packages.getPackage(pk).initPackageFileInfo()
+                #self.checkOscPackageStatus(package)
 
     def repairOscPackageDirectory(self, package):
         '''
@@ -561,11 +556,12 @@ class ObsLightProject(object):
 
         return None
 
-    def updatePackage(self, name=None):
+    def updatePackage(self, name, noOscUpdate=False):
         '''
         update a package of the projectLocalName.
         '''
-        packagePath, specFile, yamlFile, listFile = self.__updatePackage(package=name)
+        packagePath, specFile, yamlFile, listFile = self.__updatePackage(package=name,
+                                                                         noOscUpdate=noOscUpdate)
 
         status = self.__obsServers.getPackageStatus(obsServer=self.__obsServer,
                                                     project=self.__projectObsName,
@@ -589,7 +585,8 @@ class ObsLightProject(object):
         self.__packages.setPackageParameter(package=name, parameter="description", value=description)
 
         self.checkOscDirectoryStatus(package=name)
-        self.checkOscPackageStatus(package=name)
+        if noOscUpdate == False:
+            self.checkOscPackageStatus(package=name)
 
     def isInstallInChroot(self, package):
         '''
@@ -806,7 +803,15 @@ class ObsLightProject(object):
         '''
         commit the package to the OBS server.
         '''
+        obsRev = self.__packages.getPackage(package).getObsPackageRev()
+        oscRev = self.__packages.getPackage(package).getOscPackageRev()
+        if obsRev != oscRev:
+            raise ObsLightErr.ObsLightProjectsError("Can't Commit '" + package + "' because local rev '" + oscRev + "' and OBS rev '" + obsRev + "' do not match.\nPlease update the package.")
+
         self.__packages.getPackage(package).commitToObs(message=message)
+        self.checkOscDirectoryStatus(package=package)
+        self.checkOscPackageStatus(package=package)
+        self.refreshObsStatus(package=package)
 
     def addRemoveFileToTheProject(self, package=None):
         '''
