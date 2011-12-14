@@ -163,6 +163,12 @@ class ObsLightPackage(object):
         '''
         return self.__oscRev
 
+    def getPackageFileList(self):
+        '''
+        
+        '''
+        return self.__listFile
+
     def setOscPackageRev(self, rev):
         '''
         

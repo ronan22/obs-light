@@ -247,6 +247,11 @@ class ObsLightProjects(object):
         '''
         self.__dicOBSLightProjects[name].getPackage(package=package).addRemoveFileToTheProject()
 
+    def getPackageFileList(self, projectLocalName, packageName):
+        '''
+        
+        '''
+        self.__dicOBSLightProjects[projectLocalName].getPackageFileList(packageName)
 
     def addRepo(self, projectLocalName=None,
                         fromProject=None,

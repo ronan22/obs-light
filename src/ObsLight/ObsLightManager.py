@@ -515,6 +515,17 @@ class ObsLightManager(object):
         return self.__myObsLightProjects.getPackageDirectory(projectLocalName, packageName)
 
     @checkProjectLocalName(1)
+    def getPackageFileList(self, projectLocalName, packageName):
+        '''
+        
+        '''
+        if not isNonEmptyString(projectLocalName):
+            raise ObsLightObsServers(" invalid project name provided")
+        if not isNonEmptyString(packageName):
+            raise ObsLightObsServers(" invalid package: " + str(packageName))
+        return self.__myObsLightProjects.getPackageFileList(projectLocalName, packageName)
+
+    @checkProjectLocalName(1)
     def getPackageDirectoryInChRoot(self, projectLocalName, packageName):
         '''
         Return the directory in the chroot where the uncompressed package files live.
@@ -759,13 +770,10 @@ class ObsLightManager(object):
         elif not package in self.getLocalProjectPackageList(projectLocalName, local=1):
             raise ObsLightProjectsError(package + " is not a local package")
 
-        print "********************************1"
         self.__myObsLightProjects.addRemoveFileToTheProject(projectLocalName, package)
-        print "********************************2"
         self.__myObsLightProjects.commitToObs(name=projectLocalName,
                                               message=message,
                                               package=package)
-        print "********************************3"
         self.__myObsLightProjects.save()
 
     @checkProjectLocalName(1)

@@ -749,6 +749,12 @@ class ObsLightProject(object):
         '''
         return self.__packages.getPackage(package=packageName).patchIsInit()
 
+    def getPackageFileList(self, packageName):
+        '''
+        
+        '''
+        return self.__packages.getPackage(package=packageName).getPackageFileList()
+
     def installRpm(self, package):
         '''
         
