@@ -139,9 +139,11 @@ class OscWorkingCopyModel(QAbstractTableModel):
         return self.fileList()[index.row()]
 
     def refresh(self):
-        files = self.__obsLightManager.getPackageParameter(self.__project,
-                                                           self.__package,
-                                                           u"listFile")
+#        files = self.__obsLightManager.getPackageParameter(self.__project,
+#                                                           self.__package,
+#                                                           u"listFile")
+        files = self.__obsLightManager.getPackageFileList(self.__project,
+                                                          self.__package)
         self.clearColumns()
         for fileName in files:
             inf = self.__obsLightManager.getPackageFileInfo(self.__project,

@@ -251,7 +251,7 @@ class ObsLightProjects(object):
         '''
         
         '''
-        self.__dicOBSLightProjects[projectLocalName].getPackageFileList(packageName)
+        return self.__dicOBSLightProjects[projectLocalName].getPackageFileList(packageName)
 
     def addRepo(self, projectLocalName=None,
                         fromProject=None,

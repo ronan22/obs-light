@@ -63,8 +63,10 @@ class PackageModel(QAbstractTableModel):
         self.colors[self.OscStatusColumn]["inconsistent state"] = QColor(u"red")
         # "inferior" means oscRev < obsRev
         self.colors[self.OscRevColumn][u"inferior"] = QColor(u"orange")
+        self.colors[self.OscRevColumn][u"equal"] = QColor(u"green")
         # "superior" means oscRev > obsRev, which should never happen
         self.colors[self.OscRevColumn][u"superior"] = QColor(u"darkred")
+        self.colors[self.ObsRevColumn][u"ok"] = QColor(u"green")
 
     def getProject(self):
         return self.__project
@@ -140,8 +142,12 @@ class PackageModel(QAbstractTableModel):
             obsRev = self.displayRoleData(row, self.ObsRevColumn)
             if drData < obsRev:
                 drData = u"inferior"
-            elif drData > obsRev:
+            elif drData == obsRev:
+                drData = u"equal"
+            else:
                 drData = u"superior"
+        if column == self.ObsRevColumn:
+            drData = u"ok"
         color = self.colors[column].get(drData, None)
         return color
 
