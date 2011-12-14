@@ -755,7 +755,6 @@ class ObsLightManager(object):
         self.__myObsLightProjects.updatePatch(projectLocalName, package)
         self.__myObsLightProjects.save()
 
-
     @checkProjectLocalName(1)
     def addAndCommitChanges(self, projectLocalName, package, message):
         '''
@@ -1042,6 +1041,12 @@ class ObsLightManager(object):
         self.__myObsLightProjects.save()
         return res
 
+    @checkProjectLocalName(1)
+    def testConflict(self, projectLocalName, package):
+        '''
+        Return True if 'package' has conflict else False.
+        '''
+        return self.__myObsLightProjects.testConflict(projectLocalName, package)
 
 __myObsLightManager = None
 

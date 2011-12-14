@@ -508,7 +508,11 @@ class ObsLightProjects(object):
         return self.__dicOBSLightProjects[ProjectName].patchIsInit(packageName=packageName)
 
 
-
+    def testConflict(self, projectLocalName, package):
+        '''
+        
+        '''
+        return self.__dicOBSLightProjects[projectLocalName].testConflict(package)
 
 
 

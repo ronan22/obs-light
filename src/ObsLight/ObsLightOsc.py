@@ -36,7 +36,7 @@ import M2Crypto
 
 import socket
 TIMEOUT = 20
-#socket.setdefaulttimeout(TIMEOUT)
+socket.setdefaulttimeout(TIMEOUT)
 
 class ObsLightOsc(object):
     '''
@@ -756,6 +756,15 @@ class ObsLightOsc(object):
         '''
         pk = core.Package(workingdir=workingdir)
         return pk.get_status()
+
+    def autoResolvedConflict(self, packagePath, aFile):
+        '''
+        
+        '''
+        os.chdir(packagePath)
+        command = "osc resolved " + aFile
+        self.__subprocess(command=command)
+
 
 __myObsLightOsc = ObsLightOsc()
 

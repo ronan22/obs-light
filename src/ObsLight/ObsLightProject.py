@@ -889,4 +889,9 @@ class ObsLightProject(object):
         '''
         return self.__packages.getPackage(packageName).getPackageFileInfo(fileName)
 
+    def testConflict(self, package):
+        '''
+        
+        '''
+        return self.__packages.getPackage(package).testConflict()
 

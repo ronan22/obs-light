@@ -408,10 +408,14 @@ class PackageManager(QObject):
         project = self.getCurrentProject()
         if project is None:
             return
+        #TODO
+        #self.__obsLightManager.testConflict(projectLocalName=project,
+        #                                    package=)
         self.__mapOnSelectedPackages(firstArgLast(self.__obsLightManager.updatePackage),
                                      u"Updating packages",
                                      u"Updating <i>%(arg)s</i> package...",
-                                     self.__refreshStatus,
+                                     None,
+                                     #self.__refreshStatus,
                                      project)
 
     @popupOnException
@@ -469,6 +473,18 @@ class PackageManager(QObject):
         package = self.currentPackage()
         if project is None or package is None:
             return
+
+        res = self.__obsLightManager.testConflict(projectLocalName=project,
+                                            package=package)
+        #TO CHANGE
+        if res == True:
+            result = QMessageBox.question(self.__gui.getMainWindow(),
+                              u"Conflict",
+                              u"'" + package + "' have a conflict.\nOK: to automatically solve the resolved the conflict.\nCancel: and solve the conflict in command line\n'osc resolved FILE'" ,
+                              buttons=QMessageBox.Yes | QMessageBox.No,
+                              defaultButton=QMessageBox.No)
+            if result == QMessageBox.No:
+                return
         message, accepted = QInputDialog.getText(self.__gui.getMainWindow(),
                                                  u"Enter commit message...",
                                                  u"Commit message:")
@@ -481,7 +497,7 @@ class PackageManager(QObject):
                                   package,
                                   message)
             runnable.caughtException.connect(self.__gui.popupErrorCallback)
-            runnable.finished.connect(self.__refreshStatus)
+            #TMPrunnable.finished.connect(self.__refreshStatus)
             runnable.runOnGlobalInstance()
 
     def __refreshBothStatuses(self, *args, **kwargs):
