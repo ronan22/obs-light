@@ -41,7 +41,7 @@ class ObsLightPackage(object):
                  name=None,
                  specFile=None,
                  yamlFile=None,
-                 listFile=None,
+                 listFile=[],
                  listInfoFile=None,
                  status="Unknown",
                  obsRev="-1",
@@ -70,6 +70,7 @@ class ObsLightPackage(object):
         self.__oscStatus = oscStatus
         self.__oscRev = oscRev
         self.__obsRev = obsRev
+        self.__listFileToDel = []
 
         if fromSave == None:
             self.__name = name
@@ -115,15 +116,14 @@ class ObsLightPackage(object):
                 self.__currentPatch = fromSave["currentPatch"]
             if "listInfoFile" in fromSave.keys():
                 self.__listInfoFile = fromSave["listInfoFile"]
+            if "listFileToDel" in fromSave.keys():
+                self.__listFileToDel = fromSave["listFileToDel"]
 
         self.__rpmBuildDirectory = "rpmbuild"
         self.__rpmBuildTmpDirectory = "obslightbuild"
 
         self.__chrootRpmBuildDirectory = "/root/" + self.__name + "/" + self.__rpmBuildDirectory
         self.__chrootRpmBuildTmpDirectory = "/root/" + self.__name + "/" + self.__rpmBuildTmpDirectory
-
-
-
 
         self.__initConfigureFile()
 
@@ -167,7 +167,10 @@ class ObsLightPackage(object):
         '''
         
         '''
-        return self.__listFile
+        res = []
+        res.extend(self.__listFile)
+        res.extend(self.__listFileToDel)
+        return res
 
     def setOscPackageRev(self, rev):
         '''
@@ -300,6 +303,7 @@ class ObsLightPackage(object):
         aDic["currentPatch"] = self.__currentPatch
         aDic["obsRev"] = self.__obsRev
         aDic["listInfoFile"] = self.__listInfoFile
+        aDic["listFileToDel"] = self.__listFileToDel
         return aDic
 
     def getPackageParameter(self, parameter=None):
@@ -348,6 +352,8 @@ class ObsLightPackage(object):
             return self.__obsRev
         elif parameter == "listInfoFile":
             return self.__listInfoFile
+        elif parameter == "listFileToDel":
+            return self.__listFileToDel
         else:
             raise ObsLightPackageErr("parameter value is not valid for getProjectParameter")
 
@@ -415,6 +421,8 @@ class ObsLightPackage(object):
             self.__obsRev = value
         elif parameter == "listInfoFile":
             self.__listInfoFile = value
+        elif parameter == "listFileToDel":
+            self.__listFileToDel = value
         else:
             raise ObsLightPackageErr("parameter value is not valid for setPackageParameter")
 
@@ -551,11 +559,21 @@ class ObsLightPackage(object):
         
         '''
         path = os.path.join(self.getOscDirectory(), name)
-        if not os.path.exists(path):
-            raise ObsLightPackageErr("'" + path + "' not in package directory.")
-        os.remove(path)
-        self.__listFile.remove(name)
-        ObsLightOsc.getObsLightOsc().remove(path=self.getOscDirectory(), afile=name)
+        resInfo = self.getPackageFileInfo(name)
+        if not resInfo['Status'].startswith("!"):
+            if not os.path.exists(path):
+                raise ObsLightPackageErr("'" + path + "' not in package directory.")
+            os.remove(path)
+
+            if name in self.__listFile:
+                self.__listFile.remove(name)
+
+            if not resInfo['Status'].startswith("?"):
+                self.__listFileToDel.append(name)
+                ObsLightOsc.getObsLightOsc().remove(path=self.getOscDirectory(), afile=name)
+        else:
+            if name in self.__listFileToDel:
+                self.__listFileToDel.remove(name)
 
     def save(self):
         '''
@@ -617,11 +635,22 @@ class ObsLightPackage(object):
         else:
             raise ObsLightPackageErr("No Spec or Yaml in the package")
 
+    def autoResolvedConflict(self):
+        '''
+        
+        '''
+        for aFile in self.__listFile:
+            print "********************aFile", aFile
+            if self.testConflict(aFile=aFile):
+                ObsLightOsc.getObsLightOsc().autoResolvedConflict(packagePath=self.getOscDirectory(), aFile=aFile)
+
     def commitToObs(self, message=None):
         '''
         commit the package to the OBS server.
         '''
+        self.autoResolvedConflict()
         ObsLightOsc.getObsLightOsc().commitProject(path=self.getOscDirectory(), message=message)
+        self.__listFileToDel = []
 
     def addRemoveFileToTheProject(self):
         '''
@@ -657,7 +686,44 @@ class ObsLightPackage(object):
                     self.__listInfoFile[aFile] = status
 
         if fileName in self.__listInfoFile.keys():
-            return {u'Status': self.__listInfoFile[fileName]}
+            res = self.__listInfoFile[fileName]
+            if res == "A":
+                res += " (Added)"
+            elif res == "D":
+                res += " (Deleted)"
+            elif res == "M":
+                res += " (Modified)"
+            elif res == "!":
+                res += " (item is missing, removed by non-osc command)"
+            elif res == "?":
+                res += " (item is not under version control)"
+            elif res == "C":
+                res += " (Conflicted)"
+
+            return {u'Status': res}
         else:
-            return {u'Status': u"!"}
+
+            return {u'Status': u"! (item is missing, removed by non-osc command)"}
+
+    def testConflict(self, aFile=None):
+        '''
+        
+        '''
+        if aFile != None:
+            if self.getPackageFileInfo(aFile)[u'Status'].startswith("C"):
+                    return True
+            return False
+        else:
+            for aFile in self.getListFile():
+                if self.getPackageFileInfo(aFile)[u'Status'].startswith("C"):
+                    return True
+            return False
+
+
+
+
+
+
+
+
 
