@@ -113,6 +113,7 @@ class FileManager(QObject):
             self.__oscWcModel = None
         self.__fileTableView.setModel(self.__oscWcModel)
         self.__fileTableView.resizeColumnToContents(0)
+        self.__fileTableView.resizeColumnToContents(1)
 
     def on_chrootPath_loaded(self, path):
         if path == self.__chrootPath:

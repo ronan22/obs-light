@@ -147,6 +147,12 @@ class PackageModel(QAbstractTableModel):
         color = self.colors[column].get(drData, None)
         return color
 
+    def textAlignmentRoleData(self, index):
+        column = index.column()
+        if column in range(1, self.columnCount()):
+            return Qt.AlignHCenter | Qt.AlignVCenter
+        return None
+
     def data(self, index, role=Qt.DisplayRole):
         if not index.isValid() or index.row() >= self.rowCount():
             return None
@@ -154,6 +160,8 @@ class PackageModel(QAbstractTableModel):
             return self.displayRoleData(index.row(), index.column())
         elif role == Qt.ForegroundRole:
             return self.foregroundRoleData(index)
+        elif role == Qt.TextAlignmentRole:
+            return self.textAlignmentRoleData(index)
         return None
 
     def sort(self, Ncol, order):

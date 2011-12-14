@@ -21,7 +21,7 @@ Created on 13 déc. 2011
 @author: Florent Vennetier
 '''
 
-from PySide.QtCore import QAbstractTableModel, Qt
+from PySide.QtCore import QAbstractTableModel, QSize, Qt
 from PySide.QtGui import QColor
 
 
@@ -79,6 +79,12 @@ class OscWorkingCopyModel(QAbstractTableModel):
                 return section
             else:
                 return self.__columnList[section]
+        elif role == Qt.SizeHintRole:
+            if orientation == Qt.Orientation.Vertical:
+                pass
+            else:
+                if self.__columnList[section] == STATUS_COLUMN:
+                    return QSize(48, 0)
 
     def displayRoleData(self, row, column):
         fileName = self.fileList()[row]
@@ -102,7 +108,7 @@ class OscWorkingCopyModel(QAbstractTableModel):
     def textAlignmentRoleData(self, index):
         column = index.column()
         if self.__columnList[column] == STATUS_COLUMN:
-            return Qt.AlignHCenter
+            return Qt.AlignHCenter | Qt.AlignVCenter
         return None
 
     def data(self, index, role=Qt.DisplayRole):
