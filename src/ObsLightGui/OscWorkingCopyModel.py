@@ -25,7 +25,7 @@ from PySide.QtCore import QAbstractTableModel, Qt
 from PySide.QtGui import QColor
 
 
-STATUS_STRING = u"Status"
+STATUS_COLUMN = u"Status"
 
 
 class OscWorkingCopyModel(QAbstractTableModel):
@@ -55,7 +55,7 @@ class OscWorkingCopyModel(QAbstractTableModel):
 
     def _loadColors(self):
         # http://www.w3.org/TR/SVG/types.html#ColorKeywords
-        self.colors[STATUS_STRING] = {u' ': QColor(u"darkgreen"),
+        self.colors[STATUS_COLUMN] = {u' ': QColor(u"darkgreen"),
                                   u'A': QColor(u"green"),
                                   u'D': QColor(u"lightgray"),
                                   u'M': QColor(u"blue"),
@@ -91,12 +91,18 @@ class OscWorkingCopyModel(QAbstractTableModel):
     def foregroundRoleData(self, index):
         row = index.row()
         column = index.column()
-        if column == 0 and STATUS_STRING in self.__columnList:
-            column = self.__columnList.index(STATUS_STRING)
+        if column == 0 and STATUS_COLUMN in self.__columnList:
+            column = self.__columnList.index(STATUS_COLUMN)
         drData = self.displayRoleData(row, column)
         columnColors = self.colors.get(self.__columnList[column])
         if columnColors is not None:
             return columnColors.get(drData)
+        return None
+
+    def textAlignmentRoleData(self, index):
+        column = index.column()
+        if self.__columnList[column] == STATUS_COLUMN:
+            return Qt.AlignHCenter
         return None
 
     def data(self, index, role=Qt.DisplayRole):
@@ -106,6 +112,8 @@ class OscWorkingCopyModel(QAbstractTableModel):
             return self.displayRoleData(index.row(), index.column())
         elif role == Qt.ForegroundRole:
             return self.foregroundRoleData(index)
+        elif role == Qt.TextAlignmentRole:
+            return self.textAlignmentRoleData(index)
         return None
 
     def sort(self, Ncol, order):

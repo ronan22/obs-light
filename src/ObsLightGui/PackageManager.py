@@ -37,7 +37,7 @@ class PackageManager(QObject):
     __gui = None
     __obsLightManager = None
     __project = None
-    __localModel = None
+    __pkgModel = None
     __fileManager = None
 
     __packageWidget = None
@@ -145,8 +145,8 @@ class PackageManager(QObject):
             projectName = None
         if projectName != self.__project:
             self.__project = projectName
-            self.__localModel = PackageModel(self.__obsLightManager, projectName)
-            self.__packageTableView.setModel(self.__localModel)
+            self.__pkgModel = PackageModel(self.__obsLightManager, projectName)
+            self.__packageTableView.setModel(self.__pkgModel)
             self.__packageWidget.setEnabled(self.__project is not None)
         if self.currentPackage() is not None:
             self.__fileManager.setCurrentPackage(self.__project, self.currentPackage())
@@ -211,8 +211,8 @@ class PackageManager(QObject):
         index = self.__packageTableView.currentIndex()
         if index.isValid():
             row = index.row()
-            pkgNameIndex = self.__localModel.createIndex(row, PackageModel.NameColumn)
-            packageName = self.__localModel.data(pkgNameIndex)
+            pkgNameIndex = self.__pkgModel.createIndex(row, PackageModel.NameColumn)
+            packageName = self.__pkgModel.data(pkgNameIndex)
             return packageName
         else:
             return None
@@ -227,9 +227,9 @@ class PackageManager(QObject):
         for index in indices:
             if index.isValid():
                 row = index.row()
-                packageNameIndex = self.__localModel.createIndex(row,
+                packageNameIndex = self.__pkgModel.createIndex(row,
                                                                  PackageModel.NameColumn)
-                packageName = self.__localModel.data(packageNameIndex)
+                packageName = self.__pkgModel.data(packageNameIndex)
                 packages.add(packageName)
         return list(packages)
 
@@ -298,10 +298,11 @@ class PackageManager(QObject):
             progress = self.__gui.getProgressDialog()
             progress.setValue(0)
         runnable = ProgressRunnable2(progress)
-        runnable.setFunctionToMap(self.__localModel.addPackage,
+        runnable.setFunctionToMap(self.__pkgModel.addPackage,
                                   packages,
                                   message=u"Adding package %(arg)s")
         runnable.caughtException.connect(self.__gui.popupErrorCallback)
+        runnable.finished.connect(self.refresh)
         #self.__fileManager.setCurrentPackage(None, None)
         runnable.runOnGlobalInstance()
 
@@ -322,7 +323,7 @@ class PackageManager(QObject):
                                       defaultButton=QMessageBox.Yes)
         if result == QMessageBox.No:
             return
-        self.__mapOnSelectedPackages(self.__localModel.removePackage,
+        self.__mapOnSelectedPackages(self.__pkgModel.removePackage,
                                      u"Deleting packages...",
                                      None,
                                      None)
@@ -415,6 +416,7 @@ class PackageManager(QObject):
                               project,
                               package)
         runnable.caughtException.connect(self.__gui.popupErrorCallback)
+        runnable.finished.connect(self.refresh)
         runnable.runOnGlobalInstance()
 
     @popupOnException
@@ -429,6 +431,7 @@ class PackageManager(QObject):
                               package,
                               patchName)
         runnable.caughtException.connect(self.__gui.popupErrorCallback)
+        runnable.finished.connect(self.refresh)
         runnable.runOnGlobalInstance()
 
     @popupOnException
@@ -462,6 +465,7 @@ class PackageManager(QObject):
                               project,
                               package)
         runnable.caughtException.connect(self.__gui.popupErrorCallback)
+        runnable.finished.connect(self.refresh)
         runnable.runOnGlobalInstance()
 
     @popupOnException
@@ -482,6 +486,7 @@ class PackageManager(QObject):
                                   package,
                                   message)
             runnable.caughtException.connect(self.__gui.popupErrorCallback)
+            runnable.finished.connect(self.refresh)
             runnable.runOnGlobalInstance()
 
     @popupOnException
@@ -491,7 +496,7 @@ class PackageManager(QObject):
         self.__mapOnSelectedPackages(firstArgLast(method),
                                      u"Refreshing package status",
                                      None,
-                                     None,
+                                     self.refresh,
                                      self.getCurrentProject())
 
     def on_refreshOscStatusButton_clicked(self):
