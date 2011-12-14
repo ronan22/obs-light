@@ -228,7 +228,7 @@ class PackageManager(QObject):
             if index.isValid():
                 row = index.row()
                 packageNameIndex = self.__pkgModel.createIndex(row,
-                                                                 PackageModel.NameColumn)
+                                                               PackageModel.NameColumn)
                 packageName = self.__pkgModel.data(packageNameIndex)
                 packages.add(packageName)
         return list(packages)
@@ -484,23 +484,24 @@ class PackageManager(QObject):
             runnable.finished.connect(self.__refreshStatus)
             runnable.runOnGlobalInstance()
 
-    @popupOnException
-    def __refreshStatus(self):
-        def refreshStatuses(*args, **kwargs):
-            self.__obsLightManager.refreshOscDirectoryStatus(*args, **kwargs)
-            self.__obsLightManager.refreshObsStatus(*args, **kwargs)
+    def __refreshBothStatuses(self, *args, **kwargs):
+        self.__obsLightManager.refreshOscDirectoryStatus(*args, **kwargs)
+        self.__obsLightManager.refreshObsStatus(*args, **kwargs)
 
+    def __refreshStatus(self):
         if len(self.selectedPackages()) == 0:
             self.selectAllPackages()
-        self.__mapOnSelectedPackages(firstArgLast(refreshStatuses),
+        self.__mapOnSelectedPackages(firstArgLast(self.__refreshBothStatuses),
                                      u"Refreshing package status",
                                      u"Refreshing <i>%(arg)s</i> package status...",
                                      self.refresh,
                                      self.getCurrentProject())
 
+    @popupOnException
     def on_refreshOscStatusButton_clicked(self):
         self.__refreshStatus()
 
+    @popupOnException
     def on_repairOscButton_clicked(self):
         projectName = self.getCurrentProject()
         if projectName is None:
