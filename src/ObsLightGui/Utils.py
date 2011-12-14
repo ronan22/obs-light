@@ -297,6 +297,7 @@ class ProgressRunnable2(QObject, QRunnable):
                 if exceptionCaught is not None:
                     self.hasCaughtException(exceptionCaught)
                 self.hasFinished(result)
+                self.deleteLater()
         self.run = run
 
     def setFunctionToMap(self, function, iterable, message=None, *otherArgs, **kwargs):

@@ -56,12 +56,12 @@ class OscWorkingCopyModel(QAbstractTableModel):
     def _loadColors(self):
         # http://www.w3.org/TR/SVG/types.html#ColorKeywords
         self.colors[STATUS_COLUMN] = {u' ': QColor(u"darkgreen"),
-                                  u'A': QColor(u"green"),
-                                  u'D': QColor(u"lightgray"),
-                                  u'M': QColor(u"blue"),
-                                  u'C': QColor(u"red"),
-                                  u'?': QColor(u"black"),
-                                  u'!': QColor(u"orange")}
+                                      u'A': QColor(u"green"),
+                                      u'D': QColor(u"lightgray"),
+                                      u'M': QColor(u"blue"),
+                                      u'C': QColor(u"red"),
+                                      u'?': QColor(u"black"),
+                                      u'!': QColor(u"orange")}
 
     def clearColumns(self):
         self.__columnList[:] = []
@@ -102,6 +102,8 @@ class OscWorkingCopyModel(QAbstractTableModel):
         drData = self.displayRoleData(row, column)
         columnColors = self.colors.get(self.__columnList[column])
         if columnColors is not None:
+            if column == self.__columnList.index(STATUS_COLUMN):
+                return columnColors.get(drData[0])
             return columnColors.get(drData)
         return None
 
