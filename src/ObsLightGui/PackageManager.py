@@ -406,18 +406,13 @@ class PackageManager(QObject):
     @popupOnException
     def on_updateFilesButton_clicked(self):
         project = self.getCurrentProject()
-        package = self.currentPackage()
-        if project is None or package is None:
+        if project is None:
             return
-        progress = self.__gui.getInfiniteProgressDialog()
-        runnable = ProgressRunnable2(progress)
-        runnable.setDialogMessage(u"Updating files...")
-        runnable.setRunMethod(self.__obsLightManager.updatePackage,
-                              project,
-                              package)
-        runnable.caughtException.connect(self.__gui.popupErrorCallback)
-        runnable.finished.connect(self.refresh)
-        runnable.runOnGlobalInstance()
+        self.__mapOnSelectedPackages(firstArgLast(self.__obsLightManager.updatePackage),
+                                     u"Updating packages",
+                                     u"Updating <i>%(arg)s</i> package...",
+                                     self.__refreshStatus,
+                                     project)
 
     @popupOnException
     def __createPatch(self, patchName):
@@ -486,24 +481,25 @@ class PackageManager(QObject):
                                   package,
                                   message)
             runnable.caughtException.connect(self.__gui.popupErrorCallback)
-            runnable.finished.connect(self.refresh)
+            runnable.finished.connect(self.__refreshStatus)
             runnable.runOnGlobalInstance()
 
     @popupOnException
-    def __refreshStatus(self, method):
+    def __refreshStatus(self):
+        def refreshStatuses(*args, **kwargs):
+            self.__obsLightManager.refreshOscDirectoryStatus(*args, **kwargs)
+            self.__obsLightManager.refreshObsStatus(*args, **kwargs)
+
         if len(self.selectedPackages()) == 0:
             self.selectAllPackages()
-        self.__mapOnSelectedPackages(firstArgLast(method),
+        self.__mapOnSelectedPackages(firstArgLast(refreshStatuses),
                                      u"Refreshing package status",
-                                     None,
+                                     u"Refreshing <i>%(arg)s</i> package status...",
                                      self.refresh,
                                      self.getCurrentProject())
 
     def on_refreshOscStatusButton_clicked(self):
-        def refreshStatuses(*args, **kwargs):
-            self.__obsLightManager.refreshOscDirectoryStatus(*args, **kwargs)
-            self.__obsLightManager.refreshObsStatus(*args, **kwargs)
-        self.__refreshStatus(refreshStatuses)
+        self.__refreshStatus()
 
     def on_repairOscButton_clicked(self):
         projectName = self.getCurrentProject()
@@ -512,5 +508,5 @@ class PackageManager(QObject):
         self.__mapOnSelectedPackages(firstArgLast(self.__obsLightManager.repairOscPackageDirectory),
                                      None,
                                      u"Repairing OSC directory of %(arg)s...",
-                                     self.on_refreshOscStatusButton_clicked,
+                                     self.__refreshStatus,
                                      projectName)

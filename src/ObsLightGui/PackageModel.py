@@ -106,9 +106,7 @@ class PackageModel(QAbstractTableModel):
             if orientation == Qt.Orientation.Vertical:
                 pass
             else:
-                if section == self.OscRevColumn:
-                    return QSize(32, 0)
-                elif section == self.ObsRevColumn:
+                if section == self.OscRevColumn or section == self.ObsRevColumn:
                     return QSize(32, 0)
         return None
 
