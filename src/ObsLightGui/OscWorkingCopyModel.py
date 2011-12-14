@@ -119,6 +119,11 @@ class OscWorkingCopyModel(QAbstractTableModel):
     def fileList(self):
         return self.__fileList
 
+    def fileName(self, index):
+        if not index.isValid() or index.row() >= self.rowCount():
+            return None
+        return self.fileList()[index.row()]
+
     def refresh(self):
         files = self.__obsLightManager.getPackageParameter(self.__project,
                                                            self.__package,
