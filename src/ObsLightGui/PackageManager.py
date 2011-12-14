@@ -414,8 +414,7 @@ class PackageManager(QObject):
         self.__mapOnSelectedPackages(firstArgLast(self.__obsLightManager.updatePackage),
                                      u"Updating packages",
                                      u"Updating <i>%(arg)s</i> package...",
-                                     None,
-                                     #self.__refreshStatus,
+                                     self.__refreshStatus,
                                      project)
 
     @popupOnException
@@ -474,17 +473,22 @@ class PackageManager(QObject):
         if project is None or package is None:
             return
 
-        res = self.__obsLightManager.testConflict(projectLocalName=project,
-                                            package=package)
-        #TO CHANGE
-        if res == True:
+        conflict = self.__obsLightManager.testConflict(project, package)
+
+        if conflict:
+            question = u"A file in package <i>%s</i> has a conflict.<br />"
+            question += u"It is recommended that you resolve this conflict before committing.<br />"
+            question += u"-> modify conflicting file and run "
+            question += u"<i>osc resolved FILE</i> in package directory.<br />"
+            question += u"<br />Do you want to continue anyway?"
             result = QMessageBox.question(self.__gui.getMainWindow(),
-                              u"Conflict",
-                              u"'" + package + "' have a conflict.\nOK: to automatically solve the resolved the conflict.\nCancel: and solve the conflict in command line\n'osc resolved FILE'" ,
-                              buttons=QMessageBox.Yes | QMessageBox.No,
-                              defaultButton=QMessageBox.No)
-            if result == QMessageBox.No:
+                                          u"Conflict detected",
+                                          question % package,
+                                          buttons=QMessageBox.Yes | QMessageBox.Cancel,
+                                          defaultButton=QMessageBox.Cancel)
+            if result != QMessageBox.Yes:
                 return
+
         message, accepted = QInputDialog.getText(self.__gui.getMainWindow(),
                                                  u"Enter commit message...",
                                                  u"Commit message:")
@@ -497,7 +501,7 @@ class PackageManager(QObject):
                                   package,
                                   message)
             runnable.caughtException.connect(self.__gui.popupErrorCallback)
-            #TMPrunnable.finished.connect(self.__refreshStatus)
+            runnable.finished.connect(self.__refreshStatus)
             runnable.runOnGlobalInstance()
 
     def __refreshBothStatuses(self, *args, **kwargs):
