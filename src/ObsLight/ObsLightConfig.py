@@ -27,7 +27,7 @@ import re
 from ObsLightTools import isNonEmptyString
 
 OBSLIGHTDIRNAME = "OBSLight"
-OBSLIGHTCONFIG = "obslightConfig"
+OBSLIGHTCONFIG = "ObslightConfig"
 
 WORKINGDIRECTORY = os.path.join(os.environ['HOME'], OBSLIGHTDIRNAME)
 # If not exists, create the obsLight directory for the user.
