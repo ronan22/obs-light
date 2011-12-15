@@ -25,7 +25,10 @@ from PySide.QtCore import QObject, Qt, Signal
 from PySide.QtGui import QLineEdit, QListWidget
 
 class PackageSelector(QObject):
-
+    u"""
+    Show a dialog containing a package list and a text field to enter
+    a package name filter.
+    """
     __gui = None
 
     __packageSelectionDialog = None
@@ -52,10 +55,17 @@ class PackageSelector(QObject):
         self.__filterLineEdit.textEdited.connect(self.on_filterLineEdit_textEdited)
 
     def getFilterText(self):
+        u"""
+        Get the current filter text.
+        """
         return self.__filterLineEdit.text()
 
     def showPackageSelectionDialog(self, packageList):
-        if packageList is None:
+        u"""
+        Show the package selection dialog, filled with items
+        of `packageList`. Returns immediately if list is empty.
+        """
+        if packageList is None or len(packageList) < 1:
             return
         self.__filterLineEdit.clear()
         self.__packagesListWidget.clear()

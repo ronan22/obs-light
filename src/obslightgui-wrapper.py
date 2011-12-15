@@ -29,8 +29,8 @@ try:
     from ObsLight import babysitter, ObsLightManager
     from ObsLightGui.Gui import Gui
 
-    obsLightManager = ObsLightManager.getManager()
-    gui = Gui(obsLightManager)
+    gui = Gui()
+    gui.loadManager(ObsLightManager.getManager)
     sys.exit(babysitter.run(gui.main))
 finally:
     os.remove(pidFilePath)

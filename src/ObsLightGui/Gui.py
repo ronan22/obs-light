@@ -24,7 +24,7 @@ import sys
 from os.path import dirname, join
 
 from PySide.QtCore import QIODevice, QFile, QMetaObject, QObject, Qt, Signal
-from PySide.QtGui import QApplication, QProgressDialog, QStatusBar
+from PySide.QtGui import QApplication, QColor, QPixmap, QProgressDialog, QSplashScreen, QStatusBar
 from PySide.QtUiTools import QUiLoader
 
 from ObsLight.ObsLightErr import OBSLightBaseError
@@ -34,12 +34,15 @@ from ActionManager import MainWindowActionManager
 from LogManager import LogManager
 from Utils import exceptionToMessageBox
 
+UI_PATH = join(dirname(__file__), u"ui")
+
 class Gui(QObject):
     '''
     ObsLight GUI main class. Keeps reference to the main window
     and to the ObsLightManager.
     '''
     application = None
+    splash = None
     uiLoader = None
     __mainWindow = None
     __statusBar = None
@@ -52,17 +55,14 @@ class Gui(QObject):
 
     __messageSignal = Signal((str, int))
 
-    def __init__(self, obsLightManager=None):
+    def __init__(self):
         QObject.__init__(self)
         self.application = QApplication(sys.argv)
         self.application.aboutToQuit.connect(self.__beforeQuitting)
         self.uiLoader = QUiLoader()
         # Need to set working directory in order to load icons
-        self.uiLoader.setWorkingDirectory(join(dirname(__file__), u"ui"))
-        self.__obsLightManager = obsLightManager
-        self.__loadMainWindow()
-        self.__obsProjectManager = ProjectManager(self)
-        self.__logManager = LogManager(self)
+        self.uiLoader.setWorkingDirectory(UI_PATH)
+
 
     def __beforeQuitting(self):
         self.__logManager.disconnectLogger()
@@ -158,6 +158,21 @@ class Gui(QObject):
         Timeout is in milliseconds.
         '''
         self.__messageSignal.emit(message, timeout)
+
+    def loadManager(self, methodToGetManager, *args, **kwargs):
+        pixmap = QPixmap(join(UI_PATH, "fc-t256.png"))
+        self.splash = QSplashScreen(pixmap)
+        self.splash.show()
+        self.application.processEvents()
+        self.splash.showMessage(u"Loading...",
+                                Qt.AlignBottom | Qt.AlignHCenter,
+                                QColor(u"lightgray"))
+        self.application.processEvents()
+        self.__obsLightManager = methodToGetManager(*args, **kwargs)
+        self.__loadMainWindow()
+        self.__obsProjectManager = ProjectManager(self)
+        self.__logManager = LogManager(self)
+        self.splash.finish(self.getMainWindow())
 
     def main(self):
         return self.application.exec_()

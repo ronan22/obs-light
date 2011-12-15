@@ -405,9 +405,7 @@ class PackageManager(QObject):
         def myTestConflict(package, project):
             conflict = self.__obsLightManager.testConflict(project, package)
             return package, conflict
-        #TODO
-        #self.__obsLightManager.testConflict(projectLocalName=project,
-        #                                    package=)
+
         self.__mapOnSelectedPackages(myTestConflict,
                                      u"Checking for potential conflicts",
                                      u"Checking if package <i>%(arg)s</i> has a conflict",
