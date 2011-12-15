@@ -383,7 +383,7 @@
                <item row="9" column="0">
                 <widget class="QPushButton" name="deletePackageButton">
                  <property name="toolTip">
-                  <string>Remove the selected package from project.</string>
+                  <string>Remove the selected package(s) from project.</string>
                  </property>
                  <property name="text">
                   <string>Delete</string>
@@ -513,7 +513,8 @@
                <item row="10" column="1">
                 <widget class="QPushButton" name="repairOscButton">
                  <property name="toolTip">
-                  <string>Repair the OSC working copy of the selected package(s).</string>
+                  <string>Repair the OSC working copy of the selected package(s).
+You can select several packages.</string>
                  </property>
                  <property name="text">
                   <string>Repair OSC directory</string>
@@ -550,7 +551,8 @@
                   </size>
                  </property>
                  <property name="toolTip">
-                  <string>Checkout/update files from the OBS (osc update equivalent).</string>
+                  <string>Checkout/update files from the OBS (osc update equivalent).
+You can select several packages.</string>
                  </property>
                  <property name="text">
                   <string>Update files</string>
@@ -751,8 +753,11 @@
                 </item>
                 <item row="12" column="2">
                  <widget class="QPushButton" name="modifyPatchButton">
+                  <property name="toolTip">
+                   <string>Update the last patch with new modifications.</string>
+                  </property>
                   <property name="text">
-                   <string>Modify</string>
+                   <string>Update</string>
                   </property>
                  </widget>
                 </item>
@@ -863,9 +868,7 @@
                    </size>
                   </property>
                   <property name="toolTip">
-                   <string>Create (or open if it exists) the chroot of the project.
- If a package is selected,
- the chroot will open in this package's source directory.</string>
+                   <string>Create the chroot of the project.</string>
                   </property>
                   <property name="text">
                    <string>New</string>
@@ -1018,6 +1021,10 @@
                 </item>
                 <item row="0" column="0" colspan="3">
                  <widget class="QPushButton" name="openChrootButton">
+                  <property name="toolTip">
+                   <string>Open a terminal in the chroot,
+in the source directory of the current package if it is installed.</string>
+                  </property>
                   <property name="text">
                    <string>Open terminal</string>
                   </property>

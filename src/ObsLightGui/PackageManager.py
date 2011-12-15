@@ -64,6 +64,7 @@ class PackageManager(QObject):
 
     __packageSelectionDialog = None
     __packagesListWidget = None
+    __filterLineEdit = None
 
     __menu = None
 

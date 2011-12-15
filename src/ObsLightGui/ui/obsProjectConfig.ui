@@ -57,7 +57,8 @@
    <item row="2" column="1">
     <widget class="QLineEdit" name="projectObsNameLineEdit">
      <property name="toolTip">
-      <string>The name of the project on the OBS server.</string>
+      <string>The name of the project on the OBS server.
+Press enter to validate.</string>
      </property>
     </widget>
    </item>

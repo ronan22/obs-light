@@ -29,6 +29,13 @@
     </widget>
    </item>
    <item>
+    <widget class="QLineEdit" name="filterLineEdit">
+     <property name="placeholderText">
+      <string>Filter</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QListWidget" name="packagesListWidget">
      <property name="selectionMode">
       <enum>QAbstractItemView::ExtendedSelection</enum>
