@@ -426,6 +426,12 @@ class ObsLightChRoot(object):
         pathToSaveSpec = specFile.replace(package.getChrootRpmBuildDirectory(),
                                           package.getChrootRpmBuildTmpDirectory())
 
+
+        print "pathToSaveSpec", pathToSaveSpec
+        f = open('/home/meego/test', 'w')
+        f.write(pathToSaveSpec + "\n")
+        f.close()
+
         package.saveTmpSpec(path=self.getDirectory() + pathToSaveSpec,
                             archive=tarFile)
         command = []
@@ -526,7 +532,7 @@ class ObsLightChRoot(object):
         command.append("tar -czvf  " + tarFile + " *")
         command.append("mv " + tarFile + " ../SOURCES")
         self.execCommand(command=command)
-        pathToSaveSpec = specFile.replace(package.getChrootRpmBuildTmpDirectory(),
+        pathToSaveSpec = specFile.replace(package.getChrootRpmBuildDirectory(),
                                           package.getChrootRpmBuildTmpDirectory())
 
         package.saveTmpSpec(path=self.getDirectory() + pathToSaveSpec,
@@ -698,7 +704,6 @@ class ObsLightChRoot(object):
                        " diff -p -a --binary " + tag1 + " " + tag2 + " > " + self.__dirTransfert + "/" + patch)
         self.execCommand(command=command)
         shutil.copy(self.__chrootDirTransfert + "/" + patch, pathOscPackage + "/" + patch)
-
         package.save()
 
     def prepareChroot(self, chrootDir):

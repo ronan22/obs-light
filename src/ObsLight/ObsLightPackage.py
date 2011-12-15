@@ -374,8 +374,7 @@ class ObsLightPackage(object):
         '''
         
         '''
-        return self.__currentPatch != None
-
+        return self.__currentPatch
 
     def setOscStatus(self, status):
         '''
@@ -425,7 +424,6 @@ class ObsLightPackage(object):
             self.__listFileToDel = value
         else:
             raise ObsLightPackageErr("parameter value is not valid for setPackageParameter")
-
         return 0
 
     def getListFile(self):
@@ -433,7 +431,6 @@ class ObsLightPackage(object):
         
         '''
         return self.__listFile
-
 
     def getStatus(self):
         '''
@@ -591,7 +588,7 @@ class ObsLightPackage(object):
         Save the Spec file.
         '''
         if self.__mySpecFile != None:
-            self.__mySpecFile.saveTmpSpec(path=path, archive=archive)
+            self.__mySpecFile.saveTmpSpec(path=path, excludePatch=self.__currentPatch, archive=archive)
         else:
             raise ObsLightPackageErr("No Spec or Yaml in the package")
 

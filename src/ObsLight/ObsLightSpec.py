@@ -28,6 +28,7 @@ import ObsLightErr
 
 class ObsLightSpec:
     '''
+    
     '''
     def __init__(self, packagePath, file):
         '''
@@ -427,7 +428,7 @@ class ObsLightSpec:
                 f.write(line)
         f.close()
 
-    def saveTmpSpec(self, path, archive):
+    def saveTmpSpec(self, path, excludePatch, archive):
         '''
         
         '''
@@ -442,9 +443,11 @@ class ObsLightSpec:
                     elif (line.startswith('%setup')):
                         line = line.replace("-c", "")
                         toWrite += line
+                elif (section == "introduction_section"):
+                    if not line.startswith("Patch"):
+                        toWrite += line
                 else:
                     toWrite += line
-            print
 
         aFile = open(path, 'w')
         aFile.write(re.sub(r'(Source[0]?\s*:).*', r'\1%s' % archive, toWrite))
