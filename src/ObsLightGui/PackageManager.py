@@ -20,11 +20,14 @@ Created on 2 nov. 2011
 @author: Florent Vennetier
 '''
 
+import inspect
+
 from PySide.QtCore import QObject, QRegExp
 from PySide.QtGui import QLabel, QInputDialog, QPushButton, QTableView, QWidget
-from PySide.QtGui import QLineEdit, QListWidget, QMessageBox, QRegExpValidator
+from PySide.QtGui import QLineEdit, QMessageBox, QRegExpValidator
 
 from PackageModel import PackageModel
+from PackageSelector import PackageSelector
 from ObsLightGui.FileManager import FileManager
 from Utils import popupOnException, ProgressRunnable2, firstArgLast
 
@@ -62,9 +65,7 @@ class PackageManager(QObject):
     __repairOscButton = None
     __packagePathLineEdit = None
 
-    __packageSelectionDialog = None
-    __packagesListWidget = None
-    __filterLineEdit = None
+    __packageSelector = None
 
     __menu = None
 
@@ -121,10 +122,9 @@ class PackageManager(QObject):
         self.__packageTitleLabel = mainWindow.findChild(QLabel, u"packageTitleLabel")
         self.__packageDescriptionLabel = mainWindow.findChild(QLabel,
                                                               u"packageDescriptionLabel")
-        self.__packageSelectionDialog = self.__gui.loadWindow(u"obsPackageSelector.ui")
-        self.__packageSelectionDialog.accepted.connect(self.on_packageSelectionDialog_accepted)
-        self.__packagesListWidget = self.__packageSelectionDialog.findChild(QListWidget,
-                                                                            u"packagesListWidget")
+
+        self.__packageSelector = PackageSelector(self.__gui)
+        self.__packageSelector.packagesSelected.connect(self.on_packageSelector_packagesSelected)
         self.__refreshOscStatusButton = mainWindow.findChild(QPushButton,
                                                              u"refreshOscStatusButton")
         self.__refreshOscStatusButton.clicked.connect(self.on_refreshOscStatusButton_clicked)
@@ -249,11 +249,7 @@ class PackageManager(QObject):
         return packageList
 
     def showPackageSelectionDialog(self, packageList):
-        if packageList is None:
-            return
-        self.__packagesListWidget.clear()
-        self.__packageSelectionDialog.show()
-        self.__packagesListWidget.addItems(packageList)
+        self.__packageSelector.showPackageSelectionDialog(packageList)
 
     def __mapOnSelectedPackages(self, method, initialMessage, loopMessage,
                                 callback, *args, **kwargs):
@@ -271,7 +267,11 @@ class PackageManager(QObject):
         runnable.setFunctionToMap(method, packagesNames, loopMessage, *args, **kwargs)
         runnable.caughtException.connect(self.__gui.popupErrorCallback)
         if callback is not None:
-            runnable.finished.connect(callback)
+            argNum = len(inspect.getargspec(callback)[0])
+            if argNum > 1:
+                runnable.finished[object].connect(callback)
+            else:
+                runnable.finished.connect(callback)
         runnable.runOnGlobalInstance()
 
     @popupOnException
@@ -286,13 +286,7 @@ class PackageManager(QObject):
         runnable.caughtException.connect(self.__gui.popupErrorCallback)
         runnable.runOnGlobalInstance()
 
-    def on_packageSelectionDialog_accepted(self):
-        items = self.__packagesListWidget.selectedItems()
-        packages = set()
-        for item in items:
-            packageName = item.text()
-            packages.add(packageName)
-        progress = None
+    def on_packageSelector_packagesSelected(self, packages):
         if len(packages) < 2:
             progress = self.__gui.getInfiniteProgressDialog()
         else:
@@ -304,7 +298,6 @@ class PackageManager(QObject):
                                   message=u"Adding package %(arg)s")
         runnable.caughtException.connect(self.__gui.popupErrorCallback)
         runnable.finished.connect(self.refresh)
-        #self.__fileManager.setCurrentPackage(None, None)
         runnable.runOnGlobalInstance()
 
     @popupOnException
@@ -409,9 +402,42 @@ class PackageManager(QObject):
         project = self.getCurrentProject()
         if project is None:
             return
+        def myTestConflict(package, project):
+            conflict = self.__obsLightManager.testConflict(project, package)
+            return package, conflict
         #TODO
         #self.__obsLightManager.testConflict(projectLocalName=project,
         #                                    package=)
+        self.__mapOnSelectedPackages(myTestConflict,
+                                     u"Checking for potential conflicts",
+                                     u"Checking if package <i>%(arg)s</i> has a conflict",
+                                     self.__preCheckingConflicts,
+                                     project)
+
+    def __preCheckingConflicts(self, values):
+        packagesInConflict = []
+        for package, conflict in values:
+            if conflict:
+                packagesInConflict.append(package)
+        if len(packagesInConflict) > 0:
+            question = u"Some files in packages you selected (<i>%s</i>) have conflicts.<br />"
+            question += u"It is recommended that you resolve these conflicts before updating.<br />"
+            question += u"-> modify conflicting file and run "
+            question += u"<i>osc resolved FILE</i> in package directory.<br />"
+            question += u"<br />Do you want to continue anyway?"
+            result = QMessageBox.question(self.__gui.getMainWindow(),
+                                          u"Conflict detected",
+                                          question % u", ".join(packagesInConflict),
+                                          buttons=QMessageBox.Yes | QMessageBox.Cancel,
+                                          defaultButton=QMessageBox.Cancel)
+            if result != QMessageBox.Yes:
+                return
+        self.__doUpdatePackages()
+
+    def __doUpdatePackages(self):
+        project = self.getCurrentProject()
+        if project is None:
+            return
         self.__mapOnSelectedPackages(firstArgLast(self.__obsLightManager.updatePackage),
                                      u"Updating packages",
                                      u"Updating <i>%(arg)s</i> package...",
