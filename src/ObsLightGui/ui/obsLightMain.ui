@@ -39,6 +39,9 @@
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
+      <property name="toolTip">
+       <string/>
+      </property>
       <property name="tabPosition">
        <enum>QTabWidget::North</enum>
       </property>
@@ -253,7 +256,8 @@
                   </size>
                  </property>
                  <property name="toolTip">
-                  <string>Create a new project.</string>
+                  <string>Create a new project.
+(not implemented yet)</string>
                  </property>
                  <property name="text">
                   <string>New</string>
@@ -480,7 +484,8 @@
                   </size>
                  </property>
                  <property name="toolTip">
-                  <string>Create a package from scratch.</string>
+                  <string>Create a package from scratch.
+(not implemented yet)</string>
                  </property>
                  <property name="text">
                   <string>New</string>
@@ -491,6 +496,10 @@
                 <widget class="QPushButton" name="modifyPackageButton">
                  <property name="enabled">
                   <bool>false</bool>
+                 </property>
+                 <property name="toolTip">
+                  <string>Modify the configuration of the selected package.
+(not implemented yet)</string>
                  </property>
                  <property name="text">
                   <string>Modify</string>
@@ -625,6 +634,10 @@ You can select several packages.</string>
                     <height>0</height>
                    </size>
                   </property>
+                  <property name="toolTip">
+                   <string>Creat a files into the package.
+(not implemented yet)</string>
+                  </property>
                   <property name="text">
                    <string>New</string>
                   </property>
@@ -654,6 +667,10 @@ You can select several packages.</string>
                  <widget class="QPushButton" name="modifyFileButton">
                   <property name="enabled">
                    <bool>false</bool>
+                  </property>
+                  <property name="toolTip">
+                   <string>Modify a files into the package.
+(not implemented yet)</string>
                   </property>
                   <property name="text">
                    <string>Modify</string>
@@ -704,7 +721,9 @@ You can select several packages.</string>
                  <widget class="QPushButton" name="generatePatchButton">
                   <property name="toolTip">
                    <string>Generate a patch from the changes made into the chroot,
- and add this patch to the package.</string>
+ and add this patch to the package and into the yaml/spec files.
+    -You need to do the '%prep' first.
+    -This new patch becaume the curent patch of package, until the next '%prep'.</string>
                   </property>
                   <property name="text">
                    <string>New</string>
@@ -736,6 +755,10 @@ You can select several packages.</string>
                   <property name="enabled">
                    <bool>false</bool>
                   </property>
+                  <property name="toolTip">
+                   <string>Import a patch
+(not implemented yet)</string>
+                  </property>
                   <property name="text">
                    <string>Import</string>
                   </property>
@@ -746,6 +769,10 @@ You can select several packages.</string>
                   <property name="enabled">
                    <bool>false</bool>
                   </property>
+                  <property name="toolTip">
+                   <string>Deleted a patch.
+(not implemented yet)</string>
+                  </property>
                   <property name="text">
                    <string>Delete</string>
                   </property>
@@ -754,7 +781,7 @@ You can select several packages.</string>
                 <item row="12" column="2">
                  <widget class="QPushButton" name="modifyPatchButton">
                   <property name="toolTip">
-                   <string>Update the last patch with new modifications.</string>
+                   <string>Update the curent patch with new modifications.</string>
                   </property>
                   <property name="text">
                    <string>Update</string>
@@ -921,6 +948,10 @@ You can select several packages.</string>
                   <property name="enabled">
                    <bool>false</bool>
                   </property>
+                  <property name="toolTip">
+                   <string>Import a chroot into the project.
+(not implemented yet)</string>
+                  </property>
                   <property name="text">
                    <string>import</string>
                   </property>
@@ -930,6 +961,10 @@ You can select several packages.</string>
                  <widget class="QPushButton" name="pushButton_2">
                   <property name="enabled">
                    <bool>false</bool>
+                  </property>
+                  <property name="toolTip">
+                   <string>Modify the path of the chroot.
+(not implemented yet)</string>
                   </property>
                   <property name="text">
                    <string>Modify</string>
@@ -1043,6 +1078,9 @@ in the source directory of the current package if it is installed.</string>
       <widget class="QWidget" name="imagerProjectTab">
        <property name="enabled">
         <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>(not implemented yet)</string>
        </property>
        <attribute name="title">
         <string>Imager Projects</string>

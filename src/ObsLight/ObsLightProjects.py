@@ -104,7 +104,9 @@ class ObsLightProjects(object):
         '''
         
         '''
-        return self.__dicOBSLightProjects.keys()
+        res = self.__dicOBSLightProjects.keys()
+        res.sort()
+        return res
 
 
     def addProject(self,
