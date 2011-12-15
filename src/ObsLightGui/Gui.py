@@ -71,7 +71,7 @@ class Gui(QObject):
         '''
         Load a Window from UI file.
         '''
-        path = join(dirname(__file__), u"ui", uiFile)
+        path = join(UI_PATH, uiFile)
         windowFile = QFile(path)
         windowFile.open(QIODevice.ReadOnly | QIODevice.Text)
         # Make all loaded windows children of mainWindow, except mainWindow itself
@@ -160,13 +160,13 @@ class Gui(QObject):
         self.__messageSignal.emit(message, timeout)
 
     def loadManager(self, methodToGetManager, *args, **kwargs):
-        pixmap = QPixmap(join(UI_PATH, "fc-t256.png"))
+        pixmap = QPixmap(join(UI_PATH, "splashscreen.png"))
         self.splash = QSplashScreen(pixmap)
         self.splash.show()
         self.application.processEvents()
         self.splash.showMessage(u"Loading...",
                                 Qt.AlignBottom | Qt.AlignHCenter,
-                                QColor(u"lightgray"))
+                                QColor(u"white"))
         self.application.processEvents()
         self.__obsLightManager = methodToGetManager(*args, **kwargs)
         self.__loadMainWindow()
