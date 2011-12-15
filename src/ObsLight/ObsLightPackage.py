@@ -637,7 +637,6 @@ class ObsLightPackage(object):
         
         '''
         for aFile in self.__listFile:
-            print "********************aFile", aFile
             if self.testConflict(aFile=aFile):
                 ObsLightOsc.getObsLightOsc().autoResolvedConflict(packagePath=self.getOscDirectory(), aFile=aFile)
 

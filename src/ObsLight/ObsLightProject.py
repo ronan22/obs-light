@@ -469,6 +469,18 @@ class ObsLightProject(object):
                                    status=status)
         self.checkOscDirectoryStatus(package=name)
         self.checkOscPackageStatus(package=name)
+        self.checkObsPackageStatus(package=name)
+
+    def checkObsPackageStatus(self, package):
+        '''
+        
+        '''
+        rev = self.__obsServers.getObsPackageRev(self.__obsServer,
+                                                 self.__projectObsName,
+                                                 package)
+        if rev is not None:
+            self.__packages.setPackageParameter(package, "obsRev", rev)
+
 
     def refreshOscDirectoryStatus(self, package=None):
         '''
@@ -511,11 +523,7 @@ class ObsLightProject(object):
                 self.__packages.setPackageParameter(package=package,
                                                     parameter="status",
                                                     value=status)
-            rev = self.__obsServers.getObsPackageRev(self.__obsServer,
-                                                     self.__projectObsName,
-                                                     package)
-            if rev is not None:
-                self.__packages.setPackageParameter(package, "obsRev", rev)
+            self.checkObsPackageStatus(package=package)
 
         else:
             for pk in self.getListPackage(local=1):
