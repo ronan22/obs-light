@@ -258,7 +258,7 @@ class ObsLightChRoot(object):
             if res != 0:
                 #ObsLightPrintManager.getLogger().error(packageName + " the zypper Script fail to install '" + packageName + "' dependency.")
                 #return None
-                raise ObsLightErr.ObsLightChRootError("The installation of the dependence of '" + packageName + "' fail.\nPlease test the command line:\n'zypper si --build-deps-only " + packageName + "'\ninto the chroot.\nMay a repo is missing.")
+                raise ObsLightErr.ObsLightChRootError("The installation of some dependencies of '" + packageName + "' failed.\nPlease test the command line:\n'zypper si --build-deps-only " + packageName + "'\ninto the chroot.\nMaybe a repository is missing.")
 
             if os.path.isdir(self.getDirectory() + "/" + package.getChrootRpmBuildDirectory() + "/SPECS/"):
                 aspecFile = package.getChrootRpmBuildDirectory() + "/SPECS/" + specFile
