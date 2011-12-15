@@ -224,6 +224,8 @@ class PackageManager(QObject):
         returns an empty list (not None).
         '''
         indices = self.__packageTableView.selectedIndexes()
+        if len(indices) < 1:
+            indices.append(self.__packageTableView.currentIndex())
         packages = set()
         for index in indices:
             if index.isValid():
