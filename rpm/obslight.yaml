@@ -29,7 +29,7 @@ SubPackages:
           This package contains the graphical interface.
       Requires:
           - python >= 2.5.0
-          - obslight-base
+          - obslight-base = %{version}
           - python-pyside
 
     - Name: base
