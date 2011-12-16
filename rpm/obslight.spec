@@ -161,6 +161,7 @@ fi
 %{_bindir}/obslightgui-wrapper.py
 %{python_sitelib}/ObsLightGui
 %{_datadir}/applications/obslightgui.desktop
+%{_datadir}/pixmaps/obslight.png
 # << files gui
 
 %files base
