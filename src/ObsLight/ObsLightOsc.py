@@ -26,6 +26,7 @@ import urlparse
 
 from osc import conf
 from osc import core
+from osc import oscerr
 
 import ObsLightSubprocess
 import ObsLightPrintManager
@@ -754,7 +755,10 @@ class ObsLightOsc(object):
         '''
         
         '''
-        pk = core.Package(workingdir=workingdir)
+        try:
+            pk = core.Package(workingdir=workingdir)
+        except oscerr.WorkingCopyInconsistent, e:
+            raise e
         return pk.get_status()
 
     def autoResolvedConflict(self, packagePath, aFile):

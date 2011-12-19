@@ -155,7 +155,7 @@ class ObsLightChRoot(object):
         '''
         return self.__mySubprocessCrt.execSubprocess(command=command, waitMess=waitMess)
 
-    def resolveMacro(self, name):
+    def __resolveMacro(self, name):
         '''
 
         '''
@@ -193,14 +193,15 @@ class ObsLightChRoot(object):
         f.close()
         return name
 
-    def __findPackageDirectory(self, package=None):
+    #Old perhaps to del.
+    def __findPackageDirectory_bis(self, package=None):
         '''
         Return the directory of where the package were installed.
         '''
         name = package.getMacroDirectoryPackageName()
 
         if name != None:
-            prepDirname = self.resolveMacro(name)
+            prepDirname = self.__resolveMacro(name)
             if prepDirname == None:
                 raise ObsLightErr.ObsLightChRootError(" Can't resolve the macro " + name)
 
@@ -220,6 +221,34 @@ class ObsLightChRoot(object):
         else:
             package.setChRootStatus("No build directory")
         return None
+
+    def __findPackageDirectory(self, package=None):
+        '''
+        Return the directory of where the package were installed.
+        '''
+        pathBuild = self.getDirectory() + "/" + package.getChrootRpmBuildDirectory() + "/" + "BUILD"
+        if not os.path.isdir(pathBuild):
+            raise ObsLightErr.ObsLightChRootError("in the chroot path: " + pathBuild + " is not a directory")
+
+        listDir = os.listdir(pathBuild)
+
+        if len(listDir) == 0:
+            raise ObsLightErr.ObsLightChRootError("in the chroot path: " + pathBuild + " no directory")
+        elif len(listDir) == 1:
+            prepDirname = listDir[0]
+            if os.path.isdir(pathBuild + "/" + prepDirname):
+                resultPath = package.getChrootRpmBuildDirectory() + "/BUILD/" + prepDirname
+                subDir = os.listdir(pathBuild + "/" + prepDirname)
+                if len(subDir) == 0:
+                    return resultPath
+                elif (len(subDir) == 1) and os.path.isdir(pathBuild + "/" + prepDirname + "/" + subDir[0]):
+                    return resultPath + "/" + subDir[0]
+                else:
+                    return resultPath
+            else:
+                raise ObsLightErr.ObsLightChRootError("in the chroot path: " + prepDirname + " only one file, not a directory")
+        else :
+            raise ObsLightErr.ObsLightChRootError("in the chroot path: " + prepDirname + " two Many directory")
 
     def getChRootRepositories(self):
         '''
