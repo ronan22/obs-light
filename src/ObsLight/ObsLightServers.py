@@ -17,7 +17,7 @@
 '''
 Created on 29 sept. 2011
 
-@author: meego
+@author: ronan
 '''
 
 import pickle
@@ -37,6 +37,7 @@ class ObsLightServers(object):
         Constructor
         '''
         self.__dicOBSLightServers = {}
+        #
         self.__blackList = {}
         self.__currentServer = None
         self.__pathFile = os.path.join(workingDirectory , "ObsServersConfig")

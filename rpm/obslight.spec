@@ -16,8 +16,8 @@ BuildArch:  noarch
 URL:        http://wiki.meego.com/OBS_Light
 Source0:    %{name}-%{version}.tar.gz
 Source100:  obslight.yaml
-BuildRequires:  python >= 2.5.0
-BuildRequires:  python-devel >= 2.5.0
+BuildRequires:  python >= 2.7.0
+BuildRequires:  python-devel >= 2.7.0
 BuildRequires:  fdupes
 BuildRequires:  desktop-file-utils
 BuildRoot:  %{_tmppath}/%{name}-%{version}-build
@@ -30,7 +30,7 @@ Utilities to work with OBS Light, a lighter version of OBS.
 %package gui
 Summary:    Utilities to work with OBS Light - graphical interface
 Group:      Development/Tools/Building
-Requires:   python >= 2.5.0
+Requires:   python >= 2.7.0
 Requires:   obslight-base = %{version}
 Requires:   python-pyside
 
@@ -42,7 +42,7 @@ This package contains the graphical interface.
 %package base
 Summary:    Utilities to work with OBS Light - command-line client
 Group:      Development/Tools/Building
-Requires:   python >= 2.5.0
+Requires:   python >= 2.7.0
 Requires:   python-xml
 Requires:   meego-packaging-tools
 Requires:   sudo
@@ -58,7 +58,7 @@ This package contains the command-line client.
 %package utils
 Summary:    Utilities to work with OBS Light - additional scripts
 Group:      Development/Tools/Building
-Requires:   python >= 2.5.0
+Requires:   python >= 2.7.0
 Requires:   python-xml
 Requires:   osc
 

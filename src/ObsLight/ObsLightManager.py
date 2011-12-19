@@ -30,6 +30,8 @@ from ObsLightTools import isNonEmptyString
 import ObsLightConfig
 import ObsLightTools
 import ObsLightPrintManager
+import inspect
+
 from ObsLightErr import ObsLightObsServers
 from ObsLightErr import ObsLightProjectsError
 from ObsLightErr import ArgError
@@ -67,6 +69,8 @@ def checkProjectLocalName(position=None):
                 projectLocalName = kwargs["projectLocalName"]
             else:
                 raise ObsLightProjectsError("checkProjectLocalName Fails")
+
+
             if not isNonEmptyString(projectLocalName):
                 raise ObsLightObsServers("Invalid project name: '" + str(projectLocalName) + "'")
             elif not mngr.isALocalProject(projectLocalName):
