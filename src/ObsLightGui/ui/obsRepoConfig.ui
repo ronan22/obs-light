@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>meegoIcon.ico</normaloff>meegoIcon.ico</iconset>
+    <normaloff>obslight.png</normaloff>obslight.png</iconset>
   </property>
   <property name="modal">
    <bool>true</bool>

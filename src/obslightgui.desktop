@@ -4,5 +4,6 @@ Type=Application
 Name=OBS Light GUI
 TryExec=obslightgui
 Exec=obslightgui
+Icon=obslight
 Categories=Development;Building;
 

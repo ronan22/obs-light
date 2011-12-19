@@ -28,7 +28,7 @@ setup(name='obslight',
       download_url='https://meego.gitorious.org/meego-developer-tools/obs-light',
 
       packages=['ObsLight', 'ObsLight.util', 'ObsLightGui'],
-      package_data={'ObsLightGui' : ['ui/*.ui', 'ui/*.ico', 'ui/*.png'],
+      package_data={'ObsLightGui' : ['ui/*.ui', 'ui/*.png'],
                     'ObsLight' : ['emptySpec/empty*',
                                   'config/ObslightConfig']},
       scripts=['obslight-wrapper.py',
@@ -40,8 +40,8 @@ setup(name='obslight',
       requires=['osc (>=0.132.5)', 'xml.etree.ElementTree'],
       data_files=[('/etc', ['sudoers.obslight']),
                   ('/etc/bash_completion.d/', ['obslight.sh']),
-                  ('/usr/share/applications/', ['obslightgui.desktop'])],
-
+                  ('/usr/share/applications/', ['obslightgui.desktop']),
+                  ('/usr/share/pixmaps/', ['src/ObsLightGui/ui/obslight.png'])],
 
       cmdclass={
         'build': build_obslight,
