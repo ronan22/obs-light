@@ -24,7 +24,7 @@ import ObsLightOsc
 import ObsLightErr
 import ObsLightTools
 
-class ObsServer(object):
+class ObsLightServer(object):
     '''
     classdocs
     '''

@@ -23,11 +23,11 @@ Created on 29 sept. 2011
 import pickle
 import os
 import ObsLightOsc
-from ObsServer import ObsServer
+from ObsLightServer import ObsLightServer
 from ObsLightErr import ObsLightObsServers
 import ObsLightTools
 
-class ObsServers(object):
+class ObsLightServers(object):
     '''
     classdocs
     '''
@@ -122,7 +122,7 @@ class ObsServers(object):
         '''
         
         '''
-        aOBSServer = ObsServer(fromSave=fromSave)
+        aOBSServer = ObsLightServer(fromSave=fromSave)
         self.__dicOBSLightServers[aOBSServer.getName()] = aOBSServer
 
 
@@ -136,7 +136,7 @@ class ObsServers(object):
         '''
         
         '''
-        aOBSServer = ObsServer(serverWeb=serverWeb,
+        aOBSServer = ObsLightServer(serverWeb=serverWeb,
                                serverAPI=serverAPI,
                                serverRepo=serverRepo,
                                alias=alias,

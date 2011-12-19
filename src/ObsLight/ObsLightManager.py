@@ -24,7 +24,7 @@ Created on 17 juin 2011
 import os
 import sys
 
-from ObsServers import ObsServers
+from ObsLightServers import ObsLightServers
 from ObsLightProjects import ObsLightProjects
 from ObsLightTools import isNonEmptyString
 import ObsLightConfig
@@ -572,7 +572,7 @@ class ObsLightManager(object):
 
         self.__workingDirectory = ObsLightConfig.WORKINGDIRECTORY
 
-        self.__myObsServers = ObsServers(workingDirectory=self.getObsLightWorkingDirectory())
+        self.__myObsServers = ObsLightServers(workingDirectory=self.getObsLightWorkingDirectory())
         self.__myObsLightProjects = ObsLightProjects(obsServers=self.__myObsServers,
                                                      workingDirectory=self.getObsLightWorkingDirectory())
     #---------------------------------------------------------------------------
