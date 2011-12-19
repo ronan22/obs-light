@@ -23,6 +23,7 @@ Created on 27 oct. 2011
 from PySide.QtGui import QAction, QLabel
 
 from ServerListManager import ServerListManager
+from wizard.ConfigWizard import ConfigWizard
 
 class MainWindowActionManager(object):
     '''
@@ -33,10 +34,12 @@ class MainWindowActionManager(object):
     __obsLightManager = None
     __serverListManager = None
     __aboutDialog = None
+    __wizard = None
 
     actionAbout = None
     actionLog = None
     actionOBS_servers = None
+    actionWizard = None
 
     def __init__(self, gui):
         self.__gui = gui
@@ -51,6 +54,8 @@ class MainWindowActionManager(object):
         self.actionAbout.triggered.connect(self.__aboutDialog.show)
         self.actionLog = mainWindow.findChild(QAction, u"actionShow_log")
         self.actionLog.triggered.connect(self.on_actionLog_triggered)
+        self.actionWizard = mainWindow.findChild(QAction, u"actionWizard")
+        self.actionWizard.triggered.connect(self.on_actionWizard_triggered)
 
     def on_actionOBS_servers_triggered(self):
         self.__serverListManager = ServerListManager(self.__gui)
@@ -60,3 +65,7 @@ class MainWindowActionManager(object):
 
     def on_actionLog_triggered(self):
         self.__gui.getLogManager().show()
+
+    def on_actionWizard_triggered(self):
+        self.__wizard = ConfigWizard(self.__gui)
+        self.__wizard.show()

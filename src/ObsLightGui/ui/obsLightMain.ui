@@ -1584,6 +1584,7 @@ in the source directory of the current package if it is installed.</string>
      <string>File</string>
     </property>
     <addaction name="actionOBS_servers"/>
+    <addaction name="actionWizard"/>
     <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menuProject">
@@ -1692,6 +1693,11 @@ in the source directory of the current package if it is installed.</string>
    </property>
    <property name="text">
     <string>Show Config</string>
+   </property>
+  </action>
+  <action name="actionWizard">
+   <property name="text">
+    <string>Wizard</string>
    </property>
   </action>
  </widget>
