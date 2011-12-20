@@ -159,15 +159,18 @@ class Gui(QObject):
         '''
         self.__messageSignal.emit(message, timeout)
 
+    def processEvents(self):
+        self.application.processEvents()
+
     def loadManager(self, methodToGetManager, *args, **kwargs):
         pixmap = QPixmap(join(UI_PATH, "splashscreen.png"))
         self.splash = QSplashScreen(pixmap)
         self.splash.show()
-        self.application.processEvents()
+        self.processEvents()
         self.splash.showMessage(u"Loading...",
                                 Qt.AlignBottom | Qt.AlignHCenter,
                                 QColor(u"white"))
-        self.application.processEvents()
+        self.processEvents()
         self.__obsLightManager = methodToGetManager(*args, **kwargs)
         self.__loadMainWindow()
         self.__obsProjectManager = ProjectManager(self)

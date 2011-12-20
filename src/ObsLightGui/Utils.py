@@ -22,9 +22,11 @@ Created on 28 oct. 2011
 
 import sys
 import traceback
+from time import sleep
 
 from PySide.QtCore import QObject, QRunnable, QThreadPool, Qt, Signal
-from PySide.QtGui import QColor, QGraphicsColorizeEffect, QMessageBox, QProgressDialog
+from PySide.QtGui import QApplication, QColor, QGraphicsColorizeEffect
+from PySide.QtGui import QMessageBox, QProgressDialog
 
 from ObsLight import ObsLightErr
 from ObsLight.ObsLightTools import isNonEmptyString
@@ -139,8 +141,6 @@ class ProgressRunnable2(QObject, QRunnable):
     __finished = Signal(())
     __sentMessage = Signal((unicode))
 
-#    finished = Signal(())
-#    finishedWithResult = Signal((object))
     finished = Signal((), (object,))
     caughtException = Signal((BaseException))
 
@@ -251,7 +251,6 @@ class ProgressRunnable2(QObject, QRunnable):
             self.__finished.connect(self.__progressDialog.reset)
             self.__finished.emit()
             self.__finished.disconnect(self.__progressDialog.reset)
-#        self.finishedWithResult.emit(result)
         self.finished[object].emit(result)
         self.finished.emit()
 
@@ -351,6 +350,48 @@ def firstArgLast(func):
         newArgs.append(args[0])
         return func(*newArgs, **kwargs)
     return newFunc
+
+class UiFriendlyTask(object):
+    u"""
+    A task that will run a function in a thread while refreshing UI.
+    """
+    hasFinished = False
+    result = None
+
+    def _setHasFinished(self, result1):
+        self.result = result1
+        self.hasFinished = True
+
+    def join(self, delay=0.1):
+        u"""
+        Calls `QApplication.processEvents()` every `delay`
+        until the task has finished.
+        """
+        while not self.hasFinished:
+            QApplication.processEvents()
+            sleep(delay)
+
+    def start(self, func, *args, **kwargs):
+        u"""
+        Run `func` with arguments `args` and `kwargs`
+        on global thread pool.
+        """
+        runnable = ProgressRunnable2()
+        runnable.setRunMethod(func, *args, **kwargs)
+        runnable.finished[object].connect(self._setHasFinished)
+        runnable.runOnGlobalInstance()
+
+def uiFriendly(func):
+    u"""
+    Decorator which will make a function run in a QThreadPool while
+    processing UI events.
+    """
+    def uiFriendly1(*args, **kwargs):
+        task = UiFriendlyTask()
+        task.start(func, *args, **kwargs)
+        task.join()
+        return task.result
+    return uiFriendly1
 
 def detachWithProgress(title, minDuration=500):
     u"""
