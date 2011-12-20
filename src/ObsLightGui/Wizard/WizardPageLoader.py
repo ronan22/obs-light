@@ -21,18 +21,58 @@ Created on 19 déc. 2011
 @author: Florent Vennetier
 '''
 
+import imp
+from os.path import dirname
+
 from ObsLightGui.ObsLightGuiObject import ObsLightGuiObject
+from WizardPageWrapper import WizardPageWrapper
+
+def _fixExtension(source, old, new):
+    if source.endswith(old):
+        return source.replace(old, new)
+    elif not source.endswith(new):
+        return source + new
+    else:
+        return source
 
 class WizardPageLoader(ObsLightGuiObject):
     _gui = None
     _page = None
 
-    def __init__(self, gui, pageFileName):
+    def __init__(self, gui, pageFileName, fromUiFile=False):
         ObsLightGuiObject.__init__(self, gui)
-        self.loadPage(pageFileName)
+        if fromUiFile:
+            self.loadPageFromUiFile(pageFileName)
+        else:
+            self.loadPageFromPyFile(pageFileName)
 
-    def loadPage(self, pageFileName):
-        self._page = self.gui.loadWindow(pageFileName)
+    def loadPageFromUiFile(self, name):
+        u"""
+        Load a wizard page from '.ui' file using `QtUiTools.QUiLoader`.
+        """
+        name = _fixExtension(name, u".py", u".ui")
+        self.page = self.gui.loadWindow(name)
+
+    def loadPageFromPyFile(self, name):
+        u"""
+        Load a wizard page from a '.py' file generated from a '.ui' file.
+        This allows 'duck punching' on methods (because the loaded object
+        is not directly a C++ object).
+        """
+        # clean module name
+        if name.endswith(u".ui") or name.endswith(u".py"):
+            name = name[:-3]
+        # wizard modules should be in same directory as this module
+        paths = [dirname(__file__)]
+        # load the module
+        file1, pathname, description = imp.find_module(name, paths)
+        mod = imp.load_module(name, file1, pathname, description)
+        # create a dummy wizard page
+        self.page = WizardPageWrapper(None)
+        # instantiate the class that will configure our wizard page
+        # (they have all the same name: 'Ui_WizardPage')
+        uiWP = mod.Ui_WizardPage()
+        uiWP.setupUi(self.page)
 
     @property
     def page(self):

@@ -29,20 +29,21 @@ import ConfigWizard
 class ChooseServerWizardPageLoader(WizardPageLoader):
 
     def __init__(self, gui):
-        WizardPageLoader.__init__(self, gui, u"wizard_chooseServer.ui")
+        WizardPageLoader.__init__(self, gui, u"wizard_chooseServer.ui", False)
 
         addServerButton = self.page.findChild(QRadioButton,
                                               u"addNewServerButton")
         self.page.registerField(u"addNewServer", addServerButton)
+        addServerButton.toggled.connect(self.__completeChanged)
         self.serverListWidget = self.page.findChild(QListWidget,
                                                     u"serverListWidget")
         self.page.registerField(u"serverList", self.serverListWidget)
-        self.serverListWidget.currentRowChanged.connect(self.__rowChanged)
+        self.serverListWidget.currentRowChanged.connect(self.__completeChanged)
 
         self.page.initializePage = self.__initializePage
-        self.page.validatePage = self.__validatePage
+        self.page.isComplete = self.__isComplete
+        self.page.validatePage = self.__isComplete
         self.page.nextId = self.__nextId
-        self.__initializePage()
 
     def addNewServer(self):
         return self.page.field(u"addNewServer")
@@ -50,7 +51,7 @@ class ChooseServerWizardPageLoader(WizardPageLoader):
     def serverRow(self):
         return self.page.field(u"serverList")
 
-    def __rowChanged(self, _row):
+    def __completeChanged(self, _row):
         self.page.completeChanged.emit()
 
     def __initializePage(self):
@@ -58,9 +59,8 @@ class ChooseServerWizardPageLoader(WizardPageLoader):
         self.serverListWidget.clear()
         self.serverListWidget.addItems(serverList)
 
-    def __validatePage(self):
-        print "validating..."
-        return not self.addNewServer() or (self.serverRow() >= 0)
+    def __isComplete(self):
+        return self.addNewServer() or (self.serverRow() >= 0)
 
     def __nextId(self):
         if self.addNewServer():

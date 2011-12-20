@@ -37,18 +37,7 @@ class ConfigWizard(ObsLightGuiObject):
              'ChooseProjectTarget',
              'ChooseProjectArchitecture']
 
-#    ChooseServerPage = 0
-#    ConfigureServerUrlsPage = ChooseServerPage + 1
-#    ConfigureServerCredentialsPage = ConfigureServerUrlsPage + 1
-#    ConfigureServerAliasPage = ConfigureServerCredentialsPage + 1
-#    ChooseProjectPage = ConfigureServerAliasPage + 1
-
     wizard = None
-
-    chooseServerWP = None
-    configServerUrlWP = None
-    configServerCredentialsWP = None
-    configServerAliasWP = None
 
     oldNextId = None
 
@@ -56,17 +45,12 @@ class ConfigWizard(ObsLightGuiObject):
         ObsLightGuiObject.__init__(self, gui)
         self.wizard = QWizard(self.mainWindow)
         self.loadPages()
-        self.oldNextId = self.wizard.nextId
-        def newNextId():
-            nextId = self.wizard.currentPage().nextId()
-            return nextId
-        self.wizard.nextId = newNextId
 
     @staticmethod
     def pageIndex(pageName):
         return ConfigWizard.Pages.index(pageName)
 
-    def loadPage(self, pageName):
+    def loadPageFromUiFile(self, pageName):
         page = self.gui.loadWindow(pageName)
         return page
 
@@ -87,7 +71,7 @@ class ConfigWizard(ObsLightGuiObject):
                          u"wizard_chooseTarget.ui",
                          u"wizard_chooseArchitecture.ui"]:
             pageCounter += 1
-            self.wizard.setPage(pageCounter, self.loadPage(pageName))
+            self.wizard.setPage(pageCounter, self.loadPageFromUiFile(pageName))
 
     def show(self):
         return self.wizard.show()
