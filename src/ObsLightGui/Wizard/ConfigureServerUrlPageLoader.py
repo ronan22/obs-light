@@ -22,7 +22,7 @@ Created on 19 déc. 2011
 '''
 
 from PySide.QtCore import QRegExp, Qt
-from PySide.QtGui import QLineEdit, QRegExpValidator
+from PySide.QtGui import QLineEdit, QRegExpValidator, QWizardPage
 
 from ObsLightGui.Utils import colorizeWidget, removeEffect, isNonEmptyString, uiFriendly
 
@@ -54,6 +54,11 @@ class ConfigureServerUrlPageLoader(WizardPageLoader):
         self.page.registerField(u"password*", self.passLineEdit)
 
         self.page.validatePage = self.beginValidatePage
+        self.page.initializePage = self._initializePage
+
+    def _initializePage(self):
+        QWizardPage.initializePage(self.page)
+        self._clearEffects()
 
     def _clearEffects(self):
         removeEffect(self.apiUrlLineEdit)
@@ -86,15 +91,15 @@ class ConfigureServerUrlPageLoader(WizardPageLoader):
                     color = u"orange"
                 else:
                     color = u"red"
-            except BaseException:
-                pass
+            except BaseException as e:
+                print e
             finally:
                 colorizeWidget(widget, color)
             return isOk
 
         def testAndColorizeString(theString, widget):
             isOk = isNonEmptyString(theString)
-            colorizeWidget(widget, "green" if isOk else "red")
+            colorizeWidget(widget, u"green" if isOk else u"red")
             return isOk
 
         web = self.page.field(u"webUrl")
@@ -113,18 +118,19 @@ class ConfigureServerUrlPageLoader(WizardPageLoader):
         if userPassOk:
             apiRes = self._friendlyTestApi(api, user, password)
             if apiRes == 1:
-                colorizeWidget(self.userLineEdit, "red")
-                colorizeWidget(self.passLineEdit, "red")
+                colorizeWidget(self.apiUrlLineEdit, u"green")
+                colorizeWidget(self.userLineEdit, u"red")
+                colorizeWidget(self.passLineEdit, u"red")
                 allOk = False
             elif apiRes == 2:
-                colorizeWidget(self.apiUrlLineEdit, "red")
-                colorizeWidget(self.userLineEdit, "orange")
-                colorizeWidget(self.passLineEdit, "orange")
+                colorizeWidget(self.apiUrlLineEdit, u"red")
+                colorizeWidget(self.userLineEdit, u"orange")
+                colorizeWidget(self.passLineEdit, u"orange")
                 allOk = False
             else:
-                colorizeWidget(self.apiUrlLineEdit, "green")
-                colorizeWidget(self.userLineEdit, "green")
-                colorizeWidget(self.passLineEdit, "green")
+                colorizeWidget(self.apiUrlLineEdit, u"green")
+                colorizeWidget(self.userLineEdit, u"green")
+                colorizeWidget(self.passLineEdit, u"green")
 
         self.isOk = allOk
 
