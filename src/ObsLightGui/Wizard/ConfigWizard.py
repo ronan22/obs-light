@@ -26,12 +26,12 @@ from PySide.QtGui import QWizard
 from ObsLightGui.ObsLightGuiObject import ObsLightGuiObject
 from ChooseServerWizardPage import ChooseServerWizardPageLoader
 from ConfigureServerUrlPageLoader import ConfigureServerUrlPageLoader
+from ConfigureServerAliasPageLoader import ConfigureServerAliasPageLoader
 
 class ConfigWizard(ObsLightGuiObject):
 
     Pages = ['ChooseServer',
              'ConfigureServerUrl',
-             'ConfigureServerCredentials',
              'ConfigureServerAlias',
              'ChooseProject',
              'ChooseProjectTarget',
@@ -40,6 +40,7 @@ class ConfigWizard(ObsLightGuiObject):
     wizard = None
 
     oldNextId = None
+    _pageLoaders = {}
 
     def __init__(self, gui):
         ObsLightGuiObject.__init__(self, gui)
@@ -55,18 +56,24 @@ class ConfigWizard(ObsLightGuiObject):
         return page
 
     def loadPages(self):
-
+        # TODO: clean
         pageLoader = ChooseServerWizardPageLoader(self.gui)
+        self._pageLoaders['ChooseServer'] = pageLoader
         index = self.pageIndex('ChooseServer')
         self.wizard.setPage(index, pageLoader.page)
 
         pageLoader = ConfigureServerUrlPageLoader(self.gui)
+        self._pageLoaders['ConfigureServerUrl'] = pageLoader
         index = self.pageIndex('ConfigureServerUrl')
         self.wizard.setPage(index, pageLoader.page)
 
-        pageCounter = 1
-        for pageName in [u"wizard_configServerAlias.ui",
-                         u"wizard_chooseProject.ui",
+        pageLoader = ConfigureServerAliasPageLoader(self.gui)
+        self._pageLoaders['ConfigureServerAlias'] = pageLoader
+        index = self.pageIndex('ConfigureServerAlias')
+        self.wizard.setPage(index, pageLoader.page)
+
+        pageCounter = 2
+        for pageName in [u"wizard_chooseProject.ui",
                          u"wizard_chooseTarget.ui",
                          u"wizard_chooseArchitecture.ui"]:
             pageCounter += 1

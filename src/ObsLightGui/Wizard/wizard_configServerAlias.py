@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui/wizard_configServerAlias.ui'
 #
-# Created: Tue Dec 20 12:23:21 2011
+# Created: Tue Dec 20 14:58:07 2011
 #      by: pyside-uic 0.2.13 running on PySide 1.0.8
 #
 # WARNING! All changes made in this file will be lost!
@@ -36,9 +36,9 @@ class Ui_WizardPage(object):
         self.label_6 = QtGui.QLabel(WizardPage)
         self.label_6.setObjectName("label_6")
         self.formLayout.setWidget(2, QtGui.QFormLayout.LabelRole, self.label_6)
-        self.repositoryUrlLabel = QtGui.QLabel(WizardPage)
-        self.repositoryUrlLabel.setObjectName("repositoryUrlLabel")
-        self.formLayout.setWidget(2, QtGui.QFormLayout.FieldRole, self.repositoryUrlLabel)
+        self.repoUrlLabel = QtGui.QLabel(WizardPage)
+        self.repoUrlLabel.setObjectName("repoUrlLabel")
+        self.formLayout.setWidget(2, QtGui.QFormLayout.FieldRole, self.repoUrlLabel)
         self.label_8 = QtGui.QLabel(WizardPage)
         self.label_8.setObjectName("label_8")
         self.formLayout.setWidget(3, QtGui.QFormLayout.LabelRole, self.label_8)
@@ -59,7 +59,7 @@ class Ui_WizardPage(object):
         self.label_4.setText(QtGui.QApplication.translate("WizardPage", "API URL:", None, QtGui.QApplication.UnicodeUTF8))
         self.apiUrlLabel.setText(QtGui.QApplication.translate("WizardPage", "url", None, QtGui.QApplication.UnicodeUTF8))
         self.label_6.setText(QtGui.QApplication.translate("WizardPage", "Repository URL:", None, QtGui.QApplication.UnicodeUTF8))
-        self.repositoryUrlLabel.setText(QtGui.QApplication.translate("WizardPage", "url", None, QtGui.QApplication.UnicodeUTF8))
+        self.repoUrlLabel.setText(QtGui.QApplication.translate("WizardPage", "url", None, QtGui.QApplication.UnicodeUTF8))
         self.label_8.setText(QtGui.QApplication.translate("WizardPage", "Username:", None, QtGui.QApplication.UnicodeUTF8))
         self.usernameLabel.setText(QtGui.QApplication.translate("WizardPage", "toto", None, QtGui.QApplication.UnicodeUTF8))
 

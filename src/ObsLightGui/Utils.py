@@ -354,13 +354,19 @@ def firstArgLast(func):
 class UiFriendlyTask(object):
     u"""
     A task that will run a function in a thread while refreshing UI.
+    Result is available in `UiFriendlyTask.result` after calling
+    `UiFriendlyTask.join()`.
     """
     hasFinished = False
     result = None
+    caughtException = None
 
     def _setHasFinished(self, result1):
         self.result = result1
         self.hasFinished = True
+
+    def _setHasCaughtException(self, theException):
+        self.caughtException = theException
 
     def join(self, delay=0.1):
         u"""
@@ -379,6 +385,7 @@ class UiFriendlyTask(object):
         runnable = ProgressRunnable2()
         runnable.setRunMethod(func, *args, **kwargs)
         runnable.finished[object].connect(self._setHasFinished)
+        runnable.caughtException.connect(self._setHasCaughtException)
         runnable.runOnGlobalInstance()
 
 def uiFriendly(func):
@@ -390,6 +397,8 @@ def uiFriendly(func):
         task = UiFriendlyTask()
         task.start(func, *args, **kwargs)
         task.join()
+        if task.caughtException is not None:
+            raise task.caughtException
         return task.result
     return uiFriendly1
 
@@ -441,7 +450,7 @@ def popupOnException(f):
     """
     def catchException(*args, **kwargs):
         try:
-            f(*args, **kwargs)
+            return f(*args, **kwargs)
         except BaseException as e:
             traceback_ = sys.exc_info()[2]
             exceptionToMessageBox(e, traceback_=traceback_)

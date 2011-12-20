@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui/wizard_configServerUrl.ui'
 #
-# Created: Tue Dec 20 12:23:21 2011
+# Created: Tue Dec 20 15:00:18 2011
 #      by: pyside-uic 0.2.13 running on PySide 1.0.8
 #
 # WARNING! All changes made in this file will be lost!
@@ -44,6 +44,7 @@ class Ui_WizardPage(object):
         self.usernameLineEdit.setObjectName("usernameLineEdit")
         self.formLayout.setWidget(6, QtGui.QFormLayout.FieldRole, self.usernameLineEdit)
         self.passwordLineEdit = QtGui.QLineEdit(WizardPage)
+        self.passwordLineEdit.setEchoMode(QtGui.QLineEdit.Password)
         self.passwordLineEdit.setObjectName("passwordLineEdit")
         self.formLayout.setWidget(7, QtGui.QFormLayout.FieldRole, self.passwordLineEdit)
 
