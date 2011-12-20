@@ -34,17 +34,37 @@ class ObsLightPackages(object):
         Constructor
         '''
         self.__dicOBSLightPackages = {}
-
-
+        self.__packageFilter = {}
+        self.__currentListPackageInfo = self.getDefaultListPackageInfo()
         if fromSave == None:
             self.__currentPackage = ""
         elif projectOscPath != None:
             for name in fromSave["savePackages"].keys():
                 self.__dicOBSLightPackages[name] = ObsLightPackage(packagePath=os.path.join(projectOscPath, name),
                                                                    fromSave=fromSave["savePackages"][name])
-            self.__currentPackage = fromSave["currentPackage"]
+            if "currentPackage" in fromSave.keys():
+                self.__currentPackage = fromSave["currentPackage"]
+            if "currentListPackageInfo" in fromSave.keys():
+                self.__currentListPackageInfo = fromSave["currentListPackageInfo"]
+            if "packageFilter" in fromSave.keys():
+                self.__packageFilter = fromSave["packageFilter"]
         else:
             raise ObsLightErr.ObsLightPackageErr("Not projectOscPath for the ObsLightPackages init")
+
+    #---------------------------------------------------------------------------
+#TODEL
+#    def getPackageStatus(self, name=None):
+#        '''
+#        
+#        '''
+#        return self.__dicOBSLightPackages[name].getStatus()
+#
+#    def getGetChRootStatus(self, name):
+#        '''
+#        Return the status of the package  into the chroot.
+#        '''
+#        return self.__dicOBSLightPackages[name].getGetChRootStatus()
+
 
     def getListPackages(self):
         '''
@@ -65,7 +85,8 @@ class ObsLightPackages(object):
         saveconfigPackages = {}
         saveconfigPackages["savePackages"] = aDic
         saveconfigPackages["currentPackage"] = self.__currentPackage
-
+        saveconfigPackages["currentListPackageInfo"] = self.__currentListPackageInfo
+        saveconfigPackages["packageFilter"] = self.__packageFilter
         return saveconfigPackages
 
     def addPackage(self,
@@ -99,11 +120,6 @@ class ObsLightPackages(object):
         '''
         return self.__dicOBSLightPackages[name].isInstallInChroot()
 
-    def getGetChRootStatus(self, name):
-        '''
-        Return the status of the package  into the chroot.
-        '''
-        return self.__dicOBSLightPackages[name].getGetChRootStatus()
 
     def delFromChroot(self, package):
         '''
@@ -111,11 +127,6 @@ class ObsLightPackages(object):
         '''
         return self.__dicOBSLightPackages[package].delFromChroot()
 
-    def getPackageStatus(self, name=None):
-        '''
-        
-        '''
-        return self.__dicOBSLightPackages[name].getStatus()
 
     def getSpecFile(self, name=None):
         '''
@@ -158,6 +169,111 @@ class ObsLightPackages(object):
             packageTitle
         '''
         return self.__dicOBSLightPackages[package].getPackageParameter(parameter=parameter)
+    #---------------------------------------------------------------------------
+
+    def getCurrentListPackageInfo(self):
+        '''
+        
+        '''
+        return self.__currentListPackageInfo
+
+    def resetCurrentListPackageInfo(self):
+        '''
+        
+        '''
+        self.__currentListPackageInfo = self.getDefaultListPackageInfo()
+
+    def getDefaultListPackageInfo(self):
+        '''
+        
+        '''
+        return ["obsRev", "oscRev", "status", "oscStatus", "chRootStatus"]
+
+
+
+    #---------------------------------------------------------------------------
+
+
+    def getPackageFilter(self):
+        '''
+        
+        '''
+        return self.__packageFilter
+
+    def resetPackageFilter(self):
+        '''
+        
+        '''
+        self.__packageFilter = {}
+
+    def removePackageFilter(self, key):
+        '''
+        
+        '''
+        if key in self.__packageFilter.keys():
+            del self.__packageFilter[key]
+
+    def addPackageFilter(self, key, val):
+        '''
+        
+        '''
+        self.__packageFilter[key] = val
+
+    def getListStatus(self):
+        '''
+        
+        '''
+        return ["succeeded",
+                "failed",
+                "unresolvable",
+                "broken",
+                "blocked",
+                "dispatching",
+                "scheduled",
+                "building",
+                "signing",
+                "finished",
+                "disabled",
+                "excluded",
+                "unknown"]
+
+    def getListOscStatus(self):
+        '''
+        
+        '''
+        return ["Not installed", "No build directory", "Installed"]
+
+    def getListChRootStatus(self):
+        '''
+        
+        '''
+        return ["Unknown", "inconsistent state", "Succeeded"]
+
+    def __isFilterInfo(self, info):
+        '''
+        
+        '''
+        for k in self.__packageFilter:
+            if k in info.keys():
+                if (self.__packageFilter[k] != info[k]):
+                    return False
+        return True
+
+    def getPackageInfo(self, package=None):
+        '''
+        
+        '''
+        res = {}
+        if package == None:
+            for pk in self.getListPackages():
+                info = self.__dicOBSLightPackages[pk].getPackageInfo(self.getCurrentListPackageInfo())
+                if self.__isFilterInfo(info):
+                    res[pk] = info
+        else:
+            res[package] = self.__dicOBSLightPackages[package].getPackageInfo(self.getCurrentListPackageInfo())
+        return res
+
+    #---------------------------------------------------------------------------
 
     def setPackageParameter(self, package, parameter, value):
         '''

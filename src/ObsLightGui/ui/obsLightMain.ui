@@ -325,7 +325,10 @@
                <item row="4" column="0">
                 <widget class="QLabel" name="projectLabel">
                  <property name="text">
-                  <string>Project:</string>
+                  <string>Project</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
                  </property>
                 </widget>
                </item>
@@ -581,7 +584,10 @@ You can select several packages.</string>
                <item row="4" column="0">
                 <widget class="QLabel" name="packageNameLabel">
                  <property name="text">
-                  <string>Package:</string>
+                  <string>Package</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
                  </property>
                 </widget>
                </item>

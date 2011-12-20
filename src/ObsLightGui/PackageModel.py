@@ -40,53 +40,33 @@ class PackageModel(QAbstractTableModel):
 
     __obsLightManager = None
     __project = None
-    __emptyList = []
+    __emptyList = {}
 
     def __init__(self, obsLightManager, projectName):
         QAbstractTableModel.__init__(self)
         self.__obsLightManager = obsLightManager
         self.__project = projectName
+        self.__pkgList = None
         self._loadColors()
 
-    def _loadColors(self):
-        # http://www.w3.org/TR/SVG/types.html#ColorKeywords
-        self.colors[self.ObsStatusColumn]["succeeded"] = QColor(u"green")
-        self.colors[self.ObsStatusColumn]["excluded"] = QColor(u"grey")
-        self.colors[self.ObsStatusColumn]["broken"] = QColor(u"red")
-        self.colors[self.ObsStatusColumn]["building"] = QColor(u"gold")
-        self.colors[self.ObsStatusColumn]["failed"] = QColor(u"red")
-        self.colors[self.ObsStatusColumn]["scheduled"] = QColor(u"blue")
-        self.colors[self.ObsStatusColumn]["unresolvable"] = QColor(u"darkred")
-        self.colors[self.ChrootStatusColumn]["Installed"] = QColor(u"green")
-        self.colors[self.OscStatusColumn]["Unknown"] = QColor(u"grey")
-        self.colors[self.OscStatusColumn]["Succeeded"] = QColor(u"green")
-        self.colors[self.OscStatusColumn]["inconsistent state"] = QColor(u"red")
-        # "inferior" means oscRev < obsRev
-        self.colors[self.OscRevColumn][u"inferior"] = QColor(u"orange")
-        self.colors[self.OscRevColumn][u"equal"] = QColor(u"green")
-        # "superior" means oscRev > obsRev, which should never happen
-        self.colors[self.OscRevColumn][u"superior"] = QColor(u"darkred")
-        self.colors[self.ObsRevColumn][u"ok"] = QColor(u"green")
-
-    def getProject(self):
-        return self.__project
-
-    def __getPackageList(self):
-        if self.getProject() is None:
-            return self.__emptyList
-        pkgList = self.__obsLightManager.getLocalProjectPackageList(self.getProject(),
-                                                                    local=1)
-        if pkgList is None:
-            return self.__emptyList
-        else:
-            return pkgList
-
+    #model
     def rowCount(self, _parent=None):
         return len(self.__getPackageList())
-
+    #model
     def columnCount(self, _parent=None):
         return 6
-
+    #model
+    def data(self, index, role=Qt.DisplayRole):
+        if not index.isValid() or index.row() >= self.rowCount():
+            return None
+        if role == Qt.DisplayRole:
+            return self.displayRoleData(index.row(), index.column())
+        elif role == Qt.ForegroundRole:
+            return self.foregroundRoleData(index)
+        elif role == Qt.TextAlignmentRole:
+            return self.textAlignmentRoleData(index)
+        return None
+    #model
     def headerData(self, section, orientation, role):
         if role == Qt.DisplayRole:
             if orientation == Qt.Orientation.Vertical:
@@ -112,26 +92,63 @@ class PackageModel(QAbstractTableModel):
                     return QSize(32, 0)
         return None
 
+    def _loadColors(self):
+        # http://www.w3.org/TR/SVG/types.html#ColorKeywords
+        self.colors[self.ObsStatusColumn]["succeeded"] = QColor(u"green")
+        self.colors[self.ObsStatusColumn]["excluded"] = QColor(u"grey")
+        self.colors[self.ObsStatusColumn]["broken"] = QColor(u"red")
+        self.colors[self.ObsStatusColumn]["building"] = QColor(u"gold")
+        self.colors[self.ObsStatusColumn]["failed"] = QColor(u"red")
+        self.colors[self.ObsStatusColumn]["scheduled"] = QColor(u"blue")
+        self.colors[self.ObsStatusColumn]["unresolvable"] = QColor(u"darkred")
+
+        self.colors[self.ChrootStatusColumn]["Installed"] = QColor(u"green")
+
+        self.colors[self.OscStatusColumn]["Unknown"] = QColor(u"grey")
+        self.colors[self.OscStatusColumn]["Succeeded"] = QColor(u"green")
+        self.colors[self.OscStatusColumn]["inconsistent state"] = QColor(u"red")
+        # "inferior" means oscRev < obsRev
+        self.colors[self.OscRevColumn][u"inferior"] = QColor(u"red")
+        self.colors[self.OscRevColumn][u"equal"] = QColor(u"green")
+        # "superior" means oscRev > obsRev, which should never happen
+        self.colors[self.OscRevColumn][u"superior"] = QColor(u"red")
+        self.colors[self.ObsRevColumn][u"ok"] = QColor(u"green")
+
+    def getProject(self):
+        return self.__project
+
+    def resetCache(self):
+        self.__pkgList = None
+
+    def __getPackageList(self):
+        if self.getProject() is None:
+            return self.__emptyList
+
+        if self.__pkgList is None:
+            self.__pkgList = self.__obsLightManager.getPackageInfo(self.getProject())
+
+        if self.__pkgList is None:
+            return self.__emptyList
+        else:
+            return self.__pkgList
+
     def displayRoleData(self, row, column):
-        packageName = self.__getPackageList()[row]
+        packageList = self.__getPackageList()
+        packageName = packageList.keys()[row]
         retVal = None
+
         if column == self.NameColumn:
             retVal = packageName
         elif column == self.ObsStatusColumn:
-            retVal = self.__obsLightManager.getPackageStatus(self.__project,
-                                                             packageName)
+            retVal = packageList[packageName]["status"]
         elif column == self.ChrootStatusColumn:
-            retVal = self.__obsLightManager.getGetChRootStatus(self.__project,
-                                                               packageName)
+            retVal = packageList[packageName]["chRootStatus"]
         elif column == self.OscStatusColumn:
-            retVal = self.__obsLightManager.getOscPackageStatus(self.__project,
-                                                                packageName)
+            retVal = packageList[packageName]["oscStatus"]
         elif column == self.OscRevColumn:
-            retVal = self.__obsLightManager.getOscPackageRev(self.__project,
-                                                             packageName)
+            retVal = packageList[packageName]["oscRev"]
         elif column == self.ObsRevColumn:
-            retVal = self.__obsLightManager.getObsPackageRev(self.__project,
-                                                             packageName)
+            retVal = packageList[packageName]["obsRev"]
         return retVal
 
     def foregroundRoleData(self, index):
@@ -157,21 +174,11 @@ class PackageModel(QAbstractTableModel):
             return Qt.AlignHCenter | Qt.AlignVCenter
         return None
 
-    def data(self, index, role=Qt.DisplayRole):
-        if not index.isValid() or index.row() >= self.rowCount():
-            return None
-        if role == Qt.DisplayRole:
-            return self.displayRoleData(index.row(), index.column())
-        elif role == Qt.ForegroundRole:
-            return self.foregroundRoleData(index)
-        elif role == Qt.TextAlignmentRole:
-            return self.textAlignmentRoleData(index)
-        return None
-
-    def sort(self, Ncol, order):
-        print "Sort data according to column ", Ncol
+#    def sort(self, Ncol, order):
+#        print "Sort data according to column ", Ncol
 
     def refresh(self):
+        self.resetCache()
         self.layoutChanged.emit()
 
     def addPackage(self, packageName):

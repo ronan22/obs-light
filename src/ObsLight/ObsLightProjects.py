@@ -60,20 +60,44 @@ class ObsLightProjects(object):
         return self.__dicOBSLightProjects[project].getOscPackageStatus(package)
 
     def getOscPackageRev(self,
-                          projectLocalName,
-                          packageName):
+                         projectLocalName,
+                         packageName):
         '''
         
         '''
         return self.__dicOBSLightProjects[projectLocalName].getOscPackageRev(packageName)
 
     def getObsPackageRev(self,
-                          projectLocalName,
-                          packageName):
+                         projectLocalName,
+                         packageName):
         '''
         
         '''
         return self.__dicOBSLightProjects[projectLocalName].getObsPackageRev(packageName)
+    #---------------------------------------------------------------------------
+    def getPackageFilter(self, projectLocalName):
+        return self.__dicOBSLightProjects[projectLocalName].getPackageFilter()
+
+    def resetPackageFilter(self, projectLocalName):
+        return self.__dicOBSLightProjects[projectLocalName].resetPackageFilter()
+
+    def removePackageFilter(self, projectLocalName, key):
+        return self.__dicOBSLightProjects[projectLocalName].removePackageFilter(key=key)
+
+    def addPackageFilter(self, projectLocalName, key, val):
+        return self.__dicOBSLightProjects[projectLocalName].addPackageFilter(key=key, val=val)
+
+    def getListStatus(self, projectLocalName):
+        return self.__dicOBSLightProjects[projectLocalName].getListStatus()
+
+    def getListOscStatus(self, projectLocalName):
+        return self.__dicOBSLightProjects[projectLocalName].getListOscStatus()
+
+    def getListChRootStatus(self, projectLocalName):
+        return self.__dicOBSLightProjects[projectLocalName].getListChRootStatus()
+
+    def getPackageInfo(self, projectLocalName, package=None):
+        return self.__dicOBSLightProjects[projectLocalName].getPackageInfo(package=package)
 
     #---------------------------------------------------------------------------
 

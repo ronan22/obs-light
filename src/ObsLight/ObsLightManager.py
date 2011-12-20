@@ -881,6 +881,84 @@ class ObsLightManager(object):
         return self.__myObsLightProjects.getObsPackageRev(projectLocalName=projectLocalName,
                                                           packageName=packageName)
 
+
+    #---------------------------------------------------------------------------
+    @checkProjectLocalName(1)
+    def getPackageFilter(self, projectLocalName):
+        '''
+        Return the dictionary of the PackageFilter.
+        the key is the info, "obsRev", "oscRev", "status", "oscStatus", "chRootStatus".
+        the value is the value to filter.
+        '''
+        return self.__myObsLightProjects.getPackageFilter(projectLocalName=projectLocalName)
+
+    @checkProjectLocalName(1)
+    def resetPackageFilter(self, projectLocalName):
+        '''
+        Reset the dictionary of the PackageFilter.
+        '''
+        return self.__myObsLightProjects.resetPackageFilter(projectLocalName=projectLocalName)
+
+    @checkProjectLocalName(1)
+    def removePackageFilter(self, projectLocalName, key):
+        '''
+        remove a filter from the dictionary of the PackageFilter.
+        the key is the info, "obsRev", "oscRev", "status", "oscStatus", "chRootStatus".
+        '''
+        return self.__myObsLightProjects.removePackageFilter(projectLocalName=projectLocalName,
+                                                             key=key)
+
+    @checkProjectLocalName(1)
+    def addPackageFilter(self, projectLocalName, key, val):
+        '''
+        Add a filter from the dictionary of the PackageFilter.
+        The key is the info, ["obsRev", "oscRev", "status", "oscStatus", "chRootStatus"].
+        The val is a string. 
+            For  ["obsRev", "oscRev"] can be -1,1,2,...
+            For ["status", "oscStatus", "chRootStatus"] define in [getListStatus,getListOscStatus,getListChRootStatus]
+        '''
+        return self.__myObsLightProjects.addPackageFilter(projectLocalName=projectLocalName,
+                                                          key=key,
+                                                          val=val)
+    @checkProjectLocalName(1)
+    def getListStatus(self, projectLocalName):
+        '''
+
+        '''
+        return self.__myObsLightProjects.getListStatus(projectLocalName=projectLocalName)
+
+    @checkProjectLocalName(1)
+    def getListOscStatus(self, projectLocalName):
+        '''
+        
+        '''
+        return self.__myObsLightProjects.getListOscStatus(projectLocalName=projectLocalName)
+
+    @checkProjectLocalName(1)
+    def getListChRootStatus(self, projectLocalName):
+        '''
+        
+        '''
+        return self.__myObsLightProjects.getListChRootStatus(projectLocalName=projectLocalName)
+
+    @checkProjectLocalName(1)
+    def getPackageInfo(self, projectLocalName, package=None):
+        '''
+        Return a dictionary.
+        The key is the package name.
+        the value is a dictionary.
+            The key is the info, ["obsRev", "oscRev", "status", "oscStatus", "chRootStatus"].
+            The val is a string. 
+                For  ["obsRev", "oscRev"] can be -1,0,1,...
+                For ["status", "oscStatus", "chRootStatus"] define in [getListStatus,getListOscStatus,getListChRootStatus]
+        If package =None:
+            return all the package filtered.
+        else:
+            return only package.
+        '''
+        return self.__myObsLightProjects.getPackageInfo(projectLocalName=projectLocalName,
+                                                        package=package)
+
     #---------------------------------------------------------------------------
 
     @checkProjectLocalName(1)

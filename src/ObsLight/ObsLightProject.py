@@ -133,19 +133,19 @@ class ObsLightProject(object):
         '''
         
         '''
-        return self.__packages.getPackageStatus(name=package)
+        return self.__packages.getPackage(package).getPackageStatus()
 
     def getGetChRootStatus(self, package):
         '''
         Return the status of the package  into the chroot.
         '''
-        return self.__packages.getGetChRootStatus(name=package)
+        return self.__packages.getPackage(package).getGetChRootStatus()
 
     def getOscPackageStatus(self, package):
         '''
         
         '''
-        return self.__packages.getPackage(package).getPackageParameter(parameter="oscStatus")
+        return self.__packages.getPackage(package).getOscStatus()
 
     def getOscPackageRev(self, packageName):
         '''
@@ -157,7 +157,7 @@ class ObsLightProject(object):
         '''
         
         '''
-        return self.__packages.getPackageParameter(packageName, "obsRev")
+        return self.__packages.getPackage(packageName).getObsPackageRev()
 
     #---------------------------------------------------------------------------
 
@@ -571,8 +571,6 @@ class ObsLightProject(object):
                     return None
             self.__packages.getPackage(package).setOscStatus("Succeeded")
 
-
-
         return None
 
     def updatePackage(self, name, noOscUpdate=False):
@@ -900,4 +898,40 @@ class ObsLightProject(object):
         
         '''
         return self.__packages.getPackage(package).testConflict()
+
+    #---------------------------------------------------------------------------
+    def getPackageFilter(self):
+        return self.__packages.getPackageFilter()
+
+    def resetPackageFilter(self):
+        return self.__packages.resetPackageFilter()
+
+    def removePackageFilter(self, key):
+        return self.__packages.removePackageFilter(key=key)
+
+    def addPackageFilter(self, key, val):
+        return self.__packages.addPackageFilter(key=key, val=val)
+
+    def getListStatus(self):
+        return self.__packages.getListStatus()
+
+    def getListOscStatus(self):
+        return self.__packages.getListOscStatus()
+
+    def getListChRootStatus(self):
+        return self.__packages.getListChRootStatus()
+
+    def getPackageInfo(self, package=None):
+        return self.__packages.getPackageInfo(package=package)
+    #---------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
 

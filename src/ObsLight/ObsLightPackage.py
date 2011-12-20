@@ -130,6 +130,59 @@ class ObsLightPackage(object):
 
         self.__initConfigureFile()
 
+    #---------------------------------------------------------------------------
+    def getPackageInfo(self, info):
+        '''
+        
+        '''
+        res = {}
+        for i in info:
+            if i == "obsRev":
+                res["obsRev"] = self.getObsPackageRev()
+            elif i == "oscRev":
+                res["oscRev"] = self.getOscPackageRev()
+            elif i == "status":
+                res["status"] = self.getPackageStatus()
+            elif i == "oscStatus":
+                res["oscStatus"] = self.getOscStatus()
+            elif i == "chRootStatus":
+                res["chRootStatus"] = self.getGetChRootStatus()
+            else:
+                raise ObsLightPackageErr("Error in getPackageInfo '" + str(i) + "' is not valide")
+        return res
+    #---------------------------------------------------------------------------
+    def getOscStatus(self):
+        '''
+        
+        '''
+        return self.__oscStatus
+
+    def getPackageStatus(self):
+        '''
+        
+        '''
+        return self.__status
+
+    def getGetChRootStatus(self):
+        '''
+        
+        '''
+        return self.__chRootStatus
+
+    def getOscPackageRev(self):
+        '''
+        
+        '''
+        return self.__oscRev
+
+    def getObsPackageRev(self):
+        '''
+        
+        '''
+        return self.__obsRev
+
+    #---------------------------------------------------------------------------
+
     def getChrootRpmBuildDirectory(self):
         '''
         
@@ -160,12 +213,6 @@ class ObsLightPackage(object):
         '''
         self.__firstCommitTag = tag
 
-    def getOscPackageRev(self):
-        '''
-        
-        '''
-        return self.__oscRev
-
     def getPackageFileList(self):
         '''
         
@@ -180,12 +227,6 @@ class ObsLightPackage(object):
         
         '''
         self.__oscRev = rev
-
-    def getObsPackageRev(self):
-        '''
-        
-        '''
-        return self.__obsRev
 
     def setObsPackageRev(self, rev):
         '''
@@ -205,11 +246,6 @@ class ObsLightPackage(object):
         '''
         return self.__packagePath
 
-    def getGetChRootStatus(self):
-        '''
-        
-        '''
-        return self.__chRootStatus
 
     def setChRootStatus(self, status):
         '''
@@ -369,13 +405,13 @@ class ObsLightPackage(object):
         '''
         self.__prepDirName = prepDirName
 
-    def getPrepDirName(self, prepDirName):
+    def getPrepDirName(self):
         '''
         
         '''
         return self.__prepDirName
 
-    def getArchiveName(self, prepDirName):
+    def getArchiveName(self):
         '''
         
         '''
