@@ -65,8 +65,7 @@ class ConfigWizard(ObsLightGuiObject):
         self.wizard.setPage(index, pageLoader.page)
 
         pageCounter = 1
-        for pageName in [u"wizard_configServerCredentials.ui",
-                         u"wizard_configServerAlias.ui",
+        for pageName in [u"wizard_configServerAlias.ui",
                          u"wizard_chooseProject.ui",
                          u"wizard_chooseTarget.ui",
                          u"wizard_chooseArchitecture.ui"]:
