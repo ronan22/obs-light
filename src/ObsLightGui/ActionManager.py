@@ -23,7 +23,7 @@ Created on 27 oct. 2011
 from PySide.QtGui import QAction, QLabel
 
 from ServerListManager import ServerListManager
-from wizard.ConfigWizard import ConfigWizard
+from Wizard.ConfigWizard import ConfigWizard
 
 class MainWindowActionManager(object):
     '''
