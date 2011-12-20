@@ -71,6 +71,7 @@ class ObsLightPackage(object):
         self.__oscRev = oscRev
         self.__obsRev = obsRev
         self.__listFileToDel = []
+        self.__prepDirName = None
 
         if fromSave == None:
             self.__name = name
@@ -118,6 +119,8 @@ class ObsLightPackage(object):
                 self.__listInfoFile = fromSave["listInfoFile"]
             if "listFileToDel" in fromSave.keys():
                 self.__listFileToDel = fromSave["listFileToDel"]
+            if "prepDirName" in fromSave.keys():
+                self.__prepDirName = fromSave["prepDirName"]
 
         self.__rpmBuildDirectory = "rpmbuild"
         self.__rpmBuildTmpDirectory = "obslightbuild"
@@ -304,6 +307,7 @@ class ObsLightPackage(object):
         aDic["obsRev"] = self.__obsRev
         aDic["listInfoFile"] = self.__listInfoFile
         aDic["listFileToDel"] = self.__listFileToDel
+        aDic["prepDirName"] = self.__prepDirName
         return aDic
 
     def getPackageParameter(self, parameter=None):
@@ -354,8 +358,31 @@ class ObsLightPackage(object):
             return self.__listInfoFile
         elif parameter == "listFileToDel":
             return self.__listFileToDel
+        elif parameter == "prepDirName":
+            return self.__prepDirName
         else:
             raise ObsLightPackageErr("parameter value is not valid for getProjectParameter")
+
+    def setPrepDirName(self, prepDirName):
+        '''
+        
+        '''
+        self.__prepDirName = prepDirName
+
+    def getPrepDirName(self, prepDirName):
+        '''
+        
+        '''
+        return self.__prepDirName
+
+    def getArchiveName(self, prepDirName):
+        '''
+        
+        '''
+        if self.__prepDirName != None:
+            return self.__name + ".tar.gz"
+        else:
+            return self.__prepDirName + ".tar.gz"
 
     def initCurrentPatch(self):
         '''
@@ -422,6 +449,8 @@ class ObsLightPackage(object):
             self.__listInfoFile = value
         elif parameter == "listFileToDel":
             self.__listFileToDel = value
+        elif parameter == "prepDirName":
+            self.__prepDirName = value
         else:
             raise ObsLightPackageErr("parameter value is not valid for setPackageParameter")
         return 0

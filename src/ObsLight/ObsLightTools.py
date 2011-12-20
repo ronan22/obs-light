@@ -27,7 +27,6 @@ from subprocess import call
 import ObsLightConfig
 import ObsLightErr
 import ObsLightPrintManager
-import ObsLightOsc
 
 from M2Crypto import SSL
 from os.path import expanduser
@@ -93,13 +92,7 @@ def testUrl(url):
     finally:
         test.close()
 
-def testApi(api, user, passwd):
-    '''
-    return 0 if the API,user and passwd is OK.
-    return 1 if user and passwd  are wrong.
-    return 2 if api is wrong.
-    '''
-    return ObsLightOsc.getObsLightOsc().testApi(api=api, user=user, passwd=passwd)
+
 
 def testRepo(url, name):
     '''

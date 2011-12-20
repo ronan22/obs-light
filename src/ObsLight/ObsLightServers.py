@@ -336,7 +336,13 @@ class ObsLightServers(object):
         return self.__dicOBSLightServers[obsServer].getObsPackageRev(projectObsName=projectObsName,
                                                                      package=package)
 
-
+    def testApi(self, api, user, passwd):
+        '''
+        return 0 if the API,user and passwd is OK.
+        return 1 if user and passwd  are wrong.
+        return 2 if api is wrong.
+        '''
+        return ObsLightOsc.getObsLightOsc().testApi(api=api, user=user, passwd=passwd)
 
 
 

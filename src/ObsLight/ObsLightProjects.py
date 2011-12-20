@@ -40,6 +40,43 @@ class ObsLightProjects(object):
 
         self.__load()
 
+    #---------------------------------------------------------------------------
+    def getPackageStatus(self, project, package):
+        '''
+        
+        '''
+        return self.__dicOBSLightProjects[project].getPackageStatus(package=package)
+
+    def getGetChRootStatus(self, projectLocalName, package):
+        '''
+        Return the status of the package  into the chroot.
+        '''
+        return self.__dicOBSLightProjects[projectLocalName].getGetChRootStatus(package=package)
+
+    def getOscPackageStatus(self, project, package):
+        '''
+        
+        '''
+        return self.__dicOBSLightProjects[project].getOscPackageStatus(package)
+
+    def getOscPackageRev(self,
+                          projectLocalName,
+                          packageName):
+        '''
+        
+        '''
+        return self.__dicOBSLightProjects[projectLocalName].getOscPackageRev(packageName)
+
+    def getObsPackageRev(self,
+                          projectLocalName,
+                          packageName):
+        '''
+        
+        '''
+        return self.__dicOBSLightProjects[projectLocalName].getObsPackageRev(packageName)
+
+    #---------------------------------------------------------------------------
+
     def getObsLightWorkingDirectory(self):
         '''
         Returns the OBS Light working directory, usually /home/<user>/OBSLight.
@@ -401,12 +438,6 @@ class ObsLightProjects(object):
         '''
         return self.__dicOBSLightProjects[projectLocalName].getWebProjectPage()
 
-    def getPackageStatus(self, project, package):
-        '''
-        
-        '''
-        return self.__dicOBSLightProjects[project].getPackageStatus(package=package)
-
     def isChRootInit(self, projectLocalName):
         '''
         Return True if the ChRoot is init otherwise False.
@@ -419,11 +450,7 @@ class ObsLightProjects(object):
         '''
         return self.__dicOBSLightProjects[projectLocalName].isInstallInChroot(package=package)
 
-    def getGetChRootStatus(self, projectLocalName, package):
-        '''
-        Return the status of the package  into the chroot.
-        '''
-        return self.__dicOBSLightProjects[projectLocalName].getGetChRootStatus(package=package)
+
 
     def getChRootRepositories(self, projectLocalName):
         '''
@@ -463,11 +490,6 @@ class ObsLightProjects(object):
         '''
         self.__dicOBSLightProjects[projectLocalName].modifyRepo(repoAlias, newUrl, newAlias)
 
-    def getOscPackageStatus(self, project, package):
-        '''
-        
-        '''
-        return self.__dicOBSLightProjects[project].getOscPackageStatus(package)
 
     def refreshOscDirectoryStatus(self, projectLocalName, package=None):
         '''
@@ -486,22 +508,6 @@ class ObsLightProjects(object):
         
         '''
         return self.__dicOBSLightProjects[projectLocalName].repairOscPackageDirectory(package=package)
-
-    def getOscPackageRev(self,
-                          projectLocalName,
-                          packageName):
-        '''
-        
-        '''
-        return self.__dicOBSLightProjects[projectLocalName].getOscPackageRev(packageName)
-
-    def getObsPackageRev(self,
-                          projectLocalName,
-                          packageName):
-        '''
-        
-        '''
-        return self.__dicOBSLightProjects[projectLocalName].getObsPackageRev(packageName)
 
     def patchIsInit(self, ProjectName, packageName):
         '''

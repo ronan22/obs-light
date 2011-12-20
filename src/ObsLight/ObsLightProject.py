@@ -128,6 +128,38 @@ class ObsLightProject(object):
         if not os.path.isdir(self.getDirectory()):
             os.makedirs(self.getDirectory())
 
+    #---------------------------------------------------------------------------
+    def getPackageStatus(self, package=None):
+        '''
+        
+        '''
+        return self.__packages.getPackageStatus(name=package)
+
+    def getGetChRootStatus(self, package):
+        '''
+        Return the status of the package  into the chroot.
+        '''
+        return self.__packages.getGetChRootStatus(name=package)
+
+    def getOscPackageStatus(self, package):
+        '''
+        
+        '''
+        return self.__packages.getPackage(package).getPackageParameter(parameter="oscStatus")
+
+    def getOscPackageRev(self, packageName):
+        '''
+        
+        '''
+        return self.getPackage(packageName).getOscPackageRev()
+
+    def getObsPackageRev(self, packageName):
+        '''
+        
+        '''
+        return self.__packages.getPackageParameter(packageName, "obsRev")
+
+    #---------------------------------------------------------------------------
 
     def getDirectory(self):
         '''
@@ -146,20 +178,6 @@ class ObsLightProject(object):
             return absPackagePath
         else:
             return None
-
-    def getOscPackageRev(self, packageName):
-        '''
-        
-        '''
-        return self.getPackage(packageName).getOscPackageRev()
-
-    def getObsPackageRev(self, packageName):
-        '''
-        
-        '''
-        return self.__packages.getPackageParameter(packageName, "obsRev")
-#        return self.__obsServers.getObsServer(name=self.__obsServer).getObsPackageRev(projectObsName=self.__projectObsName,
-#                                                                                      package=packageName)
 
     def __addPackagesFromSave(self, fromSave, importFile):
         '''
@@ -431,13 +449,6 @@ class ObsLightProject(object):
         '''
         return file.endswith(".yaml")
 
-    def getPackageStatus(self, package=None):
-        '''
-        
-        '''
-        return self.__packages.getPackageStatus(name=package)
-
-
 
     def addPackage(self, name=None):
         '''
@@ -603,11 +614,7 @@ class ObsLightProject(object):
 
         return self.__packages.isInstallInChroot(name=package)
 
-    def getGetChRootStatus(self, package):
-        '''
-        Return the status of the package  into the chroot.
-        '''
-        return self.__packages.getGetChRootStatus(name=package)
+
 
     def getChRootRepositories(self):
         '''
@@ -743,9 +750,8 @@ class ObsLightProject(object):
         aspecFile = self.__packages.getChrootRpmBuildDirectory(name=package) + "/SPECS/" + specFile
         name = self.__packages.getPackage(package=package).getMacroDirectoryPackageName()
         if name != None:
-            prepDirname = self.__chroot.resolveMacro(name)
             if name != None:
-                tarFile = prepDirname + ".tar.gz"
+                tarFile = self.__packages.getPackage(package=package).getArchiveName()
                 self.__chroot.buildRpm(package=self.__packages.getPackage(package=package),
                                        specFile=aspecFile,
                                        pathPackage=path,
@@ -774,13 +780,11 @@ class ObsLightProject(object):
         aspecFile = self.__packages.getChrootRpmBuildDirectory(name=package) + "/SPECS/" + specFile
         name = self.__packages.getPackage(package=package).getMacroDirectoryPackageName()
         if name != None:
-            prepDirname = self.__chroot.resolveMacro(name)
-            if name != None:
-                tarFile = prepDirname + ".tar.gz"
-                self.__chroot.installRpm(package=self.__packages.getPackage(package=package),
-                                         specFile=aspecFile,
-                                         pathPackage=path,
-                                         tarFile=tarFile)
+            tarFile = self.__packages.getPackage(package=package).getArchiveName()
+            self.__chroot.installRpm(package=self.__packages.getPackage(package=package),
+                                     specFile=aspecFile,
+                                     pathPackage=path,
+                                     tarFile=tarFile)
 
     def packageRpm(self, package):
         '''
@@ -793,13 +797,11 @@ class ObsLightProject(object):
         aspecFile = self.__packages.getChrootRpmBuildDirectory(name=package) + "/SPECS/" + specFile
         name = self.__packages.getPackage(package=package).getMacroDirectoryPackageName()
         if name != None:
-            prepDirname = self.__chroot.resolveMacro(name)
-            if name != None:
-                tarFile = prepDirname + ".tar.gz"
-                self.__chroot.packageRpm(package=self.__packages.getPackage(package=package),
-                                         specFile=aspecFile,
-                                         pathPackage=path,
-                                         tarFile=tarFile)
+            tarFile = self.__packages.getPackage(package=package).getArchiveName()
+            self.__chroot.packageRpm(package=self.__packages.getPackage(package=package),
+                                     specFile=aspecFile,
+                                     pathPackage=path,
+                                     tarFile=tarFile)
 
     def makePatch(self, package, patch):
         '''
@@ -885,11 +887,7 @@ class ObsLightProject(object):
         '''
         self.__chroot.modifyRepo(repoAlias, newUrl, newAlias)
 
-    def getOscPackageStatus(self, package):
-        '''
-        
-        '''
-        return self.__packages.getPackage(package).getPackageParameter(parameter="oscStatus")
+
 
     def getPackageFileInfo(self, packageName, fileName):
         '''

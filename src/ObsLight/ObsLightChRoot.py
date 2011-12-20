@@ -238,6 +238,7 @@ class ObsLightChRoot(object):
             prepDirname = listDir[0]
             if os.path.isdir(pathBuild + "/" + prepDirname):
                 resultPath = package.getChrootRpmBuildDirectory() + "/BUILD/" + prepDirname
+                package.setPrepDirName(prepDirname)
                 subDir = os.listdir(pathBuild + "/" + prepDirname)
                 if len(subDir) == 0:
                     return resultPath

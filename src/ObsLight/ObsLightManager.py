@@ -30,7 +30,6 @@ from ObsLightTools import isNonEmptyString
 import ObsLightConfig
 import ObsLightTools
 import ObsLightPrintManager
-import inspect
 
 from ObsLightErr import ObsLightObsServers
 from ObsLightErr import ObsLightProjectsError
@@ -591,6 +590,7 @@ class ObsLightManager(object):
         Remove a Handler object to the logger of obslight.
         '''
         ObsLightPrintManager.removeHandler(handler)
+    #---------------------------------------------------------------------------
 
     def getObsLightWorkingDirectory(self):
         '''
@@ -604,6 +604,14 @@ class ObsLightManager(object):
         obsServer may be an OBS server alias or an HTTP(S) URL.
         '''
         return self.__myObsServers.testServer(obsServer=obsServer)
+
+    def testApi(self, api, user, passwd):
+        '''
+        return 0 if the API,user and passwd is OK.
+        return 1 if user and passwd  are wrong.
+        return 2 if api is wrong.
+        '''
+        return self.__myObsServers.testApi(api=api, user=user, passwd=passwd)
 
     def testUrl(self, Url):
         '''
@@ -631,14 +639,6 @@ class ObsLightManager(object):
         return True if the url is a repo.
         '''
         return ObsLightTools.testUrlRepo(url=url)
-
-    def testApi(self, api, user, passwd):
-        '''
-        return 0 if the API,user and passwd is OK.
-        return 1 if user and passwd  are wrong.
-        return 2 if api is wrong.
-        '''
-        return ObsLightTools.testApi(api=api, user=user, passwd=passwd)
 
     def getVersion(self):
         '''
@@ -726,6 +726,13 @@ class ObsLightManager(object):
                                                   projectLocalName=projectObsName)
 
     #---------------------------------------------------------------------------
+    @checkNonEmptyStringServerApi(1)
+    @checkServerApi(1)
+    def getRepo(self, obsServer):
+        '''
+        Return the URL of the OBS server package repository.
+        '''
+        return self.__myObsServers.getRepo(obsServer=obsServer)
 
     def getObsServerList(self, reachable=False):
         '''
@@ -771,6 +778,110 @@ class ObsLightManager(object):
                                                         value=value)
         self.__myObsServers.save()
         return res
+
+    @checkNonEmptyStringServerApi(1)
+    @checkAvailableServerApi(1)
+    @checkAvailableAlias(4)
+    @checkAvailableAliasOsc(1, 4)
+    @checkNonEmptyStringUser(2)
+    @checkNonEmptyStringPassword(3)
+    def addObsServer(self,
+                     serverApi,
+                     user,
+                     password,
+                     alias,
+                     serverRepo="",
+                     serverWeb=""):
+        '''
+        Add a new OBS server.
+        '''
+        self.__myObsServers.addObsServer(serverWeb=serverWeb,
+                                         serverAPI=serverApi,
+                                         serverRepo=serverRepo,
+                                         alias=alias,
+                                         user=user,
+                                         passw=password)
+        self.__myObsServers.save()
+
+    @checkNonEmptyStringServerApi(1)
+    @checkServerApi(1)
+    def delObsServer(self, alias):
+        '''
+        Delete an OBS server.
+        '''
+        self.__myObsServers.delObsServer(alias=alias)
+        self.__myObsServers.save()
+
+    @checkNonEmptyStringServerApi(1)
+    @checkNonEmptyStringLocalName(2)
+    @checkNonEmptyStringPackage(3)
+    @checkNonEmptyStringDirectory(4)
+    @checkObsServerAlias(1)
+    @checkAvailableProjectObsName(2, 1)
+    @checkAvailableProjectPackage(2, 1, 3)
+    @checkDirectory(4)
+    def checkoutPackage(self, obsServer, projectObsName, package, directory):
+        '''
+        Check out a package from an OBS server to a local directory.
+        '''
+        self.__myObsServers.checkoutPackage(obsServer=obsServer,
+                                            projectObsName=projectObsName,
+                                            package=package,
+                                            directory=directory)
+        self.__myObsServers.save()
+    #---------------------------------------------------------------------------
+    #used by displayRoleData
+    @checkProjectLocalName(1)
+    @checkNonEmptyStringPackage(2)
+    def getPackageStatus(self, projectLocalName, package):
+        '''
+        Return the status of package on the OBS server.
+        '''
+        return self.__myObsLightProjects.getPackageStatus(project=projectLocalName,
+                                                    package=package)
+
+    @checkProjectLocalName(1)
+    @checkNonEmptyStringPackage(2)
+    @checkPackage(1, 2)
+    def getGetChRootStatus(self, projectLocalName, package):
+        '''
+        Return the status of the package  into the chroot.
+        '''
+        return self.__myObsLightProjects.getGetChRootStatus(projectLocalName=projectLocalName,
+                                                            package=package)
+
+    @checkProjectLocalName(1)
+    @checkNonEmptyStringPackage(2)
+    def getOscPackageStatus(self, projectLocalName, package):
+        '''
+        Return the status of osc in the package directory.
+        '''
+        if not isNonEmptyString(package):
+            raise ObsLightObsServers(" invalid package: " + str(package))
+
+        return self.__myObsLightProjects.getOscPackageStatus(project=projectLocalName,
+                                                             package=package)
+
+    @checkProjectLocalName(1)
+    @checkNonEmptyStringPackage(2)
+    def getOscPackageRev(self, projectLocalName, packageName):
+        """
+        Return the local revision of the package.
+        """
+        return self.__myObsLightProjects.getOscPackageRev(projectLocalName=projectLocalName,
+                                                          packageName=packageName)
+
+    @checkProjectLocalName(1)
+    @checkNonEmptyStringPackage(2)
+    def getObsPackageRev(self, projectLocalName, packageName):
+        """
+        Return the revision of the package on server.
+        """
+
+        return self.__myObsLightProjects.getObsPackageRev(projectLocalName=projectLocalName,
+                                                          packageName=packageName)
+
+    #---------------------------------------------------------------------------
 
     @checkProjectLocalName(1)
     def getProjectParameter(self, projectLocalName, parameter):
@@ -844,39 +955,6 @@ class ObsLightManager(object):
         return res
 
     @checkNonEmptyStringServerApi(1)
-    @checkAvailableServerApi(1)
-    @checkAvailableAlias(4)
-    @checkAvailableAliasOsc(1, 4)
-    @checkNonEmptyStringUser(2)
-    @checkNonEmptyStringPassword(3)
-    def addObsServer(self,
-                     serverApi,
-                     user,
-                     password,
-                     alias,
-                     serverRepo="",
-                     serverWeb=""):
-        '''
-        Add a new OBS server.
-        '''
-        self.__myObsServers.addObsServer(serverWeb=serverWeb,
-                                         serverAPI=serverApi,
-                                         serverRepo=serverRepo,
-                                         alias=alias,
-                                         user=user,
-                                         passw=password)
-        self.__myObsServers.save()
-
-    @checkNonEmptyStringServerApi(1)
-    @checkServerApi(1)
-    def delObsServer(self, alias):
-        '''
-        Delete an OBS server.
-        '''
-        self.__myObsServers.delObsServer(alias=alias)
-        self.__myObsServers.save()
-
-    @checkNonEmptyStringServerApi(1)
     @checkNonEmptyStringLocalName(7)
     @checkNonEmptyStringProjectTarget(3)
     @checkNonEmptyStringProjectArchitecture(4)
@@ -910,65 +988,6 @@ class ObsLightManager(object):
         Return the list of all local projects.
         '''
         return self.__myObsLightProjects.getLocalProjectList()
-
-    @checkNonEmptyStringServerApi(1)
-    @checkNonEmptyStringLocalName(2)
-    @checkNonEmptyStringPackage(3)
-    @checkNonEmptyStringDirectory(4)
-    @checkObsServerAlias(1)
-    @checkAvailableProjectObsName(2, 1)
-    @checkAvailableProjectPackage(2, 1, 3)
-    @checkDirectory(4)
-    def checkoutPackage(self, obsServer, projectObsName, package, directory):
-        '''
-        Check out a package from an OBS server to a local directory.
-        '''
-        self.__myObsServers.checkoutPackage(obsServer=obsServer,
-                                            projectObsName=projectObsName,
-                                            package=package,
-                                            directory=directory)
-        self.__myObsLightProjects.save()
-
-    @checkProjectLocalName(1)
-    @checkNonEmptyStringPackage(2)
-    def getPackageStatus(self, projectLocalName, package):
-        '''
-        Return the status of package on the OBS server.
-        '''
-        return self.__myObsLightProjects.getPackageStatus(project=projectLocalName,
-                                                    package=package)
-
-    @checkProjectLocalName(1)
-    @checkNonEmptyStringPackage(2)
-    def getOscPackageStatus(self, projectLocalName, package):
-        '''
-        Return the status of osc in the package directory.
-        '''
-        if not isNonEmptyString(package):
-            raise ObsLightObsServers(" invalid package: " + str(package))
-
-        return self.__myObsLightProjects.getOscPackageStatus(project=projectLocalName,
-                                                             package=package)
-
-    @checkProjectLocalName(1)
-    @checkNonEmptyStringPackage(2)
-    def getOscPackageRev(self, projectLocalName, packageName):
-        """
-        Return the local revision of the package.
-        """
-        return self.__myObsLightProjects.getOscPackageRev(projectLocalName=projectLocalName,
-                                                          packageName=packageName)
-
-
-    @checkProjectLocalName(1)
-    @checkNonEmptyStringPackage(2)
-    def getObsPackageRev(self, projectLocalName, packageName):
-        """
-        Return the revision of the package on server.
-        """
-
-        return self.__myObsLightProjects.getObsPackageRev(projectLocalName=projectLocalName,
-                                                          packageName=packageName)
 
     @checkProjectLocalName(1)
     @checkNonEmptyStringPackage(2)
@@ -1037,13 +1056,6 @@ class ObsLightManager(object):
         self.__myObsLightProjects.createChRoot(projectLocalName=projectLocalName)
         self.__myObsLightProjects.save()
 
-    @checkNonEmptyStringServerApi(1)
-    @checkServerApi(1)
-    def getRepo(self, obsServer):
-        '''
-        Return the URL of the OBS server package repository.
-        '''
-        return self.__myObsServers.getRepo(obsServer=obsServer)
 
     @checkProjectLocalName(1)
     @checkNonEmptyStringPackage(1)
@@ -1090,15 +1102,6 @@ class ObsLightManager(object):
         '''
         return self.__myObsLightProjects.isInstallInChroot(projectLocalName=projectLocalName,
                                                            package=package)
-    @checkProjectLocalName(1)
-    @checkNonEmptyStringPackage(2)
-    @checkPackage(1, 2)
-    def getGetChRootStatus(self, projectLocalName, package):
-        '''
-        Return the status of the package  into the chroot.
-        '''
-        return self.__myObsLightProjects.getGetChRootStatus(projectLocalName=projectLocalName,
-                                                            package=package)
 
     @checkProjectLocalName(1)
     @checkNonEmptyStringPackage(2)
