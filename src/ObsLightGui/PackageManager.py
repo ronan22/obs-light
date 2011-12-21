@@ -24,7 +24,7 @@ import inspect
 
 from PySide.QtCore import QObject, QRegExp
 from PySide.QtGui import QLabel, QInputDialog, QPushButton, QTableView, QWidget
-from PySide.QtGui import QLineEdit, QMessageBox, QRegExpValidator
+from PySide.QtGui import QLineEdit, QMessageBox, QRegExpValidator, QComboBox
 
 from PackageModel import PackageModel
 from PackageSelector import PackageSelector
@@ -68,6 +68,8 @@ class PackageManager(QObject):
     __packageSelector = None
 
     __menu = None
+
+    __isInitPackageFilter = False
 
     def __init__(self, gui):
         QObject.__init__(self)
@@ -134,6 +136,152 @@ class PackageManager(QObject):
         self.__packagePathLineEdit = mainWindow.findChild(QLineEdit,
                                                           u"packagePathLineEdit")
 
+        #Package Filter
+        self.__packageOscStatusFilter = mainWindow.findChild(QComboBox,
+                                                          u"OscStatusFilter")
+        self.__packageOscStatusFilter.currentIndexChanged.connect(self.on_packageOscStatusFilter)
+
+        self.__packageOscRev = mainWindow.findChild(QLineEdit,
+                                                          u"OscRev")
+        self.__packageOscRev.editingFinished.connect(self.on_packageOscRev)
+        self.__packageObsStatusFilter = mainWindow.findChild(QComboBox,
+                                                          u"ObsStatusFilter")
+        self.__packageObsStatusFilter.currentIndexChanged.connect(self.on_packageObsStatusFilter)
+
+        self.__packageObsRev = mainWindow.findChild(QLineEdit, u"ObsRev")
+        self.__packageObsRev.editingFinished.connect(self.on_packageObsRev)
+        self.__packageChRootStatus = mainWindow.findChild(QComboBox,
+                                                          u"ChRootStatus")
+        self.__packageChRootStatus.currentIndexChanged.connect(self.on_packageChRootStatus)
+    #---------------------------------------------------------------------------
+    def initPackageFilter(self):
+        '''
+        
+        '''
+        currentProject = self.getCurrentProject()
+        if currentProject != None:
+            if not self.__isInitPackageFilter:
+                self.__packageOscStatusFilter.insertItem(0, "")
+                self.__packageObsStatusFilter.insertItem(0, "")
+                self.__packageChRootStatus.insertItem(0, "")
+
+                for i in self.__obsLightManager.getListOscStatus(currentProject):
+                    self.__packageOscStatusFilter.addItem(i)
+
+                for i in self.__obsLightManager.getListStatus(currentProject):
+                    self.__packageObsStatusFilter.addItem(i)
+
+                for i in self.__obsLightManager.getListChRootStatus(currentProject):
+                    self.__packageChRootStatus.addItem(i)
+
+                self.__isInitPackageFilter = True
+
+            packageFilter = self.__obsLightManager.getPackageFilter(currentProject)
+            if "oscStatus" in packageFilter.keys():
+                val = packageFilter["oscStatus"]
+                i = self.__packageOscStatusFilter.findText(val)
+                self.__packageOscStatusFilter.setCurrentIndex(i)
+            else:
+                self.__packageOscStatusFilter.setCurrentIndex(0)
+
+            if "oscRev" in packageFilter.keys():
+                val = packageFilter["oscRev"]
+                self.__packageOscRev.setText(val)
+            else:
+                self.__packageOscRev.setText("")
+
+            if "status" in packageFilter.keys():
+                val = packageFilter["status"]
+                i = self.__packageObsStatusFilter.findText(val)
+                self.__packageObsStatusFilter.setCurrentIndex(i)
+            else:
+                self.__packageObsStatusFilter.setCurrentIndex(0)
+
+            if "obsRev" in packageFilter.keys():
+                val = packageFilter["obsRev"]
+                self.__packageObsRev.setText(val)
+            else:
+                self.__packageObsRev.setText("")
+
+            if "chRootStatus" in packageFilter.keys():
+                val = packageFilter["chRootStatus"]
+                i = self.__packageChRootStatus.findText(val)
+                self.__packageChRootStatus.setCurrentIndex(i)
+            else:
+                self.__packageChRootStatus.setCurrentIndex(0)
+    #---------------------------------------------------------------------------
+    def on_packageOscRev(self):
+        '''
+        
+        '''
+        currentProject = self.getCurrentProject()
+        packageFilter = self.__obsLightManager.getPackageFilter(currentProject)
+        if "oscRev" in packageFilter.keys():
+            self.__obsLightManager.removePackageFilter(currentProject, "oscRev")
+
+        if self.__packageOscRev.text() != "":
+            self.__obsLightManager.addPackageFilter(currentProject,
+                                                    "oscRev",
+                                                    self.__packageOscRev.text())
+        self.refresh()
+
+    def on_packageObsRev(self):
+        '''
+        
+        '''
+        currentProject = self.getCurrentProject()
+        packageFilter = self.__obsLightManager.getPackageFilter(currentProject)
+        if "obsRev" in packageFilter.keys():
+            self.__obsLightManager.removePackageFilter(currentProject, "obsRev")
+        if self.__packageObsRev.text() != "":
+            self.__obsLightManager.addPackageFilter(currentProject,
+                                                    "obsRev",
+                                                    self.__packageObsRev.text())
+        self.refresh()
+
+    def on_packageOscStatusFilter(self):
+        '''
+        
+        '''
+        currentProject = self.getCurrentProject()
+        packageFilter = self.__obsLightManager.getPackageFilter(currentProject)
+        if "oscStatus" in packageFilter.keys():
+            self.__obsLightManager.removePackageFilter(currentProject, "oscStatus")
+        if self.__packageOscStatusFilter.currentIndex() != 0:
+            self.__obsLightManager.addPackageFilter(currentProject,
+                                                    "oscStatus",
+                                                    self.__packageOscStatusFilter.currentText())
+        self.refresh()
+
+
+    def on_packageObsStatusFilter(self):
+        '''
+        
+        '''
+        currentProject = self.getCurrentProject()
+        packageFilter = self.__obsLightManager.getPackageFilter(currentProject)
+        if "status" in packageFilter.keys():
+            self.__obsLightManager.removePackageFilter(currentProject, "status")
+        if self.__packageObsStatusFilter.currentIndex() != 0:
+            self.__obsLightManager.addPackageFilter(currentProject,
+                                                    "status",
+                                                    self.__packageObsStatusFilter.currentText())
+        self.refresh()
+
+    def on_packageChRootStatus(self):
+        '''
+        
+        '''
+        currentProject = self.getCurrentProject()
+        packageFilter = self.__obsLightManager.getPackageFilter(currentProject)
+        if "chRootStatus" in packageFilter.keys():
+            self.__obsLightManager.removePackageFilter(currentProject, "chRootStatus")
+        if self.__packageChRootStatus.currentIndex () != 0:
+            self.__obsLightManager.addPackageFilter(currentProject,
+                                                    "chRootStatus",
+                                                    self.__packageChRootStatus.currentText())
+        self.refresh()
+    #---------------------------------------------------------------------------
     def getCurrentProject(self):
         return self.__project
 
@@ -153,6 +301,7 @@ class PackageManager(QObject):
             self.__fileManager.setCurrentPackage(self.__project, self.currentPackage())
         else:
             self.__fileManager.setCurrentPackage(None, None)
+        self.initPackageFilter()
         self.refresh()
 
     def on_packageIndex_clicked(self, index):
@@ -161,6 +310,7 @@ class PackageManager(QObject):
         self.refresh()
 
     def refresh(self):
+        self.__pkgModel.refresh()
         self.__fileManager.refresh()
         self.updateLabels()
         self.updateButtons()

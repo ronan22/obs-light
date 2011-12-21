@@ -189,8 +189,6 @@ class ObsLightPackages(object):
         '''
         return ["obsRev", "oscRev", "status", "oscStatus", "chRootStatus"]
 
-
-
     #---------------------------------------------------------------------------
 
 
@@ -241,13 +239,13 @@ class ObsLightPackages(object):
         '''
         
         '''
-        return ["Not installed", "No build directory", "Installed"]
+        return ["Unknown", "inconsistent state", "Succeeded"]
 
     def getListChRootStatus(self):
         '''
         
         '''
-        return ["Unknown", "inconsistent state", "Succeeded"]
+        return ["Not installed", "No build directory", "Installed"]
 
     def __isFilterInfo(self, info):
         '''
