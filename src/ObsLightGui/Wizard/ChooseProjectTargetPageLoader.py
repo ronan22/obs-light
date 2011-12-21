@@ -28,34 +28,30 @@ from ObsLightGui.Utils import uiFriendly
 from WizardPageLoader import WizardPageLoader
 import ConfigWizard
 
-class ChooseProjectArchWizardPageLoader(WizardPageLoader):
+class ChooseProjectTargetPageLoader(WizardPageLoader):
 
     def __init__(self, gui):
-        WizardPageLoader.__init__(self, gui, u"wizard_chooseArchitecture.ui")
-        self.archCBox = self.page.findChild(QComboBox, u"architectureComboBox")
-        self.page.registerField(u"archCBox*", self.archCBox)
+        WizardPageLoader.__init__(self, gui, u"wizard_chooseTarget.ui")
+        self.targetCBox = self.page.findChild(QComboBox, "targetComboBox")
+        self.page.registerField(u"targetCBox*", self.targetCBox)
         self.page.initializePage = self._initializePage
-        self.page.getSelectedArch = self.getSelectedArch
-        self.page.setCommitPage(True)
+        self.page.getSelectedTarget = self.getSelectedTarget
 
     def _initializePage(self):
         server = self.page.field(u"serverAlias")
         chooseProjectPageIndex = ConfigWizard.ConfigWizard.pageIndex(u'ChooseProject')
         chooseProjectPage = self.page.wizard().page(chooseProjectPageIndex)
         project = chooseProjectPage.getSelectedProject()
-        chooseTargetPageIndex = ConfigWizard.ConfigWizard.pageIndex(u'ChooseProjectTarget')
-        chooseTargetPage = self.page.wizard().page(chooseTargetPageIndex)
-        target = chooseTargetPage.getSelectedTarget()
-        self.waitWhile(self._fillArchCBox, server, project, target)
+        self.waitWhile(self._fillTargetCBox, server, project)
 
-    def _fillArchCBox(self, server, project, target):
-        self.archCBox.clear()
-        archList = self._getArchList(server, project, target)
-        self.archCBox.addItems(archList)
+    def _fillTargetCBox(self, server, project):
+        self.targetCBox.clear()
+        targetList = self._getTargetList(server, project)
+        self.targetCBox.addItems(targetList)
 
     @uiFriendly()
-    def _getArchList(self, server, project, target):
-        return self.manager.getArchitectureList(server, project, target)
+    def _getTargetList(self, server, project):
+        return self.manager.getTargetList(server, project)
 
-    def getSelectedArch(self):
-        return self.archCBox.currentText()
+    def getSelectedTarget(self):
+        return self.targetCBox.currentText()

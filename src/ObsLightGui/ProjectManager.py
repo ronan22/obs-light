@@ -225,7 +225,7 @@ class ProjectManager(QObject):
         runnable.setRunMethod(obslightManager.createChRoot,
                               projectName)
         runnable.caughtException.connect(self.__gui.popupErrorCallback)
-        runnable.finished.connect(self.refresh)
+        runnable.finished.connect(self.refreshProject)
         runnable.runOnGlobalInstance()
 
     @popupOnException
@@ -247,7 +247,7 @@ class ProjectManager(QObject):
                                   currentPackage,
                                   detach=True)
         runnable.caughtException.connect(self.__gui.popupErrorCallback)
-        runnable.finished.connect(self.refresh)
+        runnable.finished.connect(self.refreshProject)
         runnable.runOnGlobalInstance()
 
     @popupOnException
@@ -270,7 +270,7 @@ class ProjectManager(QObject):
                                         projectName)
             runnable.setProgressDialog(progress)
             runnable.finishedWithException.connect(self.__gui.popupErrorCallback)
-            runnable.finished.connect(self.refresh)
+            runnable.finished.connect(self.refreshProject)
             QThreadPool.globalInstance().start(runnable)
 
     @popupOnException
@@ -298,13 +298,16 @@ class ProjectManager(QObject):
         self.__repoConfigManager.importFromProject()
 
     def on_projectSelected(self, _project):
-        self.refresh()
+        self.refreshProject()
 
-    def refresh(self):
+    def refreshProject(self):
         project = self.getCurrentProjectName()
         self.__packageManager.setCurrentProject(project)
         self.updateProjectLabels()
         self.updateChrootPathAndButtons()
+
+    def refresh(self):
+        self.loadProjectList()
 
     @popupOnException
     def updateProjectLabels(self):

@@ -138,8 +138,8 @@ def checkObsServerAlias(position=None):
             val = None
             if (position is not None) and (position < len(args)):
                 val = args[position]
-            elif "obsServerAlias" in kwargs :
-                val = kwargs["obsServerAlias"]
+            elif "obsServer" in kwargs :
+                val = kwargs["obsServer"]
             else:
                 raise ObsLightProjectsError("checkObsServerAlias Fails")
             if not mngr.isAnObsServer(val):
@@ -210,8 +210,8 @@ def checkNonEmptyStringServerApi(position=None):
             serverApi = None
             if (position is not None) and (position < len(args)):
                 serverApi = args[position]
-            elif "package" in kwargs :
-                serverApi = kwargs["package"]
+            elif "obsServer" in kwargs :
+                serverApi = kwargs["obsServer"]
             else:
                 raise ObsLightProjectsError("checkNonEmptyStringServerApi Fails")
             if not isNonEmptyString(serverApi):

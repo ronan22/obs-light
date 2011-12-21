@@ -25,13 +25,15 @@ from PySide.QtGui import QWizard
 
 from ObsLightGui.ObsLightGuiObject import ObsLightGuiObject
 
-from ChooseServerWizardPageLoader import ChooseServerWizardPageLoader
+from ChooseServerPageLoader import ChooseServerPageLoader
 from ConfigureServerUrlPageLoader import ConfigureServerUrlPageLoader
 from ConfigureServerAliasPageLoader import ConfigureServerAliasPageLoader
-from ChooseProjectWizardPageLoader import ChooseProjectWizardPageLoader
-from ChooseProjectTargetWizardPageLoader import ChooseProjectTargetWizardPageLoader
-from ChooseProjectArchWizardPageLoader import ChooseProjectArchWizardPageLoader
+from ChooseProjectPageLoader import ChooseProjectPageLoader
+from ChooseProjectTargetPageLoader import ChooseProjectTargetPageLoader
+from ChooseProjectArchPageLoader import ChooseProjectArchPageLoader
+from ConfigureProjectAliasPageLoader import ConfigureProjectAliasPageLoader
 
+# TODO: make it a subclass of QWizard
 class ConfigWizard(ObsLightGuiObject):
 
     # TODO: merge _pageLoaders and Pages
@@ -40,7 +42,8 @@ class ConfigWizard(ObsLightGuiObject):
              u'ConfigureServerAlias',
              u'ChooseProject',
              u'ChooseProjectTarget',
-             u'ChooseProjectArchitecture']
+             u'ChooseProjectArchitecture',
+             u'ConfigureProjectAlias']
     _pageLoaders = {}
     wizard = None
 
@@ -54,7 +57,7 @@ class ConfigWizard(ObsLightGuiObject):
         return ConfigWizard.Pages.index(pageName)
 
     def loadPages(self):
-        pageLoader = ChooseServerWizardPageLoader(self.gui)
+        pageLoader = ChooseServerPageLoader(self.gui)
         self._pageLoaders[u'ChooseServer'] = pageLoader
         index = self.pageIndex(u'ChooseServer')
         self.wizard.setPage(index, pageLoader.page)
@@ -69,19 +72,24 @@ class ConfigWizard(ObsLightGuiObject):
         index = self.pageIndex(u'ConfigureServerAlias')
         self.wizard.setPage(index, pageLoader.page)
 
-        pageLoader = ChooseProjectWizardPageLoader(self.gui)
+        pageLoader = ChooseProjectPageLoader(self.gui)
         self._pageLoaders[u'ChooseProject'] = pageLoader
         index = self.pageIndex(u'ChooseProject')
         self.wizard.setPage(index, pageLoader.page)
 
-        pageLoader = ChooseProjectTargetWizardPageLoader(self.gui)
+        pageLoader = ChooseProjectTargetPageLoader(self.gui)
         self._pageLoaders[u'ChooseProjectTarget'] = pageLoader
         index = self.pageIndex(u'ChooseProjectTarget')
         self.wizard.setPage(index, pageLoader.page)
 
-        pageLoader = ChooseProjectArchWizardPageLoader(self.gui)
+        pageLoader = ChooseProjectArchPageLoader(self.gui)
         self._pageLoaders[u'ChooseProjectArchitecture'] = pageLoader
         index = self.pageIndex(u'ChooseProjectArchitecture')
+        self.wizard.setPage(index, pageLoader.page)
+
+        pageLoader = ConfigureProjectAliasPageLoader(self.gui)
+        self._pageLoaders[u'ConfigureProjectAlias'] = pageLoader
+        index = self.pageIndex(u'ConfigureProjectAlias')
         self.wizard.setPage(index, pageLoader.page)
 
     def show(self):

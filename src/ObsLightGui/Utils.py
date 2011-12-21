@@ -291,7 +291,9 @@ class ProgressRunnable2(QObject, QRunnable):
                 self.hasStarted()
                 result = method(*args, **kwargs)
             except BaseException as e:
+                traceback_ = sys.exc_info()[2]
                 exceptionCaught = e
+                exceptionCaught.traceback = traceback_
             finally:
                 if exceptionCaught is not None:
                     self.hasCaughtException(exceptionCaught)
@@ -323,7 +325,9 @@ class ProgressRunnable2(QObject, QRunnable):
                             self.setDialogMessage(message % {"arg":unicodeArg})
                         results.append(function(arg, *otherArgs, **kwargs))
                     except BaseException as e:
+                        traceback_ = sys.exc_info()[2]
                         caughtException = e
+                        caughtException.traceback = traceback_
                     finally:
                         if caughtException is not None:
                             self.hasCaughtException(caughtException)
@@ -437,6 +441,8 @@ def exceptionToMessageBox(exception, parent=None, traceback_=None):
             message += u"\n\n" + u"".join(traceback.format_tb(traceback_))
         QMessageBox.warning(parent, u"Exception occurred", message)
     else:
+        if traceback_ is None and 'traceback' in dir(exception):
+            traceback_ = exception.traceback
         try:
             message = unicode(exception)
         except UnicodeError:

@@ -162,6 +162,9 @@ class Gui(QObject):
     def processEvents(self):
         self.application.processEvents()
 
+    def refresh(self):
+        self.__obsProjectManager.refresh()
+
     def loadManager(self, methodToGetManager, *args, **kwargs):
         pixmap = QPixmap(join(UI_PATH, "splashscreen.png"))
         self.splash = QSplashScreen(pixmap)

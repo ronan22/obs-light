@@ -27,7 +27,7 @@ from PySide.QtGui import QListWidget
 
 from WizardPageLoader import WizardPageLoader
 
-class ChooseProjectWizardPageLoader(WizardPageLoader):
+class ChooseProjectPageLoader(WizardPageLoader):
 
     def __init__(self, gui):
         WizardPageLoader.__init__(self, gui, u"wizard_chooseProject.ui")

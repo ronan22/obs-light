@@ -26,7 +26,7 @@ from PySide.QtGui import QListWidget, QRadioButton
 from WizardPageLoader import WizardPageLoader
 import ConfigWizard
 
-class ChooseServerWizardPageLoader(WizardPageLoader):
+class ChooseServerPageLoader(WizardPageLoader):
 
     def __init__(self, gui):
         WizardPageLoader.__init__(self, gui, u"wizard_chooseServer.ui", False)
