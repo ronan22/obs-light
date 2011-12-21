@@ -148,7 +148,7 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>195</width>
+                    <width>190</width>
                     <height>134</height>
                    </rect>
                   </property>
@@ -356,19 +356,93 @@
              <widget class="QWidget" name="gridWidget" native="true">
               <layout class="QHBoxLayout" name="horizontalLayout_2">
                <item>
-                <widget class="QComboBox" name="comboBox_3"/>
+                <widget class="QComboBox" name="OscStatusFilter">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>16777215</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="toolTip">
+                  <string>Select OSC status Filter</string>
+                 </property>
+                </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="lineEdit_2"/>
+                <widget class="QLineEdit" name="OscRev">
+                 <property name="minimumSize">
+                  <size>
+                   <width>50</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>50</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="toolTip">
+                  <string>Select OSC rev Filter (-1,1,2..)</string>
+                 </property>
+                 <property name="maxLength">
+                  <number>100</number>
+                 </property>
+                </widget>
                </item>
                <item>
-                <widget class="QComboBox" name="comboBox"/>
+                <widget class="QComboBox" name="ObsStatusFilter">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="toolTip">
+                  <string>Select OBS status Filter</string>
+                 </property>
+                </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="lineEdit"/>
+                <widget class="QLineEdit" name="ObsRev">
+                 <property name="minimumSize">
+                  <size>
+                   <width>50</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>50</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="toolTip">
+                  <string>Select OBS rev Filter (-1,1,2..)</string>
+                 </property>
+                 <property name="maxLength">
+                  <number>100</number>
+                 </property>
+                </widget>
                </item>
                <item>
-                <widget class="QComboBox" name="comboBox_2"/>
+                <widget class="QComboBox" name="ChRootStatus">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="toolTip">
+                  <string>Select ChRoot status Filter</string>
+                 </property>
+                </widget>
                </item>
               </layout>
              </widget>
@@ -447,7 +521,7 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>314</width>
+                    <width>325</width>
                     <height>134</height>
                    </rect>
                   </property>

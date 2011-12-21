@@ -80,7 +80,7 @@ class ObsLightPackage(object):
             else:
                 self.__listFile = listFile
             self.__status = status
-            self.__obsRev = obsRev
+            self.__obsRev = str(obsRev)
             self.__specFile = specFile
             self.__yamlFile = yamlFile
             self.__packageDirectory = None
@@ -110,9 +110,9 @@ class ObsLightPackage(object):
             if "firstCommitTag" in fromSave.keys():
                 self.__firstCommitTag = fromSave["firstCommitTag"]
             if "oscRev" in fromSave.keys():
-                self.__oscRev = fromSave["oscRev"]
+                self.__oscRev = str(fromSave["oscRev"])
             if "obsRev" in fromSave.keys():
-                self.__obsRev = fromSave["obsRev"]
+                self.__obsRev = str(fromSave["obsRev"])
             if "currentPatch" in fromSave.keys():
                 self.__currentPatch = fromSave["currentPatch"]
             if "listInfoFile" in fromSave.keys():

@@ -896,7 +896,9 @@ class ObsLightManager(object):
         '''
         Reset the dictionary of the PackageFilter.
         '''
-        return self.__myObsLightProjects.resetPackageFilter(projectLocalName=projectLocalName)
+        res = self.__myObsLightProjects.resetPackageFilter(projectLocalName=projectLocalName)
+        self.__myObsLightProjects.save()
+        return res
 
     @checkProjectLocalName(1)
     def removePackageFilter(self, projectLocalName, key):
@@ -904,8 +906,10 @@ class ObsLightManager(object):
         remove a filter from the dictionary of the PackageFilter.
         the key is the info, "obsRev", "oscRev", "status", "oscStatus", "chRootStatus".
         '''
-        return self.__myObsLightProjects.removePackageFilter(projectLocalName=projectLocalName,
+        res = self.__myObsLightProjects.removePackageFilter(projectLocalName=projectLocalName,
                                                              key=key)
+        self.__myObsLightProjects.save()
+        return res
 
     @checkProjectLocalName(1)
     def addPackageFilter(self, projectLocalName, key, val):
@@ -916,9 +920,12 @@ class ObsLightManager(object):
             For  ["obsRev", "oscRev"] can be -1,1,2,...
             For ["status", "oscStatus", "chRootStatus"] define in [getListStatus,getListOscStatus,getListChRootStatus]
         '''
-        return self.__myObsLightProjects.addPackageFilter(projectLocalName=projectLocalName,
+        res = self.__myObsLightProjects.addPackageFilter(projectLocalName=projectLocalName,
                                                           key=key,
                                                           val=val)
+        self.__myObsLightProjects.save()
+        return res
+
     @checkProjectLocalName(1)
     def getListStatus(self, projectLocalName):
         '''

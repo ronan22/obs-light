@@ -32,6 +32,8 @@ import ObsLightSubprocess
 import ObsLightPrintManager
 EMPTYPROJECTPATH = os.path.join(os.path.dirname(__file__), "emptySpec")
 
+from ObsLight import ObsLightErr
+
 import urllib2
 import M2Crypto
 
@@ -758,7 +760,7 @@ class ObsLightOsc(object):
         try:
             pk = core.Package(workingdir=workingdir)
         except oscerr.WorkingCopyInconsistent, e:
-            raise e
+            raise ObsLightErr.ObsLightOscErr("'" + workingdir + "' is a inconsistent working copy")
         return pk.get_status()
 
     def autoResolvedConflict(self, packagePath, aFile):
