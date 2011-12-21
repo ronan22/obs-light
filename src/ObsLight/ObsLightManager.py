@@ -397,6 +397,7 @@ def checkAvailableProjectObsName(position1=None, position2=None):
             mngr = getManager()
             projectObsName = None
             obsServer = None
+
             if (position1 is not None) and (position1 < len(args)):
                 projectObsName = args[position1]
             elif "projectObsName" in kwargs :
@@ -409,7 +410,8 @@ def checkAvailableProjectObsName(position1=None, position2=None):
                 obsServer = kwargs["obsServer"]
             else:
                 raise ObsLightProjectsError("checkAvailableProjectObsName Fails no obsServer")
-            if isNonEmptyString(projectObsName):
+
+            if not isNonEmptyString(projectObsName):
                 raise ObsLightObsServers("No projectObsName")
             if not projectObsName in mngr.getObsServerProjectList(obsServer):
                 raise ObsLightObsServers("'" + projectObsName + "' is not a project in the OBS server")
@@ -428,14 +430,14 @@ def checkProjectObsName(position1=None, position2=None):
             elif "projectObsName" in kwargs :
                 projectObsName = kwargs["projectObsName"]
             else:
-                raise ObsLightProjectsError("checkAvailableProjectObsName Fails no serverApi")
+                raise ObsLightProjectsError("checkProjectObsName Fails no serverApi")
             if (position2 is not None) and (position2 < len(args)):
                 obsServer = args[position2]
             elif "obsServer" in kwargs :
                 obsServer = kwargs["obsServer"]
             else:
-                raise ObsLightProjectsError("checkAvailableProjectObsName Fails no obsServer")
-            if isNonEmptyString(projectObsName):
+                raise ObsLightProjectsError("checkProjectObsName Fails no obsServer")
+            if not isNonEmptyString(projectObsName):
                 raise ObsLightObsServers("No projectObsName")
             if projectObsName in mngr.getObsServerProjectList(obsServer):
                 raise ObsLightObsServers("'" + projectObsName + "' is not a project in the OBS server")
@@ -689,7 +691,6 @@ class ObsLightManager(object):
         return self.__myObsServers.getLocalProjectList(server)
 
     @checkNonEmptyStringServerApi(1)
-    @checkNonEmptyStringLocalName(2)
     @checkObsServerAlias(1)
     @checkAvailableProjectObsName(2, 1)
     def getTargetList(self, obsServer, projectObsName):
@@ -702,7 +703,6 @@ class ObsLightManager(object):
                                                  projectObsName=projectObsName)
 
     @checkNonEmptyStringServerApi(1)
-    @checkNonEmptyStringLocalName(2)
     @checkNonEmptyStringProjectTarget(3)
     @checkObsServerAlias(1)
     def getArchitectureList(self, obsServer, projectObsName, projectTarget):
@@ -813,7 +813,6 @@ class ObsLightManager(object):
         self.__myObsServers.save()
 
     @checkNonEmptyStringServerApi(1)
-    @checkNonEmptyStringLocalName(2)
     @checkNonEmptyStringPackage(3)
     @checkNonEmptyStringDirectory(4)
     @checkObsServerAlias(1)

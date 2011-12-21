@@ -148,7 +148,7 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>186</width>
+                    <width>195</width>
                     <height>134</height>
                    </rect>
                   </property>
@@ -353,6 +353,27 @@
              <number>0</number>
             </property>
             <item>
+             <widget class="QWidget" name="gridWidget" native="true">
+              <layout class="QHBoxLayout" name="horizontalLayout_2">
+               <item>
+                <widget class="QComboBox" name="comboBox_3"/>
+               </item>
+               <item>
+                <widget class="QLineEdit" name="lineEdit_2"/>
+               </item>
+               <item>
+                <widget class="QComboBox" name="comboBox"/>
+               </item>
+               <item>
+                <widget class="QLineEdit" name="lineEdit"/>
+               </item>
+               <item>
+                <widget class="QComboBox" name="comboBox_2"/>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
              <widget class="QTableView" name="packageTableView">
               <property name="sizePolicy">
                <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
@@ -426,7 +447,7 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>335</width>
+                    <width>314</width>
                     <height>134</height>
                    </rect>
                   </property>
@@ -529,7 +550,7 @@
 You can select several packages.</string>
                  </property>
                  <property name="text">
-                  <string>Repair OSC directory</string>
+                  <string>Repair directory</string>
                  </property>
                 </widget>
                </item>
