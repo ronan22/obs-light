@@ -373,9 +373,10 @@ class UiFriendlyTask(object):
         Calls `QApplication.processEvents()` every `delay`
         until the task has finished.
         """
+        QApplication.processEvents()
         while not self.hasFinished:
-            QApplication.processEvents()
             sleep(delay)
+            QApplication.processEvents()
 
     def start(self, func, *args, **kwargs):
         u"""
@@ -388,18 +389,20 @@ class UiFriendlyTask(object):
         runnable.caughtException.connect(self._setHasCaughtException)
         runnable.runOnGlobalInstance()
 
-def uiFriendly(func):
+def uiFriendly(refreshDelay=0.1):
     u"""
     Decorator which will make a function run in a QThreadPool while
     processing UI events.
     """
-    def uiFriendly1(*args, **kwargs):
-        task = UiFriendlyTask()
-        task.start(func, *args, **kwargs)
-        task.join()
-        if task.caughtException is not None:
-            raise task.caughtException
-        return task.result
+    def uiFriendly1(func):
+        def uiFriendly2(*args, **kwargs):
+            task = UiFriendlyTask()
+            task.start(func, *args, **kwargs)
+            task.join(refreshDelay)
+            if task.caughtException is not None:
+                raise task.caughtException
+            return task.result
+        return uiFriendly2
     return uiFriendly1
 
 def detachWithProgress(title, minDuration=500):
@@ -430,16 +433,16 @@ def exceptionToMessageBox(exception, parent=None, traceback_=None):
     """
     if isinstance(exception, ObsLightErr.OBSLightBaseError):
         message = exception.msg
-#        if traceback_ is not None:
-#            message += u"\n\n" + u"".join(traceback.format_tb(traceback_))
+        if traceback_ is not None:
+            message += u"\n\n" + u"".join(traceback.format_tb(traceback_))
         QMessageBox.warning(parent, u"Exception occurred", message)
     else:
         try:
             message = unicode(exception)
         except UnicodeError:
             message = unicode(str(exception), errors="replace")
-#        if traceback_ is not None:
-#            message += u"\n\n" + u"".join(traceback.format_tb(traceback_))
+        if traceback_ is not None:
+            message += u"\n\n" + u"".join(traceback.format_tb(traceback_))
         QMessageBox.critical(parent, u"Exception occurred", message)
 
 def popupOnException(f):

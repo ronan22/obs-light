@@ -23,11 +23,11 @@ Created on 19 déc. 2011
 
 from PySide.QtGui import QWizardPage
 
+# TODO: try to merge WizardPageLoader and WizardPageWrapper
 class WizardPageWrapper(QWizardPage):
     '''
     QWizardPage wrapper to make duck punching available.
     '''
-
 
     def __init__(self, parent=None):
         QWizardPage.__init__(self, parent)

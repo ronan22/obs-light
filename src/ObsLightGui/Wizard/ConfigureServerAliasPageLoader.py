@@ -21,7 +21,6 @@ Created on 20 déc. 2011
 @author: Florent Vennetier
 '''
 
-from PySide.QtCore import Qt
 from PySide.QtGui import QLabel, QLineEdit
 
 from ObsLightGui.Utils import colorizeWidget, isNonEmptyString, uiFriendly, popupOnException
@@ -67,16 +66,9 @@ class ConfigureServerAliasPageLoader(WizardPageLoader):
 
 
     def _addServer(self):
-        cursor = self.page.wizard().cursor()
-        self.page.wizard().setCursor(Qt.WaitCursor)
-        self.page.setEnabled(False)
-        try:
-            self._doAddServer()
-        finally:
-            self.page.setEnabled(True)
-            self.page.wizard().setCursor(cursor)
+        self.waitWhile(self._doAddServer)
 
-    @uiFriendly
+    @uiFriendly()
     def _doAddServer(self):
         self.manager.addObsServer(self.page.field(u"apiUrl"),
                                   self.page.field(u"username"),
