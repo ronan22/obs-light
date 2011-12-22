@@ -164,7 +164,9 @@ def checkNonEmptyStringPackage(position=None):
             else:
                 raise ObsLightProjectsError("checkNonEmptyStringPackage Fails")
 
-            if isinstance(package, collections.Iterable) and not isinstance(package, str) :
+            if isinstance(package, collections.Iterable) and\
+               not isinstance(package, str) and\
+               not isinstance(package, unicode) :
                 for aVal in package:
                     test(aVal)
             else:
@@ -212,8 +214,9 @@ def checkPackage(position1=None, position2=None):
                 package = kwargs["package"]
             else:
                 raise ObsLightProjectsError("checkPackage Fails no package")
-
-            if isinstance(package, collections.Iterable)and not isinstance(package, str) :
+            if isinstance(package, collections.Iterable) and\
+               not isinstance(package, str) and\
+               not isinstance(package, unicode):
                 for aVal in package:
                     test(aVal)
             else:

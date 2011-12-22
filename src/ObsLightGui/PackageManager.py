@@ -310,7 +310,8 @@ class PackageManager(QObject):
         self.refresh()
 
     def refresh(self):
-        self.__pkgModel.refresh()
+        if self.__pkgModel != None:
+            self.__pkgModel.refresh()
         self.__fileManager.refresh()
         self.updateLabels()
         self.updateButtons()
