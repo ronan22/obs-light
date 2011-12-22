@@ -21,15 +21,20 @@ Created on 21 déc. 2011
 @author: Florent Vennetier
 '''
 
+from ObsLightGui.FilterableWidget import FilterableWidget
+
 # See below
 #from ObsLightGui.Utils import uiFriendly
 
 from WizardPageWrapper import ObsLightWizardPage
 
-class ChooseProjectPage(ObsLightWizardPage):
+class ChooseProjectPage(ObsLightWizardPage, FilterableWidget):
     def __init__(self, gui, index):
         ObsLightWizardPage.__init__(self, gui, index, u"wizard_chooseProject.ui")
+        FilterableWidget.__init__(self, self.ui_WizardPage.filterLineEdit,
+                                  self.ui_WizardPage.projectListWidget)
         self.registerField(u"projectRow*", self.ui_WizardPage.projectListWidget)
+
 
     def initializePage(self):
         serverAlias = self.field(u"serverAlias")

@@ -21,17 +21,18 @@ Created on 22 déc. 2011
 @author: Florent Vennetier
 '''
 
-from PySide.QtCore import Qt
+from ObsLightGui.FilterableWidget import FilterableWidget
 
 from ObsLightGui.Utils import uiFriendly, popupOnException
 
 from WizardPageWrapper import ObsLightWizardPage
 
-class ChoosePackagePage(ObsLightWizardPage):
+class ChoosePackagePage(ObsLightWizardPage, FilterableWidget):
     def __init__(self, gui, index):
         ObsLightWizardPage.__init__(self, gui, index, u"wizard_choosePackage.ui")
+        FilterableWidget.__init__(self, self.ui_WizardPage.filterLineEdit,
+                                  self.ui_WizardPage.packageListWidget)
         self.registerField(u"packageRow*", self.ui_WizardPage.packageListWidget)
-        self.ui_WizardPage.filterLineEdit.textEdited.connect(self.on_filterLineEdit_textEdited)
         self.setCommitPage(True)
 
     def initializePage(self):
@@ -61,13 +62,6 @@ class ChoosePackagePage(ObsLightWizardPage):
     @uiFriendly()
     def _addPackage(self, project, package):
         self.manager.addPackage(project, package)
-
-    def on_filterLineEdit_textEdited(self, newFilter):
-        for i in range(self.ui_WizardPage.packageListWidget.count()):
-            item = self.ui_WizardPage.packageListWidget.item(i)
-            item.setHidden(True)
-        for item in self.ui_WizardPage.packageListWidget.findItems(newFilter, Qt.MatchContains):
-            item.setHidden(False)
 
     def getSelectedPackage(self):
         return self.ui_WizardPage.packageListWidget.item(self.field(u"packageRow")).text()
