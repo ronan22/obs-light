@@ -23,6 +23,8 @@ import os
 import pickle
 from ObsLightProject import ObsLightProject
 import ObsLightErr
+import ObsLightTools
+import collections
 
 class ObsLightProjects(object):
     '''
@@ -388,7 +390,6 @@ class ObsLightProjects(object):
                                                                                  parameter=parameter,
                                                                                  value=value)
 
-
     def getPackageDirectory(self, projectLocalName, packageName):
         package = self.__dicOBSLightProjects[projectLocalName].getPackage(packageName)
         return package.getOscDirectory()
@@ -496,11 +497,20 @@ class ObsLightProjects(object):
         self.__dicOBSLightProjects[projectLocalName].delFileToPackage(package=package,
                                                                       name=name)
 
-    def updatePackage(self, projectLocalName, package):
+    def updatePackage(self, projectLocalName, package, controlFunction=None):
         '''
         
         '''
-        self.__dicOBSLightProjects[projectLocalName].updatePackage(name=package)
+        if isinstance(package, collections.Iterable):
+            theBadResult = ObsLightTools.mapProcedureWithThreads(parameterList=package,
+                                                                  procedure=self.__dicOBSLightProjects[projectLocalName].updatePackage,
+                                                                  progress=controlFunction)
+            if len(theBadResult) > 0:
+                return 1
+            else:
+                return 0
+        else:
+            return self.__dicOBSLightProjects[projectLocalName].updatePackage(name=package)
 
     def deleteRepo(self, projectLocalName, repoAlias):
         '''

@@ -171,6 +171,37 @@ def configureOpenFile():
     elif os.path.exists(u"/usr/bin/exo-open"):
         setOpenFileCommand(u"/usr/bin/exo-open")
 
+def getMaxNbThread():
+    aConfigParser = ConfigParser.ConfigParser()
+    aConfigFile = open(CONFIGPATH, 'rw')
+
+    aConfigParser.readfp(aConfigFile)
+    if ('Thread' in aConfigParser.sections()) and ('max' in aConfigParser.options('Thread')):
+        try:
+            res = int(aConfigParser.get('Thread', 'max', raw=True))
+        except :
+            return 10
+        if res < 1:
+            return 10
+        return res
+    else:
+        return 10
+
+def getSocketDefaultTimeOut():
+    aConfigParser = ConfigParser.ConfigParser()
+    aConfigFile = open(CONFIGPATH, 'rw')
+
+    aConfigParser.readfp(aConfigFile)
+    if ('Socket' in aConfigParser.sections()) and ('DefaultTimeOut' in aConfigParser.options('Socket')):
+        try:
+            res = int(aConfigParser.get('Socket', 'DefaultTimeOut', raw=True))
+        except :
+            return -1
+        if res < 0:
+            return -1
+        return res
+    else:
+        return -1
 
 if not os.path.exists(CONFIGPATH):
     shutil.copy2(getTemplateConfigPath(), CONFIGPATH)

@@ -24,3 +24,14 @@ obslightgui=<font color="#0000FF">%(asctime)s</font> <font color="#009F00">%(nam
 
 # Logger Level {DEBUG,INFO,WARNING,ERROR,CRITICAL}
 level=INFO
+
+[Thread]
+#Set the maximum number of thread.
+max=10
+
+[Socket]
+#Set the DefaultTimeOut of the socket if the value==-1, no TimeOut.
+DefaultTimeOut=-1
+
+
+

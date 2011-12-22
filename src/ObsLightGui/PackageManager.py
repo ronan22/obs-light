@@ -403,8 +403,13 @@ class PackageManager(QObject):
     def showPackageSelectionDialog(self, packageList):
         self.__packageSelector.showPackageSelectionDialog(packageList)
 
-    def __mapOnSelectedPackages(self, method, initialMessage, loopMessage,
-                                callback, *args, **kwargs):
+    def __mapOnSelectedPackages(self,
+                                method,
+                                initialMessage,
+                                loopMessage,
+                                callback,
+                                *args,
+                                **kwargs):
         packagesNames = self.selectedPackages()
         if len(packagesNames) < 1:
             return

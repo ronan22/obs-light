@@ -554,7 +554,10 @@ class ObsLightProject(object):
         
         '''
         rev = self.__obsServers.getObsServer(self.__obsServer).getOscPackageRev(workingdir=self.__packages.getPackage(package).getOscDirectory())
-        self.__packages.getPackage(package).setOscPackageRev(rev)
+        if rev != None:
+            self.__packages.getPackage(package).setOscPackageRev(rev)
+        else:
+            self.__packages.getPackage(package).setOscPackageRev("-1")
 
     def checkOscDirectoryStatus(self, package):
         '''
