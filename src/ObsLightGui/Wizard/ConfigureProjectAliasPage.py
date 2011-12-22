@@ -22,43 +22,35 @@ Created on 21 déc. 2011
 '''
 
 from PySide.QtCore import QRegExp
-from PySide.QtGui import QLabel, QLineEdit, QRegExpValidator
+from PySide.QtGui import QRegExpValidator
 
 from ObsLightGui.Utils import colorizeWidget, uiFriendly
 
-from WizardPageLoader import WizardPageLoader
-import ConfigWizard
+from WizardPageWrapper import ObsLightWizardPage
 
-class ConfigureProjectAliasPageLoader(WizardPageLoader):
-
-    def __init__(self, gui):
-        WizardPageLoader.__init__(self, gui, u"wizard_configProjectAlias.ui")
-        self.projectLabel = self.page.findChild(QLabel, u"projectLabel")
-        self.targetLabel = self.page.findChild(QLabel, u"targetLabel")
-        self.archLabel = self.page.findChild(QLabel, u"architectureLabel")
+class ConfigureProjectAliasPage(ObsLightWizardPage):
+    def __init__(self, gui, index):
+        ObsLightWizardPage.__init__(self, gui, index, u"wizard_configProjectAlias.ui")
         noSpaceValidator = QRegExpValidator()
         noSpaceValidator.setRegExp(QRegExp(u"[^\\s:]+"))
-        self.aliasLineEdit = self.page.findChild(QLineEdit, u"aliasLineEdit")
-        self.aliasLineEdit.setValidator(noSpaceValidator)
-        self.page.registerField(u"projectAlias*", self.aliasLineEdit)
-        self.page.initializePage = self._initializePage
-        self.page.validatePage = self._validatePage
-        self.page.setCommitPage(True)
+        self.ui_WizardPage.aliasLineEdit.setValidator(noSpaceValidator)
+        self.registerField(u"projectAlias*", self.ui_WizardPage.aliasLineEdit)
+        self.setCommitPage(True)
 
-    def _initializePage(self):
-        self.projectLabel.setText(self.getSelectedProject())
-        self.targetLabel.setText(self.getSelectedTarget())
-        self.archLabel.setText(self.getSelectedArch())
+    def initializePage(self):
+        self.ui_WizardPage.projectLabel.setText(self.getSelectedProject())
+        self.ui_WizardPage.targetLabel.setText(self.getSelectedTarget())
+        self.ui_WizardPage.architectureLabel.setText(self.getSelectedArch())
 
-    def _validatePage(self):
-        if not self.page.isComplete():
+    def validatePage(self):
+        if not self.isComplete():
             return False
-        alias = self.page.field(u"projectAlias")
+        alias = self.field(u"projectAlias")
         if self.manager.isALocalProject(alias):
-            colorizeWidget(self.aliasLineEdit, u"red")
+            colorizeWidget(self.ui_WizardPage.aliasLineEdit, u"red")
             return False
 
-        self.waitWhile(self._addProject,
+        self.setBusyCursor(self._addProject,
                        self.getSelectedServer(),
                        self.getSelectedProject(),
                        self.getSelectedTarget(),
@@ -71,23 +63,27 @@ class ConfigureProjectAliasPageLoader(WizardPageLoader):
         print server, project, target, arch, alias
         self.manager.addProject(server, project, target, arch, projectLocalName=alias)
 
+    # TODO: move to ConfigWizard
     def getSelectedServer(self):
-        return self.page.field(u"serverAlias")
+        return self.field(u"serverAlias")
 
+    # TODO: move to ConfigWizard
     def getSelectedProject(self):
-        chooseProjectPageIndex = ConfigWizard.ConfigWizard.pageIndex(u'ChooseProject')
-        chooseProjectPage = self.page.wizard().page(chooseProjectPageIndex)
+        chooseProjectPageIndex = self.wizard().pageIndex(u'ChooseProject')
+        chooseProjectPage = self.wizard().page(chooseProjectPageIndex)
         project = chooseProjectPage.getSelectedProject()
         return project
 
+    # TODO: move to ConfigWizard
     def getSelectedTarget(self):
-        chooseTargetPageIndex = ConfigWizard.ConfigWizard.pageIndex(u'ChooseProjectTarget')
-        chooseTargetPage = self.page.wizard().page(chooseTargetPageIndex)
+        chooseTargetPageIndex = self.wizard().pageIndex(u'ChooseProjectTarget')
+        chooseTargetPage = self.wizard().page(chooseTargetPageIndex)
         target = chooseTargetPage.getSelectedTarget()
         return target
 
+    # TODO: move to ConfigWizard
     def getSelectedArch(self):
-        chooseArchPageIndex = ConfigWizard.ConfigWizard.pageIndex(u'ChooseProjectArchitecture')
-        chooseArchPage = self.page.wizard().page(chooseArchPageIndex)
+        chooseArchPageIndex = self.wizard().pageIndex(u'ChooseProjectArch')
+        chooseArchPage = self.wizard().page(chooseArchPageIndex)
         arch = chooseArchPage.getSelectedArch()
         return arch

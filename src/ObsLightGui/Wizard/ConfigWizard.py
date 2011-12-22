@@ -25,72 +25,56 @@ from PySide.QtGui import QWizard
 
 from ObsLightGui.ObsLightGuiObject import ObsLightGuiObject
 
-from ChooseServerPageLoader import ChooseServerPageLoader
-from ConfigureServerUrlPageLoader import ConfigureServerUrlPageLoader
-from ConfigureServerAliasPageLoader import ConfigureServerAliasPageLoader
-from ChooseProjectPageLoader import ChooseProjectPageLoader
-from ChooseProjectTargetPageLoader import ChooseProjectTargetPageLoader
-from ChooseProjectArchPageLoader import ChooseProjectArchPageLoader
-from ConfigureProjectAliasPageLoader import ConfigureProjectAliasPageLoader
+from ChooseServerPage import ChooseServerPage
+from ConfigureServerUrlPage import ConfigureServerUrlPage
+from ConfigureServerAliasPage import ConfigureServerAliasPage
+from ChooseProjectPage import ChooseProjectPage
+from ChooseProjectTargetPage import ChooseProjectTargetPage
+from ChooseProjectArchPage import ChooseProjectArchPage
+from ConfigureProjectAliasPage import ConfigureProjectAliasPage
+from ChoosePackagePage import ChoosePackagePage
 
-# TODO: make it a subclass of QWizard
-class ConfigWizard(ObsLightGuiObject):
+class ConfigWizard(QWizard, ObsLightGuiObject):
 
-    # TODO: merge _pageLoaders and Pages
-    Pages = [u'ChooseServer',
-             u'ConfigureServerUrl',
-             u'ConfigureServerAlias',
-             u'ChooseProject',
-             u'ChooseProjectTarget',
-             u'ChooseProjectArchitecture',
-             u'ConfigureProjectAlias']
-    _pageLoaders = {}
-    wizard = None
+    Pages = {}
 
     def __init__(self, gui):
         ObsLightGuiObject.__init__(self, gui)
-        self.wizard = QWizard(self.mainWindow)
+        QWizard.__init__(self, self.mainWindow)
         self.loadPages()
 
-    @staticmethod
-    def pageIndex(pageName):
-        return ConfigWizard.Pages.index(pageName)
+    def pageIndex(self, pageName):
+        return self.Pages[pageName].index
 
     def loadPages(self):
-        pageLoader = ChooseServerPageLoader(self.gui)
-        self._pageLoaders[u'ChooseServer'] = pageLoader
-        index = self.pageIndex(u'ChooseServer')
-        self.wizard.setPage(index, pageLoader.page)
+        # TODO: put page name in each class as static member
+        # and instantiate all theses classes from a list
+        pageCounter = 0
+        self.Pages[u'ChooseServer'] = ChooseServerPage(self.gui, pageCounter)
 
-        pageLoader = ConfigureServerUrlPageLoader(self.gui)
-        self._pageLoaders[u'ConfigureServerUrl'] = pageLoader
-        index = self.pageIndex(u'ConfigureServerUrl')
-        self.wizard.setPage(index, pageLoader.page)
+        pageCounter += 1
+        self.Pages[u'ConfigureServerUrl'] = ConfigureServerUrlPage(self.gui, pageCounter)
 
-        pageLoader = ConfigureServerAliasPageLoader(self.gui)
-        self._pageLoaders[u'ConfigureServerAlias'] = pageLoader
-        index = self.pageIndex(u'ConfigureServerAlias')
-        self.wizard.setPage(index, pageLoader.page)
+        pageCounter += 1
+        self.Pages[u'ConfigureServerAlias'] = ConfigureServerAliasPage(self.gui, pageCounter)
 
-        pageLoader = ChooseProjectPageLoader(self.gui)
-        self._pageLoaders[u'ChooseProject'] = pageLoader
-        index = self.pageIndex(u'ChooseProject')
-        self.wizard.setPage(index, pageLoader.page)
+        pageCounter += 1
+        self.Pages[u'ChooseProject'] = ChooseProjectPage(self.gui, pageCounter)
 
-        pageLoader = ChooseProjectTargetPageLoader(self.gui)
-        self._pageLoaders[u'ChooseProjectTarget'] = pageLoader
-        index = self.pageIndex(u'ChooseProjectTarget')
-        self.wizard.setPage(index, pageLoader.page)
+        pageCounter += 1
+        self.Pages[u'ChooseProjectTarget'] = ChooseProjectTargetPage(self.gui, pageCounter)
 
-        pageLoader = ChooseProjectArchPageLoader(self.gui)
-        self._pageLoaders[u'ChooseProjectArchitecture'] = pageLoader
-        index = self.pageIndex(u'ChooseProjectArchitecture')
-        self.wizard.setPage(index, pageLoader.page)
+        pageCounter += 1
+        self.Pages[u'ChooseProjectArch'] = ChooseProjectArchPage(self.gui, pageCounter)
 
-        pageLoader = ConfigureProjectAliasPageLoader(self.gui)
-        self._pageLoaders[u'ConfigureProjectAlias'] = pageLoader
-        index = self.pageIndex(u'ConfigureProjectAlias')
-        self.wizard.setPage(index, pageLoader.page)
+        pageCounter += 1
+        self.Pages[u'ConfigureProjectAlias'] = ConfigureProjectAliasPage(self.gui, pageCounter)
 
-    def show(self):
-        return self.wizard.show()
+        pageCounter += 1
+        self.Pages[u'ChoosePackage'] = ChoosePackagePage(self.gui, pageCounter)
+
+        for page in self.Pages.values():
+            self.setPage(page.index, page)
+
+    def getSelectedProject(self):
+        return self.Pages[u'ChooseProject'].getSelectedProject()
