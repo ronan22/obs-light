@@ -483,13 +483,13 @@ class ObsLightOsc(object):
             aElement = ElementTree.fromstring(core.http_request("GET", url, timeout=TIMEOUT).read())
         except urllib2.URLError:
             ObsLightPrintManager.getLogger().error("apiurl " + str(url) + " is not reachable")
-            return None
+            return []
         except M2Crypto.SSL.SSLError:
             ObsLightPrintManager.getLogger().error("apiurl " + str(url) + " Connection reset by peer")
-            return None
+            return []
         except M2Crypto.SSL.Checker.NoCertificate:
             ObsLightPrintManager.getLogger().error("apiurl " + str(url) + " Peer did not return certificate")
-            return None
+            return []
         result = []
         for repos in aElement:
             name = ""
@@ -529,13 +529,13 @@ class ObsLightOsc(object):
             res = core.http_request("GET", url, timeout=TIMEOUT)
         except urllib2.URLError:
             ObsLightPrintManager.getLogger().error("apiurl " + str(url) + " is not reachable")
-            return None
+            return []
         except M2Crypto.SSL.SSLError:
             ObsLightPrintManager.getLogger().error("apiurl " + str(url) + " Connection reset by peer")
-            return None
+            return []
         except M2Crypto.SSL.Checker.NoCertificate:
             ObsLightPrintManager.getLogger().error("apiurl " + str(url) + " Peer did not return certificate")
-            return None
+            return []
         aElement = ElementTree.fromstring(res.read())
         res = []
         for directory in aElement:

@@ -231,6 +231,7 @@ def checkNonEmptyStringServerApi(position=None):
                 serverApi = args[position]
             elif "serverApi" in kwargs :
                 serverApi = kwargs["serverApi"]
+
             else:
                 raise ObsLightProjectsError("checkNonEmptyStringServerApi Fails")
             if not isNonEmptyString(serverApi):

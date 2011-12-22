@@ -26,7 +26,7 @@ from PySide.QtGui import QListWidget, QRadioButton
 from WizardPageLoader import WizardPageLoader
 import ConfigWizard
 
-class ChooseServerWizardPageLoader(WizardPageLoader):
+class ChooseServerPageLoader(WizardPageLoader):
 
     def __init__(self, gui):
         WizardPageLoader.__init__(self, gui, u"wizard_chooseServer.ui", False)
@@ -42,7 +42,7 @@ class ChooseServerWizardPageLoader(WizardPageLoader):
 
         self.page.initializePage = self.__initializePage
         self.page.isComplete = self.__isComplete
-        self.page.validatePage = self.__isComplete
+        self.page.validatePage = self.__validatePage
         self.page.nextId = self.__nextId
 
     def addNewServer(self):
@@ -61,6 +61,11 @@ class ChooseServerWizardPageLoader(WizardPageLoader):
 
     def __isComplete(self):
         return self.addNewServer() or (self.serverRow() >= 0)
+
+    def __validatePage(self):
+        if not self.addNewServer():
+            self.page.setField(u"serverAlias", self.serverListWidget.currentItem().text())
+        return self.__isComplete()
 
     def __nextId(self):
         if self.addNewServer():

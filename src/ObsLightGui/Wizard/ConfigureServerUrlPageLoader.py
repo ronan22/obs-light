@@ -21,7 +21,7 @@ Created on 19 déc. 2011
 @author: Florent Vennetier
 '''
 
-from PySide.QtCore import QRegExp, Qt
+from PySide.QtCore import QRegExp
 from PySide.QtGui import QLineEdit, QRegExpValidator, QWizardPage
 
 from ObsLightGui.Utils import colorizeWidget, removeEffect, isNonEmptyString, uiFriendly
@@ -55,25 +55,29 @@ class ConfigureServerUrlPageLoader(WizardPageLoader):
 
         self.page.validatePage = self.beginValidatePage
         self.page.initializePage = self._initializePage
+        self.page.cleanupPage = self._cleanupPage
 
     def _initializePage(self):
         QWizardPage.initializePage(self.page)
         self._clearEffects()
+
+    def _cleanupPage(self):
+        pass
 
     def _clearEffects(self):
         removeEffect(self.apiUrlLineEdit)
         removeEffect(self.repoUrlLineEdit)
         removeEffect(self.webUrlLineEdit)
 
-    @uiFriendly
+    @uiFriendly()
     def _friendlyTestUrl(self, url):
         return self.manager.testUrl(url)
 
-    @uiFriendly
+    @uiFriendly()
     def _friendlyTestHost(self, url):
         return self.manager.testHost(url)
 
-    @uiFriendly
+    @uiFriendly()
     def _friendlyTestApi(self, url, user, password):
         return self.manager.testApi(url, user, password)
 
@@ -136,10 +140,5 @@ class ConfigureServerUrlPageLoader(WizardPageLoader):
 
     def beginValidatePage(self):
         self._clearEffects()
-        oldCursor = self.page.wizard().cursor()
-        self.page.wizard().setCursor(Qt.WaitCursor)
-        self.page.setEnabled(False)
-        self.doValidatePage()
-        self.page.setEnabled(True)
-        self.page.wizard().setCursor(oldCursor)
+        self.waitWhile(self.doValidatePage)
         return self.isOk

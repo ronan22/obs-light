@@ -24,23 +24,28 @@ Created on 19 déc. 2011
 from PySide.QtGui import QWizard
 
 from ObsLightGui.ObsLightGuiObject import ObsLightGuiObject
-from ChooseServerWizardPage import ChooseServerWizardPageLoader
+
+from ChooseServerPageLoader import ChooseServerPageLoader
 from ConfigureServerUrlPageLoader import ConfigureServerUrlPageLoader
 from ConfigureServerAliasPageLoader import ConfigureServerAliasPageLoader
+from ChooseProjectPageLoader import ChooseProjectPageLoader
+from ChooseProjectTargetPageLoader import ChooseProjectTargetPageLoader
+from ChooseProjectArchPageLoader import ChooseProjectArchPageLoader
+from ConfigureProjectAliasPageLoader import ConfigureProjectAliasPageLoader
 
+# TODO: make it a subclass of QWizard
 class ConfigWizard(ObsLightGuiObject):
 
-    Pages = ['ChooseServer',
-             'ConfigureServerUrl',
-             'ConfigureServerAlias',
-             'ChooseProject',
-             'ChooseProjectTarget',
-             'ChooseProjectArchitecture']
-
-    wizard = None
-
-    oldNextId = None
+    # TODO: merge _pageLoaders and Pages
+    Pages = [u'ChooseServer',
+             u'ConfigureServerUrl',
+             u'ConfigureServerAlias',
+             u'ChooseProject',
+             u'ChooseProjectTarget',
+             u'ChooseProjectArchitecture',
+             u'ConfigureProjectAlias']
     _pageLoaders = {}
+    wizard = None
 
     def __init__(self, gui):
         ObsLightGuiObject.__init__(self, gui)
@@ -51,33 +56,41 @@ class ConfigWizard(ObsLightGuiObject):
     def pageIndex(pageName):
         return ConfigWizard.Pages.index(pageName)
 
-    def loadPageFromUiFile(self, pageName):
-        page = self.gui.loadWindow(pageName)
-        return page
-
     def loadPages(self):
-        # TODO: clean
-        pageLoader = ChooseServerWizardPageLoader(self.gui)
-        self._pageLoaders['ChooseServer'] = pageLoader
-        index = self.pageIndex('ChooseServer')
+        pageLoader = ChooseServerPageLoader(self.gui)
+        self._pageLoaders[u'ChooseServer'] = pageLoader
+        index = self.pageIndex(u'ChooseServer')
         self.wizard.setPage(index, pageLoader.page)
 
         pageLoader = ConfigureServerUrlPageLoader(self.gui)
-        self._pageLoaders['ConfigureServerUrl'] = pageLoader
-        index = self.pageIndex('ConfigureServerUrl')
+        self._pageLoaders[u'ConfigureServerUrl'] = pageLoader
+        index = self.pageIndex(u'ConfigureServerUrl')
         self.wizard.setPage(index, pageLoader.page)
 
         pageLoader = ConfigureServerAliasPageLoader(self.gui)
-        self._pageLoaders['ConfigureServerAlias'] = pageLoader
-        index = self.pageIndex('ConfigureServerAlias')
+        self._pageLoaders[u'ConfigureServerAlias'] = pageLoader
+        index = self.pageIndex(u'ConfigureServerAlias')
         self.wizard.setPage(index, pageLoader.page)
 
-        pageCounter = 2
-        for pageName in [u"wizard_chooseProject.ui",
-                         u"wizard_chooseTarget.ui",
-                         u"wizard_chooseArchitecture.ui"]:
-            pageCounter += 1
-            self.wizard.setPage(pageCounter, self.loadPageFromUiFile(pageName))
+        pageLoader = ChooseProjectPageLoader(self.gui)
+        self._pageLoaders[u'ChooseProject'] = pageLoader
+        index = self.pageIndex(u'ChooseProject')
+        self.wizard.setPage(index, pageLoader.page)
+
+        pageLoader = ChooseProjectTargetPageLoader(self.gui)
+        self._pageLoaders[u'ChooseProjectTarget'] = pageLoader
+        index = self.pageIndex(u'ChooseProjectTarget')
+        self.wizard.setPage(index, pageLoader.page)
+
+        pageLoader = ChooseProjectArchPageLoader(self.gui)
+        self._pageLoaders[u'ChooseProjectArchitecture'] = pageLoader
+        index = self.pageIndex(u'ChooseProjectArchitecture')
+        self.wizard.setPage(index, pageLoader.page)
+
+        pageLoader = ConfigureProjectAliasPageLoader(self.gui)
+        self._pageLoaders[u'ConfigureProjectAlias'] = pageLoader
+        index = self.pageIndex(u'ConfigureProjectAlias')
+        self.wizard.setPage(index, pageLoader.page)
 
     def show(self):
         return self.wizard.show()

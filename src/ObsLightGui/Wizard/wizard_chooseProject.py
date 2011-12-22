@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui/wizard_chooseProject.ui'
 #
-# Created: Tue Dec 20 12:23:21 2011
+# Created: Wed Dec 21 09:56:41 2011
 #      by: pyside-uic 0.2.13 running on PySide 1.0.8
 #
 # WARNING! All changes made in this file will be lost!
@@ -15,9 +15,9 @@ class Ui_WizardPage(object):
         WizardPage.resize(400, 300)
         self.verticalLayout = QtGui.QVBoxLayout(WizardPage)
         self.verticalLayout.setObjectName("verticalLayout")
-        self.listWidget = QtGui.QListWidget(WizardPage)
-        self.listWidget.setObjectName("listWidget")
-        self.verticalLayout.addWidget(self.listWidget)
+        self.projectListWidget = QtGui.QListWidget(WizardPage)
+        self.projectListWidget.setObjectName("projectListWidget")
+        self.verticalLayout.addWidget(self.projectListWidget)
 
         self.retranslateUi(WizardPage)
         QtCore.QMetaObject.connectSlotsByName(WizardPage)

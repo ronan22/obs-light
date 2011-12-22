@@ -24,6 +24,8 @@ Created on 19 déc. 2011
 import imp
 from os.path import dirname
 
+from PySide.QtCore import Qt
+
 from ObsLightGui.ObsLightGuiObject import ObsLightGuiObject
 from WizardPageWrapper import WizardPageWrapper
 
@@ -35,6 +37,7 @@ def _fixExtension(source, old, new):
     else:
         return source
 
+# TODO: try to merge WizardPageLoader and WizardPageWrapper
 class WizardPageLoader(ObsLightGuiObject):
     _gui = None
     _page = None
@@ -74,10 +77,24 @@ class WizardPageLoader(ObsLightGuiObject):
         uiWP = mod.Ui_WizardPage()
         uiWP.setupUi(self.page)
 
+    def waitWhile(self, func, *args, **kwargs):
+        u"""
+        Disables wizard page and sets cursor to WaitCursor
+        while calling func.
+        """
+        cursor = self.page.wizard().cursor()
+        self.page.setEnabled(False)
+        self.page.wizard().setCursor(Qt.WaitCursor)
+        try:
+            return func(*args, **kwargs)
+        finally:
+            self.page.wizard().setCursor(cursor)
+            self.page.setEnabled(True)
+
     @property
-    def page(self):
+    def page(self): # pylint: disable-msg=E0202
         return self._page
 
-    @page.setter
-    def page(self, value):
+    @page.setter # pylint: disable-msg=E1101
+    def page(self, value): # pylint: disable-msg=E0202,E0102
         self._page = value
