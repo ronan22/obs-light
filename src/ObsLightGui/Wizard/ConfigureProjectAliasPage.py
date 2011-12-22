@@ -56,6 +56,7 @@ class ConfigureProjectAliasPage(ObsLightWizardPage):
                            self.wizard().getSelectedTarget(),
                            self.wizard().getSelectedArch(),
                            alias)
+        self.gui.refresh()
         return True
 
     @uiFriendly()

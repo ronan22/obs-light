@@ -22,15 +22,18 @@ Created on 22 déc. 2011
 '''
 
 from PySide.QtCore import Qt
+from PySide.QtGui import QAbstractItemView
 
 class FilterableWidget(object):
 
     filterLineEdit = None
     filterableListWidget = None
 
-    def __init__(self, filterLineEdit, filterableListWidget):
+    def __init__(self, filterLineEdit, filterableListWidget, multiSelection=False):
         self.filterLineEdit = filterLineEdit
         self.filterableListWidget = filterableListWidget
+        if multiSelection:
+            self.filterableListWidget.setSelectionMode(QAbstractItemView.MultiSelection)
         self.filterLineEdit.textEdited.connect(self.on_filterLineEdit_textEdited)
 
     def on_filterLineEdit_textEdited(self, newFilter):

@@ -36,9 +36,12 @@ class ChoosePackagePage(ObsLightWizardPage, FilterableWidget):
         self.setCommitPage(True)
 
     def initializePage(self):
-        serverAlias = self.field(u"serverAlias")
-        project = self.wizard().getSelectedProject()
-        self.setBusyCursor(self._fillPackageList, serverAlias, project)
+        projectAlias = self.wizard().getSelectedProjectAlias()
+        server = self.manager.getProjectParameter(projectAlias,
+                                                  u"obsServer")
+        prjObsName = self.manager.getProjectParameter(projectAlias,
+                                                      u"projectObsName")
+        self.setBusyCursor(self._fillPackageList, server, prjObsName)
 
     @popupOnException
     def validatePage(self):
@@ -65,3 +68,11 @@ class ChoosePackagePage(ObsLightWizardPage, FilterableWidget):
 
     def getSelectedPackage(self):
         return self.ui_WizardPage.packageListWidget.item(self.field(u"packageRow")).text()
+
+    def getSelectedPackages(self):
+        items = self.ui_WizardPage.packagesListWidget.selectedItems()
+        packages = set()
+        for item in items:
+            packageName = item.text()
+            packages.add(packageName)
+        return list(packages)
