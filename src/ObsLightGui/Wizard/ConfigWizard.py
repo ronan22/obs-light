@@ -78,3 +78,6 @@ class ConfigWizard(QWizard, ObsLightGuiObject):
 
     def getSelectedProject(self):
         return self.Pages[u'ChooseProject'].getSelectedProject()
+
+    def getSelectedProjectAlias(self):
+        return self.field(u"projectAlias")

@@ -44,9 +44,9 @@ class ChoosePackagePage(ObsLightWizardPage):
         if not self.isComplete():
             return False
 
-        project = self.wizard().getSelectedProject()
+        projectAlias = self.wizard().getSelectedProjectAlias()
         package = self.getSelectedPackage()
-        self.setBusyCursor(self._addPackage, project, package)
+        self.setBusyCursor(self._addPackage, projectAlias, package)
         return True
 
     def _fillPackageList(self, serverAlias, project):
