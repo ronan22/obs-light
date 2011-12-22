@@ -138,13 +138,13 @@ def checkObsServerAlias(position=None):
             mngr = getManager()
             serverApi = None
             if (position is not None) and (position < len(args)):
-                val = args[position]
+                serverApi = args[position]
             elif "serverApi" in kwargs :
                 serverApi = kwargs["serverApi"]
             else:
                 raise ObsLightProjectsError("checkObsServerAlias Fails")
             if not mngr.isAnObsServer(serverApi):
-                raise ObsLightObsServers(val + " is not an OBS server")
+                raise ObsLightObsServers(serverApi + " is not an OBS server")
             return f(*args, **kwargs)
         return checkObsServerAlias2
     return checkObsServerAlias1
