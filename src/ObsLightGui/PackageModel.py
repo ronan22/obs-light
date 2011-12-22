@@ -134,7 +134,7 @@ class PackageModel(QAbstractTableModel):
 
     def displayRoleData(self, row, column):
         packageList = self.__getPackageList()
-        packageName = packageList.keys()[row]
+        packageName = sorted(packageList.keys())[row]
         retVal = None
 
         if column == self.NameColumn:

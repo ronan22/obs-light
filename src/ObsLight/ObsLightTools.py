@@ -31,7 +31,9 @@ import ObsLightPrintManager
 from M2Crypto import SSL
 from os.path import expanduser
 
-SOCKETTIMEOUT = 1
+import threading
+
+SOCKETTIMEOUT = 20
 
 
 def isNonEmptyString(theString):
@@ -203,6 +205,56 @@ def openFileWithDefaultProgram(filePath):
     except BaseException:
         logger.error("Failed to run '%s %s'", openCommand, filePath, exc_info=True)
         raise
+
+class procedureWithThreads(threading.Thread):
+    def __init__(self, packagePath, procedure, sem, lock, errList, progress):
+        '''
+        
+        '''
+        threading.Thread.__init__(self)
+        self.__procedure = procedure
+        self.__packagePath = packagePath
+        self.__sem = sem
+        self.__errList = errList
+        self.__progress = progress
+        self.__lock = lock
+
+    def run(self):
+        '''
+        
+        '''
+        self.__sem.acquire()
+        res = self.__procedure(self.__packagePath)
+        if  res != 0:
+            self.__lock.acquire()
+            self.__errList.append(self.__packagePath)
+            self.__lock.release()
+        self.__sem.release()
+
+        if self.__progress != None:
+            self.__lock.acquire()
+            self.__progress()
+            self.__lock.release()
+
+        return self.__errList
+
+def mapProcedureWithThreads(parameterList, procedure, progress):
+    errList = []
+    res = []
+    sem = threading.BoundedSemaphore(value=ObsLightConfig.getMaxNbThread())
+    al = threading.Lock()
+    for p in parameterList:
+        athread = procedureWithThreads(packagePath=p,
+                                 procedure=procedure,
+                                 sem=sem,
+                                 lock=al,
+                                 errList=errList,
+                                 progress=progress)
+        athread.start()
+        res.append(athread)
+    for th in res:
+        th.join()
+    return  errList
 
 
 if __name__ == '__main__':

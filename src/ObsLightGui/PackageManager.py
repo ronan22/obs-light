@@ -310,7 +310,8 @@ class PackageManager(QObject):
         self.refresh()
 
     def refresh(self):
-        self.__pkgModel.refresh()
+        if self.__pkgModel != None:
+            self.__pkgModel.refresh()
         self.__fileManager.refresh()
         self.updateLabels()
         self.updateButtons()
@@ -403,8 +404,13 @@ class PackageManager(QObject):
     def showPackageSelectionDialog(self, packageList):
         self.__packageSelector.showPackageSelectionDialog(packageList)
 
-    def __mapOnSelectedPackages(self, method, initialMessage, loopMessage,
-                                callback, *args, **kwargs):
+    def __mapOnSelectedPackages(self,
+                                method,
+                                initialMessage,
+                                loopMessage,
+                                callback,
+                                *args,
+                                **kwargs):
         packagesNames = self.selectedPackages()
         if len(packagesNames) < 1:
             return

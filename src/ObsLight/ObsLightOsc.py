@@ -32,14 +32,19 @@ import ObsLightSubprocess
 import ObsLightPrintManager
 EMPTYPROJECTPATH = os.path.join(os.path.dirname(__file__), "emptySpec")
 
-from ObsLight import ObsLightErr
+import ObsLightConfig
+
+import ObsLightErr
 
 import urllib2
 import M2Crypto
 
 import socket
-TIMEOUT = 20
-#socket.setdefaulttimeout(TIMEOUT)
+TIMEOUT = ObsLightConfig.getSocketDefaultTimeOut()
+if TIMEOUT >= 0:
+    socket.setdefaulttimeout(TIMEOUT)
+else:
+    TIMEOUT = 60
 
 class ObsLightOsc(object):
     '''
@@ -327,7 +332,6 @@ class ObsLightOsc(object):
         try:
             aElement = ElementTree.fromstring(pk.get_files_meta())
         except :
-            ObsLightPrintManager.obsLightPrint("apiurl " + str(apiurl) + " for package " + package + " is not reachable")
             return None
 
         #print "rev" , aElement.get("rev")
@@ -354,7 +358,7 @@ class ObsLightOsc(object):
         '''
         os.chdir(packagePath)
         command = "osc up"
-        self.__subprocess(command=command)
+        return self.__subprocess(command=command)
 
 
     def __subprocess(self, command=None, waitMess=False):
@@ -783,13 +787,36 @@ def getObsLightOsc():
     return __myObsLightOsc
 
 if __name__ == '__main__':
-    projet = "MeeGo:1.2.0:oss"
-    package = "kernel"
-    apiurl = "http://128.224.218.244:81"
-    apiurl = "https://api.pub.meego.com"
-    user = 'ronan'
-    passwd = 'guirec#22'
+    import ObsLightTools
+    path = "/home/meego/OBSLight/meego1.2/MeeGo:1.2:oss"
 
-    print getObsLightOsc().testApi(api=apiurl,
-                                   passwd=passwd,
-                                   user=user)
+    class progressBar:
+        def __init__(self, toDo):
+            self.count = 0
+            self.total = float(len(toDo)) / 100.
+
+        def progress(self):
+            self.count += 1
+            f = open("/tmp/obslight", 'a')
+            f.write('%.2f' % (self.count / self.total) + "%\n")
+            f.close()
+
+    theBadOne = []
+
+    for aDir in os.listdir(path) :
+        packagePath = path + "/" + aDir
+        if os.path.isdir(packagePath):
+            theBadOne.append(packagePath)
+
+    while(len(theBadOne) != 0):
+        pb = progressBar(theBadOne)
+        theBadOne = ObsLightTools.mapProcedureWithThreads(parameterList=theBadOne,
+                                                          procedure=getObsLightOsc().updatePackage,
+                                                          progress=pb.progress)
+
+
+
+
+
+
+

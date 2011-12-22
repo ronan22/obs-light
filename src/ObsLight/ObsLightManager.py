@@ -23,6 +23,7 @@ Created on 17 juin 2011
 
 import os
 import sys
+import collections
 
 from ObsLightServers import ObsLightServers
 from ObsLightProjects import ObsLightProjects
@@ -135,15 +136,15 @@ def checkObsServerAlias(position=None):
     def checkObsServerAlias1(f):
         def checkObsServerAlias2(*args, **kwargs):
             mngr = getManager()
-            val = None
+            serverApi = None
             if (position is not None) and (position < len(args)):
-                val = args[position]
-            elif "obsServer" in kwargs :
-                val = kwargs["obsServer"]
+                serverApi = args[position]
+            elif "serverApi" in kwargs :
+                serverApi = kwargs["serverApi"]
             else:
                 raise ObsLightProjectsError("checkObsServerAlias Fails")
-            if not mngr.isAnObsServer(val):
-                raise ObsLightObsServers(val + " is not an OBS server")
+            if not mngr.isAnObsServer(serverApi):
+                raise ObsLightObsServers(serverApi + " is not an OBS server")
             return f(*args, **kwargs)
         return checkObsServerAlias2
     return checkObsServerAlias1
@@ -151,16 +152,27 @@ def checkObsServerAlias(position=None):
 def checkNonEmptyStringPackage(position=None):
     def checkNonEmptyStringPackage1(f):
         def checkNonEmptyStringPackage2(*args, **kwargs):
-            val = None
+            def test(package):
+                if not isNonEmptyString(package):
+                    raise ObsLightObsServers("Invalid package name: " + str(package))
+
+            package = None
             if (position is not None) and (position < len(args)):
-                val = args[position]
+                package = args[position]
             elif "package" in kwargs :
-                val = kwargs["package"]
+                package = kwargs["package"]
             else:
                 raise ObsLightProjectsError("checkNonEmptyStringPackage Fails")
-            if not isNonEmptyString(val):
-                raise ObsLightObsServers("Invalid package name: " + str(val))
+
+            if isinstance(package, collections.Iterable) and\
+               not isinstance(package, str) and\
+               not isinstance(package, unicode) :
+                for aVal in package:
+                    test(aVal)
+            else:
+                test(package)
             return f(*args, **kwargs)
+
         return checkNonEmptyStringPackage2
     return checkNonEmptyStringPackage1
 
@@ -183,6 +195,10 @@ def checkNonEmptyStringDirectory(position=None):
 def checkPackage(position1=None, position2=None):
     def checkPackage1(f):
         def checkPackage2(*args, **kwargs):
+            def test(package):
+                if not package in mngr.getLocalProjectPackageList(projectLocalName=projectLocalName, local=1):
+                    raise ObsLightObsServers("'" + package + "' is not a local package of '" + projectLocalName + "'")
+
             mngr = getManager()
             projectLocalName = None
             package = None
@@ -198,8 +214,14 @@ def checkPackage(position1=None, position2=None):
                 package = kwargs["package"]
             else:
                 raise ObsLightProjectsError("checkPackage Fails no package")
-            if not package in mngr.getLocalProjectPackageList(projectLocalName=projectLocalName, local=1):
-                raise ObsLightObsServers("'" + package + "' is not a local package of '" + projectLocalName + "'")
+            if isinstance(package, collections.Iterable) and\
+               not isinstance(package, str) and\
+               not isinstance(package, unicode):
+                for aVal in package:
+                    test(aVal)
+            else:
+                test(package)
+
             return f(*args, **kwargs)
         return checkPackage2
     return checkPackage1
@@ -210,8 +232,9 @@ def checkNonEmptyStringServerApi(position=None):
             serverApi = None
             if (position is not None) and (position < len(args)):
                 serverApi = args[position]
-            elif "obsServer" in kwargs :
-                serverApi = kwargs["obsServer"]
+            elif "serverApi" in kwargs :
+                serverApi = kwargs["serverApi"]
+
             else:
                 raise ObsLightProjectsError("checkNonEmptyStringServerApi Fails")
             if not isNonEmptyString(serverApi):
@@ -260,13 +283,13 @@ def checkAvailableAlias(position=None):
             mngr = getManager()
             alias = None
             if (position is not None) and (position < len(args)):
-                serverApi = args[position]
+                alias = args[position]
             elif "alias" in kwargs :
-                serverApi = kwargs["alias"]
+                alias = kwargs["alias"]
             else:
                 raise ObsLightProjectsError("checkAvailableAlias Fails")
-            if mngr.isAnObsServer(serverApi):
-                raise ObsLightObsServers(serverApi + " is already an OBS server")
+            if mngr.isAnObsServer(alias):
+                raise ObsLightObsServers(alias + " is already an OBS server")
             return f(*args, **kwargs)
         return checkAvailableAlias2
     return checkAvailableAlias1
@@ -396,24 +419,24 @@ def checkAvailableProjectObsName(position1=None, position2=None):
         def checkAvailableProjectObsName2(*args, **kwargs):
             mngr = getManager()
             projectObsName = None
-            obsServer = None
+            serverApi = None
 
             if (position1 is not None) and (position1 < len(args)):
                 projectObsName = args[position1]
             elif "projectObsName" in kwargs :
                 projectObsName = kwargs["projectObsName"]
             else:
-                raise ObsLightProjectsError("checkAvailableProjectObsName Fails no serverApi")
+                raise ObsLightProjectsError("checkAvailableProjectObsName Fails no projectObsName")
             if (position2 is not None) and (position2 < len(args)):
-                obsServer = args[position2]
-            elif "obsServer" in kwargs :
-                obsServer = kwargs["obsServer"]
+                serverApi = args[position2]
+            elif "serverApi" in kwargs :
+                serverApi = kwargs["serverApi"]
             else:
-                raise ObsLightProjectsError("checkAvailableProjectObsName Fails no obsServer")
+                raise ObsLightProjectsError("checkAvailableProjectObsName Fails no serverApi")
 
             if not isNonEmptyString(projectObsName):
                 raise ObsLightObsServers("No projectObsName")
-            if not projectObsName in mngr.getObsServerProjectList(obsServer):
+            if not projectObsName in mngr.getObsServerProjectList(serverApi):
                 raise ObsLightObsServers("'" + projectObsName + "' is not a project in the OBS server")
             return f(*args, **kwargs)
         return checkAvailableProjectObsName2
@@ -424,22 +447,22 @@ def checkProjectObsName(position1=None, position2=None):
         def checkAvailableProjectObsName2(*args, **kwargs):
             mngr = getManager()
             projectObsName = None
-            obsServer = None
+            serverApi = None
             if (position1 is not None) and (position1 < len(args)):
                 projectObsName = args[position1]
             elif "projectObsName" in kwargs :
                 projectObsName = kwargs["projectObsName"]
             else:
-                raise ObsLightProjectsError("checkProjectObsName Fails no serverApi")
+                raise ObsLightProjectsError("checkProjectObsName Fails no projectObsName")
             if (position2 is not None) and (position2 < len(args)):
-                obsServer = args[position2]
-            elif "obsServer" in kwargs :
-                obsServer = kwargs["obsServer"]
+                serverApi = args[position2]
+            elif "serverApi" in kwargs :
+                serverApi = kwargs["serverApi"]
             else:
-                raise ObsLightProjectsError("checkProjectObsName Fails no obsServer")
+                raise ObsLightProjectsError("checkProjectObsName Fails no serverApi")
             if not isNonEmptyString(projectObsName):
                 raise ObsLightObsServers("No projectObsName")
-            if projectObsName in mngr.getObsServerProjectList(obsServer):
+            if projectObsName in mngr.getObsServerProjectList(serverApi):
                 raise ObsLightObsServers("'" + projectObsName + "' is not a project in the OBS server")
             return f(*args, **kwargs)
         return checkAvailableProjectObsName2
@@ -450,7 +473,7 @@ def checkAvailableProjectTarget(position1=None, position2=None, position3=None):
         def checkAvailableProjectTarget2(*args, **kwargs):
             mngr = getManager()
             projectObsName = None
-            obsServer = None
+            serverApi = None
             projectTarget = None
             if (position1 is not None) and (position1 < len(args)):
                 projectObsName = args[position1]
@@ -459,9 +482,9 @@ def checkAvailableProjectTarget(position1=None, position2=None, position3=None):
             else:
                 raise ObsLightProjectsError("checkAvailableProjectTarget Fails no serverApi")
             if (position2 is not None) and (position2 < len(args)):
-                obsServer = args[position2]
-            elif "obsServer" in kwargs :
-                obsServer = kwargs["obsServer"]
+                serverApi = args[position2]
+            elif "serverApi" in kwargs :
+                serverApi = kwargs["serverApi"]
             else:
                 raise ObsLightProjectsError("checkAvailableProjectTarget Fails no obsServer")
             if (position3 is not None) and (position3 < len(args)):
@@ -470,7 +493,7 @@ def checkAvailableProjectTarget(position1=None, position2=None, position3=None):
                 projectTarget = kwargs["projectTarget"]
             else:
                 raise ObsLightProjectsError("checkAvailableProjectTarget Fails no projectTarget")
-            if not projectTarget in mngr.getTargetList(obsServer, projectObsName):
+            if not projectTarget in mngr.getTargetList(serverApi, projectObsName):
                 raise ObsLightProjectsError(projectTarget + " is not a valid target")
             return f(*args, **kwargs)
         return checkAvailableProjectTarget2
@@ -481,7 +504,7 @@ def checkAvailableProjectArchitecture(position1=None, position2=None, position3=
         def checkAvailableProjectArchitecture2(*args, **kwargs):
             mngr = getManager()
             projectObsName = None
-            obsServer = None
+            serverApi = None
             projectTarget = None
             projectArchitecture = None
             if (position1 is not None) and (position1 < len(args)):
@@ -489,13 +512,13 @@ def checkAvailableProjectArchitecture(position1=None, position2=None, position3=
             elif "projectObsName" in kwargs :
                 projectObsName = kwargs["projectObsName"]
             else:
-                raise ObsLightProjectsError("checkAvailableProjectArchitecture Fails no serverApi")
+                raise ObsLightProjectsError("checkAvailableProjectArchitecture Fails no projectObsName")
             if (position2 is not None) and (position2 < len(args)):
-                obsServer = args[position2]
-            elif "obsServer" in kwargs :
-                obsServer = kwargs["obsServer"]
+                serverApi = args[position2]
+            elif "serverApi" in kwargs :
+                serverApi = kwargs["serverApi"]
             else:
-                raise ObsLightProjectsError("checkAvailableProjectArchitecture Fails no obsServer")
+                raise ObsLightProjectsError("checkAvailableProjectArchitecture Fails no serverApi")
             if (position3 is not None) and (position3 < len(args)):
                 projectTarget = args[position3]
             elif "projectTarget" in kwargs :
@@ -508,7 +531,7 @@ def checkAvailableProjectArchitecture(position1=None, position2=None, position3=
                 projectArchitecture = kwargs["projectArchitecture"]
             else:
                 raise ObsLightProjectsError("checkAvailableProjectArchitecture Fails no projectArchitecture")
-            if not projectArchitecture in mngr.getArchitectureList(obsServer=obsServer,
+            if not projectArchitecture in mngr.getArchitectureList(serverApi=serverApi,
                                                                projectObsName=projectObsName,
                                                                projectTarget=projectTarget):
                 raise ObsLightProjectsError(projectArchitecture + " is not a valid architecture")
@@ -521,7 +544,7 @@ def checkAvailableProjectPackage(position1=None, position2=None, position3=None)
         def checkAvailableProjectPackage2(*args, **kwargs):
             mngr = getManager()
             projectObsName = None
-            obsServer = None
+            serverApi = None
             package = None
             if (position1 is not None) and (position1 < len(args)):
                 projectObsName = args[position1]
@@ -530,18 +553,18 @@ def checkAvailableProjectPackage(position1=None, position2=None, position3=None)
             else:
                 raise ObsLightProjectsError("checkAvailableProjectPackage Fails no serverApi")
             if (position2 is not None) and (position2 < len(args)):
-                obsServer = args[position2]
-            elif "obsServer" in kwargs :
-                obsServer = kwargs["obsServer"]
+                serverApi = args[position2]
+            elif "serverApi" in kwargs :
+                serverApi = kwargs["serverApi"]
             else:
-                raise ObsLightProjectsError("checkAvailableProjectPackage Fails no obsServer")
+                raise ObsLightProjectsError("checkAvailableProjectPackage Fails no serverApi")
             if (position3 is not None) and (position3 < len(args)):
                 package = args[position3]
             elif "package" in kwargs :
                 package = kwargs["package"]
             else:
                 raise ObsLightProjectsError("checkAvailableProjectPackage Fails no package")
-            if not package in mngr.getObsProjectPackageList(obsServer, projectObsName):
+            if not package in mngr.getObsProjectPackageList(serverApi, projectObsName):
                 raise ObsLightObsServers(" package '" + package + "' is not part of the '"
                                          + projectObsName + "' project")
             return f(*args, **kwargs)
@@ -684,55 +707,55 @@ class ObsLightManager(object):
 
     @checkNonEmptyStringServerApi(1)
     @checkServerApi(1)
-    def getObsServerProjectList(self, server):
+    def getObsServerProjectList(self, serverApi):
         '''
         Get the list of projects of an OBS server.
         '''
-        return self.__myObsServers.getLocalProjectList(server)
+        return self.__myObsServers.getLocalProjectList(serverApi)
 
     @checkNonEmptyStringServerApi(1)
     @checkObsServerAlias(1)
     @checkAvailableProjectObsName(2, 1)
-    def getTargetList(self, obsServer, projectObsName):
+    def getTargetList(self, serverApi, projectObsName):
         '''
         Return the list of targets of the specified project.
         This method is blocking so you may want to call it from a
         separate thread.
         '''
-        return self.__myObsServers.getTargetList(obsServer=obsServer,
+        return self.__myObsServers.getTargetList(obsServer=serverApi,
                                                  projectObsName=projectObsName)
 
     @checkNonEmptyStringServerApi(1)
     @checkNonEmptyStringProjectTarget(3)
     @checkObsServerAlias(1)
-    def getArchitectureList(self, obsServer, projectObsName, projectTarget):
+    def getArchitectureList(self, serverApi, projectObsName, projectTarget):
         '''
         Return the list of architectures configured on this target
         for the specified project.
         This method is blocking so you may want to call it from a
         separate thread.
         '''
-        return self.__myObsServers.getArchitectureList(obsServer=obsServer ,
+        return self.__myObsServers.getArchitectureList(obsServer=serverApi ,
                                                        projectObsName=projectObsName,
                                                        projectTarget=projectTarget)
 
     @checkNonEmptyStringServerApi(1)
     @checkAvailableProjectObsName(2, 1)
-    def getObsProjectPackageList(self, obsServer, projectObsName):
+    def getObsProjectPackageList(self, serverApi, projectObsName):
         '''
         Return the list of packages of a project on an OBS server.
         '''
-        return self.__myObsServers.getListPackage(obsServer=obsServer,
+        return self.__myObsServers.getListPackage(obsServer=serverApi,
                                                   projectLocalName=projectObsName)
 
     #---------------------------------------------------------------------------
     @checkNonEmptyStringServerApi(1)
     @checkServerApi(1)
-    def getRepo(self, obsServer):
+    def getRepo(self, serverApi):
         '''
         Return the URL of the OBS server package repository.
         '''
-        return self.__myObsServers.getRepo(obsServer=obsServer)
+        return self.__myObsServers.getRepo(obsServer=serverApi)
 
     def getObsServerList(self, reachable=False):
         '''
@@ -805,11 +828,11 @@ class ObsLightManager(object):
 
     @checkNonEmptyStringServerApi(1)
     @checkServerApi(1)
-    def delObsServer(self, alias):
+    def delObsServer(self, obsServer):
         '''
         Delete an OBS server.
         '''
-        self.__myObsServers.delObsServer(alias=alias)
+        self.__myObsServers.delObsServer(alias=obsServer)
         self.__myObsServers.save()
 
     @checkNonEmptyStringServerApi(1)
@@ -819,11 +842,11 @@ class ObsLightManager(object):
     @checkAvailableProjectObsName(2, 1)
     @checkAvailableProjectPackage(2, 1, 3)
     @checkDirectory(4)
-    def checkoutPackage(self, obsServer, projectObsName, package, directory):
+    def checkoutPackage(self, serverApi, projectObsName, package, directory):
         '''
         Check out a package from an OBS server to a local directory.
         '''
-        self.__myObsServers.checkoutPackage(obsServer=obsServer,
+        self.__myObsServers.checkoutPackage(obsServer=serverApi,
                                             projectObsName=projectObsName,
                                             package=package,
                                             directory=directory)
@@ -1048,7 +1071,7 @@ class ObsLightManager(object):
     @checkAvailableProjectTarget(2, 1, 3)
     @checkAvailableProjectArchitecture(2, 1, 3, 4)
     def addProject(self,
-                   obsServer,
+                   serverApi,
                    projectObsName,
                    projectTarget,
                    projectArchitecture,
@@ -1061,7 +1084,7 @@ class ObsLightManager(object):
         self.__myObsLightProjects.addProject(projectLocalName=projectLocalName,
                                              projectObsName=projectObsName,
                                              projectTitle=projectTitle,
-                                             obsServer=obsServer,
+                                             obsServer=serverApi,
                                              projectTarget=projectTarget,
                                              description=description,
                                              projectArchitecture=projectArchitecture)
@@ -1375,12 +1398,13 @@ class ObsLightManager(object):
     @checkProjectLocalName(1)
     @checkNonEmptyStringPackage(2)
     @checkPackage(1, 2)
-    def updatePackage(self, projectLocalName, package):
+    def updatePackage(self, projectLocalName, package, controlFunction=None):
         '''
         
         '''
         self.__myObsLightProjects.updatePackage(projectLocalName=projectLocalName,
-                                                package=package)
+                                                package=package,
+                                                controlFunction=controlFunction)
         self.__myObsLightProjects.save()
 
     @checkProjectLocalName(1)
