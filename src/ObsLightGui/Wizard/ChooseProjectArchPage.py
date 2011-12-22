@@ -32,9 +32,9 @@ class ChooseProjectArchPage(ObsLightWizardPage):
         self.registerField(u"archCBox*", self.ui_WizardPage.architectureComboBox)
 
     def initializePage(self):
-        server = self.getSelectedServer()
-        project = self.getSelectedProject()
-        target = self.getSelectedTarget()
+        server = self.wizard().getSelectedServerAlias()
+        project = self.wizard().getSelectedProject()
+        target = self.wizard().getSelectedTarget()
         self.setBusyCursor(self._fillArchCBox, server, project, target)
 
     def _fillArchCBox(self, server, project, target):
@@ -45,21 +45,6 @@ class ChooseProjectArchPage(ObsLightWizardPage):
     @uiFriendly()
     def _getArchList(self, server, project, target):
         return self.manager.getArchitectureList(server, project, target)
-
-    def getSelectedServer(self):
-        return self.field(u"serverAlias")
-
-    def getSelectedProject(self):
-        chooseProjectPageIndex = self.wizard().pageIndex(u'ChooseProject')
-        chooseProjectPage = self.wizard().page(chooseProjectPageIndex)
-        project = chooseProjectPage.getSelectedProject()
-        return project
-
-    def getSelectedTarget(self):
-        chooseTargetPageIndex = self.wizard().pageIndex(u'ChooseProjectTarget')
-        chooseTargetPage = self.wizard().page(chooseTargetPageIndex)
-        target = chooseTargetPage.getSelectedTarget()
-        return target
 
     def getSelectedArch(self):
         return self.ui_WizardPage.architectureComboBox.currentText()

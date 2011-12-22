@@ -81,3 +81,12 @@ class ConfigWizard(QWizard, ObsLightGuiObject):
 
     def getSelectedProjectAlias(self):
         return self.field(u"projectAlias")
+
+    def getSelectedServerAlias(self):
+        return self.field(u"serverAlias")
+
+    def getSelectedTarget(self):
+        return self.Pages[u'ChooseProjectTarget'].getSelectedTarget()
+
+    def getSelectedArch(self):
+        return self.Pages[u'ChooseProjectArch'].getSelectedArch()

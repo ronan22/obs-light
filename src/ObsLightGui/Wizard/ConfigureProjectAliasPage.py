@@ -38,9 +38,9 @@ class ConfigureProjectAliasPage(ObsLightWizardPage):
         self.setCommitPage(True)
 
     def initializePage(self):
-        self.ui_WizardPage.projectLabel.setText(self.getSelectedProject())
-        self.ui_WizardPage.targetLabel.setText(self.getSelectedTarget())
-        self.ui_WizardPage.architectureLabel.setText(self.getSelectedArch())
+        self.ui_WizardPage.projectLabel.setText(self.wizard().getSelectedProject())
+        self.ui_WizardPage.targetLabel.setText(self.wizard().getSelectedTarget())
+        self.ui_WizardPage.architectureLabel.setText(self.wizard().getSelectedArch())
 
     def validatePage(self):
         if not self.isComplete():
@@ -51,39 +51,14 @@ class ConfigureProjectAliasPage(ObsLightWizardPage):
             return False
 
         self.setBusyCursor(self._addProject,
-                       self.getSelectedServer(),
-                       self.getSelectedProject(),
-                       self.getSelectedTarget(),
-                       self.getSelectedArch(),
-                       alias)
+                           self.wizard().getSelectedServerAlias(),
+                           self.wizard().getSelectedProject(),
+                           self.wizard().getSelectedTarget(),
+                           self.wizard().getSelectedArch(),
+                           alias)
         return True
 
     @uiFriendly()
     def _addProject(self, server, project, target, arch, alias):
         print server, project, target, arch, alias
         self.manager.addProject(server, project, target, arch, projectLocalName=alias)
-
-    # TODO: move to ConfigWizard
-    def getSelectedServer(self):
-        return self.field(u"serverAlias")
-
-    # TODO: move to ConfigWizard
-    def getSelectedProject(self):
-        chooseProjectPageIndex = self.wizard().pageIndex(u'ChooseProject')
-        chooseProjectPage = self.wizard().page(chooseProjectPageIndex)
-        project = chooseProjectPage.getSelectedProject()
-        return project
-
-    # TODO: move to ConfigWizard
-    def getSelectedTarget(self):
-        chooseTargetPageIndex = self.wizard().pageIndex(u'ChooseProjectTarget')
-        chooseTargetPage = self.wizard().page(chooseTargetPageIndex)
-        target = chooseTargetPage.getSelectedTarget()
-        return target
-
-    # TODO: move to ConfigWizard
-    def getSelectedArch(self):
-        chooseArchPageIndex = self.wizard().pageIndex(u'ChooseProjectArch')
-        chooseArchPage = self.wizard().page(chooseArchPageIndex)
-        arch = chooseArchPage.getSelectedArch()
-        return arch
