@@ -21,10 +21,12 @@ Created on 15 déc. 2011
 @author: Florent Vennetier
 '''
 
-from PySide.QtCore import QObject, Qt, Signal
+from PySide.QtCore import QObject, Signal
 from PySide.QtGui import QLineEdit, QListWidget
 
-class PackageSelector(QObject):
+from FilterableWidget import FilterableWidget
+
+class PackageSelector(QObject, FilterableWidget):
     u"""
     Show a dialog containing a package list and a text field to enter
     a package name filter.
@@ -41,6 +43,7 @@ class PackageSelector(QObject):
         QObject.__init__(self)
         self.__gui = gui
         self.__loadWidgets()
+        FilterableWidget.__init__(self, self.__filterLineEdit, self.__packagesListWidget)
         self.__makeConnections()
 
     def __loadWidgets(self):
@@ -52,7 +55,6 @@ class PackageSelector(QObject):
 
     def __makeConnections(self):
         self.__packageSelectionDialog.accepted.connect(self.on_packageSelectionDialog_accepted)
-        self.__filterLineEdit.textEdited.connect(self.on_filterLineEdit_textEdited)
 
     def getFilterText(self):
         u"""
@@ -71,13 +73,6 @@ class PackageSelector(QObject):
         self.__packagesListWidget.clear()
         self.__packageSelectionDialog.show()
         self.__packagesListWidget.addItems(packageList)
-
-    def on_filterLineEdit_textEdited(self, newFilter):
-        for i in range(self.__packagesListWidget.count()):
-            item = self.__packagesListWidget.item(i)
-            item.setHidden(True)
-        for item in self.__packagesListWidget.findItems(newFilter, Qt.MatchContains):
-            item.setHidden(False)
 
     def on_packageSelectionDialog_accepted(self):
         items = self.__packagesListWidget.selectedItems()
