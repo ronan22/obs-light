@@ -63,7 +63,9 @@ class ObsLightOsc(object):
         self.__aLock = threading.Lock()
 
         if os.path.isfile(self.__confFile):
+            self.__aLock.acquire()
             conf.get_config()
+            self.__aLock.release()
 
     def initConf(self,
                  api=None,
@@ -122,7 +124,9 @@ class ObsLightOsc(object):
         '''
         
         '''
+        self.__aLock.acquire()
         conf.get_config()
+        self.__aLock.release()
         aOscConfigParser = conf.get_configParser(self.__confFile, force_read=True)
 
         aOscConfigParser.set(api, 'user', user)
@@ -134,7 +138,9 @@ class ObsLightOsc(object):
         '''
         
         '''
+        self.__aLock.acquire()
         conf.get_config()
+        self.__aLock.release()
         aOscConfigParser = conf.get_configParser(self.__confFile, force_read=True)
         aOscConfigParser.set(api, 'pass', passw)
 
@@ -148,7 +154,9 @@ class ObsLightOsc(object):
         result = {}
         if not os.path.isfile(self.__confFile):
             return result
+        self.__aLock.acquire()
         conf.get_config()
+        self.__aLock.release()
         aOscConfigParser = conf.get_configParser(self.__confFile, force_read=True)
 
         for api in aOscConfigParser.sections():
@@ -185,7 +193,9 @@ class ObsLightOsc(object):
         
         '''
         ObsLightPrintManager.getLogger().debug("api" + api)
+        self.__aLock.acquire()
         conf.get_config()
+        self.__aLock.release()
         aOscConfigParser = conf.get_configParser(self.__confFile, force_read=True)
 
         if aOscConfigParser.has_option(api, "trusted_prj"):
@@ -215,23 +225,14 @@ class ObsLightOsc(object):
         '''
         
         '''
+        self.__aLock.acquire()
         conf.get_config()
-        url = self.__cleanUrl(str(apiurl + "/source/" + projet + "/_meta"))
-
-
-        try:
-            res = self.http_request("GET", url, timeout=TIMEOUT)
-        except urllib2.URLError:
-            ObsLightPrintManager.getLogger().error("apiurl " + str(url) + " is not reachable 1")
+        self.__aLock.release()
+        url = str(apiurl + "/source/" + projet + "/_meta")
+        res = self.getHttp_request(url)
+        if res == None:
             return None
-        except M2Crypto.SSL.SSLError:
-            ObsLightPrintManager.getLogger().error("apiurl " + str(url) + " Connection reset by peer")
-            return None
-        except M2Crypto.SSL.Checker.NoCertificate:
-            ObsLightPrintManager.getLogger().error("apiurl " + str(url) + " Peer did not return certificate")
-            return None
-
-        aElement = ElementTree.fromstring(res.read())
+        aElement = ElementTree.fromstring(res)
 
         result = {}
         for project in aElement:
@@ -239,7 +240,6 @@ class ObsLightOsc(object):
                 for path in project.getiterator():
                     if path.tag == "path":
                         result[path.get("project")] = path.get("repository")
-
         return result
 
     def getListPackage(self,
@@ -269,23 +269,12 @@ class ObsLightOsc(object):
         '''
         
         '''
-        url = self.__cleanUrl(str(apiurl + "/source/" + projectObsName + "/" + package))
-        try:
-            res = self.http_request("GET", url)
-        except urllib2.URLError:
-            ObsLightPrintManager.getLogger().error("apiurl " + str(url) + " is not reachable 3")
+        url = str(apiurl + "/source/" + projectObsName + "/" + package)
+        res = self.getHttp_request(url)
+        if res == None:
             return None
-        except M2Crypto.SSL.SSLError:
-            ObsLightPrintManager.getLogger().error("apiurl " + str(url) + " Connection reset by peer")
-            return None
-        except M2Crypto.SSL.Checker.NoCertificate:
-            ObsLightPrintManager.getLogger().error("apiurl " + str(url) + " Peer did not return certificate")
-            return None
-        try:
-            aElement = ElementTree.fromstring(res.read())
-        except :
-            ObsLightPrintManager.obsLightPrint("apiurl " + str(apiurl) + " for package " + package + " is not reachable 4")
-            return None
+
+        aElement = ElementTree.fromstring(res)
 
         result = {}
         for path in aElement:
@@ -305,24 +294,11 @@ class ObsLightOsc(object):
         '''
         
         '''
-        url = self.__cleanUrl(str(apiurl + "/source/" + projectObsName + "/" + package))
-        try:
-            res = self.http_request("GET", url)
-        except urllib2.URLError:
-            ObsLightPrintManager.getLogger().error("apiurl " + str(url) + " is not reachable 5")
-            return None
-        except M2Crypto.SSL.SSLError:
-            ObsLightPrintManager.getLogger().error("apiurl " + str(url) + " Connection reset by peer")
-            return None
-        except M2Crypto.SSL.Checker.NoCertificate:
-            ObsLightPrintManager.getLogger().error("apiurl " + str(url) + " Peer did not return certificate")
-            return None
-
-        try:
-            aElement = ElementTree.fromstring(res.read())
-        except :
-            ObsLightPrintManager.obsLightPrint("apiurl " + str(apiurl) + " for package " + package + " is not reachable 6")
-            return None
+        url = str(apiurl + "/source/" + projectObsName + "/" + package)
+        res = self.getHttp_request(url)
+        if res == None:
+            return res
+        aElement = ElementTree.fromstring(res)
 
         #print "rev" , aElement.get("rev")
         #print "vrev" , aElement.get("vrev")
@@ -377,7 +353,6 @@ class ObsLightOsc(object):
         return self.__mySubprocessCrt.execSubprocess(command=command,
                                                      waitMess=waitMess)
 
-
     def getPackageStatus(self,
                          obsServer=None,
                          project=None,
@@ -416,27 +391,11 @@ class ObsLightOsc(object):
         unknown: The scheduler has not yet evaluated this package. Should be a 
                  short intermediate state for new packages.
         '''
-        url = self.__cleanUrl(str(obsServer + "/build/" + project + "/" + repo + "/" + arch + "/" + package + "/_status"))
-
-
-#        try:
-        res = self.http_request("GET", url, timeout=TIMEOUT)
-#        except urllib2.URLError:
-#            ObsLightPrintManager.getLogger().error("apiurl " + str(url) + " is not reachable 7")
-#            return None
-#        except M2Crypto.SSL.SSLError:
-#            ObsLightPrintManager.getLogger().error("apiurl " + str(url) + " Connection reset by peer")
-#            return None
-#        except M2Crypto.SSL.Checker.NoCertificate:
-#            ObsLightPrintManager.getLogger().error("apiurl " + str(url) + " Peer did not return certificate")
-#            return None
-
-        fileXML = res.read()
-#        try:
-        aElement = ElementTree.fromstring(fileXML)
-#        finally:
-#            print "ERR------------------------"
-#            print fileXML
+        url = str(obsServer + "/build/" + project + "/" + repo + "/" + arch + "/" + package + "/_status")
+        res = self.getHttp_request(url)
+        if res == None:
+            return None
+        aElement = ElementTree.fromstring(res)
 
         return aElement.attrib["code"]
 
@@ -475,7 +434,9 @@ class ObsLightOsc(object):
         '''
         return a list of the project of a OBS Server.
         '''
+        self.__aLock.acquire()
         conf.get_config()
+        self.__aLock.release()
         res = []
         try:
             res = core.meta_get_project_list(str(obsServer))
@@ -491,18 +452,11 @@ class ObsLightOsc(object):
         '''
         return the list of the repos of a OBS Server.
         '''
-        url = self.__cleanUrl(str(apiurl + "/distributions"))
-        try:
-            aElement = ElementTree.fromstring(self.http_request("GET", url, timeout=TIMEOUT).read())
-        except urllib2.URLError:
-            ObsLightPrintManager.getLogger().error("apiurl " + str(url) + " is not reachable 9")
-            return []
-        except M2Crypto.SSL.SSLError:
-            ObsLightPrintManager.getLogger().error("apiurl " + str(url) + " Connection reset by peer")
-            return []
-        except M2Crypto.SSL.Checker.NoCertificate:
-            ObsLightPrintManager.getLogger().error("apiurl " + str(url) + " Peer did not return certificate")
-            return []
+        url = str(apiurl + "/distributions")
+        res = self.getHttp_request(url)
+        if res == None:
+            return None
+        aElement = ElementTree.fromstring(res)
         result = []
         for repos in aElement:
             name = ""
@@ -536,20 +490,11 @@ class ObsLightOsc(object):
         '''
         return the list of Target of a projectObsProject for a OBS server.
         '''
-        url = self.__cleanUrl(str(obsServer + "/build/" + projectObsName))
-
-        try:
-            res = self.http_request("GET", url, timeout=TIMEOUT)
-        except urllib2.URLError:
-            ObsLightPrintManager.getLogger().error("apiurl " + str(url) + " is not reachable 10")
-            return []
-        except M2Crypto.SSL.SSLError:
-            ObsLightPrintManager.getLogger().error("apiurl " + str(url) + " Connection reset by peer")
-            return []
-        except M2Crypto.SSL.Checker.NoCertificate:
-            ObsLightPrintManager.getLogger().error("apiurl " + str(url) + " Peer did not return certificate")
-            return []
-        aElement = ElementTree.fromstring(res.read())
+        url = str(obsServer + "/build/" + projectObsName)
+        res = self.getHttp_request(url)
+        if res == None:
+            return None
+        aElement = ElementTree.fromstring(res)
         res = []
         for directory in aElement:
             for entry in directory.getiterator():
@@ -563,25 +508,18 @@ class ObsLightOsc(object):
         '''
         return the list of Archictecture of the target of the projectObsName for a OBS server.
         '''
-        res = []
-        url = self.__cleanUrl(str(obsServer + "/build/" + projectObsName + "/" + projectTarget))
-        try:
-            aElement = ElementTree.fromstring(self.http_request("GET", url, timeout=TIMEOUT).read())
 
-            for directory in aElement:
-                for entry in directory.getiterator():
-                    res.append(entry.get("name"))
-        except urllib2.URLError:
-            ObsLightPrintManager.getLogger().error("apiurl " + str(url) + " is not reachable 11")
-#            return None
-        except M2Crypto.SSL.SSLError:
-            ObsLightPrintManager.getLogger().error("apiurl " + str(url) + " Connection reset by peer")
-#            return None
-        except M2Crypto.SSL.Checker.NoCertificate:
-            ObsLightPrintManager.getLogger().error("apiurl " + str(url) + " Peer did not return certificate")
-#            return None
+        url = str(obsServer + "/build/" + projectObsName + "/" + projectTarget)
+        res = self.getHttp_request(url)
+        if res == None:
+            return None
+        aElement = ElementTree.fromstring(res)
+        result = []
+        for directory in aElement:
+            for entry in directory.getiterator():
+                result.append(entry.get("name"))
 
-        return res
+        return result
 
     def commitProject(self,
                       path=None,
@@ -628,19 +566,14 @@ class ObsLightOsc(object):
         title
         description
         '''
+        self.__aLock.acquire()
         conf.get_config()
-        url = self.__cleanUrl(str(apiurl + "/source/" + projectObsName + "/_meta"))
-        try:
-            aElement = ElementTree.fromstring(self.http_request("GET", url, timeout=TIMEOUT).read())
-        except urllib2.URLError:
-            ObsLightPrintManager.getLogger().error("apiurl " + str(url) + " is not reachable 12")
+        self.__aLock.release()
+        url = str(apiurl + "/source/" + projectObsName + "/_meta")
+        res = self.getHttp_request(url)
+        if res == None:
             return None
-        except M2Crypto.SSL.SSLError:
-            ObsLightPrintManager.getLogger().error("apiurl " + str(url) + " Connection reset by peer")
-            return None
-        except M2Crypto.SSL.Checker.NoCertificate:
-            ObsLightPrintManager.getLogger().error("apiurl " + str(url) + " Peer did not return certificate")
-            return None
+        aElement = ElementTree.fromstring(res)
 
         for desc in aElement:
             if parameter == desc.tag:
@@ -654,9 +587,11 @@ class ObsLightOsc(object):
         description
         '''
         conf.get_config()
-        url = self.__cleanUrl(str(apiurl + "/source/" + projectObsName + "/_meta"))
-
-        aElement = ElementTree.fromstring(self.http_request("GET", url, timeout=TIMEOUT).read())
+        url = str(apiurl + "/source/" + projectObsName + "/_meta")
+        res = self.getHttp_request(url)
+        if res == None:
+            return None
+        aElement = ElementTree.fromstring(res)
 
         for desc in aElement:
             if desc.tag == parameter:
@@ -675,20 +610,12 @@ class ObsLightOsc(object):
         conf.get_config()
         self.__aLock.release()
 
-        url = self.__cleanUrl(str(apiurl + "/source/" + projectObsName + "/" + package + "/_meta"))
-        try:
-            res1 = self.http_request("GET", url, timeout=TIMEOUT)
-            res2 = res1.read()
-            aElement = ElementTree.fromstring(res2)
-        except urllib2.URLError:
-            ObsLightPrintManager.getLogger().error("apiurl " + str(url) + " is not reachable 13")
+        url = str(apiurl + "/source/" + projectObsName + "/" + package + "/_meta")
+        res = self.getHttp_request(url)
+        if res == None:
             return None
-        except M2Crypto.SSL.SSLError:
-            ObsLightPrintManager.getLogger().error("apiurl " + str(url) + " Connection reset by peer")
-            return None
-        except M2Crypto.SSL.Checker.NoCertificate:
-            ObsLightPrintManager.getLogger().error("apiurl " + str(url) + " Peer did not return certificate")
-            return None
+        aElement = ElementTree.fromstring(res)
+
         for desc in aElement:
             if parameter == desc.tag:
                 return desc.text
@@ -705,19 +632,15 @@ class ObsLightOsc(object):
         title
         description
         '''
+        self.__aLock.acquire()
         conf.get_config()
-        url = self.__cleanUrl(str(apiurl + "/source/" + projectObsName + "/" + package + "/_meta"))
-        try:
-            aElement = ElementTree.fromstring(self.http_request("GET", url, timeout=TIMEOUT).read())
-        except urllib2.URLError:
-            ObsLightPrintManager.getLogger().error("apiurl " + str(apiurl) + " is not reachable 14")
+        self.__aLock.release()
+        url = str(apiurl + "/source/" + projectObsName + "/" + package + "/_meta")
+        res = self.getHttp_request(url)
+        if res == None:
             return None
-        except M2Crypto.SSL.SSLError:
-            ObsLightPrintManager.getLogger().error("apiurl " + str(apiurl) + " Connection reset by peer")
-            return None
-        except M2Crypto.SSL.Checker.NoCertificate:
-            ObsLightPrintManager.getLogger().error("apiurl " + str(apiurl) + " Peer did not return certificate")
-            return None
+        aElement = ElementTree.fromstring(res)
+
         for desc in aElement:
             if desc.tag == parameter:
                 desc.text = value
@@ -793,6 +716,29 @@ class ObsLightOsc(object):
         command = "osc resolved " + aFile
         self.__subprocess(command=command)
 
+    def getHttp_request(self, url, headers={}, data=None, file=None):
+        '''
+        
+        '''
+        url = self.__cleanUrl(url)
+        try:
+            fileXML = ""
+            count = 0
+            while(fileXML == "" and count < 4):
+                count += 1
+                res = self.http_request(method="GET", url=url, headers=headers, data=data, file=file, timeout=TIMEOUT)
+                fileXML = res.read()
+            return fileXML
+        except urllib2.URLError:
+            ObsLightPrintManager.getLogger().error("apiurl " + str(url) + " is not reachable")
+            return None
+        except M2Crypto.SSL.SSLError:
+            ObsLightPrintManager.getLogger().error("apiurl " + str(url) + " Connection reset by peer")
+            return None
+        except M2Crypto.SSL.Checker.NoCertificate:
+            ObsLightPrintManager.getLogger().error("apiurl " + str(url) + " Peer did not return certificate")
+            return None
+        return None
 
     def http_request(self, method, url, headers={}, data=None, file=None, timeout=100):
         """wrapper around urllib2.urlopen for error handling,
