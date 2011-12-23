@@ -24,7 +24,7 @@ import sys
 import traceback
 from time import sleep
 
-from PySide.QtCore import QObject, QRunnable, QThreadPool, Qt, Signal
+from PySide.QtCore import QObject, QRunnable, QThreadPool, Signal
 from PySide.QtGui import QApplication, QColor, QGraphicsColorizeEffect
 from PySide.QtGui import QMessageBox, QProgressDialog
 
@@ -408,25 +408,6 @@ def uiFriendly(refreshDelay=0.1):
             return task.result
         return uiFriendly2
     return uiFriendly1
-
-def detachWithProgress(title, minDuration=500):
-    u"""
-    Decorator which will make a function run in a QThreadPool while
-    displaying an infinite QProgressDialog.
-    """
-    def showProgress1(func):
-        def showProgress2(*args):
-            progress = QProgressDialog()
-            progress.setLabelText(title)
-            progress.setMinimumDuration(minDuration)
-            progress.setWindowModality(Qt.WindowModal)
-            progress.setRange(0, 0)
-            runnable = ProgressRunnable(func, *args)
-            runnable.setProgressDialog(progress)
-            progress.show()
-            QThreadPool.globalInstance().start(runnable)
-        return showProgress2
-    return showProgress1
 
 def exceptionToMessageBox(exception, parent=None, traceback_=None):
     u"""

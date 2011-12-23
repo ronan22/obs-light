@@ -13,15 +13,9 @@
   <property name="windowTitle">
    <string>WizardPage</string>
   </property>
-  <property name="title">
-   <string>Project selection</string>
+  <property name="locale">
+   <locale language="English" country="UnitedStates"/>
   </property>
-  <property name="subTitle">
-   <string>Select a project to import.</string>
-  </property>
-  <attribute name="pageId">
-   <string notr="true">5</string>
-  </attribute>
   <layout class="QFormLayout" name="formLayout">
    <item row="0" column="0">
     <widget class="QLabel" name="label">
@@ -34,7 +28,7 @@
     <widget class="QLineEdit" name="filterLineEdit"/>
    </item>
    <item row="1" column="0" colspan="2">
-    <widget class="QListWidget" name="projectListWidget"/>
+    <widget class="QListWidget" name="packageListWidget"/>
    </item>
   </layout>
  </widget>

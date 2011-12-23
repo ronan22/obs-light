@@ -21,37 +21,31 @@ Created on 21 déc. 2011
 @author: Florent Vennetier
 '''
 
-from PySide.QtGui import QComboBox
-
 from ObsLightGui.Utils import uiFriendly
 
-from WizardPageLoader import WizardPageLoader
-import ConfigWizard
+from WizardPageWrapper import ObsLightWizardPage
 
-class ChooseProjectTargetPageLoader(WizardPageLoader):
+class ChooseProjectTargetPage(ObsLightWizardPage):
 
-    def __init__(self, gui):
-        WizardPageLoader.__init__(self, gui, u"wizard_chooseTarget.ui")
-        self.targetCBox = self.page.findChild(QComboBox, "targetComboBox")
-        self.page.registerField(u"targetCBox*", self.targetCBox)
-        self.page.initializePage = self._initializePage
-        self.page.getSelectedTarget = self.getSelectedTarget
+    def __init__(self, gui, index):
+        ObsLightWizardPage.__init__(self, gui, index, u"wizard_chooseTarget.ui")
+        self.registerField(u"targetCBox*", self.ui_WizardPage.targetComboBox)
 
-    def _initializePage(self):
-        server = self.page.field(u"serverAlias")
-        chooseProjectPageIndex = ConfigWizard.ConfigWizard.pageIndex(u'ChooseProject')
-        chooseProjectPage = self.page.wizard().page(chooseProjectPageIndex)
+    def initializePage(self):
+        server = self.field(u"serverAlias")
+        chooseProjectPageIndex = self.wizard().pageIndex(u'ChooseProject')
+        chooseProjectPage = self.wizard().page(chooseProjectPageIndex)
         project = chooseProjectPage.getSelectedProject()
-        self.waitWhile(self._fillTargetCBox, server, project)
+        self.setBusyCursor(self._fillTargetCBox, server, project)
 
     def _fillTargetCBox(self, server, project):
-        self.targetCBox.clear()
+        self.ui_WizardPage.targetComboBox.clear()
         targetList = self._getTargetList(server, project)
-        self.targetCBox.addItems(targetList)
+        self.ui_WizardPage.targetComboBox.addItems(targetList)
 
     @uiFriendly()
     def _getTargetList(self, server, project):
         return self.manager.getTargetList(server, project)
 
     def getSelectedTarget(self):
-        return self.targetCBox.currentText()
+        return self.ui_WizardPage.targetComboBox.currentText()

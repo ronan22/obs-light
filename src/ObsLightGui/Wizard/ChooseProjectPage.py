@@ -21,29 +21,29 @@ Created on 21 déc. 2011
 @author: Florent Vennetier
 '''
 
-from PySide.QtGui import QListWidget
+from ObsLightGui.FilterableWidget import FilterableWidget
 
+# See below
 #from ObsLightGui.Utils import uiFriendly
 
-from WizardPageLoader import WizardPageLoader
+from WizardPageWrapper import ObsLightWizardPage
 
-class ChooseProjectPageLoader(WizardPageLoader):
+class ChooseProjectPage(ObsLightWizardPage, FilterableWidget):
+    def __init__(self, gui, index):
+        ObsLightWizardPage.__init__(self, gui, index, u"wizard_chooseProject.ui")
+        FilterableWidget.__init__(self, self.ui_WizardPage.filterLineEdit,
+                                  self.ui_WizardPage.projectListWidget)
+        self.registerField(u"projectRow*", self.ui_WizardPage.projectListWidget)
 
-    def __init__(self, gui):
-        WizardPageLoader.__init__(self, gui, u"wizard_chooseProject.ui")
-        self.projectListWidget = self.page.findChild(QListWidget, u"projectListWidget")
-        self.page.registerField(u"projectRow*", self.projectListWidget)
-        self.page.initializePage = self._initializePage
-        self.page.getSelectedProject = self.getSelectedProject
 
-    def _initializePage(self):
-        serverAlias = self.page.field(u"serverAlias")
-        self.waitWhile(self._fillProjectList, serverAlias)
+    def initializePage(self):
+        serverAlias = self.field(u"serverAlias")
+        self.setBusyCursor(self._fillProjectList, serverAlias)
 
     def _fillProjectList(self, serverAlias):
-        self.projectListWidget.clear()
+        self.ui_WizardPage.projectListWidget.clear()
         prjList = self._getProjectList(serverAlias)
-        self.projectListWidget.addItems(prjList)
+        self.ui_WizardPage.projectListWidget.addItems(prjList)
 
     # I don't know why, but here uiFriendly prevents the wizard page
     # to refresh when getProjectList returns quickly.
@@ -52,4 +52,4 @@ class ChooseProjectPageLoader(WizardPageLoader):
         return self.manager.getObsServerProjectList(serverAlias)
 
     def getSelectedProject(self):
-        return self.projectListWidget.item(self.page.field(u"projectRow")).text()
+        return self.ui_WizardPage.projectListWidget.item(self.field(u"projectRow")).text()
