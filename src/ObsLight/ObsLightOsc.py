@@ -22,6 +22,7 @@ Created on 3 oct. 2011
 
 import os
 import sys
+import errno
 from xml.etree import ElementTree
 import urlparse
 
@@ -350,8 +351,18 @@ class ObsLightOsc(object):
         '''
         
         '''
-        return self.__mySubprocessCrt.execSubprocess(command=command,
-                                                     waitMess=waitMess)
+        res = None
+        count = 0
+        while(res == None and count < 4):
+            count += 1
+            try:
+                res = self.__mySubprocessCrt.execSubprocess(command=command, waitMess=waitMess)
+                break
+            except :
+                print "__subprocess ERROR."
+        if res == None:
+            return -1
+        return res
 
     def getPackageStatus(self,
                          obsServer=None,
