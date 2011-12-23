@@ -207,7 +207,7 @@ def openFileWithDefaultProgram(filePath):
         raise
 
 class procedureWithThreads(threading.Thread):
-    def __init__(self, packagePath, procedure, sem, lock, errList, progress):
+    def __init__(self, packagePath, procedure, sem, lock, errList, progress=None):
         '''
         
         '''
@@ -224,30 +224,32 @@ class procedureWithThreads(threading.Thread):
         
         '''
         self.__sem.acquire()
-        res = self.__procedure(self.__packagePath)
-        if  res != 0:
-            self.__lock.acquire()
-            self.__errList.append(self.__packagePath)
-            self.__lock.release()
-        self.__sem.release()
+        try:
+            res = 0
+            res = self.__procedure(self.__packagePath)
+        finally:
+            if  res != 0:
+                self.__lock.acquire()
+                self.__errList.append(self.__packagePath)
+                self.__lock.release()
+            self.__sem.release()
 
-        if self.__progress != None:
-            self.__lock.acquire()
-            self.__progress()
-            self.__lock.release()
-
+            if self.__progress != None:
+                self.__lock.acquire()
+                self.__progress()
+                self.__lock.release()
         return self.__errList
 
-def mapProcedureWithThreads(parameterList, procedure, progress):
+def mapProcedureWithThreads(parameterList, procedure, progress=None):
     errList = []
     res = []
     sem = threading.BoundedSemaphore(value=ObsLightConfig.getMaxNbThread())
-    al = threading.Lock()
+    aLock = threading.Lock()
     for p in parameterList:
         athread = procedureWithThreads(packagePath=p,
                                  procedure=procedure,
                                  sem=sem,
-                                 lock=al,
+                                 lock=aLock,
                                  errList=errList,
                                  progress=progress)
         athread.start()

@@ -448,6 +448,8 @@ def exceptionToMessageBox(exception, parent=None, traceback_=None):
         except UnicodeError:
             message = unicode(str(exception), errors="replace")
         if traceback_ is not None:
+            for line in  traceback.format_tb(traceback_):
+                print line
             message += u"\n\n" + u"".join(traceback.format_tb(traceback_))
         QMessageBox.critical(parent, u"Exception occurred", message)
 

@@ -423,6 +423,33 @@ class PackageManager(QObject):
         if initialMessage is not None:
             runnable.setDialogMessage(initialMessage)
         runnable.setFunctionToMap(method, packagesNames, loopMessage, *args, **kwargs)
+        #runnable.setRunMethod(method, packagesNames, *args, **kwargs)
+        runnable.caughtException.connect(self.__gui.popupErrorCallback)
+        if callback is not None:
+            argNum = len(inspect.getargspec(callback)[0])
+            if argNum > 1:
+                runnable.finished[object].connect(callback)
+            else:
+                runnable.finished.connect(callback)
+        runnable.runOnGlobalInstance()
+
+    def __mapOnSelectedPackages2(self,
+                                method,
+                                initialMessage,
+                                loopMessage,
+                                callback,
+                                *args,
+                                **kwargs):
+        packagesNames = self.selectedPackages()
+        if len(packagesNames) < 1:
+            return
+
+        progress = self.__gui.getInfiniteProgressDialog()
+        runnable = ProgressRunnable2(progress)
+        if initialMessage is not None:
+            runnable.setDialogMessage(initialMessage)
+#        runnable.setFunctionToMap(method, packagesNames, loopMessage, *args, **kwargs)
+        runnable.setRunMethod(method, packagesNames, *args, **kwargs)
         runnable.caughtException.connect(self.__gui.popupErrorCallback)
         if callback is not None:
             argNum = len(inspect.getargspec(callback)[0])
@@ -572,6 +599,8 @@ class PackageManager(QObject):
 
     def __preCheckingConflicts(self, values):
         packagesInConflict = []
+        if values is None:
+            return
         for package, conflict in values:
             if conflict:
                 packagesInConflict.append(package)
@@ -594,7 +623,7 @@ class PackageManager(QObject):
         project = self.getCurrentProject()
         if project is None:
             return
-        self.__mapOnSelectedPackages(firstArgLast(self.__obsLightManager.updatePackage),
+        self.__mapOnSelectedPackages2(firstArgLast(self.__obsLightManager.updatePackage),
                                      u"Updating packages",
                                      u"Updating <i>%(arg)s</i> package...",
                                      self.__refreshStatus,
@@ -694,7 +723,7 @@ class PackageManager(QObject):
     def __refreshStatus(self):
         if len(self.selectedPackages()) == 0:
             self.selectAllPackages()
-        self.__mapOnSelectedPackages(firstArgLast(self.__refreshBothStatuses),
+        self.__mapOnSelectedPackages2(firstArgLast(self.__refreshBothStatuses),
                                      u"Refreshing package status",
                                      u"Refreshing <i>%(arg)s</i> package status...",
                                      self.refresh,

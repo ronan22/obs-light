@@ -145,7 +145,7 @@ class ObsLightPackages(object):
         '''
         
         '''
-        if not package in self.__dicOBSLightPackages:
+        if not package in self.__dicOBSLightPackages.keys():
             raise ObsLightErr.ObsLightPackageErr("No such package: " + str(package))
         return self.__dicOBSLightPackages[package]
 
@@ -233,7 +233,7 @@ class ObsLightPackages(object):
                 "finished",
                 "disabled",
                 "excluded",
-                "unknown"]
+                "Unknown"]
 
     def getListOscStatus(self):
         '''

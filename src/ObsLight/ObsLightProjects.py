@@ -501,7 +501,9 @@ class ObsLightProjects(object):
         '''
         
         '''
-        if isinstance(package, collections.Iterable):
+        if (isinstance(package, collections.Iterable) and
+            not isinstance(package, str) and
+            not isinstance(package, unicode)):
             theBadResult = ObsLightTools.mapProcedureWithThreads(parameterList=package,
                                                                   procedure=self.__dicOBSLightProjects[projectLocalName].updatePackage,
                                                                   progress=controlFunction)
@@ -525,17 +527,40 @@ class ObsLightProjects(object):
         self.__dicOBSLightProjects[projectLocalName].modifyRepo(repoAlias, newUrl, newAlias)
 
 
-    def refreshOscDirectoryStatus(self, projectLocalName, package=None):
+    def refreshOscDirectoryStatus(self, projectLocalName, package, controlFunction=None):
         '''
         
         '''
-        return self.__dicOBSLightProjects[projectLocalName].refreshOscDirectoryStatus(package=package)
+        if (isinstance(package, collections.Iterable) and
+            not isinstance(package, str) and
+            not isinstance(package, unicode)):
+            theBadResult = ObsLightTools.mapProcedureWithThreads(parameterList=package,
+                                                                  procedure=self.__dicOBSLightProjects[projectLocalName].refreshOscDirectoryStatus,
+                                                                  progress=controlFunction)
+            if len(theBadResult) > 0:
+                return 1
+            else:
+                return 0
+        else:
+            return self.__dicOBSLightProjects[projectLocalName].refreshOscDirectoryStatus(package=package)
 
-    def refreshObsStatus(self, projectLocalName, package=None):
+    def refreshObsStatus(self, projectLocalName, package, controlFunction=None):
         '''
         
         '''
-        return self.__dicOBSLightProjects[projectLocalName].refreshObsStatus(package=package)
+        if (isinstance(package, collections.Iterable) and
+            not isinstance(package, str) and
+            not isinstance(package, unicode)):
+            theBadResult = ObsLightTools.mapProcedureWithThreads(parameterList=package,
+                                                                  procedure=self.__dicOBSLightProjects[projectLocalName].refreshObsStatus,
+                                                                  progress=controlFunction)
+            if len(theBadResult) > 0:
+                return 1
+            else:
+                return 0
+        else:
+            return self.__dicOBSLightProjects[projectLocalName].refreshObsStatus(package=package)
+
 
     def repairOscPackageDirectory(self, projectLocalName, package):
         '''

@@ -1438,16 +1438,16 @@ class ObsLightManager(object):
         self.__myObsLightProjects.save()
 
     @checkProjectLocalName(1)
-    def refreshOscDirectoryStatus(self, projectLocalName, package=None):
+    def refreshOscDirectoryStatus(self, projectLocalName, package, controlFunction=None):
         '''
         Refresh the osc status of a package.
         '''
-        res = self.__myObsLightProjects.refreshOscDirectoryStatus(projectLocalName, package=package)
+        res = self.__myObsLightProjects.refreshOscDirectoryStatus(projectLocalName, package=package, controlFunction=controlFunction)
         self.__myObsLightProjects.save()
         return res
 
     @checkProjectLocalName(1)
-    def refreshObsStatus(self, projectLocalName, package=None):
+    def refreshObsStatus(self, projectLocalName, package, controlFunction=None):
         '''
         Refresh the OBS status.
         '''
