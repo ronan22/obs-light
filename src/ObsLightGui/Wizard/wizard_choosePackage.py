@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui/wizard_choosePackage.ui'
 #
-# Created: Thu Dec 22 14:18:19 2011
+# Created: Mon Jan  2 09:38:49 2012
 #      by: pyside-uic 0.2.13 running on PySide 1.0.8
 #
 # WARNING! All changes made in this file will be lost!
@@ -31,5 +31,7 @@ class Ui_WizardPage(object):
 
     def retranslateUi(self, WizardPage):
         WizardPage.setWindowTitle(QtGui.QApplication.translate("WizardPage", "WizardPage", None, QtGui.QApplication.UnicodeUTF8))
+        WizardPage.setTitle(QtGui.QApplication.translate("WizardPage", "Package selection", None, QtGui.QApplication.UnicodeUTF8))
+        WizardPage.setSubTitle(QtGui.QApplication.translate("WizardPage", "Select packages to import.", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("WizardPage", "Filter:", None, QtGui.QApplication.UnicodeUTF8))
 

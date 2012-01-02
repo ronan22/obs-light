@@ -91,6 +91,9 @@ class ConfigWizard(QWizard, ObsLightGuiObject):
     def getSelectedArch(self):
         return self.Pages[u'ChooseProjectArch'].getSelectedArch()
 
+    def getCreateChrootOption(self):
+        return self.field(u'CreateChroot')
+
     def skipToPackageSelection(self, projectAlias):
         self.setField(u"projectAlias", projectAlias)
         self.setStartId(self.Pages[u'ChoosePackage'].index)

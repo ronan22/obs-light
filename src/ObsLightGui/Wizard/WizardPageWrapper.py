@@ -76,6 +76,12 @@ class ObsLightWizardPage(QWizardPage, ObsLightGuiObject):
         cursor = self.wizard().cursor()
         self.setEnabled(False)
         self.wizard().setCursor(Qt.WaitCursor)
+        # If func is the "uiFriendlyFunc" function created by "uiFriendly"
+        # decorator, it accepts a QProgressDialog as keyword argument.
+        if func.__name__ == u"uiFriendlyFunc":
+            progress = self.gui.getInfiniteProgressDialog()
+            progress.setLabelText(u"Working...")
+            kwargs[u"uiFriendlyTask_progressDialog"] = progress
         try:
             return func(*args, **kwargs)
         finally:

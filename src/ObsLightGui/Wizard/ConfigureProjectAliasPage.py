@@ -35,6 +35,7 @@ class ConfigureProjectAliasPage(ObsLightWizardPage):
         noSpaceValidator.setRegExp(QRegExp(u"[^\\s:]+"))
         self.ui_WizardPage.aliasLineEdit.setValidator(noSpaceValidator)
         self.registerField(u"projectAlias*", self.ui_WizardPage.aliasLineEdit)
+        self.registerField(u"CreateChroot", self.ui_WizardPage.createChrootCheckBox)
         self.setCommitPage(True)
 
     def initializePage(self):
@@ -57,9 +58,14 @@ class ConfigureProjectAliasPage(ObsLightWizardPage):
                            self.wizard().getSelectedArch(),
                            alias)
         self.gui.refresh()
+        if self.field(u"CreateChroot"):
+            self.setBusyCursor(self._createChroot, alias)
         return True
 
     @uiFriendly()
     def _addProject(self, server, project, target, arch, alias):
-        print server, project, target, arch, alias
         self.manager.addProject(server, project, target, arch, projectLocalName=alias)
+
+    @uiFriendly()
+    def _createChroot(self, alias):
+        self.manager.createChRoot(alias)

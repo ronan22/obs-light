@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui/wizard_configProjectAlias.ui'
 #
-# Created: Wed Dec 21 17:04:24 2011
+# Created: Mon Jan  2 09:38:49 2012
 #      by: pyside-uic 0.2.13 running on PySide 1.0.8
 #
 # WARNING! All changes made in this file will be lost!
@@ -13,6 +13,7 @@ class Ui_WizardPage(object):
     def setupUi(self, WizardPage):
         WizardPage.setObjectName("WizardPage")
         WizardPage.resize(400, 300)
+        WizardPage.setLocale(QtCore.QLocale(QtCore.QLocale.English, QtCore.QLocale.UnitedStates))
         self.formLayout = QtGui.QFormLayout(WizardPage)
         self.formLayout.setObjectName("formLayout")
         self.label = QtGui.QLabel(WizardPage)
@@ -39,12 +40,21 @@ class Ui_WizardPage(object):
         self.aliasLineEdit = QtGui.QLineEdit(WizardPage)
         self.aliasLineEdit.setObjectName("aliasLineEdit")
         self.formLayout.setWidget(3, QtGui.QFormLayout.FieldRole, self.aliasLineEdit)
+        self.createChrootCheckBox = QtGui.QCheckBox(WizardPage)
+        self.createChrootCheckBox.setText("")
+        self.createChrootCheckBox.setObjectName("createChrootCheckBox")
+        self.formLayout.setWidget(4, QtGui.QFormLayout.FieldRole, self.createChrootCheckBox)
+        self.label_5 = QtGui.QLabel(WizardPage)
+        self.label_5.setObjectName("label_5")
+        self.formLayout.setWidget(4, QtGui.QFormLayout.LabelRole, self.label_5)
 
         self.retranslateUi(WizardPage)
         QtCore.QMetaObject.connectSlotsByName(WizardPage)
 
     def retranslateUi(self, WizardPage):
         WizardPage.setWindowTitle(QtGui.QApplication.translate("WizardPage", "WizardPage", None, QtGui.QApplication.UnicodeUTF8))
+        WizardPage.setTitle(QtGui.QApplication.translate("WizardPage", "Choose project alias", None, QtGui.QApplication.UnicodeUTF8))
+        WizardPage.setSubTitle(QtGui.QApplication.translate("WizardPage", "Choose an alias for the project.", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("WizardPage", "OBS project:", None, QtGui.QApplication.UnicodeUTF8))
         self.projectLabel.setText(QtGui.QApplication.translate("WizardPage", "project", None, QtGui.QApplication.UnicodeUTF8))
         self.label_2.setText(QtGui.QApplication.translate("WizardPage", "Target:", None, QtGui.QApplication.UnicodeUTF8))
@@ -52,4 +62,5 @@ class Ui_WizardPage(object):
         self.label_3.setText(QtGui.QApplication.translate("WizardPage", "Architecture:", None, QtGui.QApplication.UnicodeUTF8))
         self.architectureLabel.setText(QtGui.QApplication.translate("WizardPage", "architecture", None, QtGui.QApplication.UnicodeUTF8))
         self.label_4.setText(QtGui.QApplication.translate("WizardPage", "Alias:", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_5.setText(QtGui.QApplication.translate("WizardPage", "Create chroot:", None, QtGui.QApplication.UnicodeUTF8))
 

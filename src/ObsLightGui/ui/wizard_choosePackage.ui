@@ -16,6 +16,12 @@
   <property name="locale">
    <locale language="English" country="UnitedStates"/>
   </property>
+  <property name="title">
+   <string>Package selection</string>
+  </property>
+  <property name="subTitle">
+   <string>Select packages to import.</string>
+  </property>
   <layout class="QFormLayout" name="formLayout">
    <item row="0" column="0">
     <widget class="QLabel" name="label">

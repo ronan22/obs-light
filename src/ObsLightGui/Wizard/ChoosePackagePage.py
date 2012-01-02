@@ -23,7 +23,7 @@ Created on 22 déc. 2011
 
 from ObsLightGui.FilterableWidget import FilterableWidget
 
-from ObsLightGui.Utils import uiFriendly, popupOnException
+from ObsLightGui.Utils import uiFriendly, popupOnException, firstArgLast, ProgressRunnable2
 
 from WizardPageWrapper import ObsLightWizardPage
 
@@ -31,7 +31,8 @@ class ChoosePackagePage(ObsLightWizardPage, FilterableWidget):
     def __init__(self, gui, index):
         ObsLightWizardPage.__init__(self, gui, index, u"wizard_choosePackage.ui")
         FilterableWidget.__init__(self, self.ui_WizardPage.filterLineEdit,
-                                  self.ui_WizardPage.packageListWidget)
+                                  self.ui_WizardPage.packageListWidget,
+                                  multiSelection=True)
         self.registerField(u"packageRow*", self.ui_WizardPage.packageListWidget)
         self.setCommitPage(True)
 
@@ -49,8 +50,8 @@ class ChoosePackagePage(ObsLightWizardPage, FilterableWidget):
             return False
 
         projectAlias = self.wizard().getSelectedProjectAlias()
-        package = self.getSelectedPackage()
-        self.setBusyCursor(self._addPackage, projectAlias, package)
+        packages = self.getSelectedPackages()
+        self._addPackages(projectAlias, packages)
         return True
 
     def _fillPackageList(self, serverAlias, project):
@@ -66,11 +67,18 @@ class ChoosePackagePage(ObsLightWizardPage, FilterableWidget):
     def _addPackage(self, project, package):
         self.manager.addPackage(project, package)
 
+    def _addPackages(self, project, packages):
+        swappedAddPackage = firstArgLast(self.manager.addPackage)
+        self.callWithProgress(swappedAddPackage,
+                              packages,
+                              u"Adding package %(arg)s...",
+                              project)
+
     def getSelectedPackage(self):
         return self.ui_WizardPage.packageListWidget.item(self.field(u"packageRow")).text()
 
     def getSelectedPackages(self):
-        items = self.ui_WizardPage.packagesListWidget.selectedItems()
+        items = self.ui_WizardPage.packageListWidget.selectedItems()
         packages = set()
         for item in items:
             packageName = item.text()
