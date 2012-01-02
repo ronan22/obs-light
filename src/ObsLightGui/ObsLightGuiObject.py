@@ -21,6 +21,8 @@ Created on 19 déc. 2011
 @author: Florent Vennetier
 '''
 
+from Utils import ProgressRunnable2
+
 class ObsLightGuiObject(object):
 
     _gui = None
@@ -39,3 +41,14 @@ class ObsLightGuiObject(object):
     @property
     def mainWindow(self):
         return self.gui.getMainWindow()
+
+    def callWithProgress(self, func, iterable, message, *args, **kwargs):
+        runnable = ProgressRunnable2(self.gui.getProgressDialog())
+        runnable.setFunctionToMap(func,
+                                  iterable,
+                                  message,
+                                  *args,
+                                  **kwargs)
+        runnable.caughtException.connect(self.gui.popupErrorCallback)
+        runnable.runOnGlobalInstance(wait=True)
+        return runnable.result

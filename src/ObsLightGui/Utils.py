@@ -141,8 +141,12 @@ class ProgressRunnable2(QObject, QRunnable):
     __finished = Signal(())
     __sentMessage = Signal((unicode))
 
+    __finishedCalled = False
+    __startedCalled = False
+
     finished = Signal((), (object,))
     caughtException = Signal((BaseException))
+    result = None
 
     def __init__(self, progressDialog=None):
         u"""
@@ -153,8 +157,51 @@ class ProgressRunnable2(QObject, QRunnable):
         """
         QObject.__init__(self)
         QRunnable.__init__(self)
+        self.__finishedCalled = False
+        self.__startedCalled = False
+
+        self.destroyed.connect(self.__onDestroy)
+
         if progressDialog is not None:
             self.setProgressDialog(progressDialog)
+
+    def __onDestroy(self):
+        # Seems like disconnections are done automatically
+        # and doing it a second time crashes the program.
+#        if self.__progressDialog is not None:
+#            self.__disconnectProgress()
+        pass
+
+    def __connectProgress(self):
+        if isinstance(self.__progressDialog, QProgressDialog):
+            # Disconnect its canceled signal from its cancel method
+            # so it won't close before cancellation is effective.
+            try:
+                self.__progressDialog.canceled.disconnect(self.__progressDialog.cancel)
+            except BaseException:
+                pass
+            # Cancel the ProgressRunnable when user asks
+            self.__progressDialog.canceled.connect(self.cancel)
+
+        # Show the progress when starting
+        self.__started.connect(self.__progressDialog.show)
+        # Update progress value when progressing
+        self.__progressed[int].connect(self.__progressDialog.setValue)
+        # Reset the progress when finished
+        self.__finished.connect(self.__progressDialog.reset)
+        # Update label when user asks
+        self.__sentMessage.connect(self.__progressDialog.setLabelText)
+
+    def __disconnectProgress(self):
+        if isinstance(self.__progressDialog, QProgressDialog):
+            try:
+                self.__progressDialog.canceled.disconnect(self.__progressDialog.cancel)
+            except BaseException as e:
+                print e
+        self.__started.disconnect(self.__progressDialog.show)
+        self.__progressed[int].disconnect(self.__progressDialog.setValue)
+        self.__finished.disconnect(self.__progressDialog.reset)
+        self.__sentMessage.disconnect(self.__progressDialog.setLabelText)
 
     def cancel(self):
         u"""
@@ -171,23 +218,13 @@ class ProgressRunnable2(QObject, QRunnable):
         hasProgressed() and hasFinished(). You can pass None.
         """
         # If there was a previous progress dialog, disconnect it.
-        if (self.__progressDialog is not None and
-            isinstance(self.__progressDialog, QProgressDialog)):
-            try:
-                self.__progressDialog.canceled.disconnect(self.cancel)
-            except BaseException:
-                pass
+        if (self.__progressDialog is not None):
+            self.__disconnectProgress()
+
         self.__progressDialog = dialog
         if self.__progressDialog is not None:
             self.__isFinite = self.__progressDialog.minimum() < self.__progressDialog.maximum()
-            if isinstance(self.__progressDialog, QProgressDialog):
-                # Disconnect its canceled signal from its cancel method
-                # so it won't close before cancellation is effective.
-                try:
-                    self.__progressDialog.canceled.disconnect(self.__progressDialog.cancel)
-                except BaseException:
-                    pass
-                self.__progressDialog.canceled.connect(self.cancel)
+            self.__connectProgress()
 
     def getProgressDialog(self):
         u"""
@@ -210,10 +247,12 @@ class ProgressRunnable2(QObject, QRunnable):
         Inform the progress dialog that the run method has started.
         (calls its show() method).
         """
+        if self.__startedCalled:
+            raise RuntimeError(u'hasStarted() called twice')
+        self.__startedCalled = True
+
         if self.__progressDialog is not None:
-            self.__started.connect(self.__progressDialog.show)
             self.__started.emit()
-            self.__started.disconnect(self.__progressDialog.show)
 
     def hasProgressed(self, howMuch=1):
         u"""
@@ -224,16 +263,11 @@ class ProgressRunnable2(QObject, QRunnable):
         if self.__progressDialog is not None:
             if self.__isFinite:
                 # "Real" progress dialog, so increase value
-                self.__progressed[int].connect(self.__progressDialog.setValue)
                 value = self.__progressDialog.value()
                 self.__progressed[int].emit(value + howMuch)
-                self.__progressed[int].disconnect(self.__progressDialog.setValue)
             else:
                 # "Infinite" progress dialog, so do nothing
                 pass
-            self.__progressed.connect(self.__progressDialog.show)
-            self.__progressed.emit()
-            self.__progressed.disconnect(self.__progressDialog.show)
 
     def hasFinished(self, result=None):
         u"""
@@ -241,16 +275,17 @@ class ProgressRunnable2(QObject, QRunnable):
         its execution (so it will be hidden). Also emits the finished
         signal.
         """
-
+        if self.__finishedCalled:
+            raise RuntimeError(u'hasFinished() called twice')
+        self.result = result
+        self.__finishedCalled = True
         if self.__progressDialog is not None:
             if isinstance(self.__progressDialog, QProgressDialog):
                 try:
                     self.__progressDialog.canceled.disconnect(self.cancel)
                 except BaseException:
                     pass
-            self.__finished.connect(self.__progressDialog.reset)
             self.__finished.emit()
-            self.__finished.disconnect(self.__progressDialog.reset)
         self.finished[object].emit(result)
         self.finished.emit()
 
@@ -265,11 +300,9 @@ class ProgressRunnable2(QObject, QRunnable):
         Set the message displayed in the progress dialog.
         """
         if self.__progressDialog is not None:
-            self.__sentMessage.connect(self.__progressDialog.setLabelText)
             if not isinstance(message, unicode):
                 message = unicode(message, errors='replace')
             self.__sentMessage.emit(message)
-            self.__sentMessage.disconnect(self.__progressDialog.setLabelText)
 
     def wasAskedToCancel(self):
         u"""
@@ -333,14 +366,23 @@ class ProgressRunnable2(QObject, QRunnable):
                             self.hasCaughtException(caughtException)
                         self.hasProgressed()
             except:
-                sys.exc_info()
+                print sys.exc_info()
             finally:
                 self.hasFinished(results)
                 self.deleteLater()
         self.run = run
 
-    def runOnGlobalInstance(self):
+    def runOnGlobalInstance(self, wait=False):
+        u"""
+        Run this ProgressRunnable on the global QThreadPool instance.
+        If `wait` is True, process the UI events while
+        """
         QThreadPool.globalInstance().start(self)
+        if wait:
+            while not self.__finishedCalled:
+                sleep(0.01)
+                QApplication.processEvents()
+
 
 QThreadPool.globalInstance().setExpiryTimeout(0)
 
@@ -349,11 +391,11 @@ def firstArgLast(func):
     Return a function which will call 'func' with first argument
     as last argument.
     """
-    def newFunc(*args, **kwargs):
+    def swappedArgsFunc(*args, **kwargs):
         newArgs = list(args[1:])
         newArgs.append(args[0])
         return func(*newArgs, **kwargs)
-    return newFunc
+    return swappedArgsFunc
 
 class UiFriendlyTask(object):
     u"""
@@ -388,6 +430,10 @@ class UiFriendlyTask(object):
         on global thread pool.
         """
         runnable = ProgressRunnable2()
+        if u"uiFriendlyTask_progressDialog" in kwargs:
+            dialog = kwargs.pop(u"uiFriendlyTask_progressDialog")
+            if dialog is not None:
+                runnable.setProgressDialog(dialog)
         runnable.setRunMethod(func, *args, **kwargs)
         runnable.finished[object].connect(self._setHasFinished)
         runnable.caughtException.connect(self._setHasCaughtException)
@@ -396,17 +442,18 @@ class UiFriendlyTask(object):
 def uiFriendly(refreshDelay=0.1):
     u"""
     Decorator which will make a function run in a QThreadPool while
-    processing UI events.
+    processing UI events. Accepts a QProgressDialog instance as
+    keyword argument with key u"uiFriendlyTask_progressDialog".
     """
     def uiFriendly1(func):
-        def uiFriendly2(*args, **kwargs):
+        def uiFriendlyFunc(*args, **kwargs):
             task = UiFriendlyTask()
             task.start(func, *args, **kwargs)
             task.join(refreshDelay)
             if task.caughtException is not None:
                 raise task.caughtException
             return task.result
-        return uiFriendly2
+        return uiFriendlyFunc
     return uiFriendly1
 
 def exceptionToMessageBox(exception, parent=None, traceback_=None):
