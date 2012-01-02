@@ -41,7 +41,7 @@ setup(name='obslight',
       data_files=[('/etc', ['sudoers.obslight']),
                   ('/etc/bash_completion.d/', ['obslight.sh']),
                   ('/usr/share/applications/', ['obslightgui.desktop']),
-                  ('/usr/share/pixmaps/', ['src/ObsLightGui/ui/obslight.png'])],
+                  ('/usr/share/pixmaps/', ['ObsLightGui/ui/obslight.png'])],
 
       cmdclass={
         'build': build_obslight,
