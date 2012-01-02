@@ -27,7 +27,7 @@ setup(name='obslight',
       url='http://wiki.meego.com/OBS_Light',
       download_url='https://meego.gitorious.org/meego-developer-tools/obs-light',
 
-      packages=['ObsLight', 'ObsLight.util', 'ObsLightGui'],
+      packages=['ObsLight', 'ObsLight.util', 'ObsLightGui', 'ObsLightGui.Wizard'],
       package_data={'ObsLightGui' : ['ui/*.ui', 'ui/*.png'],
                     'ObsLight' : ['emptySpec/empty*',
                                   'config/ObslightConfig']},
