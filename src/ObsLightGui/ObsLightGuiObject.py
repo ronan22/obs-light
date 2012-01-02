@@ -52,3 +52,11 @@ class ObsLightGuiObject(object):
         runnable.caughtException.connect(self.gui.popupErrorCallback)
         runnable.runOnGlobalInstance(wait=True)
         return runnable.result
+
+    def callWithInfiniteProgress(self, func, message, *args, **kwargs):
+        runnable = ProgressRunnable2(self.gui.getInfiniteProgressDialog())
+        runnable.setDialogMessage(message)
+        runnable.setRunMethod(func, *args, **kwargs)
+        runnable.caughtException.connect(self.gui.popupErrorCallback)
+        runnable.runOnGlobalInstance(wait=True)
+        return runnable.result

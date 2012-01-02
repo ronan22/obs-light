@@ -26,6 +26,7 @@ from PySide.QtGui import QLineEdit, QListWidget
 
 from FilterableWidget import FilterableWidget
 
+# TODO: remove this class when the wizard works good enough
 class PackageSelector(QObject, FilterableWidget):
     u"""
     Show a dialog containing a package list and a text field to enter

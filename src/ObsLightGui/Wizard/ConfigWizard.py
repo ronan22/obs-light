@@ -47,8 +47,6 @@ class ConfigWizard(QWizard, ObsLightGuiObject):
         return self.Pages[pageName].index
 
     def loadPages(self):
-        # TODO: put page name in each class as static member
-        # and instantiate all theses classes from a list
         pageCounter = 0
         self.Pages[u'ChooseServer'] = ChooseServerPage(self.gui, pageCounter)
 

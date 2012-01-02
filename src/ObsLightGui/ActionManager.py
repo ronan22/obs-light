@@ -67,6 +67,4 @@ class MainWindowActionManager(object):
         self.__gui.getLogManager().show()
 
     def on_actionWizard_triggered(self):
-        self.__wizard = ConfigWizard(self.__gui)
-        self.__wizard.accepted.connect(self.__gui.refresh)
-        self.__wizard.show()
+        self.__gui.runWizard()
