@@ -313,8 +313,10 @@ class ObsLightOsc(object):
         '''
         #Add a Lock
         self.__aLock.acquire()
-        pk = core.Package(workingdir=workingdir)
-        self.__aLock.release()
+        try:
+            pk = core.Package(workingdir=workingdir)
+        finally:
+            self.__aLock.release()
         try:
             aElement = ElementTree.fromstring(pk.get_files_meta())
         except :
