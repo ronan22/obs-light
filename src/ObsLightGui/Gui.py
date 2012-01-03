@@ -33,6 +33,7 @@ from ProjectManager import ProjectManager
 from ActionManager import MainWindowActionManager
 from LogManager import LogManager
 from Utils import exceptionToMessageBox
+from Wizard.ConfigWizard import ConfigWizard
 
 UI_PATH = join(dirname(__file__), u"ui")
 
@@ -52,6 +53,7 @@ class Gui(QObject):
     __mainWindowActionManager = None
     __infiniteProgress = None
     __progress = None
+    __wizard = None
 
     __messageSignal = Signal((str, int))
 
@@ -62,7 +64,6 @@ class Gui(QObject):
         self.uiLoader = QUiLoader()
         # Need to set working directory in order to load icons
         self.uiLoader.setWorkingDirectory(UI_PATH)
-
 
     def __beforeQuitting(self):
         self.__logManager.disconnectLogger()
@@ -164,6 +165,13 @@ class Gui(QObject):
 
     def refresh(self):
         self.__obsProjectManager.refresh()
+
+    def runWizard(self, autoSelectProject=None):
+        self.__wizard = ConfigWizard(self)
+        self.__wizard.accepted.connect(self.refresh)
+        if autoSelectProject is not None:
+            self.__wizard.skipToPackageSelection(autoSelectProject)
+        self.__wizard.show()
 
     def loadManager(self, methodToGetManager, *args, **kwargs):
         pixmap = QPixmap(join(UI_PATH, "splashscreen.png"))

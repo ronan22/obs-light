@@ -402,6 +402,11 @@ class PackageManager(QObject):
         return packageList
 
     def showPackageSelectionDialog(self, packageList):
+        if packageList is None or len(packageList) < 1:
+            QMessageBox.information(self.__gui.getMainWindow(),
+                                    u"No package",
+                                    u"No packages were found.")
+            return
         self.__packageSelector.showPackageSelectionDialog(packageList)
 
     def __mapOnSelectedPackages(self,
@@ -463,13 +468,14 @@ class PackageManager(QObject):
     def on_newPackageButton_clicked(self):
         if self.getCurrentProject() is None:
             return
-        progress = self.__gui.getInfiniteProgressDialog()
-        runnable = ProgressRunnable2(progress)
-        runnable.setDialogMessage(u"Loading available packages list")
-        runnable.setRunMethod(self.getPackageListFromServer)
-        runnable.finished[object].connect(self.showPackageSelectionDialog)
-        runnable.caughtException.connect(self.__gui.popupErrorCallback)
-        runnable.runOnGlobalInstance()
+        self.__gui.runWizard(autoSelectProject=self.getCurrentProject())
+#        progress = self.__gui.getInfiniteProgressDialog()
+#        runnable = ProgressRunnable2(progress)
+#        runnable.setDialogMessage(u"Loading available packages list")
+#        runnable.setRunMethod(self.getPackageListFromServer)
+#        runnable.finished[object].connect(self.showPackageSelectionDialog)
+#        runnable.caughtException.connect(self.__gui.popupErrorCallback)
+#        runnable.runOnGlobalInstance()
 
     def on_packageSelector_packagesSelected(self, packages):
         if len(packages) < 2:

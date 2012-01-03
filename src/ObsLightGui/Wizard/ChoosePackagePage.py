@@ -56,10 +56,13 @@ class ChoosePackagePage(ObsLightWizardPage, FilterableWidget):
 
     def _fillPackageList(self, serverAlias, project):
         self.ui_WizardPage.packageListWidget.clear()
-        pkgList = self._getPackageList(serverAlias, project)
+#        pkgList = self._getPackageList(serverAlias, project)
+        pkgList = self.callWithInfiniteProgress(self._getPackageList,
+                                                u"Loading package list...",
+                                                serverAlias,
+                                                project)
         self.ui_WizardPage.packageListWidget.addItems(pkgList)
 
-    @uiFriendly()
     def _getPackageList(self, serverAlias, project):
         return self.manager.getObsProjectPackageList(serverAlias, project)
 
