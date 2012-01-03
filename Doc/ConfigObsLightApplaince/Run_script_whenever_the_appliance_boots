@@ -17,8 +17,7 @@ then
 
   # Put commands to be run on the first boot of your appliance here
   echo "Running SUSE Studio first boot script..."
-
+  #echo appliance info 
+  sed -i "/^exit 0/ i\. /var/config_ObsLight_boot_info" /etc/init.d/rc
 fi
 
-#echo appliance info 
-. /var/config_ObsLight_boot_info

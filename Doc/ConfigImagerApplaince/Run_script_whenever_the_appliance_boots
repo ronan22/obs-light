@@ -19,8 +19,9 @@ then
   echo "Running SUSE Studio first boot script..."
   sed -i "/^exit 0/ i\echo Start ..." /etc/init.d/rc
   sed -i "/^exit 0/ i\[ ! -f /var/imagerinstall ] && . /var/config_host_install | tee /var/log/imagerinst.log" /etc/init.d/rc
+  #echo appliance info 
+  sed -i "/^exit 0/ i\. /var/config_Imager_boot_info" /etc/init.d/rc
 fi
 
-#echo appliance info 
-. /var/config_Imager_boot_info
+
 

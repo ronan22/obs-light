@@ -29,12 +29,6 @@ then
 
   insserv lighttpd
   rclighttpd restart
+  #echo appliance info 
+  sed -i "/^exit 0/ i\. /var/config_obs_boot_info" /etc/init.d/rc
 fi
-
-#echo appliance info 
-. /var/config_obs_boot_info
-
-
-
-
-
