@@ -12,29 +12,13 @@
 # read in some variables
 . /studio/profile
 
-#add the hostname to the hosts file (before run level 3)
-
 if [ -f /etc/init.d/suse_studio_firstboot ]
 then
 
   # Put commands to be run on the first boot of your appliance here
   echo "Running SUSE Studio first boot script..."
 
-  rcmysql start
-  rcobsapisetup start
-  rcobsstoragesetup start
-
-  # fix hostname in testdrive: 
-  sed -i 's,^webui_host: .*,webui_host: "'"127.0.0.1"'",' /srv/www/obs/api/config/options.yml
-
-  insserv lighttpd
-  rclighttpd restart
 fi
 
 #echo appliance info 
-. /var/config_obs_boot_info
-
-
-
-
-
+. /var/config_ObsLight_boot_info

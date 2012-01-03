@@ -1,0 +1,31 @@
+This is an obs ready to work for MeeGo.
+openSUSE Build Service(OBS) 2.1.11
+The openSUSE Build Service appliance contains the complete OBS stack including
+a Worker, the Backend, API, Webclient and osc, the command line client.
+It can link to the openSUSE.org instance, so you can directly start building packages for
+openSUSE, Fedora, Ubuntu etc. distributions.
+
+After booting, the webinterface is available at http://obslightserver
+To login to the webinterface, please use the username ‘Admin’ with password ‘opensuse’.
+
+Please assign at least 1GB memory to the appliance.
+The API is available on port 81. Please disable the firewall to access it directly.
+
+The appliance will be configured during the first boot.
+If you change the Network config, please, look at:
+http://en.opensuse.org/openSUSE:Build_Service_private_installation
+for change manually the configuration.
+
+In addition, you can use Imager, to build an image.
+http://susegallery.com/a/e0uuBG/meego-imager
+
+wiki: http://wiki.meego.com/OBS_Light
+GIT: https://meego.gitorious.org/meego-developer-tools/obs-light
+Bug: https://bugs.meego.com/buglist.cgi?product=Development%20Tools&component=OBS%20Light
+
+NOTE:
+Just add the IP of the appliance for obslightserver to your /etc/hosts, you must know obslightserver:
+     #ping obslightserver
+to change the appliance name, edit config_obs:
+    #vi /config_obs
+and change "theHostName=obslightserver"

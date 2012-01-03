@@ -1,0 +1,223 @@
+#!/bin/bash
+# Authors Ronan Le Martret (Intel OTC)
+# ronan@fridu.net
+# Date 03 january 2012
+# License GLPv2
+urls_fname='/usr/lib/python2.7/site-packages/img_web/urls.py'
+vline_1="url(r'^site_media/(?P<path>.*)$', 'django.views.static.serve',{'document_root': settings.STATIC_ROOT}),"
+vline_2="url(r'^images/web/(?P<path>.*)$', 'img_web.app.views.retrieve_file',{'document_root': '/var/www/img/images/web'}),"
+
+grep -q -i "$vline_1" $urls_fname || sed -i "/name='logout'),/ a\    $vline_1\n" $urls_fname
+grep -q -i "$vline_2" $urls_fname || sed -i "/name='logout'),/ a\    $vline_2\n" $urls_fname
+
+if [ ! -f /etc/sysconfig/boss-skynet ]; then
+cat >> /etc/sysconfig/boss-skynet <<EOF
+# Sourced by skynet scripts
+
+SERVICE_DIR=/var/lib/SkyNET/services/
+STORAGE_DIR=/var/lib/SkyNET/store/
+EOF
+fi
+
+patch /usr/lib/python2.7/site-packages/img/worker.py << EOF
+221c221
+<         self.files_url = "%s/%s/%s" % (config.base_url, job_args.prefix,
+---
+>         self.files_url = "%s/%s/%s/" % (config.base_url, job_args.prefix,
+EOF
+
+cat >> /usr/lib/python2.7/site-packages/img_web/app/views.py <<EOF
+import django.contrib.auth.decorators as auth_decorators
+import django.http
+import django.views.static
+
+@auth_decorators.login_required
+def retrieve_file(request, path="",document_root=""):
+    abs_filename=document_root+"/"+path
+
+    if os.path.isfile(abs_filename):
+
+        response = django.http.HttpResponse()
+        del response['content-type']
+        response['X-Sendfile'] = abs_filename
+        return response
+
+    elif os.path.isdir(abs_filename):
+
+        res=django.views.static.serve( request,path=path, document_root=document_root, show_indexes=True)
+        return res
+    else:
+        print "is nothing"
+        res=index( request)
+        return res
+EOF
+patch /usr/lib/python/site-packages/img_web/templates/base.html  << EOF
+30a31
+>                         <li class="current_page_item"><a href=/img/admin/>Admin</a></li>
+EOF
+
+install -d -m 0777 /var/www/img/images
+
+
+chmod 0640 /etc/sudoers
+cat >> /etc/sudoers << EOF
+nobody ALL=(ALL)NOPASSWD:/usr/bin/mic-image-creator
+EOF
+chmod 0440 /etc/sudoers
+
+install -d -m 0777 /var/www/img/images
+install -d -m 0777 /var/www/img/templates
+
+patch /usr/lib/python/site-packages/img_web/templates/registration/login.html << EOF
+8a9
+> <p>(by default Username:imager Password:imager)</p>
+EOF
+
+cat > /etc/lighttpd/vhosts.d/img.conf << EOF
+var.namebasedir = "/img"
+
+\$HTTP["url"] =~ "^" + namebasedir {
+       dir-listing.activate = "enable"
+}
+
+url.redirect += (
+ "^" + namebasedir + "$" => namebasedir + "/"
+)
+
+fastcgi.server += (
+   "/img.fcgi" => (
+       "main" => (
+           "socket" => "/var/run/img_web" + ".socket",
+           "check-local" => "disable",
+           "allow-x-send-file" => "enable",
+       )
+   ),
+)
+
+url.rewrite-if-not-file += (
+   "^(" + namebasedir + "/.*)$" => "/img.fcgi/\$1"
+)
+EOF
+echo 'include "/etc/lighttpd/vhosts.d/img.conf"' >> /etc/lighttpd/lighttpd.conf
+
+patch /etc/lighttpd/modules.conf << EOF
+41c41
+<
+---
+> global{
+44,50c44,48
+< #  "mod_alias",
+< #  "mod_auth",
+< #  "mod_evasive",
+< #  "mod_redirect",
+< #  "mod_rewrite",
+< #  "mod_setenv",
+< #  "mod_usertrack",
+---
+>   "mod_alias",
+>   "mod_accesslog",
+>   "mod_compress",
+>   "mod_fastcgi",
+>   "mod_rewrite",
+51a50
+> }
+EOF
+
+patch /usr/lib/python2.7/site-packages/img_web/app/views.py << EOF
+28c28
+< from img_web.app.forms import UploadFileForm, extraReposFormset
+---
+> from img_web.app.forms import UploadFileForm, extraReposFormset,extraPackagesGroupsFormset
+40c40,41
+<         formset = extraReposFormset()
+---
+>         formset = extraReposFormset( prefix='fs1')
+>         formPackagesGroupsset = extraPackagesGroupsFormset( prefix='fs2')
+42c43
+<                                   {'form' : form, 'formset' : formset},
+---
+>                                   {'form' : form, 'formset' : formset, 'formPackagesGroupsset' : formPackagesGroupsset},
+48c49,50
+<         formset = extraReposFormset(request.POST)
+---
+>         formset = extraReposFormset(request.POST, prefix='fs1')
+>         formPackagesGroupsset = extraPackagesGroupsFormset(request.POST, request.FILES, prefix='fs2')
+51c53
+<                                       {'form': form, 'formset' : formset},
+---
+>                                       {'form': form, 'formset' : formset, 'formPackagesGroupsset' : formPackagesGroupsset},
+55a58,59
+>         data3 = formPackagesGroupsset.cleaned_data
+>
+92a97,106
+>             for prj in data3:
+>                 if 'GPFile' in prj:
+>                     if prj['GPFile']:
+>                         fileName=prj['GPFile'].name
+>                         if not fileName.endswith(".grp-ks"):
+>                             print fileName,"is not a valid file"
+>                         else:
+>                             grpFile=prj['GPFile'].read()
+>                             imgjob.kickstart=imgjob.kickstart.replace("%include "+fileName,grpFile)
+>
+EOF
+
+patch /usr/lib/python2.7/site-packages/img_web/app/forms.py << EOF
+57a58,67
+> class extraPackagesGroupsForm(forms.Form):
+>     GPFile = forms.FileField(label="Kickstart file", required=False,
+>                              help_text="Extra Packages Groups: Choose a .grp-ks file.")
+>     def clean(self):
+>         cleaned_data = self.cleaned_data
+>         if not cleaned_data['GPFile'] :
+>             raise forms.ValidationError("You chose an extra OBS without adding a corresponding repository.")
+>         return cleaned_data
+> extraPackagesGroupsFormset = formset_factory(extraPackagesGroupsForm)
+>
+EOF
+
+
+patch /usr/lib/python2.7/site-packages/img_web/templates/app/upload.html << EOF
+11c11,19
+<             extraClasses: ['row1', 'row2', 'row3']
+---
+>             formCssClass: 'dynamic-formset',
+>             extraClasses: ['row1', 'row2', 'row3'],
+>             prefix: "{{ formset.prefix }}"
+>
+>         });
+>         \$('#id_extra_packages_groups tbody tr').formset({
+>             formCssClass: 'dynamic-formPackagesGroupsset',
+>             extraClasses: ['row1', 'row2', 'row3'],
+>             prefix: "{{ formPackagesGroupsset.prefix }}"
+159c167
+<              <tr id="{{ f.prefix }}-row">
+---
+>              <tr id="{{ f.prefix }}-row" class="form-container">
+177a186,207
+> <fieldset>
+>     <legend>Extra packages groups</legend>
+>     <table id="id_extra_packages_groups" border="0" cellpadding="0" cellspacing="5">
+>          <thead>
+>              <tr>
+>                 <th scope="col">Add grp-ks file</th>
+>              </tr>
+>          </thead>
+>          <tbody>
+>              {% for f in formPackagesGroupsset.forms %}
+>              <tr id="{{ f.prefix }}-row" class="form-container">
+>
+>                  <td>{{ f.GPFile }}</td>
+>
+>              </tr>
+>              {% endfor %}
+>          </tbody>
+>      </table>
+>     {{ formPackagesGroupsset.management_form }}
+>
+> </fieldset>
+>
+EOF
+
+rm -r /var/lib/rabbitmq/mnesia/*
+

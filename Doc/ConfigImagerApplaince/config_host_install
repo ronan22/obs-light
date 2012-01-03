@@ -1,0 +1,105 @@
+#!/bin/bash
+# Authors Ronan Le Martret (Intel OTC)
+# ronan@fridu.net
+# Date 03 january 2012
+# License GLPv2
+
+MYHOST=`/sbin/ifconfig  | grep 'inet'| grep -v '127.0.0.1'| cut -d: -f2 | cut -d" " -f1`
+
+echo MYHOST $MYHOST
+
+sed -i "s,^base_url = http://127.0.0.1/images*,base_url = http://$MYHOST/img/images," /etc/skynet/build_image.conf
+sed -i "s,^base_dir = /var/www/images*,base_dir = /var/www/img/images," /etc/skynet/build_image.conf
+
+sed -i "s/res = urlopen(job.logfile_url).read()/#res = urlopen(job.logfile_url).read()/g" /usr/share/boss-skynet/update_image_status.py
+sed -i "/ % job.logfile_url/ a\                    res= open('/var/www/img/images'+job.logfile_url.split(\"images\")[1],'r').read()" /usr/share/boss-skynet/update_image_status.py
+
+echo ---*** mysql start ***---
+/etc/init.d/mysql start
+
+echo ---*** register boss ***--
+if [ -e /usr/sbin/rabbitmqctl ]; then
+    echo "Adding boss exchange/user and granting access"
+    rabbitmqctl add_vhost boss || true
+    rabbitmqctl add_user boss boss || true
+    rabbitmqctl set_permissions -p boss boss '.*' '.*' '.*' || true
+fi
+
+inittab_lineboss="SN:2345:respawn:/usr/bin/svscan /etc/service"
+inittab_lineskynet="SK:2345:respawn:/usr/bin/svscan /var/lib/SkyNET/services/"
+
+if ! grep "skynet" /etc/passwd; then
+  /usr/sbin/useradd --system skynet
+fi
+
+SERVICE_DIR=/var/lib/SkyNET/services/
+STORAGE_DIR=/var/lib/SkyNET/store/
+
+if [ -f /etc/sysconfig/boss-skynet ]; then
+  . /etc/sysconfig/boss-skynet
+fi
+
+[ ! -d $SERVICE_DIR ] && mkdir -p $SERVICE_DIR
+[ ! -d $STORAGE_DIR ] && mkdir -p $STORAGE_DIR
+
+
+if ! grep "$inittab_lineboss" /etc/inittab >/dev/null; then
+    echo "$inittab_lineboss" >> /etc/inittab
+    init q
+fi
+
+
+if ! grep "$inittab_lineskynet" /etc/inittab >/dev/null; then
+    echo "$inittab_lineskynet" >> /etc/inittab
+    init q
+fi
+
+[ -f "/etc/sysconfig/boss" ] && . /etc/sysconfig/boss
+
+echo ---*** rcboss start ***---
+rcboss start
+/var/lib/boss/run&
+PID=$!
+echo wait...
+sleep 5
+
+echo ---*** skynet enable ***---
+skynet enable build_image
+skynet enable build_ks
+
+echo ---*** register request_image ***---
+skynet register -n request_image
+
+echo ---*** register update_image_status ***---
+skynet register -n update_image_status
+
+echo ---*** skynet_launch start ***---
+
+/usr/share/boss-skynet/skynet_launch
+
+
+echo ---*** creat mysql database ***---
+mysql -u root --password="" -e "create database imgdb CHARACTER SET utf8; GRANT ALL ON imgdb.* TO 'img'@'localhost' IDENTIFIED BY 'img' "
+
+echo ---*** configure django ***---
+export DJANGO_SETTINGS_MODULE=img_web.settings
+django-admin.py syncdb --noinput
+django-admin.py createsuperuser --noinput --username imager --email imager@imager.org
+mysql -u root --password="" -e "use imgdb;UPDATE auth_user SET password='sha1\$a4cbe\$e586fd28fe54781b694eb6e2fe6ce20022843658' WHERE username='imager';"
+django-admin.py migrate
+django-admin.py collectstatic --noinput
+
+echo ---*** start lighttpd img-web***---
+service lighttpd start
+service img-web start
+service lighttpd restart; service img-web restart
+chkconfig --add mysql
+chkconfig --add lighttpd
+
+sed -i "/^exit 0/ i\service img-web start" /etc/init.d/rc
+echo "Delete this file to reinstall imager" > /var/imagerinstall
+sleep 1
+kill -9 $PID
+echo "127.0.0.1    `hostname` localhost" >> /etc/hosts
+echo ---*** Install finish ***---
+

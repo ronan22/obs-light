@@ -11,9 +11,7 @@
 
 # read in some variables
 . /studio/profile
-echo "http://wiki.meego.com/Release_Infrastructure/IMG_Installation_using_Suse_Studio"
-echo "Root password: opensuse" 
-echo Server OBS ready http://`/sbin/ifconfig  | grep 'inet '| grep -v '127.0.0.1' | cut -d: -f2 | awk '{ print $1}'`/
+
 if [ -f /etc/init.d/suse_studio_firstboot ]
 then
 
@@ -21,5 +19,8 @@ then
   echo "Running SUSE Studio first boot script..."
   sed -i "/^exit 0/ i\echo Start ..." /etc/init.d/rc
   sed -i "/^exit 0/ i\[ ! -f /var/imagerinstall ] && . /var/config_host_install | tee /var/log/imagerinst.log" /etc/init.d/rc
-  
 fi
+
+#echo appliance info 
+. /var/config_Imager_boot_info
+
