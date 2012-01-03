@@ -31,15 +31,14 @@ from PackageModel import PackageModel
 from PackageSelector import PackageSelector
 from ObsLightGui.FileManager import FileManager
 from Utils import popupOnException, ProgressRunnable2, firstArgLast
+from ObsLightGuiObject import ObsLightGuiObject
 
-class PackageManager(QObject):
+class PackageManager(QObject, ObsLightGuiObject):
     '''
     Manages the package list widget and package-related buttons
     of the main window.
     '''
 
-    __gui = None
-    __obsLightManager = None
     __project = None
     __pkgModel = None
     __fileManager = None
@@ -74,10 +73,9 @@ class PackageManager(QObject):
 
     def __init__(self, gui):
         QObject.__init__(self)
-        self.__gui = gui
-        self.__obsLightManager = gui.getObsLightManager()
-        self.__fileManager = FileManager(self.__gui)
-        mainWindow = gui.getMainWindow()
+        ObsLightGuiObject.__init__(self, gui)
+        self.__fileManager = FileManager(self.gui)
+        mainWindow = self.mainWindow
         self.__packageWidget = mainWindow.findChild(QWidget,
                                                     u"packageWidget")
         self.__packageTableView = mainWindow.findChild(QTableView,
@@ -126,7 +124,7 @@ class PackageManager(QObject):
         self.__packageDescriptionLabel = mainWindow.findChild(QLabel,
                                                               u"packageDescriptionLabel")
 
-        self.__packageSelector = PackageSelector(self.__gui)
+        self.__packageSelector = PackageSelector(self.gui)
         self.__packageSelector.packagesSelected.connect(self.on_packageSelector_packagesSelected)
         self.__refreshOscStatusButton = mainWindow.findChild(QPushButton,
                                                              u"refreshOscStatusButton")
@@ -166,18 +164,18 @@ class PackageManager(QObject):
                 self.__packageObsStatusFilter.insertItem(0, "")
                 self.__packageChRootStatus.insertItem(0, "")
 
-                for i in self.__obsLightManager.getListOscStatus(currentProject):
+                for i in self.manager.getListOscStatus(currentProject):
                     self.__packageOscStatusFilter.addItem(i)
 
-                for i in self.__obsLightManager.getListStatus(currentProject):
+                for i in self.manager.getListStatus(currentProject):
                     self.__packageObsStatusFilter.addItem(i)
 
-                for i in self.__obsLightManager.getListChRootStatus(currentProject):
+                for i in self.manager.getListChRootStatus(currentProject):
                     self.__packageChRootStatus.addItem(i)
 
                 self.__isInitPackageFilter = True
 
-            packageFilter = self.__obsLightManager.getPackageFilter(currentProject)
+            packageFilter = self.manager.getPackageFilter(currentProject)
             if "oscStatus" in packageFilter.keys():
                 val = packageFilter["oscStatus"]
                 i = self.__packageOscStatusFilter.findText(val)
@@ -216,12 +214,12 @@ class PackageManager(QObject):
         
         '''
         currentProject = self.getCurrentProject()
-        packageFilter = self.__obsLightManager.getPackageFilter(currentProject)
+        packageFilter = self.manager.getPackageFilter(currentProject)
         if "oscRev" in packageFilter.keys():
-            self.__obsLightManager.removePackageFilter(currentProject, "oscRev")
+            self.manager.removePackageFilter(currentProject, "oscRev")
 
         if self.__packageOscRev.text() != "":
-            self.__obsLightManager.addPackageFilter(currentProject,
+            self.manager.addPackageFilter(currentProject,
                                                     "oscRev",
                                                     self.__packageOscRev.text())
         self.refresh()
@@ -231,11 +229,11 @@ class PackageManager(QObject):
         
         '''
         currentProject = self.getCurrentProject()
-        packageFilter = self.__obsLightManager.getPackageFilter(currentProject)
+        packageFilter = self.manager.getPackageFilter(currentProject)
         if "obsRev" in packageFilter.keys():
-            self.__obsLightManager.removePackageFilter(currentProject, "obsRev")
+            self.manager.removePackageFilter(currentProject, "obsRev")
         if self.__packageObsRev.text() != "":
-            self.__obsLightManager.addPackageFilter(currentProject,
+            self.manager.addPackageFilter(currentProject,
                                                     "obsRev",
                                                     self.__packageObsRev.text())
         self.refresh()
@@ -245,11 +243,11 @@ class PackageManager(QObject):
         
         '''
         currentProject = self.getCurrentProject()
-        packageFilter = self.__obsLightManager.getPackageFilter(currentProject)
+        packageFilter = self.manager.getPackageFilter(currentProject)
         if "oscStatus" in packageFilter.keys():
-            self.__obsLightManager.removePackageFilter(currentProject, "oscStatus")
+            self.manager.removePackageFilter(currentProject, "oscStatus")
         if self.__packageOscStatusFilter.currentIndex() != 0:
-            self.__obsLightManager.addPackageFilter(currentProject,
+            self.manager.addPackageFilter(currentProject,
                                                     "oscStatus",
                                                     self.__packageOscStatusFilter.currentText())
         self.refresh()
@@ -260,11 +258,11 @@ class PackageManager(QObject):
         
         '''
         currentProject = self.getCurrentProject()
-        packageFilter = self.__obsLightManager.getPackageFilter(currentProject)
+        packageFilter = self.manager.getPackageFilter(currentProject)
         if "status" in packageFilter.keys():
-            self.__obsLightManager.removePackageFilter(currentProject, "status")
+            self.manager.removePackageFilter(currentProject, "status")
         if self.__packageObsStatusFilter.currentIndex() != 0:
-            self.__obsLightManager.addPackageFilter(currentProject,
+            self.manager.addPackageFilter(currentProject,
                                                     "status",
                                                     self.__packageObsStatusFilter.currentText())
         self.refresh()
@@ -274,11 +272,11 @@ class PackageManager(QObject):
         
         '''
         currentProject = self.getCurrentProject()
-        packageFilter = self.__obsLightManager.getPackageFilter(currentProject)
+        packageFilter = self.manager.getPackageFilter(currentProject)
         if "chRootStatus" in packageFilter.keys():
-            self.__obsLightManager.removePackageFilter(currentProject, "chRootStatus")
+            self.manager.removePackageFilter(currentProject, "chRootStatus")
         if self.__packageChRootStatus.currentIndex () != 0:
-            self.__obsLightManager.addPackageFilter(currentProject,
+            self.manager.addPackageFilter(currentProject,
                                                     "chRootStatus",
                                                     self.__packageChRootStatus.currentText())
         self.refresh()
@@ -295,7 +293,7 @@ class PackageManager(QObject):
             projectName = None
         if projectName != self.__project:
             self.__project = projectName
-            self.__pkgModel = PackageModel(self.__obsLightManager, projectName)
+            self.__pkgModel = PackageModel(self.manager, projectName)
             self.__packageTableView.setModel(self.__pkgModel)
             self.__packageWidget.setEnabled(self.__project is not None)
         if self.currentPackage() is not None:
@@ -324,15 +322,15 @@ class PackageManager(QObject):
         project = self.getCurrentProject()
         if package is not None:
             self.__packageNameLabel.setText(package)
-            packageTitle = self.__obsLightManager.getPackageParameter(project,
+            packageTitle = self.manager.getPackageParameter(project,
                                                                       package,
                                                                       u"packageTitle")
-            description = self.__obsLightManager.getPackageParameter(project,
+            description = self.manager.getPackageParameter(project,
                                                                      package,
                                                                      u"description")
             self.__packageTitleLabel.setText(packageTitle)
             self.__packageDescriptionLabel.setText(description)
-            pkgDir = self.__obsLightManager.getPackageDirectory(project, package)
+            pkgDir = self.manager.getPackageDirectory(project, package)
             self.__packagePathLineEdit.setText(pkgDir)
         else:
             self.__packageNameLabel.setText(u"No package selected")
@@ -344,15 +342,15 @@ class PackageManager(QObject):
         package = self.currentPackage()
         project = self.getCurrentProject()
         chrootInit = (project is not None and
-                      self.__obsLightManager.isChRootInit(project))
+                      self.manager.isChRootInit(project))
         installed = (chrootInit and package is not None and
-                     self.__obsLightManager.isInstalledInChRoot(project, package))
+                     self.manager.isInstalledInChRoot(project, package))
         self.__rpmPrepButton.setEnabled(chrootInit)
         self.__rpmBuildButton.setEnabled(installed)
         self.__rpmInstallButton.setEnabled(installed)
         self.__rpmBuildRpmButton.setEnabled(installed)
         patchIsInitialized = (package is not None and
-                              self.__obsLightManager.patchIsInit(project, package))
+                              self.manager.patchIsInit(project, package))
         self.__generatePatchButton.setEnabled(installed and not patchIsInitialized)
         self.__modifyPatchButton.setEnabled(installed and patchIsInitialized)
 
@@ -394,17 +392,17 @@ class PackageManager(QObject):
     def getPackageListFromServer(self):
         if self.getCurrentProject() is None:
             return list()
-        server = self.__obsLightManager.getProjectParameter(self.getCurrentProject(),
+        server = self.manager.getProjectParameter(self.getCurrentProject(),
                                                             u"obsServer")
-        prjObsName = self.__obsLightManager.getProjectParameter(self.getCurrentProject(),
+        prjObsName = self.manager.getProjectParameter(self.getCurrentProject(),
                                                                 u"projectObsName")
-        packageList = self.__obsLightManager.getObsProjectPackageList(server,
+        packageList = self.manager.getObsProjectPackageList(server,
                                                                       prjObsName)
         return packageList
 
     def showPackageSelectionDialog(self, packageList):
         if packageList is None or len(packageList) < 1:
-            QMessageBox.information(self.__gui.getMainWindow(),
+            QMessageBox.information(self.mainWindow,
                                     u"No package",
                                     u"No packages were found.")
             return
@@ -421,16 +419,16 @@ class PackageManager(QObject):
         if len(packagesNames) < 1:
             return
         elif len(packagesNames) < 2:
-            progress = self.__gui.getInfiniteProgressDialog()
+            progress = self.gui.getInfiniteProgressDialog()
         else:
-            progress = self.__gui.getProgressDialog()
+            progress = self.gui.getProgressDialog()
             progress.setValue(0)
         runnable = ProgressRunnable2(progress)
         if initialMessage is not None:
             runnable.setDialogMessage(initialMessage)
         runnable.setFunctionToMap(method, packagesNames, loopMessage, *args, **kwargs)
         #runnable.setRunMethod(method, packagesNames, *args, **kwargs)
-        runnable.caughtException.connect(self.__gui.popupErrorCallback)
+        runnable.caughtException.connect(self.gui.popupErrorCallback)
         if callback is not None:
             argNum = len(inspect.getargspec(callback)[0])
             if argNum > 1:
@@ -450,13 +448,13 @@ class PackageManager(QObject):
         if len(packagesNames) < 1:
             return
 
-        progress = self.__gui.getInfiniteProgressDialog()
+        progress = self.gui.getInfiniteProgressDialog()
         runnable = ProgressRunnable2(progress)
         if initialMessage is not None:
             runnable.setDialogMessage(initialMessage)
 #        runnable.setFunctionToMap(method, packagesNames, loopMessage, *args, **kwargs)
         runnable.setRunMethod(method, packagesNames, *args, **kwargs)
-        runnable.caughtException.connect(self.__gui.popupErrorCallback)
+        runnable.caughtException.connect(self.gui.popupErrorCallback)
         if callback is not None:
             argNum = len(inspect.getargspec(callback)[0])
             if argNum > 1:
@@ -469,19 +467,19 @@ class PackageManager(QObject):
     def on_newPackageButton_clicked(self):
         if self.getCurrentProject() is None:
             return
-        self.__gui.runWizard(autoSelectProject=self.getCurrentProject())
+        self.gui.runWizard(autoSelectProject=self.getCurrentProject())
 
     def on_packageSelector_packagesSelected(self, packages):
         if len(packages) < 2:
-            progress = self.__gui.getInfiniteProgressDialog()
+            progress = self.gui.getInfiniteProgressDialog()
         else:
-            progress = self.__gui.getProgressDialog()
+            progress = self.gui.getProgressDialog()
             progress.setValue(0)
         runnable = ProgressRunnable2(progress)
         runnable.setFunctionToMap(self.__pkgModel.addPackage,
                                   packages,
                                   message=u"Adding package %(arg)s")
-        runnable.caughtException.connect(self.__gui.popupErrorCallback)
+        runnable.caughtException.connect(self.gui.popupErrorCallback)
         runnable.finished.connect(self.refresh)
         runnable.runOnGlobalInstance()
 
@@ -494,7 +492,7 @@ class PackageManager(QObject):
         packagesNames = self.selectedPackages()
         if len(packagesNames) < 1:
             return
-        result = QMessageBox.question(self.__gui.getMainWindow(),
+        result = QMessageBox.question(self.mainWindow,
                                       u"Are you sure ?",
                                       u"Are you sure you want to remove %d packages ?"
                                         % len(packagesNames),
@@ -515,7 +513,7 @@ class PackageManager(QObject):
             return
         alreadyInstalled = list()
         for package in self.selectedPackages():
-            if self.__obsLightManager.isInstalledInChRoot(self.__project, package):
+            if self.manager.isInstalledInChRoot(self.__project, package):
                 alreadyInstalled.append(package)
         if len(alreadyInstalled) > 0:
             questionString = u"The packages <b>%s" % unicode(alreadyInstalled[0])
@@ -523,14 +521,14 @@ class PackageManager(QObject):
                 questionString += u", %s" % unicode(package)
             questionString += u"</b> are already present in the chroot, do you want to"
             questionString += u" overwrite them ?"
-            result = QMessageBox.question(self.__gui.getMainWindow(),
+            result = QMessageBox.question(self.mainWindow,
                                           u"Overwrite ?",
                                           questionString,
                                           buttons=QMessageBox.Yes | QMessageBox.Cancel,
                                           defaultButton=QMessageBox.Yes)
             if result != QMessageBox.Yes:
                 return
-        self.__mapOnSelectedPackages(firstArgLast(self.__obsLightManager.addPackageSourceInChRoot),
+        self.__mapOnSelectedPackages(firstArgLast(self.manager.addPackageSourceInChRoot),
                                      None,
                                      u"Importing %(arg)s source in chroot and executing %%prep",
                                      None,
@@ -541,7 +539,7 @@ class PackageManager(QObject):
         projectName = self.getCurrentProject()
         if projectName is None:
             return
-        self.__mapOnSelectedPackages(firstArgLast(self.__obsLightManager.buildRpm),
+        self.__mapOnSelectedPackages(firstArgLast(self.manager.buildRpm),
                                      None,
                                      u"Executing %%build section of %(arg)s",
                                      None,
@@ -552,7 +550,7 @@ class PackageManager(QObject):
         projectName = self.getCurrentProject()
         if projectName is None:
             return
-        self.__mapOnSelectedPackages(firstArgLast(self.__obsLightManager.installRpm),
+        self.__mapOnSelectedPackages(firstArgLast(self.manager.installRpm),
                                      None,
                                      u"Executing %%install section of %(arg)s",
                                      None,
@@ -563,7 +561,7 @@ class PackageManager(QObject):
         projectName = self.getCurrentProject()
         if projectName is None:
             return
-        self.__mapOnSelectedPackages(firstArgLast(self.__obsLightManager.packageRpm),
+        self.__mapOnSelectedPackages(firstArgLast(self.manager.packageRpm),
                                      None,
                                      u"Packaging %(arg)s",
                                      None,
@@ -576,10 +574,10 @@ class PackageManager(QObject):
         if project is None or package is None:
             return
         runnable = ProgressRunnable2()
-        runnable.setRunMethod(self.__obsLightManager.openTerminal,
+        runnable.setRunMethod(self.manager.openTerminal,
                               project,
                               package)
-        runnable.caughtException.connect(self.__gui.popupErrorCallback)
+        runnable.caughtException.connect(self.gui.popupErrorCallback)
         runnable.runOnGlobalInstance()
 
     @popupOnException
@@ -588,7 +586,7 @@ class PackageManager(QObject):
         if project is None:
             return
         def myTestConflict(package, project):
-            conflict = self.__obsLightManager.testConflict(project, package)
+            conflict = self.manager.testConflict(project, package)
             return package, conflict
 
         self.__mapOnSelectedPackages(myTestConflict,
@@ -610,7 +608,7 @@ class PackageManager(QObject):
             question += u"-> modify conflicting file and run "
             question += u"<i>osc resolved FILE</i> in package directory.<br />"
             question += u"<br />Do you want to continue anyway?"
-            result = QMessageBox.question(self.__gui.getMainWindow(),
+            result = QMessageBox.question(self.mainWindow,
                                           u"Conflict detected",
                                           question % u", ".join(packagesInConflict),
                                           buttons=QMessageBox.Yes | QMessageBox.Cancel,
@@ -623,7 +621,7 @@ class PackageManager(QObject):
         project = self.getCurrentProject()
         if project is None:
             return
-        self.__mapOnSelectedPackages2(firstArgLast(self.__obsLightManager.updatePackage),
+        self.__mapOnSelectedPackages2(firstArgLast(self.manager.updatePackage),
                                      u"Updating packages",
                                      u"Updating <i>%(arg)s</i> package...",
                                      self.__refreshStatus,
@@ -633,14 +631,14 @@ class PackageManager(QObject):
     def __createPatch(self, patchName):
         project = self.getCurrentProject()
         package = self.currentPackage()
-        progress = self.__gui.getInfiniteProgressDialog()
+        progress = self.gui.getInfiniteProgressDialog()
         runnable = ProgressRunnable2(progress)
         runnable.setDialogMessage(u"Creating patch...")
-        runnable.setRunMethod(self.__obsLightManager.makePatch,
+        runnable.setRunMethod(self.manager.makePatch,
                               project,
                               package,
                               patchName)
-        runnable.caughtException.connect(self.__gui.popupErrorCallback)
+        runnable.caughtException.connect(self.gui.popupErrorCallback)
         runnable.finished.connect(self.refresh)
         runnable.runOnGlobalInstance()
 
@@ -650,7 +648,7 @@ class PackageManager(QObject):
         package = self.currentPackage()
         if project is None or package is None:
             return
-        dialog = QInputDialog(self.__gui.getMainWindow())
+        dialog = QInputDialog(self.mainWindow)
         dialog.setInputMode(QInputDialog.TextInput)
         dialog.setLabelText(u"Patch name (should end with <i>.patch</i>):")
         dialog.setWindowTitle(u"Choose patch name...")
@@ -668,13 +666,13 @@ class PackageManager(QObject):
         package = self.currentPackage()
         if project is None or package is None:
             return
-        progress = self.__gui.getInfiniteProgressDialog()
+        progress = self.gui.getInfiniteProgressDialog()
         runnable = ProgressRunnable2(progress)
         runnable.setDialogMessage(u"Updating patch...")
-        runnable.setRunMethod(self.__obsLightManager.updatePatch,
+        runnable.setRunMethod(self.manager.updatePatch,
                               project,
                               package)
-        runnable.caughtException.connect(self.__gui.popupErrorCallback)
+        runnable.caughtException.connect(self.gui.popupErrorCallback)
         runnable.finished.connect(self.refresh)
         runnable.runOnGlobalInstance()
 
@@ -685,7 +683,7 @@ class PackageManager(QObject):
         if project is None or package is None:
             return
 
-        conflict = self.__obsLightManager.testConflict(project, package)
+        conflict = self.manager.testConflict(project, package)
 
         if conflict:
             question = u"A file in package <i>%s</i> has a conflict.<br />"
@@ -693,7 +691,7 @@ class PackageManager(QObject):
             question += u"-> modify conflicting file and run "
             question += u"<i>osc resolved FILE</i> in package directory.<br />"
             question += u"<br />Do you want to continue anyway?"
-            result = QMessageBox.question(self.__gui.getMainWindow(),
+            result = QMessageBox.question(self.mainWindow,
                                           u"Conflict detected",
                                           question % package,
                                           buttons=QMessageBox.Yes | QMessageBox.Cancel,
@@ -701,24 +699,24 @@ class PackageManager(QObject):
             if result != QMessageBox.Yes:
                 return
 
-        message, accepted = QInputDialog.getText(self.__gui.getMainWindow(),
+        message, accepted = QInputDialog.getText(self.mainWindow,
                                                  u"Enter commit message...",
                                                  u"Commit message:")
         if accepted:
-            progress = self.__gui.getInfiniteProgressDialog()
+            progress = self.gui.getInfiniteProgressDialog()
             runnable = ProgressRunnable2(progress)
             runnable.setDialogMessage(u"Committing changes")
-            runnable.setRunMethod(self.__obsLightManager.addAndCommitChanges,
+            runnable.setRunMethod(self.manager.addAndCommitChanges,
                                   project,
                                   package,
                                   message)
-            runnable.caughtException.connect(self.__gui.popupErrorCallback)
+            runnable.caughtException.connect(self.gui.popupErrorCallback)
             runnable.finished.connect(self.__refreshStatus)
             runnable.runOnGlobalInstance()
 
     def __refreshBothStatuses(self, *args, **kwargs):
-        self.__obsLightManager.refreshOscDirectoryStatus(*args, **kwargs)
-        self.__obsLightManager.refreshObsStatus(*args, **kwargs)
+        self.manager.refreshOscDirectoryStatus(*args, **kwargs)
+        self.manager.refreshObsStatus(*args, **kwargs)
 
     def __refreshStatus(self):
         if len(self.selectedPackages()) == 0:
@@ -740,14 +738,14 @@ class PackageManager(QObject):
             return
         question = u"<i>Warning:</i> if you have local modifications, they will"
         question += u" be discarded.<br/>Do you want to continue?"
-        result = QMessageBox.warning(self.__gui.getMainWindow(),
+        result = QMessageBox.warning(self.mainWindow,
                                      u"Discard modifications?",
                                      question,
                                      buttons=QMessageBox.Yes | QMessageBox.Cancel,
                                      defaultButton=QMessageBox.Cancel)
         if result != QMessageBox.Yes:
             return
-        self.__mapOnSelectedPackages(firstArgLast(self.__obsLightManager.repairOscPackageDirectory),
+        self.__mapOnSelectedPackages(firstArgLast(self.manager.repairOscPackageDirectory),
                                      None,
                                      u"Repairing OSC directory of %(arg)s...",
                                      self.__refreshStatus,
