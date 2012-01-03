@@ -27,12 +27,12 @@ from PySide.QtGui import QLineEdit, QPushButton, QRegExpValidator
 from ObsLight.ObsLightTools import isNonEmptyString
 
 from Utils import popupOnException, colorizeWidget
+from ObsLightGuiObject import ObsLightGuiObject
 
-class ServerConfigManager(QObject):
+class ServerConfigManager(QObject, ObsLightGuiObject):
     '''
     Manage an OBS server configuration window.
     '''
-    __gui = None
     __serverAlias = None
     __srvConfDialog = None
     __checkConnectionButton = None
@@ -54,9 +54,9 @@ class ServerConfigManager(QObject):
         If serverAlias is an OBS server alias, load its configuration.
         '''
         QObject.__init__(self)
-        self.__gui = gui
+        ObsLightGuiObject.__init__(self, gui)
         self.__serverAlias = serverAlias
-        self.__srvConfDialog = self.__gui.loadWindow(u"obsServerConfig.ui")
+        self.__srvConfDialog = self.gui.loadWindow(u"obsServerConfig.ui")
         self.__loadWidgets()
         if self.__serverAlias is not None:
             self.__loadInitialFieldValues()
@@ -98,7 +98,7 @@ class ServerConfigManager(QObject):
         self.__checkConnectionButton.clicked.connect(self.on_checkConnectionButton_clicked)
 
     def __loadInitialFieldValues(self):
-        manager = self.__gui.getObsLightManager()
+        manager = self.manager
         self.__aliasLineEdit.setText(self.__serverAlias)
         self.__aliasLineEdit.setReadOnly(True)
         self.__webUrlLineEdit.setText(manager.getObsServerParameter(self.__serverAlias,
@@ -132,13 +132,13 @@ class ServerConfigManager(QObject):
 
     @popupOnException
     def on_obsServerConfigDialog_finished(self, result):
+        manager = self.manager
         # User canceled, nothing to do.
         if result == QDialog.Rejected:
             self.finished.emit(False)
         # User accepted, and there was no preloaded server,
         # so create a new server.
         elif self.__serverAlias is None:
-            manager = self.__gui.getObsLightManager()
             manager.addObsServer(self.getApiUrl(),
                                  self.getUser(),
                                  self.getPass(),
@@ -149,7 +149,6 @@ class ServerConfigManager(QObject):
         # User accepted, and there was a preloaded server,
         # so modify it.
         else:
-            manager = self.__gui.getObsLightManager()
             manager.setObsServerParameter(self.__serverAlias,
                                           u"serverWeb",
                                           self.getWebIfaceUrl())
@@ -174,16 +173,15 @@ class ServerConfigManager(QObject):
     @popupOnException
     def on_checkConnectionButton_clicked(self):
         def testAndColorizeUrl(url, widget):
-            obsLightManager = self.__gui.getObsLightManager()
             color = u"red"
             isOk = False
             try:
                 if not isNonEmptyString(url):
                     color = u"red"
-                elif obsLightManager.testUrl(url):
+                elif self.manager.testUrl(url):
                     isOk = True
                     color = u"green"
-                elif obsLightManager.testHost(url):
+                elif self.manager.testHost(url):
                     color = u"orange"
                 else:
                     color = u"red"
@@ -211,7 +209,7 @@ class ServerConfigManager(QObject):
         allOk = testAndColorizeUrl(repo, self.__repoUrlLineEdit) and allOk
 
         if userPassOk:
-            apiRes = self.__gui.getObsLightManager().testApi(api, user, password)
+            apiRes = self.manager.testApi(api, user, password)
             if apiRes == 1:
                 colorizeWidget(self.__userLineEdit, "red")
                 colorizeWidget(self.__passLineEdit, "red")
@@ -226,7 +224,7 @@ class ServerConfigManager(QObject):
                 colorizeWidget(self.__userLineEdit, "green")
                 colorizeWidget(self.__passLineEdit, "green")
 
-        srvList = self.__gui.getObsLightManager().getObsServerList()
+        srvList = self.manager.getObsServerList()
         if (isNonEmptyString(alias) and
                 (alias == self.__serverAlias or self.getAlias() not in srvList)):
             colorizeWidget(self.__aliasLineEdit, "green")
