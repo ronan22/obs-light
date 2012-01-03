@@ -1,5 +1,5 @@
 #
-# Copyright 2011, Intel Inc.
+# Copyright 2011-2012, Intel Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 Created on 2 nov. 2011
 
 @author: Florent Vennetier
+@author: Ronan Le Martret
 '''
 
 import inspect
@@ -469,13 +470,6 @@ class PackageManager(QObject):
         if self.getCurrentProject() is None:
             return
         self.__gui.runWizard(autoSelectProject=self.getCurrentProject())
-#        progress = self.__gui.getInfiniteProgressDialog()
-#        runnable = ProgressRunnable2(progress)
-#        runnable.setDialogMessage(u"Loading available packages list")
-#        runnable.setRunMethod(self.getPackageListFromServer)
-#        runnable.finished[object].connect(self.showPackageSelectionDialog)
-#        runnable.caughtException.connect(self.__gui.popupErrorCallback)
-#        runnable.runOnGlobalInstance()
 
     def on_packageSelector_packagesSelected(self, packages):
         if len(packages) < 2:

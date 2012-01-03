@@ -25,13 +25,12 @@ from PySide.QtGui import QListWidget, QMessageBox, QPushButton
 
 from ServerConfigManager import ServerConfigManager
 from Utils import popupOnException
+from ObsLightGuiObject import ObsLightGuiObject
 
-class ServerListManager(QObject):
-    """
+class ServerListManager(QObject, ObsLightGuiObject):
+    u"""
     Manage the OBS server list window.
     """
-    __gui = None
-    __obsLightManager = None
     __srvListDialog = None
     __listWidget = None
     __serverConfigManager = None
@@ -41,9 +40,8 @@ class ServerListManager(QObject):
         Load and display the OBS server list window.
         """
         QObject.__init__(self)
-        self.__gui = gui
-        self.__obsLightManager = self.__gui.getObsLightManager()
-        self.__srvListDialog = self.__gui.loadWindow(u"obsServerList.ui")
+        ObsLightGuiObject.__init__(self, gui)
+        self.__srvListDialog = self.gui.loadWindow(u"obsServerList.ui")
         self.__listWidget = self.__srvListDialog.findChild(QListWidget,
                                                            u"obsServersListWidget")
         self.loadServerList()
@@ -67,20 +65,20 @@ class ServerListManager(QObject):
         Clear and reload the list of OBS servers into the list widget.
         '''
         self.__listWidget.clear()
-        self.__listWidget.addItems(self.__obsLightManager.getObsServerList())
+        self.__listWidget.addItems(self.manager.getObsServerList())
 
     def on_addExistingServerButton_clicked(self):
-        self.__serverConfigManager = ServerConfigManager(self.__gui)
+        self.__serverConfigManager = ServerConfigManager(self.gui)
         self.__serverConfigManager.finished.connect(self.on_serverConfigManager_finished)
 
     def on_createVirtualServerButton_clicked(self):
-        self.__serverConfigManager = ServerConfigManager(self.__gui)
+        self.__serverConfigManager = ServerConfigManager(self.gui)
         self.__serverConfigManager.finished.connect(self.on_serverConfigManager_finished)
 
     def on_modifyServerButton_clicked(self):
         currentItem = self.__listWidget.currentItem()
         if currentItem is not None:
-            self.__serverConfigManager = ServerConfigManager(self.__gui,
+            self.__serverConfigManager = ServerConfigManager(self.gui,
                                                              currentItem.text())
 
     @popupOnException
@@ -88,7 +86,7 @@ class ServerListManager(QObject):
         currentItem = self.__listWidget.currentItem()
         if currentItem is not None:
             serverAlias = currentItem.text()
-            result = QMessageBox.question(self.__gui.getMainWindow(),
+            result = QMessageBox.question(self.mainWindow,
                                       "Are you sure ?",
                                       "Are you sure you want to delete %s server ?"
                                         % serverAlias,
@@ -97,7 +95,7 @@ class ServerListManager(QObject):
             if result == QMessageBox.No:
                 return
             if len(serverAlias) > 0:
-                self.__obsLightManager.delObsServer(serverAlias)
+                self.manager.delObsServer(serverAlias)
             self.loadServerList()
 
     @popupOnException
@@ -111,7 +109,7 @@ class ServerListManager(QObject):
         if currentItem is not None:
             serverAlias = currentItem.text()
             if len(serverAlias) > 0:
-                isJoinable = self.__obsLightManager.testServer(serverAlias)
+                isJoinable = self.manager.testServer(serverAlias)
                 if isJoinable:
                     QMessageBox.information(None, u"Server OK", u"Server is reachable")
                 else:
