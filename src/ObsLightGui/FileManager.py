@@ -1,6 +1,6 @@
 # -*- coding: utf8 -*-
 #
-# Copyright 2011, Intel Inc.
+# Copyright 2011-2012, Intel Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -29,18 +29,17 @@ from PySide.QtGui import QTabWidget, QTableView, QTreeView
 
 from ObsLight.ObsLightTools import isNonEmptyString
 from Utils import popupOnException
+from ObsLightGuiObject import ObsLightGuiObject
 
 from OscWorkingCopyModel import OscWorkingCopyModel
 
-class FileManager(QObject):
+class FileManager(QObject, ObsLightGuiObject):
     '''
     Manage the file list widget and file-related buttons of the main window.
     '''
 
-    __gui = None
     __chrootModel = None
     __oscWcModel = None
-    __obsLightManager = None
     __project = None
     __package = None
     __packageDir = None
@@ -52,16 +51,15 @@ class FileManager(QObject):
 
     def __init__(self, gui):
         QObject.__init__(self)
-        self.__gui = gui
-        self.__obsLightManager = gui.getObsLightManager()
-        self.__fileTableView = gui.getMainWindow().findChild(QTableView, u"fileTableView")
+        ObsLightGuiObject.__init__(self, gui)
+        self.__fileTableView = self.mainWindow.findChild(QTableView, u"fileTableView")
         self.__fileTableView.doubleClicked.connect(self.on_fileTableView_activated)
-        self.__chrootTreeView = gui.getMainWindow().findChild(QTreeView, u"chrootTreeView")
+        self.__chrootTreeView = self.mainWindow.findChild(QTreeView, u"chrootTreeView")
         self.__chrootTreeView.doubleClicked.connect(self.on_chrootTreeView_activated)
-        self.__packageTabWidget = gui.getMainWindow().findChild(QTabWidget, u"packageTabWidget")
-        addFileButton = gui.getMainWindow().findChild(QPushButton, u"addFileButton")
+        self.__packageTabWidget = self.mainWindow.findChild(QTabWidget, u"packageTabWidget")
+        addFileButton = self.mainWindow.findChild(QPushButton, u"addFileButton")
         addFileButton.clicked.connect(self.on_addFileButton_clicked)
-        deleteFileButton = gui.getMainWindow().findChild(QPushButton, u"deleteFileButton")
+        deleteFileButton = self.mainWindow.findChild(QPushButton, u"deleteFileButton")
         deleteFileButton.clicked.connect(self.on_deleteFileButton_clicked)
 
     def setCurrentPackage(self, project, package):
@@ -82,11 +80,11 @@ class FileManager(QObject):
         self.__chrootModel = QFileSystemModel()
         if self.__project is not None and self.__package is not None:
 
-            if self.__obsLightManager.isChRootInit(self.__project):
+            if self.manager.isChRootInit(self.__project):
                 self.__chrootTreeView.setEnabled(True)
-                pathInChRoot = self.__obsLightManager.getPackageDirectoryInChRoot(self.__project,
+                pathInChRoot = self.manager.getPackageDirectoryInChRoot(self.__project,
                                                                                   self.__package)
-                chrootPath = self.__obsLightManager.getChRootPath(self.__project)
+                chrootPath = self.manager.getChRootPath(self.__project)
                 self.__chrootModel.directoryLoaded.connect(self.on_chrootPath_loaded)
                 self.__packageInChrootDir = chrootPath
                 if pathInChRoot is not None:
@@ -104,9 +102,9 @@ class FileManager(QObject):
 
         # --- working copy view ---
         if self.__project is not None and self.__package is not None:
-            path = self.__obsLightManager.getPackageDirectory(self.__project, self.__package)
+            path = self.manager.getPackageDirectory(self.__project, self.__package)
             self.__packageDir = path
-            self.__oscWcModel = OscWorkingCopyModel(self.__obsLightManager,
+            self.__oscWcModel = OscWorkingCopyModel(self.manager,
                                                     self.__project,
                                                     self.__package)
         else:
@@ -125,17 +123,17 @@ class FileManager(QObject):
 
     @popupOnException
     def on_addFileButton_clicked(self):
-        fileNames, _selectedFilter = QFileDialog.getOpenFileNames(self.__gui.getMainWindow(),
+        fileNames, _selectedFilter = QFileDialog.getOpenFileNames(self.mainWindow,
                                                                   u"Select file to add")
         for fileName in fileNames:
-            self.__obsLightManager.addFileToPackage(self.__project, self.__package, fileName)
+            self.manager.addFileToPackage(self.__project, self.__package, fileName)
 
     @popupOnException
     def on_deleteFileButton_clicked(self):
         currentIndex = self.__fileTableView.currentIndex()
         if currentIndex.isValid():
             fileName = self.__oscWcModel.fileName(currentIndex)
-            result = QMessageBox.question(self.__gui.getMainWindow(),
+            result = QMessageBox.question(self.mainWindow,
                                           "Are you sure ?",
                                           "Are you sure you want to delete %s file ?"
                                             % fileName,
@@ -143,15 +141,15 @@ class FileManager(QObject):
                                           defaultButton=QMessageBox.Yes)
             if result == QMessageBox.No:
                 return
-            self.__obsLightManager.deleteFileFromPackage(self.__project, self.__package, fileName)
+            self.manager.deleteFileFromPackage(self.__project, self.__package, fileName)
 
     @popupOnException
     def on_chrootTreeView_activated(self, index):
         filePath = index.model().filePath(index)
-        self.__obsLightManager.openFile(filePath)
+        self.manager.openFile(filePath)
 
     @popupOnException
     def on_fileTableView_activated(self, index):
         fileName = self.__oscWcModel.fileName(index)
         filePath = joinPath(self.__packageDir, fileName)
-        self.__obsLightManager.openFile(filePath)
+        self.manager.openFile(filePath)
