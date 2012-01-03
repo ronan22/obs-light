@@ -1,0 +1,15 @@
+If you have (or are thinking about) selecting MeeGo but you cannot put all the code you want to build on OBS, the public, cloud-based MeeGo building tool, or if you are more comfortable with the tradition of local build tools based on a chroot than with a full cloud-based system like OBS, you might find the learning curve a bit steep.
+
+While OBS will provide you with a very powerful and adapted tool for your long-term needs, the entry cost can be perceived to be too high. This issue is particularly strongly perceived in the TV or IVI segments where recompilation of the Linux kernel and adding drivers is required even during the very early phases of a project and compiling in the public domain is out of the question. 
+
+Traditional Embedded developers who are selecting MeeGo are more comfortable with the tradition of local build tools based on a chroot than a with a full cloud based system like OBS. While OBS will provide them with a very power and adpated tool to their long term need, the entry cost can be perceived to be too high. This is issue is particularly strong in TV or IVI world.
+
+Under a simple UI, it reuses the osc command line tools delivered with OBS to which a set of extra plugin are created and on an extension of mic2 and remains compatible with a full implementation of OBS. It will be published under License: GPLv2.
+
+The osc plugin for automatic patch creation are designed to be reusable in a full OBS environment.
+
+wiki: http://wiki.meego.com/OBS_Light
+GIT: https://meego.gitorious.org/meego-developer-tools/obs-light
+Bug: https://bugs.meego.com/buglist.cgi?product=Development%20Tools&amp;component=OBS%20Light
+
+root Password: linux

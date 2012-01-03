@@ -1,0 +1,15 @@
+Meego cross platform builder.  
+IMG (Image Me Give) is a small python client/server application suite which manages the supervision of the MIC2 image creation following the submission of a ks file by the user.
+
+
+http://wiki.meego.com/Release_Infrastructure/IMG_Guide_for_beginners
+http://wiki.meego.com/Release_Infrastructure/IMG
+
+The appliance will be configured during the first boot.
+If you change the Network config, please, look at
+http://wiki.meego.com/Release_Infrastructure/IMG_Installation_for_OpenSuse_11.4
+for change manually the configuration.
+
+wiki: http://wiki.meego.com/OBS_Light
+GIT: https://meego.gitorious.org/meego-developer-tools/obs-light
+Bug: https://bugs.meego.com/buglist.cgi?product=Development%20Tools&component=OBS%20Light
