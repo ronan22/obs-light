@@ -1182,8 +1182,10 @@ class ObsLightManager(object):
         return  self.__myObsLightProjects.openTerminal(projectLocalName=projectLocalName,
                                                        package=package)
 
-    @checkFilePath(1)
     def openFile(self, filePath):
+        '''
+        
+        '''
         return ObsLightTools.openFileWithDefaultProgram(filePath)
 
     @checkProjectLocalName(1)
