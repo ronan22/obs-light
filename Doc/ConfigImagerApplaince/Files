@@ -1,0 +1,2 @@
+config_host_install	/var/ nobody / nobody 	rw-r--r-- 	
+config_install		/var/ nobody / nobody 	rw-r--r-- 

@@ -1,0 +1,36 @@
+#!/bin/bash
+#
+# This script is executed whenever your appliance boots.  Here you can add
+# commands to be executed before the system enters the first runlevel.  This
+# could include loading kernel modules, starting daemons that aren't managed
+# by init files, asking questions at the console, etc.
+#
+# The 'kiwi_type' variable will contain the format of the appliance (oem =
+# disk image, vmx = VMware, iso = CD/DVD, xen = Xen).
+#
+
+# read in some variables
+. /studio/profile
+
+#add the hostname to the hosts file (before run level 3)
+echo "127.0.0.1    `hostname` localhost" >> /etc/hosts
+echo "http://wiki.meego.com/Release_Infrastructure/IMG_Installation_using_Suse_Studio"
+echo "Root password: linux" 
+echo Server Imager ready http://`/sbin/ifconfig  | grep 'inet '| grep -v '127.0.0.1' | cut -d: -f2 | awk '{ print $1}'`/img/
+if [ -f /etc/init.d/suse_studio_firstboot ]
+then
+
+  # Put commands to be run on the first boot of your appliance here
+  echo "Running SUSE Studio first boot script..."
+
+  rcmysql start
+  rcobsapisetup start
+  rcobsstoragesetup start
+
+  # fix hostname in testdrive: 
+  sed -i 's,^webui_host: .*,webui_host: "'"127.0.0.1"'",' /srv/www/obs/api/config/options.yml
+
+  insserv lighttpd
+  rclighttpd restart
+
+fi
