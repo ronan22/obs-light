@@ -20,7 +20,7 @@ Created on 27 sept. 2011
 @author: Florent Vennetier
 '''
 
-from PySide.QtCore import QObject, QThreadPool
+from PySide.QtCore import QObject, QThreadPool, Qt
 from PySide.QtGui import QPushButton, QListWidget, QLineEdit, QLabel
 from PySide.QtGui import QFileDialog, QMessageBox
 
@@ -121,9 +121,18 @@ class ProjectManager(QObject):
         '''
         Load (or reload) the local project list in the obsProjectsListWidget.
         '''
+        lastCurrentProject = self.getCurrentProjectName()
         projectList = self.__gui.getObsLightManager().getLocalProjectList()
         self.__obsProjectsListWidget.clear()
         self.__obsProjectsListWidget.addItems(projectList)
+        if lastCurrentProject is not None and lastCurrentProject in projectList:
+            self.setCurrentProject(lastCurrentProject)
+
+    def setCurrentProject(self, projectName):
+        items = self.__obsProjectsListWidget.findItems(projectName,
+                                                       Qt.MatchExactly)
+        if len(items) > 0:
+            self.__obsProjectsListWidget.setCurrentItem(items[0])
 
     def getCurrentProjectName(self):
         '''

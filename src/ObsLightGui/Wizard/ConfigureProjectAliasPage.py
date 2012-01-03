@@ -51,21 +51,17 @@ class ConfigureProjectAliasPage(ObsLightWizardPage):
             colorizeWidget(self.ui_WizardPage.aliasLineEdit, u"red")
             return False
 
-        self.setBusyCursor(self._addProject,
-                           self.wizard().getSelectedServerAlias(),
-                           self.wizard().getSelectedProject(),
-                           self.wizard().getSelectedTarget(),
-                           self.wizard().getSelectedArch(),
-                           alias)
+        self.callWithInfiniteProgress(self.manager.addProject,
+                                      u"Adding project %s..." % alias,
+                                      self.wizard().getSelectedServerAlias(),
+                                      self.wizard().getSelectedProject(),
+                                      self.wizard().getSelectedTarget(),
+                                      self.wizard().getSelectedArch(),
+                                      projectLocalName=alias)
         self.gui.refresh()
+        self.gui.setCurrentProject(alias)
         if self.field(u"CreateChroot"):
-            self.setBusyCursor(self._createChroot, alias)
+            self.callWithInfiniteProgress(self.manager.createChRoot,
+                                          u"Creating chroot...",
+                                          alias)
         return True
-
-    @uiFriendly()
-    def _addProject(self, server, project, target, arch, alias):
-        self.manager.addProject(server, project, target, arch, projectLocalName=alias)
-
-    @uiFriendly()
-    def _createChroot(self, alias):
-        self.manager.createChRoot(alias)

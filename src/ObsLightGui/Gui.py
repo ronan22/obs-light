@@ -166,6 +166,9 @@ class Gui(QObject):
     def refresh(self):
         self.__obsProjectManager.refresh()
 
+    def setCurrentProject(self, projectName):
+        self.__obsProjectManager.setCurrentProject(projectName)
+
     def runWizard(self, autoSelectProject=None):
         self.__wizard = ConfigWizard(self)
         self.__wizard.accepted.connect(self.refresh)
