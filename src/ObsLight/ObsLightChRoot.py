@@ -456,12 +456,6 @@ class ObsLightChRoot(object):
         pathToSaveSpec = specFile.replace(package.getChrootRpmBuildDirectory(),
                                           package.getChrootRpmBuildTmpDirectory())
 
-
-        print "pathToSaveSpec", pathToSaveSpec
-        f = open('/home/meego/test', 'w')
-        f.write(pathToSaveSpec + "\n")
-        f.close()
-
         package.saveTmpSpec(path=self.getDirectory() + pathToSaveSpec,
                             archive=tarFile)
         command = []
