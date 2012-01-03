@@ -23,15 +23,13 @@ Created on 27 oct. 2011
 from PySide.QtGui import QAction, QLabel
 
 from ServerListManager import ServerListManager
-from Wizard.ConfigWizard import ConfigWizard
+from ObsLightGuiObject import ObsLightGuiObject
 
-class MainWindowActionManager(object):
+class MainWindowActionManager(ObsLightGuiObject):
     '''
     Manage the action menu of the main window.
     Connects the actions signals to the appropriate slots.
     '''
-    __gui = None
-    __obsLightManager = None
     __serverListManager = None
     __aboutDialog = None
     __wizard = None
@@ -42,14 +40,13 @@ class MainWindowActionManager(object):
     actionWizard = None
 
     def __init__(self, gui):
-        self.__gui = gui
-        self.__obsLightManager = self.__gui.getObsLightManager()
-        mainWindow = self.__gui.getMainWindow()
+        ObsLightGuiObject.__init__(self, gui)
+        mainWindow = self.gui.getMainWindow()
         self.actionOBS_servers = mainWindow.findChild(QAction, u"actionOBS_servers")
         self.actionOBS_servers.triggered.connect(self.on_actionOBS_servers_triggered)
-        self.__aboutDialog = self.__gui.loadWindow(u"obsLightAbout.ui")
+        self.__aboutDialog = self.gui.loadWindow(u"obsLightAbout.ui")
         versionLabel = self.__aboutDialog.findChild(QLabel, "versionLabel")
-        versionLabel.setText(u"Version: %s" % self.__obsLightManager.getVersion())
+        versionLabel.setText(u"Version: %s" % self.manager.getVersion())
         self.actionAbout = mainWindow.findChild(QAction, u"actionAbout")
         self.actionAbout.triggered.connect(self.__aboutDialog.show)
         self.actionLog = mainWindow.findChild(QAction, u"actionShow_log")
@@ -58,13 +55,13 @@ class MainWindowActionManager(object):
         self.actionWizard.triggered.connect(self.on_actionWizard_triggered)
 
     def on_actionOBS_servers_triggered(self):
-        self.__serverListManager = ServerListManager(self.__gui)
+        self.__serverListManager = ServerListManager(self.gui)
 
     def on_actionAbout_triggered(self):
         self.__aboutDialog.show()
 
     def on_actionLog_triggered(self):
-        self.__gui.getLogManager().show()
+        self.gui.getLogManager().show()
 
     def on_actionWizard_triggered(self):
-        self.__gui.runWizard()
+        self.gui.runWizard()

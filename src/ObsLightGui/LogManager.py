@@ -27,8 +27,9 @@ from PySide.QtCore import QObject, Signal
 from PySide.QtGui import QPlainTextEdit
 
 from ObsLight import ObsLightConfig
+from ObsLightGuiObject import ObsLightGuiObject
 
-class LogManager(QObject):
+class LogManager(QObject, ObsLightGuiObject):
     '''
     
     '''
@@ -45,7 +46,6 @@ class LogManager(QObject):
             self.reEmit(record)
 
 
-    __gui = None
     __logDialog = None
     __logTextEdit = None
     __myHandler = None
@@ -57,8 +57,8 @@ class LogManager(QObject):
         
         '''
         QObject.__init__(self)
-        self.__gui = gui
-        self.__logDialog = self.__gui.loadWindow(u"obsLightLog.ui")
+        ObsLightGuiObject.__init__(self, gui)
+        self.__logDialog = self.gui.loadWindow(u"obsLightLog.ui")
         self.__logTextEdit = self.__logDialog.findChild(QPlainTextEdit, u"logTextEdit")
         self.connectLogger()
 
@@ -69,12 +69,12 @@ class LogManager(QObject):
         #formatter = Formatter(u"%(asctime)s <font color=\"#0000FF\">%(name)s</font>: %(message)s")
         formatter = Formatter(ObsLightConfig.getObsLightGuiFormatterString())
         self.__myHandler.setFormatter(formatter)
-        self.__gui.getObsLightManager().addLoggerHandler(self.__myHandler)
+        self.manager.addLoggerHandler(self.__myHandler)
 
     def disconnectLogger(self):
         #self.appendMessage.disconnect(self.__logTextEdit.appendPlainText)
         self.appendMessage.disconnect(self.__logTextEdit.appendHtml)
-        self.__gui.getObsLightManager().removeLoggerHandler(self.__myHandler)
+        self.manager.removeLoggerHandler(self.__myHandler)
 
     def emitRecord(self, record):
         formatted = self.__myHandler.format(record)
