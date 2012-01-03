@@ -25,11 +25,24 @@ from PySide.QtCore import Qt
 from PySide.QtGui import QAbstractItemView
 
 class FilterableWidget(object):
+    u"""
+    This class manages the filtering of a QListWidget.
+    When the user enters text in the provided QLineEdit, QListWidget
+    entries not matching this text are hidden (but keep their selection
+    state).
+    """
 
     filterLineEdit = None
     filterableListWidget = None
 
     def __init__(self, filterLineEdit, filterableListWidget, multiSelection=False):
+        u"""
+        Initialize the FilterableWidget with `filterLineEdit`
+        (`QtGui.QLineEdit`) as source for the filter, `filterableListWidget`
+        (`QtGui.QListWidget`) as the widget to filter items.
+        If `multiSelection` is True, set the selection mode of
+        `filterableListWidget` to `QAbstractItemView.MultiSelection`.
+        """
         self.filterLineEdit = filterLineEdit
         self.filterableListWidget = filterableListWidget
         if multiSelection:
@@ -37,6 +50,10 @@ class FilterableWidget(object):
         self.filterLineEdit.textEdited.connect(self.on_filterLineEdit_textEdited)
 
     def on_filterLineEdit_textEdited(self, newFilter):
+        u"""
+        Do filter the `QtGui.QListWidget` entries using `newFilter` as
+        filter and `Qt.MatchContains` as filtering mode.
+        """
         for i in range(self.filterableListWidget.count()):
             item = self.filterableListWidget.item(i)
             item.setHidden(True)
