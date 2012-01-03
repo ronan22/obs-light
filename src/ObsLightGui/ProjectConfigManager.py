@@ -27,15 +27,14 @@ from PySide.QtGui import QCompleter
 from ObsLight.ObsLightErr import OBSLightBaseError
 from ObsLight.ObsLightTools import isNonEmptyString
 from Utils import popupOnException, colorizeWidget, removeEffect, ProgressRunnable2
+from ObsLightGuiObject import ObsLightGuiObject
 
-class ProjectConfigManager(QObject):
+class ProjectConfigManager(QObject, ObsLightGuiObject):
     '''
     Manages the project configuration dialog.
     '''
 
-    __gui = None
     __projectAlias = None
-    __obsLightManager = None
     __obsNameCompleter = None
 
     __configDialog = None
@@ -54,10 +53,9 @@ class ProjectConfigManager(QObject):
 
     def __init__(self, gui, projectAlias=None):
         QObject.__init__(self)
-        self.__gui = gui
+        ObsLightGuiObject.__init__(self, gui)
         self.__projectAlias = projectAlias
-        self.__obsLightManager = self.__gui.getObsLightManager()
-        self.__configDialog = self.__gui.loadWindow(u"obsProjectConfig.ui")
+        self.__configDialog = self.gui.loadWindow(u"obsProjectConfig.ui")
         self.__loadFieldObjects()
         self.__loadInitialFieldValues()
         self.__makeConnections()
@@ -80,7 +78,7 @@ class ProjectConfigManager(QObject):
 
     def __loadFieldObjects(self):
         self.__configButtonBox = self.__configDialog.findChild(QDialogButtonBox,
-                                                               "obsProjectConfigButtonBox")
+                                                               u"obsProjectConfigButtonBox")
         self.__localNameField = self.__configDialog.findChild(QLineEdit,
                                                               u"projectLocalNameLineEdit")
         # obslight do not like whitespace characters
@@ -105,7 +103,7 @@ class ProjectConfigManager(QObject):
         self.__localNameField.setReadOnly(True)
 
     def __preselectActualServer(self):
-        obsServerAlias = self.__obsLightManager.getProjectParameter(self.__projectAlias,
+        obsServerAlias = self.manager.getProjectParameter(self.__projectAlias,
                                                                     u"obsServer")
         lineIndex = self.__serverCBox.findText(obsServerAlias)
         if lineIndex >= 0:
@@ -113,29 +111,29 @@ class ProjectConfigManager(QObject):
         self.__serverCBox.setEnabled(False)
 
     def __loadObsNameField(self):
-        projectObsName = self.__obsLightManager.getProjectParameter(self.__projectAlias, u"projectObsName")
+        projectObsName = self.manager.getProjectParameter(self.__projectAlias, u"projectObsName")
         self.__obsNameField.setText(projectObsName)
         self.__obsNameField.setReadOnly(True)
 
     def __preselectActualTarget(self):
-        target = self.__obsLightManager.getProjectParameter(self.__projectAlias, u"projectTarget")
+        target = self.manager.getProjectParameter(self.__projectAlias, u"projectTarget")
         lineIndex = self.__targetCBox.findText(target)
         if lineIndex >= 0:
             self.__targetCBox.setCurrentIndex(lineIndex)
 
     def __preselectActualArch(self):
-        arch = self.__obsLightManager.getProjectParameter(self.__projectAlias, u"projectArchitecture")
+        arch = self.manager.getProjectParameter(self.__projectAlias, u"projectArchitecture")
         lineIndex = self.__archCBox.findText(arch)
         if lineIndex >= 0:
             self.__archCBox.setCurrentIndex(lineIndex)
 
     def __loadProjectTitle(self):
-        title = self.__obsLightManager.getProjectParameter(self.__projectAlias, u"projectTitle")
+        title = self.manager.getProjectParameter(self.__projectAlias, u"projectTitle")
         self.__titleLineEdit.setText(title)
         self.__titleLineEdit.setEnabled(True)
 
     def __loadProjectDescription(self):
-        description = self.__obsLightManager.getProjectParameter(self.__projectAlias, u"description")
+        description = self.manager.getProjectParameter(self.__projectAlias, u"description")
         self.__descriptionTextEdit.setText(description)
         self.__descriptionTextEdit.setEnabled(True)
 
@@ -162,9 +160,9 @@ class ProjectConfigManager(QObject):
         self.__loadProjectDescription()
 
     def __loadInitialFieldValues(self):
-        runnable = ProgressRunnable2(self.__gui.getInfiniteProgressDialog())
+        runnable = ProgressRunnable2(self.gui.getInfiniteProgressDialog())
         runnable.setDialogMessage("Loading...")
-        runnable.setRunMethod(self.__obsLightManager.getObsServerList, reachable=True)
+        runnable.setRunMethod(self.manager.getObsServerList, reachable=True)
         runnable.finished[object].connect(self.__loadServerList)
         if not self.__isNewProject():
             runnable.finished.connect(self.__loadKnownProjectValues)
@@ -188,7 +186,7 @@ class ProjectConfigManager(QObject):
         self.__targetCBox.clear()
         if len(self.getCurrentServerAlias()) > 0 and len(self.getCurrentProjectObsName()) > 0:
             try:
-                targets = self.__obsLightManager.getTargetList(self.getCurrentServerAlias(),
+                targets = self.manager.getTargetList(self.getCurrentServerAlias(),
                                                                self.getCurrentProjectObsName())
                 self.__targetCBox.addItems(targets)
                 removeEffect(self.__obsNameField)
@@ -203,7 +201,7 @@ class ProjectConfigManager(QObject):
         '''
         self.__archCBox.clear()
         if len(self.getCurrentTarget()) > 0:
-            archs = self.__obsLightManager.getArchitectureList(self.getCurrentServerAlias(),
+            archs = self.manager.getArchitectureList(self.getCurrentServerAlias(),
                                                                self.getCurrentProjectObsName(),
                                                                self.getCurrentTarget())
             self.__archCBox.addItems(archs)
@@ -213,7 +211,7 @@ class ProjectConfigManager(QObject):
 
     def handleServerChanged(self):
         try:
-            projectList = self.__obsLightManager.getObsServerProjectList(self.getCurrentServerAlias())
+            projectList = self.manager.getObsServerProjectList(self.getCurrentServerAlias())
             self.__obsNameCompleter = QCompleter(projectList, self.__configDialog)
             self.__obsNameField.setCompleter(self.__obsNameCompleter)
         except OBSLightBaseError:
@@ -261,7 +259,7 @@ class ProjectConfigManager(QObject):
         localName = self.getCurrentProjectLocalName()
         validated = True
         if (not isNonEmptyString(localName) or
-                self.__isNewProject() and self.__obsLightManager.isALocalProject(localName)):
+                self.__isNewProject() and self.manager.isALocalProject(localName)):
             colorizeWidget(self.__localNameField, "red")
             validated = False
         else:
@@ -292,10 +290,10 @@ class ProjectConfigManager(QObject):
     def on_configDialog_accepted(self):
         if self.__isNewProject():
 
-            runnable = ProgressRunnable2(self.__gui.getInfiniteProgressDialog())
+            runnable = ProgressRunnable2(self.gui.getInfiniteProgressDialog())
             runnable.setDialogMessage("Importing project...")
-            runnable.caughtException.connect(self.__gui.popupErrorCallback)
-            runnable.setRunMethod(self.__obsLightManager.addProject,
+            runnable.caughtException.connect(self.gui.popupErrorCallback)
+            runnable.setRunMethod(self.manager.addProject,
                                   self.getCurrentServerAlias(),
                                   self.getCurrentProjectObsName(),
                                   self.getCurrentTarget(),
@@ -307,22 +305,22 @@ class ProjectConfigManager(QObject):
             QThreadPool.globalInstance().start(runnable)
         else:
             # Currently we can't relocate a project.
-#            self.__obsLightManager.setProjectParameter(self.getCurrentProjectLocalName(),
+#            self.manager.setProjectParameter(self.getCurrentProjectLocalName(),
 #                                                  "projectObsName",
 #                                                  self.getCurrentProjectObsName())
-#            self.__obsLightManager.setProjectParameter(self.getCurrentProjectLocalName(),
+#            self.manager.setProjectParameter(self.getCurrentProjectLocalName(),
 #                                                  "obsServer",
 #                                                  self.getCurrentServerAlias())
-            self.__obsLightManager.setProjectParameter(self.getCurrentProjectLocalName(),
+            self.manager.setProjectParameter(self.getCurrentProjectLocalName(),
                                                        u"projectTarget",
                                                        self.getCurrentTarget())
-            self.__obsLightManager.setProjectParameter(self.getCurrentProjectLocalName(),
+            self.manager.setProjectParameter(self.getCurrentProjectLocalName(),
                                                        u"projectArchitecture",
                                                        self.getCurrentArch())
-            self.__obsLightManager.setProjectParameter(self.getCurrentProjectLocalName(),
+            self.manager.setProjectParameter(self.getCurrentProjectLocalName(),
                                                        u"projectTitle",
                                                        self.getCurrentTitle())
-            self.__obsLightManager.setProjectParameter(self.getCurrentProjectLocalName(),
+            self.manager.setProjectParameter(self.getCurrentProjectLocalName(),
                                                        u"description",
                                                        self.getCurrentDescription())
             self.finished.emit(True)
