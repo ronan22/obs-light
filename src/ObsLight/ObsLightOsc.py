@@ -64,8 +64,13 @@ class ObsLightOsc(object):
         self.__aLock = threading.Lock()
 
         if os.path.isfile(self.__confFile):
-            self.__aLock.acquire()
+            self.get_config()
+
+    def get_config(self):
+        self.__aLock.acquire()
+        try:
             conf.get_config()
+        finally:
             self.__aLock.release()
 
     def initConf(self,
@@ -125,9 +130,7 @@ class ObsLightOsc(object):
         '''
         
         '''
-        self.__aLock.acquire()
-        conf.get_config()
-        self.__aLock.release()
+        self.get_config()
         aOscConfigParser = conf.get_configParser(self.__confFile, force_read=True)
 
         aOscConfigParser.set(api, 'user', user)
@@ -139,9 +142,7 @@ class ObsLightOsc(object):
         '''
         
         '''
-        self.__aLock.acquire()
-        conf.get_config()
-        self.__aLock.release()
+        self.get_config()
         aOscConfigParser = conf.get_configParser(self.__confFile, force_read=True)
         aOscConfigParser.set(api, 'pass', passw)
 
@@ -155,9 +156,7 @@ class ObsLightOsc(object):
         result = {}
         if not os.path.isfile(self.__confFile):
             return result
-        self.__aLock.acquire()
-        conf.get_config()
-        self.__aLock.release()
+        self.get_config()
         aOscConfigParser = conf.get_configParser(self.__confFile, force_read=True)
 
         for api in aOscConfigParser.sections():
@@ -194,9 +193,7 @@ class ObsLightOsc(object):
         
         '''
         ObsLightPrintManager.getLogger().debug("api" + api)
-        self.__aLock.acquire()
-        conf.get_config()
-        self.__aLock.release()
+        self.get_config()
         aOscConfigParser = conf.get_configParser(self.__confFile, force_read=True)
 
         if aOscConfigParser.has_option(api, "trusted_prj"):
@@ -226,9 +223,7 @@ class ObsLightOsc(object):
         '''
         
         '''
-        self.__aLock.acquire()
-        conf.get_config()
-        self.__aLock.release()
+        self.get_config()
         url = str(apiurl + "/source/" + projet + "/_meta")
         res = self.getHttp_request(url)
         if res == None:
@@ -447,9 +442,7 @@ class ObsLightOsc(object):
         '''
         return a list of the project of a OBS Server.
         '''
-        self.__aLock.acquire()
-        conf.get_config()
-        self.__aLock.release()
+        self.get_config()
         res = []
         try:
             res = core.meta_get_project_list(str(obsServer))
@@ -579,9 +572,7 @@ class ObsLightOsc(object):
         title
         description
         '''
-        self.__aLock.acquire()
-        conf.get_config()
-        self.__aLock.release()
+        self.get_config()
         url = str(apiurl + "/source/" + projectObsName + "/_meta")
         res = self.getHttp_request(url)
         if res == None:
@@ -599,7 +590,7 @@ class ObsLightOsc(object):
         title
         description
         '''
-        conf.get_config()
+        self.get_config()
         url = str(apiurl + "/source/" + projectObsName + "/_meta")
         res = self.getHttp_request(url)
         if res == None:
@@ -619,9 +610,7 @@ class ObsLightOsc(object):
         title
         description
         '''
-        self.__aLock.acquire()
-        conf.get_config()
-        self.__aLock.release()
+        self.get_config()
 
         url = str(apiurl + "/source/" + projectObsName + "/" + package + "/_meta")
         res = self.getHttp_request(url)
@@ -645,9 +634,7 @@ class ObsLightOsc(object):
         title
         description
         '''
-        self.__aLock.acquire()
-        conf.get_config()
-        self.__aLock.release()
+        self.get_config()
         url = str(apiurl + "/source/" + projectObsName + "/" + package + "/_meta")
         res = self.getHttp_request(url)
         if res == None:
@@ -769,67 +756,58 @@ class ObsLightOsc(object):
         req = urllib2.Request(url)
         api_host_options = {}
 
-        self.__aLock.acquire()
-        if conf.is_known_apiurl(url):
-            # ok no external request
-#            print "conf._build_opener(url)", self._build_opener(url)
-            urllib2.install_opener(self._build_opener(url))
-            api_host_options = conf.get_apiurl_api_host_options(url)
-#            print "api_host_options['http_headers']", api_host_options['http_headers']
-            for header, value in api_host_options['http_headers']:
-#                print "*******************************************header", header, "value", value
-                req.add_header(header, value)
-#        self.__aLock.release()
+        try:
+            self.__aLock.acquire()
+            if conf.is_known_apiurl(url):
+                # ok no external request
+                urllib2.install_opener(self._build_opener(url))
+                api_host_options = conf.get_apiurl_api_host_options(url)
+                for header, value in api_host_options['http_headers']:
+                    req.add_header(header, value)
 
-        req.get_method = lambda: method
 
-        # POST requests are application/x-www-form-urlencoded per default
-        # since we change the request into PUT, we also need to adjust the content type header
-        if method == 'PUT' or (method == 'POST' and data):
-            req.add_header('Content-Type', 'application/octet-stream')
+            req.get_method = lambda: method
 
-        if type(headers) == type({}):
-            for i in headers.keys():
-#                print headers[i]
-                req.add_header(i, headers[i])
+            # POST requests are application/x-www-form-urlencoded per default
+            # since we change the request into PUT, we also need to adjust the content type header
+            if method == 'PUT' or (method == 'POST' and data):
+                req.add_header('Content-Type', 'application/octet-stream')
 
-        if file and not data:
-            size = os.path.getsize(file)
-            if size < 1024 * 512:
-                data = open(file, 'rb').read()
-            else:
-                import mmap
-                filefd = open(file, 'rb')
-                try:
-                    if sys.platform[:3] != 'win':
-                        data = mmap.mmap(filefd.fileno(), os.path.getsize(file), mmap.MAP_SHARED, mmap.PROT_READ)
-                    else:
-                        data = mmap.mmap(filefd.fileno(), os.path.getsize(file))
-                    data = buffer(data)
-                except EnvironmentError, e:
-                    if e.errno == 19:
-                        sys.exit('\n\n%s\nThe file \'%s\' could not be memory mapped. It is ' \
-                                 '\non a filesystem which does not support this.' % (e, file))
-                    elif hasattr(e, 'winerror') and e.winerror == 5:
-                        # falling back to the default io
-                        data = open(file, 'rb').read()
-                    else:
-                        raise
+            if type(headers) == type({}):
+                for i in headers.keys():
+                    req.add_header(i, headers[i])
 
-#        if conf.config['debug']: print >> sys.stderr, method, url
+            if file and not data:
+                size = os.path.getsize(file)
+                if size < 1024 * 512:
+                    data = open(file, 'rb').read()
+                else:
+                    import mmap
+                    filefd = open(file, 'rb')
+                    try:
+                        if sys.platform[:3] != 'win':
+                            data = mmap.mmap(filefd.fileno(), os.path.getsize(file), mmap.MAP_SHARED, mmap.PROT_READ)
+                        else:
+                            data = mmap.mmap(filefd.fileno(), os.path.getsize(file))
+                        data = buffer(data)
+                    except EnvironmentError, e:
+                        if e.errno == 19:
+                            sys.exit('\n\n%s\nThe file \'%s\' could not be memory mapped. It is ' \
+                                     '\non a filesystem which does not support this.' % (e, file))
+                        elif hasattr(e, 'winerror') and e.winerror == 5:
+                            # falling back to the default io
+                            data = open(file, 'rb').read()
+                        else:
+                            raise
 
-        old_timeout = socket.getdefaulttimeout()
-        # XXX: dirty hack as timeout doesn't work with python-m2crypto
-        if old_timeout != timeout and not api_host_options.get('sslcertck'):
-            socket.setdefaulttimeout(timeout)
+    #        if conf.config['debug']: print >> sys.stderr, method, url
 
-#        self.__aLock.acquire()
-#        print "----------------------------------------------------"
-#        print "url", url
-#        print "req.get_full_url()", req.get_full_url()
-#        print "data", data
-#        print "method", method
-        self.__aLock.release()
+            old_timeout = socket.getdefaulttimeout()
+            # XXX: dirty hack as timeout doesn't work with python-m2crypto
+            if old_timeout != timeout and not api_host_options.get('sslcertck'):
+                socket.setdefaulttimeout(timeout)
+        finally:
+            self.__aLock.release()
 
         try:
             fd = urllib2.urlopen(req, data=data)
@@ -849,8 +827,6 @@ class ObsLightOsc(object):
 #        import sys
 
         apiurl = self.urljoin(*conf.parse_apisrv_url(None, url))
-#        print "apiurl", apiurl
-#        print "threading.currentThread().getName()", threading.currentThread().getName()
         if not self.__dict__.has_key('last_opener'):
             self.last_opener = (None, None, None)
         if (apiurl == self.last_opener[0]) and (threading.currentThread().getName() == self.last_opener[2]):
