@@ -1,5 +1,9 @@
-obslight (0.4.9-1) stable; urgency=low
-%changelog
+obslight (0.4.10-1) stable; urgency=low
+
+  * Version 0.4.10
+    Many internal improvements and bug fixes
+    New wizard to add server, project and packages
+
   * Version 0.4.4 
     Add Prep/build/install/build rpm.
 
@@ -31,4 +35,5 @@ obslight (0.4.9-1) stable; urgency=low
     Added some tests
 
   * Initial Release
- -- Ronan Le Martret (Intel OTC) <Ronan@fridu.net> Fri, 02 Dec 2011 17:11:18 +0100
+
+ -- Florent Venneiter (Intel OTC) <florent@fridu.net> Tue, 03 Jan 2012 18:35:47 +0100

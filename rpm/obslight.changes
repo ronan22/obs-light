@@ -1,3 +1,7 @@
+* Tue Jan 03 2011 Florent Vennetier (Intel OTC) <florent@fridu.net> 0.4.10
+- many internal improvements and bug fixes
+- new wizard to add server, project and packages
+
 * Fri Dec 02 2011 Ronan Le Martret (Intel OTC) <Ronan@fridu.net> 0.4.4
 -Add Prep/build/install/build rpm.
 
