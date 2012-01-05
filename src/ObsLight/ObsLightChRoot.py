@@ -138,12 +138,11 @@ class ObsLightChRoot(object):
         self.__subprocess(command="sudo chown root:users " + self.getDirectory())
         self.__subprocess(command="sudo chown root:users " + self.getDirectory() + "/root")
         self.__subprocess(command="sudo chown root:users " + self.getDirectory() + "/etc")
-        self.__subprocess(command="sudo chmod g+rw " + self.getDirectory())
-        self.__subprocess(command="sudo chmod g+r " + self.getDirectory() + "/root")
-        self.__subprocess(command="sudo chmod g+rw " + self.getDirectory() + "/etc")
+        self.__subprocess(command="sudo chmod g+rwX " + self.getDirectory())
+        self.__subprocess(command="sudo chmod g+rX " + self.getDirectory() + "/root")
+        self.__subprocess(command="sudo chmod g+rwX " + self.getDirectory() + "/etc")
         self.__subprocess(command="sudo chown -R root:users " + self.getDirectory() + "/usr/lib/rpm")
-        self.__subprocess(command="sudo chmod -R g+rw " + self.getDirectory() + "/usr/lib/rpm")
-
+        self.__subprocess(command="sudo chmod -R g+rwX " + self.getDirectory() + "/usr/lib/rpm")
 
         self.initRepos()
 

@@ -3,14 +3,14 @@
 # ronan@fridu.net
 # Date 03 january 2012
 # License GLPv2
-urls_fname='/usr/lib/python2.7/site-packages/img_web/urls.py'
+urls_fname='/usr/lib/python2.7/site-packages/img_web/urls.py' 
 vline_1="url(r'^site_media/(?P<path>.*)$', 'django.views.static.serve',{'document_root': settings.STATIC_ROOT}),"
 vline_2="url(r'^images/web/(?P<path>.*)$', 'img_web.app.views.retrieve_file',{'document_root': '/var/www/img/images/web'}),"
 
-grep -q -i "$vline_1" $urls_fname || sed -i "/name='logout'),/ a\    $vline_1\n" $urls_fname
+grep -q -i "$vline_1" $urls_fname || sed -i "/name='logout'),/ a\    $vline_1\n" $urls_fname 
 grep -q -i "$vline_2" $urls_fname || sed -i "/name='logout'),/ a\    $vline_2\n" $urls_fname
 
-if [ ! -f /etc/sysconfig/boss-skynet ]; then
+if [ ! -f /etc/sysconfig/boss-skynet ]; then  
 cat >> /etc/sysconfig/boss-skynet <<EOF
 # Sourced by skynet scripts
 
@@ -21,7 +21,7 @@ fi
 
 patch /usr/lib/python2.7/site-packages/img/worker.py << EOF
 221c221
-<         self.files_url = "%s/%s/%s" % (config.base_url, job_args.prefix,
+<         self.files_url = "%s/%s/%s" % (config.base_url, job_args.prefix, 
 ---
 >         self.files_url = "%s/%s/%s/" % (config.base_url, job_args.prefix,
 EOF
@@ -38,7 +38,7 @@ def retrieve_file(request, path="",document_root=""):
     if os.path.isfile(abs_filename):
 
         response = django.http.HttpResponse()
-        del response['content-type']
+        del response['content-type'] 
         response['X-Sendfile'] = abs_filename
         return response
 
@@ -66,7 +66,7 @@ EOF
 chmod 0440 /etc/sudoers
 
 install -d -m 0777 /var/www/img/images
-install -d -m 0777 /var/www/img/templates
+install -d -m 0777 /var/www/img/templates 
 
 patch /usr/lib/python/site-packages/img_web/templates/registration/login.html << EOF
 8a9
@@ -75,7 +75,7 @@ EOF
 
 cat > /etc/lighttpd/vhosts.d/img.conf << EOF
 var.namebasedir = "/img"
-
+  
 \$HTTP["url"] =~ "^" + namebasedir {
        dir-listing.activate = "enable"
 }
@@ -102,7 +102,7 @@ echo 'include "/etc/lighttpd/vhosts.d/img.conf"' >> /etc/lighttpd/lighttpd.conf
 
 patch /etc/lighttpd/modules.conf << EOF
 41c41
-<
+< 
 ---
 > global{
 44,50c44,48
@@ -148,7 +148,7 @@ patch /usr/lib/python2.7/site-packages/img_web/app/views.py << EOF
 >                                       {'form': form, 'formset' : formset, 'formPackagesGroupsset' : formPackagesGroupsset},
 55a58,59
 >         data3 = formPackagesGroupsset.cleaned_data
->
+>         
 92a97,106
 >             for prj in data3:
 >                 if 'GPFile' in prj:
@@ -159,7 +159,7 @@ patch /usr/lib/python2.7/site-packages/img_web/app/views.py << EOF
 >                         else:
 >                             grpFile=prj['GPFile'].read()
 >                             imgjob.kickstart=imgjob.kickstart.replace("%include "+fileName,grpFile)
->
+> 
 EOF
 
 patch /usr/lib/python2.7/site-packages/img_web/app/forms.py << EOF
@@ -173,7 +173,7 @@ patch /usr/lib/python2.7/site-packages/img_web/app/forms.py << EOF
 >             raise forms.ValidationError("You chose an extra OBS without adding a corresponding repository.")
 >         return cleaned_data
 > extraPackagesGroupsFormset = formset_factory(extraPackagesGroupsForm)
->
+> 
 EOF
 
 
@@ -184,7 +184,7 @@ patch /usr/lib/python2.7/site-packages/img_web/templates/app/upload.html << EOF
 >             formCssClass: 'dynamic-formset',
 >             extraClasses: ['row1', 'row2', 'row3'],
 >             prefix: "{{ formset.prefix }}"
->
+> 
 >         });
 >         \$('#id_extra_packages_groups tbody tr').formset({
 >             formCssClass: 'dynamic-formPackagesGroupsset',
@@ -206,18 +206,28 @@ patch /usr/lib/python2.7/site-packages/img_web/templates/app/upload.html << EOF
 >          <tbody>
 >              {% for f in formPackagesGroupsset.forms %}
 >              <tr id="{{ f.prefix }}-row" class="form-container">
->
+> 
 >                  <td>{{ f.GPFile }}</td>
->
+> 
 >              </tr>
 >              {% endfor %}
 >          </tbody>
 >      </table>
 >     {{ formPackagesGroupsset.management_form }}
->
+> 
 > </fieldset>
->
+> 
 EOF
 
 rm -r /var/lib/rabbitmq/mnesia/*
+
+
+
+
+
+
+
+
+
+
 

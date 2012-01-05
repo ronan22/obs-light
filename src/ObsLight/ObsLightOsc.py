@@ -918,22 +918,40 @@ def getObsLightOsc():
     #    __myObsLightOsc = ObsLightOsc()
     return __myObsLightOsc
 
+
+
 if __name__ == '__main__':
-    import ObsLightTools
-    path = "/home/meego/OBSLight/meego1.2/MeeGo:1.2:oss"
+    #val=ElementTree.tostring(aElement)
+#    val = '''<project name="testNewProjet">
+#                <title>Remote OBS instance</title>
+#                <description>This project is representing a remote build service instance.</description>
+#                <person role="maintainer" userid="obsuser"/>
+#                <person role="bugowner" userid="obsuser"/>
+#            </project>'''
+#
+#
+#    url = "http://128.224.218.244:81/source/testNewProjet/_meta"
+#    res = getObsLightOsc().http_request('PUT', url, data=val)
 
-    def httpReq(url):
-        res = getObsLightOsc().http_request("GET", url).read()
-#        print res
-
-    theBadOne = ["http://128.224.218.251:81/source/MeeGo:1.2.0:oss/ImageMagick"] * 4000
-
-    ObsLightTools.mapProcedureWithThreads(parameterList=theBadOne,
-                                                          procedure=httpReq)
-
-
-
-
-
-
+#    url = "http://128.224.218.244:81/source/testNewProjet/zlib/_link"
+#
+#    val = '''<link project="MeeGo:1.2.0:oss" package="zlib"  >
+#<patches>
+#  <!-- <apply name="patch" /> apply a patch on the source directory  -->
+#  <!-- <topadd>%define build_with_feature_x 1</topadd> add a line on the top (spec file only) -->
+#  <!-- <add>file.patch</add> add a patch to be applied after %setup (spec file only) -->
+#  <!-- <delete>filename</delete> delete a file -->
+#</patches>
+#</link>'''
+#
+#    res = getObsLightOsc().http_request('PUT', url, data=val)
+#    print "------------------------------------------------------"
+#    print res.read()
+    try:
+        url = "http://128.224.218.244:81/source/testNewProjet/zlib/_meta"
+        res = getObsLightOsc().http_request('GET', url)
+    finally:
+        print "toto"
+    print "------------------------------------------------------"
+    print res.read()
 
