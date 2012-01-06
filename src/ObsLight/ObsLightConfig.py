@@ -162,10 +162,12 @@ def configureConsole():
     #else keep default ("xterm -e")
 
 def configureOpenFile():
-    if os.path.exists(u"/usr/bin/xdg-open"):
-        setOpenFileCommand(u"/usr/bin/xdg-open")
-    elif os.path.exists(u"/usr/bin/kde-open"):
+    # "xdg-open" should be tried first, because it is more generic,
+    # but there is this bug: https://bugzilla.novell.com/show_bug.cgi?id=703396
+    if os.path.exists(u"/usr/bin/kde-open"):
         setOpenFileCommand(u"/usr/bin/kde-open")
+    elif os.path.exists(u"/usr/bin/xdg-open"):
+        setOpenFileCommand(u"/usr/bin/xdg-open")
     elif os.path.exists(u"/usr/bin/gnome-open"):
         setOpenFileCommand(u"/usr/bin/gnome-open")
     elif os.path.exists(u"/usr/bin/exo-open"):

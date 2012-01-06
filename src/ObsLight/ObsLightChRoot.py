@@ -246,9 +246,9 @@ class ObsLightChRoot(object):
                 else:
                     return resultPath
             else:
-                raise ObsLightErr.ObsLightChRootError("in the chroot path: " + prepDirname + " only one file, not a directory")
+                raise ObsLightErr.ObsLightChRootError("in the chroot path: " + pathBuild + " only one file, not a directory")
         else :
-            raise ObsLightErr.ObsLightChRootError("in the chroot path: " + prepDirname + " two Many directory")
+            raise ObsLightErr.ObsLightChRootError("in the chroot path: " + pathBuild + " two Many directory")
 
     def getChRootRepositories(self):
         '''
