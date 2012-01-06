@@ -149,9 +149,12 @@ class ObsLightChRoot(object):
                                                         project=obsProject,
                                                         )
         if isAclReady(self.getDirectory()):
-            self.__subprocess(command="sudo setfacl -Rdm o::rwX aChroot " + self.getDirectory())
+            self.__subprocess(command="sudo chmod -R o+rwX " + self.getDirectory())
+            self.__subprocess(command="sudo setfacl -Rdm o::rwX " + self.getDirectory())
         else:
-            raise ObsLightErr.ObsLightChRootError("'mount -o remount,acl " + getmount(self.getDirectory()) + "'")
+            mountPoint = getmount(self.getDirectory())
+            raise ObsLightErr.ObsLightChRootError("acl not enable on mount point '" + mountPoint + "'\n" + \
+                                                  "use command 'mount -o remount,acl " + mountPoint + "'")
 
         if res != 0:
             raise ObsLightErr.ObsLightChRootError("Can't create the chroot")

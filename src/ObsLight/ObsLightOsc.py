@@ -425,8 +425,6 @@ class ObsLightOsc(object):
                      ):
         '''
         create a chroot
-        TODO: create chroot without build a package
-        TODO: Build without a subprocess
         '''
         os.chdir(EMPTYPROJECTPATH)
 

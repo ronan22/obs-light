@@ -287,8 +287,7 @@ class ObsLightMic(object):
 
             for i in range(len(fileOutput)):
                 if fileOutput[i].find("ARM") > 0:
-                    #TODEL qemu_emulator = self.setup_qemu_emulator(rootdir=self.__chrootDirectory, arch="arm")
-                    qemu_emulator = misc.setup_qemu_emulator(rootdir=self.__chrootDirectory)
+                    qemu_emulator = misc.setup_qemu_emulator(rootdir=self.__chrootDirectory, arch="arm")
                     architecture_found = True
                     break
                 if fileOutput[i].find("Intel") > 0:
