@@ -8,7 +8,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 Name:       obslight
 Summary:    OBS Light
-Version:    0.4.11
+Version:    0.4.12
 Release:    1
 Group:      Development/Tools/Building
 License:    GPLv2
@@ -50,6 +50,7 @@ Requires:   qemu
 Requires:   osc
 Requires:   build
 Requires:   spectacle
+Requires:   acl
 Provides:   obslight
 
 %description base

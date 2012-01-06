@@ -123,7 +123,24 @@ class ObsLightChRoot(object):
         '''
         
         '''
+        def getmount(path):
+            path = os.path.abspath(path)
+            while path != os.path.sep:
+                if os.path.ismount(path):
+                    return path
+            path = os.path.abspath(os.path.join(path, os.pardir))
+            return path
 
+        def isAclReady(path):
+            montOn = getmount(path)
+            with open("/etc/mtab", 'r') as f:
+                for line in f:
+                    listLine = line.split()
+                    if montOn in listLine:
+                        listOption = listLine[3].split(",")
+                        if "acl" in listOption:
+                            return True
+            return False
 
         res = ObsLightOsc.getObsLightOsc().createChRoot(chrootDir=self.getDirectory(),
                                                         repos=repos,
@@ -131,6 +148,10 @@ class ObsLightChRoot(object):
                                                         apiurl=apiurl,
                                                         project=obsProject,
                                                         )
+        if isAclReady(self.getDirectory()):
+            self.__subprocess(command="sudo setfacl -Rdm o::rwX aChroot " + self.getDirectory())
+        else:
+            raise ObsLightErr.ObsLightChRootError("'mount -o remount,acl " + getmount(self.getDirectory()) + "'")
 
         if res != 0:
             raise ObsLightErr.ObsLightChRootError("Can't create the chroot")

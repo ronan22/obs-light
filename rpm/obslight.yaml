@@ -1,6 +1,6 @@
 Name: obslight
 Summary: OBS Light
-Version: 0.4.11
+Version: 0.4.12
 Release: 1
 Group: Development/Tools/Building
 License: GPLv2
@@ -48,6 +48,7 @@ SubPackages:
           - osc
           - build
           - spectacle
+          - acl
       Provides:
           - obslight
 

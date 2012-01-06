@@ -27,7 +27,6 @@ from subprocess import call
 import ObsLightConfig
 import ObsLightErr
 import ObsLightPrintManager
-
 from M2Crypto import SSL
 from os.path import expanduser
 
@@ -257,7 +256,6 @@ def mapProcedureWithThreads(parameterList, procedure, progress=None):
     for th in res:
         th.join()
     return  errList
-
 
 if __name__ == '__main__':
 

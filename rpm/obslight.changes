@@ -1,3 +1,6 @@
+* Fri janv 06 2012 Ronan Le Martret (Intel OTC) <ronan@fridu.net> 0.4.12
+- Add acl.
+
 * Fri janv 06 2012 Ronan Le Martret (Intel OTC) <ronan@fridu.net> 0.4.11
 - Change mic2 to mic.
 - Change Requires python 2.5.0 to python 2.6.0.
