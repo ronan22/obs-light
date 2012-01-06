@@ -332,11 +332,14 @@ class ObsLightChRoot(object):
                 ObsLightPrintManager.getLogger().debug("for the package " + packageName + " the packageDirectory is used : " + str(packageDirectory))
                 package.setDirectoryBuild(packageDirectory)
                 if packageDirectory != None:
+                    self.__subprocess(command="sudo chmod -R o+rwX %s"
+                                      % (self.getDirectory() + "/" + packageDirectory))
                     self.initGitWatch(path=packageDirectory)
                     self.__buildRpm(specFile=aspecFile, package=package)
                     self.ignoreGitWatch(path=packageDirectory)
                     package.setFirstCommit(tag=self.getCommitTag(path=packageDirectory))
                     package.setChRootStatus("Installed")
+                # TODO: write an "else" or check if the "if" is necessary
             else:
                 raise ObsLightErr.ObsLightChRootError(packageName + " source is not installed in " + self.getDirectory())
 
