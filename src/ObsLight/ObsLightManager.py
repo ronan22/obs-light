@@ -36,7 +36,7 @@ from ObsLightErr import ObsLightObsServers
 from ObsLightErr import ObsLightProjectsError
 from ObsLightErr import ArgError
 
-VERSION = "0.4.10-1"
+VERSION = "0.4.11-1"
 
 if os.getegid() == 0:
     print "Sorry, Can't run OBS Light as root."

@@ -1,6 +1,6 @@
 Name: obslight
 Summary: OBS Light
-Version: 0.4.10
+Version: 0.4.11
 Release: 1
 Group: Development/Tools/Building
 License: GPLv2
@@ -10,8 +10,8 @@ Sources:
 Description: Utilities to work with OBS Light, a lighter version of OBS.
 
 PkgBR:
-    - python >= 2.5.0
-    - python-devel >= 2.5.0
+    - python >= 2.6.0
+    - python-devel >= 2.6.0
     - fdupes
 Configure: none
 Builder: python
@@ -28,9 +28,10 @@ SubPackages:
           Utilities to work with OBS Light, a lighter version of OBS.
           This package contains the graphical interface.
       Requires:
-          - python >= 2.5.0
           - obslight-base = %{version}
           - python-pyside
+      Provides:
+          - obslightgui
 
     - Name: base
       Summary: Utilities to work with OBS Light - command-line client
@@ -39,11 +40,13 @@ SubPackages:
           Utilities to work with OBS Light, a lighter version of OBS.
           This package contains the command-line client.
       Requires:
-          - python >= 2.5.0
+          - python >= 2.6.0
           - python-xml
-          - meego-packaging-tools
+          - mic >= 0.3
           - sudo
           - qemu
+          - osc
+          - build
           - spectacle
       Provides:
           - obslight
@@ -58,7 +61,7 @@ SubPackages:
            - obs2obscopy:      Copy a project from an OBS to an OBS
            - obsextractgroups: Extracts the packages groups of an OBS repository
       Requires:
-          - python >= 2.5.0
+          - python >= 2.6.0
           - python-xml
           - osc
 

@@ -8,7 +8,6 @@ import signal
 
 
 from ObsLight import ObsLightErr
-from mic import imgcreate
 from osc.oscerr import ConfigError
 
 import urllib2
@@ -68,13 +67,6 @@ def run(prg=None):
         print >> sys.stderr, 'Spec Error', err.msg
         return 1
 
-    except imgcreate.MountError, err:
-        print >> sys.stderr, 'Mic Error', err
-        return 1
-
-    except imgcreate.CreatorError, err:
-        print >> sys.stderr, 'Mic Error', err
-        return 1
 
     except ConfigError, err:
         print >> sys.stderr, 'Osc Error', err

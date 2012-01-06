@@ -1,4 +1,8 @@
-obslight (0.4.10-1) stable; urgency=low
+obslight (0.4.11-1) stable; urgency=low
+
+  * Version 0.4.11
+    Change mic2 to mic.
+    Change Requires python 2.5.0 to python 2.6.0.
 
   * Version 0.4.10
     Many internal improvements and bug fixes
@@ -36,4 +40,4 @@ obslight (0.4.10-1) stable; urgency=low
 
   * Initial Release
 
- -- Florent Venneiter (Intel OTC) <florent@fridu.net> Tue, 03 Jan 2012 18:35:47 +0100
+ -- Ronan Le Martret (Intel OTC) <ronan@fridu.net> Fri, 06 Jan 2012 11:41:44 +0100

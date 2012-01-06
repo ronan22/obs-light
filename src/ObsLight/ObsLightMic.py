@@ -22,8 +22,8 @@ import glob
 import atexit
 
 from mic import chroot
-import mic.imgcreate as imgcreate
-
+from mic.utils import misc
+from mic.utils import fs_related
 
 import ObsLightPrintManager
 import ObsLightErr
@@ -208,7 +208,7 @@ class ObsLightMic(object):
         self.__chroot_lockfd.close()
 
         bind_unmount(self.__globalmounts)
-        if not imgcreate.my_fuser(self.__chroot_lock):
+        if not fs_related.my_fuser(self.__chroot_lock):
             #cleanup_resolv(self.__chrootDirectory)
             self.__subprocess(command="sudo rm " + self.__chrootDirectory + "/etc/resolv.conf")
             self.__subprocess(command="sudo touch " + self.__chrootDirectory + "/etc/resolv.conf")
@@ -281,14 +281,14 @@ class ObsLightMic(object):
             if not os.path.exists(ftc):
                 continue
 
-            filecmd = chroot.find_binary_path("file")
+            filecmd = misc.find_binary_path("file")
             initp1 = subprocess.Popen([filecmd, ftc], stdout=subprocess.PIPE, stderr=dev_null)
             fileOutput = initp1.communicate()[0].strip().split("\n")
 
             for i in range(len(fileOutput)):
                 if fileOutput[i].find("ARM") > 0:
                     #TODEL qemu_emulator = self.setup_qemu_emulator(rootdir=self.__chrootDirectory, arch="arm")
-                    qemu_emulator = self.setup_qemu_emulator(rootdir=self.__chrootDirectory)
+                    qemu_emulator = misc.setup_qemu_emulator(rootdir=self.__chrootDirectory)
                     architecture_found = True
                     break
                 if fileOutput[i].find("Intel") > 0:
@@ -300,7 +300,7 @@ class ObsLightMic(object):
 
         os.close(dev_null)
         if not architecture_found:
-            raise imgcreate.CreatorError("Failed to getObsLightMic architecture from any of the following files %s from chroot." % files_to_check)
+            raise fs_related.CreatorError("Failed to getObsLightMic architecture from any of the following files %s from chroot." % files_to_check)
 
         self.__qemu_emulator = qemu_emulator
 
@@ -323,64 +323,9 @@ class ObsLightMic(object):
 
         except OSError, (err, msg):
             self.__obsLightPrint(err, isDebug=True)
-            raise imgcreate.CreatorError("Failed to chroot: %s" % msg)
+            raise fs_related.CreatorError("Failed to chroot: %s" % msg)
         finally:
             self.cleanup_chrootenv(bindmounts)
-    #TODEL def setup_qemu_emulator(self, rootdir, arch):       
-    def setup_qemu_emulator(self, rootdir):
-        # mount binfmt_misc if it doesn't exist
-        if not os.path.exists("/proc/sys/fs/binfmt_misc"):
-            modprobecmd = imgcreate.find_binary_path("modprobe")
-            command = "sudo " + modprobecmd + " binfmt_misc"
-            self.__subprocess(command=command)
-        if not os.path.exists("/proc/sys/fs/binfmt_misc/register"):
-            mountcmd = imgcreate.find_binary_path("mount")
-            command = "sudo " + mountcmd + " -t binfmt_misc none /proc/sys/fs/binfmt_misc"
-            self.__subprocess(command=command)
-        # qemu_emulator is a special case, we can't use find_binary_path
-        # qemu emulator should be a statically-linked executable file
-        qemu_emulator = "/usr/bin/qemu-arm"
-        if not os.path.exists(qemu_emulator) or not imgcreate.is_statically_linked(qemu_emulator):
-            qemu_emulator = "/usr/bin/qemu-arm-static"
-        if not os.path.exists(qemu_emulator):
-            raise imgcreate.CreatorError("Please install a statically-linked qemu-arm")
-        if not os.path.exists(rootdir + "/usr/bin"):
-            command = "sudo mkdir -p " + rootdir + " /usr/bin"
-            self.__subprocess(command=command)
-        command = "sudo cp " + qemu_emulator + " " + rootdir + qemu_emulator
-        self.__subprocess(command=command)
-        # disable selinux, selinux will block qemu emulator to run
-        #if os.path.exists("/usr/sbin/setenforce"):
-        #   subprocess.call(["/usr/sbin/setenforce", "0"])
-
-        node = "/proc/sys/fs/binfmt_misc/arm"
-        if imgcreate.is_statically_linked(qemu_emulator) and os.path.exists(node):
-            return qemu_emulator
-
-        # unregister it if it has been registered and is a dynamically-linked executable
-        if not imgcreate.is_statically_linked(qemu_emulator) and os.path.exists(node):
-            qemu_unregister_string = "-1\n"
-            command = "sudo chmod o+w /proc/sys/fs/binfmt_misc/arm"
-            self.__subprocess(command=command)
-            fd = open("/proc/sys/fs/binfmt_misc/arm", "w")
-            fd.write(qemu_unregister_string)
-            fd.close()
-            command = "sudo  chmod o-w /proc/sys/fs/binfmt_misc/arm"
-            self.__subprocess(command=command)
-#            subprocess.call(["sudo", "echo", qemu_unregister_string, ">", "/proc/sys/fs/binfmt_misc/arm"])
-
-        if not os.path.exists(node):
-            qemu_arm_string = ":arm:M::\\x7fELF\\x01\\x01\\x01\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x02\\x00\\x28\\x00:\\xff\\xff\\xff\\xff\\xff\\xff\\xff\\x00\\xff\\xff\\xff\\xff\\xff\\xff\\xff\\xff\\xfa\\xff\\xff\\xff:%s:\n" % qemu_emulator
-            command = "sudo chmod o+w /proc/sys/fs/binfmt_misc/register"
-            self.__subprocess(command=command)
-            fd = open("/proc/sys/fs/binfmt_misc/register", "w")
-            fd.write(qemu_arm_string)
-            fd.close()
-            command = "sudo chmod o+w /proc/sys/fs/binfmt_misc/register"
-            self.__subprocess(command=command)
-#            subprocess.call(["sudo", "echo", qemu_arm_string, ">", "/proc/sys/fs/binfmt_misc/register"])
-
-        return qemu_emulator
 
 
 class BindChrootMount:
@@ -395,8 +340,8 @@ class BindChrootMount:
         self.dest = self.root + "/" + dest
 
         self.mounted = False
-        self.mountcmd = imgcreate.find_binary_path("mount")
-        self.umountcmd = imgcreate.find_binary_path("umount")
+        self.mountcmd = misc.find_binary_path("mount")
+        self.umountcmd = misc.find_binary_path("umount")
 
         self.__mySubprocessCrt = SubprocessCrt()
 
@@ -410,7 +355,7 @@ class BindChrootMount:
     def ismounted(self):
         ret = False
         dev_null = os.open("/dev/null", os.O_WRONLY)
-        catcmd = imgcreate.find_binary_path("cat")
+        catcmd = misc.find_binary_path("cat")
         args = [ catcmd, "/proc/mounts" ]
         #TODO:change to use SubprocessCrt
         proc_mounts = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=dev_null)
@@ -425,7 +370,7 @@ class BindChrootMount:
     def has_chroot_instance(self):
         lock = os.path.join(self.root, ".chroot.lock")
         try:
-            return imgcreate.my_fuser(lock)
+            return fs_related.my_fuser(lock)
         # After reading my_fuser code, it seems that catching
         # "file not found" exception is equivalent to False.
         except IOError as e:
@@ -444,13 +389,13 @@ class BindChrootMount:
         command = "sudo " + self.mountcmd + " --bind " + self.src + " " + self.dest
         rc = self.__subprocess(command=command)
         if rc != 0:
-            raise imgcreate.MountError("Bind-mounting '%s' to '%s' failed" %
+            raise fs_related.MountError("Bind-mounting '%s' to '%s' failed" %
                              (self.src, self.dest))
         if self.option:
             #TODO:change to use SubprocessCrt
             rc = subprocess.call(["sudo", self.mountcmd, "--bind", "-o", "remount,%s" % self.option, self.dest])
             if rc != 0:
-                raise imgcreate.MountError("Bind-remounting '%s' failed" % self.dest)
+                raise fs_related.MountError("Bind-remounting '%s' failed" % self.dest)
         self.mounted = True
 
     def unmount(self):
