@@ -227,28 +227,26 @@ class ObsLightChRoot(object):
         '''
         pathBuild = self.getDirectory() + "/" + package.getChrootRpmBuildDirectory() + "/" + "BUILD"
         if not os.path.isdir(pathBuild):
-            raise ObsLightErr.ObsLightChRootError("in the chroot path: " + pathBuild + " is not a directory")
+            raise ObsLightErr.ObsLightChRootError("The path '" + pathBuild + "' is not a directory")
 
-        listDir = os.listdir(pathBuild)
+        listDir = [item for item in os.listdir(pathBuild) if os.path.isdir(pathBuild + "/" + item)]
 
         if len(listDir) == 0:
-            raise ObsLightErr.ObsLightChRootError("in the chroot path: " + pathBuild + " no directory")
+            raise ObsLightErr.ObsLightChRootError("No sub-directory in '" + pathBuild + "'." +
+                                                  " There should be exactly one.")
         elif len(listDir) == 1:
             prepDirname = listDir[0]
-            if os.path.isdir(pathBuild + "/" + prepDirname):
-                resultPath = package.getChrootRpmBuildDirectory() + "/BUILD/" + prepDirname
-                package.setPrepDirName(prepDirname)
-                subDir = os.listdir(pathBuild + "/" + prepDirname)
-                if len(subDir) == 0:
-                    return resultPath
-                elif (len(subDir) == 1) and os.path.isdir(pathBuild + "/" + prepDirname + "/" + subDir[0]):
-                    return resultPath + "/" + subDir[0]
-                else:
-                    return resultPath
+            resultPath = package.getChrootRpmBuildDirectory() + "/BUILD/" + prepDirname
+            package.setPrepDirName(prepDirname)
+            subDir = os.listdir(pathBuild + "/" + prepDirname)
+            if len(subDir) == 0:
+                return resultPath
+            elif (len(subDir) == 1) and os.path.isdir(pathBuild + "/" + prepDirname + "/" + subDir[0]):
+                return resultPath + "/" + subDir[0]
             else:
-                raise ObsLightErr.ObsLightChRootError("in the chroot path: " + pathBuild + " only one file, not a directory")
-        else :
-            raise ObsLightErr.ObsLightChRootError("in the chroot path: " + pathBuild + " two Many directory")
+                return resultPath
+        else:
+            raise ObsLightErr.ObsLightChRootError("Too many sub-directories in '" + pathBuild + "'")
 
     def getChRootRepositories(self):
         '''
