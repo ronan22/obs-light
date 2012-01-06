@@ -483,7 +483,7 @@ def exceptionToMessageBox(exception, parent=None, traceback_=None):
             message = unicode(str(exception), errors="replace")
         if traceback_ is not None:
             message += u"\n\n" + u"".join(traceback.format_tb(traceback_))
-            print >> sys.stderr, message
+            print >> sys.stderr, type(exception), message
         QMessageBox.critical(parent, u"Exception occurred", message)
 
 def popupOnException(f):

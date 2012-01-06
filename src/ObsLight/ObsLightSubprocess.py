@@ -25,6 +25,7 @@ import shlex
 
 import ObsLightPrintManager
 import select
+import errno
 
 BREAKPROCESS = False
 
@@ -59,13 +60,21 @@ class SubprocessCrt(object):
                    p.stderr: {"EOF": False, "logcmd": ObsLightPrintManager.getLogger().warning}}
         while (not outputs[p.stdout]["EOF"] and
                not outputs[p.stderr]["EOF"]):
-            for fd in select.select([p.stdout, p.stderr], [], [])[0]:
-                output = fd.readline()
-                if output == b"":
-                    outputs[fd]["EOF"] = True
+            try:
+                for fd in select.select([p.stdout, p.stderr], [], [])[0]:
+                    output = fd.readline()
+                    if output == b"":
+                        outputs[fd]["EOF"] = True
+                    else:
+                        #outputs[fd]["logcmd"](output.rstrip())
+                        outputs[fd]["logcmd"](output.decode("utf8", errors="replace").rstrip())
+            except IOError as ioe:
+                # see http://bugs.python.org/issue9867
+                if ioe.errno == errno.EINTR:
+                    ObsLightPrintManager.getLogger().warning(u"Got IOError: %s", unicode(ioe))
+                    continue
                 else:
-                    #outputs[fd]["logcmd"](output.rstrip())
-                    outputs[fd]["logcmd"](output.decode("utf8", errors="replace").rstrip())
+                    raise
 
 
         # maybe p.wait() is better ?
