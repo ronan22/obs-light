@@ -15,6 +15,7 @@ Source: emptyFile
 %build
 
 %install
+echo "emptySpec is used only to create the chroot" > README.emptySpec
 
 %clean
 %{?buildroot:%__rm -rf "%{buildroot}"}
@@ -25,6 +26,7 @@ Source: emptyFile
 
 %files
 %defattr(-,root,root)
+%doc README.emptySpec
 
 %changelog
 

@@ -61,6 +61,7 @@ class SubprocessCrt(object):
         while (not outputs[p.stdout]["EOF"] and
                not outputs[p.stderr]["EOF"]):
             try:
+                # FIXME: add a timeout ?
                 for fd in select.select([p.stdout, p.stderr], [], [])[0]:
                     output = fd.readline()
                     if output == b"":
@@ -68,10 +69,10 @@ class SubprocessCrt(object):
                     else:
                         #outputs[fd]["logcmd"](output.rstrip())
                         outputs[fd]["logcmd"](output.decode("utf8", errors="replace").rstrip())
-            except IOError as ioe:
+            except select.error as error:
                 # see http://bugs.python.org/issue9867
-                if ioe.errno == errno.EINTR:
-                    ObsLightPrintManager.getLogger().warning(u"Got IOError: %s", unicode(ioe))
+                if error.args[0] == errno.EINTR:
+                    ObsLightPrintManager.getLogger().warning(u"Got select.error: %s", unicode(error))
                     continue
                 else:
                     raise
