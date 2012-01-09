@@ -42,7 +42,7 @@ SubPackages:
       Requires:
           - python >= 2.6.0
           - python-xml
-          - mic >= 0.3
+          - mic >= 0.4
           - sudo
           - qemu
           - osc
