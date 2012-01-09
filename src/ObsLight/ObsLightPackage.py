@@ -543,7 +543,7 @@ class ObsLightPackage(object):
 
     def getMacroDirectoryPackageName(self):
         '''
-        
+        Return the Name used for the BUILD directory, by setup in %prep section
         '''
         if self.__mySpecFile == None:
             self.__initSpecFile()
@@ -558,6 +558,19 @@ class ObsLightPackage(object):
             return name
         else:
             return None
+
+    def getMacroPackageName(self):
+        '''
+        return the %{name} of the Pkg
+        '''
+        if self.__mySpecFile == None:
+            self.__initSpecFile()
+
+        if self.__mySpecFile == None:
+            return None
+        else:
+            return self.__mySpecFile.getResolveMacroName("%{name}")
+
 
     def addPatch(self, aFile=None):
         '''

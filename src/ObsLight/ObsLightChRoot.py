@@ -62,7 +62,6 @@ class ObsLightChRoot(object):
                 self.__dicoRepos = fromSave["dicoRepos"]
         self.initChRoot()
 
-
     def getChrootDirTransfert(self):
         '''
         
@@ -70,7 +69,7 @@ class ObsLightChRoot(object):
         return self.__chrootDirTransfert
 
     def getDirectory(self):
-        '''
+        ''' 
         Return the path of aChRoot of a project
         '''
         return self.__chrootDirectory
@@ -302,14 +301,18 @@ class ObsLightChRoot(object):
             command.append("chown -R root:users " + package.getChrootRpmBuildDirectory())
             command.append("chmod -R g+rw " + package.getChrootRpmBuildDirectory())
 
-            command.append("zypper --non-interactive si --build-deps-only " + packageName)
+            packageMacroName = package.getMacroPackageName()
+            if packageMacroName == None:
+                raise ObsLightErr.ObsLightChRootError("Can't find the spec name (%{name}) of '" + packageName + "'.")
+
+            command.append("zypper --non-interactive si --build-deps-only " + packageMacroName)
             #command.append("zypper --non-interactive si " + "--repo " + repo + " " + packageName)
             res = self.execCommand(command=command)
 
             if res != 0:
                 #ObsLightPrintManager.getLogger().error(packageName + " the zypper Script fail to install '" + packageName + "' dependency.")
                 #return None
-                raise ObsLightErr.ObsLightChRootError("The installation of some dependencies of '" + packageName + "' failed.\nPlease test the command line:\n'zypper si --build-deps-only " + packageName + "'\ninto the chroot.\nMaybe a repository is missing.")
+                raise ObsLightErr.ObsLightChRootError("The installation of some dependencies of '" + packageName + "' failed.\nPlease test the command line:\n'zypper si --build-deps-only " + packageMacroName + "'\ninto the chroot.\nMaybe a repository is missing.")
 
             if os.path.isdir(self.getDirectory() + "/" + package.getChrootRpmBuildDirectory() + "/SPECS/"):
                 aspecFile = package.getChrootRpmBuildDirectory() + "/SPECS/" + specFile

@@ -110,20 +110,20 @@ class ObsLightProject(object):
 
             if "chrootIsInit" in fromSave.keys():
                 self.__chrootIsInit = fromSave["chrootIsInit"]
-                if self.__chrootIsInit == True:
-                    if not self.__chroot.isInit():
-                        self.__initChRoot()
-                        self.__chroot.initRepos()
-                else:
-                    if self.__chroot.isInit():
-                        self.__chrootIsInit = True
-
-            if self.__chrootIsInit:
-                for packageName in self.__packages.getListPackages():
-                    absPackagePath = self.getAbsPackagePath(name=packageName)
-                    if absPackagePath != None:
-                        if not os.path.isdir(absPackagePath) :
-                            self.addPackageSourceInChRoot(package=packageName)
+#                if self.__chrootIsInit == True:
+#                    if not self.__chroot.isInit():
+#                        self.__initChRoot()
+#                        self.__chroot.initRepos()
+#                else:
+#                    if self.__chroot.isInit():
+#                        self.__chrootIsInit = True
+#
+#            if self.__chrootIsInit:
+#                for packageName in self.__packages.getListPackages():
+#                    absPackagePath = self.getAbsPackagePath(name=packageName)
+#                    if absPackagePath != None:
+#                        if not os.path.isdir(absPackagePath) :
+#                            self.addPackageSourceInChRoot(package=packageName)
 
         if not os.path.isdir(self.getDirectory()):
             os.makedirs(self.getDirectory())

@@ -919,14 +919,12 @@ def getObsLightOsc():
 
 
 if __name__ == '__main__':
-    #val=ElementTree.tostring(aElement)
-#    val = '''<project name="testNewProjet">
+#    val = '''<project name="home:obsuser:testRemoteLink">
 #                <title>Remote OBS instance</title>
 #                <description>This project is representing a remote build service instance.</description>
 #                <person role="maintainer" userid="obsuser"/>
 #                <person role="bugowner" userid="obsuser"/>
 #            </project>'''
-#
 #
 #    url = "http://128.224.218.244:81/source/testNewProjet/_meta"
 #    res = getObsLightOsc().http_request('PUT', url, data=val)
@@ -945,11 +943,30 @@ if __name__ == '__main__':
 #    res = getObsLightOsc().http_request('PUT', url, data=val)
 #    print "------------------------------------------------------"
 #    print res.read()
-    try:
-        url = "http://128.224.218.244:81/source/testNewProjet/zlib/_meta"
-        res = getObsLightOsc().http_request('GET', url)
-    finally:
-        print "toto"
-    print "------------------------------------------------------"
-    print res.read()
+
+
+#    try:
+#        url = "http://128.224.218.244:81/source/testNewProjet/zlib/_meta"
+#        res = getObsLightOsc().http_request('GET', url)
+#    finally:
+#        print "toto"
+#    print "------------------------------------------------------"
+#    print res.read()
+
+#    <remoteurl>https://api.meego.com/public</remoteurl>   
+    val = '''<project name="home:obsuser:testRemoteLink">  
+      <title>testRemoteLink</title>  
+      <description>test</description>
+      <remoteurl>https://api.meego.com/public</remoteurl>
+      <person role="maintainer" userid="obsuser"/>  
+      <person role="bugowner" userid="obsuser"/>  
+    </project>'''
+
+    url = "http://128.224.218.244:81/source/home:obsuser:testRemoteLink/_meta"
+    res = getObsLightOsc().http_request('PUT', url, data=val)
+
+
+
+
+
 
