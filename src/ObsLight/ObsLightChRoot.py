@@ -424,20 +424,20 @@ class ObsLightChRoot(object):
         '''
         Execute the %prep section of an RPM spec file.
         '''
-        self.__changeTopDir(package.getTopDirRpmBuildDirectory())
+        #self.__changeTopDir(package.getTopDirRpmBuildDirectory())
 
         command = []
 
-        command.append("rpmbuild -bp --define '_srcdefattr (-,root,root)' " + specFile + " < /dev/null")
+        command.append("rpmbuild -bp --define '_srcdefattr (-,root,root)' --define '%_topdir " + package.getTopDirRpmBuildDirectory() + "' " + specFile + " < /dev/null")
         self.execCommand(command=command)
 
     def __buildRpm(self, specFile, package):
         '''
         Execute the %build section of an RPM spec file.
         '''
-        self.__changeTopDir(package.getTopDirRpmBuildDirectory())
+        #self.__changeTopDir(package.getTopDirRpmBuildDirectory())
         command = []
-        command.append("rpmbuild -bc --short-circuit --define '_srcdefattr (-,root,root)' " + specFile + " < /dev/null")
+        command.append("rpmbuild -bc --short-circuit --define '_srcdefattr (-,root,root)' --define '%_topdir " + package.getTopDirRpmBuildDirectory() + "' " + specFile + " < /dev/null")
         self.execCommand(command=command)
 
 
@@ -455,7 +455,7 @@ class ObsLightChRoot(object):
 
         self.commitGit(mess="build", package=package)
 
-        self.__changeTopDir(package.getTopDirRpmBuildTmpDirectory())
+        #self.__changeTopDir(package.getTopDirRpmBuildTmpDirectory())
         tmpPath = pathPackage.replace(package.getChrootRpmBuildDirectory() + "/BUILD", "").strip("/")
         tmpPath = tmpPath.strip("/")
         command = []
@@ -486,11 +486,11 @@ class ObsLightChRoot(object):
         package.saveTmpSpec(path=self.getDirectory() + pathToSaveSpec,
                             archive=tarFile)
         command = []
-        command.append("rpmbuild -bc --define '_srcdefattr (-,root,root)' " + pathToSaveSpec + " < /dev/null")
+        command.append("rpmbuild -bc --define '_srcdefattr (-,root,root)' --define '%_topdir " + package.getTopDirRpmBuildTmpDirectory() + "' " + pathToSaveSpec + " < /dev/null")
         command.append("cp -fpr  " + package.getChrootRpmBuildTmpDirectory() + "/BUILD/* " + package.getChrootRpmBuildDirectory() + "/BUILD/")
         command.append("rm -r " + package.getChrootRpmBuildTmpDirectory() + "/TMP")
         self.execCommand(command=command)
-        self.__changeTopDir(package.getTopDirRpmBuildDirectory())
+        #self.__changeTopDir(package.getTopDirRpmBuildDirectory())
 
     def installRpm(self,
                    package,
@@ -506,7 +506,7 @@ class ObsLightChRoot(object):
 
         self.commitGit(mess="install", package=package)
 
-        self.__changeTopDir(package.getTopDirRpmBuildTmpDirectory())
+        #self.__changeTopDir(package.getTopDirRpmBuildTmpDirectory())
         tmpPath = pathPackage.replace(package.getChrootRpmBuildDirectory() + "/BUILD", "").strip("/")
         tmpPath = tmpPath.strip("/")
         command = []
@@ -537,12 +537,12 @@ class ObsLightChRoot(object):
         package.saveTmpSpec(path=self.getDirectory() + pathToSaveSpec,
                             archive=tarFile)
         command = []
-        command.append("rpmbuild -bi --define '_srcdefattr (-,root,root)' " + pathToSaveSpec + " < /dev/null")
+        command.append("rpmbuild -bi --define '_srcdefattr (-,root,root)' --define '%_topdir " + package.getTopDirRpmBuildTmpDirectory() + "' " + pathToSaveSpec + " < /dev/null")
 
         command.append("cp -fpr  " + package.getChrootRpmBuildTmpDirectory() + "/BUILD/* " + package.getChrootRpmBuildDirectory() + "/BUILD/")
         command.append("rm -r " + package.getChrootRpmBuildTmpDirectory() + "/TMP")
         self.execCommand(command=command)
-        self.__changeTopDir(package.getTopDirRpmBuildDirectory())
+        #self.__changeTopDir(package.getTopDirRpmBuildDirectory())
 
     def packageRpm(self,
                    package,
@@ -558,7 +558,7 @@ class ObsLightChRoot(object):
 
         self.commitGit(mess="packageRpm", package=package)
 
-        self.__changeTopDir(package.getTopDirRpmBuildTmpDirectory())
+        #self.__changeTopDir(package.getTopDirRpmBuildTmpDirectory())
         tmpPath = pathPackage.replace(package.getChrootRpmBuildDirectory() + "/BUILD", "").strip("/")
         tmpPath = tmpPath.strip("/")
         command = []
@@ -589,27 +589,27 @@ class ObsLightChRoot(object):
         package.saveTmpSpec(path=self.getDirectory() + pathToSaveSpec,
                             archive=tarFile)
         command = []
-        command.append("rpmbuild -ba --define '_srcdefattr (-,root,root)' " + pathToSaveSpec + " < /dev/null")
+        command.append("rpmbuild -ba --define '_srcdefattr (-,root,root)' --define '%_topdir " + package.getTopDirRpmBuildTmpDirectory() + "' " + pathToSaveSpec + " < /dev/null")
         command.append("cp -fpr  " + package.getChrootRpmBuildTmpDirectory() + "/BUILD/* " + package.getChrootRpmBuildDirectory() + "/BUILD/")
         command.append("rm -r " + package.getChrootRpmBuildTmpDirectory() + "/TMP")
 
         self.execCommand(command=command)
-        self.__changeTopDir(package.getTopDirRpmBuildDirectory())
+        #self.__changeTopDir(package.getTopDirRpmBuildDirectory())
 
-    def __changeTopDir(self, newTopDir):
-        '''
-        
-        '''
-        command = []
-        command.append("chown -R root:users " + "/usr/lib/rpm")
-        command.append("chmod -R g+rw " + "/usr/lib/rpm")
-        self.execCommand(command=command)
-
-        with open(self.getDirectory() + "/usr/lib/rpm/macros", 'r') as cfgFile:
-            content = cfgFile.read()
-        newContent = re.sub(r'(\%_topdir\s*\%{getenv:HOME}/).*', r'\1%s' % newTopDir, content)
-        with open(self.getDirectory() + "/usr/lib/rpm/macros", 'w') as cfgFile:
-            cfgFile.write(newContent)
+#    def __changeTopDir(self, newTopDir):
+#        '''
+#        
+#        '''
+#        command = []
+#        command.append("chown -R root:users " + "/usr/lib/rpm")
+#        command.append("chmod -R g+rw " + "/usr/lib/rpm")
+#        self.execCommand(command=command)
+#
+#        with open(self.getDirectory() + "/usr/lib/rpm/macros", 'r') as cfgFile:
+#            content = cfgFile.read()
+#        newContent = re.sub(r'(\%_topdir\s*\%{getenv:HOME}/).*', r'\1%s' % newTopDir, content)
+#        with open(self.getDirectory() + "/usr/lib/rpm/macros", 'w') as cfgFile:
+#            cfgFile.write(newContent)
 
     def goToChRoot(self, path=None, detach=False):
         '''
