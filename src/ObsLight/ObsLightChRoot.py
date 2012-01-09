@@ -300,7 +300,7 @@ class ObsLightChRoot(object):
             command.append("mkdir -p " + package.getChrootRpmBuildDirectory() + "/SRPMS")
 
             command.append("chown -R root:users " + package.getChrootRpmBuildDirectory())
-            command.append("chmod -R g+rw " + package.getChrootRpmBuildDirectory())
+            command.append("chmod -R g+rwX " + package.getChrootRpmBuildDirectory())
 
             command.append("zypper --non-interactive si --build-deps-only " + packageName)
             #command.append("zypper --non-interactive si " + "--repo " + repo + " " + packageName)
