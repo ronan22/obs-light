@@ -428,7 +428,10 @@ class ObsLightChRoot(object):
 
         command = []
 
-        command.append("rpmbuild -bp --define '_srcdefattr (-,root,root)' --define '%_topdir " + package.getTopDirRpmBuildDirectory() + "' " + specFile + " < /dev/null")
+        command.append("rpmbuild -bp --define '_srcdefattr (-,root,root)' " +
+                       "--define '%_topdir %{getenv:HOME}/" +
+                       package.getTopDirRpmBuildDirectory() +
+                       "' " + specFile + " < /dev/null")
         self.execCommand(command=command)
 
     def __buildRpm(self, specFile, package):
@@ -437,7 +440,10 @@ class ObsLightChRoot(object):
         '''
         #self.__changeTopDir(package.getTopDirRpmBuildDirectory())
         command = []
-        command.append("rpmbuild -bc --short-circuit --define '_srcdefattr (-,root,root)' --define '%_topdir " + package.getTopDirRpmBuildDirectory() + "' " + specFile + " < /dev/null")
+        command.append("rpmbuild -bc --short-circuit --define '_srcdefattr (-,root,root)'" +
+                       " --define '%_topdir %{getenv:HOME}/" +
+                       package.getTopDirRpmBuildDirectory() +
+                       "' " + specFile + " < /dev/null")
         self.execCommand(command=command)
 
 
@@ -486,7 +492,10 @@ class ObsLightChRoot(object):
         package.saveTmpSpec(path=self.getDirectory() + pathToSaveSpec,
                             archive=tarFile)
         command = []
-        command.append("rpmbuild -bc --define '_srcdefattr (-,root,root)' --define '%_topdir " + package.getTopDirRpmBuildTmpDirectory() + "' " + pathToSaveSpec + " < /dev/null")
+        command.append("rpmbuild -bc --define '_srcdefattr (-,root,root)'" +
+                       " --define '%_topdir %{getenv:HOME}/" +
+                       package.getTopDirRpmBuildTmpDirectory() +
+                       "' " + pathToSaveSpec + " < /dev/null")
         command.append("cp -fpr  " + package.getChrootRpmBuildTmpDirectory() + "/BUILD/* " + package.getChrootRpmBuildDirectory() + "/BUILD/")
         command.append("rm -r " + package.getChrootRpmBuildTmpDirectory() + "/TMP")
         self.execCommand(command=command)
@@ -537,7 +546,10 @@ class ObsLightChRoot(object):
         package.saveTmpSpec(path=self.getDirectory() + pathToSaveSpec,
                             archive=tarFile)
         command = []
-        command.append("rpmbuild -bi --define '_srcdefattr (-,root,root)' --define '%_topdir " + package.getTopDirRpmBuildTmpDirectory() + "' " + pathToSaveSpec + " < /dev/null")
+        command.append("rpmbuild -bi --define '_srcdefattr (-,root,root)' " +
+                       "--define '%_topdir %{getenv:HOME}/" +
+                       package.getTopDirRpmBuildTmpDirectory() + "' " +
+                       pathToSaveSpec + " < /dev/null")
 
         command.append("cp -fpr  " + package.getChrootRpmBuildTmpDirectory() + "/BUILD/* " + package.getChrootRpmBuildDirectory() + "/BUILD/")
         command.append("rm -r " + package.getChrootRpmBuildTmpDirectory() + "/TMP")
@@ -589,7 +601,10 @@ class ObsLightChRoot(object):
         package.saveTmpSpec(path=self.getDirectory() + pathToSaveSpec,
                             archive=tarFile)
         command = []
-        command.append("rpmbuild -ba --define '_srcdefattr (-,root,root)' --define '%_topdir " + package.getTopDirRpmBuildTmpDirectory() + "' " + pathToSaveSpec + " < /dev/null")
+        command.append("rpmbuild -ba --define '_srcdefattr (-,root,root)' " +
+                       "--define '%_topdir %{getenv:HOME}/" +
+                       package.getTopDirRpmBuildTmpDirectory() +
+                       "' " + pathToSaveSpec + " < /dev/null")
         command.append("cp -fpr  " + package.getChrootRpmBuildTmpDirectory() + "/BUILD/* " + package.getChrootRpmBuildDirectory() + "/BUILD/")
         command.append("rm -r " + package.getChrootRpmBuildTmpDirectory() + "/TMP")
 
