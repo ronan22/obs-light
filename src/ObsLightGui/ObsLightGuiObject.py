@@ -43,7 +43,11 @@ class ObsLightGuiObject(object):
         return self.gui.getMainWindow()
 
     def callWithProgress(self, func, iterable, message, *args, **kwargs):
-        runnable = ProgressRunnable2(self.gui.getProgressDialog())
+        if len(iterable) > 1:
+            progress = self.gui.getProgressDialog()
+        else:
+            progress = self.gui.getInfiniteProgressDialog()
+        runnable = ProgressRunnable2(progress)
         runnable.setFunctionToMap(func,
                                   iterable,
                                   message,
