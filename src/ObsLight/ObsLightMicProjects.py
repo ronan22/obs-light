@@ -27,17 +27,23 @@ import ObsLightErr
 
 from ObsLightMicProject import ObsLightMicProject
 
-class ObsLightMicProjects:
+class ObsLightMicProjects(object):
     def __init_(self, workingDirectory):
         '''
         Constructor
         '''
         self.__dicOBSLightProjects = {}
         self.__currentProjects = None
-        self.__workingDirectory = workingDirectory
-        self.__pathFile = os.path.join(self.__workingDirectory , "ObsLightMicProjectsConfig")
+        self.__workingDirectory = workingDirectory + "/MicProjects"
+        self.__pathFile = os.path.join(self.getObsLightWorkingDirectory() , "ObsLightMicProjectsConfig")
 
         self.__load()
+
+    def getObsLightWorkingDirectory(self):
+        '''
+        
+        '''
+        return self.__workingDirectory
 
     def __load(self, aFile=None):
         '''
@@ -68,23 +74,93 @@ class ObsLightMicProjects:
                 self.__addProjectFromSave(name=projetName, fromSave=aServer, importFile=importFile)
             self.__currentProjects = saveconfigServers["currentProject"]
 
+    def save(self, aFile=None, ProjectName=None):
+        '''
+        
+        '''
+        if aFile == None:
+            pathFile = self.__pathFile
+        else:
+            pathFile = aFile
+
+        saveProject = {}
+
+        if ProjectName == None:
+            for ProjectName in self.getMicProjectList():
+                saveProject[ProjectName] = self.__dicOBSLightProjects[ProjectName].getDic()
+        else:
+            saveProject[ProjectName] = self.__dicOBSLightProjects[ProjectName].getDic()
+
+        saveconfigProject = {}
+        saveconfigProject["saveProjects"] = saveProject
+        saveconfigProject["currentProject"] = self.__currentProjects
+        aFile = open(pathFile, 'w')
+        pickle.dump(saveconfigProject, aFile)
+        aFile.close()
+
     def __addProjectFromSave(self, name=None, fromSave=None, importFile=None):
         '''
         
         '''
         if not (name in self.__dicOBSLightProjects.keys()):
-            self.__dicOBSLightProjects[name] = ObsLightMicProject(obsServers=self.__obsServers,
-                                                                  workingDirectory=self.getObsLightWorkingDirectory(),
+            self.__dicOBSLightProjects[name] = ObsLightMicProject(workingDirectory=self.getObsLightWorkingDirectory(),
                                                                   fromSave=fromSave,
                                                                   importFile=importFile)
         else:
             raise ObsLightErr.ObsLightProjectsError("Can't import: '" + name + "', The Mic Project already exists.")
 
-    def getLocalProjectList(self):
+    def getMicProjectList(self):
         '''
         
         '''
         res = self.__dicOBSLightProjects.keys()
         res.sort()
         return res
+
+
+    def addMicProjects(self, projectMicName):
+        '''
+        
+        '''
+        self.__addProjectFromSave(name=projectMicName)
+
+    def addKickstartFile(self, projectMicName, filePath):
+        '''
+        
+        '''
+        self.__dicOBSLightProjects[projectMicName].addKickstartFile(filePath)
+
+    def getMicProjectArchitecture(self, projectMicName):
+        '''
+        
+        '''
+        return self.__dicOBSLightProjects[projectMicName].getMicProjectArchitecture()
+
+    def setMicProjectArchitecture(self, projectMicName, arch):
+        '''
+        
+        '''
+        self.__dicOBSLightProjects[projectMicName].setMicProjectArchitecture(arch)
+
+    def setMicProjectImageType(self, projectMicName, imageType):
+        '''
+        
+        '''
+        self.__dicOBSLightProjects[projectMicName].setMicProjectImageType(imageType)
+
+    def getMicProjectImageType(self, projectMicName):
+        '''
+        
+        '''
+        return self.__dicOBSLightProjects[projectMicName].getMicProjectImageType()
+
+    def createImage(self, projectMicName):
+        '''
+        
+        '''
+        return self.__dicOBSLightProjects[projectMicName].createImage()
+
+
+
+
 

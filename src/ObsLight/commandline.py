@@ -57,6 +57,16 @@ __exportProject__ = "exportProject"
 __importProject__ = "importProject"
 __getWebProjectPage__ = "getWebProjectPage"
 
+__addMicProjects__ = "addMicProjects"
+__addKickstartFile__ = "addKickstartFile"
+__getMicProjectArchitecture__ = "addKickstartFile"
+__setMicProjectArchitecture__ = "setMicProjectArchitecture"
+__setMicProjectImageType__ = "setMicProjectImageType"
+__getMicProjectImageType__ = "getMicProjectImageType"
+__createImage__ = "createImage"
+__getMicProjectList__ = "getMicProjectList"
+
+
 __info_quiet__ = "--quiet"
 __info_debug__ = "--debug"
 __version__ = "--version"
@@ -82,11 +92,19 @@ __DICO_HELP__[__exportProject__] = "save a Project into a path"
 __DICO_HELP__[__importProject__] = "import a Project from a file"
 __DICO_HELP__[__getWebProjectPage__] = "return the web URL of a project."
 
+__DICO_HELP__[__getMicProjectList__] = "Return the Mic project list."
+__DICO_HELP__[__addMicProjects__] = "Add a Mic project."
+__DICO_HELP__[__addKickstartFile__] = "Add a ks file to a Mic project."
+__DICO_HELP__[__getMicProjectArchitecture__] = "return the architecture of a Mic project."
+__DICO_HELP__[__setMicProjectArchitecture__] = "Set the architecture of the Mic project."
+__DICO_HELP__[__setMicProjectImageType__] = "Set the image type of the  Mic project."
+__DICO_HELP__[__getMicProjectImageType__] = "Return the image type of the  Mic project."
+__DICO_HELP__[__createImage__] = "Create the image of the Mic project."
+
 __DICO_OPTION_HELP__ = {}
 __DICO_OPTION_HELP__[__info_quiet__] = "Print no outputs."
 __DICO_OPTION_HELP__[__info_debug__] = "Print all outputs."
 __DICO_OPTION_HELP__[__version__] = "print the obslight version number and exit"
-
 
 class ObsLight():
     """
@@ -166,6 +184,15 @@ class ObsLight():
         __HELP__ += "\t" + __makePatch__ + ":" + "\t\t" + __DICO_HELP__[__makePatch__] + "\n"
         __HELP__ += "\t" + __addAndCommitChange__ + ":" + "\t" + __DICO_HELP__[__addAndCommitChange__] + "\n"
         __HELP__ += "\t" + __addRepoInChRoot__ + ":" + "\t" + __DICO_HELP__[__addRepoInChRoot__] + "\n"
+        __HELP__ += "\n"
+        __HELP__ += "\t" + __getMicProjectList__ + ":" + "\t" + __DICO_HELP__[__getMicProjectList__] + "\n"
+        __HELP__ += "\t" + __addMicProjects__ + ":" + "\t\t" + __DICO_HELP__[__addMicProjects__] + "\n"
+        __HELP__ += "\t" + __addKickstartFile__ + ":" + "\t" + __DICO_HELP__[__addKickstartFile__] + "\n"
+        __HELP__ += "\t" + __getMicProjectArchitecture__ + ":" + "\t" + __DICO_HELP__[__getMicProjectArchitecture__] + "\n"
+        __HELP__ += "\t" + __setMicProjectArchitecture__ + ":" + "" + __DICO_HELP__[__setMicProjectArchitecture__] + "\n"
+        __HELP__ += "\t" + __setMicProjectImageType__ + ":" + "\t" + __DICO_HELP__[__setMicProjectImageType__] + "\n"
+        __HELP__ += "\t" + __getMicProjectImageType__ + ":" + "\t" + __DICO_HELP__[__getMicProjectImageType__] + "\n"
+        __HELP__ += "\t" + __createImage__ + ":" + "\t\t" + __DICO_HELP__[__createImage__] + "\n"
         __HELP__ += "\n"
         __HELP__ += "\t" + __version__ + ":" + "\t" + __DICO_OPTION_HELP__[__version__] + "\n"
         __HELP__ += "\n"
@@ -252,6 +279,22 @@ class ObsLight():
                     return self.getWebProjectPage(listArgv[1:])
                 elif (listArgv[0] == __delObsServer__):
                     return self.delObsServer(listArgv[1:])
+                elif (listArgv[0] == __getMicProjectList__):
+                    return self.getMicProjectList(listArgv[1:])
+                elif (listArgv[0] == __addMicProjects__):
+                    return self.addMicProjects(listArgv[1:])
+                elif (listArgv[0] == __addKickstartFile__):
+                    return self.addKickstartFile(listArgv[1:])
+                elif (listArgv[0] == __getMicProjectArchitecture__):
+                    return self.getMicProjectArchitecture(listArgv[1:])
+                elif (listArgv[0] == __setMicProjectArchitecture__):
+                    return self.setMicProjectArchitecture(listArgv[1:])
+                elif (listArgv[0] == __setMicProjectImageType__):
+                    return self.setMicProjectImageType(listArgv[1:])
+                elif (listArgv[0] == __getMicProjectImageType__):
+                    return self.getMicProjectImageType(listArgv[1:])
+                elif (listArgv[0] == __createImage__):
+                    return self.createImage(listArgv[1:])
                 else:
                     raise ObsLightErr.ArgError(listArgv[0] + " is not a valid command")
 
@@ -402,7 +445,7 @@ class ObsLight():
             ObsLightManager.getManager().addProject(projectLocalName=projectLocalName,
                                                     projectObsName=projectObsName,
                                                     projectTitle=projectTitle,
-                                                    obsServer=obsServer ,
+                                                    serverApi=obsServer ,
                                                     projectTarget=projectTarget,
                                                     description=description,
                                                     projectArchitecture=projectArchitecture)
@@ -431,7 +474,7 @@ class ObsLight():
                 else:
                     raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
 
-            ObsLightManager.getManager().delObsServer(alias=obsServer)
+            ObsLightManager.getManager().delObsServer(obsServer=obsServer)
 
         elif self.__isHelp(listArgv[0]):
             print __HELP__
@@ -469,7 +512,7 @@ class ObsLight():
                     raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
 
             if (obsServer != None) and (projectLocalName != None):
-                res = ObsLightManager.getManager().getObsProjectPackageList(obsServer=obsServer,
+                res = ObsLightManager.getManager().getObsProjectPackageList(serverApi=obsServer,
                                                                            projectObsName=projectLocalName)
             elif (projectLocalName != None) and (localPackage in ["0", "1"]):
                 res = ObsLightManager.getManager().getLocalProjectPackageList(projectLocalName=projectLocalName,
@@ -869,7 +912,7 @@ class ObsLight():
                 else:
                     raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
             if  (path != None):
-                ObsLightManager.getManager().importProject(path=path)
+                ObsLightManager.getManager().importProject(filePath=path)
             else:
                 raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
 
@@ -909,4 +952,53 @@ class ObsLight():
         else:
             raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
         return 0
+
+    def getMicProjectList(self, listArgv):
+        '''
+        TODO
+        '''
+        pass
+
+    def addMicProjects(self, listArgv):
+        '''
+        TODO
+        '''
+        pass
+
+    def addKickstartFile(self, listArgv):
+        '''
+        TODO
+        '''
+        pass
+
+    def getMicProjectArchitecture(self, listArgv):
+        '''
+        TODO
+        '''
+        pass
+
+    def setMicProjectArchitecture(self, listArgv):
+        '''
+        TODO
+        '''
+        pass
+
+    def setMicProjectImageType(self, listArgv):
+        '''
+        TODO
+        '''
+        pass
+
+    def getMicProjectImageType(self, listArgv):
+        '''
+        TODO
+        '''
+        pass
+
+    def createImage(self, listArgv):
+        '''
+        TODO
+        '''
+        pass
+
 

@@ -993,6 +993,62 @@ class ObsLightManager(object):
                                                         package=package)
 
     #---------------------------------------------------------------------------
+    def getMicProjectList(self):
+        '''
+        
+        '''
+        return self.__myObsLightMicProjects.getMicProjectList()
+
+    def addMicProjects(self, projectMicName):
+        '''
+        
+        '''
+        self.__myObsLightMicProjects.addMicProjects(projectMicName=projectMicName)
+        self.__myObsLightMicProjects.save()
+
+    def addKickstartFile(self, projectMicName, filePath):
+        '''
+        
+        '''
+        self.__myObsLightMicProjects.addKickstartFile(projectMicName=projectMicName,
+                                                      filePath=filePath)
+        self.__myObsLightMicProjects.save()
+
+    def getMicProjectArchitecture(self, projectMicName):
+        '''
+        
+        '''
+        self.__myObsLightMicProjects.getMicProjectArchitecture(projectMicName=projectMicName)
+        self.__myObsLightMicProjects.save()
+
+    def setMicProjectArchitecture(self, projectMicName, arch):
+        '''
+        
+        '''
+        self.__myObsLightMicProjects.setMicProjectArchitecture(projectMicName=projectMicName, arch=arch)
+        self.__myObsLightMicProjects.save()
+
+    def setMicProjectImageType(self, projectMicName, imageType):
+        '''
+        
+        '''
+        self.__myObsLightMicProjects.setMicProjectImageType(projectMicName=projectMicName, imageType=imageType)
+        self.__myObsLightMicProjects.save()
+
+    def getMicProjectImageType(self, projectMicName, imageType):
+        '''
+        
+        '''
+        self.__myObsLightMicProjects.getMicProjectImageType(projectMicName=projectMicName)
+
+    def createImage(self, projectMicName):
+        '''
+        
+        '''
+        self.__myObsLightMicProjects.createImage(projectMicName=projectMicName)
+        self.__myObsLightMicProjects.save()
+
+    #---------------------------------------------------------------------------
 
     @checkProjectLocalName(1)
     def getProjectParameter(self, projectLocalName, parameter):

@@ -227,7 +227,6 @@ class ObsLightProjects(object):
         '''
         self.__dicOBSLightProjects[projectLocalName].createChRoot()
 
-
     def goToChRoot(self, projectLocalName=None, package=None, detach=False):
         '''
         
