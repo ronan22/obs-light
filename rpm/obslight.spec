@@ -8,7 +8,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 Name:       obslight
 Summary:    OBS Light
-Version:    0.4.12
+Version:    0.4.13
 Release:    1
 Group:      Development/Tools/Building
 License:    GPLv2
@@ -44,7 +44,7 @@ Summary:    Utilities to work with OBS Light - command-line client
 Group:      Development/Tools/Building
 Requires:   python >= 2.6.0
 Requires:   python-xml
-Requires:   mic >= 0.3
+Requires:   mic >= 0.4
 Requires:   sudo
 Requires:   qemu
 Requires:   osc
