@@ -27,6 +27,8 @@ import collections
 
 from ObsLightServers import ObsLightServers
 from ObsLightProjects import ObsLightProjects
+from ObsLightMicProjects import ObsLightMicProjects
+
 from ObsLightTools import isNonEmptyString
 import ObsLightConfig
 import ObsLightTools
@@ -36,7 +38,7 @@ from ObsLightErr import ObsLightObsServers
 from ObsLightErr import ObsLightProjectsError
 from ObsLightErr import ArgError
 
-VERSION = "0.4.12-1"
+VERSION = "0.4.13-1"
 
 if os.getegid() == 0:
     print "Sorry, Can't run OBS Light as root."
@@ -603,6 +605,8 @@ class ObsLightManager(object):
         self.__myObsServers = ObsLightServers(workingDirectory=self.getObsLightWorkingDirectory())
         self.__myObsLightProjects = ObsLightProjects(obsServers=self.__myObsServers,
                                                      workingDirectory=self.getObsLightWorkingDirectory())
+
+        self.__myObsLightMicProjects = ObsLightMicProjects(workingDirectory=self.getObsLightWorkingDirectory())
     #---------------------------------------------------------------------------
     def addLoggerHandler(self, handler):
         '''
