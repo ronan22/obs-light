@@ -353,6 +353,41 @@
              <widget class="QWidget" name="gridWidget" native="true">
               <layout class="QHBoxLayout" name="horizontalLayout_2">
                <item>
+                <widget class="QComboBox" name="ObsStatusFilter">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="toolTip">
+                  <string>Select OBS status Filter</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLineEdit" name="ObsRev">
+                 <property name="minimumSize">
+                  <size>
+                   <width>50</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>50</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="toolTip">
+                  <string>Select OBS rev Filter (-1,1,2..)</string>
+                 </property>
+                 <property name="maxLength">
+                  <number>100</number>
+                 </property>
+                </widget>
+               </item>
+               <item>
                 <widget class="QComboBox" name="OscStatusFilter">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -387,41 +422,6 @@
                  </property>
                  <property name="toolTip">
                   <string>Select OSC rev Filter (-1,1,2..)</string>
-                 </property>
-                 <property name="maxLength">
-                  <number>100</number>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QComboBox" name="ObsStatusFilter">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="toolTip">
-                  <string>Select OBS status Filter</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QLineEdit" name="ObsRev">
-                 <property name="minimumSize">
-                  <size>
-                   <width>50</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>50</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="toolTip">
-                  <string>Select OBS rev Filter (-1,1,2..)</string>
                  </property>
                  <property name="maxLength">
                   <number>100</number>

@@ -30,10 +30,10 @@ class PackageModel(QAbstractTableModel):
     '''
 
     NameColumn = 0
-    OscStatusColumn = 1
-    OscRevColumn = 2
-    ObsStatusColumn = 3
-    ObsRevColumn = 4
+    OscStatusColumn = 3
+    OscRevColumn = 4
+    ObsStatusColumn = 1
+    ObsRevColumn = 2
     ChrootStatusColumn = 5
 
     colors = list(({}, {}, {}, {}, {}, {}))
@@ -79,7 +79,7 @@ class PackageModel(QAbstractTableModel):
                 elif section == self.ChrootStatusColumn:
                     return u"Chroot status"
                 elif section == self.OscStatusColumn:
-                    return u"OSC status"
+                    return u"Local status"
                 elif section == self.OscRevColumn:
                     return u"Rev"
                 elif section == self.ObsRevColumn:
