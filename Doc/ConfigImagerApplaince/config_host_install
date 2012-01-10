@@ -66,6 +66,14 @@ sleep 5
 echo ---*** skynet enable ***---
 skynet enable build_image
 skynet enable build_ks
+skynet enable request_image
+skynet enable update_image_status
+
+echo ---*** register build_image ***---
+skynet register -n build_image
+
+echo ---*** register build_ks ***---
+skynet register -n build_ks
 
 echo ---*** register request_image ***---
 skynet register -n request_image
