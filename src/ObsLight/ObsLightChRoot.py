@@ -318,7 +318,7 @@ class ObsLightChRoot(object):
                 aspecFile = package.getChrootRpmBuildDirectory() + "/SPECS/" + specFile
 
                 self.__subprocess(command="sudo chown -R root:users " + self.getDirectory() + "/" + package.getChrootRpmBuildDirectory())
-                self.__subprocess(command="sudo chmod -R g+rw " + self.getDirectory() + "/" + package.getChrootRpmBuildDirectory())
+                self.__subprocess(command="sudo chmod -R g+rwX " + self.getDirectory() + "/" + package.getChrootRpmBuildDirectory())
                 package.saveSpec(self.getDirectory() + "/" + aspecFile)
                 #find the directory to watch
                 for aFile in package.getListFile():
@@ -476,7 +476,7 @@ class ObsLightChRoot(object):
         command.append("ln -sf " + package.getChrootRpmBuildDirectory() + "/SRPMS " + package.getChrootRpmBuildTmpDirectory())
 
         command.append("chown -R root:users " + package.getChrootRpmBuildTmpDirectory())
-        command.append("chmod -R g+rw " + package.getChrootRpmBuildTmpDirectory())
+        command.append("chmod -R g+rwX " + package.getChrootRpmBuildTmpDirectory())
 
         command.append("git --git-dir=" + pathPackage + "/.git --work-tree=" + pathPackage + \
                        " archive --format=tar --prefix=" + tmpPath + "/ HEAD \
@@ -530,7 +530,7 @@ class ObsLightChRoot(object):
         command.append("ln -sf " + package.getChrootRpmBuildDirectory() + "/SRPMS " + package.getChrootRpmBuildTmpDirectory())
 
         command.append("chown -R root:users " + package.getChrootRpmBuildTmpDirectory())
-        command.append("chmod -R g+rw " + package.getChrootRpmBuildTmpDirectory())
+        command.append("chmod -R g+rwX " + package.getChrootRpmBuildTmpDirectory())
 
         command.append("git --git-dir=" + pathPackage + "/.git --work-tree=" + pathPackage + \
                        " archive --format=tar --prefix=" + tmpPath + "/ HEAD \
@@ -585,7 +585,7 @@ class ObsLightChRoot(object):
         command.append("ln -sf " + package.getChrootRpmBuildDirectory() + "/SRPMS " + package.getChrootRpmBuildTmpDirectory())
 
         command.append("chown -R root:users " + package.getChrootRpmBuildTmpDirectory())
-        command.append("chmod -R g+rw " + package.getChrootRpmBuildTmpDirectory())
+        command.append("chmod -R g+rwX " + package.getChrootRpmBuildTmpDirectory())
 
         command.append("git --git-dir=" + pathPackage + "/.git --work-tree=" + pathPackage + \
                        " archive --format=tar --prefix=" + tmpPath + "/ HEAD \
