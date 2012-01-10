@@ -133,3 +133,11 @@ class ObsLightOscErr(OBSLightBaseError):
         OBSLightBaseError.__init__(self)
         self.msg = msg
 
+class ObsLightMicProjectErr(OBSLightBaseError):
+    ''''Exception raised in ObsLightMicProjects'''
+    def __init__(self, msg):
+        OBSLightBaseError.__init__(self)
+        self.msg = msg
+
+
+
