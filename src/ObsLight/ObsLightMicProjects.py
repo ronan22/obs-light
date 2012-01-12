@@ -27,19 +27,21 @@ import ObsLightErr
 
 from ObsLightMicProject import ObsLightMicProject
 
-class ObsLightMicProjects(object):
-    def __init_(self, workingDirectory):
+class ObsLightMicProjects:
+    def __init__(self, workingDirectory):
         '''
         Constructor
         '''
         self.__dicOBSLightProjects = {}
         self.__currentProjects = None
         self.__workingDirectory = workingDirectory + "/MicProjects"
-        self.__pathFile = os.path.join(self.getObsLightWorkingDirectory() , "ObsLightMicProjectsConfig")
+        self.__pathFile = os.path.join(workingDirectory , "ObsLightMicProjectsConfig")
 
+        if not os.path.isdir(self.getObsLightMicDirectory()):
+            os.makedirs(self.getObsLightMicDirectory())
         self.__load()
 
-    def getObsLightWorkingDirectory(self):
+    def getObsLightMicDirectory(self):
         '''
         
         '''
@@ -103,9 +105,10 @@ class ObsLightMicProjects(object):
         
         '''
         if not (name in self.__dicOBSLightProjects.keys()):
-            self.__dicOBSLightProjects[name] = ObsLightMicProject(workingDirectory=self.getObsLightWorkingDirectory(),
+            self.__dicOBSLightProjects[name] = ObsLightMicProject(workingDirectory=self.getObsLightMicDirectory(),
                                                                   fromSave=fromSave,
-                                                                  importFile=importFile)
+                                                                  importFile=importFile,
+                                                                  name=name)
         else:
             raise ObsLightErr.ObsLightProjectsError("Can't import: '" + name + "', The Mic Project already exists.")
 
@@ -124,23 +127,52 @@ class ObsLightMicProjects(object):
         '''
         self.__addProjectFromSave(name=projectMicName)
 
+
+    def delMicProjects(self, projectMicName):
+        '''
+        
+        '''
+        if projectMicName in self.getMicProjectList():
+            self.__dicOBSLightProjects[projectMicName].delProject()
+            del self.__dicOBSLightProjects[projectMicName]
+        else:
+            raise ObsLightErr.ObsLightProjectsError("Can't del: '" + projectMicName + "', The Mic Project not exists.")
+
     def addKickstartFile(self, projectMicName, filePath):
         '''
         
         '''
-        self.__dicOBSLightProjects[projectMicName].addKickstartFile(filePath)
+        if projectMicName in self.getMicProjectList():
+            self.__dicOBSLightProjects[projectMicName].addKickstartFile(filePath)
+        else:
+            raise ObsLightErr.ObsLightProjectsError("Can't set the kickstart file, no project: '" + projectMicName + "'")
+
+    def getKickstartFile(self, projectMicName):
+        '''
+        
+        '''
+        if projectMicName in self.getMicProjectList():
+            return self.__dicOBSLightProjects[projectMicName].getKickstartFile()
+        else:
+            raise ObsLightErr.ObsLightProjectsError("Can't return the kickstart file, no project: '" + projectMicName + "'")
 
     def getMicProjectArchitecture(self, projectMicName):
         '''
         
         '''
-        return self.__dicOBSLightProjects[projectMicName].getMicProjectArchitecture()
+        if projectMicName in self.getMicProjectList():
+            return self.__dicOBSLightProjects[projectMicName].getMicProjectArchitecture()
+        else:
+            raise ObsLightErr.ObsLightProjectsError("Can't return the architecture , no project: '" + projectMicName + "'")
 
     def setMicProjectArchitecture(self, projectMicName, arch):
         '''
         
         '''
-        self.__dicOBSLightProjects[projectMicName].setMicProjectArchitecture(arch)
+        if projectMicName in self.getMicProjectList():
+            self.__dicOBSLightProjects[projectMicName].setMicProjectArchitecture(arch)
+        else:
+            raise ObsLightErr.ObsLightProjectsError("Can't set the architecture , no project: '" + projectMicName + "'")
 
     def setMicProjectImageType(self, projectMicName, imageType):
         '''

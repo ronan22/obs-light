@@ -8,7 +8,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 Name:       obslight
 Summary:    OBS Light
-Version:    0.4.13
+Version:    0.4.14
 Release:    1
 Group:      Development/Tools/Building
 License:    GPLv2
@@ -51,6 +51,7 @@ Requires:   osc
 Requires:   build
 Requires:   spectacle
 Requires:   acl
+Requires:   tightvnc
 Provides:   obslight
 
 %description base

@@ -7,6 +7,6 @@ Build-Depends: debhelper (>= 4.1.16), python (>= 2.6)
 Package: obslight
 Architecture: any
 Depends: ${shlibs:Depends}, python (>= 2.6), osc, mic (>=0.4), sudo, qemu,
- python-pyside, build,spectacle,acl
+ python-pyside, build,spectacle,acl,tightvnc
 Description: Utilities to work with OBS Light, a lighter version of OBS.
  Utilities to work with OBS Light, a lighter version of OBS.

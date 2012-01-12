@@ -1,4 +1,9 @@
-obslight (0.4.13-1) stable; urgency=low
+obslight (0.4.14-1) stable; urgency=low
+  * Version 0.4.14
+    Add Mic.
+    Add vnc.
+    Add ObsLightMicProject.
+
   * Version 0.4.12
     Add acl.
 
@@ -42,4 +47,4 @@ obslight (0.4.13-1) stable; urgency=low
 
   * Initial Release
 
- -- Ronan Le Martret (Intel OTC) <ronan@fridu.net>  Fri, 06 Jan 2012 12:16:43 +0100
+ -- Ronan Le Martret (Intel OTC) <ronan@fridu.net>  Thu, 12 Jan 2012 15:17:30 +0100

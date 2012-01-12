@@ -37,8 +37,8 @@ class ObsLightProjects(object):
         self.__dicOBSLightProjects = {}
         self.__obsServers = obsServers
         self.__currentProjects = None
-        self.__workingDirectory = workingDirectory
-        self.__pathFile = os.path.join(self.getObsLightWorkingDirectory() , "ObsLightProjectsConfig")
+        self.__workingDirectory = workingDirectory + "/" + "/ObsProjects"
+        self.__pathFile = os.path.join(workingDirectory, "ObsLightProjectsConfig")
 
         self.__load()
 

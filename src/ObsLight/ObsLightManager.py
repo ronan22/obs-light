@@ -38,7 +38,7 @@ from ObsLightErr import ObsLightObsServers
 from ObsLightErr import ObsLightProjectsError
 from ObsLightErr import ArgError
 
-VERSION = "0.4.13-1"
+VERSION = "0.4.14-1"
 
 if os.getegid() == 0:
     print "Sorry, Can't run OBS Light as root."
@@ -589,6 +589,7 @@ def checkDirectory(position=None):
         return checkDirectory2
     return checkDirectory1
 
+
 class ObsLightManager(object):
     '''
     Application Programming Interface between clients (command line, GUI) and OBS Light.
@@ -599,14 +600,16 @@ class ObsLightManager(object):
         '''
         Initialize the OBS Light Manager.
         '''
-
         self.__workingDirectory = ObsLightConfig.WORKINGDIRECTORY
 
+        self.__myObsLightMicProjects = ObsLightMicProjects(workingDirectory=self.getObsLightWorkingDirectory())
+
         self.__myObsServers = ObsLightServers(workingDirectory=self.getObsLightWorkingDirectory())
+
         self.__myObsLightProjects = ObsLightProjects(obsServers=self.__myObsServers,
                                                      workingDirectory=self.getObsLightWorkingDirectory())
 
-        self.__myObsLightMicProjects = ObsLightMicProjects(workingDirectory=self.getObsLightWorkingDirectory())
+
     #---------------------------------------------------------------------------
     def addLoggerHandler(self, handler):
         '''
@@ -1006,6 +1009,13 @@ class ObsLightManager(object):
         self.__myObsLightMicProjects.addMicProjects(projectMicName=projectMicName)
         self.__myObsLightMicProjects.save()
 
+    def delMicProjects(self, projectMicName):
+        '''
+        
+        '''
+        self.__myObsLightMicProjects.delMicProjects(projectMicName)
+        self.__myObsLightMicProjects.save()
+
     def addKickstartFile(self, projectMicName, filePath):
         '''
         
@@ -1014,11 +1024,17 @@ class ObsLightManager(object):
                                                       filePath=filePath)
         self.__myObsLightMicProjects.save()
 
+    def getKickstartFile(self, projectMicName):
+        '''
+        
+        '''
+        return  self.__myObsLightMicProjects.getKickstartFile(projectMicName=projectMicName)
+
     def getMicProjectArchitecture(self, projectMicName):
         '''
         
         '''
-        self.__myObsLightMicProjects.getMicProjectArchitecture(projectMicName=projectMicName)
+        return self.__myObsLightMicProjects.getMicProjectArchitecture(projectMicName=projectMicName)
         self.__myObsLightMicProjects.save()
 
     def setMicProjectArchitecture(self, projectMicName, arch):
@@ -1035,11 +1051,11 @@ class ObsLightManager(object):
         self.__myObsLightMicProjects.setMicProjectImageType(projectMicName=projectMicName, imageType=imageType)
         self.__myObsLightMicProjects.save()
 
-    def getMicProjectImageType(self, projectMicName, imageType):
+    def getMicProjectImageType(self, projectMicName):
         '''
         
         '''
-        self.__myObsLightMicProjects.getMicProjectImageType(projectMicName=projectMicName)
+        return self.__myObsLightMicProjects.getMicProjectImageType(projectMicName=projectMicName)
 
     def createImage(self, projectMicName):
         '''

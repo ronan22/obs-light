@@ -1,5 +1,8 @@
 # Sudo rules for OBSLight
 %users ALL=(ALL)NOPASSWD:/usr/bin/build
+%users ALL=(ALL)NOPASSWD:/usr/bin/mic *
+%users ALL=(ALL)NOPASSWD:/bin/chown * */OBSLight/MicProjects/*
+%users ALL=(ALL)NOPASSWD:/bin/chmod * */OBSLight/MicProjects/*
 %users ALL=(ALL)NOPASSWD:/usr/bin/setfacl * */OBSLight/*/aChroot*
 %users ALL=(ALL)NOPASSWD:/bin/mkdir -p */OBSLight/*/aChroot*
 %users ALL=(ALL)NOPASSWD:/bin/chown * */OBSLight/*/aChroot*

@@ -58,8 +58,10 @@ __importProject__ = "importProject"
 __getWebProjectPage__ = "getWebProjectPage"
 
 __addMicProjects__ = "addMicProjects"
+__delMicProjects__ = "delMicProjects"
 __addKickstartFile__ = "addKickstartFile"
-__getMicProjectArchitecture__ = "addKickstartFile"
+__getKickstartFile__ = "getKickstartFile"
+__getMicProjectArchitecture__ = "getMicProjectArchitecture"
 __setMicProjectArchitecture__ = "setMicProjectArchitecture"
 __setMicProjectImageType__ = "setMicProjectImageType"
 __getMicProjectImageType__ = "getMicProjectImageType"
@@ -94,7 +96,9 @@ __DICO_HELP__[__getWebProjectPage__] = "return the web URL of a project."
 
 __DICO_HELP__[__getMicProjectList__] = "Return the Mic project list."
 __DICO_HELP__[__addMicProjects__] = "Add a Mic project."
+__DICO_HELP__[__delMicProjects__] = "Del a Mic project."
 __DICO_HELP__[__addKickstartFile__] = "Add a ks file to a Mic project."
+__DICO_HELP__[__getKickstartFile__ ] = "Get the ks file of the Mic project."
 __DICO_HELP__[__getMicProjectArchitecture__] = "return the architecture of a Mic project."
 __DICO_HELP__[__setMicProjectArchitecture__] = "Set the architecture of the Mic project."
 __DICO_HELP__[__setMicProjectImageType__] = "Set the image type of the  Mic project."
@@ -187,7 +191,9 @@ class ObsLight():
         __HELP__ += "\n"
         __HELP__ += "\t" + __getMicProjectList__ + ":" + "\t" + __DICO_HELP__[__getMicProjectList__] + "\n"
         __HELP__ += "\t" + __addMicProjects__ + ":" + "\t\t" + __DICO_HELP__[__addMicProjects__] + "\n"
+        __HELP__ += "\t" + __delMicProjects__ + ":" + "\t\t" + __DICO_HELP__[__delMicProjects__] + "\n"
         __HELP__ += "\t" + __addKickstartFile__ + ":" + "\t" + __DICO_HELP__[__addKickstartFile__] + "\n"
+        __HELP__ += "\t" + __getKickstartFile__ + ":" + "\t" + __DICO_HELP__[__getKickstartFile__ ] + "\n"
         __HELP__ += "\t" + __getMicProjectArchitecture__ + ":" + "\t" + __DICO_HELP__[__getMicProjectArchitecture__] + "\n"
         __HELP__ += "\t" + __setMicProjectArchitecture__ + ":" + "" + __DICO_HELP__[__setMicProjectArchitecture__] + "\n"
         __HELP__ += "\t" + __setMicProjectImageType__ + ":" + "\t" + __DICO_HELP__[__setMicProjectImageType__] + "\n"
@@ -283,8 +289,12 @@ class ObsLight():
                     return self.getMicProjectList(listArgv[1:])
                 elif (listArgv[0] == __addMicProjects__):
                     return self.addMicProjects(listArgv[1:])
+                elif (listArgv[0] == __delMicProjects__):
+                    return self.delMicProjects(listArgv[1:])
                 elif (listArgv[0] == __addKickstartFile__):
                     return self.addKickstartFile(listArgv[1:])
+                elif (listArgv[0] == __getKickstartFile__):
+                    return self.getKickstartFile(listArgv[1:])
                 elif (listArgv[0] == __getMicProjectArchitecture__):
                     return self.getMicProjectArchitecture(listArgv[1:])
                 elif (listArgv[0] == __setMicProjectArchitecture__):
@@ -955,50 +965,312 @@ class ObsLight():
 
     def getMicProjectList(self, listArgv):
         '''
-        TODO
+        return the Mic project list.
         '''
-        pass
+        __COMMAND__ = __getMicProjectList__
+
+        __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " \n"
+        __HELP__ += __DICO_HELP__[__COMMAND__]
+
+        if len(listArgv) == 0:
+
+            res = ObsLightManager.getManager().getMicProjectList()
+
+            if len(res) > 0:
+                for r in res:
+                    print "\t" + r
+            else:
+                print "No Mic project."
+        else:
+            raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
+        return 0
 
     def addMicProjects(self, listArgv):
         '''
-        TODO
+        add a Mic Project to obslight.
         '''
-        pass
+        __COMMAND__ = __addMicProjects__
+
+        __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
+        __HELP__ += "\t" + "--projectMicName projectName" + "\n"
+        __HELP__ += __DICO_HELP__[__COMMAND__]
+
+        projectMicName = None
+
+        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (1 * 2)):
+            for i in range(0, len(listArgv), 2):
+                if listArgv[i] == "--projectMicName":
+                    projectMicName = listArgv[i + 1]
+                else:
+                    raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
+            if (projectMicName != None):
+                ObsLightManager.getManager().addMicProjects(projectMicName=projectMicName)
+            else:
+                raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
+
+        elif self.__isHelp(listArgv[0]):
+            print __HELP__
+        else:
+            raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
+        return 0
+
+    def delMicProjects(self, listArgv):
+        '''
+        Del a Mic Project to obslight.
+        '''
+        __COMMAND__ = __delMicProjects__
+
+        __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
+        __HELP__ += "\t" + "--projectMicName projectName" + "\n"
+        __HELP__ += __DICO_HELP__[__COMMAND__]
+
+        projectMicName = None
+
+        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (1 * 2)):
+            for i in range(0, len(listArgv), 2):
+                if listArgv[i] == "--projectMicName":
+                    projectMicName = listArgv[i + 1]
+                else:
+                    raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
+            if (projectMicName != None):
+                ObsLightManager.getManager().delMicProjects(projectMicName=projectMicName)
+            else:
+                raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
+
+        elif self.__isHelp(listArgv[0]):
+            print __HELP__
+        else:
+            raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
+        return 0
 
     def addKickstartFile(self, listArgv):
         '''
-        TODO
+        Add a ks file to the Mic Project.
         '''
-        pass
+        __COMMAND__ = __addKickstartFile__
 
-    def getMicProjectArchitecture(self, listArgv):
+        __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
+        __HELP__ += "\t" + "--projectMicName projectName" + "\n"
+        __HELP__ += "\t" + "--filePath aPath" + "\n"
+        __HELP__ += __DICO_HELP__[__COMMAND__]
+
+        projectMicName = None
+        filePath = None
+
+        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (2 * 2)):
+            for i in range(0, len(listArgv), 2):
+                if listArgv[i] == "--projectMicName":
+                    projectMicName = listArgv[i + 1]
+                elif listArgv[i] == "--filePath":
+                    filePath = listArgv[i + 1]
+                else:
+                    raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
+            if (projectMicName != None) and (filePath != None):
+                ObsLightManager.getManager().addKickstartFile(projectMicName=projectMicName,
+                                                              filePath=filePath)
+            else:
+                raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
+
+        elif self.__isHelp(listArgv[0]):
+            print __HELP__
+        else:
+            raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
+        return 0
+
+    def getKickstartFile(self, listArgv):
         '''
-        TODO
+        Return the ks file of the Mic Project .
         '''
-        pass
+        __COMMAND__ = __getKickstartFile__
+
+        __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
+        __HELP__ += "\t" + "--projectMicName projectName" + "\n"
+        __HELP__ += __DICO_HELP__[__COMMAND__]
+
+        projectMicName = None
+
+        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (1 * 2)):
+            for i in range(0, len(listArgv), 2):
+                if listArgv[i] == "--projectMicName":
+                    projectMicName = listArgv[i + 1]
+                else:
+                    raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
+            if (projectMicName != None):
+                res = ObsLightManager.getManager().getKickstartFile(projectMicName=projectMicName)
+                if res == None:
+                    print "No kickstart file."
+                else:
+                    print "\t" + res
+            else:
+                raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
+
+        elif self.__isHelp(listArgv[0]):
+            print __HELP__
+        else:
+            raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
+        return 0
 
     def setMicProjectArchitecture(self, listArgv):
         '''
-        TODO
+        set Architecture to the Mic Project.
         '''
-        pass
+        __COMMAND__ = __setMicProjectArchitecture__
+
+        __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
+        __HELP__ += "\t" + "--projectMicName projectName" + "\n"
+        __HELP__ += "\t" + "--arch arch" + "\n"
+        __HELP__ += __DICO_HELP__[__COMMAND__]
+
+        projectMicName = None
+        arch = None
+
+        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (2 * 2)):
+            for i in range(0, len(listArgv), 2):
+                if listArgv[i] == "--projectMicName":
+                    projectMicName = listArgv[i + 1]
+                elif listArgv[i] == "--arch":
+                    arch = listArgv[i + 1]
+                else:
+                    raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
+            if (projectMicName != None) and (arch != None):
+                ObsLightManager.getManager().setMicProjectArchitecture(projectMicName=projectMicName,
+                                                                       arch=arch)
+            else:
+                raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
+
+        elif self.__isHelp(listArgv[0]):
+            print __HELP__
+        else:
+            raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
+        return 0
+
+    def getMicProjectArchitecture(self, listArgv):
+        '''
+        Return the architecture of the Mic Project.
+        '''
+        __COMMAND__ = __getMicProjectArchitecture__
+
+        __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
+        __HELP__ += "\t" + "--projectMicName projectName" + "\n"
+        __HELP__ += __DICO_HELP__[__COMMAND__]
+
+        projectMicName = None
+
+        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (1 * 2)):
+            for i in range(0, len(listArgv), 2):
+                if listArgv[i] == "--projectMicName":
+                    projectMicName = listArgv[i + 1]
+                else:
+                    raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
+            if (projectMicName != None):
+                res = ObsLightManager.getManager().getMicProjectArchitecture(projectMicName=projectMicName)
+                if res == None:
+                    print "No Architecture Define."
+                else:
+                    print "\t" + res
+            else:
+                raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
+
+        elif self.__isHelp(listArgv[0]):
+            print __HELP__
+        else:
+            raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
+        return 0
 
     def setMicProjectImageType(self, listArgv):
         '''
-        TODO
+        set image type to the Mic Project.
         '''
-        pass
+        __COMMAND__ = __setMicProjectArchitecture__
+
+        __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
+        __HELP__ += "\t" + "--projectMicName projectName" + "\n"
+        __HELP__ += "\t" + "--imageType imageType" + "\n"
+        __HELP__ += __DICO_HELP__[__COMMAND__]
+
+        projectMicName = None
+        imageType = None
+
+        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (2 * 2)):
+            for i in range(0, len(listArgv), 2):
+                if listArgv[i] == "--projectMicName":
+                    projectMicName = listArgv[i + 1]
+                elif listArgv[i] == "--imageType":
+                    imageType = listArgv[i + 1]
+                else:
+                    raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
+            if (projectMicName != None) and (imageType != None):
+                ObsLightManager.getManager().setMicProjectImageType(projectMicName=projectMicName,
+                                                                       imageType=imageType)
+            else:
+                raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
+
+        elif self.__isHelp(listArgv[0]):
+            print __HELP__
+        else:
+            raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
+        return 0
 
     def getMicProjectImageType(self, listArgv):
         '''
-        TODO
+        Return the image type of Mic Project.
         '''
-        pass
+        __COMMAND__ = __getMicProjectImageType__
+
+        __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
+        __HELP__ += "\t" + "--projectMicName projectName" + "\n"
+        __HELP__ += __DICO_HELP__[__COMMAND__]
+
+        projectMicName = None
+
+        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (1 * 2)):
+            for i in range(0, len(listArgv), 2):
+                if listArgv[i] == "--projectMicName":
+                    projectMicName = listArgv[i + 1]
+                else:
+                    raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
+            if (projectMicName != None):
+                res = ObsLightManager.getManager().getMicProjectImageType(projectMicName=projectMicName)
+                if res == None:
+                    print "No ImageType Define."
+                else:
+                    print "\t" + res
+            else:
+                raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
+
+        elif self.__isHelp(listArgv[0]):
+            print __HELP__
+        else:
+            raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
+        return 0
 
     def createImage(self, listArgv):
         '''
-        TODO
+        Create an Image.
         '''
-        pass
+        __COMMAND__ = __createImage__
+
+        __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
+        __HELP__ += "\t" + "--projectMicName projectName" + "\n"
+        __HELP__ += __DICO_HELP__[__COMMAND__]
+
+        projectMicName = None
+
+        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (1 * 2)):
+            for i in range(0, len(listArgv), 2):
+                if listArgv[i] == "--projectMicName":
+                    projectMicName = listArgv[i + 1]
+                else:
+                    raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
+            if (projectMicName != None):
+                ObsLightManager.getManager().createImage(projectMicName=projectMicName)
+            else:
+                raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
+
+        elif self.__isHelp(listArgv[0]):
+            print __HELP__
+        else:
+            raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
+        return 0
 
 

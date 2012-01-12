@@ -1,3 +1,8 @@
+* Thu 12 Jan 2012 Ronan Le Martret (Intel OTC) <ronan@fridu.net> 0.4.14
+- Add Mic.
+- Add vnc.
+- Add ObsLightMicProject.
+
 * Fri janv 06 2012 Ronan Le Martret (Intel OTC) <ronan@fridu.net> 0.4.12
 - Add acl.
 
