@@ -129,7 +129,7 @@ class ObsLightMicProject(object):
         '''
         
         '''
-        CMD = "sudo mic create " + self.__imageType + " " + self.__kickstartPath + " --logfile=" + self.__workingDirectory + "/buildLog --cachedir=" + self.__workingDirectory + "/cache --outdir=" + self.__workingDirectory + " --arch=" + self.__architecture
+        CMD = "sudo mic create " + self.__imageType + " " + self.__kickstartPath + " --logfile=" + self.__workingDirectory + "/buildLog --cachedir=" + self.__workingDirectory + "/cache --outdir=" + self.__workingDirectory + " --arch=" + self.__architecture + " --release=latest"
         print CMD
         self.__subprocess(command=CMD)
 
@@ -144,3 +144,15 @@ class ObsLightMicProject(object):
         TODO Add to Manager
         '''
         return ["fs", "livecd", "liveusb", "loop" , "raw" ]
+
+
+    def runQemu(self):
+        '''
+        
+        '''
+        #TO TEST
+        #"sudo qemu-system-x86_64 -hda meego-netbook-ia32-qemu-1.2.0-raw/meego-netbook-ia32-qemu-1.2.0-sda.raw -boot c -m 2048 -k fr -vnc :1"
+        #vncviewer :1
+
+
+
