@@ -14,31 +14,31 @@ echo "---"
 grep --color "VERSION = " src/ObsLight/ObsLightManager.py
 echo "----------------"
 
-grep --color "obslight ($OLDVERSION-1)" deb/debian.changelog
-sed -i s/"obslight ($OLDVERSION-1)"/"obslight ($NEWVERSION-1)"/ deb/debian.changelog
+grep --color "obslight ($OLDVERSION-1)" src/deb/debian.changelog
+sed -i s/"obslight ($OLDVERSION-1)"/"obslight ($NEWVERSION-1)"/ src/deb/debian.changelog
 echo "---"
-grep --color "obslight ($NEWVERSION-1)" deb/debian.changelog
+grep --color "obslight ($NEWVERSION-1)" src/deb/debian.changelog
 echo "----------------"
 
-grep --color "Version: $OLDVERSION" deb/obslight.dsc
-sed -i s/"Version: $OLDVERSION"/"Version: $NEWVERSION"/ deb/obslight.dsc
+grep --color "Version: $OLDVERSION" src/deb/obslight.dsc
+sed -i s/"Version: $OLDVERSION"/"Version: $NEWVERSION"/ src/deb/obslight.dsc
 echo "---"
-grep --color "Version: $NEWVERSION" deb/obslight.dsc
+grep --color "Version: $NEWVERSION" src/deb/obslight.dsc
 echo "----------------"
 
-grep --color "obslight_$OLDVERSION" deb/obslight.dsc
-sed -i s/"obslight_$OLDVERSION"/"obslight_$NEWVERSION"/ deb/obslight.dsc
+grep --color "obslight_$OLDVERSION" src/deb/obslight.dsc
+sed -i s/"obslight_$OLDVERSION"/"obslight_$NEWVERSION"/ src/deb/obslight.dsc
 echo "---"
-grep --color "obslight_$NEWVERSION" deb/obslight.dsc
+grep --color "obslight_$NEWVERSION" src/deb/obslight.dsc
 echo "----------------"
 
-grep --color "Version: $OLDVERSION" rpm/obslight.yaml
-sed -i s/"Version: $OLDVERSION"/"Version: $NEWVERSION"/ rpm/obslight.yaml
+grep --color "Version: $OLDVERSION" src/rpm/obslight.yaml
+sed -i s/"Version: $OLDVERSION"/"Version: $NEWVERSION"/ src/rpm/obslight.yaml
 echo "---"
-grep --color "Version: $NEWVERSION" rpm/obslight.yaml
+grep --color "Version: $NEWVERSION" src/rpm/obslight.yaml
 echo "----------------"
 
-specify rpm/obslight.yaml
+specify src/rpm/obslight.yaml
 #grep --color "version $OLDVERSION" rpm/obslight.spec
 #sed -i s/"version $OLDVERSION"/"version $NEWVERSION"/ rpm/obslight.spec
 #echo "---"
