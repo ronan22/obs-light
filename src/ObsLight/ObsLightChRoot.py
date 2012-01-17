@@ -149,7 +149,7 @@ class ObsLightChRoot(object):
                                                         )
         if isAclReady(self.getDirectory()):
             self.__subprocess(command="sudo chmod -R o+rwX " + self.getDirectory())
-            self.__subprocess(command="sudo setfacl -Rdm o::rwX " + self.getDirectory())
+            self.__subprocess(command="sudo setfacl -Rdm o::rwX -m g::rwX " + self.getDirectory())
         else:
             mountPoint = getmount(self.getDirectory())
             raise ObsLightErr.ObsLightChRootError("acl not enable on mount point '" + mountPoint + "'\n" + \
@@ -162,7 +162,7 @@ class ObsLightChRoot(object):
         self.__subprocess(command="sudo chown root:users " + self.getDirectory() + "/root")
         self.__subprocess(command="sudo chown root:users " + self.getDirectory() + "/etc")
         self.__subprocess(command="sudo chmod g+rwX " + self.getDirectory())
-        self.__subprocess(command="sudo chmod g+rX " + self.getDirectory() + "/root")
+        self.__subprocess(command="sudo chmod g+rwX " + self.getDirectory() + "/root")
         self.__subprocess(command="sudo chmod g+rwX " + self.getDirectory() + "/etc")
         self.__subprocess(command="sudo chown -R root:users " + self.getDirectory() + "/usr/lib/rpm")
         self.__subprocess(command="sudo chmod -R g+rwX " + self.getDirectory() + "/usr/lib/rpm")
@@ -335,7 +335,7 @@ class ObsLightChRoot(object):
                 ObsLightPrintManager.getLogger().debug("for the package " + packageName + " the packageDirectory is used : " + str(packageDirectory))
                 package.setDirectoryBuild(packageDirectory)
                 if packageDirectory != None:
-                    self.__subprocess(command="sudo chmod -R o+rwX %s"
+                    self.__subprocess(command="sudo chmod -R og+rwX %s"
                                       % (self.getDirectory() + "/" + packageDirectory))
                     self.initGitWatch(path=packageDirectory)
                     self.__buildRpm(specFile=aspecFile, package=package)

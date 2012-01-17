@@ -1,4 +1,10 @@
-obslight (0.4.14-1) stable; urgency=low
+obslight (0.4.15-1) stable; urgency=low
+
+  * Version 0.4.15
+    Fixed user rights in chroot so user can work from outside the chroot
+    Small fix in obstag
+    Fixed chroot view in GUI
+
   * Version 0.4.14
     Add Mic.
     Add vnc.
@@ -47,4 +53,4 @@ obslight (0.4.14-1) stable; urgency=low
 
   * Initial Release
 
- -- Ronan Le Martret (Intel OTC) <ronan@fridu.net>  Thu, 12 Jan 2012 15:17:30 +0100
+ -- Florent Vennetier (Intel OTC) <florent@fridu.net>  Tue, 17 Jan 2012 18:22:31 +0100

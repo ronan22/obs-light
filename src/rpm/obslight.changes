@@ -1,12 +1,17 @@
-* Thu 12 Jan 2012 Ronan Le Martret (Intel OTC) <ronan@fridu.net> 0.4.14
+* Tue Jan 17 2012 Florent Vennetier (Intel OTC) <florent@fridu.net> 0.4.15
+- fixed user rights in chroot so user can work from outside the chroot
+- small fix in obstag
+- fixed chroot view in GUI
+
+* Thu Jan 12 2012 Ronan Le Martret (Intel OTC) <ronan@fridu.net> 0.4.14
 - Add Mic.
 - Add vnc.
 - Add ObsLightMicProject.
 
-* Fri janv 06 2012 Ronan Le Martret (Intel OTC) <ronan@fridu.net> 0.4.12
+* Fri Jan 06 2012 Ronan Le Martret (Intel OTC) <ronan@fridu.net> 0.4.12
 - Add acl.
 
-* Fri janv 06 2012 Ronan Le Martret (Intel OTC) <ronan@fridu.net> 0.4.11
+* Fri Jan 06 2012 Ronan Le Martret (Intel OTC) <ronan@fridu.net> 0.4.11
 - Change mic2 to mic.
 - Change Requires python 2.5.0 to python 2.6.0.
 
