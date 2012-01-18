@@ -152,8 +152,10 @@ class ObsLightChRoot(object):
             self.__subprocess(command="sudo setfacl -Rdm o::rwX -m g::rwX " + self.getDirectory())
         else:
             mountPoint = getmount(self.getDirectory())
-            raise ObsLightErr.ObsLightChRootError("acl not enable on mount point '" + mountPoint + "'\n" + \
-                                                  "use command 'mount -o remount,acl " + mountPoint + "'")
+            raise ObsLightErr.ObsLightChRootError("ACLs not enabled on mount point '" +
+                                                  mountPoint + "'. " +
+                                                  "Use command 'mount -o remount,acl " +
+                                                  mountPoint + "' as root to enable them.")
 
         if res != 0:
             raise ObsLightErr.ObsLightChRootError("Can't create the chroot")
