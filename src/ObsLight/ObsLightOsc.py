@@ -695,7 +695,6 @@ class ObsLightOsc(object):
                 os.unlink(path + "/" + f)
         self.__subprocess(command=command)
 
-
     def getPackageFileInfo(self, workingdir):
         '''
         
