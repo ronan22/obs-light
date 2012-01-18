@@ -432,7 +432,9 @@ class ObsLightOsc(object):
         for pkg in listExtraPkgs:
             extraPkgs += "-x " + pkg + " "
 
-        command = "osc -A " + apiurl + " build --root=" + chrootDir + " " + extraPkgs + " --noservice --no-verify --alternative-project " + project + " " + repos + " " + arch + " --local-package"
+        command = "osc -A " + apiurl + " build --root=" + chrootDir + " " + extraPkgs
+        command += " --noservice --no-verify --alternative-project " + project + " "
+        command += repos + " " + arch + " --local-package emptySpec.spec"
         return self.__subprocess(command=command, waitMess=True)
 
 

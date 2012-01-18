@@ -28,7 +28,8 @@ import ObsLightConfig
 import ObsLightErr
 import ObsLightPrintManager
 from M2Crypto import SSL
-from os.path import expanduser
+from os.path import expanduser, exists
+from os import makedirs
 
 import threading
 
@@ -186,6 +187,8 @@ def importCert(url):
     # if the peer did not provide a certificate chain, cert is None.
     if cert is not None:
         dirpath = expanduser('~/.config/osc/trusted-certs')
+        if not exists(dirpath):
+            makedirs(dirpath)
         filePath = dirpath + '/%s_%d.pem' % (host, port)
         cert.save_pem(filePath)
     conn.close()

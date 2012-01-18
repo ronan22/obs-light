@@ -1,0 +1,22 @@
+<services>
+<!-- Make an archive from our git repository -->
+  <service name="tar_scm">
+    <param name="scm">git</param>
+    <param name="subdir">src</param>
+    <param name="url">git://gitorious.org/meego-developer-tools/obs-light.git</param>
+    <param name="versionprefix">0.4.git</param>
+    <param name="filename">obslight</param>
+  </service>
+<!-- Extract build control files from the archive -->
+  <service name="extract_file">
+    <param name="archive">*.tar</param>
+    <param name="files">*/deb/* */rpm/obslight.changes */rpm/obslight.spec */rpm/obslight.yaml</param>
+  </service>
+<!-- Compress the archive to save space -->
+  <service name="recompress">
+    <param name="file">*git*.tar</param>
+    <param name="compression">gz</param>
+  </service>
+<!-- Update spec and dsc files with generated version string -->
+  <service name="set_version"/>
+</services>

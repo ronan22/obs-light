@@ -58,6 +58,9 @@ class PackageRevision(object):
         """
         Returns a string suitable for obs2obscopy input
         """
+        if isinstance(self.comment, basestring):
+            self.comment = self.comment.replace("\n", "\t")
+            self.comment = self.comment.strip()
         date = time.localtime(int(self.time))
         s = "%(srcmd5)40s | %(rev)6s | " % self.__dict__
         s += "%20s | " % time.strftime("%Y-%m-%d %H:%M:%S", date)
@@ -112,7 +115,8 @@ class ObsProject(object):
                                            xmlRevision.get("rev", 1),
                                            xmlRevision.get("vrev", 1))
                 for field in xmlRevision.iter():
-                    revision.__dict__[field.tag] = field.text
+                    if field.text is not None:
+                        revision.__dict__[field.tag] = field.text
                 revisionsList.append(revision)
 
         revisionsList.sort(reverse=True)
