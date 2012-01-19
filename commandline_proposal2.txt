@@ -1,0 +1,71 @@
+obslight  server add    <server_alias> <login> <password> <api_url> <repository_url> [<web_url>]
+          server delete <server_alias>
+          server list
+          server query  [login] [apiurl] [repositoryurl] [weburl] {<server_alias>}
+          server set    [login <login>] [apiurl <apiurl>] [repositoryurl <repository_url>] [weburl <web_url>] {<server_alias>}
+
+          obsproject add    <project_alias> <name_on_obs> <target> <arch> {<server_alias>}
+          obsproject delete <project_alias>
+          obsproject list   [<server_alias>]
+          obsproject query  [title|description|server|webpage|repository|target|architecture] {<project_alias>}
+              -> Options can be combined, no option means all options.
+                 Output is in same order as query (one answer by line or on the same line with a seperator?)
+          obsproject set    [title <title>] [description <description>] [target <target>] [architecture <architecture>] {<project_alias>}
+
+          package add    <package> {<project_alias>}
+          package delete <package> {<project_alias>}
+          package list   [available] {<project_alias>}
+              -> List packages of project, or if "available" option is set,
+                 list packages available to be added.
+          package query  [title|description|status|revision] {<package>} {<project_alias>}
+              -> Options can be combined, no option means all options.
+                 Output is in same order as query (one answer by line or on the same line with a seperator?)
+          package update {<package>} {<project_alias>}
+          package commit <message> {<package>} {<project_alias>}
+          package repair {<package>} {<project_alias>}
+
+          filesystem create        {<project_alias>}
+          filesystem delete        <project_alias>
+          filesystem enter         [inpackagedirectory <package>] {<project_alias>}
+              -> chroot into the filesystem and change working directory to package
+                 directory if specified. If specified package not in chroot, return
+                 an error (do not fallback to FS root).
+          filesystem executescript <script_path> [inpackagedirectory <package>] {<project_alias>}
+              -> Script is copied in chrootTransfer, and executed from FS root or
+                 from package directory if specified.
+          filesystem addrepository <repository_url> <repository_alias> {<project_alias>}
+                                   from <source_project_alias> {<project_alias>}
+          filesystem extractpatch  <patch_name> {<package>} {<project_alias>}
+
+          spec prepare {<package>} {<project_alias>}
+          spec build   {<package>} {<project_alias>}
+          spec install {<package>} {<project_alias>}
+          spec package {<package>} {<project_alias>}
+
+          micproject add    <project_name> <kickstart_path> <architecture> <image_type>
+          micproject delete <project_name>
+          micproject list
+          micproject query  [kickstart] [architecture] [imagetype] {<project_name>}
+
+synthax used:
+ project      the string "project"
+ [project]    the optional string "project"
+ <project>    a project name
+ [<project>]  an optional project name
+ {<project>}  an optional project name, if absent: the most recently used is taken
+
+abbreviations/synonyms:
+ delete         del, rm
+ update         up
+ commit         ci
+ query          get
+ filesystem     fs
+ enter          chroot
+ executescript  exec
+ addrepository  ar
+ spec prepare   spec prep
+ spec package   spec files
+ kickstart      ks
+ package        pkg
+ project        prj
+ architecture   arch
