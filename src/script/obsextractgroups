@@ -245,9 +245,10 @@ def obsextractgroups(URL_to_published_repo,target_dir_includes_files=None):
                 f.write("#group:"+groupName+"\r\n")
                 f.write("#file extract with:"+__NAME__+" "+__VERSION__+"\r\n")
                 f.write("#"+time.asctime()+"\r\n")
-                
+                f.write("%packages\r\n")
                 for p in listPk:
                     f.write(p+"\r\n")
+                f.write("%end\r\n") 
                 f.close()
                                
     printProcess("Number of Groups:\t"+str(len(dicoStat.keys())))
@@ -255,9 +256,6 @@ def obsextractgroups(URL_to_published_repo,target_dir_includes_files=None):
     printProcess("Group name\tNumbers of packages")
     for k in dicoStat.keys():
         printProcess(k+"\t"+dicoStat[k])             
-
-        
-
 
 def walkURL(host, port,path):
      
@@ -315,19 +313,13 @@ def walkURL(host, port,path):
                 #print f
                 files.append(f) 
             
-            
-
     result.append((root,dirs,files))
 
     return result
 
-
-
-
 def printProcess(value):
     if __SILENCEMODE__==0:
         print value
-
 
 def checkURL(url):
     try:
@@ -367,10 +359,6 @@ def checkHost(url):
         return 1
     except socket.error, e:
         return 0
-
-
-
-
 
 if __name__ == '__main__':
     if (len(sys.argv)>6) | (len(sys.argv)==1):

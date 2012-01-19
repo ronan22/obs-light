@@ -85,7 +85,8 @@ class ObsLightMicProject(object):
         if os.path.isfile(filePath):
             fileName = os.path.basename(filePath)
             self.__kickstartPath = self.getProjectDirectory() + "/" + fileName
-            shutil.copy(filePath, self.__kickstartPath)
+            if os.path.abspath(filePath) != self.__kickstartPath:
+                shutil.copy(os.path.abspath(filePath), self.__kickstartPath)
         else:
             raise ObsLightErr.ObsLightMicProjectErr("'" + filePath + "' is not a file.")
 
