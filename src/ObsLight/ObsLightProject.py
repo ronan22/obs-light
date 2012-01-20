@@ -702,9 +702,9 @@ class ObsLightProject(object):
         '''
         if package != None:
 
-            pathPackage = self.__packages.getPackageDirectory(package=package)
-            if pathPackage != None:
-                self.__chroot.goToChRoot(path=pathPackage, detach=detach)
+            packagePath = self.__packages.getPackageDirectory(package=package)
+            if packagePath != None:
+                self.__chroot.goToChRoot(path=packagePath, detach=detach)
             else:
                 self.__chroot.goToChRoot(detach=detach)
         else:
@@ -715,13 +715,13 @@ class ObsLightProject(object):
         Open a Bash in the chroot.
         '''
         if package != None:
-            pathPackage = self.__packages.getOscDirectory(name=package)
-            if pathPackage != None:
+            packagePath = self.__packages.getOscDirectory(name=package)
+            if packagePath != None:
                 pathScript = self.__chroot.getChrootDirTransfert() + "/runMe.sh"
                 f = open(pathScript, 'w')
                 f.write("#!/bin/sh\n")
                 f.write("# Created by obslight\n")
-                f.write("cd " + pathPackage + "\n")
+                f.write("cd " + packagePath + "\n")
                 f.write("exec bash\n")
                 f.close()
                 os.chmod(pathScript, 0755)
@@ -755,7 +755,7 @@ class ObsLightProject(object):
                 tarFile = self.__packages.getPackage(package=package).getArchiveName()
                 self.__chroot.buildRpm(package=self.__packages.getPackage(package=package),
                                        specFile=aspecFile,
-                                       pathPackage=path,
+                                       packagePath=path,
                                        tarFile=tarFile)
 
     def patchIsInit(self, packageName):
@@ -784,7 +784,7 @@ class ObsLightProject(object):
             tarFile = self.__packages.getPackage(package=package).getArchiveName()
             self.__chroot.installRpm(package=self.__packages.getPackage(package=package),
                                      specFile=aspecFile,
-                                     pathPackage=path,
+                                     packagePath=path,
                                      tarFile=tarFile)
 
     def packageRpm(self, package):
@@ -801,7 +801,7 @@ class ObsLightProject(object):
             tarFile = self.__packages.getPackage(package=package).getArchiveName()
             self.__chroot.packageRpm(package=self.__packages.getPackage(package=package),
                                      specFile=aspecFile,
-                                     pathPackage=path,
+                                     packagePath=path,
                                      tarFile=tarFile)
 
     def makePatch(self, package, patch):

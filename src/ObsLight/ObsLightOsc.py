@@ -22,7 +22,6 @@ Created on 3 oct. 2011
 
 import os
 import sys
-import errno
 from xml.etree import ElementTree
 import urlparse
 
@@ -416,6 +415,7 @@ class ObsLightOsc(object):
                      listExtraPkgs=["vim",
                                     "git",
                                     "zypper",
+                                    "gzip",
                                     "strace",
                                     "iputils",
                                     "ncurses-devel",
