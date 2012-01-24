@@ -146,13 +146,12 @@ class ObsLightMicProject(object):
         '''
         return ["fs", "livecd", "liveusb", "loop" , "raw" ]
 
-
     def runQemu(self):
         '''
         
         '''
         #TO TEST
-        #"sudo qemu-system-x86_64 -hda meego-netbook-ia32-qemu-1.2.0-raw/meego-netbook-ia32-qemu-1.2.0-sda.raw -boot c -m 2048 -k fr -vnc :1"
+        #"sudo qemu-system-x86_64 -hda latest/images/meego-netbook-ia32-qemu_local/meego-netbook-ia32-qemu_local-latest-hda.raw -boot c -m 2047 -k fr -vnc :1 -smp 2 -serial pty -M pc -cpu core2duo -append "root=/dev/sda1 console=ttyS0,115200n8" -kernel ./kernel/vmlinuz-2.6.37.2-6 -initrd ./kernel/initrd-2.6.37.2-6.img -vga std -sdl"
         #vncviewer :1
 
 
