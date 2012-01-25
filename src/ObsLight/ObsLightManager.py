@@ -590,15 +590,11 @@ def checkDirectory(position=None):
     return checkDirectory1
 
 
-class ObsLightManager(object):
-    '''
-    Application Programming Interface between clients (command line, GUI) and OBS Light.
-    All interactions should be done with this class, no other class should
-    be imported in external projects.
-    '''
+class ObsLightManagerBase(object):
+
     def __init__(self):
         '''
-        Initialize the OBS Light Manager.
+        Initialize the OBS Light Manager Base.
         '''
         self.__workingDirectory = ObsLightConfig.WORKINGDIRECTORY
 
@@ -608,6 +604,34 @@ class ObsLightManager(object):
 
         self.__myObsLightProjects = ObsLightProjects(obsServers=self.__myObsServers,
                                                      workingDirectory=self.getObsLightWorkingDirectory())
+
+    def getObsLightWorkingDirectory(self):
+        '''
+        Returns the OBS Light working directory, usually /home/<user>/OBSLight.
+        '''
+        return self.__workingDirectory
+
+
+class ObsLightManagerCore(ObsLightManagerBase):
+
+    def __init__(self):
+        '''
+        Initialize the OBS Light Manager Core.
+        '''
+        ObsLightManagerCore.__init__(self)
+
+
+class ObsLightManager(ObsLightManagerCore):
+    '''
+    Application Programming Interface between clients (command line, GUI) and OBS Light.
+    All interactions should be done with this class, no other class should
+    be imported in external projects.
+    '''
+    def __init__(self):
+        '''
+        Initialize the OBS Light Manager.
+        '''
+        ObsLightManagerCore.__init__(self)
 
 
     #---------------------------------------------------------------------------
@@ -623,12 +647,6 @@ class ObsLightManager(object):
         '''
         ObsLightPrintManager.removeHandler(handler)
     #---------------------------------------------------------------------------
-
-    def getObsLightWorkingDirectory(self):
-        '''
-        Returns the OBS Light working directory, usually /home/<user>/OBSLight.
-        '''
-        return self.__workingDirectory
 
     def testServer(self, obsServer):
         '''
