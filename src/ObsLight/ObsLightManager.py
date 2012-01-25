@@ -602,7 +602,7 @@ class ObsLightManagerBase(object):
         self._myObsServers = ObsLightServers(workingDirectory=self.getObsLightWorkingDirectory())
 
         self._myObsLightProjects = ObsLightProjects(obsServers=self._myObsServers,
-                                                     workingDirectory=self.getObsLightWorkingDirectory())
+                                                    workingDirectory=self.getObsLightWorkingDirectory())
 
     def getObsLightWorkingDirectory(self):
         '''
