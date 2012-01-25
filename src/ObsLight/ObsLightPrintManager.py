@@ -27,7 +27,6 @@ DEBUG = 0
 logger = logging.getLogger('obslight')
 handler = logging.StreamHandler()
 
-
 logger.addHandler(handler)
 
 def obsLightPrint(text, isDebug=False, isVerbose=False):
@@ -65,7 +64,6 @@ def removeHandler(handler):
     Remove a Handler to the logger
     '''
     logger.removeHandler(handler)
-
 
 formatter = logging.Formatter(ObsLightConfig.getObslightFormatter())
 handler.setFormatter(formatter)

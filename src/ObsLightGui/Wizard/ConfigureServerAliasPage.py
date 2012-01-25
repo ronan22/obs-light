@@ -21,7 +21,8 @@ Created on 20 déc. 2011
 @author: Florent Vennetier
 '''
 
-from ObsLightGui.Utils import colorizeWidget, isNonEmptyString, uiFriendly, popupOnException
+from ObsLightGui.Utils import colorizeWidget, uiFriendly, popupOnException
+from ObsLight.ObsLightUtils import isNonEmptyString
 
 from WizardPageWrapper import ObsLightWizardPage
 

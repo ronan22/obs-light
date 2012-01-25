@@ -22,6 +22,7 @@ try:
     # Now we can load the GUI
     gui = Gui()
     gui.loadManager(ObsLightManager.getManager)
-    sys.exit(babysitter.run(gui.main))
+    r = babysitter.run(gui.main)
+    sys.exit(r)
 finally:
-    os.remove(pidFilePath)
+    import obslight_extinguisher

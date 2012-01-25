@@ -41,6 +41,7 @@ try:
 
     sys.exit(r)
 finally:
-    os.remove(pidFilePath)
+    import obslight_extinguisher
+
 
 

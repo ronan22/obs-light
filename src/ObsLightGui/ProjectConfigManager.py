@@ -25,7 +25,7 @@ from PySide.QtGui import QComboBox, QDialogButtonBox, QLineEdit, QRegExpValidato
 from PySide.QtGui import QCompleter
 
 from ObsLight.ObsLightErr import OBSLightBaseError
-from ObsLight.ObsLightTools import isNonEmptyString
+from ObsLight.ObsLightUtils import isNonEmptyString
 from Utils import popupOnException, colorizeWidget, removeEffect, ProgressRunnable2
 from ObsLightGuiObject import ObsLightGuiObject
 

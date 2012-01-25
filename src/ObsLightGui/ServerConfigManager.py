@@ -24,7 +24,7 @@ from PySide.QtCore import QObject, QRegExp, Signal
 from PySide.QtGui import QDialog, QDialogButtonBox
 from PySide.QtGui import QLineEdit, QPushButton, QRegExpValidator
 
-from ObsLight.ObsLightTools import isNonEmptyString
+from ObsLight.ObsLightUtils import isNonEmptyString
 
 from Utils import popupOnException, colorizeWidget
 from ObsLightGuiObject import ObsLightGuiObject

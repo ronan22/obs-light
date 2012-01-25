@@ -24,7 +24,7 @@ import os
 import shutil
 import re
 
-from ObsLightTools import isNonEmptyString
+from ObsLightUtils import isNonEmptyString
 
 OBSLIGHTDIRNAME = "OBSLight"
 OBSLIGHTCONFIG = "ObslightConfig"

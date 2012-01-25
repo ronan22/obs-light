@@ -29,7 +29,7 @@ from PySide.QtGui import QApplication, QColor, QGraphicsColorizeEffect
 from PySide.QtGui import QMessageBox, QProgressDialog
 
 from ObsLight import ObsLightErr
-from ObsLight.ObsLightTools import isNonEmptyString
+from ObsLight.ObsLightUtils import isNonEmptyString
 
 class QRunnableImpl(QRunnable):
     '''

@@ -25,6 +25,7 @@ from PySide.QtCore import QRegExp
 from PySide.QtGui import QRegExpValidator
 
 from ObsLightGui.Utils import colorizeWidget, removeEffect, isNonEmptyString, uiFriendly
+from ObsLight.ObsLightUtils import isNonEmptyString
 
 from WizardPageWrapper import ObsLightWizardPage
 

@@ -27,7 +27,7 @@ from PySide.QtCore import QObject
 from PySide.QtGui import QFileDialog, QFileSystemModel, QMessageBox, QPushButton
 from PySide.QtGui import QTabWidget, QTableView, QTreeView
 
-from ObsLight.ObsLightTools import isNonEmptyString
+from ObsLight.ObsLightUtils import isNonEmptyString
 from Utils import popupOnException
 from ObsLightGuiObject import ObsLightGuiObject
 

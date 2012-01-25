@@ -35,10 +35,6 @@ import threading
 
 SOCKETTIMEOUT = 20
 
-
-def isNonEmptyString(theString):
-    return isinstance(theString, basestring) and len(theString) > 0
-
 def testHost(host):
     '''
     
@@ -93,8 +89,6 @@ def testUrl(url):
         return False
     finally:
         test.close()
-
-
 
 def testRepo(url, name):
     '''
