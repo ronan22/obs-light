@@ -1,2 +1,8 @@
+*.pyc
+src/dist
+src/dist/*
+.directory
 .settings
-/.directory
+.settings/*
+src/MANIFEST
+
