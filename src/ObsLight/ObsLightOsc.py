@@ -125,6 +125,10 @@ class ObsLightOsc(object):
         f.write(txt.replace("[" + api + "]", "[" + newApi + "]"))
         f.close()
 
+    def getUserProfil(self, api, user):
+        "GET /person/<userid>"
+        pass
+
     def changeUser(self, api, user):
         '''
         

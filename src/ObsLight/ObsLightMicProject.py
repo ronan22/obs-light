@@ -152,6 +152,7 @@ class ObsLightMicProject(object):
         '''
         #TO TEST
         #"sudo qemu-system-x86_64 -hda latest/images/meego-netbook-ia32-qemu_local/meego-netbook-ia32-qemu_local-latest-hda.raw -boot c -m 2047 -k fr -vnc :1 -smp 2 -serial pty -M pc -cpu core2duo -append "root=/dev/sda1 console=ttyS0,115200n8" -kernel ./kernel/vmlinuz-2.6.37.2-6 -initrd ./kernel/initrd-2.6.37.2-6.img -vga std -sdl"
+        #sudo screen /dev/pts/5
         #vncviewer :1
 
 
