@@ -21,16 +21,7 @@ def signal_handler(signal, frame):
         print >> sys.stderr, "kill process..."
     sys.exit(0)
 
-# Check if another instance is running
-from ObsLight.ObsLightManager import getWorkingDirectory
-
-pidFilePath = os.path.join(getWorkingDirectory(), u"obslight.pid")
-if os.path.exists(pidFilePath):
-    print "Already running... PID file is %s" % pidFilePath
-    sys.exit(1)
-else:
-    with open(pidFilePath, "w") as pidFile:
-        pidFile.write(str(os.getpid()))
+import obslight_starter
 
 try:
     signal.signal(signal.SIGINT, signal_handler)

@@ -611,6 +611,19 @@ class ObsLightManagerBase(object):
         '''
         return self.__workingDirectory
 
+    #---------------------------------------------------------------------------
+    def addLoggerHandler(self, handler):
+        '''
+        Add a Handler object to the logger of obslight.
+        '''
+        ObsLightPrintManager.addHandler(handler)
+
+    def removeLoggerHandler(self, handler):
+        '''
+        Remove a Handler object to the logger of obslight.
+        '''
+        ObsLightPrintManager.removeHandler(handler)
+
 
 class ObsLightManagerCore(ObsLightManagerBase):
 
@@ -620,6 +633,12 @@ class ObsLightManagerCore(ObsLightManagerBase):
         '''
         ObsLightManagerCore.__init__(self)
 
+    def testServer(self, obsServer):
+        '''
+        Return True if obsServer is reachable, false otherwise.
+        obsServer may be an OBS server alias or an HTTP(S) URL.
+        '''
+        return self.__myObsServers.testServer(obsServer=obsServer)
 
 class ObsLightManager(ObsLightManagerCore):
     '''
@@ -633,19 +652,6 @@ class ObsLightManager(ObsLightManagerCore):
         '''
         ObsLightManagerCore.__init__(self)
 
-
-    #---------------------------------------------------------------------------
-    def addLoggerHandler(self, handler):
-        '''
-        Add a Handler object to the logger of obslight.
-        '''
-        ObsLightPrintManager.addHandler(handler)
-
-    def removeLoggerHandler(self, handler):
-        '''
-        Remove a Handler object to the logger of obslight.
-        '''
-        ObsLightPrintManager.removeHandler(handler)
     #---------------------------------------------------------------------------
 
     def testServer(self, obsServer):
