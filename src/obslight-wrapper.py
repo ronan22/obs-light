@@ -33,10 +33,10 @@ try:
     sys.setdefaultencoding(loc)
     del sys.setdefaultencoding
 
-    from ObsLight import commandline
+    from ObsLight import TMPcommandline
     from ObsLight import babysitter
 
-    obslightcli = commandline.ObsLight()
+    obslightcli = TMPcommandline.ObsLight()
     r = babysitter.run(obslightcli.main)
 
     sys.exit(r)

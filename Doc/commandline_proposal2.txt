@@ -1,9 +1,23 @@
-obslight  server add    <server_alias> <login> <password> <api_url> <repository_url> [<web_url>]
-          server delete <server_alias>
-          server list
+obslight   
+	  server
+	  obsproject
+	  package
+	  filesystem
+	  spec
+	  micproject
+	  qemuproject
+	  
+
+#_____________________________________________________________________________________________________________________________________________________
+	  server test <server_alias> test the server alias
+	  server testapi <login> <password> <api_url>
+          server list [<reachable>] reachable =False->return all sever,reachable =True->return only the available server,default=False.
+	  #_____________
+	  server add    <server_alias> <login> <password> <api_url> <repository_url> [<web_url>]
+          server delete <server_alias> 
           server query  [login] [apiurl] [repositoryurl] [weburl] {<server_alias>}
           server set    [login <login>] [apiurl <apiurl>] [repositoryurl <repository_url>] [weburl <web_url>] {<server_alias>}
-
+	  #___________________________________________________________________________________________________________________________________________
           obsproject add    <project_alias> <name_on_obs> <target> <arch> {<server_alias>}
           obsproject delete <project_alias>
           obsproject list   [<server_alias>]
@@ -11,7 +25,7 @@ obslight  server add    <server_alias> <login> <password> <api_url> <repository_
               -> Options can be combined, no option means all options.
                  Output is in same order as query (one answer by line or on the same line with a seperator?)
           obsproject set    [title <title>] [description <description>] [target <target>] [architecture <architecture>] {<project_alias>}
-
+	  #___________________________________________________________________________________________________________________________________________
           package add    <package> {<project_alias>}
           package delete <package> {<project_alias>}
           package list   [available] {<project_alias>}
@@ -23,30 +37,31 @@ obslight  server add    <server_alias> <login> <password> <api_url> <repository_
           package update {<package>} {<project_alias>}
           package commit <message> {<package>} {<project_alias>}
           package repair {<package>} {<project_alias>}
-
-          filesystem create        {<project_alias>}
-          filesystem delete        <project_alias>
-          filesystem enter         [inpackagedirectory <package>] {<project_alias>}
+	  #___________________________________________________________________________________________________________________________________________
+          projectfilesystem create        {<project_alias>}
+          projectfilesystem delete        <project_alias>
+          projectfilesystem enter         [inpackagedirectory <package>] {<project_alias>}
               -> chroot into the filesystem and change working directory to package
                  directory if specified. If specified package not in chroot, return
                  an error (do not fallback to FS root).
-          filesystem executescript <script_path> [inpackagedirectory <package>] {<project_alias>}
+          projectfilesystem executescript <script_path> [inpackagedirectory <package>] {<project_alias>}
               -> Script is copied in chrootTransfer, and executed from FS root or
                  from package directory if specified.
-          filesystem addrepository <repository_url> <repository_alias> {<project_alias>}
+          projectfilesystem addrepository <repository_url> <repository_alias> {<project_alias>}
                                    from <source_project_alias> {<project_alias>}
-          filesystem extractpatch  <patch_name> {<package>} {<project_alias>}
-
+          projectfilesystem extractpatch  <patch_name> {<package>} {<project_alias>}
+	  #___________________________________________________________________________________________________________________________________________
           spec prepare {<package>} {<project_alias>}
           spec build   {<package>} {<project_alias>}
           spec install {<package>} {<project_alias>}
           spec package {<package>} {<project_alias>}
-
+	  #___________________________________________________________________________________________________________________________________________
           micproject add    <project_name> <kickstart_path> <architecture> <image_type>
           micproject delete <project_name>
           micproject list
           micproject query  [kickstart] [architecture] [imagetype] {<project_name>}
 
+#_____________________________________________________________________________________________________________________________________________________
 synthax used:
  project      the string "project"
  [project]    the optional string "project"

@@ -7,4 +7,5 @@ src/dist/*
 src/MANIFEST
 .project
 .pydevproject
+.kate-swp
 

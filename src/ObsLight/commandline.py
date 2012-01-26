@@ -114,7 +114,6 @@ class ObsLight():
     """
     
     """
-
     man_header = MAN_HEADER
     man_footer = MAN_FOOTER
 
@@ -317,7 +316,7 @@ class ObsLight():
 
     def getLocalProjectList(self, listArgv):
         '''
-        Print the list of local projects. 
+        Print the list of local projects.
         '''
         __COMMAND__ = __getListLocalProject__
         __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " \n"

@@ -677,7 +677,8 @@ class ObsLightOsc(object):
         # ...and install it globally so it can be used with urlopen.
         urllib2.install_opener(opener)
         try:
-            if isinstance(urllib2.urlopen(api + url).read(), basestring):
+            res = urllib2.urlopen(api + url).read()
+            if isinstance(res, basestring):
                 return 0
             else:
                 return -1
