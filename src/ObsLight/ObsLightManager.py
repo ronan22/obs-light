@@ -135,22 +135,6 @@ def checkFilePath(position=None):
         return checkFilePath2
     return checkFilePath1
 
-def checkObsServerAlias(position=None):
-    def checkObsServerAlias1(f):
-        def checkObsServerAlias2(*args, **kwargs):
-            mngr = getManager()
-            serverApi = None
-            if (position is not None) and (position < len(args)):
-                serverApi = args[position]
-            elif "serverApi" in kwargs :
-                serverApi = kwargs["serverApi"]
-            else:
-                raise ObsLightProjectsError("checkObsServerAlias Fails")
-            if not mngr.isAnObsServer(serverApi):
-                raise ObsLightObsServers(serverApi + " is not an OBS server")
-            return f(*args, **kwargs)
-        return checkObsServerAlias2
-    return checkObsServerAlias1
 
 def checkNonEmptyStringPackage(position=None):
     def checkNonEmptyStringPackage1(f):
@@ -642,62 +626,9 @@ class ObsLightManagerBase(object):
         if self.isAnObsServer(serverApi):
                 raise ObsLightObsServers(serverApi + " is not an OBS server")
 
-class ObsLightManagerCore(ObsLightManagerBase):
-
-    def __init__(self):
-        '''
-        Initialize the OBS Light Manager Core.
-        '''
-        ObsLightManagerBase.__init__(self)
-
-    def testServer(self, obsServer):
-        '''
-        Return True if obsServer is reachable, false otherwise.
-        obsServer may be an OBS server alias or an HTTP(S) URL.
-        '''
-        return self._myObsServers.testServer(obsServer=obsServer)
-
-    def testApi(self, api, user, passwd):
-        '''
-        return 0 if the API,user and passwd is OK.
-        return 1 if user and passwd  are wrong.
-        return 2 if api is wrong.
-        '''
-        return self._myObsServers.testApi(api=api, user=user, passwd=passwd)
-
-    def getObsServerList(self, reachable=False):
-        '''
-        Returns the list of available OBS servers.
-        if reachable =False :
-            return all ObsServer
-        else :
-            return only the available ObsServer
-        '''
-        return self._myObsServers.getObsServerList(reachable=reachable)
-
-
-class ObsLightManager(ObsLightManagerCore):
-    '''
-    Application Programming Interface between clients (command line, GUI) and OBS Light.
-    All interactions should be done with this class, no other class should
-    be imported in external projects.
-    '''
-    def __init__(self):
-        '''
-        Initialize the OBS Light Manager.
-        '''
-        ObsLightManagerCore.__init__(self)
-
-    #---------------------------------------------------------------------------
-
-    def getObsServerProjectList(self, serverApi):
-        '''
-        Get the list of projects of an OBS server.
-        '''
-        checkNonEmptyStringServerApi(serverApi=serverApi)
-        self.checkServerApi(serverApi=serverApi)
-        return self._myObsServers.getLocalProjectList(serverApi)
-
+    def checkObsServerAlias(self, serverApi):
+        if not self.isAnObsServer(serverApi):
+            raise ObsLightObsServers(serverApi + " is not an OBS server")
 
     def testUrl(self, Url):
         '''
@@ -731,6 +662,84 @@ class ObsLightManager(ObsLightManagerCore):
         Return the version of obslight
         '''
         return VERSION
+
+class ObsLightManagerCore(ObsLightManagerBase):
+
+    def __init__(self):
+        '''
+        Initialize the OBS Light Manager Core.
+        '''
+        ObsLightManagerBase.__init__(self)
+
+    def testServer(self, obsServer):
+        '''
+        Return True if obsServer is reachable, false otherwise.
+        obsServer may be an OBS server alias or an HTTP(S) URL.
+        '''
+        return self._myObsServers.testServer(obsServer=obsServer)
+
+    def testApi(self, api, user, passwd):
+        '''
+        return 0 if the API,user and passwd is OK.
+        return 1 if user and passwd  are wrong.
+        return 2 if api is wrong.
+        '''
+        return self._myObsServers.testApi(api=api, user=user, passwd=passwd)
+
+    def getObsServerList(self, reachable=False):
+        '''
+        Returns the list of available OBS servers.
+        if reachable =False :
+            return all ObsServer
+        else :
+            return only the available ObsServer
+        '''
+        return self._myObsServers.getObsServerList(reachable=reachable)
+
+    def getObsServerParameter(self, obsServerAlias, parameter):
+        '''
+        Get the value of an OBS server parameter.
+        Valid parameters are:
+            isOBSConnected
+            serverWeb
+            serverAPI
+            serverRepo
+            alias
+            user
+            passw
+        '''
+        self.checkObsServerAlias(serverApi=obsServerAlias)
+        return self._myObsServers.getObsServerParameter(obsServerAlias=obsServerAlias,
+                                                         parameter=parameter)
+    def getCurrentObsServer(self):
+        '''
+        
+        '''
+        return self._myObsServers.getCurrentServer()
+
+
+class ObsLightManager(ObsLightManagerCore):
+    '''
+    Application Programming Interface between clients (command line, GUI) and OBS Light.
+    All interactions should be done with this class, no other class should
+    be imported in external projects.
+    '''
+    def __init__(self):
+        '''
+        Initialize the OBS Light Manager.
+        '''
+        ObsLightManagerCore.__init__(self)
+
+    #---------------------------------------------------------------------------
+
+    def getObsServerProjectList(self, serverApi):
+        '''
+        Get the list of projects of an OBS server.
+        '''
+        checkNonEmptyStringServerApi(serverApi=serverApi)
+        self.checkServerApi(serverApi=serverApi)
+        return self._myObsServers.getLocalProjectList(serverApi)
+
     #---------------------------------------------------------------------------
     #used by decorator.
     def isALocalProject(self, name):
@@ -742,6 +751,11 @@ class ObsLightManager(ObsLightManagerCore):
         else:
             return False
 
+    def getLocalProjectList(self):
+        '''
+        Return the list of all local projects.
+        '''
+        return self._myObsLightProjects.getLocalProjectList()
 
     def isAnObsServerOscAlias(self, api, alias):
         '''
@@ -759,7 +773,6 @@ class ObsLightManager(ObsLightManagerCore):
         return self._myObsLightProjects.getListPackage(name=projectLocalName, local=local)
 
 
-    @checkObsServerAlias(1)
     @checkAvailableProjectObsName(2, 1)
     def getTargetList(self, serverApi, projectObsName):
         '''
@@ -768,11 +781,11 @@ class ObsLightManager(ObsLightManagerCore):
         separate thread.
         '''
         checkNonEmptyStringServerApi(serverApi=serverApi)
+        self.checkObsServerAlias(serverApi=serverApi)
         return self._myObsServers.getTargetList(obsServer=serverApi,
                                                  projectObsName=projectObsName)
 
     @checkNonEmptyStringProjectTarget(3)
-    @checkObsServerAlias(1)
     def getArchitectureList(self, serverApi, projectObsName, projectTarget):
         '''
         Return the list of architectures configured on this target
@@ -781,6 +794,7 @@ class ObsLightManager(ObsLightManagerCore):
         separate thread.
         '''
         checkNonEmptyStringServerApi(serverApi=serverApi)
+        self.checkObsServerAlias(serverApi=serverApi)
         return self._myObsServers.getArchitectureList(obsServer=serverApi ,
                                                        projectObsName=projectObsName,
                                                        projectTarget=projectTarget)
@@ -803,23 +817,6 @@ class ObsLightManager(ObsLightManagerCore):
         checkNonEmptyStringServerApi(serverApi=serverApi)
         return self._myObsServers.getRepo(obsServer=serverApi)
 
-    @checkObsServerAlias(1)
-    def getObsServerParameter(self, obsServerAlias, parameter):
-        '''
-        Get the value of an OBS server parameter.
-        Valid parameters are:
-            isOBSConnected
-            serverWeb
-            serverAPI
-            serverRepo
-            alias
-            user
-            passw
-        '''
-        return self._myObsServers.getObsServerParameter(obsServerAlias=obsServerAlias,
-                                                         parameter=parameter)
-
-    @checkObsServerAlias(1)
     def setObsServerParameter(self, obsServerAlias, parameter, value):
         '''
         Change the value of an OBS server parameter.
@@ -832,6 +829,7 @@ class ObsLightManager(ObsLightManagerCore):
             user
             passw
         '''
+        self.checkObsServerAlias(serverApi=obsServerAlias)
         res = self._myObsServers.setObsServerParameter(obsServer=obsServerAlias,
                                                         parameter=parameter,
                                                         value=value)
@@ -873,7 +871,6 @@ class ObsLightManager(ObsLightManagerCore):
 
     @checkNonEmptyStringPackage(3)
     @checkNonEmptyStringDirectory(4)
-    @checkObsServerAlias(1)
     @checkAvailableProjectObsName(2, 1)
     @checkAvailableProjectPackage(2, 1, 3)
     @checkDirectory(4)
@@ -881,6 +878,7 @@ class ObsLightManager(ObsLightManagerCore):
         '''
         Check out a package from an OBS server to a local directory.
         '''
+        self.checkObsServerAlias(serverApi=serverApi)
         checkNonEmptyStringServerApi(serverApi=serverApi)
         self._myObsServers.checkoutPackage(obsServer=serverApi,
                                             projectObsName=projectObsName,
@@ -1171,7 +1169,6 @@ class ObsLightManager(ObsLightManagerCore):
     @checkNonEmptyStringProjectArchitecture(4)
     @checkAvailableProjectLocalName(7)
     @checkAvailableProjectObsName(2, 1)
-    @checkObsServerAlias(1)
     @checkAvailableProjectTarget(2, 1, 3)
     @checkAvailableProjectArchitecture(2, 1, 3, 4)
     def addProject(self,
@@ -1185,6 +1182,7 @@ class ObsLightManager(ObsLightManagerCore):
         '''
         Create a local project associated with an OBS project.
         '''
+        self.checkObsServerAlias(serverApi=serverApi)
         checkNonEmptyStringServerApi(serverApi=serverApi)
         self._myObsLightProjects.addProject(projectLocalName=projectLocalName,
                                              projectObsName=projectObsName,
@@ -1194,12 +1192,6 @@ class ObsLightManager(ObsLightManagerCore):
                                              description=description,
                                              projectArchitecture=projectArchitecture)
         self._myObsLightProjects.save()
-
-    def getLocalProjectList(self):
-        '''
-        Return the list of all local projects.
-        '''
-        return self._myObsLightProjects.getLocalProjectList()
 
     @checkProjectLocalName(1)
     @checkNonEmptyStringPackage(2)

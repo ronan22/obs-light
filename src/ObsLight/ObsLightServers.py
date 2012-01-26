@@ -106,6 +106,12 @@ class ObsLightServers(object):
                 aFile.close()
 
 #-------------------------------------------------------------------------------
+    def getCurrentServer(self):
+        '''
+        
+        '''
+        return self.__currentServer
+
     def getObsServerList(self, reachable=False):
         '''
         
@@ -143,6 +149,22 @@ class ObsLightServers(object):
         else:
             return None
 
+    def testServer(self, obsServer):
+        '''
+        
+        '''
+        if obsServer in self.getObsServerList():
+            return self.getObsServer(obsServer).testServer()
+        else:
+            return ObsLightTools.testHost(obsServer)
+
+    def testApi(self, api, user, passwd):
+        '''
+        return 0 if the API,user and passwd is OK.
+        return 1 if user and passwd  are wrong.
+        return 2 if api is wrong.
+        '''
+        return ObsLightOsc.getObsLightOsc().testApi(api=api, user=user, passwd=passwd)
 #-------------------------------------------------------------------------------
     def isAnObsServerOscAlias(self, api, alias):
         '''
@@ -294,10 +316,6 @@ class ObsLightServers(object):
                 self.resultArchitectureList[obsServer][projectObsName][projectTarget] = res
             return res
 
-
-
-
-
     def getObsServerParameter(self, obsServerAlias=None, parameter=None):
         '''
         
@@ -310,7 +328,6 @@ class ObsLightServers(object):
         '''
         return self.getObsServer(obsServer).setObsServerParameter(parameter=parameter,
                                                                           value=value)
-
 
     def getProjectTitle(self, obsServer, projectObsName):
         '''
@@ -338,14 +355,6 @@ class ObsLightServers(object):
         return self.getObsServer(obsServer).getPackageDescription(projectObsName=projectObsName,
                                                                           package=package)
 
-    def testServer(self, obsServer):
-        '''
-        
-        '''
-        if obsServer in self.getObsServerList():
-            return self.getObsServer(obsServer).testServer()
-        else:
-            return ObsLightTools.testHost(obsServer)
 
     def getObsProjectPackageList(self, obsServer, projectObsName):
         """
@@ -363,13 +372,7 @@ class ObsLightServers(object):
         return self.getObsServer(obsServer).getObsPackageRev(projectObsName=projectObsName,
                                                                      package=package)
 
-    def testApi(self, api, user, passwd):
-        '''
-        return 0 if the API,user and passwd is OK.
-        return 1 if user and passwd  are wrong.
-        return 2 if api is wrong.
-        '''
-        return ObsLightOsc.getObsLightOsc().testApi(api=api, user=user, passwd=passwd)
+
 
 
 

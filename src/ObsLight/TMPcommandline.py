@@ -73,12 +73,15 @@ __DICO_HELP__[__qemuproject__[0]] = __qemuproject__[0] + ":" + "\t" + "Doc __qem
 __server_help__ = __help__
 __server_test__ = ["test"]
 __server_list__ = ["list"]
+__server_query__ = ["query", "get"]
 
 #Command server Level 3
 __server_alias__ = ["server_alias", "alias"]
 __server_login__ = ["login"]
 __server_password__ = ["password"]
 __server_api_url__ = ["api_url"]
+__server_repositoryurl__ = ["repositoryurl"]
+__server_weburl__ = ["weburl"]
 __server_reachable__ = ["reachable"]
 __server_reachable_True__ = ["True", "true", "T", "t", "1"]
 __server_reachable_False__ = ["False", "false", "F", "fe", "0"]
@@ -89,6 +92,9 @@ __DICO_HELP__[__server_test__[0]] = __server_test__[0] + ":" + "\t" + " <server_
 __DICO_HELP__[__server_list__[0]] = __server_list__[0] + ":" + "\t" + "[<reachable>] reachable =False->return all sever,\
                                                                         \t\t\t\t\treachable =True->return only the available server,\
                                                                         \t\t\t\t\default=False."
+__DICO_HELP__[__server_query__[0]] = __server_query__[0] + ":" + "\t" + "[login] [apiurl] [repositoryurl] [weburl] {<server_alias>}."
+
+
 
 __DICO_HELP__[__server_reachable__[0]] = __server_reachable__[0] + ":" + "\t" + "False->return all sever,reachable =True->return only the available server,default=False."
 __DICO_HELP__[__server_alias__[0]] = __server_alias__[0] + ":" + "\t" + "False->return all sever,reachable =True->return only the available server,default=False."
@@ -225,22 +231,15 @@ class ObsLight():
             '''
             
             '''
-#            __server_alias__ = ["server_alias", "alias"]
-#            __server_login__ = ["login"]
-#            __server_password__ = ["password"]
-#            __server_api_url__ = ["api_url"]
-
             help = False
             server_alias = None
             login = None
             password = None
             api_url = None
 
-            maxParameter = 7
-
             while(len(listArgv) > 0):
                 currentCommand, listArgv = getParameter(listArgv)
-                if (currentCommand in __server_help__) or listArgv == None:
+                if (currentCommand in __server_help__) or (listArgv == None):
                     help = True
                     break
                 elif currentCommand in __server_alias__:
@@ -286,17 +285,15 @@ class ObsLight():
             '''
             help = False
             reachable = False
-            maxParameter = 3
 
             while(len(listArgv) > 0):
                 currentCommand, listArgv = getParameter(listArgv)
-                if currentCommand in __server_help__:
+                if (currentCommand in __server_help__) or (listArgv == None):
                     help = True
                     break
                 elif currentCommand in __server_reachable__:
                     if len(listArgv) > 0:
-                        commandValue, listArgv = getParameter(listArgv)
-                        reachable = commandValue
+                        reachable, listArgv = getParameter(listArgv)
                         if commandValue in __server_reachable_True__:
                             reachable = True
                         elif commandValue in __server_reachable_False__:
@@ -319,6 +316,62 @@ class ObsLight():
             for r in res:
                 print r
             return 0
+
+        def server_server_query(listArgv):
+            '''
+            
+            '''
+            help = False
+            login = None
+            api_url = None
+            repositoryurl = None
+            weburl = None
+            alias = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = getParameter(listArgv)
+                if (currentCommand in __server_help__) or (listArgv == None):
+                    help = True
+                    break
+                elif currentCommand in __server_login__:
+                    login = currentCommand
+                elif currentCommand in __server_api_url__:
+                    api_url = currentCommand
+                elif currentCommand in __server_repositoryurl__:
+                    repositoryurl = currentCommand
+                elif currentCommand in __server_weburl__:
+                    weburl = currentCommand
+                elif currentCommand in __server_alias__:
+                    alias , listArgv = getParameter(listArgv)
+                else:
+                    help = True
+                    break
+
+            if help == True:
+                return server_help()
+            else:
+                m = ObsLightManager.getManager()
+                if alias == None:
+                    alias = m.getCurrentObsServer()
+                if alias == None:
+                    print "No alias"
+                    return 1
+
+                if login != None:
+                    res = m.getObsServerParameter(obsServerAlias=alias, parameter="user")
+                    print "alias '" + alias + "' user:\t\t" + str(res)
+                if api_url != None:
+                    res = m.getObsServerParameter(obsServerAlias=alias, parameter="serverAPI")
+                    print "alias '" + alias + "' serverAPI:\t" + str(res)
+                if repositoryurl != None:
+                    res = m.getObsServerParameter(obsServerAlias=alias, parameter="serverRepo")
+                    print "alias '" + alias + "' serverRepo:\t" + str(res)
+                if weburl != None:
+                    res = m.getObsServerParameter(obsServerAlias=alias, parameter="serverWeb")
+                    print "alias '" + alias + "' serverWeb:\t" + str(res)
+
+            return 0
+
         #_______________________________________________________________________
         if len(listArgv) == 0:
             server_help()
@@ -333,6 +386,8 @@ class ObsLight():
                 return server_server_test(listArgv)
             elif currentCommand in __server_list__:
                 return server_server_list(listArgv)
+            elif currentCommand in __server_query__:
+                return server_server_query(listArgv)
             else:
                 return server_help()
 
