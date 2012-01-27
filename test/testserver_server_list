@@ -1,0 +1,5 @@
+../src/obslight-wrapper.py server list
+../src/obslight-wrapper.py server list reachable True
+../src/obslight-wrapper.py server list reachable False
+../src/obslight-wrapper.py server list --help
+

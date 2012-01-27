@@ -7,24 +7,25 @@ obslight
 	  micproject
 	  qemuproject
 	  
-
 #_____________________________________________________________________________________________________________________________________________________
-	  server test <server_alias> test the server alias
-	  server testapi <login> <password> <api_url>
-          server list [<reachable>] reachable =False->return all sever,reachable =True->return only the available server,default=False.
-	  #_____________
-	  server add    <server_alias> <login> <password> <api_url> <repository_url> [<web_url>]
-          server delete <server_alias> 
-          server query  [login] [apiurl] [repositoryurl] [weburl] {<server_alias>}
-          server set    [login <login>] [apiurl <apiurl>] [repositoryurl <repository_url>] [weburl <web_url>] {<server_alias>}
+	  server test	server_alias <server_alias> test the server alias 
+	  server test	login <login> password <password> api_url <api_url> test the API URL.
+          server list	[reachable BOOL] reachable =False->return all sever,reachable =True->return only the available server,default=False.
+	  server query	[login] [apiurl] [repository_url] [weburl] {server_alias <server_alias>}
+	  server set	[login <login>] [apiurl <apiurl>] [repository_url <repository_url>] [weburl <web_url>] {server_alias <server_alias>}
+	  server add	server_alias <server_alias> login <login> password <password> api_url <api_url> repository_url <repository_url> web_url <web_url>
+	  server delete	<server_alias>           
 	  #___________________________________________________________________________________________________________________________________________
-          obsproject add    <project_alias> <name_on_obs> <target> <arch> {<server_alias>}
-          obsproject delete <project_alias>
-          obsproject list   [<server_alias>]
-          obsproject query  [title|description|server|webpage|repository|target|architecture] {<project_alias>}
-              -> Options can be combined, no option means all options.
-                 Output is in same order as query (one answer by line or on the same line with a seperator?)
-          obsproject set    [title <title>] [description <description>] [target <target>] [architecture <architecture>] {<project_alias>}
+
+	  obsproject list	return the list of the local OBSLight project .
+	  obsproject list	server_alias <server_alias> return the list of the project on the OBS server
+	  #___________
+	  obsproject add	<project_alias> <name_on_obs> <target> <arch> {<server_alias>}
+	  obsproject delete	<project_alias>
+	  obsproject query	[title|description|server|webpage|repository|target|architecture] {<project_alias>}
+				  -> Options can be combined, no option means all options.
+				  Output is in same order as query (one answer by line or on the same line with a seperator?)
+	  obsproject set    	[title <title>] [description <description>] [target <target>] [architecture <architecture>] {<project_alias>}
 	  #___________________________________________________________________________________________________________________________________________
           package add    <package> {<project_alias>}
           package delete <package> {<project_alias>}
@@ -60,26 +61,32 @@ obslight
           micproject delete <project_name>
           micproject list
           micproject query  [kickstart] [architecture] [imagetype] {<project_name>}
+	  #___________________________________________________________________________________________________________________________________________
+	  qemuproject add
+	  qemuproject del
+	  qemuproject list
 
 #_____________________________________________________________________________________________________________________________________________________
 synthax used:
- project      the string "project"
- [project]    the optional string "project"
- <project>    a project name
- [<project>]  an optional project name
- {<project>}  an optional project name, if absent: the most recently used is taken
+ project	the string "project"
+ [project]	the optional string "project"
+ <project>	a project name
+ [<project>]	an optional project name
+ {<project>}	an optional project name, if absent: the most recently used is taken
+ BOOL 		a boolean value.
+
 
 abbreviations/synonyms:
- delete         del, rm
- update         up
- commit         ci
- query          get
+ delete		del, rm
+ update		up
+ commit		ci
+ query		get
  filesystem     fs
  enter          chroot
  executescript  exec
  addrepository  ar
- spec prepare   spec prep
- spec package   spec files
+ prepare	prep
+ package	files
  kickstart      ks
  package        pkg
  project        prj

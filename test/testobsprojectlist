@@ -1,0 +1,4 @@
+#!/bin/bash
+. ./testobslight
+$OBSLIGHT obsproject list server_alias $ALIAS
+$OBSLIGHT obsproject list 

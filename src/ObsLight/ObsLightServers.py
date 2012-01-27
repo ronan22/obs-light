@@ -104,6 +104,7 @@ class ObsLightServers(object):
                 aFile = open(self.__pathFile, 'w')
                 pickle.dump(saveconfigServers, aFile)
                 aFile.close()
+                self.__saveconfigServers = saveconfigServers
 
 #-------------------------------------------------------------------------------
     def getCurrentServer(self):
@@ -201,7 +202,7 @@ class ObsLightServers(object):
         '''
         if alias in self.__dicOBSLightServers.keys():
             del self.__dicOBSLightServers[alias]
-        elif name in self.__dicOBSLightServers_unLoad.keys():
+        elif alias in self.__dicOBSLightServers_unLoad.keys():
             del self.__dicOBSLightServers_unLoad[alias]
         else:
             raise ObsLightObsServers("'" + alias + "' can't be deleted, it's not an OBS Server")

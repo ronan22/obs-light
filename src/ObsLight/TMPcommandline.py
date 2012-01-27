@@ -22,11 +22,12 @@ Created on 29 sept. 2011
 
 import sys
 
-import util
 from util import safewriter
 import ObsLightErr
 import ObsLightManager
 import ObsLightPrintManager
+
+from ObsLightUtils import getLineno
 
 __PRGNAME__ = "ObsLight"
 __DICO_HELP__ = {}
@@ -52,6 +53,8 @@ __info_debug__ = ["debug", "-debug", "--debug"]
 __version__ = ["version", "-version", "--version"]
 __help__ = ["--help", "-h", "-help", "help"]
 
+
+
 #Command Level 1
 __server__ = ["server"]
 __obsproject__ = ["obsproject"]
@@ -69,39 +72,6 @@ __DICO_HELP__[__spec__[0]] = __spec__[0] + ":" + "\t" + "Doc __spec__"
 __DICO_HELP__[__micproject__[0]] = __server__[0] + ":" + "\t" + "Doc __micproject__"
 __DICO_HELP__[__qemuproject__[0]] = __qemuproject__[0] + ":" + "\t" + "Doc __qemuproject__"
 
-#Command server Level 2
-__server_help__ = __help__
-__server_test__ = ["test"]
-__server_list__ = ["list"]
-__server_query__ = ["query", "get"]
-
-#Command server Level 3
-__server_alias__ = ["server_alias", "alias"]
-__server_login__ = ["login"]
-__server_password__ = ["password"]
-__server_api_url__ = ["api_url"]
-__server_repositoryurl__ = ["repositoryurl"]
-__server_weburl__ = ["weburl"]
-__server_reachable__ = ["reachable"]
-__server_reachable_True__ = ["True", "true", "T", "t", "1"]
-__server_reachable_False__ = ["False", "false", "F", "fe", "0"]
-
-__DICO_HELP__[__server_help__[0]] = __server_help__[0] + ":" + "\t" + "Doc __server_help__"
-__DICO_HELP__[__server_test__[0]] = __server_test__[0] + ":" + "\t" + " <server_alias> test the server alias \n \
-                                                                        \t\t\t\t\t<login> <password> <api_url> test the API URL."
-__DICO_HELP__[__server_list__[0]] = __server_list__[0] + ":" + "\t" + "[<reachable>] reachable =False->return all sever,\
-                                                                        \t\t\t\t\treachable =True->return only the available server,\
-                                                                        \t\t\t\t\default=False."
-__DICO_HELP__[__server_query__[0]] = __server_query__[0] + ":" + "\t" + "[login] [apiurl] [repositoryurl] [weburl] {<server_alias>}."
-
-
-
-__DICO_HELP__[__server_reachable__[0]] = __server_reachable__[0] + ":" + "\t" + "False->return all sever,reachable =True->return only the available server,default=False."
-__DICO_HELP__[__server_alias__[0]] = __server_alias__[0] + ":" + "\t" + "False->return all sever,reachable =True->return only the available server,default=False."
-__DICO_HELP__[__server_login__[0]] = __server_login__[0] + ":" + "\t" + "False->return all sever,reachable =True->return only the available server,default=False."
-__DICO_HELP__[__server_password__[0]] = __server_password__[0] + ":" + "\t" + "False->return all sever,reachable =True->return only the available server,default=False."
-__DICO_HELP__[__server_api_url__[0]] = __server_api_url__[0] + ":" + "\t" + "False->return all sever,reachable =True->return only the available server,default=False."
-
 __HELP__ += __DICO_HELP__[__server__[0]]
 __HELP__ += __DICO_HELP__[__obsproject__[0]]
 __HELP__ += __DICO_HELP__[__package__[0]]
@@ -109,6 +79,84 @@ __HELP__ += __DICO_HELP__[__projectfilesystem__[0]]
 __HELP__ += __DICO_HELP__[__spec__[0]]
 __HELP__ += __DICO_HELP__[__micproject__[0]]
 __HELP__ += __DICO_HELP__[__qemuproject__[0]]
+
+#Command server Level 2
+__server_help__ = __help__
+__server_test__ = ["test"]
+__server_list__ = ["list", "ll", "ls"]
+__server_query__ = ["query", "get"]
+__server_set__ = ["set"]
+__server_add__ = ["add"]
+__server_del__ = ["delete", "del", "rm"]
+
+__DICO_HELP__[__server_help__[0]] = __server_help__[0] + ":" + "\t" + "Doc __server_help__"
+__DICO_HELP__[__server_test__[0]] = __server_test__[0] + ":" + "\t" + " <server_alias> test the server alias \n \
+                                                                        \t\t\t\t\t<login> <password> <api_url> test the API URL."
+__DICO_HELP__[__server_list__[0]] = __server_list__[0] + ":" + "\t" + "[<reachable>] reachable =False->return all sever,\
+                                                                        \t\t\t\t\treachable =True->return only the available server,\
+                                                                        \t\t\t\t\default=False."
+__DICO_HELP__[__server_query__[0]] = __server_query__[0] + ":" + "\t" + "[login] [apiurl] [repository_url] [weburl] {<server_alias>}."
+
+__DICO_HELP__[__server_set__[0]] = __server_set__[0] + ":" + "\t" + "[login <login>] [apiurl <apiurl>] [repository_url <repository_url>] [weburl <web_url>] {server_alias <server_alias>}"
+__DICO_HELP__[__server_add__[0]] = __server_add__[0] + ":" + "\t" + "server_alias <server_alias> login <login> password <password> api_url <api_url> repository_url <repository_url> web_url <web_url>"
+__DICO_HELP__[__server_del__[0]] = __server_del__[0] + ":" + "\t" + "<server_alias>"
+
+#Command server Level 3
+__server_alias__ = ["server_alias", "alias"]
+__server_login__ = ["login"]
+__server_password__ = ["password"]
+__server_api_url__ = ["api_url"]
+__server_repository_url__ = ["repository_url"]
+__server_web_url__ = ["web_url"]
+__server_reachable__ = ["reachable"]
+__server_reachable_True__ = ["True", "true", "T", "t", "1"]
+__server_reachable_False__ = ["False", "false", "F", "fe", "0"]
+
+__DICO_HELP__[__server_reachable__[0]] = __server_reachable__[0] + ":" + "\t" + "False->return all sever,reachable =True->return only the available server,default=False."
+__DICO_HELP__[__server_alias__[0]] = __server_alias__[0] + ":" + "\t" + ""
+__DICO_HELP__[__server_login__[0]] = __server_login__[0] + ":" + "\t" + ""
+__DICO_HELP__[__server_password__[0]] = __server_password__[0] + ":" + "\t" + ""
+__DICO_HELP__[__server_api_url__[0]] = __server_api_url__[0] + ":" + "\t" + ""
+
+#Command obsproject Level 2
+__obsproject_help__ = __help__
+__obsproject_list__ = ["list", "ll", "ls"]
+__obsproject_add__ = ["add"]
+__obsproject_del__ = ["delete", "del", "rm"]
+__obsproject_query__ = ["query", "get"]
+__obsproject_set__ = ["set"]
+
+__DICO_HELP__[__obsproject_help__[0]] = __obsproject_help__[0] + ":" + "\t" + "Doc __obsproject_help__"
+__DICO_HELP__[__obsproject_list__[0]] = __obsproject_list__[0] + ":" + "\t" + "Doc __obsproject_help__"
+__DICO_HELP__[__obsproject_add__[0]] = __obsproject_add__[0] + ":" + "\t" + "Doc __obsproject_help__"
+__DICO_HELP__[__obsproject_del__[0]] = __obsproject_del__[0] + ":" + "\t" + "Doc __obsproject_help__"
+__DICO_HELP__[__obsproject_query__[0]] = __obsproject_query__[0] + ":" + "\t" + "Doc __obsproject_help__"
+__DICO_HELP__[__obsproject_set__[0]] = __obsproject_set__[0] + ":" + "\t" + "Doc __obsproject_help__"
+
+#Command server Level 3
+__project_alias__ = ["project_alias"]
+__project_name_on_obs__ = ["name_on_obs"]
+__project_target__ = ["target"]
+__project_arch__ = ["arch"]
+__project_title__ = ["title"]
+__project_description__ = ["description"]
+__project_server__ = ["server"]
+__project_webpage__ = ["webpage"]
+__project_repository__ = ["repository"]
+__project_target__ = ["target"]
+__project_architecture__ = ["architecture"]
+
+__DICO_HELP__[__project_alias__[0]] = __project_alias__[0] + ":" + "\t" + ""
+__DICO_HELP__[__project_name_on_obs__[0]] = __project_name_on_obs__[0] + ":" + "\t" + ""
+__DICO_HELP__[__project_target__[0]] = __project_target__[0] + ":" + "\t" + ""
+__DICO_HELP__[__project_arch__[0]] = __project_arch__[0] + ":" + "\t" + ""
+__DICO_HELP__[__project_title__[0]] = __project_title__[0] + ":" + "\t" + ""
+__DICO_HELP__[__project_description__[0]] = __project_description__[0] + ":" + "\t" + ""
+__DICO_HELP__[__project_server__[0]] = __project_server__[0] + ":" + "\t" + ""
+__DICO_HELP__[__project_webpage__[0]] = __project_webpage__[0] + ":" + "\t" + ""
+__DICO_HELP__[__project_repository__[0]] = __project_repository__[0] + ":" + "\t" + ""
+__DICO_HELP__[__project_target__[0]] = __project_target__[0] + ":" + "\t" + ""
+__DICO_HELP__[__project_architecture__[0]] = __project_architecture__[0] + ":" + "\t" + ""
 
 
 def getParameter(listArgv):
@@ -227,7 +275,7 @@ class ObsLight():
 
             return 0
 
-        def server_server_test(listArgv):
+        def server_test(listArgv):
             '''
             
             '''
@@ -259,27 +307,35 @@ class ObsLight():
                 return server_help()
             elif server_alias != None:
                 res = m.testServer(obsServer=server_alias)
-                if res == True:
-                    print "'" + server_alias + "' is reachable"
+                if res == None:
+                    print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                    return -1
                 else:
-                    print "'" + server_alias + "' is not reachable"
-                return 0
+                    if res == True:
+                        print "'" + server_alias + "' is reachable"
+                    else:
+                        print "'" + server_alias + "' is not reachable"
+                    return 0
             elif (login != None) and (password != None) and (api_url != None):
                 res = m.testApi(api=api_url, user=login, passwd=password)
-                if res == 0:
-                    print "'" + api_url + "' is reachable"
-                elif res == 1:
-                    print "'" + api_url + "' is not reachable, user and passwd  are wrong."
-                elif res == 2:
-                    print "'" + api_url + "' is not reachable, api is wrong.."
+                if res == None:
+                    print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                    return -1
                 else:
-                    print "'" + api_url + "' is not reachable"
-                return 0
+                    if res == 0:
+                        print "'" + api_url + "' is reachable"
+                    elif res == 1:
+                        print "'" + api_url + "' is not reachable, user and passwd  are wrong."
+                    elif res == 2:
+                        print "'" + api_url + "' is not reachable, api is wrong.."
+                    else:
+                        print "'" + api_url + "' is not reachable"
+                    return 0
             else:
                 return server_help()
 
 
-        def server_server_list(listArgv):
+        def server_list(listArgv):
             '''
             
             '''
@@ -313,18 +369,22 @@ class ObsLight():
 
             m = ObsLightManager.getManager()
             res = m.getObsServerList(reachable=reachable)
-            for r in res:
-                print r
-            return 0
+            if res == None:
+                print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                return -1
+            else:
+                for r in res:
+                    print r
+                return 0
 
-        def server_server_query(listArgv):
+        def server_query(listArgv):
             '''
             
             '''
             help = False
             login = None
             api_url = None
-            repositoryurl = None
+            repository_url = None
             weburl = None
             alias = None
 
@@ -337,10 +397,79 @@ class ObsLight():
                     login = currentCommand
                 elif currentCommand in __server_api_url__:
                     api_url = currentCommand
-                elif currentCommand in __server_repositoryurl__:
-                    repositoryurl = currentCommand
+                elif currentCommand in __server_repository_url__:
+                    repository_url = currentCommand
                 elif currentCommand in __server_weburl__:
                     weburl = currentCommand
+                elif currentCommand in __server_alias__:
+                    alias , listArgv = getParameter(listArgv)
+                else:
+                    help = True
+                    break
+
+            if help == True:
+                return server_help()
+            else:
+                m = ObsLightManager.getManager()
+                if alias == None:
+                    alias = m.getCurrentObsServer()
+
+                if alias == None:
+                    print "No alias"
+                    return 1
+
+                if login != None:
+                    res = m.getObsServerParameter(obsServerAlias=alias, parameter="user")
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    print "alias '" + alias + "' user:\t\t" + str(res)
+                if api_url != None:
+                    res = m.getObsServerParameter(obsServerAlias=alias, parameter="serverAPI")
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    print "alias '" + alias + "' serverAPI:\t" + str(res)
+                if repository_url != None:
+                    res = m.getObsServerParameter(obsServerAlias=alias, parameter="serverRepo")
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    print "alias '" + alias + "' serverRepo:\t" + str(res)
+                if weburl != None:
+                    res = m.getObsServerParameter(obsServerAlias=alias, parameter="serverWeb")
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    print "alias '" + alias + "' serverWeb:\t" + str(res)
+
+            return 0
+
+
+        def server_set(listArgv):
+            '''
+            
+            '''
+            help = False
+            login = None
+            api_url = None
+            repository_url = None
+            weburl = None
+            alias = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = getParameter(listArgv)
+                if (currentCommand in __server_help__) or (listArgv == None):
+                    help = True
+                    break
+                elif currentCommand in __server_login__:
+                    login , listArgv = getParameter(listArgv)
+                elif currentCommand in __server_api_url__:
+                    api_url , listArgv = getParameter(listArgv)
+                elif currentCommand in __server_repository_url__:
+                    repository_url , listArgv = getParameter(listArgv)
+                elif currentCommand in __server_weburl__:
+                    weburl , listArgv = getParameter(listArgv)
                 elif currentCommand in __server_alias__:
                     alias , listArgv = getParameter(listArgv)
                 else:
@@ -358,20 +487,102 @@ class ObsLight():
                     return 1
 
                 if login != None:
-                    res = m.getObsServerParameter(obsServerAlias=alias, parameter="user")
-                    print "alias '" + alias + "' user:\t\t" + str(res)
+                    res = m.setObsServerParameter(obsServerAlias=alias, parameter="user", value=login)
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
                 if api_url != None:
-                    res = m.getObsServerParameter(obsServerAlias=alias, parameter="serverAPI")
-                    print "alias '" + alias + "' serverAPI:\t" + str(res)
-                if repositoryurl != None:
-                    res = m.getObsServerParameter(obsServerAlias=alias, parameter="serverRepo")
-                    print "alias '" + alias + "' serverRepo:\t" + str(res)
+                    res = m.setObsServerParameter(obsServerAlias=alias, parameter="serverAPI", value=api_url)
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                if repository_url != None:
+                    res = m.setObsServerParameter(obsServerAlias=alias, parameter="serverRepo", value=repository_url)
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
                 if weburl != None:
-                    res = m.getObsServerParameter(obsServerAlias=alias, parameter="serverWeb")
-                    print "alias '" + alias + "' serverWeb:\t" + str(res)
+                    res = m.setObsServerParameter(obsServerAlias=alias, parameter="serverWeb", value=weburl)
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
 
             return 0
 
+        def server_add(listArgv):
+            '''
+            
+            '''
+            help = False
+            alias = None
+            login = None
+            password = None
+            api_url = None
+            repository_url = None
+            weburl = None
+
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = getParameter(listArgv)
+                if (currentCommand in __server_help__) or (listArgv == None):
+                    help = True
+                    break
+                elif currentCommand in __server_alias__:
+                    alias , listArgv = getParameter(listArgv)
+                elif currentCommand in __server_login__:
+                    login , listArgv = getParameter(listArgv)
+                elif currentCommand in __server_password__:
+                    password , listArgv = getParameter(listArgv)
+                elif currentCommand in __server_api_url__:
+                    api_url , listArgv = getParameter(listArgv)
+                elif currentCommand in __server_repository_url__:
+                    repository_url , listArgv = getParameter(listArgv)
+                elif currentCommand in __server_web_url__:
+                    weburl , listArgv = getParameter(listArgv)
+                else:
+                    help = True
+                    break
+
+            if  (help == True) or\
+                ((alias == None) or
+                (login == None) or
+                (password == None) or
+                (api_url == None) or
+                (repository_url == None) or
+                (weburl == None)):
+                return server_help()
+            else:
+                m = ObsLightManager.getManager()
+                if login != None:
+                    return m.addObsServer(serverApi=api_url,
+                                          user=login,
+                                          password=password,
+                                          alias=alias,
+                                          serverRepo=repository_url,
+                                          serverWeb=weburl)
+
+
+        def server_del(listArgv):
+            '''
+            
+            '''
+            help = False
+            alias = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = getParameter(listArgv)
+
+                if (currentCommand in __server_help__) or (listArgv == None):
+                    help = True
+                    break
+                else:
+                    alias = currentCommand
+
+            if  (help == True) :
+                return server_help()
+            else:
+                m = ObsLightManager.getManager()
+                return m.delObsServer(obsServer=alias)
         #_______________________________________________________________________
         if len(listArgv) == 0:
             server_help()
@@ -383,21 +594,125 @@ class ObsLight():
             if currentCommand in __server_help__ :
                 return server_help()
             elif currentCommand in __server_test__ :
-                return server_server_test(listArgv)
+                return server_test(listArgv)
             elif currentCommand in __server_list__:
-                return server_server_list(listArgv)
+                return server_list(listArgv)
             elif currentCommand in __server_query__:
-                return server_server_query(listArgv)
+                return server_query(listArgv)
+            elif currentCommand in __server_set__:
+                return server_set(listArgv)
+            elif currentCommand in __server_add__:
+                return server_add(listArgv)
+            elif currentCommand in __server_del__ :
+                return server_del(listArgv)
             else:
                 return server_help()
-
         return 0
 
     def obsproject(self, listArgv):
         '''
         
         '''
-        print "obsproject"
+        def obsproject_help():
+            '''
+            
+            '''
+            print __DESCRIPTION__
+            print __DICO_HELP__[__obsproject__[0]]
+
+            return 0
+
+        def obsproject_list (listArgv):
+            '''
+            
+            '''
+            help = False
+            server_alias = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = getParameter(listArgv)
+
+                if (currentCommand in __server_help__) or (listArgv == None):
+                    help = True
+                    break
+                elif currentCommand in __server_alias__:
+                    server_alias , listArgv = getParameter(listArgv)
+
+            if help == True:
+                return obsproject_help()
+            else:
+                m = ObsLightManager.getManager()
+                res = []
+                if server_alias == None:
+                    res = m.getLocalProjectList()
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                elif server_alias != None:
+                    res = m.getObsServerProjectList(serverApi=server_alias)
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                else:
+                    return obsproject_help()
+
+                if res != None:
+                    for r in res:
+                        print r
+                else:
+                    print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                return 0
+
+        def obsproject_add(listArgv):
+            '''
+            
+            '''
+            help = False
+            return 0
+
+        def obsproject_del(listArgv):
+            '''
+            
+            '''
+            help = False
+            return 0
+
+        def obsproject_query(listArgv):
+            '''
+            
+            '''
+            help = False
+            return 0
+
+        def obsproject_set(listArgv):
+            '''
+            
+            '''
+            help = False
+            return 0
+
+        #_______________________________________________________________________
+        if len(listArgv) == 0:
+            obsproject_help()
+            return 0
+        else:
+            currentCommand = listArgv[0]
+            listArgv = listArgv[1:]
+
+            if currentCommand in __obsproject_help__ :
+                return obsproject_help()
+            elif currentCommand in __obsproject_list__ :
+                return obsproject_list(listArgv)
+            elif currentCommand in __obsproject_add__:
+                return obsproject_add(listArgv)
+            elif currentCommand in __obsproject_del__:
+                return obsproject_del(listArgv)
+            elif currentCommand in __obsproject_query__:
+                return obsproject_query(listArgv)
+            elif currentCommand in __obsproject_set__:
+                return obsproject_set(listArgv)
+            else:
+                return obsproject_help()
         return 0
 
 

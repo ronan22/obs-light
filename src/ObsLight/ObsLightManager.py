@@ -231,23 +231,6 @@ def checkAvailableServerApi(position=None):
         return checkAvailableServerApi2
     return checkAvailableServerApi1
 
-def checkServerApi(position=None):
-    def checkServerApi1(f):
-        def checkServerApi2(*args, **kwargs):
-            mngr = getManager()
-            serverApi = None
-            if (position is not None) and (position < len(args)):
-                serverApi = args[position]
-            elif "serverApi" in kwargs :
-                serverApi = kwargs["serverApi"]
-            else:
-                raise ObsLightProjectsError("checkServerApi Fails")
-            if not mngr.isAnObsServer(serverApi):
-                raise ObsLightObsServers(serverApi + " is not an OBS server")
-            return f(*args, **kwargs)
-        return checkServerApi2
-    return checkServerApi1
-
 def checkAvailableAlias(position=None):
     def checkAvailableAlias1(f):
         def checkAvailableAlias2(*args, **kwargs):
@@ -663,6 +646,14 @@ class ObsLightManagerBase(object):
         '''
         return VERSION
 
+    def checkServerApi(self, serverApi):
+        '''
+        
+        '''
+        if not self.isAnObsServer(serverApi):
+            raise ObsLightObsServers(serverApi + " is not an OBS server")
+
+
 class ObsLightManagerCore(ObsLightManagerBase):
 
     def __init__(self):
@@ -670,7 +661,7 @@ class ObsLightManagerCore(ObsLightManagerBase):
         Initialize the OBS Light Manager Core.
         '''
         ObsLightManagerBase.__init__(self)
-
+    #///////////////////////////////////////////////////////////////////////////server
     def testServer(self, obsServer):
         '''
         Return True if obsServer is reachable, false otherwise.
@@ -711,26 +702,67 @@ class ObsLightManagerCore(ObsLightManagerBase):
         self.checkObsServerAlias(serverApi=obsServerAlias)
         return self._myObsServers.getObsServerParameter(obsServerAlias=obsServerAlias,
                                                          parameter=parameter)
+
+    def setObsServerParameter(self, obsServerAlias, parameter, value):
+        '''
+        Change the value of an OBS server parameter.
+        Valid parameters are:
+            isOBSConnected
+            serverWeb
+            serverAPI
+            serverRepo
+            alias
+            user
+            passw
+        '''
+        self.checkObsServerAlias(serverApi=obsServerAlias)
+        res = self._myObsServers.setObsServerParameter(obsServer=obsServerAlias,
+                                                        parameter=parameter,
+                                                        value=value)
+        self._myObsServers.save()
+        return res
+
     def getCurrentObsServer(self):
         '''
         
         '''
         return self._myObsServers.getCurrentServer()
 
-
-class ObsLightManager(ObsLightManagerCore):
-    '''
-    Application Programming Interface between clients (command line, GUI) and OBS Light.
-    All interactions should be done with this class, no other class should
-    be imported in external projects.
-    '''
-    def __init__(self):
+    @checkAvailableServerApi(1)
+    @checkAvailableAlias(4)
+    @checkAvailableAliasOsc(1, 4)
+    @checkNonEmptyStringUser(2)
+    @checkNonEmptyStringPassword(3)
+    def addObsServer(self,
+                     serverApi,
+                     user,
+                     password,
+                     alias,
+                     serverRepo,
+                     serverWeb):
         '''
-        Initialize the OBS Light Manager.
+        Add a new OBS server.
         '''
-        ObsLightManagerCore.__init__(self)
+        checkNonEmptyStringServerApi(serverApi=serverApi)
+        self._myObsServers.addObsServer(serverWeb=serverWeb,
+                                         serverAPI=serverApi,
+                                         serverRepo=serverRepo,
+                                         alias=alias,
+                                         user=user,
+                                         passw=password)
+        self._myObsServers.save()
 
-    #---------------------------------------------------------------------------
+    def delObsServer(self, obsServer):
+        '''
+        Delete an OBS server.
+        '''
+        checkNonEmptyStringServerApi(serverApi=obsServer)
+        self.checkServerApi(serverApi=obsServer)
+
+        self._myObsServers.delObsServer(alias=obsServer)
+        self._myObsServers.save()
+
+    #///////////////////////////////////////////////////////////////////////////obsproject
 
     def getObsServerProjectList(self, serverApi):
         '''
@@ -740,8 +772,7 @@ class ObsLightManager(ObsLightManagerCore):
         self.checkServerApi(serverApi=serverApi)
         return self._myObsServers.getLocalProjectList(serverApi)
 
-    #---------------------------------------------------------------------------
-    #used by decorator.
+        #used by decorator.
     def isALocalProject(self, name):
         '''
         Test if name is already an OBS Project name.    
@@ -756,6 +787,18 @@ class ObsLightManager(ObsLightManagerCore):
         Return the list of all local projects.
         '''
         return self._myObsLightProjects.getLocalProjectList()
+
+class ObsLightManager(ObsLightManagerCore):
+    '''
+    Application Programming Interface between clients (command line, GUI) and OBS Light.
+    All interactions should be done with this class, no other class should
+    be imported in external projects.
+    '''
+    def __init__(self):
+        '''
+        Initialize the OBS Light Manager.
+        '''
+        ObsLightManagerCore.__init__(self)
 
     def isAnObsServerOscAlias(self, api, alias):
         '''
@@ -809,65 +852,14 @@ class ObsLightManager(ObsLightManagerCore):
                                                   projectLocalName=projectObsName)
 
     #---------------------------------------------------------------------------
-    @checkServerApi(1)
     def getRepo(self, serverApi):
         '''
         Return the URL of the OBS server package repository.
         '''
+        self.checkServerApi(serverApi=serverApi)
+
         checkNonEmptyStringServerApi(serverApi=serverApi)
         return self._myObsServers.getRepo(obsServer=serverApi)
-
-    def setObsServerParameter(self, obsServerAlias, parameter, value):
-        '''
-        Change the value of an OBS server parameter.
-        Valid parameters are:
-            isOBSConnected
-            serverWeb
-            serverAPI
-            serverRepo
-            alias
-            user
-            passw
-        '''
-        self.checkObsServerAlias(serverApi=obsServerAlias)
-        res = self._myObsServers.setObsServerParameter(obsServer=obsServerAlias,
-                                                        parameter=parameter,
-                                                        value=value)
-        self._myObsServers.save()
-        return res
-
-    @checkAvailableServerApi(1)
-    @checkAvailableAlias(4)
-    @checkAvailableAliasOsc(1, 4)
-    @checkNonEmptyStringUser(2)
-    @checkNonEmptyStringPassword(3)
-    def addObsServer(self,
-                     serverApi,
-                     user,
-                     password,
-                     alias,
-                     serverRepo="",
-                     serverWeb=""):
-        '''
-        Add a new OBS server.
-        '''
-        checkNonEmptyStringServerApi(serverApi=serverApi)
-        self._myObsServers.addObsServer(serverWeb=serverWeb,
-                                         serverAPI=serverApi,
-                                         serverRepo=serverRepo,
-                                         alias=alias,
-                                         user=user,
-                                         passw=password)
-        self._myObsServers.save()
-
-    @checkServerApi(1)
-    def delObsServer(self, obsServer):
-        '''
-        Delete an OBS server.
-        '''
-        checkNonEmptyStringServerApi(serverApi=serverApi)
-        self._myObsServers.delObsServer(alias=obsServer)
-        self._myObsServers.save()
 
     @checkNonEmptyStringPackage(3)
     @checkNonEmptyStringDirectory(4)
