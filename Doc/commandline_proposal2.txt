@@ -16,13 +16,11 @@ obslight
 	  server set	[login <login>] [apiurl <apiurl>] [repository_url <repository_url>] [weburl <web_url>] {server_alias <server_alias>}
 	  server add	server_alias <server_alias> login <login> password <password> api_url <api_url> repository_url <repository_url> web_url <web_url>
 	  server delete	<server_alias>  
-	  #___________
-	  #Not implement
 	  server current
 	  #___________________________________________________________________________________________________________________________________________
 	  #implement
 	  obsproject list	return the list of the local OBSLight project .
-	  obsproject list	server_alias <server_alias> [arch|maintainer|bugowner|remoteurl ]
+	  obsproject list	server_alias <server_alias> [arch <arch>|maintainer|bugowner|remoteurl ]
 				    return the list of the project on the OBS server
 	  #___________
 

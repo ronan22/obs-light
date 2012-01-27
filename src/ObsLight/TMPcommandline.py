@@ -88,6 +88,7 @@ __server_query__ = ["query", "get"]
 __server_set__ = ["set"]
 __server_add__ = ["add"]
 __server_del__ = ["delete", "del", "rm"]
+__server_current__ = ["current"]
 
 __DICO_HELP__[__server_help__[0]] = __server_help__[0] + ":" + "\t" + "Doc __server_help__"
 __DICO_HELP__[__server_test__[0]] = __server_test__[0] + ":" + "\t" + " <server_alias> test the server alias \n \
@@ -573,6 +574,29 @@ class ObsLight():
             else:
                 m = ObsLightManager.getManager()
                 return m.delObsServer(obsServer=alias)
+
+        def server_current(listArgv):
+            '''
+            
+            '''
+            help = False
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = getParameter(listArgv)
+                if (currentCommand in __server_help__) or (listArgv == None):
+                    help = True
+                    break
+                else:
+                    help = True
+                    break
+
+            if  (help == True) :
+                return server_help()
+            else:
+                m = ObsLightManager.getManager()
+                res = m.getCurrentObsServer()
+                print res
+                return 0
         #_______________________________________________________________________
         if len(listArgv) == 0:
             server_help()
@@ -595,6 +619,8 @@ class ObsLight():
                 return server_add(listArgv)
             elif currentCommand in __server_del__ :
                 return server_del(listArgv)
+            elif currentCommand in __server_current__ :
+                return server_current(listArgv)
             else:
                 return server_help()
         return 0

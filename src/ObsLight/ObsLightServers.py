@@ -44,7 +44,6 @@ class ObsLightServers(object):
         self.__blackList = {}
         self.__currentServer = None
         self.__pathFile = os.path.join(workingDirectory , "ObsServersConfig")
-        self.__currentOBSServer = None
         self.__initServersFromOsc()
 
         self.resultLocalProjectList = {}
@@ -71,7 +70,7 @@ class ObsLightServers(object):
                 for projetName in saveServers.keys():
                     aServer = saveServers[projetName]
                     self.__addOBSServerFromSave(fromSave=aServer)
-                self.__currentOBSServer = self.__saveconfigServers["currentObsServer"]
+                self.__currentServer = self.__saveconfigServers["currentObsServer"]
 
     def __addOBSServerFromSave(self, fromSave=None):
         '''
@@ -111,6 +110,7 @@ class ObsLightServers(object):
         '''
         
         '''
+        self.__load()
         return self.__currentServer
 
     def getObsServerList(self, reachable=False):
