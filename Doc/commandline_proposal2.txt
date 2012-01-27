@@ -8,26 +8,35 @@ obslight
 	  qemuproject
 	  
 #_____________________________________________________________________________________________________________________________________________________
+	  #implement
 	  server test	server_alias <server_alias> test the server alias 
 	  server test	login <login> password <password> api_url <api_url> test the API URL.
           server list	[reachable BOOL] reachable =False->return all sever,reachable =True->return only the available server,default=False.
 	  server query	[login] [apiurl] [repository_url] [weburl] {server_alias <server_alias>}
 	  server set	[login <login>] [apiurl <apiurl>] [repository_url <repository_url>] [weburl <web_url>] {server_alias <server_alias>}
 	  server add	server_alias <server_alias> login <login> password <password> api_url <api_url> repository_url <repository_url> web_url <web_url>
-	  server delete	<server_alias>           
-	  #___________________________________________________________________________________________________________________________________________
-
-	  obsproject list	return the list of the local OBSLight project .
-	  obsproject list	server_alias <server_alias> return the list of the project on the OBS server
+	  server delete	<server_alias>  
 	  #___________
+	  #Not implement
+	  server current
+	  #___________________________________________________________________________________________________________________________________________
+	  #implement
+	  obsproject list	return the list of the local OBSLight project .
+	  obsproject list	server_alias <server_alias> [arch|maintainer|bugowner|remoteurl ]
+				    return the list of the project on the OBS server
+	  #___________
+
+	  #Not implement
 	  obsproject add	<project_alias> <name_on_obs> <target> <arch> {<server_alias>}
 	  obsproject delete	<project_alias>
 	  obsproject query	[title|description|server|webpage|repository|target|architecture] {<project_alias>}
 				  -> Options can be combined, no option means all options.
 				  Output is in same order as query (one answer by line or on the same line with a seperator?)
 	  obsproject set    	[title <title>] [description <description>] [target <target>] [architecture <architecture>] {<project_alias>}
+	  obsproject current
 	  #___________________________________________________________________________________________________________________________________________
-          package add    <package> {<project_alias>}
+          #Not implement
+	  package add    <package> {<project_alias>}
           package delete <package> {<project_alias>}
           package list   [available] {<project_alias>}
               -> List packages of project, or if "available" option is set,
@@ -39,7 +48,8 @@ obslight
           package commit <message> {<package>} {<project_alias>}
           package repair {<package>} {<project_alias>}
 	  #___________________________________________________________________________________________________________________________________________
-          projectfilesystem create        {<project_alias>}
+          #Not implement
+	  projectfilesystem create        {<project_alias>}
           projectfilesystem delete        <project_alias>
           projectfilesystem enter         [inpackagedirectory <package>] {<project_alias>}
               -> chroot into the filesystem and change working directory to package
@@ -52,16 +62,19 @@ obslight
                                    from <source_project_alias> {<project_alias>}
           projectfilesystem extractpatch  <patch_name> {<package>} {<project_alias>}
 	  #___________________________________________________________________________________________________________________________________________
-          spec prepare {<package>} {<project_alias>}
+          #Not implement
+	  spec prepare {<package>} {<project_alias>}
           spec build   {<package>} {<project_alias>}
           spec install {<package>} {<project_alias>}
           spec package {<package>} {<project_alias>}
 	  #___________________________________________________________________________________________________________________________________________
-          micproject add    <project_name> <kickstart_path> <architecture> <image_type>
+          #Not implement
+	  micproject add    <project_name> <kickstart_path> <architecture> <image_type>
           micproject delete <project_name>
           micproject list
           micproject query  [kickstart] [architecture] [imagetype] {<project_name>}
 	  #___________________________________________________________________________________________________________________________________________
+	  #Not implement
 	  qemuproject add
 	  qemuproject del
 	  qemuproject list

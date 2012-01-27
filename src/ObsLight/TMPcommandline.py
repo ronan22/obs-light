@@ -109,8 +109,6 @@ __server_api_url__ = ["api_url"]
 __server_repository_url__ = ["repository_url"]
 __server_web_url__ = ["web_url"]
 __server_reachable__ = ["reachable"]
-__server_reachable_True__ = ["True", "true", "T", "t", "1"]
-__server_reachable_False__ = ["False", "false", "F", "fe", "0"]
 
 __DICO_HELP__[__server_reachable__[0]] = __server_reachable__[0] + ":" + "\t" + "False->return all sever,reachable =True->return only the available server,default=False."
 __DICO_HELP__[__server_alias__[0]] = __server_alias__[0] + ":" + "\t" + ""
@@ -136,28 +134,31 @@ __DICO_HELP__[__obsproject_set__[0]] = __obsproject_set__[0] + ":" + "\t" + "Doc
 #Command server Level 3
 __project_alias__ = ["project_alias"]
 __project_name_on_obs__ = ["name_on_obs"]
-__project_target__ = ["target"]
-__project_arch__ = ["arch"]
 __project_title__ = ["title"]
 __project_description__ = ["description"]
 __project_server__ = ["server"]
 __project_webpage__ = ["webpage"]
 __project_repository__ = ["repository"]
 __project_target__ = ["target"]
-__project_architecture__ = ["architecture"]
+__project_arch__ = ["arch", "architecture"]
+__project_maintainer__ = ["maintainer"]
+__project_bugowner__ = ["bugowner"]
+__project_remoteurl__ = ["remoteurl"]
+
+
 
 __DICO_HELP__[__project_alias__[0]] = __project_alias__[0] + ":" + "\t" + ""
 __DICO_HELP__[__project_name_on_obs__[0]] = __project_name_on_obs__[0] + ":" + "\t" + ""
-__DICO_HELP__[__project_target__[0]] = __project_target__[0] + ":" + "\t" + ""
-__DICO_HELP__[__project_arch__[0]] = __project_arch__[0] + ":" + "\t" + ""
 __DICO_HELP__[__project_title__[0]] = __project_title__[0] + ":" + "\t" + ""
 __DICO_HELP__[__project_description__[0]] = __project_description__[0] + ":" + "\t" + ""
 __DICO_HELP__[__project_server__[0]] = __project_server__[0] + ":" + "\t" + ""
 __DICO_HELP__[__project_webpage__[0]] = __project_webpage__[0] + ":" + "\t" + ""
 __DICO_HELP__[__project_repository__[0]] = __project_repository__[0] + ":" + "\t" + ""
 __DICO_HELP__[__project_target__[0]] = __project_target__[0] + ":" + "\t" + ""
-__DICO_HELP__[__project_architecture__[0]] = __project_architecture__[0] + ":" + "\t" + ""
-
+__DICO_HELP__[__project_arch__[0]] = __project_arch__[0] + ":" + "\t" + ""
+__DICO_HELP__[__project_maintainer__[0]] = __project_maintainer__[0] + ":" + "\t" + ""
+__DICO_HELP__[__project_bugowner__[0]] = __project_bugowner__[0] + ":" + "\t" + ""
+__DICO_HELP__[__project_remoteurl__[0]] = __project_remoteurl__[0] + ":" + "\t" + ""
 
 def getParameter(listArgv):
     if listArgv == None:
@@ -348,18 +349,7 @@ class ObsLight():
                     help = True
                     break
                 elif currentCommand in __server_reachable__:
-                    if len(listArgv) > 0:
-                        reachable, listArgv = getParameter(listArgv)
-                        if commandValue in __server_reachable_True__:
-                            reachable = True
-                        elif commandValue in __server_reachable_False__:
-                            reachable = False
-                        else:
-                            help = True
-                            break
-                    else:
-                        help = True
-                        break
+                    reachable = True
                 else:
                     help = True
                     break
@@ -628,6 +618,10 @@ class ObsLight():
             '''
             help = False
             server_alias = None
+            arch = None
+            maintainer = False
+            bugowner = False
+            remoteurl = False
 
             while(len(listArgv) > 0):
                 currentCommand, listArgv = getParameter(listArgv)
@@ -637,6 +631,16 @@ class ObsLight():
                     break
                 elif currentCommand in __server_alias__:
                     server_alias , listArgv = getParameter(listArgv)
+                elif  currentCommand in __project_arch__ :
+                    arch , listArgv = getParameter(listArgv)
+                elif  currentCommand in __project_maintainer__ :
+                    maintainer = True
+                elif  currentCommand in __project_bugowner__ :
+                    bugowner = True
+                elif  currentCommand in __project_remoteurl__ :
+                    remoteurl = True
+                else:
+                    return server_help()
 
             if help == True:
                 return obsproject_help()
@@ -649,7 +653,11 @@ class ObsLight():
                         print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
                         return -1
                 elif server_alias != None:
-                    res = m.getObsServerProjectList(serverApi=server_alias)
+                    res = m.getObsServerProjectList(serverApi=server_alias,
+                                                    maintainer=maintainer,
+                                                    bugowner=bugowner,
+                                                    remoteurl=remoteurl,
+                                                    arch=arch)
                     if res == None:
                         print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
                         return -1

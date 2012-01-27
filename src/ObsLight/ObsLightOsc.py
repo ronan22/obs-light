@@ -442,20 +442,49 @@ class ObsLightOsc(object):
         return self.__subprocess(command=command, waitMess=True)
 
 
-    def getLocalProjectList(self, obsServer=None):
+    def getLocalProjectList(self,
+                            obsServer,
+                            maintainer=False,
+                            bugowner=False,
+                            arch=None,
+                            remoteurl=False):
         '''
         return a list of the project of a OBS Server.
         '''
+
         self.get_config()
+        url = str(obsServer + "/search/project")
+        xmlRes = self.getHttp_request(url)
+        if xmlRes == None:
+            ObsLightErr.ObsLightOscErr("Error the request on '" + url + "' return None.")
+
+        aElement = ElementTree.fromstring(xmlRes)
         res = []
-        try:
-            res = core.meta_get_project_list(str(obsServer))
-        except urllib2.URLError:
-            ObsLightPrintManager.getLogger().error("apiurl " + str(obsServer) + " is not reachable 8")
-        except M2Crypto.SSL.SSLError:
-            ObsLightPrintManager.getLogger().error("apiurl " + str(obsServer) + " Connection reset by peer")
-        except M2Crypto.SSL.Checker.NoCertificate:
-            ObsLightPrintManager.getLogger().error("apiurl " + str(obsServer) + " Peer did not return certificate")
+        for project in aElement:
+            aName = project.get("name")
+            aMaintainer = []
+            aBugowner = []
+            aArch = []
+            aRemoteurl = None
+            for val in project:
+                if val.tag == "remoteurl":
+                    aRemoteurl = val.text
+
+                if val.tag == "repository":
+                    for repo in val:
+                        if repo.tag == "arch":
+                            aArch.append(repo.text)
+                if val.tag == "person":
+                    if val.get("role") == "maintainer":
+                        aMaintainer.append(val.get("userid"))
+                    if val.get("role") == "bugowner":
+                        aBugowner.append(val.get("userid"))
+            if ((maintainer != None and (maintainer in aMaintainer)) or (maintainer == None)) and \
+               ((bugowner != None and (bugowner in aBugowner)) or (bugowner == None)) and \
+               ((arch != None and (arch in aArch)) or (arch == None)) and \
+               ((remoteurl != None and ((remoteurl == True and aRemoteurl != None)or (remoteurl == False and aRemoteurl == None))) or (remoteurl == None)):
+                res.append(aName)
+        res.sort()
         return res
 
     def getListRepos(self, apiurl):
@@ -732,7 +761,11 @@ class ObsLightOsc(object):
                 count += 1
                 res = self.http_request(method="GET", url=url, headers=headers, data=data, file=file, timeout=TIMEOUT)
                 fileXML = res.read()
+
+            if fileXML == None:
+                ObsLightErr.ObsLightOscErr("Error the request on '" + url + "' return None.")
             return fileXML
+
         except urllib2.URLError:
             ObsLightPrintManager.getLogger().error("apiurl " + str(url) + " is not reachable")
             return None
@@ -960,16 +993,21 @@ if __name__ == '__main__':
 #    print res.read()
 
 #    <remoteurl>https://api.meego.com/public</remoteurl>   
-    val = '''<project name="home:obsuser:testRemoteLink">  
-      <title>testRemoteLink</title>  
-      <description>test</description>
-      <remoteurl>https://api.meego.com/public</remoteurl>
-      <person role="maintainer" userid="obsuser"/>  
-      <person role="bugowner" userid="obsuser"/>  
-    </project>'''
 
-    url = "http://128.224.218.244:81/source/home:obsuser:testRemoteLink/_meta"
-    res = getObsLightOsc().http_request('PUT', url, data=val)
+
+#    url = "http://128.224.218.251:81"
+    url = "https://api.pub.meego.com"
+    arch = "armv8el"
+    maintainer = "ronan"
+    bugowner = "ronan"
+    remoteurl = True
+    res = getObsLightOsc().getLocalProjectList(obsServer=url,
+                                               maintainer=None,
+                                               bugowner=None,
+                                               arch=None,
+                                               remoteurl=remoteurl)
+    for r in res:
+        print r
 
 
 

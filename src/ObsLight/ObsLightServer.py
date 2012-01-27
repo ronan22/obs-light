@@ -293,11 +293,27 @@ class ObsLightServer(object):
             raise ObsLightErr.ObsLightObsServers("In " + self.__alias + " there is no repo")
 
 
-    def getLocalProjectList(self):
+    def getLocalProjectList(self,
+                            maintainer=False,
+                            bugowner=False,
+                            arch=None,
+                            remoteurl=False):
         '''
         
         '''
-        return  ObsLightOsc.getObsLightOsc().getLocalProjectList(obsServer=self.__serverAPI)
+        aBugowner = None
+        if bugowner == True:
+            aBugowner = self.__user
+
+        aMaintainer = None
+        if maintainer == True:
+            aMaintainer = self.__user
+
+        return  ObsLightOsc.getObsLightOsc().getLocalProjectList(obsServer=self.__serverAPI,
+                                                                 maintainer=aMaintainer,
+                                                                 bugowner=aBugowner,
+                                                                 arch=arch,
+                                                                 remoteurl=remoteurl)
 
     def getTargetList(self, projectObsName=None):
         '''

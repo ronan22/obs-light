@@ -701,7 +701,7 @@ class ObsLightManagerCore(ObsLightManagerBase):
         '''
         self.checkObsServerAlias(serverApi=obsServerAlias)
         return self._myObsServers.getObsServerParameter(obsServerAlias=obsServerAlias,
-                                                         parameter=parameter)
+                                                        parameter=parameter)
 
     def setObsServerParameter(self, obsServerAlias, parameter, value):
         '''
@@ -717,8 +717,8 @@ class ObsLightManagerCore(ObsLightManagerBase):
         '''
         self.checkObsServerAlias(serverApi=obsServerAlias)
         res = self._myObsServers.setObsServerParameter(obsServer=obsServerAlias,
-                                                        parameter=parameter,
-                                                        value=value)
+                                                       parameter=parameter,
+                                                       value=value)
         self._myObsServers.save()
         return res
 
@@ -764,13 +764,27 @@ class ObsLightManagerCore(ObsLightManagerBase):
 
     #///////////////////////////////////////////////////////////////////////////obsproject
 
-    def getObsServerProjectList(self, serverApi):
+    def getObsServerProjectList(self,
+                                serverApi,
+                                maintainer=False,
+                                bugowner=False,
+                                remoteurl=False,
+                                arch=None):
         '''
         Get the list of projects of an OBS server.
+        you can also filter the result
+        maintainer    False,True
+        bugowner      False,True
+        remoteurl     False,True
+        arch
         '''
         checkNonEmptyStringServerApi(serverApi=serverApi)
         self.checkServerApi(serverApi=serverApi)
-        return self._myObsServers.getLocalProjectList(serverApi)
+        return self._myObsServers.getLocalProjectList(serverApi,
+                                                      maintainer=maintainer,
+                                                      bugowner=bugowner,
+                                                      remoteurl=remoteurl,
+                                                      arch=arch)
 
         #used by decorator.
     def isALocalProject(self, name):
