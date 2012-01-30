@@ -1,4 +1,0 @@
-#!/bin/bash
-set -x
-OBSLIGHT=../src/obslight-wrapper.py
-ALIAS=OBS_251

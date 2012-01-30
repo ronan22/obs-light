@@ -53,8 +53,6 @@ __info_debug__ = ["debug", "-debug", "--debug"]
 __version__ = ["version", "-version", "--version"]
 __help__ = ["--help", "-h", "-help", "help"]
 
-
-
 #Command Level 1
 __server__ = ["server"]
 __obsproject__ = ["obsproject"]
@@ -124,6 +122,7 @@ __obsproject_add__ = ["add"]
 __obsproject_del__ = ["delete", "del", "rm"]
 __obsproject_query__ = ["query", "get"]
 __obsproject_set__ = ["set"]
+__obsproject_current__ = ["current"]
 
 __DICO_HELP__[__obsproject_help__[0]] = __obsproject_help__[0] + ":" + "\t" + "Doc __obsproject_help__"
 __DICO_HELP__[__obsproject_list__[0]] = __obsproject_list__[0] + ":" + "\t" + "Doc __obsproject_help__"
@@ -131,6 +130,8 @@ __DICO_HELP__[__obsproject_add__[0]] = __obsproject_add__[0] + ":" + "\t" + "Doc
 __DICO_HELP__[__obsproject_del__[0]] = __obsproject_del__[0] + ":" + "\t" + "Doc __obsproject_help__"
 __DICO_HELP__[__obsproject_query__[0]] = __obsproject_query__[0] + ":" + "\t" + "Doc __obsproject_help__"
 __DICO_HELP__[__obsproject_set__[0]] = __obsproject_set__[0] + ":" + "\t" + "Doc __obsproject_help__"
+__DICO_HELP__[__obsproject_current__[0]] = __obsproject_current__[0] + ":" + "\t" + "Doc __obsproject_help__"
+
 
 #Command server Level 3
 __project_alias__ = ["project_alias"]
@@ -697,6 +698,29 @@ class ObsLight():
                     print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
                 return 0
 
+        def obsproject_current(listArgv):
+            '''
+            
+            '''
+            help = False
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = getParameter(listArgv)
+                if (currentCommand in __server_help__) or (listArgv == None):
+                    help = True
+                    break
+                else:
+                    help = True
+                    break
+
+            if  (help == True) :
+                return server_help()
+            else:
+                m = ObsLightManager.getManager()
+                res = m.getCurrentObsServer()
+                print res
+                return 0
+
         def obsproject_add(listArgv):
             '''
             
@@ -725,6 +749,7 @@ class ObsLight():
             help = False
             return 0
 
+
         #_______________________________________________________________________
         if len(listArgv) == 0:
             obsproject_help()
@@ -745,8 +770,11 @@ class ObsLight():
                 return obsproject_query(listArgv)
             elif currentCommand in __obsproject_set__:
                 return obsproject_set(listArgv)
+            elif currentCommand in __obsproject_current__:
+                return obsproject_current(listArgv)
             else:
                 return obsproject_help()
+
         return 0
 
 

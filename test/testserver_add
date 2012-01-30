@@ -1,2 +1,0 @@
-#!/bin/bash
-../src/obslight-wrapper.py server add server_alias OBS_251 login obsuser password opensuse api_url http://128.224.218.251:81 repository_url http://128.224.218.251:82 web_url http://128.224.218.251

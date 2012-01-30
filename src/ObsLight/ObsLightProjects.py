@@ -165,7 +165,14 @@ class ObsLightProjects(object):
             raise ObsLightErr.ObsLightProjectsError("Can't import: " + name + ", The Project already exists.")
 
 
+    def getCurrentProject(self):
+        '''
+        
+        '''
+        return self.__currentProjects
     #---------------------------------------------------------------------------
+
+
 
     def getPackageStatus(self, project, package):
         '''
