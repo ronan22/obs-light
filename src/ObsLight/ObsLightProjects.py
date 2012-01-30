@@ -152,6 +152,8 @@ class ObsLightProjects(object):
         else:
             raise ObsLightErr.ObsLightProjectsError("Error in removeProject, can't remove project directory.")
 
+        self.__currentProjects = None
+
     def __addProjectFromSave(self, name=None, fromSave=None, importFile=None):
         '''
         
@@ -161,6 +163,7 @@ class ObsLightProjects(object):
                                                                workingDirectory=self.getObsLightWorkingDirectory(),
                                                                fromSave=fromSave,
                                                                importFile=importFile)
+            self.__currentProjects = name
         else:
             raise ObsLightErr.ObsLightProjectsError("Can't import: " + name + ", The Project already exists.")
 

@@ -119,7 +119,7 @@ __DICO_HELP__[__server_api_url__[0]] = __server_api_url__[0] + ":" + "\t" + ""
 __obsproject_help__ = __help__
 __obsproject_list__ = ["list", "ll", "ls"]
 __obsproject_add__ = ["add"]
-__obsproject_del__ = ["delete", "del", "rm"]
+__obsproject_del__ = __server_del__
 __obsproject_query__ = ["query", "get"]
 __obsproject_set__ = ["set"]
 __obsproject_current__ = ["current"]
@@ -569,6 +569,7 @@ class ObsLight():
                     break
                 else:
                     alias = currentCommand
+                    break
 
             if  (help == True) :
                 return server_help()
@@ -709,15 +710,18 @@ class ObsLight():
                 if (currentCommand in __server_help__) or (listArgv == None):
                     help = True
                     break
+                elif currentCommand in __server_del__:
+                    alias = currentCommand
+                    break
                 else:
                     help = True
                     break
 
             if  (help == True) :
-                return server_help()
+                return obsproject_help()
             else:
                 m = ObsLightManager.getManager()
-                res = m.getCurrentObsServer()
+                res = m.getCurrentObsProject()
                 print res
                 return 0
 
@@ -733,7 +737,26 @@ class ObsLight():
             
             '''
             help = False
-            return 0
+            project = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = getParameter(listArgv)
+
+                if (currentCommand in __server_help__) or (listArgv == None):
+                    help = True
+                    break
+                else:
+                    project = currentCommand
+                    break
+
+            if  (help == True) :
+                return obsproject_help()
+            elif project != None:
+                m = ObsLightManager.getManager()
+                return m.removeProject(projectLocalName=project)
+            else:
+                return obsproject_help()
+
 
         def obsproject_query(listArgv):
             '''

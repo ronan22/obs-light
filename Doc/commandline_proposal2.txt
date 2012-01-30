@@ -22,16 +22,18 @@ obslight
 	  obsproject list	return the list of the local OBSLight project .
 	  obsproject list	server_alias <server_alias> [arch <arch>|maintainer|bugowner|remoteurl ]
 				    return the list of the project on the OBS server
+	  obsproject current
+          obsproject delete	<project_alias>
 	  #___________
 
 	  #Not implement
 	  obsproject add	<project_alias> <name_on_obs> <target> <arch> {<server_alias>}
-	  obsproject delete	<project_alias>
+
 	  obsproject query	[title|description|server|webpage|repository|target|architecture] {<project_alias>}
 				  -> Options can be combined, no option means all options.
 				  Output is in same order as query (one answer by line or on the same line with a seperator?)
 	  obsproject set    	[title <title>] [description <description>] [target <target>] [architecture <architecture>] {<project_alias>}
-	  obsproject current
+	  
 	  #___________________________________________________________________________________________________________________________________________
           #Not implement
 	  package add    <package> {<project_alias>}

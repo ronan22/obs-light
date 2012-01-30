@@ -802,6 +802,22 @@ class ObsLightManagerCore(ObsLightManagerBase):
         '''
         return self._myObsLightProjects.getLocalProjectList()
 
+    def getCurrentObsProject(self):
+        '''
+        
+        '''
+        return self._myObsLightProjects.getCurrentProject()
+
+    @checkProjectLocalName(1)
+    def removeProject(self, projectLocalName):
+        '''
+        Remove a local Project.
+        '''
+        res = self._myObsLightProjects.removeProject(projectLocalName=projectLocalName)
+
+        self._myObsLightProjects.save()
+        return res
+
 class ObsLightManager(ObsLightManagerCore):
     '''
     Application Programming Interface between clients (command line, GUI) and OBS Light.
@@ -1138,16 +1154,6 @@ class ObsLightManager(ObsLightManagerCore):
         res = self._myObsLightProjects.setProjectParameter(projectLocalName,
                                                             parameter,
                                                             value)
-        self._myObsLightProjects.save()
-        return res
-
-    @checkProjectLocalName(1)
-    def removeProject(self, projectLocalName):
-        '''
-        Remove a local Project.
-        '''
-        res = self._myObsLightProjects.removeProject(projectLocalName=projectLocalName)
-
         self._myObsLightProjects.save()
         return res
 
