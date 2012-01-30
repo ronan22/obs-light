@@ -273,19 +273,6 @@ class ObsLightProjects(object):
         '''
         return self.__workingDirectory
 
-    def getListPackage(self, name=None, local=0):
-        '''
-        
-        '''
-        return self.getProject(name).getListPackage(local=local)
-
-
-    def addPackage(self, projectLocalName=None  , package=None):
-        '''
-        
-        '''
-        return self.getProject(projectLocalName).addPackage(name=package)
-
     def createChRoot(self, projectLocalName=None):
         '''
         

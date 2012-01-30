@@ -5,4 +5,5 @@ $OBSLIGHT obsproject query title description server webpage repository target ar
 $OBSLIGHT obsproject query description server webpage repository target architecture title
 $OBSLIGHT obsproject query title description server 
 $OBSLIGHT obsproject query server webpage repository target architecture
-
+$OBSLIGHT obsproject query project_alias $PROJECTALIAS
+$OBSLIGHT obsproject query 

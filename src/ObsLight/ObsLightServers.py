@@ -137,15 +137,18 @@ class ObsLightServers(object):
         
         '''
         self.__load()
-        if name in self.__dicOBSLightServers.keys():
-            self.__currentServer = name
-            return self.__dicOBSLightServers[name]
-        elif name in self.__dicOBSLightServers_unLoad.keys():
+
+        if name in self.__dicOBSLightServers_unLoad.keys():
             fromSave = self.__dicOBSLightServers_unLoad[name]
             aOBSServer = ObsLightServer(fromSave=fromSave)
             self.__dicOBSLightServers[aOBSServer.getName()] = aOBSServer
             del self.__dicOBSLightServers_unLoad[name]
-            self.__currentServer = name
+
+        if name in self.__dicOBSLightServers.keys():
+            if self.__currentServer != name:
+                self.__currentServer = name
+                self.save()
+
             return self.__dicOBSLightServers[name]
         else:
             return None
