@@ -36,6 +36,27 @@
    <item row="1" column="0" colspan="2">
     <widget class="QListWidget" name="projectListWidget"/>
    </item>
+   <item row="3" column="1">
+    <widget class="QCheckBox" name="restrainRemoteLinksCheckBox">
+     <property name="text">
+      <string>Show only projects which are remote links</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1">
+    <widget class="QCheckBox" name="restrainMaintainerCheckBox">
+     <property name="text">
+      <string>Show only projects on which I am maintainer</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="1">
+    <widget class="QCheckBox" name="restrainBugownerCheckBox">
+     <property name="text">
+      <string>Show only projects on which I am bugowner</string>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <resources/>

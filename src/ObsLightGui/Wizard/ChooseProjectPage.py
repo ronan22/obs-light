@@ -31,25 +31,44 @@ from WizardPageWrapper import ObsLightWizardPage
 class ChooseProjectPage(ObsLightWizardPage, FilterableWidget):
     def __init__(self, gui, index):
         ObsLightWizardPage.__init__(self, gui, index, u"wizard_chooseProject.ui")
-        FilterableWidget.__init__(self, self.ui_WizardPage.filterLineEdit,
-                                  self.ui_WizardPage.projectListWidget)
-        self.registerField(u"projectRow*", self.ui_WizardPage.projectListWidget)
-
+        uwp = self.ui_WizardPage
+        FilterableWidget.__init__(self, uwp.filterLineEdit,
+                                  uwp.projectListWidget)
+        self.registerField(u"projectRow*", uwp.projectListWidget)
+        self.registerField(u"restrainMaintainer", uwp.restrainMaintainerCheckBox)
+        self.registerField(u"restrainBugowner", uwp.restrainBugownerCheckBox)
+        self.registerField(u"restrainRemoteLinks", uwp.restrainRemoteLinksCheckBox)
+        uwp.restrainMaintainerCheckBox.stateChanged.connect(self._checkBoxStateChanged)
+        uwp.restrainBugownerCheckBox.stateChanged.connect(self._checkBoxStateChanged)
+        uwp.restrainRemoteLinksCheckBox.stateChanged.connect(self._checkBoxStateChanged)
 
     def initializePage(self):
         serverAlias = self.field(u"serverAlias")
-        self.setBusyCursor(self._fillProjectList, serverAlias)
+        restrainMaintainer = self.field(u"restrainMaintainer")
+        restrainBugowner = self.field(u"restrainBugowner")
+        restrainRemoteLinks = self.field(u"restrainRemoteLinks")
+        self.setBusyCursor(self._fillProjectList, serverAlias, restrainMaintainer,
+                           restrainBugowner, restrainRemoteLinks)
 
-    def _fillProjectList(self, serverAlias):
+    def _checkBoxStateChanged(self, _state):
+        self.initializePage()
+
+    def _fillProjectList(self, serverAlias, restrainMaintainer,
+                         restrainBugowner, restrainRemoteLinks):
         self.ui_WizardPage.projectListWidget.clear()
-        prjList = self._getProjectList(serverAlias)
+        prjList = self._getProjectList(serverAlias, restrainMaintainer,
+                                       restrainBugowner, restrainRemoteLinks)
         self.ui_WizardPage.projectListWidget.addItems(prjList)
 
     # I don't know why, but here uiFriendly prevents the wizard page
     # to refresh when getProjectList returns quickly.
     #@uiFriendly()
-    def _getProjectList(self, serverAlias):
-        return self.manager.getObsServerProjectList(serverAlias)
+    def _getProjectList(self, serverAlias, restrainMaintainer,
+                        restrainBugowner, restrainRemoteLinks):
+        return self.manager.getObsServerProjectList(serverAlias,
+                                                    maintainer=restrainMaintainer,
+                                                    bugowner=restrainBugowner,
+                                                    remoteurl=restrainRemoteLinks)
 
     def getSelectedProject(self):
         return self.ui_WizardPage.projectListWidget.item(self.field(u"projectRow")).text()

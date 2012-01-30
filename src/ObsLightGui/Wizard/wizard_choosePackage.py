@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'ui/wizard_choosePackage.ui'
 #
-# Created: Mon Jan  2 09:38:49 2012
-#      by: pyside-uic 0.2.13 running on PySide 1.0.8
+# Created: Mon Jan 30 18:39:16 2012
+#      by: pyside-uic 0.2.13 running on PySide 1.1.0
 #
 # WARNING! All changes made in this file will be lost!
 
