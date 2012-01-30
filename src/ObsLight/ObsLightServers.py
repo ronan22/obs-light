@@ -234,7 +234,7 @@ class ObsLightServers(object):
                     self.resultListPackage[obsServer][projectLocalName] = res
                 return res
         else:
-            res = self.getObsServer(server).getListPackage(projectLocalName=projectLocalName)
+            res = self.getObsServer(obsServer).getListPackage(projectLocalName=projectLocalName)
             if res != None:
                 self.resultListPackage[obsServer] = {}
                 self.resultListPackage[obsServer][projectLocalName] = res
