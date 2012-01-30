@@ -25,14 +25,13 @@ obslight
 	  obsproject current
           obsproject delete	<project_alias>
           obsproject add	<project_alias> <name_on_obs> <target> <arch> {<server_alias>}
+	  obsproject query	[title|description|server|webpage|repository|target|architecture] {project_alias <project_alias>}
+				  -> Options can be combined, no option means all options.
+				  Output is in same order as query (one answer by line or on the same line with a seperator?)
 	  #___________
 
 	  #Not implement
-	  
-	  obsproject query	[title|description|server|webpage|repository|target|architecture] {<project_alias>}
-				  -> Options can be combined, no option means all options.
-				  Output is in same order as query (one answer by line or on the same line with a seperator?)
-	  obsproject set    	[title <title>] [description <description>] [target <target>] [architecture <architecture>] {<project_alias>}
+	  obsproject set    	[title <title>] [description <description>] [target <target>] [architecture <architecture>] {project_alias <project_alias>}
 	  
 	  #___________________________________________________________________________________________________________________________________________
           #Not implement

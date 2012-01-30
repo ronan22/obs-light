@@ -42,17 +42,18 @@ class ObsLightProject(object):
     classdocs
     '''
 
-    def __init__(self, obsServers,
-                       workingDirectory,
-                       projectObsName=None,
-                       projectLocalName=None,
-                       obsServer=None ,
-                       projectTarget=None,
-                       projectTitle=None,
-                       description=None,
-                       projectArchitecture=None,
-                       fromSave=None,
-                       importFile=False):
+    def __init__(self,
+                 obsServers,
+                 workingDirectory,
+                 projectObsName=None,
+                 projectLocalName=None,
+                 obsServer=None,
+                 projectTarget=None,
+                 projectArchitecture=None,
+                 projectTitle="",
+                 description="",
+                 fromSave=None,
+                 importFile=False):
         '''
         Constructor
         '''
@@ -93,8 +94,10 @@ class ObsLightProject(object):
                 self.__projectArchitecture = fromSave["projectArchitecture"]
             if "projectTitle" in fromSave.keys():
                 self.__projectTitle = fromSave["projectTitle"]
+                if self.__projectTitle == None:self.__projectTitle = ""
             if "description" in fromSave.keys():
                 self.__description = fromSave["description"]
+                if self.__description == None:self.__description = ""
             if "aChroot" in fromSave.keys():
                 self.__chroot = ObsLightChRoot(projectDirectory=self.getDirectory(),
                                                fromSave=fromSave["aChroot"])
@@ -110,20 +113,20 @@ class ObsLightProject(object):
 
             if "chrootIsInit" in fromSave.keys():
                 self.__chrootIsInit = fromSave["chrootIsInit"]
-#                if self.__chrootIsInit == True:
-#                    if not self.__chroot.isInit():
-#                        self.__initChRoot()
-#                        self.__chroot.initRepos()
-#                else:
-#                    if self.__chroot.isInit():
-#                        self.__chrootIsInit = True
-#
-#            if self.__chrootIsInit:
-#                for packageName in self.__packages.getListPackages():
-#                    absPackagePath = self.getAbsPackagePath(name=packageName)
-#                    if absPackagePath != None:
-#                        if not os.path.isdir(absPackagePath) :
-#                            self.addPackageSourceInChRoot(package=packageName)
+                if self.__chrootIsInit == True:
+                    if not self.__chroot.isInit():
+                        self.__initChRoot()
+                        self.__chroot.initRepos()
+                else:
+                    if self.__chroot.isInit():
+                        self.__chrootIsInit = True
+
+            if self.__chrootIsInit:
+                for packageName in self.__packages.getListPackages():
+                    absPackagePath = self.getAbsPackagePath(name=packageName)
+                    if absPackagePath != None:
+                        if not os.path.isdir(absPackagePath) :
+                            self.addPackageSourceInChRoot(package=packageName)
 
         if not os.path.isdir(self.getDirectory()):
             os.makedirs(self.getDirectory())

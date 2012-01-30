@@ -91,6 +91,7 @@ class ObsLightProjects(object):
         '''
         if aFile == None:
             pathFile = self.__pathFile
+            projectName = None
         else:
             pathFile = aFile
 
@@ -133,10 +134,14 @@ class ObsLightProjects(object):
             del self.__dicOBSLightProjects_unload[project]
 
         if project in self.__dicOBSLightProjects.keys():
-            self.__currentProjects = project
+            if self.__currentProjects != project:
+                self.__currentProjects = project
+                self.save()
+
             return self.__dicOBSLightProjects[project]
         else:
             raise ObsLightErr.ObsLightProjectsError("the file: " + pathFile + "  is not a backup")
+
 
     def removeProject(self, projectLocalName=None):
         '''
@@ -153,6 +158,7 @@ class ObsLightProjects(object):
             raise ObsLightErr.ObsLightProjectsError("Error in removeProject, can't remove project directory.")
 
         self.__currentProjects = None
+        self.save()
 
     def __addProjectFromSave(self, name=None, fromSave=None, importFile=None):
         '''
@@ -163,7 +169,6 @@ class ObsLightProjects(object):
                                                                workingDirectory=self.getObsLightWorkingDirectory(),
                                                                fromSave=fromSave,
                                                                importFile=importFile)
-            self.__currentProjects = name
         else:
             raise ObsLightErr.ObsLightProjectsError("Can't import: " + name + ", The Project already exists.")
 
@@ -172,6 +177,7 @@ class ObsLightProjects(object):
         '''
         
         '''
+        self.__load()
         return self.__currentProjects
 
     def addProject(self,
@@ -185,8 +191,6 @@ class ObsLightProjects(object):
         '''
         projectTitle = self.__obsServers.getProjectTitle(obsServer=obsServer, projectObsName=projectObsName)
         description = self.__obsServers.getProjectDescription(obsServer=obsServer, projectObsName=projectObsName)
-
-
 
         if (projectLocalName in self.__dicOBSLightProjects_unload.keys()) or\
            (projectLocalName in self.__dicOBSLightProjects.keys()):
@@ -202,11 +206,7 @@ class ObsLightProjects(object):
                                                                        projectTarget=projectTarget,
                                                                        projectArchitecture=projectArchitecture)
 
-
     #---------------------------------------------------------------------------
-
-
-
     def getPackageStatus(self, project, package):
         '''
         
@@ -400,21 +400,6 @@ class ObsLightProjects(object):
         
         '''
         return self.getProject(projectLocalName).getProjectObsName()
-
-    def getProjectParameter(self, projectLocalName=None, parameter=None):
-        '''
-        Get the value of a project parameter:
-        the valid parameter is :
-            projectLocalName
-            projectObsName
-            projectDirectory
-            obsServer
-            projectTarget
-            projectArchitecture
-            projectTitle
-            description
-        '''
-        return self.getProject(projectLocalName).getProjectParameter(parameter=parameter)
 
     def setProjectParameter(self, projectLocalName=None, parameter=None, value=None):
         '''

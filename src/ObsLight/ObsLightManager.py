@@ -808,7 +808,6 @@ class ObsLightManagerCore(ObsLightManagerBase):
         '''
         res = self._myObsLightProjects.removeProject(projectLocalName=projectLocalName)
 
-        self._myObsLightProjects.save()
         return res
 
     @checkNonEmptyStringProjectTarget(3)
@@ -838,6 +837,52 @@ class ObsLightManagerCore(ObsLightManagerBase):
                                              projectTarget=projectTarget,
                                              projectArchitecture=projectArchitecture)
         self._myObsLightProjects.save()
+
+    @checkProjectLocalName(1)
+    def getProjectParameter(self, projectLocalName, parameter):
+        '''
+        Get the value of a project parameter.
+        Valid parameter are:
+            projectLocalName
+            projectObsName
+            projectDirectory
+            obsServer
+            projectTarget
+            projectArchitecture
+            projectTitle
+            description
+        '''
+        if not parameter in ["projectLocalName",
+                             "projectObsName",
+                             "projectDirectory",
+                             "obsServer",
+                             "projectTarget",
+                             "projectArchitecture",
+                             "projectTitle",
+                             "description"]:
+            raise ObsLightProjectsError(parameter + " is not a parameter of a local project")
+
+        return self._myObsLightProjects.getProject(projectLocalName).getProjectParameter(parameter)
+
+    @checkProjectLocalName(1)
+    def getProjectWebPage(self, projectLocalName):
+        '''
+        Get the project webpage URL.
+        '''
+        return self._myObsLightProjects.getWebProjectPage(projectLocalName)
+
+    @checkProjectLocalName(1)
+    def getProjectRepository(self, projectLocalName):
+        '''
+        Return the URL of the repository of the project
+        '''
+        return self._myObsLightProjects.getReposProject(projectLocalName=projectLocalName)
+
+    #///////////////////////////////////////////////////////////////////////////package
+    #///////////////////////////////////////////////////////////////////////////filesystem
+    #///////////////////////////////////////////////////////////////////////////spec
+    #///////////////////////////////////////////////////////////////////////////micproject
+    #///////////////////////////////////////////////////////////////////////////qemuproject
 
 class ObsLightManager(ObsLightManagerCore):
     '''
@@ -1134,33 +1179,6 @@ class ObsLightManager(ObsLightManagerCore):
         self._myObsLightMicProjects.createImage(projectMicName=projectMicName)
         self._myObsLightMicProjects.save()
 
-    #---------------------------------------------------------------------------
-
-    @checkProjectLocalName(1)
-    def getProjectParameter(self, projectLocalName, parameter):
-        '''
-        Get the value of a project parameter.
-        Valid parameter are:
-            projectLocalName
-            projectObsName
-            projectDirectory
-            obsServer
-            projectTarget
-            projectArchitecture
-            projectTitle
-            description
-        '''
-        if not parameter in ["projectLocalName",
-                             "projectObsName",
-                             "projectDirectory",
-                             "obsServer",
-                             "projectTarget",
-                             "projectArchitecture",
-                             "projectTitle",
-                             "description"]:
-            raise ObsLightProjectsError(parameter + " is not a parameter of a local project ")
-
-        return self._myObsLightProjects.getProjectParameter(projectLocalName, parameter)
 
     @checkProjectLocalName(1)
     def setProjectParameter(self, projectLocalName, parameter, value):
@@ -1452,13 +1470,6 @@ class ObsLightManager(ObsLightManagerCore):
         self._myObsLightProjects.exportProject(projectLocalName, path=path)
 
     @checkProjectLocalName(1)
-    def getProjectWebPage(self, projectLocalName):
-        '''
-        Get the project webpage URL.
-        '''
-        return self._myObsLightProjects.getWebProjectPage(projectLocalName)
-
-    @checkProjectLocalName(1)
     @checkNonEmptyStringPackage(2)
     @checkPackage(1, 2)
     def getPackageParameter(self, projectLocalName, package, parameter):
@@ -1510,12 +1521,6 @@ class ObsLightManager(ObsLightManagerCore):
                                                 controlFunction=controlFunction)
         self._myObsLightProjects.save()
 
-    @checkProjectLocalName(1)
-    def getProjectRepository(self, projectLocalName):
-        '''
-        Return the URL of the repository of the project
-        '''
-        return self._myObsLightProjects.getReposProject(projectLocalName=projectLocalName)
 
     @checkProjectLocalName(1)
     @checkNonEmptyStringPackage(2)

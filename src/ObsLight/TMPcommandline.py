@@ -654,7 +654,7 @@ class ObsLight():
             while(len(listArgv) > 0):
                 currentCommand, listArgv = getParameter(listArgv)
 
-                if (currentCommand in __server_help__) or (listArgv == None):
+                if (currentCommand in __obsproject_help__) or (listArgv == None):
                     help = True
                     break
                 elif currentCommand in __server_alias__:
@@ -707,7 +707,7 @@ class ObsLight():
 
             while(len(listArgv) > 0):
                 currentCommand, listArgv = getParameter(listArgv)
-                if (currentCommand in __server_help__) or (listArgv == None):
+                if (currentCommand in __obsproject_help__) or (listArgv == None):
                     help = True
                     break
                 elif currentCommand in __server_del__:
@@ -739,7 +739,7 @@ class ObsLight():
 
             while(len(listArgv) > 0):
                 currentCommand, listArgv = getParameter(listArgv)
-                if (currentCommand in __server_help__) or (listArgv == None):
+                if (currentCommand in __obsproject_help__) or (listArgv == None):
                     help = True
                     break
                 else :
@@ -756,14 +756,14 @@ class ObsLight():
                  (name_on_obs == None) or\
                  (target == None) or\
                  (arch == None)):
-                return server_help()
+                return obsproject_help()
             else:
                 m = ObsLightManager.getManager()
 
                 if server_alias == None:
                     server_alias = m.getCurrentObsServer()
                     if server_alias == None:
-                        return server_help()
+                        return obsproject_help()
 
                 return m.addProject(serverApi=server_alias,
                                     projectObsName=name_on_obs,
@@ -781,7 +781,7 @@ class ObsLight():
             while(len(listArgv) > 0):
                 currentCommand, listArgv = getParameter(listArgv)
 
-                if (currentCommand in __server_help__) or (listArgv == None):
+                if (currentCommand in __obsproject_help__) or (listArgv == None):
                     help = True
                     break
                 else:
@@ -802,6 +802,91 @@ class ObsLight():
             
             '''
             help = False
+            title = None
+            description = None
+            server = None
+            webpage = None
+            repository = None
+            target = None
+            architecture = None
+            project_alias = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = getParameter(listArgv)
+                if (currentCommand in __obsproject_help__) or (listArgv == None):
+                    help = True
+                    break
+                elif currentCommand in __project_title__:
+                    title = currentCommand
+                elif currentCommand in __project_description__:
+                    description = currentCommand
+                elif currentCommand in __project_server__ :
+                    server = currentCommand
+                elif currentCommand in __project_webpage__:
+                    webpage = currentCommand
+                elif currentCommand in __project_repository__:
+                    repository = currentCommand
+                elif currentCommand in __project_target__:
+                    target = currentCommand
+                elif currentCommand in __project_arch__:
+                    architecture = currentCommand
+                elif currentCommand in __project_alias__:
+                    project_alias , listArgv = getParameter(listArgv)
+                else:
+                    help = True
+                    break
+
+            if  (help == True) :
+                return obsproject_help()
+            else:
+                m = ObsLightManager.getManager()
+                if project_alias == None:
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return obsproject_help()
+
+                if title != None:
+                    res = m.getProjectParameter(projectLocalName=project_alias, parameter="projectTitle")
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    print "title:" + res
+                if description != None:
+                    res = m.getProjectParameter(projectLocalName=project_alias, parameter="description")
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    print "description:" + res
+                if server != None:
+                    res = m.getProjectParameter(projectLocalName=project_alias, parameter="obsServer")
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    print "server:" + res
+                if webpage != None:
+                    res = m.getProjectWebPage(projectLocalName=project_alias)
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    print "webpage:" + res
+                if repository != None:
+                    res = m.getProjectRepository(projectLocalName=project_alias)
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    print "repository:" + res
+                if target != None:
+                    res = m.getProjectParameter(projectLocalName=project_alias, parameter="projectTarget")
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    print "target:" + res
+                if architecture != None:
+                    res = m.getProjectParameter(projectLocalName=project_alias, parameter="projectArchitecture")
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    print "architecture:" + res
             return 0
 
         def obsproject_set(listArgv):
@@ -810,7 +895,6 @@ class ObsLight():
             '''
             help = False
             return 0
-
 
         #_______________________________________________________________________
         if len(listArgv) == 0:
