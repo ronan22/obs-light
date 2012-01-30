@@ -173,6 +173,36 @@ class ObsLightProjects(object):
         
         '''
         return self.__currentProjects
+
+    def addProject(self,
+                   projectLocalName=None,
+                   projectObsName=None,
+                   obsServer=None ,
+                   projectTarget=None,
+                   projectArchitecture=None):
+        '''
+        
+        '''
+        projectTitle = self.__obsServers.getProjectTitle(obsServer=obsServer, projectObsName=projectObsName)
+        description = self.__obsServers.getProjectDescription(obsServer=obsServer, projectObsName=projectObsName)
+
+
+
+        if (projectLocalName in self.__dicOBSLightProjects_unload.keys()) or\
+           (projectLocalName in self.__dicOBSLightProjects.keys()):
+            raise ObsLightErr.ObsLightProjectsError("The projectLocalName '" + projectLocalName + "' all ready exist")
+
+        self.__dicOBSLightProjects[projectLocalName] = ObsLightProject(obsServers=self.__obsServers,
+                                                                       workingDirectory=self.getObsLightWorkingDirectory(),
+                                                                       projectLocalName=projectLocalName,
+                                                                       projectObsName=projectObsName,
+                                                                       projectTitle=projectTitle,
+                                                                       description=description,
+                                                                       obsServer=obsServer,
+                                                                       projectTarget=projectTarget,
+                                                                       projectArchitecture=projectArchitecture)
+
+
     #---------------------------------------------------------------------------
 
 
@@ -242,31 +272,6 @@ class ObsLightProjects(object):
         Returns the OBS Light working directory, usually /home/<user>/OBSLight.
         '''
         return self.__workingDirectory
-
-    def addProject(self,
-                   projectLocalName=None,
-                   projectObsName=None,
-                   projectTitle=None,
-                   obsServer=None ,
-                   projectTarget=None,
-                   description=None,
-                   projectArchitecture=None):
-        '''
-        
-        '''
-        projectTitle = self.__obsServers.getProjectTitle(obsServer=obsServer, projectObsName=projectObsName)
-        description = self.__obsServers.getProjectDescription(obsServer=obsServer, projectObsName=projectObsName)
-
-        self.__dicOBSLightProjects[projectLocalName] = ObsLightProject(obsServers=self.__obsServers,
-                                                                       workingDirectory=self.getObsLightWorkingDirectory(),
-                                                                       projectLocalName=projectLocalName,
-                                                                       projectObsName=projectObsName,
-                                                                       projectTitle=projectTitle,
-                                                                       description=description,
-                                                                       obsServer=obsServer,
-                                                                       projectTarget=projectTarget,
-                                                                       projectArchitecture=projectArchitecture)
-
 
     def getListPackage(self, name=None, local=0):
         '''

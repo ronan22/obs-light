@@ -454,6 +454,7 @@ class ObsLightOsc(object):
 
         self.get_config()
         url = str(obsServer + "/search/project")
+
         xmlRes = self.getHttp_request(url)
         if xmlRes == None:
             ObsLightErr.ObsLightOscErr("Error the request on '" + url + "' return None.")

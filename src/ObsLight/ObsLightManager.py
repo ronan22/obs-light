@@ -99,23 +99,7 @@ def checkAvailableProjectLocalName(position=None):
         return checkAvailableProjectLocalName2
     return checkAvailableProjectLocalName1
 
-def checkNonEmptyStringLocalName(position=None):
-    def checkNonEmptyStringLocalName1(f):
-        def checkNonEmptyStringLocalName2(*args, **kwargs):
-            projectLocalName = None
-            if (position is not None) and (position < len(args)):
-                projectLocalName = args[position]
-            elif "projectLocalName" in kwargs :
-                projectLocalName = kwargs["projectLocalName"]
-            else:
-                raise ObsLightProjectsError("checkNonEmptyStringLocalName Fails")
-            if not isNonEmptyString(projectLocalName):
-                raise ObsLightObsServers("Invalid projectLocalName name: '" + str(projectLocalName) + "'")
-            elif ":" in projectLocalName:
-                raise ObsLightProjectsError("You can't use ':' in projectLocalName '" + str(projectLocalName) + "'")
-            return f(*args, **kwargs)
-        return checkNonEmptyStringLocalName2
-    return checkNonEmptyStringLocalName1
+
 
 def checkFilePath(position=None):
     def checkFilePath1(f):
@@ -525,6 +509,8 @@ def checkAvailableProjectPackage(position1=None, position2=None, position3=None)
         return checkAvailableProjectPackage2
     return checkAvailableProjectPackage1
 
+
+
 def checkDirectory(position=None):
     def checkDirectory1(f):
         def checkDirectory2(*args, **kwargs):
@@ -555,6 +541,13 @@ def checkReachableIsBool(reachable):
     '''
     if not isBool(reachable):
         raise ObsLightObsServers("invalid value for reachable:" + str(reachable))
+
+def checkNonEmptyStringLocalName(projectLocalName):
+    if not isNonEmptyString(projectLocalName):
+        raise ObsLightObsServers("Invalid projectLocalName name: '" + str(projectLocalName) + "'")
+    elif ":" in projectLocalName:
+        raise ObsLightProjectsError("You can't use ':' in projectLocalName '" + str(projectLocalName) + "'")
+
 
 #-------------------------------------------------------------------------------
 
@@ -817,6 +810,34 @@ class ObsLightManagerCore(ObsLightManagerBase):
 
         self._myObsLightProjects.save()
         return res
+
+    @checkNonEmptyStringProjectTarget(3)
+    @checkNonEmptyStringProjectArchitecture(4)
+    @checkAvailableProjectLocalName(5)
+    @checkAvailableProjectObsName(2, 1)
+    @checkAvailableProjectTarget(2, 1, 3)
+    @checkAvailableProjectArchitecture(2, 1, 3, 4)
+    def addProject(self,
+                   serverApi,
+                   projectObsName,
+                   projectTarget,
+                   projectArchitecture,
+                   projectLocalName):
+        '''
+        Create a local project associated with an OBS project.
+        '''
+
+        checkNonEmptyStringLocalName(projectLocalName)
+        checkNonEmptyStringServerApi(serverApi=serverApi)
+
+        self.checkObsServerAlias(serverApi=serverApi)
+
+        self._myObsLightProjects.addProject(projectLocalName=projectLocalName,
+                                             projectObsName=projectObsName,
+                                             obsServer=serverApi,
+                                             projectTarget=projectTarget,
+                                             projectArchitecture=projectArchitecture)
+        self._myObsLightProjects.save()
 
 class ObsLightManager(ObsLightManagerCore):
     '''
@@ -1175,35 +1196,6 @@ class ObsLightManager(ObsLightManagerCore):
         res = self._myObsLightProjects.removePackage(projectLocalName, package)
         self._myObsLightProjects.save()
         return res
-
-    @checkNonEmptyStringLocalName(7)
-    @checkNonEmptyStringProjectTarget(3)
-    @checkNonEmptyStringProjectArchitecture(4)
-    @checkAvailableProjectLocalName(7)
-    @checkAvailableProjectObsName(2, 1)
-    @checkAvailableProjectTarget(2, 1, 3)
-    @checkAvailableProjectArchitecture(2, 1, 3, 4)
-    def addProject(self,
-                   serverApi,
-                   projectObsName,
-                   projectTarget,
-                   projectArchitecture,
-                   projectTitle=None,
-                   description=None,
-                   projectLocalName=None):
-        '''
-        Create a local project associated with an OBS project.
-        '''
-        self.checkObsServerAlias(serverApi=serverApi)
-        checkNonEmptyStringServerApi(serverApi=serverApi)
-        self._myObsLightProjects.addProject(projectLocalName=projectLocalName,
-                                             projectObsName=projectObsName,
-                                             projectTitle=projectTitle,
-                                             obsServer=serverApi,
-                                             projectTarget=projectTarget,
-                                             description=description,
-                                             projectArchitecture=projectArchitecture)
-        self._myObsLightProjects.save()
 
     @checkProjectLocalName(1)
     @checkNonEmptyStringPackage(2)

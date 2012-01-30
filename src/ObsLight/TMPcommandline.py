@@ -730,7 +730,46 @@ class ObsLight():
             
             '''
             help = False
-            return 0
+            project_alias = None
+            name_on_obs = None
+            target = None
+            arch = None
+            server_alias = None
+
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = getParameter(listArgv)
+                if (currentCommand in __server_help__) or (listArgv == None):
+                    help = True
+                    break
+                else :
+                    project_alias = currentCommand
+                    name_on_obs , listArgv = getParameter(listArgv)
+                    target , listArgv = getParameter(listArgv)
+                    arch , listArgv = getParameter(listArgv)
+                    server_alias , listArgv = getParameter(listArgv)
+                    if listArgv == None:
+                        break
+
+            if  (help == True) or\
+                ((project_alias == None) or\
+                 (name_on_obs == None) or\
+                 (target == None) or\
+                 (arch == None)):
+                return server_help()
+            else:
+                m = ObsLightManager.getManager()
+
+                if server_alias == None:
+                    server_alias = m.getCurrentObsServer()
+                    if server_alias == None:
+                        return server_help()
+
+                return m.addProject(serverApi=server_alias,
+                                    projectObsName=name_on_obs,
+                                    projectTarget=target,
+                                    projectArchitecture=arch,
+                                    projectLocalName=project_alias)
 
         def obsproject_del(listArgv):
             '''
