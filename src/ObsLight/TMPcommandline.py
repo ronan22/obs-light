@@ -846,19 +846,22 @@ class ObsLight():
                         return obsproject_help()
 
                 if title != None:
-                    res = m.getProjectParameter(projectLocalName=project_alias, parameter="projectTitle")
+                    res = m.getProjectParameter(projectLocalName=project_alias,
+                                                parameter="projectTitle")
                     if res == None:
                         print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
                         return -1
                     print "title:" + res
                 if description != None:
-                    res = m.getProjectParameter(projectLocalName=project_alias, parameter="description")
+                    res = m.getProjectParameter(projectLocalName=project_alias,
+                                                parameter="description")
                     if res == None:
                         print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
                         return -1
                     print "description:" + res
                 if server != None:
-                    res = m.getProjectParameter(projectLocalName=project_alias, parameter="obsServer")
+                    res = m.getProjectParameter(projectLocalName=project_alias,
+                                                parameter="obsServer")
                     if res == None:
                         print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
                         return -1
@@ -876,13 +879,15 @@ class ObsLight():
                         return -1
                     print "repository:" + res
                 if target != None:
-                    res = m.getProjectParameter(projectLocalName=project_alias, parameter="projectTarget")
+                    res = m.getProjectParameter(projectLocalName=project_alias,
+                                                parameter="projectTarget")
                     if res == None:
                         print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
                         return -1
                     print "target:" + res
                 if architecture != None:
-                    res = m.getProjectParameter(projectLocalName=project_alias, parameter="projectArchitecture")
+                    res = m.getProjectParameter(projectLocalName=project_alias,
+                                                parameter="projectArchitecture")
                     if res == None:
                         print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
                         return -1
@@ -894,6 +899,48 @@ class ObsLight():
             
             '''
             help = False
+            title = None
+            description = None
+            project_alias = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = getParameter(listArgv)
+                if (currentCommand in __obsproject_help__) or (listArgv == None):
+                    help = True
+                    break
+                elif currentCommand in __project_title__:
+                    title , listArgv = getParameter(listArgv)
+                elif currentCommand in __project_description__:
+                    description , listArgv = getParameter(listArgv)
+                elif currentCommand in __project_alias__:
+                    project_alias , listArgv = getParameter(listArgv)
+                else:
+                    help = True
+                    break
+
+            if  (help == True) :
+                return obsproject_help()
+            else:
+                m = ObsLightManager.getManager()
+                if project_alias == None:
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return obsproject_help()
+
+                if title != None:
+                    res = m.setProjectParameter(projectLocalName=project_alias,
+                                                parameter="projectTitle",
+                                                value=title)
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                if description != None:
+                    res = m.setProjectParameter(projectLocalName=project_alias,
+                                                parameter="description",
+                                                value=description)
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
             return 0
 
         #_______________________________________________________________________

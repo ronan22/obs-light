@@ -8,7 +8,6 @@ obslight
 	  qemuproject
 	  
 #_____________________________________________________________________________________________________________________________________________________
-	  #implement
 	  server test	server_alias <server_alias> test the server alias 
 	  server test	login <login> password <password> api_url <api_url> test the API URL.
           server list	[reachable BOOL] reachable =False->return all sever,reachable =True->return only the available server,default=False.
@@ -18,7 +17,6 @@ obslight
 	  server delete	<server_alias>  
 	  server current
 	  #___________________________________________________________________________________________________________________________________________
-	  #implement
 	  obsproject list	return the list of the local OBSLight project .
 	  obsproject list	server_alias <server_alias> [arch <arch>|maintainer|bugowner|remoteurl ]
 				    return the list of the project on the OBS server
@@ -28,13 +26,11 @@ obslight
 	  obsproject query	[title|description|server|webpage|repository|target|architecture] {project_alias <project_alias>}
 				  -> Options can be combined, no option means all options.
 				  Output is in same order as query (one answer by line or on the same line with a seperator?)
-	  #___________
-
-	  #Not implement
-	  obsproject set    	[title <title>] [description <description>] [target <target>] [architecture <architecture>] {project_alias <project_alias>}
+	  obsproject set    	[title <title>] [description <description>] {project_alias <project_alias>}
 	  
 	  #___________________________________________________________________________________________________________________________________________
-          #Not implement
+          #implement
+	  #Not implement
 	  package add    <package> {<project_alias>}
           package delete <package> {<project_alias>}
           package list   [available] {<project_alias>}

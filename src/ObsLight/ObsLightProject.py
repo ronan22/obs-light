@@ -272,6 +272,7 @@ class ObsLightProject(object):
             self.__description = value
         else:
             raise ObsLightErr.ObsLightProjectsError("parameter value is not valid for setProjectParameter")
+        return 0
 
     def getPackageParameter(self, package, parameter=None):
         '''

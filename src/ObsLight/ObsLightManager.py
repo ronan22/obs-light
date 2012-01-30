@@ -869,14 +869,28 @@ class ObsLightManagerCore(ObsLightManagerBase):
         '''
         Get the project webpage URL.
         '''
-        return self._myObsLightProjects.getWebProjectPage(projectLocalName)
+        return self._myObsLightProjects.getProject(projectLocalName).getWebProjectPage()
 
     @checkProjectLocalName(1)
     def getProjectRepository(self, projectLocalName):
         '''
         Return the URL of the repository of the project
         '''
-        return self._myObsLightProjects.getReposProject(projectLocalName=projectLocalName)
+        return self._myObsLightProjects.getProject(projectLocalName).getReposProject()
+
+    @checkProjectLocalName(1)
+    def setProjectParameter(self, projectLocalName, parameter, value):
+        '''
+        Get the value of a project parameter.
+        Valid parameters are:
+            projectTitle
+            description
+        '''
+        res = self._myObsLightProjects.getProject(projectLocalName).setProjectParameter(parameter,
+                                                                                        value)
+        self._myObsLightProjects.save()
+        return res
+
 
     #///////////////////////////////////////////////////////////////////////////package
     #///////////////////////////////////////////////////////////////////////////filesystem
@@ -1178,23 +1192,6 @@ class ObsLightManager(ObsLightManagerCore):
         '''
         self._myObsLightMicProjects.createImage(projectMicName=projectMicName)
         self._myObsLightMicProjects.save()
-
-
-    @checkProjectLocalName(1)
-    def setProjectParameter(self, projectLocalName, parameter, value):
-        '''
-        Get the value of a project parameter.
-        Valid parameters are:
-            projectTarget
-            projectArchitecture
-            projectTitle
-            description
-        '''
-        res = self._myObsLightProjects.setProjectParameter(projectLocalName,
-                                                            parameter,
-                                                            value)
-        self._myObsLightProjects.save()
-        return res
 
     @checkProjectLocalName(1)
     def removeChRoot(self, projectLocalName):

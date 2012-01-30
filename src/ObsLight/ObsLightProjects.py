@@ -401,12 +401,6 @@ class ObsLightProjects(object):
         '''
         return self.getProject(projectLocalName).getProjectObsName()
 
-    def setProjectParameter(self, projectLocalName=None, parameter=None, value=None):
-        '''
-        
-        '''
-        self.getProject(projectLocalName).setProjectParameter(parameter=parameter,
-                                                              value=value)
 
     def getPackageParameter(self, projectLocalName, package, parameter=None):
         '''
@@ -453,20 +447,11 @@ class ObsLightProjects(object):
         self.getProject(projectLocalName).setProjectparameter(parameter=parameter,
                                                                          value=value)
 
-
-
     def removeChRoot(self, projectLocalName):
         '''
         
         '''
         return self.getProject(projectLocalName).removeChRoot()
-
-
-    def getReposProject(self, projectLocalName):
-        '''
-        Return the URL of the Repo of the Project
-        '''
-        return self.getProject(projectLocalName).getReposProject()
 
     def getChRootPath(self, projectLocalName):
         '''
@@ -492,12 +477,6 @@ class ObsLightProjects(object):
         Export a project to a file
         '''
         self.save(aFile=path, projectName=projectLocalName)
-
-    def getWebProjectPage(self, projectLocalName):
-        '''
-        
-        '''
-        return self.getProject(projectLocalName).getWebProjectPage()
 
     def isChRootInit(self, projectLocalName):
         '''
