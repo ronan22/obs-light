@@ -35,7 +35,9 @@ class ObsLightPackages(object):
         '''
         self.__dicOBSLightPackages = {}
         self.__packageFilter = {}
+        self.__packageFilter_unload = {}
         self.__currentListPackageInfo = self.getDefaultListPackageInfo()
+
         if fromSave == None:
             self.__currentPackage = ""
         elif projectOscPath != None:
@@ -51,28 +53,23 @@ class ObsLightPackages(object):
         else:
             raise ObsLightErr.ObsLightPackageErr("Not projectOscPath for the ObsLightPackages init")
 
-    #---------------------------------------------------------------------------
-#TODEL
-#    def getPackageStatus(self, name=None):
-#        '''
-#        
-#        '''
-#        return self.__dicOBSLightPackages[name].getStatus()
-#
-#    def getGetChRootStatus(self, name):
-#        '''
-#        Return the status of the package  into the chroot.
-#        '''
-#        return self.__dicOBSLightPackages[name].getGetChRootStatus()
-
-
-    def getListPackages(self):
+#-------------------------------------------------------------------------------
+    def getPackage(self, package):
         '''
         
         '''
-        res = self.__dicOBSLightPackages.keys()
-        res.sort()
-        return res
+        if not package in self.__dicOBSLightPackages.keys():
+            raise ObsLightErr.ObsLightPackageErr("No such package: " + str(package))
+
+        self.__currentPackage = package
+
+        return self.__dicOBSLightPackages[package]
+
+    def getCurrentPackage(self):
+        '''
+        
+        '''
+        return self.__currentPackage
 
     def getDic(self):
         '''
@@ -88,6 +85,15 @@ class ObsLightPackages(object):
         saveconfigPackages["currentListPackageInfo"] = self.__currentListPackageInfo
         saveconfigPackages["packageFilter"] = self.__packageFilter
         return saveconfigPackages
+
+
+    def getListPackages(self):
+        '''
+        
+        '''
+        res = self.__dicOBSLightPackages.keys()
+        res.sort()
+        return res
 
     def addPackage(self,
                    name,
@@ -139,15 +145,6 @@ class ObsLightPackages(object):
         
         '''
         return self.__dicOBSLightPackages[name].getOscDirectory()
-
-
-    def getPackage(self, package):
-        '''
-        
-        '''
-        if not package in self.__dicOBSLightPackages.keys():
-            raise ObsLightErr.ObsLightPackageErr("No such package: " + str(package))
-        return self.__dicOBSLightPackages[package]
 
     def getPackageDirectory(self, package=None):
         '''

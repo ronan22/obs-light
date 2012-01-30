@@ -893,6 +893,38 @@ class ObsLightManagerCore(ObsLightManagerBase):
 
 
     #///////////////////////////////////////////////////////////////////////////package
+    @checkProjectLocalName(1)
+    def getLocalProjectPackageList(self, projectLocalName, local=0):
+        '''
+        Return the list of packages of a local project.
+        If local=1, return the list of locally installed packages.
+        If local=0, return the list of packages provided by the OBS server for the project.
+        '''
+        return self._myObsLightProjects.getProject(projectLocalName).getListPackage(local=local)
+
+    @checkProjectLocalName(1)
+    @checkNonEmptyStringPackage(2)
+    def addPackage(self, projectLocalName, package):
+        '''
+        Add a package to a local project. The package must exist on the
+        OBS server.
+        '''
+        server = self._myObsLightProjects.getObsServer(projectLocalName)
+        projectObsName = self._myObsLightProjects.getProjectObsName(projectLocalName)
+        if not package in self.getObsProjectPackageList(server, projectObsName):
+            raise ObsLightObsServers(" package '" + package + "' is not part of the '"
+                                     + projectObsName + "' project")
+
+        self._myObsLightProjects.getProject(projectLocalName).addPackage(package)
+        self._myObsLightProjects.save()
+
+    @checkProjectLocalName(1)
+    def getCurrentPackage(self, projectLocalName):
+        '''
+        
+        '''
+        return self._myObsLightProjects.getProject(projectLocalName).getCurrentPackage()
+
     #///////////////////////////////////////////////////////////////////////////filesystem
     #///////////////////////////////////////////////////////////////////////////spec
     #///////////////////////////////////////////////////////////////////////////micproject
@@ -915,16 +947,6 @@ class ObsLightManager(ObsLightManagerCore):
         Test if alias is define in the ~/.oscrc
         '''
         return self._myObsServers.isAnObsServerOscAlias(api, alias)
-
-    @checkProjectLocalName(1)
-    def getLocalProjectPackageList(self, projectLocalName, local=0):
-        '''
-        Return the list of packages of a local project.
-        If local=1, return the list of locally installed packages.
-        If local=0, return the list of packages provided by the OBS server for the project.
-        '''
-        return self._myObsLightProjects.getListPackage(name=projectLocalName, local=local)
-
 
     @checkAvailableProjectObsName(2, 1)
     def getTargetList(self, serverApi, projectObsName):
@@ -964,7 +986,7 @@ class ObsLightManager(ObsLightManagerCore):
     #---------------------------------------------------------------------------
     def getRepo(self, serverApi):
         '''
-        Return the URL of the OBS server package repository.
+        Return the URL of the OBS server repository.
         '''
         self.checkServerApi(serverApi=serverApi)
 
@@ -1254,22 +1276,6 @@ class ObsLightManager(ObsLightManagerCore):
         #status = [u'A', u'D', u' ', u'M', u'?', u'!', u'C']
         #return {u'Status': status[len(fileName) % len(status)],
         #        u"File name length": len(fileName)}
-
-    @checkProjectLocalName(1)
-    @checkNonEmptyStringPackage(2)
-    def addPackage(self, projectLocalName, package):
-        '''
-        Add a package to a local project. The package must exist on the
-        OBS server.
-        '''
-        server = self._myObsLightProjects.getObsServer(projectLocalName)
-        projectObsName = self._myObsLightProjects.getProjectObsName(projectLocalName)
-        if not package in self.getObsProjectPackageList(server, projectObsName):
-            raise ObsLightObsServers(" package '" + package + "' is not part of the '"
-                                     + projectObsName + "' project")
-
-        self._myObsLightProjects.addPackage(projectLocalName, package)
-        self._myObsLightProjects.save()
 
     @checkProjectLocalName(1)
     def createChRoot(self, projectLocalName):

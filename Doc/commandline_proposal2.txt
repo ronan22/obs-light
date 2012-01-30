@@ -33,6 +33,9 @@ obslight
 	  package list   [available] {project_alias <project_alias>}
               -> List packages of project, or
 		 if "available" option is set,list packages available to be added.
+          package current {project_alias <project_alias>}
+
+
 	  #Not implement
 	  package add    <package> {project_alias <project_alias>}
           package delete <package> {project_alias <project_alias>}
@@ -44,7 +47,7 @@ obslight
           package update {package <package> {project_alias <project_alias>} }
           package commit <message> {package <package> {project_alias <project_alias>} }
           package repair {package <package> {project_alias <project_alias>} }
-	  package current {project_alias <project_alias>}
+	  
 	  #___________________________________________________________________________________________________________________________________________
           #Not implement
 	  projectfilesystem create        {<project_alias>}

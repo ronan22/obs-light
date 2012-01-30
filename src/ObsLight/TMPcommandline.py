@@ -1044,6 +1044,36 @@ class ObsLight():
             
             '''
             help = False
+            package = None
+            project_alias = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = getParameter(listArgv)
+                if (currentCommand in __obsproject_help__) or (listArgv == None):
+                    help = True
+                    break
+                elif currentCommand in __package_package__:
+                    package = currentCommand
+                elif currentCommand in __project_alias__:
+                    project_alias, listArgv = getParameter(listArgv)
+                else:
+                    help = True
+                    break
+
+            if  (help == True) or (package == None) :
+                return obsproject_help()
+            else:
+                m = ObsLightManager.getManager()
+                if project_alias == None:
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return obsproject_help()
+
+                return m.addPackage(projectLocalName=project_alias,
+                                    package=package)
+
+
+
         def package_delete(listArgv):
             '''
             
@@ -1131,6 +1161,30 @@ class ObsLight():
             
             '''
             help = False
+            project_alias = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = getParameter(listArgv)
+                if (currentCommand in __obsproject_help__) or (listArgv == None):
+                    help = True
+                    break
+                elif currentCommand in __project_alias__:
+                    project_alias, listArgv = getParameter(listArgv)
+                else:
+                    help = True
+                    break
+
+            if  (help == True) :
+                return obsproject_help()
+            else:
+                m = ObsLightManager.getManager()
+                if project_alias == None:
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return obsproject_help()
+
+                return m.getCurrentPackage(projectLocalName=project_alias)
+            return 0
 
 #-------------------------------------------------------------------------------
         if len(listArgv) == 0:

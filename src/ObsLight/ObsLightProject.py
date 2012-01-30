@@ -304,6 +304,16 @@ class ObsLightProject(object):
                                                    parameter=parameter,
                                                    value=value)
 
+    #---------------------------------------------------------------------------package
+    def getCurrentPackage(self):
+        '''
+        
+        '''
+        return self.__packages.getCurrentPackage()
+
+
+
+    #---------------------------------------------------------------------------
 
     def __subprocess(self, command=None, waitMess=False):
         '''
