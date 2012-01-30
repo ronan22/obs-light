@@ -117,11 +117,11 @@ __DICO_HELP__[__server_api_url__[0]] = __server_api_url__[0] + ":" + "\t" + ""
 
 #Command obsproject Level 2
 __obsproject_help__ = __help__
-__obsproject_list__ = ["list", "ll", "ls"]
-__obsproject_add__ = ["add"]
+__obsproject_list__ = __server_list__
+__obsproject_add__ = __server_add__
 __obsproject_del__ = __server_del__
-__obsproject_query__ = ["query", "get"]
-__obsproject_set__ = ["set"]
+__obsproject_query__ = __server_query__
+__obsproject_set__ = __server_set__
 __obsproject_current__ = ["current"]
 
 __DICO_HELP__[__obsproject_help__[0]] = __obsproject_help__[0] + ":" + "\t" + "Doc __obsproject_help__"
@@ -132,8 +132,7 @@ __DICO_HELP__[__obsproject_query__[0]] = __obsproject_query__[0] + ":" + "\t" + 
 __DICO_HELP__[__obsproject_set__[0]] = __obsproject_set__[0] + ":" + "\t" + "Doc __obsproject_help__"
 __DICO_HELP__[__obsproject_current__[0]] = __obsproject_current__[0] + ":" + "\t" + "Doc __obsproject_help__"
 
-
-#Command server Level 3
+#Command obsproject Level 3
 __project_alias__ = ["project_alias"]
 __project_name_on_obs__ = ["name_on_obs"]
 __project_title__ = ["title"]
@@ -147,8 +146,6 @@ __project_maintainer__ = ["maintainer"]
 __project_bugowner__ = ["bugowner"]
 __project_remoteurl__ = ["remoteurl"]
 
-
-
 __DICO_HELP__[__project_alias__[0]] = __project_alias__[0] + ":" + "\t" + ""
 __DICO_HELP__[__project_name_on_obs__[0]] = __project_name_on_obs__[0] + ":" + "\t" + ""
 __DICO_HELP__[__project_title__[0]] = __project_title__[0] + ":" + "\t" + ""
@@ -161,6 +158,42 @@ __DICO_HELP__[__project_arch__[0]] = __project_arch__[0] + ":" + "\t" + ""
 __DICO_HELP__[__project_maintainer__[0]] = __project_maintainer__[0] + ":" + "\t" + ""
 __DICO_HELP__[__project_bugowner__[0]] = __project_bugowner__[0] + ":" + "\t" + ""
 __DICO_HELP__[__project_remoteurl__[0]] = __project_remoteurl__[0] + ":" + "\t" + ""
+
+#Command package Level 2
+__package_help__ = __help__
+__package_add__ = __server_add__
+__package_delete__ = __server_del__
+__package_list__ = __server_list__
+__package_query__ = __server_query__
+__package_set__ = __server_set__
+__package_update__ = ["update", "up"]
+__package_commit__ = ["commit", "co"]
+__package_repair__ = ["repair"]
+__package_current__ = ["current"]
+
+__DICO_HELP__[__package_help__[0]] = __package_help__[0] + ":" + "\t" + "Doc __obsproject_help__"
+__DICO_HELP__[__package_add__[0]] = __package_add__[0] + ":" + "\t" + "Doc __obsproject_help__"
+__DICO_HELP__[__package_delete__[0]] = __package_delete__[0] + ":" + "\t" + "Doc __obsproject_help__"
+__DICO_HELP__[__package_list__[0]] = __package_list__[0] + ":" + "\t" + "Doc __obsproject_help__"
+__DICO_HELP__[__package_query__[0]] = __package_query__[0] + ":" + "\t" + "Doc __obsproject_help__"
+__DICO_HELP__[__package_set__[0]] = __package_set__[0] + ":" + "\t" + "Doc __obsproject_help__"
+__DICO_HELP__[__package_update__[0]] = __package_update__[0] + ":" + "\t" + "Doc __obsproject_help__"
+__DICO_HELP__[__package_commit__[0]] = __package_commit__[0] + ":" + "\t" + "Doc __obsproject_help__"
+__DICO_HELP__[__package_repair__[0]] = __package_repair__[0] + ":" + "\t" + "Doc __obsproject_help__"
+__DICO_HELP__[__package_current__[0]] = __package_current__[0] + ":" + "\t" + "Doc __obsproject_help__"
+
+
+#Command obsproject Level 3
+__package_package__ = ["package"]
+__package_available__ = ["available"]
+__package_status__ = ["status"]
+__package_revision__ = ["revision"]
+
+__DICO_HELP__[__package_package__[0]] = __package_package__[0] + ":" + "\t" + "Doc __obsproject_help__"
+__DICO_HELP__[__package_available__[0]] = __package_available__[0] + ":" + "\t" + "Doc __obsproject_help__"
+__DICO_HELP__[__package_status__[0]] = __package_status__[0] + ":" + "\t" + "Doc __obsproject_help__"
+__DICO_HELP__[__package_revision__[0]] = __package_revision__[0] + ":" + "\t" + "Doc __obsproject_help__"
+
 
 def getParameter(listArgv):
     if listArgv == None:
@@ -391,7 +424,7 @@ class ObsLight():
                     api_url = currentCommand
                 elif currentCommand in __server_repository_url__:
                     repository_url = currentCommand
-                elif currentCommand in __server_weburl__:
+                elif currentCommand in __server_web_url__:
                     weburl = currentCommand
                 elif currentCommand in __server_alias__:
                     alias , listArgv = getParameter(listArgv)
@@ -406,9 +439,18 @@ class ObsLight():
                 if alias == None:
                     alias = m.getCurrentObsServer()
 
-                if alias == None:
-                    print "No alias"
-                    return 1
+                    if alias == None:
+                        print "No alias"
+                        return 1
+
+                if (login == None) and\
+                   (api_url == None) and\
+                   (repository_url == None) and\
+                   (weburl == None):
+                    login = True
+                    api_url = True
+                    repository_url = True
+                    weburl = True
 
                 if login != None:
                     res = m.getObsServerParameter(obsServerAlias=alias, parameter="user")
@@ -845,6 +887,22 @@ class ObsLight():
                     if project_alias == None:
                         return obsproject_help()
 
+                if  (title == None) and \
+                    (description == None) and \
+                    (server == None) and \
+                    (webpage == None) and \
+                    (repository == None) and \
+                    (target == None) and \
+                    (architecture == None):
+
+                    title = True
+                    description = True
+                    server = True
+                    webpage = True
+                    repository = True
+                    target = True
+                    architecture = True
+
                 if title != None:
                     res = m.getProjectParameter(projectLocalName=project_alias,
                                                 parameter="projectTitle")
@@ -975,9 +1033,137 @@ class ObsLight():
         '''
         
         '''
-        print "package"
-        return 0
 
+        def package_help(listArgv):
+            '''
+            
+            '''
+            help = False
+        def package_add(listArgv):
+            '''
+            
+            '''
+            help = False
+        def package_delete(listArgv):
+            '''
+            
+            '''
+            help = False
+        def package_list(listArgv):
+            '''
+            
+            '''
+            help = False
+            available = False
+            project_alias = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = getParameter(listArgv)
+                if (currentCommand in __obsproject_help__) or (listArgv == None):
+                    help = True
+                    break
+                elif currentCommand in __package_available__:
+                    available = True
+                elif currentCommand in __project_alias__:
+                    project_alias, listArgv = getParameter(listArgv)
+                else:
+                    help = True
+                    break
+
+            if  (help == True) :
+                return obsproject_help()
+            else:
+                m = ObsLightManager.getManager()
+                if project_alias == None:
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return obsproject_help()
+
+                if available:
+                    res = m.getLocalProjectPackageList(projectLocalName=project_alias, local=0)
+
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    else:
+                        for r in res:
+                            print r
+                else:
+                    res = m.getLocalProjectPackageList(projectLocalName=project_alias, local=1)
+
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    else:
+                        for r in res:
+                            print r
+            return 0
+
+
+
+        def package_query(listArgv):
+            '''
+            
+            '''
+            help = False
+        def package_set(listArgv):
+            '''
+            
+            '''
+            help = False
+        def package_update(listArgv):
+            '''
+            
+            '''
+            help = False
+        def package_commit(listArgv):
+            '''
+            
+            '''
+            help = False
+        def package_repair(listArgv):
+            '''
+            
+            '''
+            help = False
+        def package_current(listArgv):
+            '''
+            
+            '''
+            help = False
+
+#-------------------------------------------------------------------------------
+        if len(listArgv) == 0:
+            package_help()
+            return 0
+        else:
+            currentCommand = listArgv[0]
+            listArgv = listArgv[1:]
+
+            if currentCommand in __package_help__ :
+                return package_help()
+            elif currentCommand in __package_add__ :
+                return package_add(listArgv)
+            elif currentCommand in __package_delete__:
+                return package_delete(listArgv)
+            elif currentCommand in __package_list__:
+                return package_list(listArgv)
+            elif currentCommand in __package_query__:
+                return package_query(listArgv)
+            elif currentCommand in __package_set__:
+                return package_set(listArgv)
+            elif currentCommand in __package_update__:
+                return package_update(listArgv)
+            elif currentCommand in  __package_commit__ :
+                return package_commit(listArgv)
+            elif currentCommand in __package_repair__ :
+                return package_repair(listArgv)
+            elif currentCommand in __package_current__:
+                return package_current(listArgv)
+            else:
+                return package_help()
+
+        return 0
 
     def projectfilesystem(self, listArgv):
         '''

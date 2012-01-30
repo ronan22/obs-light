@@ -30,18 +30,21 @@ obslight
 	  
 	  #___________________________________________________________________________________________________________________________________________
           #implement
+	  package list   [available] {project_alias <project_alias>}
+              -> List packages of project, or
+		 if "available" option is set,list packages available to be added.
 	  #Not implement
-	  package add    <package> {<project_alias>}
-          package delete <package> {<project_alias>}
-          package list   [available] {<project_alias>}
-              -> List packages of project, or if "available" option is set,
-                 list packages available to be added.
-          package query  [title|description|status|revision] {<package>} {<project_alias>}
+	  package add    <package> {project_alias <project_alias>}
+          package delete <package> {project_alias <project_alias>}
+
+          package query  [title|description|status|revision] {package <package> {project_alias <project_alias>} } 
               -> Options can be combined, no option means all options.
                  Output is in same order as query (one answer by line or on the same line with a seperator?)
-          package update {<package>} {<project_alias>}
-          package commit <message> {<package>} {<project_alias>}
-          package repair {<package>} {<project_alias>}
+	  package set [title <title>] [description <description>] {package <package> {project_alias <project_alias>} } 
+          package update {package <package> {project_alias <project_alias>} }
+          package commit <message> {package <package> {project_alias <project_alias>} }
+          package repair {package <package> {project_alias <project_alias>} }
+	  package current {project_alias <project_alias>}
 	  #___________________________________________________________________________________________________________________________________________
           #Not implement
 	  projectfilesystem create        {<project_alias>}
