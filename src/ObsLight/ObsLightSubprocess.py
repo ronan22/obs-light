@@ -1,5 +1,5 @@
 #
-# Copyright 2011, Intel Inc.
+# Copyright 2011-2012, Intel Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,7 +17,8 @@
 '''
 Created on 24 oct. 2011
 
-@author: meego
+@author: Ronan Le Martret
+@author: Florent Vennetier
 '''
 
 import subprocess
@@ -31,22 +32,19 @@ BREAKPROCESS = False
 
 class SubprocessCrt(object):
     '''
-    Control All the subprocess in the ObsLight project. 
+    Control all the subprocesses in the ObsLight project. 
     '''
     def __init__(self):
         '''
-        Init subprocess.
+        Initialize subprocess.
         '''
         self.__isPrintMess = False
 
-    def execSubprocess(self, command=None, waitMess=False):
+    def execSubprocess(self, command, *_args, **_kwargs):
         '''
         Execute the "command" in a sub process,
         the "command" must be a valid bash command.
-        If waitMess is set to True:
-            -A message "please wait" is print at the start of the sub process,
-            -A message "." is print every second during the sub process,
-            -A message "work finish" is print at the end of the sub process
+        _args and _kwargs are for compatibility.
         '''
         #ObsLightPrintManager.obsLightPrint("command: " + command, isDebug=True)
         ObsLightPrintManager.getLogger().debug("command: " + command)
@@ -67,7 +65,6 @@ class SubprocessCrt(object):
                     if output == b"":
                         outputs[fd]["EOF"] = True
                     else:
-                        #outputs[fd]["logcmd"](output.rstrip())
                         outputs[fd]["logcmd"](output.decode("utf8", errors="replace").rstrip())
             except select.error as error:
                 # see http://bugs.python.org/issue9867
@@ -85,8 +82,3 @@ class SubprocessCrt(object):
         if res == None:
             res = 0
         return res
-
-
-
-
-
