@@ -24,7 +24,7 @@ Created on 19 déc. 2011
 from PySide.QtCore import QRegExp
 from PySide.QtGui import QRegExpValidator
 
-from ObsLightGui.Utils import colorizeWidget, removeEffect, isNonEmptyString, uiFriendly
+from ObsLightGui.Utils import colorizeWidget, removeEffect, uiFriendly
 from ObsLight.ObsLightUtils import isNonEmptyString
 
 from WizardPageWrapper import ObsLightWizardPage
@@ -49,7 +49,7 @@ class ConfigureServerUrlPage(ObsLightWizardPage):
         self.registerField(u"password*", self.ui_WizardPage.passwordLineEdit)
 
     def initializePage(self):
-        super(ObsLightWizardPage, self).initializePage()
+        super(ConfigureServerUrlPage, self).initializePage()
         self._clearEffects()
 
     def cleanupPage(self):

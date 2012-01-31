@@ -1167,46 +1167,46 @@ class ObsLightManager(ObsLightManagerCore):
         '''
         return self._myObsLightMicProjects.getMicProjectList()
 
-    def addMicProjects(self, projectMicName):
+    def addMicProjects(self, micProjectName):
         '''
         
         '''
-        self._myObsLightMicProjects.addMicProjects(projectMicName=projectMicName)
+        self._myObsLightMicProjects.addMicProjects(micProjectName=micProjectName)
         self._myObsLightMicProjects.save()
 
-    def delMicProjects(self, projectMicName):
+    def delMicProjects(self, micProjectName):
         '''
         
         '''
-        self._myObsLightMicProjects.delMicProjects(projectMicName)
+        self._myObsLightMicProjects.delMicProjects(micProjectName)
         self._myObsLightMicProjects.save()
 
-    def addKickstartFile(self, projectMicName, filePath):
+    def setKickstartFile(self, micProjectName, filePath):
         '''
         
         '''
-        self._myObsLightMicProjects.addKickstartFile(projectMicName=projectMicName,
+        self._myObsLightMicProjects.setKickstartFile(micProjectName=micProjectName,
                                                       filePath=filePath)
         self._myObsLightMicProjects.save()
 
-    def getKickstartFile(self, projectMicName):
+    def getKickstartFile(self, micProjectName):
         '''
         
         '''
-        return  self._myObsLightMicProjects.getKickstartFile(projectMicName=projectMicName)
+        return  self._myObsLightMicProjects.getKickstartFile(micProjectName=micProjectName)
 
-    def getMicProjectArchitecture(self, projectMicName):
+    def getMicProjectArchitecture(self, micProjectName):
         '''
         
         '''
-        return self._myObsLightMicProjects.getMicProjectArchitecture(projectMicName=projectMicName)
+        return self._myObsLightMicProjects.getMicProjectArchitecture(micProjectName=micProjectName)
         self._myObsLightMicProjects.save()
 
-    def setMicProjectArchitecture(self, projectMicName, arch):
+    def setMicProjectArchitecture(self, micProjectName, arch):
         '''
         
         '''
-        self._myObsLightMicProjects.setMicProjectArchitecture(projectMicName=projectMicName, arch=arch)
+        self._myObsLightMicProjects.setMicProjectArchitecture(micProjectName=micProjectName, arch=arch)
         self._myObsLightMicProjects.save()
 
     def setMicProjectImageType(self, projectMicName, imageType):
