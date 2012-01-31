@@ -1,5 +1,5 @@
 #
-# Copyright 2011, Intel Inc.
+# Copyright 2011-2012, Intel Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -69,7 +69,7 @@ class ProjectManager(QObject, ObsLightGuiObject):
         self.__packageManager = PackageManager(self.gui)
         self.__newObsProjectButton = mainWindow.findChild(QPushButton,
                                                           u"newObsProjectButton")
-        self.__newObsProjectButton.clicked.connect(self.on_newObsProjectButton_clicked)
+        self.__newObsProjectButton.clicked.connect(self.gui.runWizard)
         self.__modifyObsProjectButton = mainWindow.findChild(QPushButton,
                                                              u"modifyObsProjectButton")
         self.__modifyObsProjectButton.clicked.connect(self.on_modifyObsProjectButton_clicked)
@@ -146,11 +146,6 @@ class ProjectManager(QObject, ObsLightGuiObject):
         if project is not None and len(project) < 1:
             project = None
         return project
-
-    @popupOnException
-    def on_newObsProjectButton_clicked(self):
-        self.__projectConfigManager = ProjectConfigManager(self.gui)
-        self.__projectConfigManager.finished.connect(self.on_projectConfigManager_finished)
 
     @popupOnException
     def on_modifyObsProjectButton_clicked(self):
