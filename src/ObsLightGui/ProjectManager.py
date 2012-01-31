@@ -1,5 +1,5 @@
 #
-# Copyright 2011, Intel Inc.
+# Copyright 2011-2012, Intel Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@ from PySide.QtCore import QObject, QThreadPool, Qt
 from PySide.QtGui import QPushButton, QListWidget, QLineEdit, QLabel
 from PySide.QtGui import QFileDialog, QMessageBox
 
-from Utils import  ProgressRunnable, ProgressRunnable2, popupOnException
+from Utils import ProgressRunnable2, popupOnException
 from PackageManager import PackageManager
 from RepoConfigManager import RepoConfigManager
 from ProjectConfigManager import ProjectConfigManager
@@ -69,7 +69,7 @@ class ProjectManager(QObject, ObsLightGuiObject):
         self.__packageManager = PackageManager(self.gui)
         self.__newObsProjectButton = mainWindow.findChild(QPushButton,
                                                           u"newObsProjectButton")
-        self.__newObsProjectButton.clicked.connect(self.on_newObsProjectButton_clicked)
+        self.__newObsProjectButton.clicked.connect(self.gui.runWizard)
         self.__modifyObsProjectButton = mainWindow.findChild(QPushButton,
                                                              u"modifyObsProjectButton")
         self.__modifyObsProjectButton.clicked.connect(self.on_modifyObsProjectButton_clicked)
@@ -148,11 +148,6 @@ class ProjectManager(QObject, ObsLightGuiObject):
         return project
 
     @popupOnException
-    def on_newObsProjectButton_clicked(self):
-        self.__projectConfigManager = ProjectConfigManager(self.gui)
-        self.__projectConfigManager.finished.connect(self.on_projectConfigManager_finished)
-
-    @popupOnException
     def on_modifyObsProjectButton_clicked(self):
         projectName = self.getCurrentProjectName()
         if projectName is None:
@@ -174,13 +169,12 @@ class ProjectManager(QObject, ObsLightGuiObject):
         if result == QMessageBox.No:
             return
         progress = self.gui.getInfiniteProgressDialog()
-        progress.setLabelText(u"Deleting project...")
-        progress.show()
-        runnable = ProgressRunnable(self.manager.removeProject, projectName)
-        runnable.setProgressDialog(progress)
-        runnable.finishedWithException.connect(self.gui.popupErrorCallback)
-        runnable.finished.connect(self.loadProjectList)
-        QThreadPool.globalInstance().start(runnable)
+        runnable = ProgressRunnable2(progress)
+        runnable.setDialogMessage(u"Deleting project...")
+        runnable.setRunMethod(self.manager.removeProject, projectName)
+        runnable.finished.connect(self.refresh)
+        runnable.caughtException.connect(self.gui.popupErrorCallback)
+        runnable.runOnGlobalInstance()
 
     @popupOnException
     def on_importObsProjectButton_clicked(self):
@@ -189,13 +183,12 @@ class ProjectManager(QObject, ObsLightGuiObject):
         if len(filePath) < 1:
             return
         progress = self.gui.getInfiniteProgressDialog()
-        progress.setLabelText(u"Importing project...")
-        progress.show()
-        runnable = ProgressRunnable(self.manager.importProject, filePath)
-        runnable.setProgressDialog(progress)
-        runnable.finishedWithException.connect(self.gui.popupErrorCallback)
-        runnable.finished.connect(self.loadProjectList)
-        QThreadPool.globalInstance().start(runnable)
+        runnable = ProgressRunnable2(progress)
+        runnable.setDialogMessage(u"Importing project...")
+        runnable.setRunMethod(self.manager.importProject, filePath)
+        runnable.caughtException.connect(self.gui.popupErrorCallback)
+        runnable.finished.connect(self.refresh)
+        runnable.runOnGlobalInstance()
 
     @popupOnException
     def on_exportObsProjectButton_clicked(self):
@@ -207,13 +200,12 @@ class ProjectManager(QObject, ObsLightGuiObject):
         if len(filePath) < 1:
             return
         progress = self.gui.getInfiniteProgressDialog()
-        progress.setLabelText(u"Importing project...")
-        progress.show()
-        runnable = ProgressRunnable(self.manager.exportProject, project, filePath)
-        runnable.setProgressDialog(progress)
-        runnable.finishedWithException.connect(self.gui.popupErrorCallback)
-        runnable.finished.connect(self.loadProjectList)
-        QThreadPool.globalInstance().start(runnable)
+        runnable = ProgressRunnable2(progress)
+        runnable.setDialogMessage(u"Exporting project...")
+        runnable.setRunMethod(self.manager.exportProject, project, filePath)
+        runnable.caughtException.connect(self.gui.popupErrorCallback)
+        runnable.finished.connect(self.refresh)
+        runnable.runOnGlobalInstance()
 
     @popupOnException
     def on_projectConfigManager_finished(self, success):
@@ -268,14 +260,12 @@ class ProjectManager(QObject, ObsLightGuiObject):
             if result == QMessageBox.No:
                 return
             progress = self.gui.getInfiniteProgressDialog()
-            progress.setLabelText("Delete chroot")
-            progress.show()
-            runnable = ProgressRunnable(self.manager.removeChRoot,
-                                        projectName)
-            runnable.setProgressDialog(progress)
-            runnable.finishedWithException.connect(self.gui.popupErrorCallback)
+            runnable = ProgressRunnable2(progress)
+            runnable.setDialogMessage(u"Deleting chroot")
+            runnable.setRunMethod(self.manager.removeChRoot, projectName)
             runnable.finished.connect(self.refreshProject)
-            QThreadPool.globalInstance().start(runnable)
+            runnable.caughtException.connect(self.gui.popupErrorCallback)
+            runnable.runOnGlobalInstance()
 
     @popupOnException
     def on_addRepoInChrootButton_clicked(self):
