@@ -762,7 +762,8 @@ class ObsLightManagerCore(ObsLightManagerBase):
                                 maintainer=False,
                                 bugowner=False,
                                 remoteurl=False,
-                                arch=None):
+                                arch=None,
+                                raw=False):
         '''
         Get the list of projects of an OBS server.
         you can also filter the result
@@ -773,11 +774,11 @@ class ObsLightManagerCore(ObsLightManagerBase):
         '''
         checkNonEmptyStringServerApi(serverApi=serverApi)
         self.checkServerApi(serverApi=serverApi)
-        return self._myObsServers.getLocalProjectList(serverApi,
-                                                      maintainer=maintainer,
-                                                      bugowner=bugowner,
-                                                      remoteurl=remoteurl,
-                                                      arch=arch)
+        return self._myObsServers.getObsServer(serverApi).getLocalProjectList(maintainer=maintainer,
+                                                                              bugowner=bugowner,
+                                                                              remoteurl=remoteurl,
+                                                                              arch=arch,
+                                                                              raw=raw)
 
         #used by decorator.
     def isALocalProject(self, name):
@@ -864,6 +865,24 @@ class ObsLightManagerCore(ObsLightManagerBase):
 
         return self._myObsLightProjects.getProject(projectLocalName).getProjectParameter(parameter)
 
+    def getObsProjectParameter(self, serverApi, obsproject, parameter):
+        '''
+        Get the value of a project parameter.
+        Valid parameter are:
+            title
+            description
+            remoteurl
+            maintainer
+            bugowner
+            repository
+            arch
+        '''
+
+        checkNonEmptyStringServerApi(serverApi=serverApi)
+        self.checkServerApi(serverApi=serverApi)
+        return self._myObsServers.getObsServer(serverApi).getProjectParameter(obsproject, parameter)
+
+
     @checkProjectLocalName(1)
     def getProjectWebPage(self, projectLocalName):
         '''
@@ -903,6 +922,13 @@ class ObsLightManagerCore(ObsLightManagerBase):
         return self._myObsLightProjects.getProject(projectLocalName).getListPackage(local=local)
 
     @checkProjectLocalName(1)
+    def getCurrentPackage(self, projectLocalName):
+        '''
+        
+        '''
+        return self._myObsLightProjects.getProject(projectLocalName).getCurrentPackage()
+
+    @checkProjectLocalName(1)
     @checkNonEmptyStringPackage(2)
     def addPackage(self, projectLocalName, package):
         '''
@@ -919,11 +945,15 @@ class ObsLightManagerCore(ObsLightManagerBase):
         self._myObsLightProjects.save()
 
     @checkProjectLocalName(1)
-    def getCurrentPackage(self, projectLocalName):
+    @checkNonEmptyStringPackage(1)
+    @checkPackage(1, 2)
+    def removePackage(self, projectLocalName, package):
         '''
-        
+        Remove a package from a local project.
         '''
-        return self._myObsLightProjects.getProject(projectLocalName).getCurrentPackage()
+        res = self._myObsLightProjects.getProject(projectLocalName).removePackage(package)
+        self._myObsLightProjects.save()
+        return res
 
     #///////////////////////////////////////////////////////////////////////////filesystem
     #///////////////////////////////////////////////////////////////////////////spec
@@ -1222,17 +1252,6 @@ class ObsLightManager(ObsLightManagerCore):
         '''
         self._myObsLightProjects.removeChRoot(projectLocalName)
         self._myObsLightProjects.save()
-
-    @checkProjectLocalName(1)
-    @checkNonEmptyStringPackage(1)
-    @checkPackage(1, 2)
-    def removePackage(self, projectLocalName, package):
-        '''
-        Remove a package from a local project.
-        '''
-        res = self._myObsLightProjects.removePackage(projectLocalName, package)
-        self._myObsLightProjects.save()
-        return res
 
     @checkProjectLocalName(1)
     @checkNonEmptyStringPackage(2)

@@ -161,6 +161,36 @@ class ObsLightServer(object):
         elif parameter == "passw":
             return self.__passw
 
+    def getProjectParameter(self, project, parameter):
+        '''
+        Get the value of a project parameter.
+        Valid parameter are:
+            title
+            description
+            remoteurl
+            maintainer
+            bugowner
+            arch
+            repository            
+        '''
+        if not parameter in ["title",
+                             "description",
+                             "remoteurl",
+                             "maintainer",
+                             "bugowner",
+                             "arch",
+                             "repository"]:
+            raise ObsLightErr.ObsLightObsServers(parameter + " is not a parameter of a OBS project")
+
+        if not project in self.getLocalProjectList(raw=True):
+            raise ObsLightErr.ObsLightObsServers("Can't return the project parameter,\n '" + project + "' is not a project on obs '" + self.__serverAPI + "'")
+
+        return ObsLightOsc.getObsLightOsc().getProjectParameter(projectObsName=project,
+                                                                apiurl=self.__serverAPI,
+                                                                parameter=parameter)
+
+
+
     def getObsPackageRev(self,
                          projectObsName,
                          package):
@@ -297,23 +327,27 @@ class ObsLightServer(object):
                             maintainer=False,
                             bugowner=False,
                             arch=None,
-                            remoteurl=False):
+                            remoteurl=False,
+                            raw=False):
         '''
         
         '''
-        aBugowner = None
-        if bugowner == True:
-            aBugowner = self.__user
+        if raw == False:
+            aBugowner = None
+            if bugowner == True:
+                aBugowner = self.__user
 
-        aMaintainer = None
-        if maintainer == True:
-            aMaintainer = self.__user
+            aMaintainer = None
+            if maintainer == True:
+                aMaintainer = self.__user
 
-        return  ObsLightOsc.getObsLightOsc().getLocalProjectList(obsServer=self.__serverAPI,
-                                                                 maintainer=aMaintainer,
-                                                                 bugowner=aBugowner,
-                                                                 arch=arch,
-                                                                 remoteurl=remoteurl)
+            return  ObsLightOsc.getObsLightOsc().getLocalProjectListFilter(obsServer=self.__serverAPI,
+                                                                             maintainer=aMaintainer,
+                                                                             bugowner=aBugowner,
+                                                                             arch=arch,
+                                                                             remoteurl=remoteurl)
+        else:
+            return  ObsLightOsc.getObsLightOsc().getLocalProjectList(obsServer=self.__serverAPI)
 
     def getTargetList(self, projectObsName=None):
         '''

@@ -130,17 +130,17 @@ class ObsLightMicProject(object):
         '''
         
         '''
-        CMD = "sudo mic create " + self.__imageType + " " + self.__kickstartPath + " --logfile=" + self.__workingDirectory + "/buildLog --cachedir=" + self.__workingDirectory + "/cache --outdir=" + self.__workingDirectory + " --arch=" + self.__architecture + " --release=latest"
+        CMD = "sudo create " + self.__imageType + " " + self.__kickstartPath + " --logfile=" + self.__workingDirectory + "/buildLog --cachedir=" + self.__workingDirectory + "/cache --outdir=" + self.__workingDirectory + " --arch=" + self.__architecture + " --release=latest"
         print CMD
         self.__subprocess(command=CMD)
 
-    def getAvailableImageType(self):
+    def getAvailableArchitecture(self):
         '''
         TODO Add to Manager
         '''
         return ["i686", "armv8" ]
 
-    def getAvailableArchitecture(self):
+    def getAvailableImageType(self):
         '''
         TODO Add to Manager
         '''

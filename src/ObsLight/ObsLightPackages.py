@@ -65,6 +65,55 @@ class ObsLightPackages(object):
 
         return self.__dicOBSLightPackages[package]
 
+    def addPackage(self,
+                   name,
+                   packagePath,
+                   description,
+                   packageTitle,
+                   specFile=None,
+                   yamlFile=None,
+                   listFile=[],
+                   status=""):
+        '''
+        
+        '''
+        self.__currentPackage = name
+        if listFile == None:
+            listFile = []
+
+        if not name in  self.__dicOBSLightPackages.keys():
+            self.__dicOBSLightPackages[name] = ObsLightPackage(name=name,
+                                                               packagePath=packagePath,
+                                                               specFile=specFile,
+                                                               description=description,
+                                                               packageTitle=packageTitle,
+                                                               yamlFile=yamlFile,
+                                                               listFile=listFile,
+                                                               status=status)
+        else:
+            raise ObsLightErr.ObsLightPackageErr("Can't add package '" + name + "' ,already exist in project.")
+
+    def removePackage(self, package=None):
+        '''
+        
+        '''
+        self.__dicOBSLightPackages[package].destroy()
+        del self.__dicOBSLightPackages[package]
+        if self.__currentPackage == name:
+            self.__currentPackage = None
+        return 0
+
+#-------------------------------------------------------------------------------
+
+
+    def removePackageFilter(self, key):
+        '''
+        
+        '''
+        if key in self.__packageFilter.keys():
+            del self.__packageFilter[key]
+
+
     def getCurrentPackage(self):
         '''
         
@@ -95,44 +144,17 @@ class ObsLightPackages(object):
         res.sort()
         return res
 
-    def addPackage(self,
-                   name,
-                   packagePath,
-                   description,
-                   packageTitle,
-                   specFile=None,
-                   yamlFile=None,
-                   listFile=None,
-                   status=""):
-        '''
-        
-        '''
-        self.__currentPackage = name
-        if listFile == None:
-            listFile = []
-
-        self.__dicOBSLightPackages[name] = ObsLightPackage(name=name,
-                                                           packagePath=packagePath,
-                                                           specFile=specFile,
-                                                           description=description,
-                                                           packageTitle=packageTitle,
-                                                           yamlFile=yamlFile,
-                                                           listFile=listFile,
-                                                           status=status)
-
     def isInstallInChroot(self, name):
         '''
         Return True if the package is install into the chroot.
         '''
         return self.__dicOBSLightPackages[name].isInstallInChroot()
 
-
     def delFromChroot(self, package):
         '''
         
         '''
         return self.__dicOBSLightPackages[package].delFromChroot()
-
 
     def getSpecFile(self, name=None):
         '''
@@ -187,8 +209,6 @@ class ObsLightPackages(object):
         return ["obsRev", "oscRev", "status", "oscStatus", "chRootStatus"]
 
     #---------------------------------------------------------------------------
-
-
     def getPackageFilter(self):
         '''
         
@@ -201,12 +221,7 @@ class ObsLightPackages(object):
         '''
         self.__packageFilter = {}
 
-    def removePackageFilter(self, key):
-        '''
-        
-        '''
-        if key in self.__packageFilter.keys():
-            del self.__packageFilter[key]
+
 
     def addPackageFilter(self, key, val):
         '''
@@ -281,14 +296,6 @@ class ObsLightPackages(object):
             packageTitle
         '''
         return self.__dicOBSLightPackages[package].setPackageParameter(parameter=parameter, value=value)
-
-    def removePackage(self, package=None):
-        '''
-        
-        '''
-        self.__dicOBSLightPackages[package].destroy()
-        del self.__dicOBSLightPackages[package]
-        return 0
 
     def updatePackage(self, name, status=None):
         '''
