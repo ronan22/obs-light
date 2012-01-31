@@ -205,6 +205,23 @@ def getSocketDefaultTimeOut():
     else:
         return -1
 
+def getHttpBuffer():
+    aConfigParser = ConfigParser.ConfigParser()
+    aConfigFile = open(CONFIGPATH, 'rw')
+
+    aConfigParser.readfp(aConfigFile)
+    if ('httpBuffer' in aConfigParser.sections()) and ('BufferEnable' in aConfigParser.options('httpBuffer')):
+        try:
+            res = int(aConfigParser.get('httpBuffer', 'BufferEnable', raw=True))
+        except :
+            return 1
+        if res < 0:
+            return 1
+        return res
+    else:
+        return 1
+
+
 if not os.path.exists(CONFIGPATH):
     shutil.copy2(getTemplateConfigPath(), CONFIGPATH)
     configureConsole()

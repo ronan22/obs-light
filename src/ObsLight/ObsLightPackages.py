@@ -148,46 +148,32 @@ class ObsLightPackages(object):
         '''
         Return True if the package is install into the chroot.
         '''
-        return self.__dicOBSLightPackages[name].isInstallInChroot()
+        return self.getPackage(name).isInstallInChroot()
 
     def delFromChroot(self, package):
         '''
         
         '''
-        return self.__dicOBSLightPackages[package].delFromChroot()
+        return self.getPackage(package).delFromChroot()
 
     def getSpecFile(self, name=None):
         '''
         
         '''
-        return self.__dicOBSLightPackages[name].getSpecFile()
+        return self.getPackage(name).getSpecFile()
 
     def getOscDirectory(self, name=None):
         '''
         
         '''
-        return self.__dicOBSLightPackages[name].getOscDirectory()
+        return self.getPackage(name).getOscDirectory()
 
     def getPackageDirectory(self, package=None):
         '''
         
         '''
-        return self.__dicOBSLightPackages[package].getPackageDirectory()
+        return self.getPackage(package).getPackageDirectory()
 
-    def getPackageParameter(self, package, parameter=None):
-        '''
-        Get the value of a project parameter:
-        the valid parameter is :
-            name
-            listFile
-            status
-            specFile
-            yamlFile
-            packageDirectory
-            description
-            packageTitle
-        '''
-        return self.__dicOBSLightPackages[package].getPackageParameter(parameter=parameter)
     #---------------------------------------------------------------------------
 
     def getCurrentListPackageInfo(self):
@@ -276,11 +262,11 @@ class ObsLightPackages(object):
         res = {}
         if package == None:
             for pk in self.getListPackages():
-                info = self.__dicOBSLightPackages[pk].getPackageInfo(self.getCurrentListPackageInfo())
+                info = self.getPackage(pk).getPackageInfo(self.getCurrentListPackageInfo())
                 if self.__isFilterInfo(info):
                     res[pk] = info
         else:
-            res[package] = self.__dicOBSLightPackages[package].getPackageInfo(self.getCurrentListPackageInfo())
+            res[package] = self.getPackage(package).getPackageInfo(self.getCurrentListPackageInfo())
         return res
 
     #---------------------------------------------------------------------------
@@ -295,29 +281,29 @@ class ObsLightPackages(object):
             description
             packageTitle
         '''
-        return self.__dicOBSLightPackages[package].setPackageParameter(parameter=parameter, value=value)
+        return self.getPackage(package).setPackageParameter(parameter=parameter, value=value)
 
     def updatePackage(self, name, status=None):
         '''
         
         '''
-        self.__dicOBSLightPackages[name].update(status=status)
+        self.getPackage(name).update(status=status)
 
 
     def addFile(self, package, path):
         '''
         
         '''
-        self.__dicOBSLightPackages[package].addFile(path)
+        self.getPackage(package).addFile(path)
 
     def delFile(self, package, name):
         '''
         
         '''
-        self.__dicOBSLightPackages[package].delFile(name)
+        self.getPackage(package).delFile(name)
 
     def getChrootRpmBuildDirectory(self, name):
         '''
         
         '''
-        return self.__dicOBSLightPackages[name].getChrootRpmBuildDirectory()
+        return self.getPackage(name).getChrootRpmBuildDirectory()

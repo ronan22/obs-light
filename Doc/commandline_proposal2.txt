@@ -28,8 +28,8 @@ obslight
 	  obsproject query	[title|description|server|webpage|repository|target|architecture] project_alias <project_alias>
 				  -> Options can be combined, no option means all options.
 				  Output is in same order as query (one answer by line or on the same line with a seperator?)
-          obsproject query	[title|description|server|webpage|repository|target|architecture|remoteurl|maintainer|bugowner] server_alias <server_alias> project <project> 
-	  obsproject set    	[title <title>] [description <description>] {project_alias <project_alias>
+          obsproject query	[title|description|target|architecture|remoteurl|maintainer|bugowner] server_alias <server_alias> project <project> 
+	  obsproject set    	[title <title>] [description <description>] {project_alias <project_alias>}
 
 	  #___________________________________________________________________________________________________________________________________________
           #implement
@@ -41,9 +41,13 @@ obslight
 	  package delete <package> {project_alias <project_alias>}
 
 	  #Not implement
-          package query  [title|description|status|revision] {package <package> {project_alias <project_alias>} } 
+          package query  [title|description|status|revision|listFile] {package <package> {project_alias <project_alias>} } 
               -> Options can be combined, no option means all options.
                  Output is in same order as query (one answer by line or on the same line with a seperator?)
+          package query  [title|description|status|revision|listFile] server_alias <server_alias> project <project> 
+              -> Options can be combined, no option means all options.
+                 Output is in same order as query (one answer by line or on the same line with a seperator?)
+
 	  package set [title <title>] [description <description>] {package <package> {project_alias <project_alias>} } 
           package update {package <package> {project_alias <project_alias>} }
           package commit <message> {package <package> {project_alias <project_alias>} }

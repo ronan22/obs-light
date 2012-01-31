@@ -287,8 +287,7 @@ class ObsLightProject(object):
             description
             packageTitle
         '''
-        return self.__packages.getPackageParameter(package=package,
-                                                   parameter=parameter)
+        return self.__packages.getPackage(package).getPackageParameter(parameter=parameter)
 
     def setPackageParameter(self, package, parameter=None, value=None):
         '''

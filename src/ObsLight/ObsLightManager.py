@@ -937,6 +937,25 @@ class ObsLightManagerCore(ObsLightManagerBase):
         self._myObsLightProjects.save()
         return res
 
+    @checkProjectLocalName(1)
+    @checkNonEmptyStringPackage(2)
+    def getPackageParameter(self, projectLocalName, package, parameter):
+        '''
+        Get the value of a project parameter:
+        the valid parameter is :
+            name
+            listFile
+            status
+            specFile
+            yamlFile
+            packageDirectory
+            description
+            packageTitle
+        '''
+        self.checkPackage(projectLocalName=projectLocalName, package=package)
+        return  self._myObsLightProjects.getProject(projectLocalName).getPackageParameter(package=package,
+                                                                                          parameter=parameter)
+
     #///////////////////////////////////////////////////////////////////////////filesystem
     #///////////////////////////////////////////////////////////////////////////spec
     #///////////////////////////////////////////////////////////////////////////micproject
@@ -1474,26 +1493,6 @@ class ObsLightManager(ObsLightManagerCore):
         Export a project to a file.
         '''
         self._myObsLightProjects.exportProject(projectLocalName, path=path)
-
-    @checkProjectLocalName(1)
-    @checkNonEmptyStringPackage(2)
-    def getPackageParameter(self, projectLocalName, package, parameter):
-        '''
-        Get the value of a project parameter:
-        the valid parameter is :
-            name
-            listFile
-            status
-            specFile
-            yamlFile
-            packageDirectory
-            description
-            packageTitle
-        '''
-        self.checkPackage(projectLocalName=projectLocalName, package=package)
-        return  self._myObsLightProjects.getPackageParameter(projectLocalName=projectLocalName,
-                                                              package=package,
-                                                              parameter=parameter)
 
     @checkProjectLocalName(1)
     @checkNonEmptyStringPackage(2)

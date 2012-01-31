@@ -33,5 +33,7 @@ max=10
 #Set the DefaultTimeOut of the socket if the value==-1, no TimeOut.
 DefaultTimeOut=-1
 
-
+[httpBuffer]
+#BufferEnable=0 No buffer,BufferEnable=1 the http/https requests are execute ones, and the results are store.
+BufferEnable=1
 

@@ -46,10 +46,6 @@ class ObsLightServers(object):
         self.__pathFile = os.path.join(workingDirectory , "ObsServersConfig")
         self.__initServersFromOsc()
 
-        self.resultLocalProjectList = {}
-        self.resultListPackage = {}
-        self.resultTargetList = {}
-        self.resultArchitectureList = {}
 
     def __initServersFromOsc(self):
         '''
@@ -214,20 +210,8 @@ class ObsLightServers(object):
         '''
         
         '''
-        if obsServer in self.resultListPackage.keys():
-            if projectLocalName in self.resultListPackage[obsServer].keys():
-                return self.resultListPackage[obsServer][projectLocalName]
-            else:
-                res = self.getObsServer(obsServer).getListPackage(projectLocalName=projectLocalName)
-                if res != None:
-                    self.resultListPackage[obsServer][projectLocalName] = res
-                return res
-        else:
-            res = self.getObsServer(obsServer).getListPackage(projectLocalName=projectLocalName)
-            if res != None:
-                self.resultListPackage[obsServer] = {}
-                self.resultListPackage[obsServer][projectLocalName] = res
-            return res
+        return  self.getObsServer(obsServer).getListPackage(projectLocalName=projectLocalName)
+
 
     def checkoutPackage(self,
                         obsServer=None,
@@ -265,20 +249,8 @@ class ObsLightServers(object):
         '''
         
         '''
-        if obsServer in self.resultTargetList.keys():
-            if projectObsName in self.resultTargetList[obsServer].keys():
-                return self.resultTargetList[obsServer][projectObsName]
-            else:
-                res = self.getObsServer(obsServer).getTargetList(projectObsName=projectObsName)
-                if res != None:
-                    self.resultTargetList[obsServer][projectObsName] = res
-                return res
-        else:
-            res = self.getObsServer(obsServer).getTargetList(projectObsName=projectObsName)
-            if res != None:
-                self.resultTargetList[obsServer] = {}
-                self.resultTargetList[obsServer][projectObsName] = res
-            return res
+        return self.getObsServer(obsServer).getTargetList(projectObsName=projectObsName)
+
 
     def getArchitectureList(self, obsServer=None,
                             projectObsName=None,
@@ -286,31 +258,8 @@ class ObsLightServers(object):
         '''
         
         '''
-        if obsServer in self.resultArchitectureList.keys():
-            if projectObsName in self.resultArchitectureList[obsServer].keys():
-                if projectTarget in self.resultArchitectureList[obsServer][projectObsName].keys():
-                    return self.resultArchitectureList[obsServer][projectObsName][projectTarget]
-                else:
-                    res = self.getObsServer(obsServer).getArchitectureList(projectObsName=projectObsName,
+        return  self.getObsServer(obsServer).getArchitectureList(projectObsName=projectObsName,
                                                                         projectTarget=projectTarget)
-                    if res != None:
-                        self.resultArchitectureList[obsServer][projectObsName][projectTarget] = res
-                    return res
-            else:
-                res = self.getObsServer(obsServer).getArchitectureList(projectObsName=projectObsName,
-                                                                        projectTarget=projectTarget)
-                if res != None:
-                    self.resultArchitectureList[obsServer][projectObsName] = {}
-                    self.resultArchitectureList[obsServer][projectObsName][projectTarget] = res
-                return res
-        else:
-            res = self.getObsServer(obsServer).getArchitectureList(projectObsName=projectObsName,
-                                                                        projectTarget=projectTarget)
-            if res != None:
-                self.resultArchitectureList[obsServer] = {}
-                self.resultArchitectureList[obsServer][projectObsName] = {}
-                self.resultArchitectureList[obsServer][projectObsName][projectTarget] = res
-            return res
 
     def getObsServerParameter(self, obsServerAlias=None, parameter=None):
         '''

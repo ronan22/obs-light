@@ -47,6 +47,8 @@ if TIMEOUT >= 0:
 else:
     TIMEOUT = 60
 
+HTTPBUFFER = ObsLightConfig.getHttpBuffer()
+
 import threading
 
 class ObsLightOsc(object):
@@ -62,8 +64,12 @@ class ObsLightOsc(object):
 
         self.__aLock = threading.Lock()
 
+        self.__httpBuffer = {}
+
         if os.path.isfile(self.__confFile):
             self.get_config()
+
+
 
     def get_config(self):
         self.__aLock.acquire()
@@ -815,6 +821,11 @@ class ObsLightOsc(object):
         
         '''
         url = self.__cleanUrl(url)
+
+        if (HTTPBUFFER == 1) and (headers == {}) and (data == None) and (file == None) and (url in self.__httpBuffer.keys()):
+            print "RETURN BUFFER"
+            return self.__httpBuffer[url]
+
         try:
             fileXML = ""
             count = 0
@@ -825,6 +836,10 @@ class ObsLightOsc(object):
 
             if fileXML == None:
                 ObsLightErr.ObsLightOscErr("Error the request on '" + url + "' return None.")
+
+            if (HTTPBUFFER == 1) and (headers == {}) and (data == None) and (file == None):
+                self.__httpBuffer[url] = fileXML
+
             return fileXML
 
         except urllib2.URLError, e:

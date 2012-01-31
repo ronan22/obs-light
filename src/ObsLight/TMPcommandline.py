@@ -1249,6 +1249,84 @@ class ObsLight():
             
             '''
             help = False
+
+            title = False
+            description = False
+            status = False
+            revision = False
+            listFile = []
+
+            project_alias = None
+            server_alias = None
+            obsproject = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = getParameter(listArgv)
+                if (currentCommand in __obsproject_help__) or (listArgv == None):
+                    help = True
+                    break
+                elif currentCommand in __project_title__:
+                    title = True
+                elif currentCommand in __project_description__:
+                    description = True
+                elif currentCommand in __project_server__ :
+                    status = True
+                elif currentCommand in __project_webpage__:
+                    revision = True
+                elif currentCommand in __project_alias__:
+                    project_alias , listArgv = getParameter(listArgv)
+                elif currentCommand in __server_alias__:
+                    server_alias , listArgv = getParameter(listArgv)
+                elif currentCommand in __obsproject__:
+                    obsproject , listArgv = getParameter(listArgv)
+                else:
+                    help = True
+                    break
+
+            if  (help == True) :
+                return obsproject_help()
+            else:
+                m = ObsLightManager.getManager()
+
+                if (project_alias == None) and ((server_alias == None) or (obsproject == None)):
+                    return obsproject_help()
+
+                if  (not title) and \
+                    (not description) and \
+                    (not status)and \
+                    (not revision):
+
+                    title = True
+                    description = True
+                    status = False
+                    revision = False
+
+                if title :
+                    if (server_alias == None) and (obsproject == None):
+                        res = m.getProjectParameter(projectLocalName=project_alias,
+                                                    parameter="projectTitle")
+                    else:
+                        res = m.getObsProjectParameter(serverApi=server_alias,
+                                                       obsproject=obsproject,
+                                                       parameter="title")
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    print "title:" + res
+                if description :
+                    if (server_alias == None) and (obsproject == None):
+                        res = m.getProjectParameter(projectLocalName=project_alias,
+                                                    parameter="description")
+                    else:
+                        res = m.getObsProjectParameter(serverApi=server_alias,
+                                                       obsproject=obsproject,
+                                                       parameter="title")
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    print "description:" + res
+
+
         def package_set(listArgv):
             '''
             
