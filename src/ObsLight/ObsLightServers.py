@@ -210,20 +210,6 @@ class ObsLightServers(object):
         else:
             raise ObsLightObsServers("'" + alias + "' can't be deleted, it's not an OBS Server")
 
-    def getLocalProjectList(self,
-                            server=None,
-                            maintainer=False,
-                            bugowner=False,
-                            arch=None,
-                            remoteurl=False):
-        '''
-        
-        '''
-        return self.getObsServer(server).getLocalProjectList(maintainer=maintainer,
-                                                             bugowner=bugowner,
-                                                             arch=arch,
-                                                             remoteurl=remoteurl)
-
     def getListPackage(self, obsServer=None, projectLocalName=None):
         '''
         

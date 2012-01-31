@@ -453,11 +453,34 @@ class ObsLightOsc(object):
         '''
 
         self.get_config()
-        url = str(obsServer + "/search/project")
-
+        url = str(obsServer + "/source/")
         xmlRes = self.getHttp_request(url)
         if xmlRes == None:
-            ObsLightErr.ObsLightOscErr("Error the request on '" + url + "' return None.")
+            raise ObsLightErr.ObsLightOscErr("The request on '" + url + "' return None.")
+
+        aElement = ElementTree.fromstring(xmlRes)
+        res = []
+        for project in aElement:
+            aName = project.get("name")
+            res.append(aName)
+        res.sort()
+        return res
+
+    def getLocalProjectListFilter(self,
+                            obsServer,
+                            maintainer=False,
+                            bugowner=False,
+                            arch=None,
+                            remoteurl=False):
+        '''
+        return a list of the project of a OBS Server.
+        '''
+
+        self.get_config()
+        url = str(obsServer + "/search/project")
+        xmlRes = self.getHttp_request(url)
+        if xmlRes == None:
+            raise ObsLightErr.ObsLightOscErr("The request on '" + url + "' return None.")
 
         aElement = ElementTree.fromstring(xmlRes)
         res = []
@@ -487,6 +510,7 @@ class ObsLightOsc(object):
                 res.append(aName)
         res.sort()
         return res
+
 
     def getListRepos(self, apiurl):
         '''
@@ -605,7 +629,16 @@ class ObsLightOsc(object):
         valid parameter:
         title
         description
+        
         '''
+        title = None
+        description = None
+        remoteurl = ""
+        maintainer = []
+        bugowner = []
+        arch = []
+        repository = []
+
         self.get_config()
         url = str(apiurl + "/source/" + projectObsName + "/_meta")
         res = self.getHttp_request(url)
@@ -614,8 +647,40 @@ class ObsLightOsc(object):
         aElement = ElementTree.fromstring(res)
 
         for desc in aElement:
-            if parameter == desc.tag:
-                return desc.text
+            if "title" == desc.tag:
+                title = desc.text
+            elif "description" == desc.tag:
+                description = desc.tag
+            elif "person" == desc.tag:
+                role = desc.get("role")
+                if role == "maintainer":
+                    maintainer.append(desc.get("userid"))
+                elif role == "bugowner":
+                    bugowner.append(desc.get("userid"))
+            elif "repository" == desc.tag:
+                repository.append(desc.get("name"))
+                for repositoryPara in desc:
+                    if "arch" == repositoryPara.tag:
+                        arch.append(repositoryPara.text)
+            elif "remoteurl" == desc.tag:
+                remoteurl = desc.text
+
+        if parameter == "title":
+            return title
+        elif parameter == "description":
+            return description
+        elif parameter == "remoteurl":
+            return remoteurl
+        elif parameter == "maintainer":
+            return maintainer
+        elif parameter == "bugowner":
+            return bugowner
+        elif parameter == "arch":
+            return arch
+        elif parameter == "repository" :
+            return repository
+        else:
+            return None
 
     def setProjectParameter(self, projectObsName, apiurl, parameter, value):
         '''
@@ -767,7 +832,7 @@ class ObsLightOsc(object):
                 ObsLightErr.ObsLightOscErr("Error the request on '" + url + "' return None.")
             return fileXML
 
-        except urllib2.URLError:
+        except urllib2.URLError, e:
             ObsLightPrintManager.getLogger().error("apiurl " + str(url) + " is not reachable")
             return None
         except M2Crypto.SSL.SSLError:

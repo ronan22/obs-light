@@ -446,12 +446,6 @@ class ObsLightProjects(object):
         '''
         return self.getProject(projectLocalName).getChRootPath()
 
-    def removePackage(self, projectLocalName=None, package=None):
-        '''
-        Remove a package from local project.
-        '''
-        return self.getProject(projectLocalName).removePackage(package=package)
-
     def importProject(self, path=None):
         '''
         Import a project from a file

@@ -44,36 +44,40 @@ def run(prg=None):
         return 1
 
     except ObsLightErr.ArgError, err:
-        print >> sys.stderr, 'Argument Error:', err.msg
+        print >> sys.stderr, 'Argument Error: ', err.msg
         return 1
 
     except ObsLightErr.ManagerError, err:
-        print >> sys.stderr, 'Manager Error:', err.msg
+        print >> sys.stderr, 'Manager Error: ', err.msg
         return 1
 
     except ObsLightErr.ObsLightProjectsError, err:
-        print >> sys.stderr, 'Projects Error:', err.msg
+        print >> sys.stderr, 'Projects Error: ', err.msg
         return 1
 
     except ObsLightErr.ObsLightObsServers, err:
-        print >> sys.stderr, 'OBS Error', err.msg
+        print >> sys.stderr, 'OBS Error: ', err.msg
         return 1
 
     except ObsLightErr.ObsLightChRootError, err:
-        print >> sys.stderr, 'Chroot Error', err.msg
+        print >> sys.stderr, 'Chroot Error: ', err.msg
         return 1
 
     except ObsLightErr.ObsLightSpec, err:
-        print >> sys.stderr, 'Spec Error', err.msg
+        print >> sys.stderr, 'Spec Error: ', err.msg
         return 1
 
-
     except ConfigError, err:
-        print >> sys.stderr, 'Osc Error', err
+        print >> sys.stderr, 'ConfigError: ', err
         return 1
 
     except urllib2.URLError, err:
-        print >> sys.stderr, 'Osc Error', err
+        print >> sys.stderr, 'URLError: ', err
         return 1
+
+    except ObsLightErr.ObsLightOscErr, err:
+        print >> sys.stderr, 'Osc Error: ', err.msg
+        return 1
+
 
 
