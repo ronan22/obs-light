@@ -37,12 +37,10 @@ obslight
               -> List packages of project, or
 		 if "available" option is set,list packages available to be added.
           package current {project_alias <project_alias>}
-
+	  package add    <package> {project_alias <project_alias>}
+	  package delete <package> {project_alias <project_alias>}
 
 	  #Not implement
-	  package add    <package> {project_alias <project_alias>}
-          package delete <package> {project_alias <project_alias>}
-
           package query  [title|description|status|revision] {package <package> {project_alias <project_alias>} } 
               -> Options can be combined, no option means all options.
                  Output is in same order as query (one answer by line or on the same line with a seperator?)

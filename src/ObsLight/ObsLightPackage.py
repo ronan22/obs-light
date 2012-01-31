@@ -131,6 +131,25 @@ class ObsLightPackage(object):
         self.__initConfigureFile()
 
     #---------------------------------------------------------------------------
+    def __initConfigureFile(self):
+        '''
+        Init the  spec or yaml file.
+        '''
+        try:
+            if not self.__yamlFile in (None, 'None', ""):
+                self.__initYamlFile()
+            else:
+                self.__myYamlFile = None
+                if not self.__specFile in (None, 'None', ""):
+                    self.__initSpecFile()
+                else:
+                    self.__mySpecFile = None
+        # FIXME: 
+        except BaseException:
+            ObsLightPrintManager.getLogger().error(u"Error reading SPEC or YAML file", exc_info=1)
+
+
+
     def getPackageInfo(self, info):
         '''
         
@@ -252,23 +271,6 @@ class ObsLightPackage(object):
         
         '''
         self.__chRootStatus = status
-
-    def __initConfigureFile(self):
-        '''
-        Init the  spec or yaml file.
-        '''
-        try:
-            if not self.__yamlFile in (None, 'None', ""):
-                self.__initYamlFile()
-            else:
-                self.__myYamlFile = None
-                if not self.__specFile in (None, 'None', ""):
-                    self.__initSpecFile()
-                else:
-                    self.__mySpecFile = None
-        # FIXME: 
-        except BaseException:
-            ObsLightPrintManager.getLogger().error(u"Error reading SPEC or YAML file", exc_info=1)
 
     def __initYamlFile(self):
         '''

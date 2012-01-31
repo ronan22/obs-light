@@ -1162,8 +1162,6 @@ class ObsLight():
                 return m.addPackage(projectLocalName=project_alias,
                                     package=package)
 
-
-
         def package_delete(listArgv):
             '''
             
@@ -1177,13 +1175,10 @@ class ObsLight():
                 if (currentCommand in __obsproject_help__) or (listArgv == None):
                     help = True
                     break
-                elif currentCommand in __package_delete__:
-                    package = currentCommand
                 elif currentCommand in __project_alias__:
                     project_alias, listArgv = getParameter(listArgv)
                 else:
-                    help = True
-                    break
+                    package = currentCommand
 
             if  (help == True) or (package == None) :
                 return package_help()
@@ -1195,8 +1190,7 @@ class ObsLight():
                         return obsproject_help()
 
                 return m.removePackage(projectLocalName=project_alias,
-                                    package=package)
-
+                                       package=package)
 
         def package_list(listArgv):
             '''

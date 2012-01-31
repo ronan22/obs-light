@@ -442,12 +442,7 @@ class ObsLightOsc(object):
         return self.__subprocess(command=command, waitMess=True)
 
 
-    def getLocalProjectList(self,
-                            obsServer,
-                            maintainer=False,
-                            bugowner=False,
-                            arch=None,
-                            remoteurl=False):
+    def getLocalProjectList(self, obsServer):
         '''
         return a list of the project of a OBS Server.
         '''

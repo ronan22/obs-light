@@ -97,9 +97,9 @@ class ObsLightPackages(object):
         '''
         
         '''
-        self.__dicOBSLightPackages[package].destroy()
+        self.getPackage(package).destroy()
         del self.__dicOBSLightPackages[package]
-        if self.__currentPackage == name:
+        if self.__currentPackage == package:
             self.__currentPackage = None
         return 0
 
