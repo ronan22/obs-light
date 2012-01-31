@@ -1,5 +1,5 @@
 #
-# Copyright 2011, Intel Inc.
+# Copyright 2011-2012, Intel Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -42,15 +42,9 @@ class ObsLightMicProjects:
         self.__load()
 
     def getObsLightMicDirectory(self):
-        '''
-        
-        '''
         return self.__workingDirectory
 
     def __load(self, aFile=None):
-        '''
-        
-        '''
         if aFile == None:
             pathFile = self.__pathFile
             #If default file load, importFile=False and no update on osc directory.
@@ -77,9 +71,6 @@ class ObsLightMicProjects:
             self.__currentProjects = saveconfigServers["currentProject"]
 
     def save(self, aFile=None, ProjectName=None):
-        '''
-        
-        '''
         if aFile == None:
             pathFile = self.__pathFile
         else:
@@ -101,9 +92,6 @@ class ObsLightMicProjects:
         aFile.close()
 
     def __addProjectFromSave(self, name=None, fromSave=None, importFile=None):
-        '''
-        
-        '''
         if not (name in self.__dicOBSLightProjects.keys()):
             self.__dicOBSLightProjects[name] = ObsLightMicProject(workingDirectory=self.getObsLightMicDirectory(),
                                                                   fromSave=fromSave,
@@ -113,86 +101,60 @@ class ObsLightMicProjects:
             raise ObsLightErr.ObsLightProjectsError("Can't import: '" + name + "', The Mic Project already exists.")
 
     def getMicProjectList(self):
-        '''
-        
-        '''
+        """
+        Get the list of available Mic projects.
+        """
         res = self.__dicOBSLightProjects.keys()
         res.sort()
         return res
 
+    def isAMicProject(self, projectName):
+        """
+        Test if `projectName` is a Mic project.
+        """
+        return projectName in self.getMicProjectList()
 
-    def addMicProjects(self, projectMicName):
-        '''
-        
-        '''
-        self.__addProjectFromSave(name=projectMicName)
+    def _checkMicProjectName(self, projectName):
+        """
+        Raise an exception if `projectName` is not a Mic project.
+        """
+        if not self.isAMicProject(projectName):
+            message = "'%s' project does not exist"
+            raise ObsLightErr.ObsLightProjectsError(message)
 
+    def addMicProjects(self, micProjectName):
+        self._checkMicProjectName(micProjectName)
+        self.__addProjectFromSave(name=micProjectName)
 
-    def delMicProjects(self, projectMicName):
-        '''
-        
-        '''
-        if projectMicName in self.getMicProjectList():
-            self.__dicOBSLightProjects[projectMicName].delProject()
-            del self.__dicOBSLightProjects[projectMicName]
-        else:
-            raise ObsLightErr.ObsLightProjectsError("Can't del: '" + projectMicName + "', The Mic Project not exists.")
+    def delMicProjects(self, micProjectName):
+        self._checkMicProjectName(micProjectName)
+        self.__dicOBSLightProjects[micProjectName].deleteProjectDirectory()
+        del self.__dicOBSLightProjects[micProjectName]
 
-    def addKickstartFile(self, projectMicName, filePath):
-        '''
-        
-        '''
-        if projectMicName in self.getMicProjectList():
-            self.__dicOBSLightProjects[projectMicName].addKickstartFile(filePath)
-        else:
-            raise ObsLightErr.ObsLightProjectsError("Can't set the kickstart file, no project: '" + projectMicName + "'")
+    def setKickstartFile(self, micProjectName, filePath):
+        self._checkMicProjectName(micProjectName)
+        self.__dicOBSLightProjects[micProjectName].setKickstartFile(filePath)
 
-    def getKickstartFile(self, projectMicName):
-        '''
-        
-        '''
-        if projectMicName in self.getMicProjectList():
-            return self.__dicOBSLightProjects[projectMicName].getKickstartFile()
-        else:
-            raise ObsLightErr.ObsLightProjectsError("Can't return the kickstart file, no project: '" + projectMicName + "'")
+    def getKickstartFile(self, micProjectName):
+        self._checkMicProjectName(micProjectName)
+        return self.__dicOBSLightProjects[micProjectName].getKickstartFile()
 
-    def getMicProjectArchitecture(self, projectMicName):
-        '''
-        
-        '''
-        if projectMicName in self.getMicProjectList():
-            return self.__dicOBSLightProjects[projectMicName].getMicProjectArchitecture()
-        else:
-            raise ObsLightErr.ObsLightProjectsError("Can't return the architecture , no project: '" + projectMicName + "'")
+    def getMicProjectArchitecture(self, micProjectName):
+        self._checkMicProjectName(micProjectName)
+        return self.__dicOBSLightProjects[micProjectName].getArchitecture()
 
-    def setMicProjectArchitecture(self, projectMicName, arch):
-        '''
-        
-        '''
-        if projectMicName in self.getMicProjectList():
-            self.__dicOBSLightProjects[projectMicName].setMicProjectArchitecture(arch)
-        else:
-            raise ObsLightErr.ObsLightProjectsError("Can't set the architecture , no project: '" + projectMicName + "'")
+    def setMicProjectArchitecture(self, micProjectName, arch):
+        self._checkMicProjectName(micProjectName)
+        self.__dicOBSLightProjects[micProjectName].setArchitecture(arch)
 
-    def setMicProjectImageType(self, projectMicName, imageType):
-        '''
-        
-        '''
-        self.__dicOBSLightProjects[projectMicName].setMicProjectImageType(imageType)
+    def setMicProjectImageType(self, micProjectName, imageType):
+        self._checkMicProjectName(micProjectName)
+        self.__dicOBSLightProjects[micProjectName].setImageType(imageType)
 
-    def getMicProjectImageType(self, projectMicName):
-        '''
-        
-        '''
-        return self.__dicOBSLightProjects[projectMicName].getMicProjectImageType()
+    def getMicProjectImageType(self, micProjectName):
+        self._checkMicProjectName(micProjectName)
+        return self.__dicOBSLightProjects[micProjectName].getImageType()
 
-    def createImage(self, projectMicName):
-        '''
-        
-        '''
-        return self.__dicOBSLightProjects[projectMicName].createImage()
-
-
-
-
-
+    def createImage(self, micProjectName):
+        self._checkMicProjectName(micProjectName)
+        return self.__dicOBSLightProjects[micProjectName].createImage()

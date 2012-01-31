@@ -1,5 +1,5 @@
 #
-# Copyright 2011, Intel Inc.
+# Copyright 2011-2012, Intel Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,18 +17,18 @@
 '''
 Created on jan 10 2012
 
-@author: ronan@fridu.net
+@author: Ronan Le Martret <ronan@fridu.net>
+@author: Florent Vennetier
 '''
-import os
+
+import os.path
 import ObsLightErr
 import shutil
 from ObsLightSubprocess import SubprocessCrt
 
 class ObsLightMicProject(object):
+
     def __init__(self, workingDirectory, fromSave, importFile, name=None):
-        '''
-        
-        '''
         self.__mySubprocessCrt = SubprocessCrt()
 
         self.__kickstartPath = None
@@ -52,23 +52,16 @@ class ObsLightMicProject(object):
         if not os.path.isdir(self.getProjectDirectory()):
             os.makedirs(self.getProjectDirectory())
 
-    def __subprocess(self, command=None, waitMess=False):
-        '''
-        
-        '''
-        return self.__mySubprocessCrt.execSubprocess(command=command,
-                                                     waitMess=waitMess)
+    def __subprocess(self, command):
+        return self.__mySubprocessCrt.execSubprocess(command)
 
     def getProjectDirectory(self):
-        '''
-        
-        '''
+        """
+        Get the project working directory.
+        """
         return self.__workingDirectory
 
     def getDic(self):
-        '''
-        
-        '''
         aDic = {}
         aDic["kickstartPath"] = self.__kickstartPath
         aDic["architecture"] = self.__architecture
@@ -77,83 +70,87 @@ class ObsLightMicProject(object):
         aDic["workingDirectory"] = self.__workingDirectory
         return aDic
 
-
-    def addKickstartFile(self, filePath):
-        '''
-        
-        '''
-        if os.path.isfile(filePath):
-            fileName = os.path.basename(filePath)
-            self.__kickstartPath = self.getProjectDirectory() + "/" + fileName
-            if os.path.abspath(filePath) != self.__kickstartPath:
-                shutil.copy(os.path.abspath(filePath), self.__kickstartPath)
-        else:
-            raise ObsLightErr.ObsLightMicProjectErr("'" + filePath + "' is not a file.")
+    def setKickstartFile(self, filePath):
+        """
+        Set the kickstart file of this project.
+        """
+        if not os.path.isfile(filePath):
+            raise ObsLightErr.ObsLightMicProjectErr("'%s' is not a file." % filePath)
+        fileName = os.path.basename(filePath)
+        wantedPath = os.path.join(self.getProjectDirectory(), fileName)
+        if os.path.abspath(filePath) != wantedPath:
+            shutil.copy(os.path.abspath(filePath), wantedPath)
+        self.__kickstartPath = wantedPath
 
     def getKickstartFile(self):
-        '''
-        
-        '''
+        """
+        Get the kickstart file of this project.
+        """
         return self.__kickstartPath
 
-    def delProject(self):
-        '''
-        
-        '''
+    def deleteProjectDirectory(self):
+        """
+        Recursively delete the project working directory.
+        """
         shutil.rmtree(self.getProjectDirectory())
 
-    def setMicProjectArchitecture(self, arch):
-        '''
-        
-        '''
+    def setArchitecture(self, arch):
+        """
+        Set the architecture of the project.
+        """
         self.__architecture = arch
 
-    def getMicProjectArchitecture(self):
-        '''
-        
-        '''
+    def getArchitecture(self):
+        """
+        Get the architecture of the project.
+        """
         return self.__architecture
 
-    def setMicProjectImageType(self, imageType):
-        '''
-        
-        '''
+    def setImageType(self, imageType):
+        """
+        Get the image type of the project.
+        """
         self.__imageType = imageType
 
-    def getMicProjectImageType(self):
-        '''
-        
-        '''
+    def getImageType(self):
+        """
+        Get the image type of the project.
+        """
         return self.__imageType
 
     def createImage(self):
+        """
+        Launch the build of an image.
+        """
+        logFilePath = os.path.join(self.getProjectDirectory(), "buildLog")
+        cacheDirPath = os.path.join(self.getProjectDirectory(), "cache")
+        cmd = "sudo mic create " + self.getImageType()
+        cmd += " " + self.getKickstartFile()
+        cmd += " --logfile=" + logFilePath
+        cmd += " --cachedir=" + cacheDirPath
+        cmd += " --outdir=" + self.getProjectDirectory()
+        cmd += " --arch=" + self.__architecture
+        cmd += " --release=latest"
+        print cmd
+        self.__subprocess(cmd)
+
+    def getAvailableArchitectures(self):
         '''
-        
+        Get the available architecture types as a list.
         '''
-        CMD = "sudo mic create " + self.__imageType + " " + self.__kickstartPath + " --logfile=" + self.__workingDirectory + "/buildLog --cachedir=" + self.__workingDirectory + "/cache --outdir=" + self.__workingDirectory + " --arch=" + self.__architecture + " --release=latest"
-        print CMD
-        self.__subprocess(command=CMD)
+        # TODO Add to Manager
+        return ["i686", "armv8" ]
 
     def getAvailableImageType(self):
         '''
-        TODO Add to Manager
+        Get the available image types as a list of strings.
         '''
-        return ["i686", "armv8" ]
-
-    def getAvailableArchitecture(self):
-        '''
-        TODO Add to Manager
-        '''
+        # TODO: Add to Manager
         return ["fs", "livecd", "liveusb", "loop" , "raw" ]
 
     def runQemu(self):
-        '''
-        
-        '''
         #TO TEST
         #"sudo qemu-system-x86_64 -hda latest/images/meego-netbook-ia32-qemu_local/meego-netbook-ia32-qemu_local-latest-hda.raw -boot c -m 2047 -k fr -vnc :1 -smp 2 -serial pty -M pc -cpu core2duo -append "root=/dev/sda1 console=ttyS0,115200n8" -kernel ./kernel/vmlinuz-2.6.37.2-6 -initrd ./kernel/initrd-2.6.37.2-6.img -vga std -sdl"
         #sudo screen /dev/pts/5
         #vncviewer :1
-
-
-
+        pass
