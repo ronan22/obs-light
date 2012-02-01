@@ -28,14 +28,14 @@ from ObsLightSubprocess import SubprocessCrt
 
 class ObsLightMicProject(object):
 
-    def __init__(self, workingDirectory, fromSave, importFile, name=None):
+    def __init__(self, name, workingDirectory, fromSave=None):
         self.__mySubprocessCrt = SubprocessCrt()
 
         self.__kickstartPath = None
         self.__architecture = None
         self.__imageType = None
         self.__name = name
-        self.__workingDirectory = workingDirectory + "/" + self.__name
+        self.__workingDirectory = os.path.join(workingDirectory, self.__name)
 
         if fromSave != None:
             if "kickstartPath" in fromSave.keys():
@@ -84,7 +84,7 @@ class ObsLightMicProject(object):
 
     def getKickstartFile(self):
         """
-        Get the kickstart file of this project.
+        Get the kickstart file of the project.
         """
         return self.__kickstartPath
 
@@ -108,7 +108,7 @@ class ObsLightMicProject(object):
 
     def setImageType(self, imageType):
         """
-        Get the image type of the project.
+        Set the image type of the project.
         """
         self.__imageType = imageType
 

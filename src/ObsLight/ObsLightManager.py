@@ -1191,18 +1191,18 @@ class ObsLightManager(ObsLightManagerCore):
         '''
         return self._myObsLightMicProjects.getMicProjectList()
 
-    def addMicProjects(self, micProjectName):
+    def addMicProject(self, micProjectName):
         '''
         
         '''
-        self._myObsLightMicProjects.addMicProjects(micProjectName=micProjectName)
+        self._myObsLightMicProjects.addMicProject(micProjectName=micProjectName)
         self._myObsLightMicProjects.save()
 
-    def delMicProjects(self, micProjectName):
+    def deleteMicProject(self, micProjectName):
         '''
         
         '''
-        self._myObsLightMicProjects.delMicProjects(micProjectName)
+        self._myObsLightMicProjects.deleteMicProject(micProjectName)
         self._myObsLightMicProjects.save()
 
     def setKickstartFile(self, micProjectName, filePath):
@@ -1233,24 +1233,24 @@ class ObsLightManager(ObsLightManagerCore):
         self._myObsLightMicProjects.setMicProjectArchitecture(micProjectName=micProjectName, arch=arch)
         self._myObsLightMicProjects.save()
 
-    def setMicProjectImageType(self, projectMicName, imageType):
+    def setMicProjectImageType(self, micProjectName, imageType):
         '''
         
         '''
-        self._myObsLightMicProjects.setMicProjectImageType(projectMicName=projectMicName, imageType=imageType)
+        self._myObsLightMicProjects.setMicProjectImageType(micProjectName=micProjectName, imageType=imageType)
         self._myObsLightMicProjects.save()
 
-    def getMicProjectImageType(self, projectMicName):
+    def getMicProjectImageType(self, micProjectName):
         '''
         
         '''
-        return self._myObsLightMicProjects.getMicProjectImageType(projectMicName=projectMicName)
+        return self._myObsLightMicProjects.getMicProjectImageType(micProjectName=micProjectName)
 
-    def createImage(self, projectMicName):
+    def createImage(self, micProjectName):
         '''
         
         '''
-        self._myObsLightMicProjects.createImage(projectMicName=projectMicName)
+        self._myObsLightMicProjects.createImage(micProjectName=micProjectName)
         self._myObsLightMicProjects.save()
 
     @checkProjectLocalName(1)

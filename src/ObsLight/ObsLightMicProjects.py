@@ -17,7 +17,8 @@
 '''
 Created on jan 10 2012
 
-@author: ronan@fridu.net
+@author: Ronan Le Martret <ronan@fridu.net>
+@author: Florent Vennetier
 '''
 
 import os
@@ -34,7 +35,7 @@ class ObsLightMicProjects:
         '''
         self.__dicOBSLightProjects = {}
         self.__currentProjects = None
-        self.__workingDirectory = workingDirectory + "/MicProjects"
+        self.__workingDirectory = os.path.join(workingDirectory, "MicProjects")
         self.__pathFile = os.path.join(workingDirectory , "ObsLightMicProjectsConfig")
 
         if not os.path.isdir(self.getObsLightMicDirectory()):
@@ -44,14 +45,8 @@ class ObsLightMicProjects:
     def getObsLightMicDirectory(self):
         return self.__workingDirectory
 
-    def __load(self, aFile=None):
-        if aFile == None:
-            pathFile = self.__pathFile
-            #If default file load, importFile=False and no update on osc directory.
-            importFile = False
-        else:
-            pathFile = aFile
-            importFile = False
+    def __load(self):
+        pathFile = self.__pathFile
 
         if os.path.isfile(pathFile):
             aFile = open(pathFile, 'r')
@@ -67,7 +62,7 @@ class ObsLightMicProjects:
 
             for projetName in saveProjects.keys():
                 aServer = saveProjects[projetName]
-                self.__addProjectFromSave(name=projetName, fromSave=aServer, importFile=importFile)
+                self.__addProjectFromSave(name=projetName, fromSave=aServer)
             self.__currentProjects = saveconfigServers["currentProject"]
 
     def save(self, aFile=None, ProjectName=None):
@@ -91,14 +86,15 @@ class ObsLightMicProjects:
         pickle.dump(saveconfigProject, aFile)
         aFile.close()
 
-    def __addProjectFromSave(self, name=None, fromSave=None, importFile=None):
-        if not (name in self.__dicOBSLightProjects.keys()):
-            self.__dicOBSLightProjects[name] = ObsLightMicProject(workingDirectory=self.getObsLightMicDirectory(),
-                                                                  fromSave=fromSave,
-                                                                  importFile=importFile,
-                                                                  name=name)
-        else:
-            raise ObsLightErr.ObsLightProjectsError("Can't import: '" + name + "', The Mic Project already exists.")
+    def __addProjectFromSave(self, name, fromSave=None):
+        if self.isAMicProject(name):
+            msg = "Can't import '%s': project already exists" % name
+            raise ObsLightErr.ObsLightProjectsError(msg)
+        wd = self.getObsLightMicDirectory()
+        self.__dicOBSLightProjects[name] = ObsLightMicProject(name,
+                                                              workingDirectory=wd,
+                                                              fromSave=fromSave)
+
 
     def getMicProjectList(self):
         """
@@ -122,39 +118,68 @@ class ObsLightMicProjects:
             message = "'%s' project does not exist"
             raise ObsLightErr.ObsLightProjectsError(message)
 
-    def addMicProjects(self, micProjectName):
-        self._checkMicProjectName(micProjectName)
+    def addMicProject(self, micProjectName):
+        """
+        Create new Mic project.
+        """
+        if self.isAMicProject(micProjectName):
+            msg = "Can't add '%s': project already exists" % micProjectName
+            raise ObsLightErr.ObsLightProjectsError(msg)
         self.__addProjectFromSave(name=micProjectName)
 
-    def delMicProjects(self, micProjectName):
+    def deleteMicProject(self, micProjectName):
+        """
+        Delete `micProjectName` project.
+        """
         self._checkMicProjectName(micProjectName)
         self.__dicOBSLightProjects[micProjectName].deleteProjectDirectory()
         del self.__dicOBSLightProjects[micProjectName]
 
     def setKickstartFile(self, micProjectName, filePath):
+        """
+        Set the kickstart file of `micProjectName` project.
+        """
         self._checkMicProjectName(micProjectName)
         self.__dicOBSLightProjects[micProjectName].setKickstartFile(filePath)
 
     def getKickstartFile(self, micProjectName):
+        """
+        Get the kickstart file of `micProjectName` project.
+        """
         self._checkMicProjectName(micProjectName)
         return self.__dicOBSLightProjects[micProjectName].getKickstartFile()
 
     def getMicProjectArchitecture(self, micProjectName):
+        """
+        Get the architecture of `micProjectName` project.
+        """
         self._checkMicProjectName(micProjectName)
         return self.__dicOBSLightProjects[micProjectName].getArchitecture()
 
     def setMicProjectArchitecture(self, micProjectName, arch):
+        """
+        Set the architecture of `micProjectName` project.
+        """
         self._checkMicProjectName(micProjectName)
         self.__dicOBSLightProjects[micProjectName].setArchitecture(arch)
 
     def setMicProjectImageType(self, micProjectName, imageType):
+        """
+        Set the image type of `micProjectName` project.
+        """
         self._checkMicProjectName(micProjectName)
         self.__dicOBSLightProjects[micProjectName].setImageType(imageType)
 
     def getMicProjectImageType(self, micProjectName):
+        """
+        Get the image type of `micProjectName` project.
+        """
         self._checkMicProjectName(micProjectName)
         return self.__dicOBSLightProjects[micProjectName].getImageType()
 
     def createImage(self, micProjectName):
+        """
+        Launch the build of an image.
+        """
         self._checkMicProjectName(micProjectName)
         return self.__dicOBSLightProjects[micProjectName].createImage()
