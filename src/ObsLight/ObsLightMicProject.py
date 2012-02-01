@@ -24,9 +24,13 @@ Created on jan 10 2012
 import os.path
 import ObsLightErr
 import shutil
+
 from ObsLightSubprocess import SubprocessCrt
+from ObsLightKickstartManager import ObsLightKickstartManager
 
 class ObsLightMicProject(object):
+
+    _ksManager = None
 
     def __init__(self, name, workingDirectory, fromSave=None):
         self.__mySubprocessCrt = SubprocessCrt()
@@ -38,8 +42,6 @@ class ObsLightMicProject(object):
         self.__workingDirectory = os.path.join(workingDirectory, self.__name)
 
         if fromSave != None:
-            if "kickstartPath" in fromSave.keys():
-                self.__kickstartPath = fromSave["kickstartPath"]
             if "architecture" in fromSave.keys():
                 self.__architecture = fromSave["architecture"]
             if "imageType" in fromSave.keys():
@@ -48,12 +50,18 @@ class ObsLightMicProject(object):
                 self.__name = fromSave["name"]
             if "workingDirectory" in fromSave.keys():
                 self.__workingDirectory = fromSave["workingDirectory"]
+            if "kickstartPath" in fromSave.keys():
+                self.__kickstartPath = fromSave["kickstartPath"]
+                self.__loadKsManager()
 
         if not os.path.isdir(self.getProjectDirectory()):
             os.makedirs(self.getProjectDirectory())
 
     def __subprocess(self, command):
         return self.__mySubprocessCrt.execSubprocess(command)
+
+    def __loadKsManager(self):
+        self._ksManager = ObsLightKickstartManager(self.getKickstartFile())
 
     def getProjectDirectory(self):
         """
@@ -81,6 +89,7 @@ class ObsLightMicProject(object):
         if os.path.abspath(filePath) != wantedPath:
             shutil.copy(os.path.abspath(filePath), wantedPath)
         self.__kickstartPath = wantedPath
+        self.__loadKsManager()
 
     def getKickstartFile(self):
         """
@@ -135,16 +144,16 @@ class ObsLightMicProject(object):
         self.__subprocess(cmd)
 
     def getAvailableArchitectures(self):
-        '''
+        """
         Get the available architecture types as a list.
-        '''
+        """
         # TODO Add to Manager
         return ["i686", "armv8" ]
 
     def getAvailableImageType(self):
-        '''
+        """
         Get the available image types as a list of strings.
-        '''
+        """
         # TODO: Add to Manager
         return ["fs", "livecd", "liveusb", "loop" , "raw" ]
 
