@@ -15,7 +15,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 """
-Created on 1 févr. 2012
+Created on 1 Feb 2012
 
 @author: Florent Vennetier
 """
