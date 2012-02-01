@@ -185,16 +185,17 @@ __DICO_HELP__[__package_current__[0]] = __package_current__[0] + ":" + "\t" + "D
 
 
 #Command obsproject Level 3
-__package_package__ = ["package"]
+__package_package__ = ["package", "pkg"]
 __package_available__ = ["available"]
 __package_status__ = ["status"]
 __package_revision__ = ["revision"]
+__package_url__ = ["url"]
 
 __DICO_HELP__[__package_package__[0]] = __package_package__[0] + ":" + "\t" + "Doc __obsproject_help__"
 __DICO_HELP__[__package_available__[0]] = __package_available__[0] + ":" + "\t" + "Doc __obsproject_help__"
 __DICO_HELP__[__package_status__[0]] = __package_status__[0] + ":" + "\t" + "Doc __obsproject_help__"
 __DICO_HELP__[__package_revision__[0]] = __package_revision__[0] + ":" + "\t" + "Doc __obsproject_help__"
-
+__DICO_HELP__[__package_url__[0]] = __package_url__[0] + ":" + "\t" + "Doc __obsproject_help__"
 
 def getParameter(listArgv):
     if listArgv == None:
@@ -503,7 +504,7 @@ class ObsLight():
                     api_url , listArgv = getParameter(listArgv)
                 elif currentCommand in __server_repository_url__:
                     repository_url , listArgv = getParameter(listArgv)
-                elif currentCommand in __server_weburl__:
+                elif currentCommand in __server_web_url__:
                     weburl , listArgv = getParameter(listArgv)
                 elif currentCommand in __server_alias__:
                     alias , listArgv = getParameter(listArgv)
@@ -1157,7 +1158,7 @@ class ObsLight():
                 if project_alias == None:
                     project_alias = m.getCurrentObsProject()
                     if project_alias == None:
-                        return obsproject_help()
+                        return package_help()
 
                 return m.addPackage(projectLocalName=project_alias,
                                     package=package)
@@ -1187,7 +1188,7 @@ class ObsLight():
                 if project_alias == None:
                     project_alias = m.getCurrentObsProject()
                     if project_alias == None:
-                        return obsproject_help()
+                        return package_help()
 
                 return m.removePackage(projectLocalName=project_alias,
                                        package=package)
@@ -1220,7 +1221,7 @@ class ObsLight():
                 if project_alias == None:
                     project_alias = m.getCurrentObsProject()
                     if project_alias == None:
-                        return obsproject_help()
+                        return package_help()
 
                 if available:
                     res = m.getLocalProjectPackageList(projectLocalName=project_alias, local=0)
@@ -1254,11 +1255,13 @@ class ObsLight():
             description = False
             status = False
             revision = False
-            listFile = []
+            url = False
+            listFile = False
 
             project_alias = None
             server_alias = None
             obsproject = None
+            package = None
 
             while(len(listArgv) > 0):
                 currentCommand, listArgv = getParameter(listArgv)
@@ -1273,58 +1276,81 @@ class ObsLight():
                     status = True
                 elif currentCommand in __project_webpage__:
                     revision = True
+                elif currentCommand in __package_url__:
+                    url = True
                 elif currentCommand in __project_alias__:
                     project_alias , listArgv = getParameter(listArgv)
                 elif currentCommand in __server_alias__:
                     server_alias , listArgv = getParameter(listArgv)
                 elif currentCommand in __obsproject__:
                     obsproject , listArgv = getParameter(listArgv)
+                elif currentCommand in __package_package__:
+                    package , listArgv = getParameter(listArgv)
                 else:
                     help = True
                     break
 
             if  (help == True) :
-                return obsproject_help()
+                return package_help()
             else:
                 m = ObsLightManager.getManager()
 
+                if package == None:
+                    package = m.getCurrentPackage()
+                    if package == None:
+                        return package_help()
+
                 if (project_alias == None) and ((server_alias == None) or (obsproject == None)):
-                    return obsproject_help()
+                    return package_help()
 
                 if  (not title) and \
                     (not description) and \
                     (not status)and \
-                    (not revision):
+                    (not revision)and \
+                    (not url):
 
                     title = True
                     description = True
                     status = False
                     revision = False
+                    url = True
 
                 if title :
                     if (server_alias == None) and (obsproject == None):
                         res = m.getProjectParameter(projectLocalName=project_alias,
                                                     parameter="projectTitle")
                     else:
-                        res = m.getObsProjectParameter(serverApi=server_alias,
+                        res = m.getObsPackageParameter(serverApi=server_alias,
                                                        obsproject=obsproject,
+                                                       package=package,
                                                        parameter="title")
                     if res == None:
                         print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
                         return -1
                     print "title:" + res
+
                 if description :
                     if (server_alias == None) and (obsproject == None):
                         res = m.getProjectParameter(projectLocalName=project_alias,
                                                     parameter="description")
                     else:
-                        res = m.getObsProjectParameter(serverApi=server_alias,
+                        res = m.getObsPackageParameter(serverApi=server_alias,
                                                        obsproject=obsproject,
+                                                       package=package,
                                                        parameter="title")
                     if res == None:
                         print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
                         return -1
                     print "description:" + res
+                if url and ((server_alias != None) and (obsproject != None)):
+                    res = m.getObsPackageParameter(serverApi=server_alias,
+                                                       obsproject=obsproject,
+                                                       package=package,
+                                                       parameter="url")
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    print "url:" + res
 
 
         def package_set(listArgv):
@@ -1366,13 +1392,13 @@ class ObsLight():
                     break
 
             if  (help == True) :
-                return obsproject_help()
+                return package_help()
             else:
                 m = ObsLightManager.getManager()
                 if project_alias == None:
                     project_alias = m.getCurrentObsProject()
                     if project_alias == None:
-                        return obsproject_help()
+                        return package_help()
 
                 return m.getCurrentPackage(projectLocalName=project_alias)
             return 0

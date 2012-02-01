@@ -1,72 +1,71 @@
 obslight   
-	  server
-	  obsproject
-	  package
-	  filesystem
-	  spec
-	  micproject
-	  qemuproject
-	  
+	server
+	obsproject
+	package
+	filesystem
+	spec
+	micproject
+	qemuproject
 #_____________________________________________________________________________________________________________________________________________________
-	  server test	server_alias <server_alias> test the server alias 
-	  server test	login <login> password <password> api_url <api_url> test the API URL.
-          server list	[reachable BOOL] reachable =False->return all sever,reachable =True->return only the available server,default=False.
-	  server query	[login] [apiurl] [repository_url] [weburl] {server_alias <server_alias>}
-	  server set	[login <login>] [apiurl <apiurl>] [repository_url <repository_url>] [weburl <web_url>] {server_alias <server_alias>}
-	  server add	server_alias <server_alias> login <login> password <password> api_url <api_url> repository_url <repository_url> web_url <web_url>
-	  server delete	<server_alias>  
-	  server current
-	  #___________________________________________________________________________________________________________________________________________
+	server	test	server_alias <server_alias> test the server alias 
+	server	test	login <login> password <password> api_url <api_url> test the API URL.
+	server	list	[reachable BOOL] reachable =False->return all sever,reachable =True->return only the available server,default=False.
+	server	query	[login] [apiurl] [repository_url] [weburl] {server_alias <server_alias>}
+	server	set	[login <login>] [apiurl <apiurl>] [repository_url <repository_url>] [weburl <web_url>] {server_alias <server_alias>}
+	server	add	server_alias <server_alias> login <login> password <password> api_url <api_url> repository_url <repository_url> web_url <web_url>
+	server	delete	<server_alias>  
+	server	current
+	#___________________________________________________________________________________________________________________________________________
 
 
-	  obsproject list	return the list of the local OBSLight project .
-	  obsproject list	server_alias <server_alias> raw|[arch <arch>|maintainer|bugowner|remoteurl]
+	obsproject	list	return the list of the local OBSLight project .
+	obsproject	list	server_alias <server_alias> raw|[arch <arch>|maintainer|bugowner|remoteurl]
 				    return the list of the project on the OBS server
-	  obsproject current
-          obsproject delete	<project_alias>
-          obsproject add	<project_alias> <name_on_obs> <target> <arch> {<server_alias>}
-	  obsproject query	[title|description|server|webpage|repository|target|architecture] project_alias <project_alias>
-				  -> Options can be combined, no option means all options.
-				  Output is in same order as query (one answer by line or on the same line with a seperator?)
-          obsproject query	[title|description|target|architecture|remoteurl|maintainer|bugowner] server_alias <server_alias> project <project> 
-	  obsproject set    	[title <title>] [description <description>] {project_alias <project_alias>}
+	obsproject	current
+	obsproject	delete	<project_alias>
+	obsproject	add	<project_alias> <name_on_obs> <target> <arch> {<server_alias>}
+	obsproject	query	[title|description|server|webpage|repository|target|architecture] project_alias <project_alias>
+					-> Options can be combined, no option means all options.
+					Output is in same order as query (one answer by line or on the same line with a seperator?)
+	obsproject	query	[title|description|target|architecture|remoteurl|maintainer|bugowner] server_alias <server_alias> project <project> 
+	obsproject	set	[title <title>] [description <description>] {project_alias <project_alias>}
 
 	  #___________________________________________________________________________________________________________________________________________
           #implement
-	  package list   [available] {project_alias <project_alias>}
-              -> List packages of project, or
-		 if "available" option is set,list packages available to be added.
-          package current {project_alias <project_alias>}
-	  package add    <package> {project_alias <project_alias>}
-	  package delete <package> {project_alias <project_alias>}
+	package	list	[available] {project_alias <project_alias>}
+              			-> List packages of project, or
+		 		if "available" option is set,list packages available to be added.
+	package	current {project_alias <project_alias>}
+	package	add	<package> {project_alias <project_alias>}
+	package	delete	<package> {project_alias <project_alias>}
+	package	query	[title|description|url] {package <package> {server_alias <server_alias> {project <project>}}} 
+              -> Options can be combined, no option means all options.
+                 Output is in same order as query (one answer by line or on the same line with a seperator?)
 
 	  #Not implement
-          package query  [title|description|status|revision|listFile] {package <package> {project_alias <project_alias>} } 
-              -> Options can be combined, no option means all options.
-                 Output is in same order as query (one answer by line or on the same line with a seperator?)
-          package query  [title|description|status|revision|listFile] server_alias <server_alias> project <project> 
-              -> Options can be combined, no option means all options.
-                 Output is in same order as query (one answer by line or on the same line with a seperator?)
+	package	query	[title|description|status|revision|listFile] {package <package> {project_alias <project_alias>} } 
+              			-> Options can be combined, no option means all options.
+                 		Output is in same order as query (one answer by line or on the same line with a seperator?)
 
-	  package set [title <title>] [description <description>] {package <package> {project_alias <project_alias>} } 
-          package update {package <package> {project_alias <project_alias>} }
-          package commit <message> {package <package> {project_alias <project_alias>} }
-          package repair {package <package> {project_alias <project_alias>} }
-	  
+	package	set	[title <title>] [description <description>] {package <package> {project_alias <project_alias>} } 
+  	package	update	{package <package> {project_alias <project_alias>} }
+	package	commit	<message> {package <package> {project_alias <project_alias>} }
+	package	repair	{package <package> {project_alias <project_alias>} }
+	 p	 
 	  #___________________________________________________________________________________________________________________________________________
           #Not implement
-	  projectfilesystem create        {<project_alias>}
-          projectfilesystem delete        <project_alias>
-          projectfilesystem enter         [inpackagedirectory <package>] {<project_alias>}
+	projectfilesystem	create	{<project_alias>}
+	projectfilesystem	delete	<project_alias>
+	projectfilesystem	enter	[inpackagedirectory <package>] {<project_alias>}
               -> chroot into the filesystem and change working directory to package
                  directory if specified. If specified package not in chroot, return
                  an error (do not fallback to FS root).
-          projectfilesystem executescript <script_path> [inpackagedirectory <package>] {<project_alias>}
+	projectfilesystem	executescript <script_path> [inpackagedirectory <package>] {<project_alias>}
               -> Script is copied in chrootTransfer, and executed from FS root or
                  from package directory if specified.
-          projectfilesystem addrepository <repository_url> <repository_alias> {<project_alias>}
+	projectfilesystem	addrepository <repository_url> <repository_alias> {<project_alias>}
                                    from <source_project_alias> {<project_alias>}
-          projectfilesystem extractpatch  <patch_name> {<package>} {<project_alias>}
+	projectfilesystem	extractpatch  <patch_name> {<package>} {<project_alias>}
 	  #___________________________________________________________________________________________________________________________________________
           #Not implement
 	  spec prepare {<package>} {<project_alias>}
@@ -92,8 +91,6 @@ synthax used:
  <project>	a project name
  [<project>]	an optional project name
  {<project>}	an optional project name, if absent: the most recently used is taken
- BOOL 		a boolean value.
-
 
 abbreviations/synonyms:
  delete		del, rm

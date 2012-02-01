@@ -114,9 +114,7 @@ class ObsLightServer(object):
             self.__isReachable = self.testServer()
         return self.__isReachable
 
-    def getObsProjectPackageList(self,
-                                 obsServer,
-                                 projectObsName):
+    def getObsProjectPackageList(self, projectObsName):
         '''
         
         '''
@@ -189,7 +187,29 @@ class ObsLightServer(object):
                                                                 apiurl=self.__serverAPI,
                                                                 parameter=parameter)
 
+    def getPackageParameter(self, project, package, parameter):
+        '''
+        Get the value of a package parameter.
+        Valid parameter are:
+            title
+            description
+            url           
+        '''
+        if not parameter in ["title",
+                             "description",
+                             "url"]:
+            raise ObsLightErr.ObsLightObsServers(parameter + " is not a parameter of a OBS package")
 
+        if not project in self.getLocalProjectList(raw=True):
+            raise ObsLightErr.ObsLightObsServers("Can't return the package parameter,\n '" + project + "' is not a project on obs '" + self.__serverAPI + "'")
+
+        if not package in self.getObsProjectPackageList(projectObsName=project):
+            raise ObsLightErr.ObsLightObsServers("Can't return the package parameter,\n '" + project + "' is not a package of project '" + project + "' on obs '" + self.__serverAPI + "'")
+
+        return ObsLightOsc.getObsLightOsc().getPackageParameter(projectObsName=project,
+                                                                package=package,
+                                                                apiurl=self.__serverAPI,
+                                                                parameter=parameter)
 
     def getObsPackageRev(self,
                          projectObsName,

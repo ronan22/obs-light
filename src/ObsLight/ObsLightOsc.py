@@ -651,7 +651,7 @@ class ObsLightOsc(object):
             if "title" == desc.tag:
                 title = desc.text
             elif "description" == desc.tag:
-                description = desc.tag
+                description = desc.text
             elif "person" == desc.tag:
                 role = desc.get("role")
                 if role == "maintainer":
@@ -682,6 +682,43 @@ class ObsLightOsc(object):
             return repository
         else:
             return None
+
+    def getPackageParameter(self, projectObsName, package, apiurl, parameter):
+        '''
+        Return the value of the projectObsName.
+        valid parameter:
+        title
+        description
+        url
+        '''
+        title = None
+        description = None
+        url = ""
+
+        self.get_config()
+        url = str(apiurl + "/source/" + projectObsName + "/" + +"/_meta")
+        res = self.getHttp_request(url)
+        if res == None:
+            return None
+        aElement = ElementTree.fromstring(res)
+
+        for desc in aElement:
+            if "title" == desc.tag:
+                title = desc.text
+            elif "description" == desc.tag:
+                description = desc.text
+            elif "url" == desc.tag:
+                role = desc.text
+
+        if parameter == "title":
+            return title
+        elif parameter == "description":
+            return description
+        elif parameter == "url":
+            return url
+        else:
+            return None
+
 
     def setProjectParameter(self, projectObsName, apiurl, parameter, value):
         '''
@@ -823,9 +860,7 @@ class ObsLightOsc(object):
         url = self.__cleanUrl(url)
 
         if (HTTPBUFFER == 1) and (headers == {}) and (data == None) and (file == None) and (url in self.__httpBuffer.keys()):
-            print "RETURN BUFFER"
             return self.__httpBuffer[url]
-
         try:
             fileXML = ""
             count = 0

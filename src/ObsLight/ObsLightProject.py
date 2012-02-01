@@ -387,8 +387,7 @@ class ObsLightProject(object):
         '''
         if local == 0:
             if self.__obsServer in self.__obsServers.getObsServerList():
-                return self.__obsServers.getObsServer(self.__obsServer).getObsProjectPackageList(obsServer=self.__obsServer,
-                                                                                                 projectObsName=self.__projectObsName)
+                return self.__obsServers.getObsServer(self.__obsServer).getObsProjectPackageList(projectObsName=self.__projectObsName)
             else:
                 return  None
         else:
