@@ -79,5 +79,9 @@ def run(prg=None):
         print >> sys.stderr, 'Osc Error: ', err.msg
         return 1
 
+    except ObsLightErr.ObsLightPackageErr, err:
+        print >> sys.stderr, 'Osc Error: ', err.msg
+        return 1
+
 
 

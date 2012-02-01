@@ -101,9 +101,11 @@ class ObsLightMic(object):
         '''
         
         '''
-        if os.stat(path).st_uid != 0:
-            raise ObsLightErr.ObsLightChRootError("the chroot '" + path + "' is not owned by root.")
-
+        if os.path.isdir(path):
+            if os.stat(path).st_uid != 0:
+                raise ObsLightErr.ObsLightChRootError("the chroot '" + path + "' is not owned by root.")
+        else:
+            raise ObsLightErr.ObsLightChRootError("Can't test Owner of the project file system, the directory'" + path + "' do not exist.")
 
     def __subprocess(self, command=None):
         '''

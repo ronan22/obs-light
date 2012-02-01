@@ -140,7 +140,7 @@ class ObsLightProjects(object):
 
             return self.__dicOBSLightProjects[project]
         else:
-            raise ObsLightErr.ObsLightProjectsError("the file: " + pathFile + "  is not a backup")
+            raise ObsLightErr.ObsLightProjectsError("the project: '" + project + "'  is not a local project.")
 
 
     def removeProject(self, projectLocalName=None):
@@ -150,15 +150,14 @@ class ObsLightProjects(object):
         projetPath = self.getProject(projectLocalName).getDirectory()
 
         self.getProject(projectLocalName).removeProject()
-
         if not os.path.isdir(projetPath):
             del self.__dicOBSLightProjects[projectLocalName]
-            return None
         else:
             raise ObsLightErr.ObsLightProjectsError("Error in removeProject, can't remove project directory.")
 
         self.__currentProjects = None
         self.save()
+        return 0
 
     def __addProjectFromSave(self, name=None, fromSave=None, importFile=None):
         '''
@@ -171,7 +170,7 @@ class ObsLightProjects(object):
                                                                importFile=importFile)
         else:
             raise ObsLightErr.ObsLightProjectsError("Can't import: " + name + ", The Project already exists.")
-
+        return 0
 
     def getCurrentProject(self):
         '''
@@ -217,7 +216,7 @@ class ObsLightProjects(object):
         '''
         Return the status of the package  into the chroot.
         '''
-        return self.getProject(project).getGetChRootStatus(package=package)
+        return self.getProject(projectLocalName).getGetChRootStatus(package=package)
 
     def getOscPackageStatus(self, project, package):
         '''

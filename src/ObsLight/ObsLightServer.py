@@ -118,7 +118,8 @@ class ObsLightServer(object):
         '''
         
         '''
-        return ObsLightOsc.getObsLightOsc().getListPackage(obsServer=self.__serverAPI,
+
+        return ObsLightOsc.getObsLightOsc().getListPackage(apiurl=self.__serverAPI,
                                                            projectLocalName=projectObsName)
 
     def getFilesListPackage(self,
@@ -193,11 +194,17 @@ class ObsLightServer(object):
         Valid parameter are:
             title
             description
-            url           
+            url
+            status       
+            listFile    
         '''
+        print "parameter", parameter
+
         if not parameter in ["title",
                              "description",
-                             "url"]:
+                             "url",
+                             "status",
+                             "listFile"]:
             raise ObsLightErr.ObsLightObsServers(parameter + " is not a parameter of a OBS package")
 
         if not project in self.getLocalProjectList(raw=True):
@@ -206,10 +213,19 @@ class ObsLightServer(object):
         if not package in self.getObsProjectPackageList(projectObsName=project):
             raise ObsLightErr.ObsLightObsServers("Can't return the package parameter,\n '" + project + "' is not a package of project '" + project + "' on obs '" + self.__serverAPI + "'")
 
-        return ObsLightOsc.getObsLightOsc().getPackageParameter(projectObsName=project,
+        if parameter in ["title",
+                         "description",
+                         "url"]:
+            return ObsLightOsc.getObsLightOsc().getPackageMetaParameter(projectObsName=project,
                                                                 package=package,
                                                                 apiurl=self.__serverAPI,
                                                                 parameter=parameter)
+        elif parameter in ["listFile"]:
+            return ObsLightOsc.getObsLightOsc().getPackageParameter(projectObsName=project,
+                                                                    package=package,
+                                                                    apiurl=self.__serverAPI,
+                                                                    parameter=parameter)
+
 
     def getObsPackageRev(self,
                          projectObsName,

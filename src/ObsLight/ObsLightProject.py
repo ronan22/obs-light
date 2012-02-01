@@ -420,7 +420,11 @@ class ObsLightProject(object):
 
     def  checkoutFilePackage(self, packagePath):
         #Find the spec file
-        tmplistFile = os.listdir(packagePath)
+        if os.path.isdir(packagePath):
+            tmplistFile = os.listdir(packagePath)
+        else:
+            raise ObsLightErr.ObsLightProjectsError("Can't do checkoutFilePackage, the path:'" + packagePath + "' do not exist.")
+
         listFile = []
         for aFile in tmplistFile:
             if os.path.isfile(packagePath + "/" + aFile) and\

@@ -743,7 +743,6 @@ class ObsLightManagerCore(ObsLightManagerBase):
         Remove a local Project.
         '''
         res = self._myObsLightProjects.removeProject(projectLocalName=projectLocalName)
-
         return res
 
     @checkNonEmptyStringProjectTarget(3)

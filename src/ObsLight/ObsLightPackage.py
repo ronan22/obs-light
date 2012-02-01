@@ -369,39 +369,39 @@ class ObsLightPackage(object):
             oscRev
         '''
         if parameter == "name":
-            return self.__name
+            return self.__name if self.__name != None else ""
         elif parameter == "listFile":
-            return self.__listFile
-        elif parameter == "status":
-            return self.__status
+            return self.__listFile if self.__listFile != None else ""
+        elif parameter == "obsStatus":
+            return self.__status if self.__status != None else ""
         elif parameter == "specFile":
-            return self.__specFile
+            return self.__specFile if self.__specFile != None else ""
         elif parameter == "yamlFile":
-            return self.__yamlFile
+            return self.__yamlFile if self.__yamlFile != None else ""
         elif parameter == "packageDirectory":
-            return self.__packageDirectory
+            return self.__packageDirectory if self.__packageDirectory != None else ""
         elif parameter == "description":
-            return self.__description
+            return self.__description if self.__description != None else ""
         elif parameter == "packageTitle":
-            return self.__packageTitle
+            return self.__packageTitle if self.__packageTitle != None else ""
         elif parameter == "chRootStatus":
-            return self.__chRootStatus
+            return self.__chRootStatus if self.__chRootStatus != None else ""
         elif parameter == "oscStatus":
-            return  self.__oscStatus
+            return  self.__oscStatus if self.__oscStatus != None else ""
         elif  parameter == "firstCommitTag":
-            return self.__firstCommitTag
+            return self.__firstCommitTag if self.__firstCommitTag != None else ""
         elif  parameter == "oscRev":
-            return self.__oscRev
+            return self.__oscRev if self.__oscRev != None else ""
         elif parameter == "currentPatch":
-            return self.__currentPatch
+            return self.__currentPatch if self.__currentPatch != None else ""
         elif parameter == "obsRev":
-            return self.__obsRev
+            return self.__obsRev if self.__obsRev != None else ""
         elif parameter == "listInfoFile":
-            return self.__listInfoFile
+            return self.__listInfoFile if self.__listInfoFile != None else ""
         elif parameter == "listFileToDel":
-            return self.__listFileToDel
+            return self.__listFileToDel if self.__listFileToDel != None else ""
         elif parameter == "prepDirName":
-            return self.__prepDirName
+            return self.__prepDirName if self.__prepDirName != None else ""
         else:
             raise ObsLightPackageErr("parameter value is not valid for getProjectParameter")
 

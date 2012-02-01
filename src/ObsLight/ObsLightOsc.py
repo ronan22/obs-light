@@ -69,8 +69,6 @@ class ObsLightOsc(object):
         if os.path.isfile(self.__confFile):
             self.get_config()
 
-
-
     def get_config(self):
         self.__aLock.acquire()
         try:
@@ -248,24 +246,23 @@ class ObsLightOsc(object):
         return result
 
     def getListPackage(self,
-                       obsServer=None,
+                       apiurl=None,
                        projectLocalName=None):
         '''
             return the list of a projectLocalName
         '''
-        try:
-            list_package = core.meta_get_packagelist(str(obsServer), str(projectLocalName))
-        except urllib2.URLError:
-            ObsLightPrintManager.getLogger().error("apiurl " + str(obsServer) + " is not reachable 2")
-            return None
-        except M2Crypto.SSL.SSLError:
-            ObsLightPrintManager.getLogger().error("apiurl " + str(obsServer) + " Connection reset by peer")
-            return None
-        except M2Crypto.SSL.Checker.NoCertificate:
-            ObsLightPrintManager.getLogger().error("apiurl " + str(obsServer) + " Peer did not return certificate")
+        url = str(apiurl + "/source/" + projectLocalName)
+        res = self.getHttp_request(url)
+        if res == None:
             return None
 
-        return list_package
+        aElement = ElementTree.fromstring(res)
+
+        aList = []
+        for path in aElement:
+            if (path.tag == "entry"):
+                aList.append(path.get("name"))
+        return aList
 
     def getFilesListPackage(self,
                             apiurl=None,
@@ -691,13 +688,38 @@ class ObsLightOsc(object):
         description
         url
         '''
+        listFile = []
+
+        self.get_config()
+        aUrl = str(apiurl + "/source/" + projectObsName + "/" + package)
+        res = self.getHttp_request(aUrl)
+        if res == None:
+            return None
+        aElement = ElementTree.fromstring(res)
+
+        for desc in aElement:
+            if "entry" == desc.tag:
+                listFile.append(desc.get("name"))
+        if parameter == "listFile":
+            return listFile
+        else:
+            return None
+
+    def getPackageMetaParameter(self, projectObsName, package, apiurl, parameter):
+        '''
+        Return the value of the projectObsName.
+        valid parameter:
+        title
+        description
+        url
+        '''
         title = None
         description = None
         url = ""
 
         self.get_config()
-        url = str(apiurl + "/source/" + projectObsName + "/" + +"/_meta")
-        res = self.getHttp_request(url)
+        aUrl = str(apiurl + "/source/" + projectObsName + "/" + package + "/_meta")
+        res = self.getHttp_request(aUrl)
         if res == None:
             return None
         aElement = ElementTree.fromstring(res)
@@ -719,7 +741,6 @@ class ObsLightOsc(object):
         else:
             return None
 
-
     def setProjectParameter(self, projectObsName, apiurl, parameter, value):
         '''
         Set the value of the projectObsName.
@@ -740,24 +761,7 @@ class ObsLightOsc(object):
 
         self.http_request("PUT", url, data=ElementTree.tostring(aElement), timeout=TIMEOUT)
 
-    def getPackageParameter(self, projectObsName, package, apiurl, parameter):
-        '''
-        Return the value of the package of the projectObsName.
-        valid parameter:
-        title
-        description
-        '''
-        self.get_config()
 
-        url = str(apiurl + "/source/" + projectObsName + "/" + package + "/_meta")
-        res = self.getHttp_request(url)
-        if res == None:
-            return None
-        aElement = ElementTree.fromstring(res)
-
-        for desc in aElement:
-            if parameter == desc.tag:
-                return desc.text
 
     def setPackageParameter(self,
                             projectObsName,
@@ -1107,18 +1111,7 @@ if __name__ == '__main__':
 
 
 #    url = "http://128.224.218.251:81"
-    url = "https://api.pub.meego.com"
-    arch = "armv8el"
-    maintainer = "ronan"
-    bugowner = "ronan"
-    remoteurl = True
-    res = getObsLightOsc().getLocalProjectList(obsServer=url,
-                                               maintainer=None,
-                                               bugowner=None,
-                                               arch=None,
-                                               remoteurl=remoteurl)
-    for r in res:
-        print r
+    pass
 
 
 
