@@ -21,12 +21,14 @@ Created on 1 Feb 2012
 """
 
 import os
+import collections
 
 from mic import kickstart
 
 import ObsLightErr
 from ObsLightUtils import isNonEmptyString
 
+# TODO: create a KickstartManagerException class
 
 class ObsLightKickstartManager(object):
     # pylint: disable-msg=E0202, E1101
@@ -54,7 +56,7 @@ class ObsLightKickstartManager(object):
         """
         ks = self.kickstartPath
         if not isNonEmptyString(ks):
-            msg = "No Kickstart file set in this project"
+            msg = "No Kickstart file set"
             raise ObsLightErr.ObsLightMicProjectErr(msg)
         if not os.path.exists(ks):
             msg = "Kickstart file '%s' does not exist" % ks
@@ -73,7 +75,7 @@ class ObsLightKickstartManager(object):
 
     def parseKickstart(self):
         """
-        Do the parsing of the project Kickstart file.
+        Do the parsing of the Kickstart file.
         Raises `ObsLightErr.ObsLightMicProjectErr` if no Kickstart file is set.
         """
         self._checkKsFile()
@@ -90,7 +92,7 @@ class ObsLightKickstartManager(object):
     def getRepositoryList(self):
         """
         Get the list of packages repositories configured in the Kickstart
-        file of the project (only their name).
+        file (only their name).
         """
         self._checkKsParser()
         return [repo[0] for repo in kickstart.get_repos(self._ksParser)]
@@ -98,15 +100,56 @@ class ObsLightKickstartManager(object):
     def getPackageList(self):
         """
         Get the list of packages configured in the Kickstart
-        file of the project.
+        file.
         """
         self._checkKsParser()
         return kickstart.get_packages(self._ksParser)
 
+    def getExcludedPackageList(self):
+        """
+        Get the list of excluded packages configured in the Kickstart
+        file.
+        """
+        self._checkKsParser()
+        return kickstart.get_excluded(self._ksParser)
+
     def getPackageGroupList(self):
         """
         Get the list of package groups configured in the Kickstart
-        file of the project.
+        file.
         """
         self._checkKsParser()
         return [str(group) for group in kickstart.get_groups(self._ksParser)]
+
+    def addRepositoryByConfigLine(self, line):
+        """
+        Add a repository to the Kickstart by specifying the whole
+        configuration line.
+        ex: "repo --name=adobe --baseurl=http://linuxdownload.adobe.com/linux/i386/ --save"
+        """
+        self._checkKsParser()
+        kickstart.add_repo(self._ksParser, line)
+
+    def __addPackages(self, packageOrList, excluded=False):
+        if isinstance(packageOrList, basestring):
+            pkgList = [packageOrList]
+        else:
+            pkgList = packageOrList
+        if excluded:
+            pkgList = [("-" + pkg) for pkg in pkgList]
+        self._ksParser.handler.packages.add(pkgList)
+
+    def addPackage(self, packageOrList):
+        """
+        Add a package (or a list of) to the Kickstart file.
+        """
+        self._checkKsParser()
+        self.__addPackages(packageOrList)
+
+    def addExcludedPackage(self, packageOrList):
+        """
+        Add a package (or a list of) to be explicitly excluded
+        in the package list of the Kickstart file.
+        """
+        self._checkKsParser()
+        self.__addPackages(packageOrList, excluded=True)
