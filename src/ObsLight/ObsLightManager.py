@@ -1029,6 +1029,15 @@ class ObsLightManagerCore(ObsLightManagerBase):
         return res
 
     @checkProjectLocalName(1)
+    def removeChRoot(self, projectLocalName):
+        '''
+        
+        '''
+        res = self._myObsLightProjects.getProject(projectLocalName).removeChRoot()
+        self._myObsLightProjects.save()
+        return res
+
+    @checkProjectLocalName(1)
     def getChRootRepositories(self, projectLocalName):
         '''
         Return a dictionary of RPM package repositories configured in the
@@ -1328,14 +1337,6 @@ class ObsLightManager(ObsLightManagerCore):
         '''
         self._myObsLightMicProjects.createImage(micProjectName=micProjectName)
         self._myObsLightMicProjects.save()
-
-    @checkProjectLocalName(1)
-    def removeChRoot(self, projectLocalName):
-        '''
-        
-        '''
-        self._myObsLightProjects.removeChRoot(projectLocalName)
-        self._myObsLightProjects.save()
 
     @checkProjectLocalName(1)
     @checkNonEmptyStringPackage(2)

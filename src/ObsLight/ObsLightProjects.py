@@ -381,12 +381,6 @@ class ObsLightProjects(object):
         self.getProject(projectLocalName).setProjectparameter(parameter=parameter,
                                                                          value=value)
 
-    def removeChRoot(self, projectLocalName):
-        '''
-        
-        '''
-        return self.getProject(projectLocalName).removeChRoot()
-
     def getChRootPath(self, projectLocalName):
         '''
         Return the path of aChRoot of a project

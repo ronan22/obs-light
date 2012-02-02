@@ -1917,6 +1917,34 @@ class ObsLight():
             
             '''
             help = False
+            project_alias = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = getParameter(listArgv)
+                if (currentCommand in __obsproject_help__) or (listArgv == None):
+                    help = True
+                    break
+                elif currentCommand in __project_alias__:
+                    project_alias, listArgv = getParameter(listArgv)
+                else:
+                    help = True
+                    break
+
+            if  (help == True) :
+                return projectfilesystem_help()
+            else:
+                m = ObsLightManager.getCommandLineManager()
+                if project_alias == None:
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return projectfilesystem_help()
+
+                res = m.removeChRoot(projectLocalName=project_alias)
+                if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                return res
+            return 0
 
         def projectfilesystem_enter(listArgv):
             '''
