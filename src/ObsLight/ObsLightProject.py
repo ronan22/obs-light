@@ -175,7 +175,7 @@ class ObsLightProject(object):
         '''
 
         if self.__packages.isInstallInChroot(name):
-            absPackagePath = self.__chroot.getDirectory() + self.__packages.getPackageDirectory(name)
+            absPackagePath = self.__chroot.getDirectory() + self.__packages.getPackage(name).getPackageDirectory()
             return absPackagePath
         else:
             return None
@@ -722,6 +722,12 @@ class ObsLightProject(object):
                 return self.__chroot.goToChRoot(detach=detach)
         else:
             return self.__chroot.goToChRoot(detach=detach)
+
+    def execScript(self, aPath):
+        '''
+        
+        '''
+        return self.__chroot.execScript(aPath)
 
     def openTerminal(self, package):
         '''

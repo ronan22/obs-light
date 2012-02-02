@@ -43,19 +43,20 @@ obslight
 	projectfilesystem	delete		<project_alias>
 	projectfilesystem	query 		[path |status] {<project_alias>}
 	projectfilesystem	enter		[package <package>] {<project_alias>}
+	projectfilesystem	executescript	<path> {<project_alias>}
 	#Not implement
 	projectfilesystem	repositories	add	<repository_url> <repository_alias> {<project_alias>}
 	projectfilesystem	repositories	add	from {<project_alias>}
 	projectfilesystem	repositories	delete	??? 
+	projectfilesystem	repositories	modify	??? 
 	projectfilesystem	repositories	query	[alias|url]<repository_url> <repository_alias> {<project_alias>}
-	projectfilesystem	executescript	<script_path> [package <package>] {<project_alias>}
-	projectfilesystem	extractpatch	<patch_name> {<package>} {<project_alias>}
 	#___________________________________________________________________________________________________________________________________________
 	#Not implement
 	spec	prepare	{<package>} {<project_alias>}
 	spec	build	{<package>} {<project_alias>}
 	spec	install	{<package>} {<project_alias>}
 	spec	package	{<package>} {<project_alias>}
+	spec 	extractpatch {<package>} {<project_alias>}
 	#___________________________________________________________________________________________________________________________________________
 	#Not implement
 	micproject	add	<project_name> <kickstart_path> <architecture> <image_type>

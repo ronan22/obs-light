@@ -1059,6 +1059,12 @@ class ObsLightManagerCore(ObsLightManagerBase):
         '''
         return self._myObsLightProjects.getProject(projectLocalName).goToChRoot(package, detach)
 
+    @checkProjectLocalName(1)
+    def execScript(self, projectLocalName, aPath):
+        '''
+        
+        '''
+        return self._myObsLightProjects.getProject(projectLocalName).execScript(aPath)
     #///////////////////////////////////////////////////////////////////////////filesystem->Repositories
 
     @checkProjectLocalName(1)
@@ -1070,7 +1076,7 @@ class ObsLightManagerCore(ObsLightManagerBase):
         '''
         return self._myObsLightProjects.getProject(projectLocalName).getChRootRepositories()
 
-    #///////////////////////////////////////////////////////////////////////////spec
+    #///////////////////////////////////////////////////////////////////////////rpmbuild
     #///////////////////////////////////////////////////////////////////////////micproject
     #///////////////////////////////////////////////////////////////////////////qemuproject
 

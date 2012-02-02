@@ -371,6 +371,34 @@ class ObsLightChRoot(object):
 
         return self.__subprocess(command=aCommand, waitMess=True)
 
+    def execScript(self, aPath):
+        '''
+        Execute a list of commands in the chroot.
+        '''
+
+        if not ObsLightMic.getObsLightMic(name=self.getDirectory()).isInit():
+            ObsLightMic.getObsLightMic(name=self.getDirectory()).initChroot(chrootDirectory=self.getDirectory(),
+                                                                            chrootTransfertDirectory=self.__chrootDirTransfert,
+                                                                         transfertDirectory=self.__dirTransfert)
+        if os.path.isfile(aPath):
+            scriptName = os.path.basename(aPath)
+        else:
+            raise ObsLightErr.ObsLightChRootError("The file '" + aPath + "' do not exit, can't exec script.")
+
+        scriptPath = self.__chrootDirTransfert + "/" + scriptName
+        shutil.copy2(aPath, scriptPath)
+
+        self.testOwnerChRoot()
+
+        os.chmod(scriptPath, 0654)
+
+        aCommand = "sudo -H chroot " + self.getDirectory() + " " + self.__dirTransfert + "/" + scriptName
+        if platform.machine() == 'x86_64':
+            aCommand = "linux32 " + aCommand
+
+        return self.__subprocess(command=aCommand, waitMess=True)
+
+
     def testOwnerChRoot(self):
         if os.stat(self.getDirectory()).st_uid != 0:
             raise ObsLightErr.ObsLightChRootError("the chroot '" + self.getDirectory() + "' is not owned by root.")

@@ -220,6 +220,7 @@ __projectfilesystem_delete__ = __server_del__
 __projectfilesystem_query__ = __server_query__
 __projectfilesystem_enter__ = ["enter", "chroot"]
 __projectfilesystem_executescript__ = ["executescript", "exec"]
+
 __projectfilesystem_addrepository__ = ["addrepository", "ar"]
 __projectfilesystem_extractpatch__ = ["extractpatch"]
 __projectfilesystem_repositories__ = ["repositorie"]
@@ -239,7 +240,7 @@ __DICO_Help__[__projectfilesystem_repositories__[0]] = __projectfilesystem_repos
 __projectfilesystem_path__ = ["path"]
 __projectfilesystem_status__ = ["status"]
 
-__projectfilesystem_path____projectfilesystem_script_path__ = [""]
+__projectfilesystem_path__ = ["path"]
 __projectfilesystem_repository_url__ = [""]
 __projectfilesystem_repository_alias__ = [""]
 __projectfilesystem_From__ = [""]
@@ -2049,6 +2050,35 @@ class ObsLight():
             
             '''
             Help = False
+            aPath = None
+
+            project_alias = None
+
+
+            currentCommand, listArgv = getParameter(listArgv)
+            if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                Help = True
+            else:
+                aPath = currentCommand
+                project_alias, listArgv = getParameter(listArgv)
+
+            if  (Help == True)  :
+                return projectfilesystem_Help()
+            else:
+                m = ObsLightManager.getCommandLineManager()
+                if project_alias == None:
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return projectfilesystem_Help()
+                if aPath == None:
+                    return projectfilesystem_Help()
+
+                res = m.execScript(projectLocalName=project_alias, aPath=aPath)
+                if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                return res
+            return 0
 
         def projectfilesystem_addrepository(listArgv):
             '''
