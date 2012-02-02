@@ -220,8 +220,8 @@ class PackageManager(QObject, ObsLightGuiObject):
 
         if self.__packageOscRev.text() != "":
             self.manager.addPackageFilter(currentProject,
-                                                    "oscRev",
-                                                    self.__packageOscRev.text())
+                                          "oscRev",
+                                          self.__packageOscRev.text())
         self.refresh()
 
     def on_packageObsRev(self):
@@ -234,8 +234,8 @@ class PackageManager(QObject, ObsLightGuiObject):
             self.manager.removePackageFilter(currentProject, "obsRev")
         if self.__packageObsRev.text() != "":
             self.manager.addPackageFilter(currentProject,
-                                                    "obsRev",
-                                                    self.__packageObsRev.text())
+                                          "obsRev",
+                                          self.__packageObsRev.text())
         self.refresh()
 
     def on_packageOscStatusFilter(self):
@@ -248,8 +248,8 @@ class PackageManager(QObject, ObsLightGuiObject):
             self.manager.removePackageFilter(currentProject, "oscStatus")
         if self.__packageOscStatusFilter.currentIndex() != 0:
             self.manager.addPackageFilter(currentProject,
-                                                    "oscStatus",
-                                                    self.__packageOscStatusFilter.currentText())
+                                          "oscStatus",
+                                          self.__packageOscStatusFilter.currentText())
         self.refresh()
 
 
@@ -263,8 +263,8 @@ class PackageManager(QObject, ObsLightGuiObject):
             self.manager.removePackageFilter(currentProject, "status")
         if self.__packageObsStatusFilter.currentIndex() != 0:
             self.manager.addPackageFilter(currentProject,
-                                                    "status",
-                                                    self.__packageObsStatusFilter.currentText())
+                                          "status",
+                                          self.__packageObsStatusFilter.currentText())
         self.refresh()
 
     def on_packageChRootStatus(self):
@@ -277,8 +277,8 @@ class PackageManager(QObject, ObsLightGuiObject):
             self.manager.removePackageFilter(currentProject, "chRootStatus")
         if self.__packageChRootStatus.currentIndex () != 0:
             self.manager.addPackageFilter(currentProject,
-                                                    "chRootStatus",
-                                                    self.__packageChRootStatus.currentText())
+                                          "chRootStatus",
+                                          self.__packageChRootStatus.currentText())
         self.refresh()
     #---------------------------------------------------------------------------
     def getCurrentProject(self):
@@ -323,11 +323,11 @@ class PackageManager(QObject, ObsLightGuiObject):
         if package is not None:
             self.__packageNameLabel.setText(package)
             packageTitle = self.manager.getPackageParameter(project,
-                                                                      package,
-                                                                      u"packageTitle")
+                                                            package,
+                                                            "title")
             description = self.manager.getPackageParameter(project,
-                                                                     package,
-                                                                     u"description")
+                                                           package,
+                                                           "description")
             self.__packageTitleLabel.setText(packageTitle)
             self.__packageDescriptionLabel.setText(description)
             pkgDir = self.manager.getPackageDirectory(project, package)
