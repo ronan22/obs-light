@@ -90,6 +90,20 @@ class ObsLightKickstartManager(object):
         self._checkKsFile()
         self._ksParser = kickstart.read_kickstart(self.kickstartPath)
 
+    def saveKickstart(self, alternateFile=None):
+        """
+        Save the Kickstart to `alternateFile`,
+        or to `self.kickstartPath` if `alternateFile` is None.
+        """
+        self._checkKsParser()
+        outputPath = self.kickstartPath
+        if alternateFile is not None and isinstance(alternateFile, file):
+            alternateFile.write(str(self.kickstartParser.handler))
+        else:
+            outputPath = self.kickstartPath if alternateFile is None else alternateFile
+            with open(outputPath, "w") as outputFile:
+                outputFile.write(str(self.kickstartParser.handler))
+
 # --- Repositories -----------------------------------------------------------
     def getRepositoryList(self):
         """

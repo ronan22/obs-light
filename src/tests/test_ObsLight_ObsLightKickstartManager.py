@@ -145,6 +145,8 @@ class TestObsLightKickstartManager(unittest.TestCase):
         self.assertIsNone(self.ksManager.removePackageGroup('Development Tools'))
         self.assertListEqual(expectedList, self.ksManager.getPackageGroupList())
 
+    def test_saveKickstart(self):
+        self.assertIsNone(self.ksManager.saveKickstart("/tmp/test.ks"))
 
 if __name__ == '__main__':
     unittest.main()
