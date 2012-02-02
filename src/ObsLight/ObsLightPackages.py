@@ -271,18 +271,6 @@ class ObsLightPackages(object):
 
     #---------------------------------------------------------------------------
 
-    def setPackageParameter(self, package, parameter, value):
-        '''
-        return the value  of the parameter of the package:
-        the valid parameter is :
-            specFile
-            yamlFile
-            packageDirectory
-            description
-            packageTitle
-        '''
-        return self.getPackage(package).setPackageParameter(parameter=parameter, value=value)
-
     def updatePackage(self, name, status=None):
         '''
         

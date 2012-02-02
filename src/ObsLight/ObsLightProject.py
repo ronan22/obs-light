@@ -299,9 +299,8 @@ class ObsLightProject(object):
             description
             packageTitle
         '''
-        return self.__packages.setPackageParameter(package=package,
-                                                   parameter=parameter,
-                                                   value=value)
+        return self.__packages.getPackage(package).setPackageParameter(parameter=parameter,
+                                                                       value=value)
 
     #---------------------------------------------------------------------------package
     def getCurrentPackage(self):
@@ -506,7 +505,7 @@ class ObsLightProject(object):
                                                  self.__projectObsName,
                                                  package)
         if rev is not None:
-            self.__packages.setPackageParameter(package, "obsRev", rev)
+            self.__packages.getPackage(package).setPackageParameter("obsRev", rev)
 
 
     def refreshOscDirectoryStatus(self, package=None):
@@ -547,9 +546,8 @@ class ObsLightProject(object):
                                                         repo=self.__projectTarget,
                                                         arch=self.__projectArchitecture)
             if status != None:
-                self.__packages.setPackageParameter(package=package,
-                                                    parameter="status",
-                                                    value=status)
+                self.__packages.getPackage(package).setPackageParameter(parameter="status",
+                                                                        value=status)
             self.checkObsPackageStatus(package=package)
 
         else:
@@ -560,9 +558,8 @@ class ObsLightProject(object):
                                                         repo=self.__projectTarget,
                                                         arch=self.__projectArchitecture)
 
-                self.__packages.setPackageParameter(package=pk,
-                                                    parameter="status",
-                                                    value=status)
+                self.__packages.getPackage(pk).setPackageParameter(parameter="status",
+                                                                   value=status)
 
 
     def checkOscPackageStatus(self, package):
@@ -613,16 +610,17 @@ class ObsLightProject(object):
                                                               projectObsName=self.__projectObsName,
                                                               package=name)
 
-        self.__packages.setPackageParameter(package=name, parameter="specFile", value=specFile)
-        self.__packages.setPackageParameter(package=name, parameter="yamlFile", value=yamlFile)
-        self.__packages.setPackageParameter(package=name, parameter="listFile", value=listFile)
-        self.__packages.setPackageParameter(package=name, parameter="status", value=status)
-        self.__packages.setPackageParameter(package=name, parameter="packageTitle", value=packageTitle)
-        self.__packages.setPackageParameter(package=name, parameter="description", value=description)
+        self.__packages.getPackage(name).setPackageParameter(parameter="specFile", value=specFile)
+        self.__packages.getPackage(name).setPackageParameter(parameter="yamlFile", value=yamlFile)
+        self.__packages.getPackage(name).setPackageParameter(parameter="listFile", value=listFile)
+        self.__packages.getPackage(name).setPackageParameter(parameter="status", value=status)
+        self.__packages.getPackage(name).setPackageParameter(parameter="title", value=packageTitle)
+        self.__packages.getPackage(name).setPackageParameter(parameter="description", value=description)
 
         self.checkOscDirectoryStatus(package=name)
         if noOscUpdate == False:
             self.checkOscPackageStatus(package=name)
+        return 0
 
     def isInstallInChroot(self, package):
         '''
