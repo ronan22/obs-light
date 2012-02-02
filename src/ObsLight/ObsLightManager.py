@@ -986,13 +986,31 @@ class ObsLightManagerCore(ObsLightManagerBase):
 
     @checkProjectLocalName(1)
     @checkNonEmptyStringPackage(2)
-    def updatePatch(self, projectLocalName, package):
+    def updatePackage(self, projectLocalName, package, controlFunction=None):
         '''
-        Generate patch, and add it to the local OBS package, modify the spec file.
+        
         '''
         self.checkPackage(projectLocalName=projectLocalName, package=package)
-        self._myObsLightProjects.updatePatch(projectLocalName, package)
+        res = self._myObsLightProjects.updatePackage(projectLocalName=projectLocalName,
+                                                package=package,
+                                                controlFunction=controlFunction)
         self._myObsLightProjects.save()
+        return res
+
+    @checkProjectLocalName(1)
+    @checkNonEmptyStringPackage(2)
+    @checkNonEmptyStringMessage(3)
+    def addAndCommitChanges(self, projectLocalName, package, message):
+        '''
+        Add/Remove file in the local directory of a package, and commit change to the OBS.
+        '''
+        self.checkPackage(projectLocalName=projectLocalName, package=package)
+        self._myObsLightProjects.addRemoveFileToTheProject(projectLocalName, package)
+        res = self._myObsLightProjects.commitToObs(name=projectLocalName,
+                                              message=message,
+                                              package=package)
+        self._myObsLightProjects.save()
+        return res
 
     #///////////////////////////////////////////////////////////////////////////filesystem
     #///////////////////////////////////////////////////////////////////////////spec
@@ -1010,6 +1028,16 @@ class ObsLightManager(ObsLightManagerCore):
         Initialize the OBS Light Manager.
         '''
         ObsLightManagerCore.__init__(self)
+
+    @checkProjectLocalName(1)
+    @checkNonEmptyStringPackage(2)
+    def updatePatch(self, projectLocalName, package):
+        '''
+        Generate patch, and add it to the local OBS package, modify the spec file.
+        '''
+        self.checkPackage(projectLocalName=projectLocalName, package=package)
+        self._myObsLightProjects.updatePatch(projectLocalName, package)
+        self._myObsLightProjects.save()
 
     def isAnObsServerOscAlias(self, api, alias):
         '''
@@ -1434,20 +1462,6 @@ class ObsLightManager(ObsLightManagerCore):
         self._myObsLightProjects.save()
 
     @checkProjectLocalName(1)
-    @checkNonEmptyStringPackage(2)
-    @checkNonEmptyStringMessage(3)
-    def addAndCommitChanges(self, projectLocalName, package, message):
-        '''
-        Add/Remove file in the local directory of a package, and commit change to the OBS.
-        '''
-        self.checkPackage(projectLocalName=projectLocalName, package=package)
-        self._myObsLightProjects.addRemoveFileToTheProject(projectLocalName, package)
-        self._myObsLightProjects.commitToObs(name=projectLocalName,
-                                              message=message,
-                                              package=package)
-        self._myObsLightProjects.save()
-
-    @checkProjectLocalName(1)
     def patchIsInit(self, ProjectName, packageName):
         '''
         
@@ -1512,19 +1526,6 @@ class ObsLightManager(ObsLightManagerCore):
         Export a project to a file.
         '''
         self._myObsLightProjects.exportProject(projectLocalName, path=path)
-
-
-    @checkProjectLocalName(1)
-    @checkNonEmptyStringPackage(2)
-    def updatePackage(self, projectLocalName, package, controlFunction=None):
-        '''
-        
-        '''
-        self.checkPackage(projectLocalName=projectLocalName, package=package)
-        self._myObsLightProjects.updatePackage(projectLocalName=projectLocalName,
-                                                package=package,
-                                                controlFunction=controlFunction)
-        self._myObsLightProjects.save()
 
 
     @checkProjectLocalName(1)

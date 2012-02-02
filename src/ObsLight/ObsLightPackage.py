@@ -101,8 +101,8 @@ class ObsLightPackage(object):
                 self.__status = "Unknown"
             if  "description" in fromSave.keys():
                 self.__description = fromSave["description"]
-            if  "packageTitle" in fromSave.keys():
-                self.__packageTitle = fromSave["packageTitle"]
+            if  "title" in fromSave.keys():
+                self.__packageTitle = fromSave["title"]
             if "chRootStatus" in fromSave.keys():
                 self.__chRootStatus = fromSave["chRootStatus"]
             if "oscStatus" in fromSave.keys():
@@ -340,7 +340,7 @@ class ObsLightPackage(object):
         aDic["yamlFile"] = self.__yamlFile
         aDic["packageDirectory"] = self.__packageDirectory
         aDic["description"] = self.__description
-        aDic["packageTitle"] = self.__packageTitle
+        aDic["title"] = self.__packageTitle
         aDic["chRootStatus"] = self.__chRootStatus
         aDic["oscStatus"] = self.__oscStatus
         aDic["firstCommitTag"] = self.__firstCommitTag
@@ -363,7 +363,7 @@ class ObsLightPackage(object):
             yamlFile
             packageDirectory
             description
-            packageTitle
+            title
             chRootStatus
             oscStatus
             oscRev
@@ -382,7 +382,7 @@ class ObsLightPackage(object):
             return self.__packageDirectory if self.__packageDirectory != None else ""
         elif parameter == "description":
             return self.__description if self.__description != None else ""
-        elif parameter == "packageTitle":
+        elif parameter == "title":
             return self.__packageTitle if self.__packageTitle != None else ""
         elif parameter == "chRootStatus":
             return self.__chRootStatus if self.__chRootStatus != None else ""
