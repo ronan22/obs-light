@@ -21,9 +21,9 @@ Created on 1 Feb 2012
 """
 
 import os
-import collections
 
 from mic import kickstart
+from mic.kickstart.custom_commands.moblinrepo import Moblin_RepoData
 
 import ObsLightErr
 from ObsLightUtils import isNonEmptyString
@@ -49,6 +49,15 @@ class ObsLightKickstartManager(object):
     def kickstartPath(self, value): # pylint: disable-msg=E0102
         self._kickstartPath = value
 
+    @property
+    def kickstartParser(self):
+        """
+        The `pykickstart.parser.KickstartParser` instance used
+        internally by `ObsLightKickstartManager`. May change after
+        calling `parseKickstart`.
+        """
+        return self._ksParser
+
     def _checkKsFile(self):
         """
         Raise an exception if Kickstart file is not set
@@ -69,7 +78,7 @@ class ObsLightKickstartManager(object):
         or correctly parsed.
         """
         self._checkKsFile()
-        if self._ksParser is None:
+        if self.kickstartParser is None:
             msg = "Kickstart file not or incorrectly parsed"
             raise ObsLightErr.ObsLightMicProjectErr(msg)
 
@@ -81,45 +90,19 @@ class ObsLightKickstartManager(object):
         self._checkKsFile()
         self._ksParser = kickstart.read_kickstart(self.kickstartPath)
 
-    # TODO: check if this method is useful
-    def __getRepositoriesDict(self):
-        self._checkKsParser()
-        if not hasattr(self._ksParser.handler, "repo"):
-            msg = "Could not find Kickstart repositories"
-            raise ObsLightErr.ObsLightMicProjectErr(msg)
-        return {repo.name: repo for repo in self._ksParser.handler.repo.repoList}
-
+# --- Repositories -----------------------------------------------------------
     def getRepositoryList(self):
         """
         Get the list of packages repositories configured in the Kickstart
         file (only their name).
         """
         self._checkKsParser()
-        return [repo[0] for repo in kickstart.get_repos(self._ksParser)]
+        return [repo[0] for repo in kickstart.get_repos(self.kickstartParser)]
 
-    def getPackageList(self):
-        """
-        Get the list of packages configured in the Kickstart
-        file.
-        """
-        self._checkKsParser()
-        return kickstart.get_packages(self._ksParser)
-
-    def getExcludedPackageList(self):
-        """
-        Get the list of excluded packages configured in the Kickstart
-        file.
-        """
-        self._checkKsParser()
-        return kickstart.get_excluded(self._ksParser)
-
-    def getPackageGroupList(self):
-        """
-        Get the list of package groups configured in the Kickstart
-        file.
-        """
-        self._checkKsParser()
-        return [str(group) for group in kickstart.get_groups(self._ksParser)]
+    def _checkRepository(self, name):
+        if not name in self.getRepositoryList():
+            msg = "Repository '%s' does not exist" % name
+            raise ObsLightErr.ObsLightMicProjectErr(msg)
 
     def addRepositoryByConfigLine(self, line):
         """
@@ -128,23 +111,139 @@ class ObsLightKickstartManager(object):
         ex: "repo --name=adobe --baseurl=http://linuxdownload.adobe.com/linux/i386/ --save"
         """
         self._checkKsParser()
-        kickstart.add_repo(self._ksParser, line)
+        kickstart.add_repo(self.kickstartParser, line)
 
-    def __addPackages(self, packageOrList, excluded=False):
+    def addRepository(self, baseurl, name, cost=None, **kwargs):
+        """
+        Add a package repository in the Kickstart file.
+         baseUrl: the URL of the repository
+         name:    a name for this repository
+         cost:    the cost of this repository, from 0 (highest priority) to 99, or None
+        Keyword arguments can be (default value from `Moblin_RepoData`):
+        - mirrorlist (""):
+        - priority (None):
+        - includepkgs ([]):
+        - excludepkgs ([]):
+        - save (False): keep the repository in the generated image (defaults to False)
+        - proxy (None):
+        - proxy_username (None):
+        - proxy_password (None):
+        - debuginfo (False):
+        - source (False):
+        - gpgkey (None): the address of the GPG key of this repository
+            on the generated filesystem (ex: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-meego)
+        - disable (False): add the repository as disabled
+        - ssl_verify ("yes"):
+        """
+        self._checkKsParser()
+        if name in self.getRepositoryList():
+            msg = "A repository with name '%s' already exists" % name
+            raise ObsLightErr.ObsLightMicProjectErr(msg)
+        repoObj = Moblin_RepoData(baseurl=baseurl, name=name, **kwargs)
+        # cost is not available in the constructor of Moblin_RepoData
+        # but exists in its parent class
+        repoObj.cost = cost
+        self.kickstartParser.handler.repo.repoList.append(repoObj)
+
+    def removeRepository(self, name):
+        """
+        Remove the package repository `name` from the Kickstart file.
+        """
+        self._checkRepository(name)
+        for i in range(len(self.kickstartParser.handler.repo.repoList)):
+            repo = self.kickstartParser.handler.repo.repoList[i]
+            if repo.name == name:
+                del self.kickstartParser.handler.repo.repoList[i]
+                break
+
+    def getRepositoryDict(self, name):
+        """
+        Get a dictionary object representing a repository,
+        suitable for input to `addRepository`.
+        """
+        self._checkRepository(name)
+        myDict = None
+        for repo in self.kickstartParser.handler.repo.repoList:
+            if repo.name == name:
+                myDict = dict(repo.__dict__)
+                break
+        # these entries are no to be known by user and
+        # may cause problems if dictionary is used as input
+        # to addRepository
+        myDict.pop("lineno", None)
+        myDict.pop("preceededInclude", None)
+        return myDict
+# --- end Repositories -------------------------------------------------------
+
+# --- Packages ---------------------------------------------------------------
+    def getPackageList(self):
+        """
+        Get the list of packages configured in the Kickstart
+        file.
+        """
+        self._checkKsParser()
+        return kickstart.get_packages(self.kickstartParser)
+
+    def getExcludedPackageList(self):
+        """
+        Get the list of excluded packages configured in the Kickstart
+        file.
+        """
+        self._checkKsParser()
+        return kickstart.get_excluded(self.kickstartParser)
+
+    def getPackageGroupList(self):
+        """
+        Get the list of package groups configured in the Kickstart
+        file.
+        """
+        self._checkKsParser()
+        return [group.name for group in kickstart.get_groups(self.kickstartParser)]
+
+    def __addRemovePackages(self, packageOrList, action="add", excluded=False, group=False):
+        # if packageOrList is a string, transform it in a list of one string
         if isinstance(packageOrList, basestring):
             pkgList = [packageOrList]
         else:
             pkgList = packageOrList
-        if excluded:
-            pkgList = [("-" + pkg) for pkg in pkgList]
-        self._ksParser.handler.packages.add(pkgList)
+
+        if action == "add":
+            # The kickstartParser.handler.packages.add method takes a 
+            # list of strings formatted as in the %packages section of
+            # the Kickstart file:
+            #  - package groups start with '@'
+            #  - excluded packages or groups start with '-'
+            if group:
+                pkgList = [("@" + pkg) for pkg in pkgList]
+            if excluded:
+                pkgList = [("-" + pkg) for pkg in pkgList]
+            self.kickstartParser.handler.packages.add(pkgList)
+        elif action == "remove":
+            # No method in kickstartParser.handler.packages to remove
+            # packages from the different lists, so doing it by hand
+            packagesObj = self.kickstartParser.handler.packages
+            if group:
+                # excludedGroupList may not exist
+                groupList = packagesObj.excludedGroupList if excluded else packagesObj.groupList
+                for groupName in pkgList:
+                    for i in range(len(groupList)):
+                        # groups are objects, not simple strings
+                        if groupList[i].name == groupName:
+                            del groupList[i]
+                            break
+            else:
+                myList = packagesObj.excludedList if excluded else packagesObj.packageList
+                for pkg in pkgList:
+                    if pkg in myList:
+                        myList.remove(pkg)
 
     def addPackage(self, packageOrList):
         """
-        Add a package (or a list of) to the Kickstart file.
+        Add a package (or a list of) to the package list of the
+        Kickstart file.
         """
         self._checkKsParser()
-        self.__addPackages(packageOrList)
+        self.__addRemovePackages(packageOrList, action="add", excluded=False)
 
     def addExcludedPackage(self, packageOrList):
         """
@@ -152,4 +251,67 @@ class ObsLightKickstartManager(object):
         in the package list of the Kickstart file.
         """
         self._checkKsParser()
-        self.__addPackages(packageOrList, excluded=True)
+        self.__addRemovePackages(packageOrList, action="add", excluded=True)
+
+    def removePackage(self, packageOrList):
+        """
+        Remove a package (or a list of) from the package list of the
+        Kickstart file. Does nothing if package was not in the list.
+        """
+        self._checkKsParser()
+        self.__addRemovePackages(packageOrList, action="remove", excluded=False)
+
+    def removeExcludedPackage(self, packageOrList):
+        """
+        Remove a package (or a list of) from the explicitly excluded
+        package list of the Kickstart file.
+        Does nothing if package was not in the list.
+        """
+        self._checkKsParser()
+        self.__addRemovePackages(packageOrList, action="remove", excluded=True)
+
+    def addPackageGroup(self, packageOrList):
+        """
+        Add a package group (or a list of) to the package section of
+        the Kickstart file.
+        """
+        self._checkKsParser()
+        self.__addRemovePackages(packageOrList, action="add", excluded=False, group=True)
+
+    def removePackageGroup(self, packageOrList):
+        """
+        Remove a package group (or a list of) from the package section
+        of the Kickstart file.
+        Does nothing if package group was not in the list.
+        """
+        self._checkKsParser()
+        self.__addRemovePackages(packageOrList, action="remove", excluded=False, group=True)
+
+    # Excluded package groups seems to be unsupported
+#    def getExcludedPackageGroupList(self):
+#        """
+#        Get the list of excluded package groups configured in the
+#        Kickstart file.
+#        """
+#        self._checkKsParser()
+#        if not hasattr(self.kickstartParser.handler.packages, "excludedGroupList"):
+#            return []
+#        return [group.name for group in self.kickstartParser.handler.packages.excludedGroupList]
+#
+#    def addExcludedPackageGroup(self, packageOrList):
+#        """
+#        Add a package group (or a list of) to be explicitly excluded
+#        in the package section of the Kickstart file.
+#        """
+#        self._checkKsParser()
+#        self.__addRemovePackages(packageOrList, action="add", excluded=True, group=True)
+#
+#    def removeExcludedPackageGroup(self, packageOrList):
+#        """
+#        Remove a package group (or a list of) from the explicitly excluded
+#        package list of the Kickstart file.
+#        Does nothing if package group was not in the list.
+#        """
+#        self._checkKsParser()
+#        self.__addRemovePackages(packageOrList, action="remove", excluded=True, group=True)
+# --- end Packages -----------------------------------------------------------
