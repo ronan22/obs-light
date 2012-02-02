@@ -965,7 +965,24 @@ class ObsLightManagerCore(ObsLightManagerBase):
 
         return  self._myObsServers.getObsServer(serverApi).getPackageParameter(obsproject, package, parameter)
 
-
+    @checkProjectLocalName(1)
+    @checkNonEmptyStringPackage(2)
+    def setPackageParameter(self, projectLocalName, package, parameter, value):
+        '''
+        return the value  of the parameter of the package:
+        the valid parameter is :
+            specFile
+            yamlFile
+            packageDirectory
+            description
+            packageTitle
+        '''
+        self.checkPackage(projectLocalName=projectLocalName, package=package)
+        res = self._myObsLightProjects.getProject(projectLocalName).setPackageParameter(package=package,
+                                                                                        parameter=parameter,
+                                                                                        value=value)
+        self._myObsLightProjects.save()
+        return res
 
     #///////////////////////////////////////////////////////////////////////////filesystem
     #///////////////////////////////////////////////////////////////////////////spec
@@ -1015,8 +1032,6 @@ class ObsLightManager(ObsLightManagerCore):
         return self._myObsServers.getArchitectureList(obsServer=serverApi ,
                                                        projectObsName=projectObsName,
                                                        projectTarget=projectTarget)
-
-
 
     #---------------------------------------------------------------------------
     def getRepo(self, serverApi):
@@ -1498,25 +1513,6 @@ class ObsLightManager(ObsLightManagerCore):
         '''
         self._myObsLightProjects.exportProject(projectLocalName, path=path)
 
-    @checkProjectLocalName(1)
-    @checkNonEmptyStringPackage(2)
-    def setPackageParameter(self, projectLocalName, package, parameter=None, value=None):
-        '''
-        return the value  of the parameter of the package:
-        the valid parameter is :
-            specFile
-            yamlFile
-            packageDirectory
-            description
-            packageTitle
-        '''
-        self.checkPackage(projectLocalName=projectLocalName, package=package)
-        res = self._myObsLightProjects.setPackageParameter(projectLocalName=projectLocalName,
-                                                              package=package,
-                                                              parameter=parameter,
-                                                              value=value)
-        self._myObsLightProjects.save()
-        return res
 
     @checkProjectLocalName(1)
     @checkNonEmptyStringPackage(2)

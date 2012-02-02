@@ -459,7 +459,7 @@ class ObsLightPackage(object):
             yamlFile
             packageDirectory
             description
-            packageTitle
+            title
             status
             oscStatus
         '''
@@ -473,7 +473,7 @@ class ObsLightPackage(object):
             self.__packageDirectory = value
         elif parameter == "description":
             self.__description = value
-        elif parameter == "packageTitle":
+        elif parameter == "title":
             self.__packageTitle = value
         elif parameter == "status":
             self.__status = value
@@ -494,7 +494,7 @@ class ObsLightPackage(object):
         elif parameter == "prepDirName":
             self.__prepDirName = value
         else:
-            raise ObsLightPackageErr("parameter value is not valid for setPackageParameter")
+            raise ObsLightPackageErr("The parameter '" + parameter + "' value is not valid for setPackageParameter")
         return 0
 
     def getListFile(self):

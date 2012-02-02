@@ -387,20 +387,6 @@ class ObsLightProjects(object):
         '''
         return self.getProject(projectLocalName).getProjectObsName()
 
-    def setPackageParameter(self, projectLocalName, package, parameter=None, value=None):
-        '''
-        return the value  of the parameter of the package:
-        the valid parameter is :
-            specFile
-            yamlFile
-            packageDirectory
-            description
-            packageTitle
-        '''
-        return  self.getProject(projectLocalName).setPackageParameter(package=package,
-                                                                                 parameter=parameter,
-                                                                                 value=value)
-
     def getPackageDirectory(self, projectLocalName, packageName):
         package = self.getProject(projectLocalName).getPackage(packageName)
         return package.getOscDirectory()

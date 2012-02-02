@@ -1335,7 +1335,6 @@ class ObsLight():
                 elif currentCommand in __package_package__:
                     package , listArgv = getParameter(listArgv)
                 else:
-                    print "currentCommand", currentCommand
                     help = True
                     break
 
@@ -1535,6 +1534,66 @@ class ObsLight():
             
             '''
             help = False
+
+            title = None
+            description = None
+
+            project_alias = None
+            package = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = getParameter(listArgv)
+                if (currentCommand in __obsproject_help__) or (listArgv == None):
+                    help = True
+                    break
+                elif currentCommand in __project_title__:
+                    title , listArgv = getParameter(listArgv)
+                elif currentCommand in __project_description__:
+                    description , listArgv = getParameter(listArgv)
+                elif currentCommand in __project_alias__:
+                    project_alias , listArgv = getParameter(listArgv)
+                elif currentCommand in __package_package__:
+                    package , listArgv = getParameter(listArgv)
+                else:
+                    print "currentCommand", currentCommand
+                    help = True
+                    break
+
+            if  (help == True) :
+                return package_help()
+            else:
+                m = ObsLightManager.getManager()
+
+                if (project_alias == None) :
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return package_help()
+
+                if (package == None) :
+                    package = m.getCurrentPackage(project_alias)
+                    if package == None:
+                        return package_help()
+
+                if title != None :
+                    res = m.setPackageParameter(projectLocalName=project_alias,
+                                                  package=package,
+                                                  parameter="title",
+                                                  value=title)
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+
+                if description != None :
+                    res = m.setPackageParameter(projectLocalName=project_alias,
+                                                  package=package,
+                                                  parameter="description",
+                                                  value=description)
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+
+                return 0
+
         def package_update(listArgv):
             '''
             
