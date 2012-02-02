@@ -315,7 +315,7 @@ class ProjectManager(QObject, ObsLightGuiObject):
                                                                  u"projectObsName")
             target = self.manager.getProjectParameter(project, u"projectTarget")
             repoLink = self.manager.getProjectRepository(project)
-            projectTitle = self.manager.getProjectParameter(project, u"projectTitle")
+            projectTitle = self.manager.getProjectParameter(project, u"title")
             projectDescription = self.manager.getProjectParameter(project, u"description")
 
             self.__projectLabel.setText(project)

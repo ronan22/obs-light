@@ -403,7 +403,7 @@ class ObsLightPackage(object):
         elif parameter == "prepDirName":
             return self.__prepDirName if self.__prepDirName != None else ""
         else:
-            raise ObsLightPackageErr("parameter value is not valid for getProjectParameter")
+            raise ObsLightPackageErr("Parameter '" + parameter + "' is not valid for getProjectParameter")
 
     def setPrepDirName(self, prepDirName):
         '''

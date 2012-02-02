@@ -323,11 +323,11 @@ class PackageManager(QObject, ObsLightGuiObject):
         if package is not None:
             self.__packageNameLabel.setText(package)
             packageTitle = self.manager.getPackageParameter(project,
-                                                                      package,
-                                                                      u"packageTitle")
+                                                            package,
+                                                            u"title")
             description = self.manager.getPackageParameter(project,
-                                                                     package,
-                                                                     u"description")
+                                                           package,
+                                                           u"description")
             self.__packageTitleLabel.setText(packageTitle)
             self.__packageDescriptionLabel.setText(description)
             pkgDir = self.manager.getPackageDirectory(project, package)

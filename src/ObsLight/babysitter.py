@@ -80,7 +80,7 @@ def run(prg=None):
         return 1
 
     except ObsLightErr.ObsLightPackageErr, err:
-        print >> sys.stderr, 'Osc Error: ', err.msg
+        print >> sys.stderr, 'Package Error: ', err.msg
         return 1
 
 

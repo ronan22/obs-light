@@ -272,12 +272,6 @@ class ObsLightProjects(object):
         '''
         return self.__workingDirectory
 
-    def createChRoot(self, projectLocalName=None):
-        '''
-        
-        '''
-        self.getProject(projectLocalName).createChRoot()
-
     def goToChRoot(self, projectLocalName=None, package=None, detach=False):
         '''
         
@@ -346,21 +340,6 @@ class ObsLightProjects(object):
         Return the OBS server name of a project.
         '''
         return  self.getProject(name).getObsServer()
-
-    def commitToObs(self, name=None,
-                            message=None,
-                            package=None):
-        '''
-        commit the package to the OBS server.
-        '''
-        self.getProject(name).commitToObs(message=message, package=package)
-
-    def addRemoveFileToTheProject(self, name=None,
-                                        package=None):
-        '''
-        add new file and remove file to the project.
-        '''
-        self.getProject(name).getPackage(package=package).addRemoveFileToTheProject()
 
     def getPackageFileList(self, projectLocalName, packageName):
         '''
@@ -439,14 +418,6 @@ class ObsLightProjects(object):
         '''
         return self.getProject(projectLocalName).isInstallInChroot(package=package)
 
-
-
-    def getChRootRepositories(self, projectLocalName):
-        '''
-        
-        '''
-        return self.getProject(projectLocalName).getChRootRepositories()
-
     def addFileToPackage(self, projectLocalName, package, path):
         '''
         
@@ -524,13 +495,6 @@ class ObsLightProjects(object):
                 return 0
         else:
             return self.getProject(projectLocalName).refreshObsStatus(package=package)
-
-
-    def repairOscPackageDirectory(self, projectLocalName, package):
-        '''
-        
-        '''
-        return self.getProject(projectLocalName).repairOscPackageDirectory(package=package)
 
     def patchIsInit(self, ProjectName, packageName):
         '''

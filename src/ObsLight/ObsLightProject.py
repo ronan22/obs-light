@@ -63,18 +63,16 @@ class ObsLightProject(object):
 
         self.__chrootIsInit = False
         self.__WorkingDirectory = workingDirectory
-
+        self.__projectTitle = projectTitle
         if fromSave == None:
             self.__projectLocalName = projectLocalName
             self.__projectObsName = projectObsName
             self.__obsServer = obsServer
             self.__projectTarget = projectTarget
             self.__projectArchitecture = projectArchitecture
-            self.__projectTitle = projectTitle
             self.__description = description
-
-            self.__chroot = ObsLightChRoot(projectDirectory=self.getDirectory())
             self.__packages = ObsLightPackages()
+            self.__chroot = ObsLightChRoot(projectDirectory=self.getDirectory())
 
             #perhaps a trusted_prj must be had
             self.__obsServers.getObsServer(name=self.__obsServer).initConfigProject(projet=self.__projectObsName,
@@ -92,8 +90,8 @@ class ObsLightProject(object):
                 self.__projectTarget = fromSave["projectTarget"]
             if "projectArchitecture" in fromSave.keys():
                 self.__projectArchitecture = fromSave["projectArchitecture"]
-            if "projectTitle" in fromSave.keys():
-                self.__projectTitle = fromSave["projectTitle"]
+            if "title" in fromSave.keys():
+                self.__projectTitle = fromSave["title"]
                 if self.__projectTitle == None:self.__projectTitle = ""
             if "description" in fromSave.keys():
                 self.__description = fromSave["description"]
@@ -231,7 +229,7 @@ class ObsLightProject(object):
             obsServer
             projectTarget
             projectArchitecture
-            projectTitle
+            title
             description
         '''
         if parameter == "projectLocalName":
@@ -246,7 +244,7 @@ class ObsLightProject(object):
             return self.__projectTarget
         elif parameter == "projectArchitecture":
             return self.__projectArchitecture
-        elif parameter == "projectTitle":
+        elif parameter == "title":
             return self.__projectTitle
         elif parameter == "description":
             return self.__description
@@ -259,14 +257,14 @@ class ObsLightProject(object):
         Valid parameters are:
             projectTarget
             projectArchitecture
-            projectTitle
+            title
             description
         '''
         if parameter == "projectTarget":
             self.__projectTarget = value
         elif parameter == "projectArchitecture":
             self.__projectArchitecture = value
-        elif parameter == "projectTitle":
+        elif parameter == "title":
             self.__projectTitle = value
         elif parameter == "description":
             self.__description = value
@@ -285,7 +283,7 @@ class ObsLightProject(object):
             yamlFile
             packageDirectory
             description
-            packageTitle
+            title
         '''
         return self.__packages.getPackage(package).getPackageParameter(parameter=parameter)
 
@@ -297,7 +295,7 @@ class ObsLightProject(object):
             yamlFile
             packageDirectory
             description
-            packageTitle
+            title
         '''
         return self.__packages.getPackage(package).setPackageParameter(parameter=parameter,
                                                                        value=value)
@@ -531,7 +529,7 @@ class ObsLightProject(object):
         if package != None:
             path = self.__getPackagePath(package)
             ObsLightOsc.getObsLightOsc().repairOscPackageDirectory(path=path)
-            self.updatePackage(name=package)
+            return self.updatePackage(name=package)
         else:
             return None
 
@@ -666,7 +664,7 @@ class ObsLightProject(object):
         Init a chroot and add the project repository. 
         '''
         self.__initChRoot()
-        self.addRepo()
+        return self.addRepo()
 
     def __initChRoot(self):
         '''
@@ -701,6 +699,8 @@ class ObsLightProject(object):
             __aChroot.addRepo(repos=__aRepos  , alias=__anAlias)
         else:
             ObsLightPrintManager.getLogger().info(__anAlias + " is already installed in the chroot")
+
+        return 0
 
     def getReposProject(self):
         '''

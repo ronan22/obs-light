@@ -446,8 +446,6 @@ def checkAvailableProjectPackage(position1=None, position2=None, position3=None)
         return checkAvailableProjectPackage2
     return checkAvailableProjectPackage1
 
-
-
 def checkDirectory(position=None):
     def checkDirectory1(f):
         def checkDirectory2(*args, **kwargs):
@@ -793,7 +791,7 @@ class ObsLightManagerCore(ObsLightManagerBase):
                              "obsServer",
                              "projectTarget",
                              "projectArchitecture",
-                             "projectTitle",
+                             "title",
                              "description"]:
             raise ObsLightProjectsError(parameter + " is not a parameter of a local project")
 
@@ -992,8 +990,8 @@ class ObsLightManagerCore(ObsLightManagerBase):
         '''
         self.checkPackage(projectLocalName=projectLocalName, package=package)
         res = self._myObsLightProjects.updatePackage(projectLocalName=projectLocalName,
-                                                package=package,
-                                                controlFunction=controlFunction)
+                                                     package=package,
+                                                     controlFunction=controlFunction)
         self._myObsLightProjects.save()
         return res
 
@@ -1005,14 +1003,40 @@ class ObsLightManagerCore(ObsLightManagerBase):
         Add/Remove file in the local directory of a package, and commit change to the OBS.
         '''
         self.checkPackage(projectLocalName=projectLocalName, package=package)
-        self._myObsLightProjects.addRemoveFileToTheProject(projectLocalName, package)
-        res = self._myObsLightProjects.commitToObs(name=projectLocalName,
-                                              message=message,
-                                              package=package)
+        self._myObsLightProjects.getProject(projectLocalName).getPackage(package=package).addRemoveFileToTheProject()
+        res = self._myObsLightProjects.getProject(projectLocalName).commitToObs(message=message,
+                                                                                package=package)
+        self._myObsLightProjects.save()
+        return res
+
+    @checkProjectLocalName(1)
+    def repairOscPackageDirectory(self, projectLocalName, package):
+        '''
+        Reset a the osc directory.
+        '''
+        res = self._myObsLightProjects.getProject(projectLocalName).repairOscPackageDirectory(package=package)
         self._myObsLightProjects.save()
         return res
 
     #///////////////////////////////////////////////////////////////////////////filesystem
+    @checkProjectLocalName(1)
+    def createChRoot(self, projectLocalName):
+        '''
+        Create a chroot for the project. You need a least one package.
+        '''
+        res = self._myObsLightProjects.getProject(projectLocalName).createChRoot()
+        self._myObsLightProjects.save()
+        return res
+
+    @checkProjectLocalName(1)
+    def getChRootRepositories(self, projectLocalName):
+        '''
+        Return a dictionary of RPM package repositories configured in the
+        chroot of project 'projectLocalName'. The dictionary has aliases
+        as keys and URL as values.
+        '''
+        return self._myObsLightProjects.getProject(projectLocalName).getChRootRepositories()
+
     #///////////////////////////////////////////////////////////////////////////spec
     #///////////////////////////////////////////////////////////////////////////micproject
     #///////////////////////////////////////////////////////////////////////////qemuproject
@@ -1356,13 +1380,6 @@ class ObsLightManager(ObsLightManagerCore):
         #return {u'Status': status[len(fileName) % len(status)],
         #        u"File name length": len(fileName)}
 
-    @checkProjectLocalName(1)
-    def createChRoot(self, projectLocalName):
-        '''
-        Create a chroot for the project. You need a least one package.
-        '''
-        self._myObsLightProjects.createChRoot(projectLocalName=projectLocalName)
-        self._myObsLightProjects.save()
 
 
     @checkProjectLocalName(1)
@@ -1503,15 +1520,6 @@ class ObsLightManager(ObsLightManagerCore):
         self._myObsLightProjects.save()
         return res
 
-    @checkProjectLocalName(1)
-    def getChRootRepositories(self, projectLocalName):
-        '''
-        Return a dictionary of RPM package repositories configured in the
-        chroot of project 'projectLocalName'. The dictionary has aliases
-        as keys and URL as values.
-        '''
-        return self._myObsLightProjects.getChRootRepositories(projectLocalName=projectLocalName)
-
     @checkFilePath(1)
     def importProject(self, filePath):
         '''
@@ -1570,15 +1578,6 @@ class ObsLightManager(ObsLightManagerCore):
         return res
 
     @checkProjectLocalName(1)
-    def repairOscPackageDirectory(self, projectLocalName, package):
-        '''
-        Reset a the osc directory.
-        '''
-        res = self._myObsLightProjects.repairOscPackageDirectory(projectLocalName=projectLocalName, package=package)
-        self._myObsLightProjects.save()
-        return res
-
-    @checkProjectLocalName(1)
     def testConflict(self, projectLocalName, package):
         '''
         Return True if 'package' has conflict else False.
@@ -1586,6 +1585,16 @@ class ObsLightManager(ObsLightManagerCore):
         return self._myObsLightProjects.testConflict(projectLocalName, package)
 
 __myObsLightManager = None
+
+def getCommandLineManager():
+    '''
+    Get a reference to the ObsLightManager singleton.
+    '''
+    global __myObsLightManager
+    if __myObsLightManager == None:
+        __myObsLightManager = ObsLightManagerCore()
+
+    return __myObsLightManager
 
 def getManager():
     '''
