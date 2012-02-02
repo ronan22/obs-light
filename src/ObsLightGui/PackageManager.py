@@ -324,17 +324,11 @@ class PackageManager(QObject, ObsLightGuiObject):
             self.__packageNameLabel.setText(package)
             packageTitle = self.manager.getPackageParameter(project,
                                                             package,
-<<<<<<< HEAD
-                                                            u"title")
-            description = self.manager.getPackageParameter(project,
-                                                           package,
-                                                           u"description")
-=======
                                                             "title")
             description = self.manager.getPackageParameter(project,
                                                            package,
                                                            "description")
->>>>>>> 0e633ec8c13202dcfbbb642469eeeeb8df671433
+
             self.__packageTitleLabel.setText(packageTitle)
             self.__packageDescriptionLabel.setText(description)
             pkgDir = self.manager.getPackageDirectory(project, package)
