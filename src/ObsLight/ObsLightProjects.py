@@ -381,12 +381,6 @@ class ObsLightProjects(object):
         self.getProject(projectLocalName).setProjectparameter(parameter=parameter,
                                                                          value=value)
 
-    def getChRootPath(self, projectLocalName):
-        '''
-        Return the path of aChRoot of a project
-        '''
-        return self.getProject(projectLocalName).getChRootPath()
-
     def importProject(self, path=None):
         '''
         Import a project from a file
@@ -399,12 +393,6 @@ class ObsLightProjects(object):
         Export a project to a file
         '''
         self.save(aFile=path, projectName=projectLocalName)
-
-    def isChRootInit(self, projectLocalName):
-        '''
-        Return True if the ChRoot is init otherwise False.
-        '''
-        return self.getProject(projectLocalName).isChRootInit()
 
     def isInstallInChroot(self, projectLocalName, package):
         '''

@@ -41,12 +41,12 @@ obslight
 	#implement
 	projectfilesystem	create		{<project_alias>}
 	projectfilesystem	delete		<project_alias>
-	projectfilesystem	status		{<project_alias>}
+	projectfilesystem	query 		[path |status] {<project_alias>}
 	#Not implement
-	projectfilesystem	repositories	get	{<project_alias>}
 	projectfilesystem	repositories	add	<repository_url> <repository_alias> {<project_alias>}
 	projectfilesystem	repositories	add	from {<project_alias>}
 	projectfilesystem	repositories	delete	??? 
+	projectfilesystem	repositories	query	[alias|url]<repository_url> <repository_alias> {<project_alias>}
 	projectfilesystem	enter		[package <package>] {<project_alias>}
 	projectfilesystem	executescript	<script_path> [package <package>] {<project_alias>}
 	projectfilesystem	extractpatch	<patch_name> {<package>} {<project_alias>}

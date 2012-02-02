@@ -1038,6 +1038,23 @@ class ObsLightManagerCore(ObsLightManagerBase):
         return res
 
     @checkProjectLocalName(1)
+    def getChRootPath(self, projectLocalName):
+        '''
+        Return the path of aChRoot of a project
+        '''
+        return self._myObsLightProjects.getProject(projectLocalName).getChRootPath()
+
+    @checkProjectLocalName(1)
+    def isChRootInit(self, projectLocalName):
+        '''
+        Return True if the ChRoot is init otherwise False.
+        '''
+        return self._myObsLightProjects.getProject(projectLocalName).isChRootInit()
+
+
+    #///////////////////////////////////////////////////////////////////////////filesystem->Repositories
+
+    @checkProjectLocalName(1)
     def getChRootRepositories(self, projectLocalName):
         '''
         Return a dictionary of RPM package repositories configured in the
@@ -1061,6 +1078,16 @@ class ObsLightManager(ObsLightManagerCore):
         Initialize the OBS Light Manager.
         '''
         ObsLightManagerCore.__init__(self)
+
+    @checkProjectLocalName(1)
+    @checkNonEmptyStringPackage(2)
+    def getGetChRootStatus(self, projectLocalName, package):
+        '''
+        Return the status of the package  into the chroot.
+        '''
+        self.checkPackage(projectLocalName=projectLocalName, package=package)
+        return self._myObsLightProjects.getGetChRootStatus(projectLocalName=projectLocalName,
+                                                            package=package)
 
     @checkProjectLocalName(1)
     @checkNonEmptyStringPackage(2)
@@ -1132,7 +1159,7 @@ class ObsLightManager(ObsLightManagerCore):
                                             package=package,
                                             directory=directory)
         self._myObsServers.save()
-    #---------------------------------------------------------------------------
+
     #used by displayRoleData
     @checkProjectLocalName(1)
     @checkNonEmptyStringPackage(2)
@@ -1142,16 +1169,6 @@ class ObsLightManager(ObsLightManagerCore):
         '''
         return self._myObsLightProjects.getPackageStatus(project=projectLocalName,
                                                     package=package)
-
-    @checkProjectLocalName(1)
-    @checkNonEmptyStringPackage(2)
-    def getGetChRootStatus(self, projectLocalName, package):
-        '''
-        Return the status of the package  into the chroot.
-        '''
-        self.checkPackage(projectLocalName=projectLocalName, package=package)
-        return self._myObsLightProjects.getGetChRootStatus(projectLocalName=projectLocalName,
-                                                            package=package)
 
     @checkProjectLocalName(1)
     @checkNonEmptyStringPackage(2)
@@ -1183,7 +1200,6 @@ class ObsLightManager(ObsLightManagerCore):
 
         return self._myObsLightProjects.getObsPackageRev(projectLocalName=projectLocalName,
                                                           packageName=packageName)
-
 
     #---------------------------------------------------------------------------
     @checkProjectLocalName(1)
@@ -1406,20 +1422,6 @@ class ObsLightManager(ObsLightManagerCore):
         
         '''
         return ObsLightTools.openFileWithDefaultProgram(filePath)
-
-    @checkProjectLocalName(1)
-    def getChRootPath(self, projectLocalName):
-        '''
-        Return the path of aChRoot of a project
-        '''
-        return self._myObsLightProjects.getChRootPath(projectLocalName)
-
-    @checkProjectLocalName(1)
-    def isChRootInit(self, projectLocalName):
-        '''
-        Return True if the ChRoot is init otherwise False.
-        '''
-        return self._myObsLightProjects.isChRootInit(projectLocalName=projectLocalName)
 
     @checkProjectLocalName(1)
     @checkNonEmptyStringPackage(2)

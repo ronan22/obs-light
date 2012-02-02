@@ -217,6 +217,7 @@ __DICO_HELP__[__currentPatch__[0]] = __currentPatch__[0] + ":" + "\t" + "Doc __o
 __projectfilesystem_help__ = __help__
 __projectfilesystem_create__ = ["create", "new"]
 __projectfilesystem_delete__ = __server_del__
+__projectfilesystem_query__ = __server_query__
 __projectfilesystem_enter__ = ["enter", "chroot"]
 __projectfilesystem_executescript__ = ["executescript", "exec"]
 __projectfilesystem_addrepository__ = ["addrepository", "ar"]
@@ -224,6 +225,7 @@ __projectfilesystem_extractpatch__ = ["extractpatch"]
 __projectfilesystem_repositories__ = ["repositorie"]
 
 __DICO_HELP__[__projectfilesystem_help__[0]] = __package_help__[0] + ":" + "\t" + "Doc __obsproject_help__"
+__DICO_HELP__[__projectfilesystem_query__[0]] = __projectfilesystem_query__[0] + ":" + "\t" + "Doc __obsproject_help__"
 __DICO_HELP__[__projectfilesystem_create__[0]] = __projectfilesystem_create__[0] + ":" + "\t" + "Doc __obsproject_help__"
 __DICO_HELP__[__projectfilesystem_delete__[0]] = __projectfilesystem_delete__[0] + ":" + "\t" + "Doc __obsproject_help__"
 __DICO_HELP__[__projectfilesystem_enter__[0]] = __projectfilesystem_enter__[0] + ":" + "\t" + "Doc __obsproject_help__"
@@ -234,13 +236,19 @@ __DICO_HELP__[__projectfilesystem_repositories__[0]] = __projectfilesystem_repos
 
 
 #Command obsproject Level 3
-__projectfilesystem_script_path__ = [""]
+__projectfilesystem_path__ = ["path"]
+__projectfilesystem_status__ = ["status"]
+
+__projectfilesystem_path____projectfilesystem_script_path__ = [""]
 __projectfilesystem_repository_url__ = [""]
 __projectfilesystem_repository_alias__ = [""]
 __projectfilesystem_From__ = [""]
 __projectfilesystem_patch_name__ = [""]
 
-__DICO_HELP__[__projectfilesystem_script_path__[0]] = __projectfilesystem_script_path__[0] + ":" + "\t" + "Doc __obsproject_help__"
+__DICO_HELP__[__projectfilesystem_path__[0]] = __projectfilesystem_path__[0] + ":" + "\t" + "Doc __obsproject_help__"
+__DICO_HELP__[__projectfilesystem_status__[0]] = __projectfilesystem_status__[0] + ":" + "\t" + "Doc __obsproject_help__"
+
+
 __DICO_HELP__[__projectfilesystem_repository_url__[0]] = __projectfilesystem_repository_url__[0] + ":" + "\t" + "Doc __obsproject_help__"
 __DICO_HELP__[__projectfilesystem_repository_alias__[0]] = __projectfilesystem_repository_alias__[0] + ":" + "\t" + "Doc __obsproject_help__"
 __DICO_HELP__[__projectfilesystem_From__[0]] = __projectfilesystem_From__[0] + ":" + "\t" + "Doc __obsproject_help__"
@@ -1946,6 +1954,62 @@ class ObsLight():
                 return res
             return 0
 
+        def projectfilesystem_query(listArgv):
+            '''
+            
+            '''
+            help = False
+            path = False
+            status = False
+
+            project_alias = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = getParameter(listArgv)
+                if (currentCommand in __obsproject_help__) or (listArgv == None):
+                    help = True
+                    break
+                elif currentCommand in __projectfilesystem_path__:
+                    path = True
+                elif currentCommand in __projectfilesystem_status__:
+                    status = True
+                elif currentCommand in __project_alias__:
+                    project_alias, listArgv = getParameter(listArgv)
+                else:
+                    help = True
+                    break
+
+            if  (help == True) :
+                return projectfilesystem_help()
+            else:
+                m = ObsLightManager.getCommandLineManager()
+
+                if project_alias == None:
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return projectfilesystem_help()
+
+                if (not path) and \
+                   (not status) :
+
+                    path = True
+                    status = True
+
+                if path :
+                    res = m.getChRootPath(projectLocalName=project_alias)
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    print "path:" + res
+
+                if status :
+                    res = m.isChRootInit(projectLocalName=project_alias)
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    val = "init" if res else "not init"
+                    print "status: " + val
+
         def projectfilesystem_enter(listArgv):
             '''
             
@@ -1984,6 +2048,8 @@ class ObsLight():
                 return projectfilesystem_create(listArgv)
             elif currentCommand in __projectfilesystem_delete__:
                 return projectfilesystem_delete(listArgv)
+            elif currentCommand in __projectfilesystem_query__:
+                return projectfilesystem_query(listArgv)
             elif currentCommand in __projectfilesystem_enter__:
                 return projectfilesystem_enter(listArgv)
             elif currentCommand in __projectfilesystem_executescript__:
