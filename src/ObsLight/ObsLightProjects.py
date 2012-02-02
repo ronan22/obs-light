@@ -272,13 +272,6 @@ class ObsLightProjects(object):
         '''
         return self.__workingDirectory
 
-    def goToChRoot(self, projectLocalName=None, package=None, detach=False):
-        '''
-        
-        '''
-        self.getProject(projectLocalName).goToChRoot(package=package,
-                                                                detach=detach)
-
     def openTerminal(self, projectLocalName, package):
         '''
         
@@ -292,8 +285,7 @@ class ObsLightProjects(object):
         '''
         
         '''
-        return  self.getProject(projectLocalName).getPackageFileInfo(packageName,
-                                                                                fileName)
+        return  self.getProject(projectLocalName).getPackageFileInfo(packageName, fileName)
 
     def addPackageSourceInChRoot(self, projectLocalName=None, package=None):
         '''

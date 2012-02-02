@@ -168,14 +168,6 @@ class ObsLightPackages(object):
         '''
         return self.getPackage(name).getOscDirectory()
 
-    def getPackageDirectory(self, package=None):
-        '''
-        
-        '''
-        return self.getPackage(package).getPackageDirectory()
-
-    #---------------------------------------------------------------------------
-
     def getCurrentListPackageInfo(self):
         '''
         

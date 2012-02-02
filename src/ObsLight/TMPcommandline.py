@@ -30,28 +30,28 @@ import ObsLightPrintManager
 from ObsLightUtils import getLineno
 
 __PRGNAME__ = "ObsLight"
-__DICO_HELP__ = {}
+__DICO_Help__ = {}
 
 __DESCRIPTION__ = "ObsLight:" + "\n"
 __DESCRIPTION__ += "\t" + "Provides a tool to manage an OBS project on your local machine in command line" + "\n"
-__DESCRIPTION__ += "\t" + "For informations, see the help section" + "\n"
-__DESCRIPTION__ += "\t\t" + "obslight --help" + "\n"
+__DESCRIPTION__ += "\t" + "For informations, see the Help section" + "\n"
+__DESCRIPTION__ += "\t\t" + "obslight --Help" + "\n"
 __DESCRIPTION__ += "\t" + "The gui for obslight is obslightgui" + "\n"
 __DESCRIPTION__ += "\t" + "A FAQ is available at:" + "\n"
 __DESCRIPTION__ += "\t\t" + "*http://wiki.meego.com/OBS_Light_FAQ" + "\n"
 __DESCRIPTION__ += "\t" + "For additional informations, see:" + "\n"
 __DESCRIPTION__ += "\t\t" + "* http://wiki.meego.com/OBS_Light" + "\n"
 
-__HELP__ = "Usage: " + __PRGNAME__ + " [global command] <command> [--command-options]" + "\n"
-__HELP__ += "\n"
-__HELP__ += "Type " + __PRGNAME__ + " <command> --help to get help on a specific command." + "\n"
-__HELP__ += "Commands:" + "\n"
+__Help__ = "Usage: " + __PRGNAME__ + " [global command] <command> [--command-options]" + "\n"
+__Help__ += "\n"
+__Help__ += "Type " + __PRGNAME__ + " <command> --Help to get Help on a specific command." + "\n"
+__Help__ += "Commands:" + "\n"
 
 #Command Level 0
 __info_quiet__ = ["quiet", "-quiet", "--quiet"]
 __info_debug__ = ["debug", "-debug", "--debug"]
 __version__ = ["version", "-version", "--version"]
-__help__ = ["--help", "-h", "-help", "help"]
+__Help__ = ["--Help", "-h", "-Help", "Help"]
 
 #Command Level 1
 __server__ = ["server"]
@@ -62,24 +62,24 @@ __spec__ = ["spec"]
 __micproject__ = ["micproject"]
 __qemuproject__ = ["qemuproject"]
 
-__DICO_HELP__[__server__[0]] = __server__[0] + ":" + "\t" + "Doc __server__"
-__DICO_HELP__[__obsproject__[0]] = __obsproject__[0] + ":" + "\t" + "Doc __obsproject__"
-__DICO_HELP__[__package__[0]] = __package__[0] + ":" + "\t" + "Doc __package__"
-__DICO_HELP__[__projectfilesystem__[0]] = __projectfilesystem__[0] + ":" + "\t" + "Doc __projectfilesystem__"
-__DICO_HELP__[__spec__[0]] = __spec__[0] + ":" + "\t" + "Doc __spec__"
-__DICO_HELP__[__micproject__[0]] = __server__[0] + ":" + "\t" + "Doc __micproject__"
-__DICO_HELP__[__qemuproject__[0]] = __qemuproject__[0] + ":" + "\t" + "Doc __qemuproject__"
+__DICO_Help__[__server__[0]] = __server__[0] + ":" + "\t" + "Doc __server__"
+__DICO_Help__[__obsproject__[0]] = __obsproject__[0] + ":" + "\t" + "Doc __obsproject__"
+__DICO_Help__[__package__[0]] = __package__[0] + ":" + "\t" + "Doc __package__"
+__DICO_Help__[__projectfilesystem__[0]] = __projectfilesystem__[0] + ":" + "\t" + "Doc __projectfilesystem__"
+__DICO_Help__[__spec__[0]] = __spec__[0] + ":" + "\t" + "Doc __spec__"
+__DICO_Help__[__micproject__[0]] = __server__[0] + ":" + "\t" + "Doc __micproject__"
+__DICO_Help__[__qemuproject__[0]] = __qemuproject__[0] + ":" + "\t" + "Doc __qemuproject__"
 
-__HELP__ += __DICO_HELP__[__server__[0]]
-__HELP__ += __DICO_HELP__[__obsproject__[0]]
-__HELP__ += __DICO_HELP__[__package__[0]]
-__HELP__ += __DICO_HELP__[__projectfilesystem__[0]]
-__HELP__ += __DICO_HELP__[__spec__[0]]
-__HELP__ += __DICO_HELP__[__micproject__[0]]
-__HELP__ += __DICO_HELP__[__qemuproject__[0]]
+__Help__ += __DICO_Help__[__server__[0]]
+__Help__ += __DICO_Help__[__obsproject__[0]]
+__Help__ += __DICO_Help__[__package__[0]]
+__Help__ += __DICO_Help__[__projectfilesystem__[0]]
+__Help__ += __DICO_Help__[__spec__[0]]
+__Help__ += __DICO_Help__[__micproject__[0]]
+__Help__ += __DICO_Help__[__qemuproject__[0]]
 
 #Command server Level 2
-__server_help__ = __help__
+__server_Help__ = __Help__
 __server_test__ = ["test"]
 __server_list__ = ["list", "ll", "ls"]
 __server_query__ = ["query", "get"]
@@ -88,17 +88,17 @@ __server_add__ = ["add"]
 __server_del__ = ["delete", "del", "rm"]
 __server_current__ = ["current"]
 
-__DICO_HELP__[__server_help__[0]] = __server_help__[0] + ":" + "\t" + "Doc __server_help__"
-__DICO_HELP__[__server_test__[0]] = __server_test__[0] + ":" + "\t" + " <server_alias> test the server alias \n \
+__DICO_Help__[__server_Help__[0]] = __server_Help__[0] + ":" + "\t" + "Doc __server_Help__"
+__DICO_Help__[__server_test__[0]] = __server_test__[0] + ":" + "\t" + " <server_alias> test the server alias \n \
                                                                         \t\t\t\t\t<login> <password> <api_url> test the API URL."
-__DICO_HELP__[__server_list__[0]] = __server_list__[0] + ":" + "\t" + "[<reachable>] reachable =False->return all sever,\
+__DICO_Help__[__server_list__[0]] = __server_list__[0] + ":" + "\t" + "[<reachable>] reachable =False->return all sever,\
                                                                         \t\t\t\t\treachable =True->return only the available server,\
                                                                         \t\t\t\t\default=False."
-__DICO_HELP__[__server_query__[0]] = __server_query__[0] + ":" + "\t" + "[login] [apiurl] [repository_url] [weburl] {<server_alias>}."
+__DICO_Help__[__server_query__[0]] = __server_query__[0] + ":" + "\t" + "[login] [apiurl] [repository_url] [weburl] {<server_alias>}."
 
-__DICO_HELP__[__server_set__[0]] = __server_set__[0] + ":" + "\t" + "[login <login>] [apiurl <apiurl>] [repository_url <repository_url>] [weburl <web_url>] {server_alias <server_alias>}"
-__DICO_HELP__[__server_add__[0]] = __server_add__[0] + ":" + "\t" + "server_alias <server_alias> login <login> password <password> api_url <api_url> repository_url <repository_url> web_url <web_url>"
-__DICO_HELP__[__server_del__[0]] = __server_del__[0] + ":" + "\t" + "<server_alias>"
+__DICO_Help__[__server_set__[0]] = __server_set__[0] + ":" + "\t" + "[login <login>] [apiurl <apiurl>] [repository_url <repository_url>] [weburl <web_url>] {server_alias <server_alias>}"
+__DICO_Help__[__server_add__[0]] = __server_add__[0] + ":" + "\t" + "server_alias <server_alias> login <login> password <password> api_url <api_url> repository_url <repository_url> web_url <web_url>"
+__DICO_Help__[__server_del__[0]] = __server_del__[0] + ":" + "\t" + "<server_alias>"
 
 #Command server Level 3
 __server_alias__ = ["server_alias", "alias"]
@@ -109,14 +109,14 @@ __server_repository_url__ = ["repository_url"]
 __server_web_url__ = ["web_url"]
 __server_reachable__ = ["reachable"]
 
-__DICO_HELP__[__server_reachable__[0]] = __server_reachable__[0] + ":" + "\t" + "False->return all sever,reachable =True->return only the available server,default=False."
-__DICO_HELP__[__server_alias__[0]] = __server_alias__[0] + ":" + "\t" + ""
-__DICO_HELP__[__server_login__[0]] = __server_login__[0] + ":" + "\t" + ""
-__DICO_HELP__[__server_password__[0]] = __server_password__[0] + ":" + "\t" + ""
-__DICO_HELP__[__server_api_url__[0]] = __server_api_url__[0] + ":" + "\t" + ""
+__DICO_Help__[__server_reachable__[0]] = __server_reachable__[0] + ":" + "\t" + "False->return all sever,reachable =True->return only the available server,default=False."
+__DICO_Help__[__server_alias__[0]] = __server_alias__[0] + ":" + "\t" + ""
+__DICO_Help__[__server_login__[0]] = __server_login__[0] + ":" + "\t" + ""
+__DICO_Help__[__server_password__[0]] = __server_password__[0] + ":" + "\t" + ""
+__DICO_Help__[__server_api_url__[0]] = __server_api_url__[0] + ":" + "\t" + ""
 
 #Command obsproject Level 2
-__obsproject_help__ = __help__
+__obsproject_Help__ = __Help__
 __obsproject_list__ = __server_list__
 __obsproject_add__ = __server_add__
 __obsproject_del__ = __server_del__
@@ -124,13 +124,13 @@ __obsproject_query__ = __server_query__
 __obsproject_set__ = __server_set__
 __obsproject_current__ = ["current"]
 
-__DICO_HELP__[__obsproject_help__[0]] = __obsproject_help__[0] + ":" + "\t" + "Doc __obsproject_help__"
-__DICO_HELP__[__obsproject_list__[0]] = __obsproject_list__[0] + ":" + "\t" + "Doc __obsproject_help__"
-__DICO_HELP__[__obsproject_add__[0]] = __obsproject_add__[0] + ":" + "\t" + "Doc __obsproject_help__"
-__DICO_HELP__[__obsproject_del__[0]] = __obsproject_del__[0] + ":" + "\t" + "Doc __obsproject_help__"
-__DICO_HELP__[__obsproject_query__[0]] = __obsproject_query__[0] + ":" + "\t" + "Doc __obsproject_help__"
-__DICO_HELP__[__obsproject_set__[0]] = __obsproject_set__[0] + ":" + "\t" + "Doc __obsproject_help__"
-__DICO_HELP__[__obsproject_current__[0]] = __obsproject_current__[0] + ":" + "\t" + "Doc __obsproject_help__"
+__DICO_Help__[__obsproject_Help__[0]] = __obsproject_Help__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Help__[__obsproject_list__[0]] = __obsproject_list__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Help__[__obsproject_add__[0]] = __obsproject_add__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Help__[__obsproject_del__[0]] = __obsproject_del__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Help__[__obsproject_query__[0]] = __obsproject_query__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Help__[__obsproject_set__[0]] = __obsproject_set__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Help__[__obsproject_current__[0]] = __obsproject_current__[0] + ":" + "\t" + "Doc __obsproject_Help__"
 
 #Command obsproject Level 3
 __project_raw__ = ["raw"]
@@ -147,21 +147,21 @@ __project_maintainer__ = ["maintainer"]
 __project_bugowner__ = ["bugowner"]
 __project_remoteurl__ = ["remoteurl"]
 
-__DICO_HELP__[__project_alias__[0]] = __project_alias__[0] + ":" + "\t" + ""
-__DICO_HELP__[__project_name_on_obs__[0]] = __project_name_on_obs__[0] + ":" + "\t" + ""
-__DICO_HELP__[__project_title__[0]] = __project_title__[0] + ":" + "\t" + ""
-__DICO_HELP__[__project_description__[0]] = __project_description__[0] + ":" + "\t" + ""
-__DICO_HELP__[__project_server__[0]] = __project_server__[0] + ":" + "\t" + ""
-__DICO_HELP__[__project_webpage__[0]] = __project_webpage__[0] + ":" + "\t" + ""
-__DICO_HELP__[__project_repository__[0]] = __project_repository__[0] + ":" + "\t" + ""
-__DICO_HELP__[__project_target__[0]] = __project_target__[0] + ":" + "\t" + ""
-__DICO_HELP__[__project_arch__[0]] = __project_arch__[0] + ":" + "\t" + ""
-__DICO_HELP__[__project_maintainer__[0]] = __project_maintainer__[0] + ":" + "\t" + ""
-__DICO_HELP__[__project_bugowner__[0]] = __project_bugowner__[0] + ":" + "\t" + ""
-__DICO_HELP__[__project_remoteurl__[0]] = __project_remoteurl__[0] + ":" + "\t" + ""
+__DICO_Help__[__project_alias__[0]] = __project_alias__[0] + ":" + "\t" + ""
+__DICO_Help__[__project_name_on_obs__[0]] = __project_name_on_obs__[0] + ":" + "\t" + ""
+__DICO_Help__[__project_title__[0]] = __project_title__[0] + ":" + "\t" + ""
+__DICO_Help__[__project_description__[0]] = __project_description__[0] + ":" + "\t" + ""
+__DICO_Help__[__project_server__[0]] = __project_server__[0] + ":" + "\t" + ""
+__DICO_Help__[__project_webpage__[0]] = __project_webpage__[0] + ":" + "\t" + ""
+__DICO_Help__[__project_repository__[0]] = __project_repository__[0] + ":" + "\t" + ""
+__DICO_Help__[__project_target__[0]] = __project_target__[0] + ":" + "\t" + ""
+__DICO_Help__[__project_arch__[0]] = __project_arch__[0] + ":" + "\t" + ""
+__DICO_Help__[__project_maintainer__[0]] = __project_maintainer__[0] + ":" + "\t" + ""
+__DICO_Help__[__project_bugowner__[0]] = __project_bugowner__[0] + ":" + "\t" + ""
+__DICO_Help__[__project_remoteurl__[0]] = __project_remoteurl__[0] + ":" + "\t" + ""
 
 #Command package Level 2
-__package_help__ = __help__
+__package_Help__ = __Help__
 __package_add__ = __server_add__
 __package_delete__ = __server_del__
 __package_list__ = __server_list__
@@ -172,16 +172,16 @@ __package_commit__ = ["commit", "co"]
 __package_repair__ = ["repair"]
 __package_current__ = ["current"]
 
-__DICO_HELP__[__package_help__[0]] = __package_help__[0] + ":" + "\t" + "Doc __obsproject_help__"
-__DICO_HELP__[__package_add__[0]] = __package_add__[0] + ":" + "\t" + "Doc __obsproject_help__"
-__DICO_HELP__[__package_delete__[0]] = __package_delete__[0] + ":" + "\t" + "Doc __obsproject_help__"
-__DICO_HELP__[__package_list__[0]] = __package_list__[0] + ":" + "\t" + "Doc __obsproject_help__"
-__DICO_HELP__[__package_query__[0]] = __package_query__[0] + ":" + "\t" + "Doc __obsproject_help__"
-__DICO_HELP__[__package_set__[0]] = __package_set__[0] + ":" + "\t" + "Doc __obsproject_help__"
-__DICO_HELP__[__package_update__[0]] = __package_update__[0] + ":" + "\t" + "Doc __obsproject_help__"
-__DICO_HELP__[__package_commit__[0]] = __package_commit__[0] + ":" + "\t" + "Doc __obsproject_help__"
-__DICO_HELP__[__package_repair__[0]] = __package_repair__[0] + ":" + "\t" + "Doc __obsproject_help__"
-__DICO_HELP__[__package_current__[0]] = __package_current__[0] + ":" + "\t" + "Doc __obsproject_help__"
+__DICO_Help__[__package_Help__[0]] = __package_Help__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Help__[__package_add__[0]] = __package_add__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Help__[__package_delete__[0]] = __package_delete__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Help__[__package_list__[0]] = __package_list__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Help__[__package_query__[0]] = __package_query__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Help__[__package_set__[0]] = __package_set__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Help__[__package_update__[0]] = __package_update__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Help__[__package_commit__[0]] = __package_commit__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Help__[__package_repair__[0]] = __package_repair__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Help__[__package_current__[0]] = __package_current__[0] + ":" + "\t" + "Doc __obsproject_Help__"
 
 #Command obsproject Level 3
 __package_package__ = ["package", "pkg"]
@@ -200,21 +200,21 @@ __packageDirectory__ = ["packageDirectory"]
 __chRootStatus__ = ["chRootStatus"]
 __currentPatch__ = ["currentPatch"]
 
-__DICO_HELP__[__package_package__[0]] = __package_package__[0] + ":" + "\t" + "Doc __obsproject_help__"
-__DICO_HELP__[__package_available__[0]] = __package_available__[0] + ":" + "\t" + "Doc __obsproject_help__"
-__DICO_HELP__[__package_status__[0]] = __package_status__[0] + ":" + "\t" + "Doc __obsproject_help__"
-__DICO_HELP__[__package_revision__[0]] = __package_revision__[0] + ":" + "\t" + "Doc __obsproject_help__"
-__DICO_HELP__[__listFile__[0]] = __listFile__[0] + ":" + "\t" + "Doc __obsproject_help__"
-__DICO_HELP__[__obsStatus__[0]] = __obsStatus__[0] + ":" + "\t" + "Doc __obsproject_help__"
-__DICO_HELP__[__oscStatus__[0]] = __oscStatus__[0] + ":" + "\t" + "Doc __obsproject_help__"
-__DICO_HELP__[__specFile__[0]] = __specFile__[0] + ":" + "\t" + "Doc __obsproject_help__"
-__DICO_HELP__[__yamlFile__[0]] = __yamlFile__[0] + ":" + "\t" + "Doc __obsproject_help__"
-__DICO_HELP__[__packageDirectory__[0]] = __packageDirectory__[0] + ":" + "\t" + "Doc __obsproject_help__"
-__DICO_HELP__[__chRootStatus__[0]] = __chRootStatus__[0] + ":" + "\t" + "Doc __obsproject_help__"
-__DICO_HELP__[__currentPatch__[0]] = __currentPatch__[0] + ":" + "\t" + "Doc __obsproject_help__"
+__DICO_Help__[__package_package__[0]] = __package_package__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Help__[__package_available__[0]] = __package_available__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Help__[__package_status__[0]] = __package_status__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Help__[__package_revision__[0]] = __package_revision__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Help__[__listFile__[0]] = __listFile__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Help__[__obsStatus__[0]] = __obsStatus__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Help__[__oscStatus__[0]] = __oscStatus__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Help__[__specFile__[0]] = __specFile__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Help__[__yamlFile__[0]] = __yamlFile__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Help__[__packageDirectory__[0]] = __packageDirectory__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Help__[__chRootStatus__[0]] = __chRootStatus__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Help__[__currentPatch__[0]] = __currentPatch__[0] + ":" + "\t" + "Doc __obsproject_Help__"
 
 #Command projectfilesystem Level 2
-__projectfilesystem_help__ = __help__
+__projectfilesystem_Help__ = __Help__
 __projectfilesystem_create__ = ["create", "new"]
 __projectfilesystem_delete__ = __server_del__
 __projectfilesystem_query__ = __server_query__
@@ -224,15 +224,15 @@ __projectfilesystem_addrepository__ = ["addrepository", "ar"]
 __projectfilesystem_extractpatch__ = ["extractpatch"]
 __projectfilesystem_repositories__ = ["repositorie"]
 
-__DICO_HELP__[__projectfilesystem_help__[0]] = __package_help__[0] + ":" + "\t" + "Doc __obsproject_help__"
-__DICO_HELP__[__projectfilesystem_query__[0]] = __projectfilesystem_query__[0] + ":" + "\t" + "Doc __obsproject_help__"
-__DICO_HELP__[__projectfilesystem_create__[0]] = __projectfilesystem_create__[0] + ":" + "\t" + "Doc __obsproject_help__"
-__DICO_HELP__[__projectfilesystem_delete__[0]] = __projectfilesystem_delete__[0] + ":" + "\t" + "Doc __obsproject_help__"
-__DICO_HELP__[__projectfilesystem_enter__[0]] = __projectfilesystem_enter__[0] + ":" + "\t" + "Doc __obsproject_help__"
-__DICO_HELP__[__projectfilesystem_executescript__[0]] = __projectfilesystem_executescript__[0] + ":" + "\t" + "Doc __obsproject_help__"
-__DICO_HELP__[__projectfilesystem_addrepository__[0]] = __projectfilesystem_addrepository__[0] + ":" + "\t" + "Doc __obsproject_help__"
-__DICO_HELP__[__projectfilesystem_extractpatch__[0]] = __projectfilesystem_extractpatch__[0] + ":" + "\t" + "Doc __obsproject_help__"
-__DICO_HELP__[__projectfilesystem_repositories__[0]] = __projectfilesystem_repositories__[0] + ":" + "\t" + "Doc __obsproject_help__"
+__DICO_Help__[__projectfilesystem_Help__[0]] = __package_Help__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Help__[__projectfilesystem_query__[0]] = __projectfilesystem_query__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Help__[__projectfilesystem_create__[0]] = __projectfilesystem_create__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Help__[__projectfilesystem_delete__[0]] = __projectfilesystem_delete__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Help__[__projectfilesystem_enter__[0]] = __projectfilesystem_enter__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Help__[__projectfilesystem_executescript__[0]] = __projectfilesystem_executescript__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Help__[__projectfilesystem_addrepository__[0]] = __projectfilesystem_addrepository__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Help__[__projectfilesystem_extractpatch__[0]] = __projectfilesystem_extractpatch__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Help__[__projectfilesystem_repositories__[0]] = __projectfilesystem_repositories__[0] + ":" + "\t" + "Doc __obsproject_Help__"
 
 
 #Command obsproject Level 3
@@ -245,14 +245,14 @@ __projectfilesystem_repository_alias__ = [""]
 __projectfilesystem_From__ = [""]
 __projectfilesystem_patch_name__ = [""]
 
-__DICO_HELP__[__projectfilesystem_path__[0]] = __projectfilesystem_path__[0] + ":" + "\t" + "Doc __obsproject_help__"
-__DICO_HELP__[__projectfilesystem_status__[0]] = __projectfilesystem_status__[0] + ":" + "\t" + "Doc __obsproject_help__"
+__DICO_Help__[__projectfilesystem_path__[0]] = __projectfilesystem_path__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Help__[__projectfilesystem_status__[0]] = __projectfilesystem_status__[0] + ":" + "\t" + "Doc __obsproject_Help__"
 
 
-__DICO_HELP__[__projectfilesystem_repository_url__[0]] = __projectfilesystem_repository_url__[0] + ":" + "\t" + "Doc __obsproject_help__"
-__DICO_HELP__[__projectfilesystem_repository_alias__[0]] = __projectfilesystem_repository_alias__[0] + ":" + "\t" + "Doc __obsproject_help__"
-__DICO_HELP__[__projectfilesystem_From__[0]] = __projectfilesystem_From__[0] + ":" + "\t" + "Doc __obsproject_help__"
-__DICO_HELP__[__projectfilesystem_patch_name__[0]] = __projectfilesystem_patch_name__[0] + ":" + "\t" + "Doc __obsproject_help__"
+__DICO_Help__[__projectfilesystem_repository_url__[0]] = __projectfilesystem_repository_url__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Help__[__projectfilesystem_repository_alias__[0]] = __projectfilesystem_repository_alias__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Help__[__projectfilesystem_From__[0]] = __projectfilesystem_From__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Help__[__projectfilesystem_patch_name__[0]] = __projectfilesystem_patch_name__[0] + ":" + "\t" + "Doc __obsproject_Help__"
 
 
 
@@ -325,9 +325,9 @@ class ObsLight():
                 elif currentCommand in __version__:
                     print "OBS Light version", ObsLightManager.getVersion()
                     return None
-                elif currentCommand in __help__:
+                elif currentCommand in __Help__:
                     print __DESCRIPTION__
-                    print __HELP__
+                    print __Help__
                     return None
                 else :
                     break
@@ -358,17 +358,17 @@ class ObsLight():
 
     def server(self, listArgv):
         '''
-        help
+        Help
         test <server_alias>
         testapi <login> <password> <api_url>
         '''
 
-        def server_help():
+        def server_Help():
             '''
             
             '''
             print __DESCRIPTION__
-            print __DICO_HELP__[__server_help__[0]]
+            print __DICO_Help__[__server_Help__[0]]
 
             return 0
 
@@ -376,7 +376,7 @@ class ObsLight():
             '''
             
             '''
-            help = False
+            Help = False
             server_alias = None
             login = None
             password = None
@@ -384,8 +384,8 @@ class ObsLight():
 
             while(len(listArgv) > 0):
                 currentCommand, listArgv = getParameter(listArgv)
-                if (currentCommand in __server_help__) or (listArgv == None):
-                    help = True
+                if (currentCommand in __server_Help__) or (listArgv == None):
+                    Help = True
                     break
                 elif currentCommand in __server_alias__:
                     server_alias, listArgv = getParameter(listArgv)
@@ -396,12 +396,12 @@ class ObsLight():
                 elif currentCommand in __server_api_url__:
                     api_url, listArgv = getParameter(listArgv)
                 else:
-                    help = True
+                    Help = True
                     break
 
             m = ObsLightManager.getCommandLineManager()
-            if help == True:
-                return server_help()
+            if Help == True:
+                return server_Help()
             elif server_alias != None:
                 res = m.testServer(obsServer=server_alias)
                 if res == None:
@@ -429,29 +429,29 @@ class ObsLight():
                         print "'" + api_url + "' is not reachable"
                     return 0
             else:
-                return server_help()
+                return server_Help()
 
 
         def server_list(listArgv):
             '''
             
             '''
-            help = False
+            Help = False
             reachable = False
 
             while(len(listArgv) > 0):
                 currentCommand, listArgv = getParameter(listArgv)
-                if (currentCommand in __server_help__) or (listArgv == None):
-                    help = True
+                if (currentCommand in __server_Help__) or (listArgv == None):
+                    Help = True
                     break
                 elif currentCommand in __server_reachable__:
                     reachable = True
                 else:
-                    help = True
+                    Help = True
                     break
 
-            if help == True:
-                return server_help()
+            if Help == True:
+                return server_Help()
 
             m = ObsLightManager.getCommandLineManager()
             res = m.getObsServerList(reachable=reachable)
@@ -467,7 +467,7 @@ class ObsLight():
             '''
             
             '''
-            help = False
+            Help = False
             login = None
             api_url = None
             repository_url = None
@@ -476,8 +476,8 @@ class ObsLight():
 
             while(len(listArgv) > 0):
                 currentCommand, listArgv = getParameter(listArgv)
-                if (currentCommand in __server_help__) or (listArgv == None):
-                    help = True
+                if (currentCommand in __server_Help__) or (listArgv == None):
+                    Help = True
                     break
                 elif currentCommand in __server_login__:
                     login = currentCommand
@@ -490,11 +490,11 @@ class ObsLight():
                 elif currentCommand in __server_alias__:
                     alias , listArgv = getParameter(listArgv)
                 else:
-                    help = True
+                    Help = True
                     break
 
-            if help == True:
-                return server_help()
+            if Help == True:
+                return server_Help()
             else:
                 m = ObsLightManager.getCommandLineManager()
                 if alias == None:
@@ -545,7 +545,7 @@ class ObsLight():
             '''
             
             '''
-            help = False
+            Help = False
             login = None
             api_url = None
             repository_url = None
@@ -554,8 +554,8 @@ class ObsLight():
 
             while(len(listArgv) > 0):
                 currentCommand, listArgv = getParameter(listArgv)
-                if (currentCommand in __server_help__) or (listArgv == None):
-                    help = True
+                if (currentCommand in __server_Help__) or (listArgv == None):
+                    Help = True
                     break
                 elif currentCommand in __server_login__:
                     login , listArgv = getParameter(listArgv)
@@ -568,11 +568,11 @@ class ObsLight():
                 elif currentCommand in __server_alias__:
                     alias , listArgv = getParameter(listArgv)
                 else:
-                    help = True
+                    Help = True
                     break
 
-            if help == True:
-                return server_help()
+            if Help == True:
+                return server_Help()
             else:
                 m = ObsLightManager.getCommandLineManager()
                 if alias == None:
@@ -608,7 +608,7 @@ class ObsLight():
             '''
             
             '''
-            help = False
+            Help = False
             alias = None
             login = None
             password = None
@@ -619,8 +619,8 @@ class ObsLight():
 
             while(len(listArgv) > 0):
                 currentCommand, listArgv = getParameter(listArgv)
-                if (currentCommand in __server_help__) or (listArgv == None):
-                    help = True
+                if (currentCommand in __server_Help__) or (listArgv == None):
+                    Help = True
                     break
                 elif currentCommand in __server_alias__:
                     alias , listArgv = getParameter(listArgv)
@@ -635,17 +635,17 @@ class ObsLight():
                 elif currentCommand in __server_web_url__:
                     weburl , listArgv = getParameter(listArgv)
                 else:
-                    help = True
+                    Help = True
                     break
 
-            if  (help == True) or\
+            if  (Help == True) or\
                 ((alias == None) or
                 (login == None) or
                 (password == None) or
                 (api_url == None) or
                 (repository_url == None) or
                 (weburl == None)):
-                return server_help()
+                return server_Help()
             else:
                 m = ObsLightManager.getCommandLineManager()
                 if login != None:
@@ -661,21 +661,21 @@ class ObsLight():
             '''
             
             '''
-            help = False
+            Help = False
             alias = None
 
             while(len(listArgv) > 0):
                 currentCommand, listArgv = getParameter(listArgv)
 
-                if (currentCommand in __server_help__) or (listArgv == None):
-                    help = True
+                if (currentCommand in __server_Help__) or (listArgv == None):
+                    Help = True
                     break
                 else:
                     alias = currentCommand
                     break
 
-            if  (help == True) :
-                return server_help()
+            if  (Help == True) :
+                return server_Help()
             else:
                 m = ObsLightManager.getCommandLineManager()
                 return m.delObsServer(obsServer=alias)
@@ -684,19 +684,19 @@ class ObsLight():
             '''
             
             '''
-            help = False
+            Help = False
 
             while(len(listArgv) > 0):
                 currentCommand, listArgv = getParameter(listArgv)
-                if (currentCommand in __server_help__) or (listArgv == None):
-                    help = True
+                if (currentCommand in __server_Help__) or (listArgv == None):
+                    Help = True
                     break
                 else:
-                    help = True
+                    Help = True
                     break
 
-            if  (help == True) :
-                return server_help()
+            if  (Help == True) :
+                return server_Help()
             else:
                 m = ObsLightManager.getCommandLineManager()
                 res = m.getCurrentObsServer()
@@ -704,14 +704,14 @@ class ObsLight():
                 return 0
         #_______________________________________________________________________
         if len(listArgv) == 0:
-            server_help()
+            server_Help()
             return 0
         else:
             currentCommand = listArgv[0]
             listArgv = listArgv[1:]
 
-            if currentCommand in __server_help__ :
-                return server_help()
+            if currentCommand in __server_Help__ :
+                return server_Help()
             elif currentCommand in __server_test__ :
                 return server_test(listArgv)
             elif currentCommand in __server_list__:
@@ -727,19 +727,19 @@ class ObsLight():
             elif currentCommand in __server_current__ :
                 return server_current(listArgv)
             else:
-                return server_help()
+                return server_Help()
         return 0
 
     def obsproject(self, listArgv):
         '''
         
         '''
-        def obsproject_help():
+        def obsproject_Help():
             '''
             
             '''
             print __DESCRIPTION__
-            print __DICO_HELP__[__obsproject__[0]]
+            print __DICO_Help__[__obsproject__[0]]
 
             return 0
 
@@ -747,7 +747,7 @@ class ObsLight():
             '''
             
             '''
-            help = False
+            Help = False
             server_alias = None
             arch = None
             raw = False
@@ -758,8 +758,8 @@ class ObsLight():
             while(len(listArgv) > 0):
                 currentCommand, listArgv = getParameter(listArgv)
 
-                if (currentCommand in __obsproject_help__) or (listArgv == None):
-                    help = True
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
                     break
                 elif currentCommand in __project_raw__:
                     raw = True
@@ -774,10 +774,10 @@ class ObsLight():
                 elif  currentCommand in __project_remoteurl__ :
                     remoteurl = True
                 else:
-                    return obsproject_help()
+                    return obsproject_Help()
 
-            if help == True:
-                return obsproject_help()
+            if Help == True:
+                return obsproject_Help()
             else:
                 m = ObsLightManager.getCommandLineManager()
                 res = []
@@ -797,7 +797,7 @@ class ObsLight():
                         print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
                         return -1
                 else:
-                    return obsproject_help()
+                    return obsproject_Help()
 
                 if res != None:
                     for r in res:
@@ -810,22 +810,22 @@ class ObsLight():
             '''
             
             '''
-            help = False
+            Help = False
 
             while(len(listArgv) > 0):
                 currentCommand, listArgv = getParameter(listArgv)
-                if (currentCommand in __obsproject_help__) or (listArgv == None):
-                    help = True
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
                     break
                 elif currentCommand in __server_del__:
                     alias = currentCommand
                     break
                 else:
-                    help = True
+                    Help = True
                     break
 
-            if  (help == True) :
-                return obsproject_help()
+            if  (Help == True) :
+                return obsproject_Help()
             else:
                 m = ObsLightManager.getCommandLineManager()
                 res = m.getCurrentObsProject()
@@ -836,7 +836,7 @@ class ObsLight():
             '''
             
             '''
-            help = False
+            Help = False
             project_alias = None
             name_on_obs = None
             target = None
@@ -846,8 +846,8 @@ class ObsLight():
 
             while(len(listArgv) > 0):
                 currentCommand, listArgv = getParameter(listArgv)
-                if (currentCommand in __obsproject_help__) or (listArgv == None):
-                    help = True
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
                     break
                 else :
                     project_alias = currentCommand
@@ -858,19 +858,19 @@ class ObsLight():
                     if listArgv == None:
                         break
 
-            if  (help == True) or\
+            if  (Help == True) or\
                 ((project_alias == None) or\
                  (name_on_obs == None) or\
                  (target == None) or\
                  (arch == None)):
-                return obsproject_help()
+                return obsproject_Help()
             else:
                 m = ObsLightManager.getCommandLineManager()
 
                 if server_alias == None:
                     server_alias = m.getCurrentObsServer()
                     if server_alias == None:
-                        return obsproject_help()
+                        return obsproject_Help()
 
                 return m.addProject(serverApi=server_alias,
                                     projectObsName=name_on_obs,
@@ -882,33 +882,33 @@ class ObsLight():
             '''
             
             '''
-            help = False
+            Help = False
             project = None
 
             while(len(listArgv) > 0):
                 currentCommand, listArgv = getParameter(listArgv)
 
-                if (currentCommand in __obsproject_help__) or (listArgv == None):
-                    help = True
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
                     break
                 else:
                     project = currentCommand
                     break
 
-            if  (help == True) :
-                return obsproject_help()
+            if  (Help == True) :
+                return obsproject_Help()
             elif project != None:
                 m = ObsLightManager.getCommandLineManager()
                 return m.removeProject(projectLocalName=project)
             else:
-                return obsproject_help()
+                return obsproject_Help()
 
 
         def obsproject_query(listArgv):
             '''
             
             '''
-            help = False
+            Help = False
             title = False
             description = False
             server = False
@@ -926,8 +926,8 @@ class ObsLight():
 
             while(len(listArgv) > 0):
                 currentCommand, listArgv = getParameter(listArgv)
-                if (currentCommand in __obsproject_help__) or (listArgv == None):
-                    help = True
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
                     break
                 elif currentCommand in __project_title__:
                     title = True
@@ -956,16 +956,16 @@ class ObsLight():
                 elif currentCommand in __obsproject__:
                     obsproject , listArgv = getParameter(listArgv)
                 else:
-                    help = True
+                    Help = True
                     break
 
-            if  (help == True) :
-                return obsproject_help()
+            if  (Help == True) :
+                return obsproject_Help()
             else:
                 m = ObsLightManager.getCommandLineManager()
 
                 if (project_alias == None) and ((server_alias == None) or (obsproject == None)):
-                    return obsproject_help()
+                    return obsproject_Help()
 
                 if  (not title) and \
                     (not description) and \
@@ -1105,15 +1105,15 @@ class ObsLight():
             '''
             
             '''
-            help = False
+            Help = False
             title = None
             description = None
             project_alias = None
 
             while(len(listArgv) > 0):
                 currentCommand, listArgv = getParameter(listArgv)
-                if (currentCommand in __obsproject_help__) or (listArgv == None):
-                    help = True
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
                     break
                 elif currentCommand in __project_title__:
                     title , listArgv = getParameter(listArgv)
@@ -1122,17 +1122,17 @@ class ObsLight():
                 elif currentCommand in __project_alias__:
                     project_alias , listArgv = getParameter(listArgv)
                 else:
-                    help = True
+                    Help = True
                     break
 
-            if  (help == True) :
-                return obsproject_help()
+            if  (Help == True) :
+                return obsproject_Help()
             else:
                 m = ObsLightManager.getCommandLineManager()
                 if project_alias == None:
                     project_alias = m.getCurrentObsProject()
                     if project_alias == None:
-                        return obsproject_help()
+                        return obsproject_Help()
 
                 if title != None:
                     res = m.setProjectParameter(projectLocalName=project_alias,
@@ -1152,14 +1152,14 @@ class ObsLight():
 
         #_______________________________________________________________________
         if len(listArgv) == 0:
-            obsproject_help()
+            obsproject_Help()
             return 0
         else:
             currentCommand = listArgv[0]
             listArgv = listArgv[1:]
 
-            if currentCommand in __obsproject_help__ :
-                return obsproject_help()
+            if currentCommand in __obsproject_Help__ :
+                return obsproject_Help()
             elif currentCommand in __obsproject_list__ :
                 return obsproject_list(listArgv)
             elif currentCommand in __obsproject_add__:
@@ -1173,7 +1173,7 @@ class ObsLight():
             elif currentCommand in __obsproject_current__:
                 return obsproject_current(listArgv)
             else:
-                return obsproject_help()
+                return obsproject_Help()
 
         return 0
 
@@ -1183,12 +1183,12 @@ class ObsLight():
         
         '''
 
-        def package_help():
+        def package_Help():
             '''
             
             '''
             print __DESCRIPTION__
-            print __DICO_HELP__[__obsproject__[0]]
+            print __DICO_Help__[__obsproject__[0]]
 
             return 0
 
@@ -1196,28 +1196,28 @@ class ObsLight():
             '''
             
             '''
-            help = False
+            Help = False
             package = None
             project_alias = None
 
             while(len(listArgv) > 0):
                 currentCommand, listArgv = getParameter(listArgv)
-                if (currentCommand in __obsproject_help__) or (listArgv == None):
-                    help = True
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
                     break
                 elif currentCommand in __project_alias__:
                     project_alias, listArgv = getParameter(listArgv)
                 else:
                     package = currentCommand
 
-            if  (help == True) or (package == None) :
-                return package_help()
+            if  (Help == True) or (package == None) :
+                return package_Help()
             else:
                 m = ObsLightManager.getCommandLineManager()
                 if project_alias == None:
                     project_alias = m.getCurrentObsProject()
                     if project_alias == None:
-                        return package_help()
+                        return package_Help()
 
                 return m.addPackage(projectLocalName=project_alias,
                                     package=package)
@@ -1226,28 +1226,28 @@ class ObsLight():
             '''
             
             '''
-            help = False
+            Help = False
             package = None
             project_alias = None
 
             while(len(listArgv) > 0):
                 currentCommand, listArgv = getParameter(listArgv)
-                if (currentCommand in __obsproject_help__) or (listArgv == None):
-                    help = True
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
                     break
                 elif currentCommand in __project_alias__:
                     project_alias, listArgv = getParameter(listArgv)
                 else:
                     package = currentCommand
 
-            if  (help == True) or (package == None) :
-                return package_help()
+            if  (Help == True) or (package == None) :
+                return package_Help()
             else:
                 m = ObsLightManager.getCommandLineManager()
                 if project_alias == None:
                     project_alias = m.getCurrentObsProject()
                     if project_alias == None:
-                        return package_help()
+                        return package_Help()
 
                 return m.removePackage(projectLocalName=project_alias,
                                        package=package)
@@ -1256,31 +1256,31 @@ class ObsLight():
             '''
             
             '''
-            help = False
+            Help = False
             available = False
             project_alias = None
 
             while(len(listArgv) > 0):
                 currentCommand, listArgv = getParameter(listArgv)
-                if (currentCommand in __obsproject_help__) or (listArgv == None):
-                    help = True
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
                     break
                 elif currentCommand in __package_available__:
                     available = True
                 elif currentCommand in __project_alias__:
                     project_alias, listArgv = getParameter(listArgv)
                 else:
-                    help = True
+                    Help = True
                     break
 
-            if  (help == True) :
-                return package_help()
+            if  (Help == True) :
+                return package_Help()
             else:
                 m = ObsLightManager.getCommandLineManager()
                 if project_alias == None:
                     project_alias = m.getCurrentObsProject()
                     if project_alias == None:
-                        return package_help()
+                        return package_Help()
 
                 if available:
                     res = m.getLocalProjectPackageList(projectLocalName=project_alias, local=0)
@@ -1308,7 +1308,7 @@ class ObsLight():
             '''
             
             '''
-            help = False
+            Help = False
 
             title = False
             description = False
@@ -1333,8 +1333,8 @@ class ObsLight():
 
             while(len(listArgv) > 0):
                 currentCommand, listArgv = getParameter(listArgv)
-                if (currentCommand in __obsproject_help__) or (listArgv == None):
-                    help = True
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
                     break
                 elif currentCommand in __project_title__:
                     title = True
@@ -1375,21 +1375,21 @@ class ObsLight():
                 elif currentCommand in __package_package__:
                     package , listArgv = getParameter(listArgv)
                 else:
-                    help = True
+                    Help = True
                     break
 
-            if  (help == True) :
-                return package_help()
+            if  (Help == True) :
+                return package_Help()
             else:
                 m = ObsLightManager.getCommandLineManager()
 
                 if (package == None) and (project_alias != None):
                     package = m.getCurrentPackage(project_alias)
                 if package == None:
-                    return package_help()
+                    return package_Help()
 
                 if (project_alias == None) and ((server_alias == None) or (obsproject == None)):
-                    return package_help()
+                    return package_Help()
 
                 if (not title) and \
                    (not description) and \
@@ -1573,7 +1573,7 @@ class ObsLight():
             '''
             
             '''
-            help = False
+            Help = False
 
             title = None
             description = None
@@ -1583,8 +1583,8 @@ class ObsLight():
 
             while(len(listArgv) > 0):
                 currentCommand, listArgv = getParameter(listArgv)
-                if (currentCommand in __obsproject_help__) or (listArgv == None):
-                    help = True
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
                     break
                 elif currentCommand in __project_title__:
                     title , listArgv = getParameter(listArgv)
@@ -1596,23 +1596,23 @@ class ObsLight():
                     package , listArgv = getParameter(listArgv)
                 else:
                     print "currentCommand", currentCommand
-                    help = True
+                    Help = True
                     break
 
-            if  (help == True) :
-                return package_help()
+            if  (Help == True) :
+                return package_Help()
             else:
                 m = ObsLightManager.getCommandLineManager()
 
                 if (project_alias == None) :
                     project_alias = m.getCurrentObsProject()
                     if project_alias == None:
-                        return package_help()
+                        return package_Help()
 
                 if (package == None) :
                     package = m.getCurrentPackage(project_alias)
                     if package == None:
-                        return package_help()
+                        return package_Help()
 
                 if title != None :
                     res = m.setPackageParameter(projectLocalName=project_alias,
@@ -1638,15 +1638,15 @@ class ObsLight():
             '''
             
             '''
-            help = False
+            Help = False
 
             project_alias = None
             package = None
 
             while(len(listArgv) > 0):
                 currentCommand, listArgv = getParameter(listArgv)
-                if (currentCommand in __obsproject_help__) or (listArgv == None):
-                    help = True
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
                     break
                 elif currentCommand in __package_update__:
                     update = True
@@ -1656,23 +1656,23 @@ class ObsLight():
                     package , listArgv = getParameter(listArgv)
                 else:
                     print "currentCommand", currentCommand
-                    help = True
+                    Help = True
                     break
 
-            if  (help == True) :
-                return package_help()
+            if  (Help == True) :
+                return package_Help()
             else:
                 m = ObsLightManager.getCommandLineManager()
 
                 if (project_alias == None) :
                     project_alias = m.getCurrentObsProject()
                     if project_alias == None:
-                        return package_help()
+                        return package_Help()
 
                 if (package == None) :
                     package = m.getCurrentPackage(project_alias)
                     if package == None:
-                        return package_help()
+                        return package_Help()
 
                 res = m.updatePackage(projectLocalName=project_alias,
                                      package=package)
@@ -1686,7 +1686,7 @@ class ObsLight():
             '''
             
             '''
-            help = False
+            Help = False
 
             message = None
 
@@ -1695,8 +1695,8 @@ class ObsLight():
 
             while(len(listArgv) > 0):
                 currentCommand, listArgv = getParameter(listArgv)
-                if (currentCommand in __obsproject_help__) or (listArgv == None):
-                    help = True
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
                     break
                 elif currentCommand in __package_update__:
                     update = True
@@ -1707,20 +1707,20 @@ class ObsLight():
                 else:
                     message = currentCommand
 
-            if  (help == True) and (message != None):
-                return package_help()
+            if  (Help == True) and (message != None):
+                return package_Help()
             else:
                 m = ObsLightManager.getCommandLineManager()
 
                 if (project_alias == None) :
                     project_alias = m.getCurrentObsProject()
                     if project_alias == None:
-                        return package_help()
+                        return package_Help()
 
                 if (package == None) :
                     package = m.getCurrentPackage(project_alias)
                     if package == None:
-                        return package_help()
+                        return package_Help()
 
                 res = m.updatePatch(projectLocalName=project_alias,
                                      package=package)
@@ -1733,15 +1733,15 @@ class ObsLight():
             '''
             
             '''
-            help = False
+            Help = False
 
             project_alias = None
             package = None
 
             while(len(listArgv) > 0):
                 currentCommand, listArgv = getParameter(listArgv)
-                if (currentCommand in __obsproject_help__) or (listArgv == None):
-                    help = True
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
                     break
                 elif currentCommand in __package_update__:
                     update = True
@@ -1751,23 +1751,23 @@ class ObsLight():
                     package , listArgv = getParameter(listArgv)
                 else:
                     print "currentCommand", currentCommand
-                    help = True
+                    Help = True
                     break
 
-            if  (help == True) :
-                return package_help()
+            if  (Help == True) :
+                return package_Help()
             else:
                 m = ObsLightManager.getCommandLineManager()
 
                 if (project_alias == None) :
                     project_alias = m.getCurrentObsProject()
                     if project_alias == None:
-                        return package_help()
+                        return package_Help()
 
                 if (package == None) :
                     package = m.getCurrentPackage(project_alias)
                     if package == None:
-                        return package_help()
+                        return package_Help()
 
                 res = m.repairOscPackageDirectory(projectLocalName=project_alias,
                                                   package=package)
@@ -1780,42 +1780,42 @@ class ObsLight():
             '''
             
             '''
-            help = False
+            Help = False
             project_alias = None
 
             while(len(listArgv) > 0):
                 currentCommand, listArgv = getParameter(listArgv)
-                if (currentCommand in __obsproject_help__) or (listArgv == None):
-                    help = True
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
                     break
                 elif currentCommand in __project_alias__:
                     project_alias, listArgv = getParameter(listArgv)
                 else:
-                    help = True
+                    Help = True
                     break
 
-            if  (help == True) :
-                return package_help()
+            if  (Help == True) :
+                return package_Help()
             else:
                 m = ObsLightManager.getCommandLineManager()
                 if project_alias == None:
                     project_alias = m.getCurrentObsProject()
                     if project_alias == None:
-                        return package_help()
+                        return package_Help()
 
                 return m.getCurrentPackage(projectLocalName=project_alias)
             return 0
 
 #-------------------------------------------------------------------------------
         if len(listArgv) == 0:
-            package_help()
+            package_Help()
             return 0
         else:
             currentCommand = listArgv[0]
             listArgv = listArgv[1:]
 
-            if currentCommand in __package_help__ :
-                return package_help()
+            if currentCommand in __package_Help__ :
+                return package_Help()
             elif currentCommand in __package_add__ :
                 return package_add(listArgv)
             elif currentCommand in __package_delete__:
@@ -1835,7 +1835,7 @@ class ObsLight():
             elif currentCommand in __package_current__:
                 return package_current(listArgv)
             else:
-                return package_help()
+                return package_Help()
 
         return 0
 
@@ -1843,7 +1843,7 @@ class ObsLight():
         '''
         
         '''
-        def projectfilesystem_help():
+        def projectfilesystem_Help():
             '''
             
             '''
@@ -1853,28 +1853,28 @@ class ObsLight():
             '''
             
             '''
-            help = False
+            Help = False
             project_alias = None
 
             while(len(listArgv) > 0):
                 currentCommand, listArgv = getParameter(listArgv)
-                if (currentCommand in __obsproject_help__) or (listArgv == None):
-                    help = True
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
                     break
                 elif currentCommand in __project_alias__:
                     project_alias, listArgv = getParameter(listArgv)
                 else:
-                    help = True
+                    Help = True
                     break
 
-            if  (help == True) :
-                return projectfilesystem_help()
+            if  (Help == True) :
+                return projectfilesystem_Help()
             else:
                 m = ObsLightManager.getCommandLineManager()
                 if project_alias == None:
                     project_alias = m.getCurrentObsProject()
                     if project_alias == None:
-                        return projectfilesystem_help()
+                        return projectfilesystem_Help()
 
                 res = m.getChRootRepositories(projectLocalName=project_alias)
                 if res == None:
@@ -1890,28 +1890,28 @@ class ObsLight():
             '''
             
             '''
-            help = False
+            Help = False
             project_alias = None
 
             while(len(listArgv) > 0):
                 currentCommand, listArgv = getParameter(listArgv)
-                if (currentCommand in __obsproject_help__) or (listArgv == None):
-                    help = True
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
                     break
                 elif currentCommand in __project_alias__:
                     project_alias, listArgv = getParameter(listArgv)
                 else:
-                    help = True
+                    Help = True
                     break
 
-            if  (help == True) :
-                return projectfilesystem_help()
+            if  (Help == True) :
+                return projectfilesystem_Help()
             else:
                 m = ObsLightManager.getCommandLineManager()
                 if project_alias == None:
                     project_alias = m.getCurrentObsProject()
                     if project_alias == None:
-                        return projectfilesystem_help()
+                        return projectfilesystem_Help()
 
                 res = m.createChRoot(projectLocalName=project_alias)
                 if res == None:
@@ -1924,28 +1924,28 @@ class ObsLight():
             '''
             
             '''
-            help = False
+            Help = False
             project_alias = None
 
             while(len(listArgv) > 0):
                 currentCommand, listArgv = getParameter(listArgv)
-                if (currentCommand in __obsproject_help__) or (listArgv == None):
-                    help = True
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
                     break
                 elif currentCommand in __project_alias__:
                     project_alias, listArgv = getParameter(listArgv)
                 else:
-                    help = True
+                    Help = True
                     break
 
-            if  (help == True) :
-                return projectfilesystem_help()
+            if  (Help == True) :
+                return projectfilesystem_Help()
             else:
                 m = ObsLightManager.getCommandLineManager()
                 if project_alias == None:
                     project_alias = m.getCurrentObsProject()
                     if project_alias == None:
-                        return projectfilesystem_help()
+                        return projectfilesystem_Help()
 
                 res = m.removeChRoot(projectLocalName=project_alias)
                 if res == None:
@@ -1958,7 +1958,7 @@ class ObsLight():
             '''
             
             '''
-            help = False
+            Help = False
             path = False
             status = False
 
@@ -1966,8 +1966,8 @@ class ObsLight():
 
             while(len(listArgv) > 0):
                 currentCommand, listArgv = getParameter(listArgv)
-                if (currentCommand in __obsproject_help__) or (listArgv == None):
-                    help = True
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
                     break
                 elif currentCommand in __projectfilesystem_path__:
                     path = True
@@ -1976,21 +1976,20 @@ class ObsLight():
                 elif currentCommand in __project_alias__:
                     project_alias, listArgv = getParameter(listArgv)
                 else:
-                    help = True
+                    Help = True
                     break
 
-            if  (help == True) :
-                return projectfilesystem_help()
+            if  (Help == True) :
+                return projectfilesystem_Help()
             else:
                 m = ObsLightManager.getCommandLineManager()
 
                 if project_alias == None:
                     project_alias = m.getCurrentObsProject()
                     if project_alias == None:
-                        return projectfilesystem_help()
+                        return projectfilesystem_Help()
 
-                if (not path) and \
-                   (not status) :
+                if (not path) and (not status) :
 
                     path = True
                     status = True
@@ -2014,34 +2013,63 @@ class ObsLight():
             '''
             
             '''
-            help = False
+            Help = False
+
+            project_alias = None
+            package = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = getParameter(listArgv)
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
+                    break
+                elif currentCommand in __package_package__:
+                    package , listArgv = getParameter(listArgv)
+                else:
+                    project_alias = currentCommand
+
+            if  (Help == True) :
+                return projectfilesystem_Help()
+            else:
+                m = ObsLightManager.getCommandLineManager()
+                if project_alias == None:
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return projectfilesystem_Help()
+
+                res = m.goToChRoot(projectLocalName=project_alias, package=package)
+                if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                return res
+            return 0
 
         def projectfilesystem_executescript(listArgv):
             '''
             
             '''
-            help = False
+            Help = False
 
         def projectfilesystem_addrepository(listArgv):
             '''
             
             '''
-            help = False
+            Help = False
 
         def projectfilesystem_extractpatch(listArgv):
             '''
             
             '''
-            help = False
+            Help = False
 
         if len(listArgv) == 0:
-            return projectfilesystem_help()
+            return projectfilesystem_Help()
         else:
             currentCommand = listArgv[0]
             listArgv = listArgv[1:]
 
-            if currentCommand in __projectfilesystem_help__ :
-                return projectfilesystem_help()
+            if currentCommand in __projectfilesystem_Help__ :
+                return projectfilesystem_Help()
             elif currentCommand in __projectfilesystem_repositories__:
                 return projectfilesystem_repositories(listArgv)
             elif currentCommand in __projectfilesystem_create__ :
@@ -2059,7 +2087,7 @@ class ObsLight():
             elif currentCommand in __projectfilesystem_extractpatch__ :
                 return projectfilesystem_extractpatch(listArgv)
             else:
-                return projectfilesystem_help()
+                return projectfilesystem_Help()
         return 0
 
     def spec(self, listArgv):

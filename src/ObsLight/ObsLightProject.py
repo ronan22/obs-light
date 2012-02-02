@@ -715,14 +715,13 @@ class ObsLightProject(object):
         
         '''
         if package != None:
-
-            packagePath = self.__packages.getPackageDirectory(package=package)
+            packagePath = self.__packages.getPackage(package).getPackageDirectory()
             if packagePath != None:
-                self.__chroot.goToChRoot(path=packagePath, detach=detach)
+                return self.__chroot.goToChRoot(path=packagePath, detach=detach)
             else:
-                self.__chroot.goToChRoot(detach=detach)
+                return self.__chroot.goToChRoot(detach=detach)
         else:
-            self.__chroot.goToChRoot(detach=detach)
+            return self.__chroot.goToChRoot(detach=detach)
 
     def openTerminal(self, package):
         '''

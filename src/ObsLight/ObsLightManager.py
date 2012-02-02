@@ -1051,6 +1051,13 @@ class ObsLightManagerCore(ObsLightManagerBase):
         '''
         return self._myObsLightProjects.getProject(projectLocalName).isChRootInit()
 
+    @checkProjectLocalName(1)
+    def goToChRoot(self, projectLocalName, package=None, detach=False):
+        '''
+        offer a bash in the chroot for the user
+        if package  define, the pwd will be ~/rpmbuild/BUILD/[package]
+        '''
+        return self._myObsLightProjects.getProject(projectLocalName).goToChRoot(package, detach)
 
     #///////////////////////////////////////////////////////////////////////////filesystem->Repositories
 
@@ -1396,18 +1403,6 @@ class ObsLightManager(ObsLightManagerCore):
         #status = [u'A', u'D', u' ', u'M', u'?', u'!', u'C']
         #return {u'Status': status[len(fileName) % len(status)],
         #        u"File name length": len(fileName)}
-
-
-
-    @checkProjectLocalName(1)
-    @checkNonEmptyStringPackage(1)
-    def goToChRoot(self, projectLocalName, package=None, detach=False):
-        '''
-        offer a bash in the chroot for the user
-        if package  define, the pwd will be ~/rpmbuild/BUILD/[package]
-        '''
-        self.checkPackage(projectLocalName=projectLocalName, package=package)
-        self._myObsLightProjects.goToChRoot(projectLocalName, package, detach)
 
     @checkProjectLocalName(1)
     def openTerminal(self, projectLocalName, package):

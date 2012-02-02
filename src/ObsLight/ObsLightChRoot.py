@@ -605,7 +605,7 @@ class ObsLightChRoot(object):
             command = "linux32 " + command
 
         command = shlex.split(str(command))
-        subprocess.call(command)
+        return subprocess.call(command)
 
     def initGitWatch(self, path=None):
         '''
