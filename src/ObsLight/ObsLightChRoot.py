@@ -612,7 +612,7 @@ class ObsLightChRoot(object):
         Initialize a Git repository in the specified path, and 'git add' everything.
         '''
         if path == None:
-            raise ObsLightErr.ObsLightChRootError("path is not defined in initGitWatch.")
+            raise ObsLightErr.ObsLightChRootError("Path is not defined in initGitWatch.")
 
         command = []
         command.append("git init " + path)
@@ -664,6 +664,8 @@ class ObsLightChRoot(object):
     def commitGit(self, mess, package):
         path = package.getPackageDirectory()
         command = []
+        if path == None:
+            raise ObsLightErr.ObsLightChRootError("path is not defined in commitGit for .")
         command.append(self.prepareGitCommand(path, " add " + path + "/\*"))
         command.append(self.prepareGitCommand(path, " commit -a -m \"" + mess + "\""))
         self.execCommand(command=command)

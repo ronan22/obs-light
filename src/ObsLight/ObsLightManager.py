@@ -984,6 +984,16 @@ class ObsLightManagerCore(ObsLightManagerBase):
         self._myObsLightProjects.save()
         return res
 
+    @checkProjectLocalName(1)
+    @checkNonEmptyStringPackage(2)
+    def updatePatch(self, projectLocalName, package):
+        '''
+        Generate patch, and add it to the local OBS package, modify the spec file.
+        '''
+        self.checkPackage(projectLocalName=projectLocalName, package=package)
+        self._myObsLightProjects.updatePatch(projectLocalName, package)
+        self._myObsLightProjects.save()
+
     #///////////////////////////////////////////////////////////////////////////filesystem
     #///////////////////////////////////////////////////////////////////////////spec
     #///////////////////////////////////////////////////////////////////////////micproject
@@ -1421,16 +1431,6 @@ class ObsLightManager(ObsLightManagerCore):
         '''
         self.checkPackage(projectLocalName=projectLocalName, package=package)
         self._myObsLightProjects.makePatch(projectLocalName, package, patch)
-        self._myObsLightProjects.save()
-
-    @checkProjectLocalName(1)
-    @checkNonEmptyStringPackage(2)
-    def updatePatch(self, projectLocalName, package):
-        '''
-        Generate patch, and add it to the local OBS package, modify the spec file.
-        '''
-        self.checkPackage(projectLocalName=projectLocalName, package=package)
-        self._myObsLightProjects.updatePatch(projectLocalName, package)
         self._myObsLightProjects.save()
 
     @checkProjectLocalName(1)

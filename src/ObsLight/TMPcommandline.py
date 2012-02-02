@@ -1599,6 +1599,48 @@ class ObsLight():
             
             '''
             help = False
+
+            project_alias = None
+            package = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = getParameter(listArgv)
+                if (currentCommand in __obsproject_help__) or (listArgv == None):
+                    help = True
+                    break
+                elif currentCommand in __package_update__:
+                    update = True
+                elif currentCommand in __project_alias__:
+                    project_alias , listArgv = getParameter(listArgv)
+                elif currentCommand in __package_package__:
+                    package , listArgv = getParameter(listArgv)
+                else:
+                    print "currentCommand", currentCommand
+                    help = True
+                    break
+
+            if  (help == True) :
+                return package_help()
+            else:
+                m = ObsLightManager.getManager()
+
+                if (project_alias == None) :
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return package_help()
+
+                if (package == None) :
+                    package = m.getCurrentPackage(project_alias)
+                    if package == None:
+                        return package_help()
+
+                res = m.updatePatch(projectLocalName=project_alias,
+                                     package=package)
+                if res == None:
+                    print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                    return -1
+
+                return 0
         def package_commit(listArgv):
             '''
             
