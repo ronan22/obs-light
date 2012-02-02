@@ -403,7 +403,9 @@ class ObsLightPackage(object):
         elif parameter == "prepDirName":
             return self.__prepDirName if self.__prepDirName != None else ""
         else:
-            raise ObsLightPackageErr("Parameter '" + parameter + "' is not valid for getProjectParameter")
+            msg = "Parameter '%s' is not valid for getProjectParameter" % parameter
+            raise ObsLightPackageErr(msg)
+
 
     def setPrepDirName(self, prepDirName):
         '''
@@ -782,7 +784,6 @@ class ObsLightPackage(object):
 
             return {u'Status': res}
         else:
-
             return {u'Status': u"! (item is missing, removed by non-osc command)"}
 
     def testConflict(self, aFile=None):

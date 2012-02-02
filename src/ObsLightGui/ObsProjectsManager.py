@@ -31,7 +31,7 @@ from ProjectConfigManager import ProjectConfigManager
 
 from ObsLightGuiObject import ObsLightGuiObject
 
-class ProjectManager(QObject, ObsLightGuiObject):
+class ObsProjectsManager(QObject, ObsLightGuiObject):
     '''
     Manages the local project list widget and project-related buttons
     of the main window.

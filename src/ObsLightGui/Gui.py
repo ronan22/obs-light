@@ -29,7 +29,8 @@ from PySide.QtUiTools import QUiLoader
 
 from ObsLight.ObsLightErr import OBSLightBaseError
 
-from ProjectManager import ProjectManager
+from ObsProjectsManager import ObsProjectsManager
+from MicProjectsManager import MicProjectsManager
 from ActionManager import MainWindowActionManager
 from LogManager import LogManager
 from Utils import exceptionToMessageBox
@@ -49,6 +50,7 @@ class Gui(QObject):
     __statusBar = None
     __obsLightManager = None
     __obsProjectManager = None
+    __micProjectsManager = None
     __logManager = None
     __mainWindowActionManager = None
     __infiniteProgress = None
@@ -187,7 +189,8 @@ class Gui(QObject):
         self.processEvents()
         self.__obsLightManager = methodToGetManager(*args, **kwargs)
         self.__loadMainWindow()
-        self.__obsProjectManager = ProjectManager(self)
+        self.__obsProjectManager = ObsProjectsManager(self)
+        self.__micProjectsManager = MicProjectsManager(self)
         self.__logManager = LogManager(self)
         self.splash.finish(self.getMainWindow())
 
