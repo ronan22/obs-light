@@ -1196,7 +1196,7 @@ in the source directory of the current package if it is installed.</string>
         <item row="0" column="4" rowspan="6" colspan="2">
          <widget class="QTabWidget" name="micProjectsTabWidget">
           <property name="currentIndex">
-           <number>2</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="kickstartMainTab">
            <attribute name="title">
@@ -1213,17 +1213,17 @@ in the source directory of the current package if it is installed.</string>
             <item row="0" column="1">
              <widget class="QComboBox" name="imageTypeComboBox"/>
             </item>
-            <item row="2" column="0" colspan="5">
+            <item row="3" column="0" colspan="5">
              <widget class="QPlainTextEdit" name="micLogTextEdit"/>
             </item>
-            <item row="1" column="1" colspan="3">
+            <item row="2" column="1" colspan="3">
              <widget class="QLineEdit" name="logFilePathLineEdit">
               <property name="enabled">
                <bool>false</bool>
               </property>
              </widget>
             </item>
-            <item row="1" column="0">
+            <item row="2" column="0">
              <widget class="QLabel" name="logFilePathLabel">
               <property name="text">
                <string>Log File:</string>
@@ -1240,12 +1240,22 @@ in the source directory of the current package if it is installed.</string>
             <item row="0" column="3">
              <widget class="QLineEdit" name="imageNameLineEdit"/>
             </item>
-            <item row="1" column="4">
+            <item row="2" column="4">
              <widget class="QPushButton" name="browseLogButton">
               <property name="text">
                <string>Browse...</string>
               </property>
              </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="architectureLabel">
+              <property name="text">
+               <string>Architecture:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QComboBox" name="architectureComboBox"/>
             </item>
            </layout>
           </widget>
