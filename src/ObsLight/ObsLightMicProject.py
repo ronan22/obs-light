@@ -97,6 +97,9 @@ class ObsLightMicProject(object):
         """
         return self.__kickstartPath
 
+    def saveKickstartFileAs(self, path):
+        self._ksManager.saveKickstart(path)
+
     def deleteProjectDirectory(self):
         """
         Recursively delete the project working directory.

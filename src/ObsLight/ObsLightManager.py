@@ -1521,7 +1521,13 @@ class ObsLightManager(ObsLightManagerCore):
         self._myObsLightMicProjects.save()
 
     def getKickstartFile(self, micProjectName):
-        return  self._myObsLightMicProjects.getKickstartFile(micProjectName=micProjectName)
+        return self._myObsLightMicProjects.getKickstartFile(micProjectName=micProjectName)
+
+    def saveKickstartFileAs(self, micProjectName, path):
+        """
+        Save the Kickstart file of `micProjectName` to `path`.
+        """
+        self._myObsLightMicProjects.saveKickstartFileAs(micProjectName, path)
 
     def getMicProjectArchitecture(self, micProjectName):
         return self._myObsLightMicProjects.getMicProjectArchitecture(micProjectName=micProjectName)

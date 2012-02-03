@@ -137,17 +137,24 @@ class ObsLightMicProjects:
 
     def setKickstartFile(self, micProjectName, filePath):
         """
-        Set the kickstart file of `micProjectName` project.
+        Set the Kickstart file of `micProjectName` project.
         """
         self._checkMicProjectName(micProjectName)
         self.__dicOBSLightProjects[micProjectName].setKickstartFile(filePath)
 
     def getKickstartFile(self, micProjectName):
         """
-        Get the kickstart file of `micProjectName` project.
+        Get the Kickstart file of `micProjectName` project.
         """
         self._checkMicProjectName(micProjectName)
         return self.__dicOBSLightProjects[micProjectName].getKickstartFile()
+
+    def saveKickstartFileAs(self, micProjectName, path):
+        """
+        Save the Kickstart file of `micProjectName` to `path`.
+        """
+        self._checkMicProjectName(micProjectName)
+        self.__dicOBSLightProjects[micProjectName].saveKickstartFileAs(path)
 
     # TODO: rename to getArchitecture
     def getMicProjectArchitecture(self, micProjectName):

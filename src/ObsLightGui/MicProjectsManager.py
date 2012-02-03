@@ -53,6 +53,7 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
 
     def __connectButtons(self):
         self.mainWindow.importKickstartButton.clicked.connect(self.on_importKickstartButton_clicked)
+        self.mainWindow.exportKickstartButton.clicked.connect(self.on_exportKickstartButton_clicked)
         self.mainWindow.newMicProjectButton.clicked.connect(self.on_newMicProjectButton_clicked)
         delClickSignal = self.mainWindow.deleteMicProjectButton.clicked
         delClickSignal.connect(self.on_deleteMicProjectButton_clicked)
@@ -91,6 +92,23 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
                                       micProject,
                                       filePath)
 
+    @popupOnException
+    def on_exportKickstartButton_clicked(self):
+        """Called when user clicks on 'export kickstart'"""
+        if self.currentProject is None:
+            return
+        filters = "Kickstart files (*.ks);;All files (*)"
+        filePath, _filter = QFileDialog.getSaveFileName(self.mainWindow,
+                                                        "Select the file to export kickstart to",
+                                                        filter=filters)
+        if len(filePath) < 1:
+            return
+        self.callWithInfiniteProgress(self.manager.saveKickstartFileAs,
+                                      "Exporting Kickstart file",
+                                      self.currentProject,
+                                      filePath)
+
+    @popupOnException
     def on_newMicProjectButton_clicked(self):
         """Called when user clicks on 'new project'"""
         name, accepted = QInputDialog.getText(self.mainWindow,
@@ -103,6 +121,7 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
                                       name)
         self.refresh()
 
+    @popupOnException
     def on_deleteMicProjectButton_clicked(self):
         """Called when user clicks on 'delete project'"""
         micProject = self.currentProject
