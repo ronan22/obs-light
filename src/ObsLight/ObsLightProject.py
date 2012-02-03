@@ -686,21 +686,22 @@ class ObsLightProject(object):
             __aChroot = self.__chroot
         else:
             __aChroot = chroot
+
         if repos == None:
             __aRepos = self.getReposProject()
         else:
             __aRepos = repos
+
         if alias == None:
             __anAlias = self.__projectObsName
         else:
             __anAlias = alias
 
         if not __aChroot.isAlreadyAReposAlias(__anAlias):
-            __aChroot.addRepo(repos=__aRepos  , alias=__anAlias)
+            return __aChroot.addRepo(repos=__aRepos  , alias=__anAlias)
         else:
             ObsLightPrintManager.getLogger().info(__anAlias + " is already installed in the chroot")
-
-        return 0
+            return 0
 
     def getReposProject(self):
         '''
@@ -899,7 +900,7 @@ class ObsLightProject(object):
         '''
         
         '''
-        self.__chroot.deleteRepo(repoAlias)
+        return self.__chroot.deleteRepo(repoAlias)
 
     def modifyRepo(self, repoAlias, newUrl, newAlias):
         '''

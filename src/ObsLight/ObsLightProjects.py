@@ -339,19 +339,6 @@ class ObsLightProjects(object):
         '''
         return self.getProject(projectLocalName).getPackageFileList(packageName)
 
-    def addRepo(self, projectLocalName=None,
-                        fromProject=None,
-                        repos=None  ,
-                        alias=None):
-        '''
-        
-        '''
-        if fromProject != None:
-            self.getProject(fromProject).addRepo(chroot=self.getProject(projectLocalName).getChRoot())
-        else:
-            self.getProject(projectLocalName).addRepo(repos=repos, alias=alias)
-
-
     def getProjectObsName(self, projectLocalName=None):
         '''
         
@@ -422,12 +409,6 @@ class ObsLightProjects(object):
                 return 0
         else:
             return self.getProject(projectLocalName).updatePackage(name=package)
-
-    def deleteRepo(self, projectLocalName, repoAlias):
-        '''
-        
-        '''
-        self.getProject(projectLocalName).deleteRepo(repoAlias)
 
     def modifyRepo(self, projectLocalName, repoAlias, newUrl, newAlias):
         '''

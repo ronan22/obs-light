@@ -412,7 +412,7 @@ class ObsLightChRoot(object):
         else:
             self.__dicoRepos[alias] = repos
 
-        self.__addRepo(repos=repos, alias=alias)
+        return self.__addRepo(repos=repos, alias=alias)
 
     def initRepos(self):
         '''
@@ -431,7 +431,7 @@ class ObsLightChRoot(object):
         command = []
         command.append("zypper ar " + repos + " '" + alias + "'")
         command.append("zypper --no-gpg-checks --gpg-auto-import-keys ref")
-        self.execCommand(command=command)
+        return self.execCommand(command=command)
 
     def prepRpm(self, specFile, package):
         '''
@@ -784,6 +784,7 @@ class ObsLightChRoot(object):
             command.append("zypper --no-gpg-checks --gpg-auto-import-keys ref")
             self.execCommand(command=command)
             del self.__dicoRepos[repoAlias]
+            return 0
         else:
             raise ObsLightErr.ObsLightChRootError("Can't delete the repo", repoAlias)
 
