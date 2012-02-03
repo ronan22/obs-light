@@ -51,12 +51,12 @@ obslight
 	projectfilesystem	repositories	query	
 	projectfilesystem	repositories	modify	repoAlias  [newUrl <newUrl>] [newAlias <newAlias>] {project_alias <project_alias>}
 	#___________________________________________________________________________________________________________________________________________
+	rpmbuild	prepare		{<package>} {project_alias <project_alias>}
+	rpmbuild	build		{<package>} {project_alias <project_alias>}
+	rpmbuild	install		{<package>} {project_alias <project_alias>}
+	rpmbuild	package		{<package>} {project_alias <project_alias>}
 	#Not implement
-	spec	prepare	{<package>} {<project_alias>}
-	spec	build	{<package>} {<project_alias>}
-	spec	install	{<package>} {<project_alias>}
-	spec	package	{<package>} {<project_alias>}
-	spec 	extractpatch {<package>} {<project_alias>}
+	rpmbuild	extractpatch	{<package>} {project_alias <project_alias>}
 	#___________________________________________________________________________________________________________________________________________
 	#feature
 	#Not implement

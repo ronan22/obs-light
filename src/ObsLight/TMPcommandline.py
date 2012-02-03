@@ -23,7 +23,6 @@ Created on 29 sept. 2011
 import sys
 
 from util import safewriter
-import ObsLightErr
 import ObsLightManager
 import ObsLightPrintManager
 
@@ -56,25 +55,25 @@ __Help__ = ["--Help", "-h", "-Help", "Help"]
 #Command Level 1
 __server__ = ["server"]
 __obsproject__ = ["obsproject"]
-__package__ = ["package"]
+__Package__ = ["package"]
 __projectfilesystem__ = ["projectfilesystem", "projectfs", "filesystem", "pfs"]
-__spec__ = ["spec"]
+__rpmbuild__ = ["rpmbuild", "rb"]
 __micproject__ = ["micproject"]
 __qemuproject__ = ["qemuproject"]
 
 __DICO_Help__[__server__[0]] = __server__[0] + ":" + "\t" + "Doc __server__"
 __DICO_Help__[__obsproject__[0]] = __obsproject__[0] + ":" + "\t" + "Doc __obsproject__"
-__DICO_Help__[__package__[0]] = __package__[0] + ":" + "\t" + "Doc __package__"
+__DICO_Help__[__Package__[0]] = __Package__[0] + ":" + "\t" + "Doc __Package__"
 __DICO_Help__[__projectfilesystem__[0]] = __projectfilesystem__[0] + ":" + "\t" + "Doc __projectfilesystem__"
-__DICO_Help__[__spec__[0]] = __spec__[0] + ":" + "\t" + "Doc __spec__"
+__DICO_Help__[__rpmbuild__[0]] = __rpmbuild__[0] + ":" + "\t" + "Doc __rpmbuild__"
 __DICO_Help__[__micproject__[0]] = __server__[0] + ":" + "\t" + "Doc __micproject__"
 __DICO_Help__[__qemuproject__[0]] = __qemuproject__[0] + ":" + "\t" + "Doc __qemuproject__"
 
 __Help__ += __DICO_Help__[__server__[0]]
 __Help__ += __DICO_Help__[__obsproject__[0]]
-__Help__ += __DICO_Help__[__package__[0]]
+__Help__ += __DICO_Help__[__Package__[0]]
 __Help__ += __DICO_Help__[__projectfilesystem__[0]]
-__Help__ += __DICO_Help__[__spec__[0]]
+__Help__ += __DICO_Help__[__rpmbuild__[0]]
 __Help__ += __DICO_Help__[__micproject__[0]]
 __Help__ += __DICO_Help__[__qemuproject__[0]]
 
@@ -261,6 +260,21 @@ __DICO_Help__[__repository_From__[0]] = __repository_From__[0] + ":" + "\t" + "D
 __DICO_Help__[__repository_newUrl__[0]] = __repository_newUrl__[0] + ":" + "\t" + "Doc __obsproject_Help__"
 __DICO_Help__[__repository_newAlias__[0]] = __repository_newAlias__[0] + ":" + "\t" + "Doc __obsproject_Help__"
 
+#Command rpmbuild Level 2
+
+__rpmbuild_prepare__ = ["prepare"]
+__rpmbuild_build__ = ["build"]
+__rpmbuild_install__ = ["install"]
+__rpmbuild_package__ = ["package"]
+__rpmbuild_extractpatch__ = ["extractpatch"]
+
+__DICO_Help__[__rpmbuild_prepare__[0]] = __rpmbuild_prepare__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Help__[__rpmbuild_build__[0]] = __rpmbuild_build__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Help__[__rpmbuild_install__[0]] = __rpmbuild_install__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Help__[__rpmbuild_package__[0]] = __rpmbuild_package__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Help__[__rpmbuild_extractpatch__[0]] = __rpmbuild_extractpatch__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+
+
 def getParameter(listArgv):
     if listArgv == None:
         return None, None
@@ -347,12 +361,12 @@ class ObsLight():
                     return self.server(listArgv)
                 elif currentCommand in __obsproject__ :
                     return self.obsproject(listArgv)
-                elif currentCommand in __package__ :
+                elif currentCommand in __Package__ :
                     return self.package(listArgv)
                 elif currentCommand in __projectfilesystem__ :
                     return self.projectfilesystem(listArgv)
-                elif currentCommand in __spec__ :
-                    return self.spec(listArgv)
+                elif currentCommand in __rpmbuild__ :
+                    return self.rpmbuild(listArgv)
                 elif currentCommand in __micproject__ :
                     return self.micproject(listArgv)
                 elif currentCommand in __qemuproject__ :
@@ -2283,7 +2297,7 @@ class ObsLight():
             currentCommand = listArgv[0]
             listArgv = listArgv[1:]
 
-            if currentCommand in __projectfilesystem_Help__ :
+            if currentCommand in __Help__ :
                 return repository_help()
             elif currentCommand in __repository_add__:
                 return repository_add(listArgv)
@@ -2297,24 +2311,212 @@ class ObsLight():
                 return repository_help()
         return 0
 
-    def spec(self, listArgv):
+    def rpmbuild(self, listArgv):
         '''
         
         '''
-        print "spec"
-        return 0
+        def rpmbuild_help():
+            '''
+            
+            '''
+            return 0
 
+        def rpmbuild_prepare(listArgv):
+            '''
+            
+            '''
+            Help = False
+            project_alias = None
+            package = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = getParameter(listArgv)
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
+                    break
+                elif currentCommand in __project_alias__:
+                    project_alias, listArgv = getParameter(listArgv)
+                else :
+                    package = currentCommand
+
+            if  (Help == True) :
+                return rpmbuild_help()
+            else:
+                m = ObsLightManager.getCommandLineManager()
+                if project_alias == None:
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return rpmbuild_help()
+
+                if (package == None):
+                    package = m.getCurrentPackage(project_alias)
+
+                res = m.addPackageSourceInChRoot(projectLocalName=project_alias, package=package)
+                if res == None:
+                    print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                    return -1
+                print "repositories:"
+                for k in res:
+                    print "Alias: " + k + "\t\tURL: " + res[k]
+            return 0
+
+        def rpmbuild_build(listArgv):
+            '''
+            
+            '''
+            Help = False
+            project_alias = None
+            package = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = getParameter(listArgv)
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
+                    break
+                elif currentCommand in __project_alias__:
+                    project_alias, listArgv = getParameter(listArgv)
+                else :
+                    package = currentCommand
+
+            if  (Help == True) :
+                return rpmbuild_help()
+            else:
+                m = ObsLightManager.getCommandLineManager()
+                if project_alias == None:
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return rpmbuild_help()
+
+                if (package == None):
+                    package = m.getCurrentPackage(project_alias)
+
+                res = m.buildRpm(projectLocalName=project_alias, package=package)
+                if res == None:
+                    print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                    return -1
+                print "repositories:"
+                for k in res:
+                    print "Alias: " + k + "\t\tURL: " + res[k]
+            return 0
+
+        def rpmbuild_install(listArgv):
+            '''
+            
+            '''
+            Help = False
+            project_alias = None
+            package = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = getParameter(listArgv)
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
+                    break
+                elif currentCommand in __project_alias__:
+                    project_alias, listArgv = getParameter(listArgv)
+                else :
+                    package = currentCommand
+
+            if  (Help == True) :
+                return rpmbuild_help()
+            else:
+                m = ObsLightManager.getCommandLineManager()
+                if project_alias == None:
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return rpmbuild_help()
+
+                if (package == None):
+                    package = m.getCurrentPackage(project_alias)
+
+                res = m.installRpm(projectLocalName=project_alias, package=package)
+                if res == None:
+                    print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                    return -1
+                print "repositories:"
+                for k in res:
+                    print "Alias: " + k + "\t\tURL: " + res[k]
+            return 0
+
+        def rpmbuild_package(listArgv):
+            '''
+            
+            '''
+            Help = False
+            project_alias = None
+            package = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = getParameter(listArgv)
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
+                    break
+                elif currentCommand in __project_alias__:
+                    project_alias, listArgv = getParameter(listArgv)
+                else :
+                    package = currentCommand
+
+            if  (Help == True) :
+                return rpmbuild_help()
+            else:
+                m = ObsLightManager.getCommandLineManager()
+                if project_alias == None:
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return rpmbuild_help()
+
+                if (package == None):
+                    package = m.getCurrentPackage(project_alias)
+
+                res = m.packageRpm(projectLocalName=project_alias, package=package)
+                if res == None:
+                    print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                    return -1
+                print "repositories:"
+                for k in res:
+                    print "Alias: " + k + "\t\tURL: " + res[k]
+            return 0
+
+        def rpmbuild_extractpatch(listArgv):
+            '''
+            
+            '''
+            Help = False
+
+
+
+        if len(listArgv) == 0:
+            return rpmbuild_help()
+        else:
+            currentCommand = listArgv[0]
+            listArgv = listArgv[1:]
+
+            if currentCommand in __Help__ :
+                return rpmbuild_help()
+            elif currentCommand in __rpmbuild_prepare__:
+                return rpmbuild_prepare(listArgv)
+            elif currentCommand in __rpmbuild_build__ :
+                return rpmbuild_build(listArgv)
+            elif currentCommand in __rpmbuild_install__:
+                return rpmbuild_install(listArgv)
+            elif currentCommand in __rpmbuild_package__:
+                return rpmbuild_package(listArgv)
+            elif currentCommand in __rpmbuild_extractpatch__:
+                return rpmbuild_extractpatch(listArgv)
+            else:
+                return rpmbuild_help()
+        return 0
 
     def micproject(self, listArgv):
         '''
         
         '''
-        print "micproject"
+        print "micproject #feature", listArgv
         return 0
 
     def qemuproject(self, listArgv):
         '''
         
         '''
-        print "qemuproject"
+        print "qemuproject #feature", listArgv
         return 0

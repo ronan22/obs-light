@@ -759,6 +759,7 @@ class ObsLightProject(object):
         self.__chroot.addPackageSourceInChRoot(package=self.__packages.getPackage(package),
                                                specFile=specFile,
                                                repo=self.__projectObsName)
+        return 0
 
     def buildRpm(self, package):
         '''
@@ -777,6 +778,7 @@ class ObsLightProject(object):
                                        specFile=aspecFile,
                                        packagePath=path,
                                        tarFile=tarFile)
+        return 0
 
     def patchIsInit(self, packageName):
         '''
@@ -806,6 +808,7 @@ class ObsLightProject(object):
                                      specFile=aspecFile,
                                      packagePath=path,
                                      tarFile=tarFile)
+        return 0
 
     def packageRpm(self, package):
         '''
@@ -823,18 +826,20 @@ class ObsLightProject(object):
                                      specFile=aspecFile,
                                      packagePath=path,
                                      tarFile=tarFile)
+        return 0
 
     def makePatch(self, package, patch):
         '''
         Create a patch
         '''
-        self.__chroot.makePatch(package=self.__packages.getPackage(package),
+        return self.__chroot.makePatch(package=self.__packages.getPackage(package),
                                 patch=patch)
+
     def updatePatch(self, package):
         '''
         Update a patch
         '''
-        self.__chroot.updatePatch(package=self.__packages.getPackage(package))
+        return  self.__chroot.updatePatch(package=self.__packages.getPackage(package))
 
     def commitToObs(self, message=None, package=None):
         '''

@@ -725,6 +725,7 @@ class ObsLightChRoot(object):
         package.addPatch(aFile=patch)
         ObsLightOsc.getObsLightOsc().add(path=pathOscPackage, afile=patch)
         package.save()
+        return 0
 
     def updatePatch(self, package=None):
         '''
