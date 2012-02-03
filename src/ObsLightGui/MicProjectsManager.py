@@ -1,6 +1,6 @@
 # -*- coding: utf8 -*-
 #
-# Copyright 2011, Intel Inc.
+# Copyright 2012, Intel Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,46 +21,62 @@ Created on 2 févr. 2012
 @author: Florent Vennetier
 '''
 
-from PySide.QtCore import QObject, Qt
+from PySide.QtGui import QFileDialog, QInputDialog, QMessageBox
 
 from ObsLightGuiObject import ObsLightGuiObject
+from ProjectsManagerBase import ProjectsManagerBase
+from Utils import popupOnException
 
-# TODO: make a common parent class for MicProjectsManager and ProjectManager
-#       with getCurrentProjectName, setCurrentProject, loadProjectList, refresh...
-class MicProjectsManager(QObject, ObsLightGuiObject):
+class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
     def __init__(self, gui):
-        QObject.__init__(self)
         ObsLightGuiObject.__init__(self, gui)
+        ProjectsManagerBase.__init__(self,
+                                     self.mainWindow.micProjectsListWidget,
+                                     self.manager.getMicProjectList)
+        self.__connectButtons()
         self.loadProjectList()
 
-    def loadProjectList(self):
-        '''
-        Load (or reload) the MIC project list.
-        '''
-        lastCurrentProject = self.getCurrentProjectName()
-        projectList = self.manager.getMicProjectList()
-        self.mainWindow.micProjectsListWidget.clear()
-        self.mainWindow.micProjectsListWidget.addItems(projectList)
-        if lastCurrentProject is not None and lastCurrentProject in projectList:
-            self.setCurrentProject(lastCurrentProject)
+    def __connectButtons(self):
+        self.mainWindow.importKickstartButton.clicked.connect(self.on_importKickstartButton_clicked)
 
-    def getCurrentProjectName(self):
-        '''
-        Get the name of the project selected in the UI, or None.
-        '''
-        item = self.mainWindow.micProjectsListWidget.currentItem()
-        if item is None:
-            return None
-        project = item.text()
-        if project is not None and len(project) < 1:
-            project = None
-        return project
+# --- Button handlers --------------------------------------------------------
+    @popupOnException
+    def on_importKickstartButton_clicked(self):
+        micProject = self.currentProject
+        if micProject is None:
+            return
+        filters = "Kickstart files (*.ks);;All files (*)"
+        filePath, _filter = QFileDialog.getOpenFileName(self.mainWindow,
+                                                        "Select kickstart file to import",
+                                                        filter=filters)
+        if len(filePath) < 1:
+            return
+        self.callWithInfiniteProgress(self.manager.setKickstartFile,
+                                      "Importing Kickstart file",
+                                      micProject,
+                                      filePath)
 
-    def setCurrentProject(self, projectName):
-        items = self.mainWindow.micProjectsListWidget.findItems(projectName,
-                                                                Qt.MatchExactly)
-        if len(items) > 0:
-            self.mainWindow.micProjectsListWidget.setCurrentItem(items[0])
+    def on_newMicProjectButton_clicked(self):
+        name, accepted = QInputDialog.getText(self.mainWindow,
+                                              "New MIC project",
+                                              "Select a name for the new project:")
+        if not accepted or len(name) < 1:
+            return
+        self.callWithInfiniteProgress(self.manager.addMicProject,
+                                      "Creating MIC project",
+                                      name)
+        self.refresh()
 
-    def refresh(self):
-        self.loadProjectList()
+    def on_deleteMicProjectButton_clicked(self):
+        micProject = self.currentProject
+        if micProject is None:
+            return
+        result = QMessageBox.question(self.mainWindow,
+                                      u"Are you sure ?",
+                                      u"Are you sure you want to delete %d project ?"
+                                        % micProject,
+                                      buttons=QMessageBox.Yes | QMessageBox.No,
+                                      defaultButton=QMessageBox.Yes)
+        if result == QMessageBox.No:
+            return
+# --- end Button handlers ----------------------------------------------------

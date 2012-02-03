@@ -20,8 +20,7 @@ Created on 27 sept. 2011
 @author: Florent Vennetier
 '''
 
-from PySide.QtCore import QObject, QThreadPool, Qt
-from PySide.QtGui import QPushButton, QListWidget, QLineEdit, QLabel
+from PySide.QtGui import QPushButton, QLineEdit, QLabel
 from PySide.QtGui import QFileDialog, QMessageBox
 
 from Utils import ProgressRunnable2, popupOnException
@@ -30,13 +29,13 @@ from RepoConfigManager import RepoConfigManager
 from ProjectConfigManager import ProjectConfigManager
 
 from ObsLightGuiObject import ObsLightGuiObject
+from ProjectsManagerBase import ProjectsManagerBase
 
-class ObsProjectsManager(QObject, ObsLightGuiObject):
+class ObsProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
     '''
     Manages the local project list widget and project-related buttons
     of the main window.
     '''
-    __obsProjectsListWidget = None
     __newObsProjectButton = None
     __modifyObsProjectButton = None
     __deleteObsProjectButton = None
@@ -59,12 +58,12 @@ class ObsProjectsManager(QObject, ObsLightGuiObject):
     __statusBar = None
 
     def __init__(self, gui):
-        QObject.__init__(self)
         ObsLightGuiObject.__init__(self, gui)
+        ProjectsManagerBase.__init__(self,
+                                     self.mainWindow.obsProjectsListWidget,
+                                     self.manager.getLocalProjectList)
         mainWindow = self.mainWindow
-        self.__obsProjectsListWidget = mainWindow.findChild(QListWidget,
-                                                            u"obsProjectsListWidget")
-        self.__obsProjectsListWidget.currentTextChanged.connect(self.on_projectSelected)
+        self.projectListWidget.currentTextChanged.connect(self.on_projectSelected)
         self.loadProjectList()
         self.__packageManager = PackageManager(self.gui)
         self.__newObsProjectButton = mainWindow.findChild(QPushButton,
@@ -118,38 +117,9 @@ class ObsProjectsManager(QObject, ObsLightGuiObject):
         self.__chrootPathLineEdit = mainWindow.findChild(QLineEdit,
                                                          u"chrootPathLineEdit")
 
-    def loadProjectList(self):
-        '''
-        Load (or reload) the local project list in the obsProjectsListWidget.
-        '''
-        lastCurrentProject = self.getCurrentProjectName()
-        projectList = self.manager.getLocalProjectList()
-        self.__obsProjectsListWidget.clear()
-        self.__obsProjectsListWidget.addItems(projectList)
-        if lastCurrentProject is not None and lastCurrentProject in projectList:
-            self.setCurrentProject(lastCurrentProject)
-
-    def setCurrentProject(self, projectName):
-        items = self.__obsProjectsListWidget.findItems(projectName,
-                                                       Qt.MatchExactly)
-        if len(items) > 0:
-            self.__obsProjectsListWidget.setCurrentItem(items[0])
-
-    def getCurrentProjectName(self):
-        '''
-        Get the name of the project selected in the UI, or None.
-        '''
-        item = self.__obsProjectsListWidget.currentItem()
-        if item is None:
-            return None
-        project = item.text()
-        if project is not None and len(project) < 1:
-            project = None
-        return project
-
     @popupOnException
     def on_modifyObsProjectButton_clicked(self):
-        projectName = self.getCurrentProjectName()
+        projectName = self.currentProject
         if projectName is None:
             return
         self.__projectConfigManager = ProjectConfigManager(self.gui, projectName)
@@ -157,7 +127,7 @@ class ObsProjectsManager(QObject, ObsLightGuiObject):
 
     @popupOnException
     def on_deleteObsProjectButton_clicked(self):
-        projectName = self.getCurrentProjectName()
+        projectName = self.currentProject
         if projectName is None:
             return
         result = QMessageBox.question(self.mainWindow,
@@ -192,7 +162,7 @@ class ObsProjectsManager(QObject, ObsLightGuiObject):
 
     @popupOnException
     def on_exportObsProjectButton_clicked(self):
-        project = self.getCurrentProjectName()
+        project = self.currentProject
         if project is None:
             return
         filePath, _filter = QFileDialog.getSaveFileName(self.mainWindow,
@@ -215,7 +185,7 @@ class ObsProjectsManager(QObject, ObsLightGuiObject):
 
     @popupOnException
     def on_newChrootButton_clicked(self):
-        projectName = self.getCurrentProjectName()
+        projectName = self.currentProject
         if projectName is None or self.manager.isChRootInit(projectName):
             return
         runnable = ProgressRunnable2(self.gui.getInfiniteProgressDialog())
@@ -228,7 +198,7 @@ class ObsProjectsManager(QObject, ObsLightGuiObject):
 
     @popupOnException
     def on_openChrootButton_clicked(self):
-        projectName = self.getCurrentProjectName()
+        projectName = self.currentProject
         if projectName is None or not self.manager.isChRootInit(projectName):
             return
 
@@ -249,7 +219,7 @@ class ObsProjectsManager(QObject, ObsLightGuiObject):
 
     @popupOnException
     def on_deleteChrootButton_clicked(self):
-        projectName = self.getCurrentProjectName()
+        projectName = self.currentProject
         if projectName is not None:
             result = QMessageBox.question(self.mainWindow,
                                       "Are you sure ?",
@@ -269,25 +239,25 @@ class ObsProjectsManager(QObject, ObsLightGuiObject):
 
     @popupOnException
     def on_addRepoInChrootButton_clicked(self):
-        projectName = self.getCurrentProjectName()
+        projectName = self.currentProject
         self.__repoConfigManager = RepoConfigManager(self.gui, projectName)
         self.__repoConfigManager.importFromUrl()
 
     @popupOnException
     def on_deleteRepoButton_clicked(self):
-        projectName = self.getCurrentProjectName()
+        projectName = self.currentProject
         self.__repoConfigManager = RepoConfigManager(self.gui, projectName)
         self.__repoConfigManager.deleteRepo()
 
     @popupOnException
     def on_modifyRepoButton_clicked(self):
-        projectName = self.getCurrentProjectName()
+        projectName = self.currentProject
         self.__repoConfigManager = RepoConfigManager(self.gui, projectName)
         self.__repoConfigManager.modifyRepo()
 
     @popupOnException
     def on_importRepoInChrootButton_clicked(self):
-        projectName = self.getCurrentProjectName()
+        projectName = self.currentProject
         self.__repoConfigManager = RepoConfigManager(self.gui, projectName)
         self.__repoConfigManager.importFromProject()
 
@@ -295,20 +265,17 @@ class ObsProjectsManager(QObject, ObsLightGuiObject):
         self.refreshProject()
 
     def refreshProject(self):
-        project = self.getCurrentProjectName()
+        project = self.currentProject
         self.__packageManager.setCurrentProject(project)
         self.updateProjectLabels()
         self.updateChrootPathAndButtons()
-
-    def refresh(self):
-        self.loadProjectList()
 
     @popupOnException
     def updateProjectLabels(self):
         '''
         Update the different labels according to project parameters.
         '''
-        project = self.getCurrentProjectName()
+        project = self.currentProject
         if project is not None:
             projectLink = self.manager.getProjectWebPage(project)
             projectObsName = self.manager.getProjectParameter(project,
@@ -337,7 +304,7 @@ class ObsProjectsManager(QObject, ObsLightGuiObject):
         Enable/disable some buttons according to the state
         of the chroot.
         '''
-        project = self.getCurrentProjectName()
+        project = self.currentProject
         if project is not None:
             isChrootInit = self.manager.isChRootInit(project)
             if isChrootInit:

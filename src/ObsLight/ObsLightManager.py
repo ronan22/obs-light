@@ -1,5 +1,5 @@
 #
-# Copyright 2011, Intel Inc.
+# Copyright 2011-2012, Intel Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -1368,6 +1368,7 @@ class ObsLightManager(ObsLightManagerCore):
         return self._myObsLightProjects.getPackageInfo(projectLocalName=projectLocalName,
                                                         package=package)
 
+
     @checkProjectLocalName(1)
     @checkNonEmptyStringPackage(2)
     def getPackageDirectory(self, projectLocalName, packageName):
@@ -1504,73 +1505,42 @@ class ObsLightManager(ObsLightManagerCore):
         return self._myObsLightProjects.testConflict(projectLocalName, package)
 #---------------------------------------------------------------------------
     def getMicProjectList(self):
-        '''
-        
-        '''
         return self._myObsLightMicProjects.getMicProjectList()
 
     def addMicProject(self, micProjectName):
-        '''
-        
-        '''
         self._myObsLightMicProjects.addMicProject(micProjectName=micProjectName)
         self._myObsLightMicProjects.save()
 
     def deleteMicProject(self, micProjectName):
-        '''
-        
-        '''
         self._myObsLightMicProjects.deleteMicProject(micProjectName)
         self._myObsLightMicProjects.save()
 
     def setKickstartFile(self, micProjectName, filePath):
-        '''
-        
-        '''
         self._myObsLightMicProjects.setKickstartFile(micProjectName=micProjectName,
                                                       filePath=filePath)
         self._myObsLightMicProjects.save()
 
     def getKickstartFile(self, micProjectName):
-        '''
-        
-        '''
         return  self._myObsLightMicProjects.getKickstartFile(micProjectName=micProjectName)
 
     def getMicProjectArchitecture(self, micProjectName):
-        '''
-        
-        '''
         return self._myObsLightMicProjects.getMicProjectArchitecture(micProjectName=micProjectName)
         self._myObsLightMicProjects.save()
 
     def setMicProjectArchitecture(self, micProjectName, arch):
-        '''
-        
-        '''
         self._myObsLightMicProjects.setMicProjectArchitecture(micProjectName=micProjectName, arch=arch)
         self._myObsLightMicProjects.save()
 
     def setMicProjectImageType(self, micProjectName, imageType):
-        '''
-        
-        '''
         self._myObsLightMicProjects.setMicProjectImageType(micProjectName=micProjectName, imageType=imageType)
         self._myObsLightMicProjects.save()
 
     def getMicProjectImageType(self, micProjectName):
-        '''
-        
-        '''
         return self._myObsLightMicProjects.getMicProjectImageType(micProjectName=micProjectName)
 
     def createImage(self, micProjectName):
-        '''
-        
-        '''
         self._myObsLightMicProjects.createImage(micProjectName=micProjectName)
         self._myObsLightMicProjects.save()
-
 #---------------------------------------------------------------------------
     @checkProjectLocalName(1)
     def openTerminal(self, projectLocalName, package):
