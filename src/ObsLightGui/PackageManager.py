@@ -154,9 +154,6 @@ class PackageManager(QObject, ObsLightGuiObject):
         self.__packageChRootStatus.currentIndexChanged.connect(self.on_packageChRootStatus)
     #---------------------------------------------------------------------------
     def initPackageFilter(self):
-        '''
-        
-        '''
         currentProject = self.getCurrentProject()
         if currentProject != None:
             if not self.__isInitPackageFilter:
@@ -210,9 +207,6 @@ class PackageManager(QObject, ObsLightGuiObject):
                 self.__packageChRootStatus.setCurrentIndex(0)
     #---------------------------------------------------------------------------
     def on_packageOscRev(self):
-        '''
-        
-        '''
         currentProject = self.getCurrentProject()
         packageFilter = self.manager.getPackageFilter(currentProject)
         if "oscRev" in packageFilter.keys():
@@ -225,9 +219,6 @@ class PackageManager(QObject, ObsLightGuiObject):
         self.refresh()
 
     def on_packageObsRev(self):
-        '''
-        
-        '''
         currentProject = self.getCurrentProject()
         packageFilter = self.manager.getPackageFilter(currentProject)
         if "obsRev" in packageFilter.keys():
@@ -239,9 +230,6 @@ class PackageManager(QObject, ObsLightGuiObject):
         self.refresh()
 
     def on_packageOscStatusFilter(self):
-        '''
-        
-        '''
         currentProject = self.getCurrentProject()
         packageFilter = self.manager.getPackageFilter(currentProject)
         if "oscStatus" in packageFilter.keys():
@@ -254,9 +242,6 @@ class PackageManager(QObject, ObsLightGuiObject):
 
 
     def on_packageObsStatusFilter(self):
-        '''
-        
-        '''
         currentProject = self.getCurrentProject()
         packageFilter = self.manager.getPackageFilter(currentProject)
         if "status" in packageFilter.keys():
@@ -268,9 +253,6 @@ class PackageManager(QObject, ObsLightGuiObject):
         self.refresh()
 
     def on_packageChRootStatus(self):
-        '''
-        
-        '''
         currentProject = self.getCurrentProject()
         packageFilter = self.manager.getPackageFilter(currentProject)
         if "chRootStatus" in packageFilter.keys():
@@ -281,6 +263,9 @@ class PackageManager(QObject, ObsLightGuiObject):
                                           self.__packageChRootStatus.currentText())
         self.refresh()
     #---------------------------------------------------------------------------
+    def __loadPkgModel(self, projectName):
+        self.__pkgModel = PackageModel(self.manager, projectName)
+
     def getCurrentProject(self):
         return self.__project
 
@@ -293,7 +278,9 @@ class PackageManager(QObject, ObsLightGuiObject):
             projectName = None
         if projectName != self.__project:
             self.__project = projectName
-            self.__pkgModel = PackageModel(self.manager, projectName)
+            self.callWithInfiniteProgress(self.__loadPkgModel,
+                                          "Loading package list",
+                                          projectName)
             self.__packageTableView.setModel(self.__pkgModel)
             self.__packageWidget.setEnabled(self.__project is not None)
         if self.currentPackage() is not None:
