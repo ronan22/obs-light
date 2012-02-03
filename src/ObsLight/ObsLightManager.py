@@ -1531,12 +1531,24 @@ class ObsLightManager(ObsLightManagerCore):
         self._myObsLightMicProjects.setMicProjectArchitecture(micProjectName=micProjectName, arch=arch)
         self._myObsLightMicProjects.save()
 
+    def getAvailableMicProjectArchitectures(self, micProjectName):
+        """
+        Get a list of available architectures for project `micProjectName`.
+        """
+        return self._myObsLightMicProjects.getAvailableMicProjectArchitectures(micProjectName)
+
     def setMicProjectImageType(self, micProjectName, imageType):
         self._myObsLightMicProjects.setMicProjectImageType(micProjectName=micProjectName, imageType=imageType)
         self._myObsLightMicProjects.save()
 
     def getMicProjectImageType(self, micProjectName):
         return self._myObsLightMicProjects.getMicProjectImageType(micProjectName=micProjectName)
+
+    def getAvailableMicProjectImageTypes(self, micProjectName):
+        """
+        Get a list of available image types for project `micProjectName`.
+        """
+        return self._myObsLightMicProjects.getAvailableImageTypes(micProjectName)
 
     def createImage(self, micProjectName):
         self._myObsLightMicProjects.createImage(micProjectName=micProjectName)

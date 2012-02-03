@@ -115,7 +115,7 @@ class ObsLightMicProjects:
         Raise an exception if `projectName` is not a Mic project.
         """
         if not self.isAMicProject(projectName):
-            message = "'%s' project does not exist"
+            message = "'%s' project does not exist" % projectName
             raise ObsLightErr.ObsLightProjectsError(message)
 
     def addMicProject(self, micProjectName):
@@ -149,6 +149,7 @@ class ObsLightMicProjects:
         self._checkMicProjectName(micProjectName)
         return self.__dicOBSLightProjects[micProjectName].getKickstartFile()
 
+    # TODO: rename to getArchitecture
     def getMicProjectArchitecture(self, micProjectName):
         """
         Get the architecture of `micProjectName` project.
@@ -156,6 +157,7 @@ class ObsLightMicProjects:
         self._checkMicProjectName(micProjectName)
         return self.__dicOBSLightProjects[micProjectName].getArchitecture()
 
+    # TODO: rename to setArchitecture
     def setMicProjectArchitecture(self, micProjectName, arch):
         """
         Set the architecture of `micProjectName` project.
@@ -163,6 +165,14 @@ class ObsLightMicProjects:
         self._checkMicProjectName(micProjectName)
         self.__dicOBSLightProjects[micProjectName].setArchitecture(arch)
 
+    # TODO: rename to getAvailableArchitectures
+    def getAvailableMicProjectArchitectures(self, micProjectName):
+        """
+        Get a list of available architectures.
+        """
+        return self.__dicOBSLightProjects[micProjectName].getAvailableArchitectures()
+
+    # TODO: rename to setImageType
     def setMicProjectImageType(self, micProjectName, imageType):
         """
         Set the image type of `micProjectName` project.
@@ -170,12 +180,20 @@ class ObsLightMicProjects:
         self._checkMicProjectName(micProjectName)
         self.__dicOBSLightProjects[micProjectName].setImageType(imageType)
 
+    # TODO: rename to getImageType
     def getMicProjectImageType(self, micProjectName):
         """
         Get the image type of `micProjectName` project.
         """
         self._checkMicProjectName(micProjectName)
         return self.__dicOBSLightProjects[micProjectName].getImageType()
+
+    def getAvailableImageTypes(self, micProjectName):
+        """
+        Get a list of available image types.
+        """
+        self._checkMicProjectName(micProjectName)
+        return self.__dicOBSLightProjects[micProjectName].getAvailableImageTypes()
 
     def createImage(self, micProjectName):
         """

@@ -150,7 +150,7 @@ class ObsLightMicProject(object):
         # TODO Add to Manager
         return ["i686", "armv8" ]
 
-    def getAvailableImageType(self):
+    def getAvailableImageTypes(self):
         """
         Get the available image types as a list of strings.
         """
