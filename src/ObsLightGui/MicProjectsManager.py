@@ -38,6 +38,9 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
 
     def __connectButtons(self):
         self.mainWindow.importKickstartButton.clicked.connect(self.on_importKickstartButton_clicked)
+        self.mainWindow.newMicProjectButton.clicked.connect(self.on_newMicProjectButton_clicked)
+        delClickSignal = self.mainWindow.deleteMicProjectButton.clicked
+        delClickSignal.connect(self.on_deleteMicProjectButton_clicked)
 
 # --- Button handlers --------------------------------------------------------
     @popupOnException
@@ -73,10 +76,14 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
             return
         result = QMessageBox.question(self.mainWindow,
                                       u"Are you sure ?",
-                                      u"Are you sure you want to delete %d project ?"
+                                      u"Are you sure you want to delete %s project ?"
                                         % micProject,
                                       buttons=QMessageBox.Yes | QMessageBox.No,
                                       defaultButton=QMessageBox.Yes)
         if result == QMessageBox.No:
             return
+        self.callWithInfiniteProgress(self.manager.deleteMicProject,
+                                      "Deleting MIC project",
+                                      micProject)
+        self.refresh()
 # --- end Button handlers ----------------------------------------------------
