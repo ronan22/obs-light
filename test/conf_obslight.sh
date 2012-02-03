@@ -12,5 +12,8 @@ PROJECTALIAS=fastinitTest
 TARGET=standard
 ARCH=i586
 PACKAGE=tzdata
+PRJREPOALIAS=testProject
+REPOALIAS=aTestProject
+REPOURL=http://128.224.218.251:82/MeeGo:/1.2.0:/oss/standard
 set -x
 

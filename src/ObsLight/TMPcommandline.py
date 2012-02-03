@@ -231,30 +231,31 @@ __DICO_Help__[__projectfilesystem_create__[0]] = __projectfilesystem_create__[0]
 __DICO_Help__[__projectfilesystem_delete__[0]] = __projectfilesystem_delete__[0] + ":" + "\t" + "Doc __obsproject_Help__"
 __DICO_Help__[__projectfilesystem_enter__[0]] = __projectfilesystem_enter__[0] + ":" + "\t" + "Doc __obsproject_Help__"
 __DICO_Help__[__projectfilesystem_executescript__[0]] = __projectfilesystem_executescript__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__projectfilesystem_addrepository__[0]] = __projectfilesystem_addrepository__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__projectfilesystem_extractpatch__[0]] = __projectfilesystem_extractpatch__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__projectfilesystem_repositories__[0]] = __projectfilesystem_repositories__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-
 
 #Command obsproject Level 3
-__projectfilesystem_path__ = ["path"]
 __projectfilesystem_status__ = ["status"]
-
 __projectfilesystem_path__ = ["path"]
-__projectfilesystem_repository_url__ = [""]
-__projectfilesystem_repository_alias__ = [""]
-__projectfilesystem_From__ = [""]
-__projectfilesystem_patch_name__ = [""]
+__projectfilesystem_repository__ = ["repository", "repo"]
 
 __DICO_Help__[__projectfilesystem_path__[0]] = __projectfilesystem_path__[0] + ":" + "\t" + "Doc __obsproject_Help__"
 __DICO_Help__[__projectfilesystem_status__[0]] = __projectfilesystem_status__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Help__[__projectfilesystem_repository__[0]] = __projectfilesystem_repository__[0] + ":" + "\t" + "Doc __obsproject_Help__"
 
 
-__DICO_Help__[__projectfilesystem_repository_url__[0]] = __projectfilesystem_repository_url__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__projectfilesystem_repository_alias__[0]] = __projectfilesystem_repository_alias__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__projectfilesystem_From__[0]] = __projectfilesystem_From__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__projectfilesystem_patch_name__[0]] = __projectfilesystem_patch_name__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+#Command projectfilesystem Level 3
+__repository_add__ = __server_add__
+__repository_delete__ = __server_del__
+__repository_modify__ = ["modify"]
+__repository_query__ = __server_query__
 
+__DICO_Help__[__repository_add__[0]] = __repository_add__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Help__[__repository_delete__[0]] = __repository_delete__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Help__[__repository_modify__[0]] = __repository_modify__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Help__[__repository_query__[0]] = __repository_query__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+
+__repository_From__ = ["from"]
+
+__DICO_Help__[__repository_From__[0]] = __repository_From__[0] + ":" + "\t" + "Doc __obsproject_Help__"
 
 
 def getParameter(listArgv):
@@ -1850,43 +1851,6 @@ class ObsLight():
             '''
             return 0
 
-        def projectfilesystem_repositories(listArgv):
-            '''
-            
-            '''
-            Help = False
-            project_alias = None
-
-            while(len(listArgv) > 0):
-                currentCommand, listArgv = getParameter(listArgv)
-                if (currentCommand in __obsproject_Help__) or (listArgv == None):
-                    Help = True
-                    break
-                elif currentCommand in __project_alias__:
-                    project_alias, listArgv = getParameter(listArgv)
-                else:
-                    Help = True
-                    break
-
-            if  (Help == True) :
-                return projectfilesystem_Help()
-            else:
-                m = ObsLightManager.getCommandLineManager()
-                if project_alias == None:
-                    project_alias = m.getCurrentObsProject()
-                    if project_alias == None:
-                        return projectfilesystem_Help()
-
-                res = m.getChRootRepositories(projectLocalName=project_alias)
-                if res == None:
-                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
-                        return -1
-                print res
-                print "repositories:"
-                for k in res:
-                    print "Alias" + k + "\t\tURL:" + res[k]
-            return 0
-
         def projectfilesystem_create(listArgv):
             '''
             
@@ -2080,17 +2044,11 @@ class ObsLight():
                 return res
             return 0
 
-        def projectfilesystem_addrepository(listArgv):
+        def projectfilesystem_repository(listArgv):
             '''
             
             '''
-            Help = False
-
-        def projectfilesystem_extractpatch(listArgv):
-            '''
-            
-            '''
-            Help = False
+            self.repository(listArgv)
 
         if len(listArgv) == 0:
             return projectfilesystem_Help()
@@ -2100,8 +2058,6 @@ class ObsLight():
 
             if currentCommand in __projectfilesystem_Help__ :
                 return projectfilesystem_Help()
-            elif currentCommand in __projectfilesystem_repositories__:
-                return projectfilesystem_repositories(listArgv)
             elif currentCommand in __projectfilesystem_create__ :
                 return projectfilesystem_create(listArgv)
             elif currentCommand in __projectfilesystem_delete__:
@@ -2112,12 +2068,184 @@ class ObsLight():
                 return projectfilesystem_enter(listArgv)
             elif currentCommand in __projectfilesystem_executescript__:
                 return projectfilesystem_executescript(listArgv)
-            elif currentCommand in __projectfilesystem_addrepository__:
-                return projectfilesystem_addrepository(listArgv)
-            elif currentCommand in __projectfilesystem_extractpatch__ :
-                return projectfilesystem_extractpatch(listArgv)
+            elif currentCommand in __projectfilesystem_repository__:
+                return projectfilesystem_repository(listArgv)
             else:
                 return projectfilesystem_Help()
+        return 0
+
+    def repository(self, listArgv):
+        '''
+        
+        '''
+        def repository_help():
+            '''
+            
+            '''
+            Help = False
+
+            return 0
+
+        def repository_add(listArgv):
+            '''
+            
+            '''
+            Help = False
+
+            From = False
+
+            url = None
+            alias = None
+            fromProject = None
+            project_alias = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = getParameter(listArgv)
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
+                elif currentCommand in __repository_From__:
+                    From = True
+                    fromProject, listArgv = getParameter(listArgv)
+                    project_alias, listArgv = getParameter(listArgv)
+                    break
+                else:
+                    url = currentCommand
+                    alias, listArgv = getParameter(listArgv)
+                    project_alias, listArgv = getParameter(listArgv)
+                    break
+
+            if  (Help == True):
+                return repository_help()
+            else:
+                m = ObsLightManager.getCommandLineManager()
+                if project_alias == None:
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return repository_help()
+
+                if From :
+                    if fromProject == None:
+                        return repository_help()
+
+                    res = m.addRepo(projectLocalName=project_alias,
+                                    fromProject=fromProject,
+                                    repoUrl=None,
+                                    alias=None)
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    return res
+                else:
+                    if url == None:
+                        return repository_help()
+                    if alias == None:
+                        return repository_help()
+
+                    res = m.addRepo(projectLocalName=project_alias,
+                                    fromProject=None,
+                                    repoUrl=url,
+                                    alias=alias)
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    return res
+
+        def repository_delete(listArgv):
+            '''
+            
+            '''
+            Help = False
+
+            alias = None
+            project_alias = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = getParameter(listArgv)
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
+                else:
+                    alias = currentCommand
+                    project_alias, listArgv = getParameter(listArgv)
+                    break
+
+            if  (Help == True):
+                return repository_help()
+            else:
+                m = ObsLightManager.getCommandLineManager()
+                if project_alias == None:
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return repository_help()
+
+                if alias == None:
+                    return repository_help()
+
+                res = m.deleteRepo(projectLocalName=project_alias,
+                                    repoAlias=alias)
+
+                if res == None:
+                    print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                    return -1
+                return res
+
+
+        def repository_modify(listArgv):
+            '''
+            
+            '''
+            Help = False
+
+        def repository_query(listArgv):
+            '''
+            
+            '''
+            Help = False
+            project_alias = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = getParameter(listArgv)
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
+                    break
+                else :
+                    project_alias = currentCommand
+
+
+            if  (Help == True) :
+                return repository_help()
+            else:
+                m = ObsLightManager.getCommandLineManager()
+                if project_alias == None:
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return repository_help()
+                res = m.getChRootRepositories(projectLocalName=project_alias)
+                if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                print "repositories:"
+                for k in res:
+                    print "Alias: " + k + "\t\tURL: " + res[k]
+            return 0
+
+        if len(listArgv) == 0:
+            return repository_help()
+        else:
+            currentCommand = listArgv[0]
+            listArgv = listArgv[1:]
+
+            if currentCommand in __projectfilesystem_Help__ :
+                return repository_help()
+            elif currentCommand in __repository_add__:
+                return repository_add(listArgv)
+            elif currentCommand in __repository_delete__ :
+                return repository_delete(listArgv)
+            elif currentCommand in __repository_modify__:
+                return repository_modify(listArgv)
+            elif currentCommand in __repository_query__:
+                return repository_query(listArgv)
+            else:
+                return repository_help()
         return 0
 
     def spec(self, listArgv):
@@ -2141,4 +2269,3 @@ class ObsLight():
         '''
         print "qemuproject"
         return 0
-

@@ -322,7 +322,7 @@ class ObsLightServer(object):
         '''
         
         '''
-        return ObsLightOsc.getObsLightOsc().getListPackage(obsServer=self.__serverAPI,
+        return ObsLightOsc.getObsLightOsc().getListPackage(apiurl=self.__serverAPI,
                                                         projectLocalName=projectLocalName)
 
     def checkoutPackage(self, projectObsName=None, package=None, directory=None):

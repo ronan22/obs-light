@@ -1066,17 +1066,88 @@ class ObsLightManagerCore(ObsLightManagerBase):
         '''
         return self._myObsLightProjects.getProject(projectLocalName).execScript(aPath)
     #///////////////////////////////////////////////////////////////////////////filesystem->Repositories
+    @checkProjectLocalName(1)
+    def addRepo(self, projectLocalName, fromProject=None, repoUrl=None, alias=None):
+        '''
+        Add a repository in the chroot's zypper configuration file.
+        You can add the repository of another project or use a specific url.
+        '''
+
+        if (fromProject == None) and ((repoUrl == None) or (alias == None)):
+            raise ObsLightProjectsError("wrong value for fromProject or (repoUrl, alias)")
+        elif (fromProject != None) and (not self.isALocalProject(fromProject)):
+            raise ObsLightProjectsError("'" + fromProject + "' is not a local project")
+
+        if fromProject != None:
+            res = self._myObsLightProjects.getProject(fromProject).addRepo(chroot=self._myObsLightProjects.getProject(projectLocalName).getChRoot())
+        else:
+            res = self._myObsLightProjects.getProject(projectLocalName).addRepo(repos=repoUrl, alias=alias)
+
+        self._myObsLightProjects.save()
+        return res
 
     @checkProjectLocalName(1)
     def getChRootRepositories(self, projectLocalName):
         '''
-        Return a dictionary of RPM package repositories configured in the
-        chroot of project 'projectLocalName'. The dictionary has aliases
-        as keys and URL as values.
+        Return a dictionary of RPM package repositories configured in 
+        the chroot of project 'projectLocalName'. 
+        The dictionary has aliases as keys and URL as values.
         '''
         return self._myObsLightProjects.getProject(projectLocalName).getChRootRepositories()
 
+    @checkProjectLocalName(1)
+    def deleteRepo(self, projectLocalName, repoAlias):
+        '''
+        Delete an RPM package repository from the chroot's zypper
+        configuration file.
+        '''
+        res = self._myObsLightProjects.getProject(projectLocalName).deleteRepo(repoAlias)
+        self._myObsLightProjects.save()
+        return res
+
+    @checkProjectLocalName(1)
+    def modifyRepo(self, projectLocalName, repoAlias, newUrl, newAlias):
+        res = self._myObsLightProjects.modifyRepo(projectLocalName, repoAlias, newUrl, newAlias)
+        self._myObsLightProjects.save()
+        return res
+
     #///////////////////////////////////////////////////////////////////////////rpmbuild
+    @checkProjectLocalName(1)
+    @checkNonEmptyStringPackage(2)
+    def addPackageSourceInChRoot(self, projectLocalName, package):
+        '''
+        Add a source RPM from the OBS repository into the chroot.
+        '''
+        self._myObsLightProjects.addPackageSourceInChRoot(projectLocalName=projectLocalName,
+                                                           package=package)
+        self._myObsLightProjects.save()
+
+    @checkProjectLocalName(1)
+    def buildRpm(self, projectLocalName, package):
+        '''
+        Execute the %build section of an RPM spec file.
+        '''
+        self._myObsLightProjects.buildRpm(projectLocalName=projectLocalName,
+                                           package=package)
+        self._myObsLightProjects.save()
+
+    @checkProjectLocalName(1)
+    def installRpm(self, projectLocalName, package):
+        '''
+        Execute the %install section of an RPM spec file.
+        '''
+        self._myObsLightProjects.installRpm(projectLocalName=projectLocalName,
+                                                                package=package)
+        self._myObsLightProjects.save()
+
+    @checkProjectLocalName(1)
+    def packageRpm(self, projectLocalName, package):
+        '''
+        Execute the package section of an RPM spec file.
+        '''
+        self._myObsLightProjects.packageRpm(projectLocalName=projectLocalName,
+                                                                package=package)
+        self._myObsLightProjects.save()
     #///////////////////////////////////////////////////////////////////////////micproject
     #///////////////////////////////////////////////////////////////////////////qemuproject
 
@@ -1144,7 +1215,6 @@ class ObsLightManager(ObsLightManagerCore):
                                                        projectObsName=projectObsName,
                                                        projectTarget=projectTarget)
 
-    #---------------------------------------------------------------------------
     def getRepo(self, serverApi):
         '''
         Return the URL of the OBS server repository.
@@ -1298,44 +1368,6 @@ class ObsLightManager(ObsLightManagerCore):
         return self._myObsLightProjects.getPackageInfo(projectLocalName=projectLocalName,
                                                         package=package)
 
-    #---------------------------------------------------------------------------
-    def getMicProjectList(self):
-        return self._myObsLightMicProjects.getMicProjectList()
-
-    def addMicProject(self, micProjectName):
-        self._myObsLightMicProjects.addMicProject(micProjectName=micProjectName)
-        self._myObsLightMicProjects.save()
-
-    def deleteMicProject(self, micProjectName):
-        self._myObsLightMicProjects.deleteMicProject(micProjectName)
-        self._myObsLightMicProjects.save()
-
-    def setKickstartFile(self, micProjectName, filePath):
-        self._myObsLightMicProjects.setKickstartFile(micProjectName=micProjectName,
-                                                      filePath=filePath)
-        self._myObsLightMicProjects.save()
-
-    def getKickstartFile(self, micProjectName):
-        return  self._myObsLightMicProjects.getKickstartFile(micProjectName=micProjectName)
-
-    def getMicProjectArchitecture(self, micProjectName):
-        return self._myObsLightMicProjects.getMicProjectArchitecture(micProjectName=micProjectName)
-        self._myObsLightMicProjects.save()
-
-    def setMicProjectArchitecture(self, micProjectName, arch):
-        self._myObsLightMicProjects.setMicProjectArchitecture(micProjectName=micProjectName, arch=arch)
-        self._myObsLightMicProjects.save()
-
-    def setMicProjectImageType(self, micProjectName, imageType):
-        self._myObsLightMicProjects.setMicProjectImageType(micProjectName=micProjectName, imageType=imageType)
-        self._myObsLightMicProjects.save()
-
-    def getMicProjectImageType(self, micProjectName):
-        return self._myObsLightMicProjects.getMicProjectImageType(micProjectName=micProjectName)
-
-    def createImage(self, micProjectName):
-        self._myObsLightMicProjects.createImage(micProjectName=micProjectName)
-        self._myObsLightMicProjects.save()
 
     @checkProjectLocalName(1)
     @checkNonEmptyStringPackage(2)
@@ -1381,20 +1413,6 @@ class ObsLightManager(ObsLightManagerCore):
         #        u"File name length": len(fileName)}
 
     @checkProjectLocalName(1)
-    def openTerminal(self, projectLocalName, package):
-        '''
-        open a terminal into the osc directory of a package.
-        '''
-        return  self._myObsLightProjects.openTerminal(projectLocalName=projectLocalName,
-                                                       package=package)
-
-    def openFile(self, filePath):
-        '''
-        
-        '''
-        return ObsLightTools.openFileWithDefaultProgram(filePath)
-
-    @checkProjectLocalName(1)
     @checkNonEmptyStringPackage(2)
     def isInstalledInChRoot(self, projectLocalName, package):
         '''
@@ -1403,43 +1421,6 @@ class ObsLightManager(ObsLightManagerCore):
         self.checkPackage(projectLocalName=projectLocalName, package=package)
         return self._myObsLightProjects.isInstallInChroot(projectLocalName=projectLocalName,
                                                            package=package)
-
-    @checkProjectLocalName(1)
-    @checkNonEmptyStringPackage(2)
-    def addPackageSourceInChRoot(self, projectLocalName, package):
-        '''
-        Add a source RPM from the OBS repository into the chroot.
-        '''
-        self._myObsLightProjects.addPackageSourceInChRoot(projectLocalName=projectLocalName,
-                                                           package=package)
-        self._myObsLightProjects.save()
-
-    @checkProjectLocalName(1)
-    def buildRpm(self, projectLocalName, package):
-        '''
-        Execute the %build section of an RPM spec file.
-        '''
-        self._myObsLightProjects.buildRpm(projectLocalName=projectLocalName,
-                                           package=package)
-        self._myObsLightProjects.save()
-
-    @checkProjectLocalName(1)
-    def installRpm(self, projectLocalName, package):
-        '''
-        Execute the %install section of an RPM spec file.
-        '''
-        self._myObsLightProjects.installRpm(projectLocalName=projectLocalName,
-                                                                package=package)
-        self._myObsLightProjects.save()
-
-    @checkProjectLocalName(1)
-    def packageRpm(self, projectLocalName, package):
-        '''
-        Execute the package section of an RPM spec file.
-        '''
-        self._myObsLightProjects.packageRpm(projectLocalName=projectLocalName,
-                                                                package=package)
-        self._myObsLightProjects.save()
 
     @checkProjectLocalName(1)
     @checkNonEmptyStringPackage(2)
@@ -1460,40 +1441,6 @@ class ObsLightManager(ObsLightManagerCore):
         return self._myObsLightProjects.patchIsInit(ProjectName=ProjectName,
                                                      packageName=packageName)
 
-    @checkProjectLocalName(1)
-    def addRepo(self, projectLocalName, fromProject=None, repoUrl=None, alias=None):
-        '''
-        Add a repository in the chroot's zypper configuration file.
-        You can add the repository of another project or use a specific
-        url.
-        '''
-        if (fromProject == None) and ((repoUrl == None) or (alias == None)):
-            raise ObsLightProjectsError("wrong value for fromProject or (repoUrl, alias)")
-        elif (fromProject != None) and (not self.isALocalProject(fromProject)):
-            raise ObsLightProjectsError(fromProject + " is not a local project")
-
-        self._myObsLightProjects.addRepo(projectLocalName=projectLocalName,
-                                           fromProject=fromProject,
-                                           repos=repoUrl,
-                                           alias=alias)
-        self._myObsLightProjects.save()
-
-    @checkProjectLocalName(1)
-    def deleteRepo(self, projectLocalName, repoAlias):
-        '''
-        Delete an RPM package repository from the chroot's zypper
-        configuration file.
-        '''
-        res = self._myObsLightProjects.deleteRepo(projectLocalName, repoAlias)
-        self._myObsLightProjects.save()
-        return res
-
-    @checkProjectLocalName(1)
-    def modifyRepo(self, projectLocalName, repoAlias, newUrl, newAlias):
-        res = self._myObsLightProjects.modifyRepo(projectLocalName, repoAlias, newUrl, newAlias)
-        self._myObsLightProjects.save()
-        return res
-
     @checkFilePath(1)
     def importProject(self, filePath):
         '''
@@ -1508,7 +1455,6 @@ class ObsLightManager(ObsLightManagerCore):
         Export a project to a file.
         '''
         self._myObsLightProjects.exportProject(projectLocalName, path=path)
-
 
     @checkProjectLocalName(1)
     @checkNonEmptyStringPackage(2)
@@ -1557,6 +1503,61 @@ class ObsLightManager(ObsLightManagerCore):
         Return True if 'package' has conflict else False.
         '''
         return self._myObsLightProjects.testConflict(projectLocalName, package)
+#---------------------------------------------------------------------------
+    def getMicProjectList(self):
+        return self._myObsLightMicProjects.getMicProjectList()
+
+    def addMicProject(self, micProjectName):
+        self._myObsLightMicProjects.addMicProject(micProjectName=micProjectName)
+        self._myObsLightMicProjects.save()
+
+    def deleteMicProject(self, micProjectName):
+        self._myObsLightMicProjects.deleteMicProject(micProjectName)
+        self._myObsLightMicProjects.save()
+
+    def setKickstartFile(self, micProjectName, filePath):
+        self._myObsLightMicProjects.setKickstartFile(micProjectName=micProjectName,
+                                                      filePath=filePath)
+        self._myObsLightMicProjects.save()
+
+    def getKickstartFile(self, micProjectName):
+        return  self._myObsLightMicProjects.getKickstartFile(micProjectName=micProjectName)
+
+    def getMicProjectArchitecture(self, micProjectName):
+        return self._myObsLightMicProjects.getMicProjectArchitecture(micProjectName=micProjectName)
+        self._myObsLightMicProjects.save()
+
+    def setMicProjectArchitecture(self, micProjectName, arch):
+        self._myObsLightMicProjects.setMicProjectArchitecture(micProjectName=micProjectName, arch=arch)
+        self._myObsLightMicProjects.save()
+
+    def setMicProjectImageType(self, micProjectName, imageType):
+        self._myObsLightMicProjects.setMicProjectImageType(micProjectName=micProjectName, imageType=imageType)
+        self._myObsLightMicProjects.save()
+
+    def getMicProjectImageType(self, micProjectName):
+        return self._myObsLightMicProjects.getMicProjectImageType(micProjectName=micProjectName)
+
+    def createImage(self, micProjectName):
+        self._myObsLightMicProjects.createImage(micProjectName=micProjectName)
+        self._myObsLightMicProjects.save()
+#---------------------------------------------------------------------------
+    @checkProjectLocalName(1)
+    def openTerminal(self, projectLocalName, package):
+        '''
+        open a terminal into the osc directory of a package.
+        '''
+        return  self._myObsLightProjects.openTerminal(projectLocalName=projectLocalName,
+                                                       package=package)
+
+    def openFile(self, filePath):
+        '''
+        
+        '''
+        return ObsLightTools.openFileWithDefaultProgram(filePath)
+#---------------------------------------------------------------------------
+
+
 
 __myObsLightManager = None
 
