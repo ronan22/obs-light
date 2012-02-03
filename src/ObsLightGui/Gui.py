@@ -1,5 +1,5 @@
 #
-# Copyright 2011, Intel Inc.
+# Copyright 2011-2012, Intel Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -169,7 +169,7 @@ class Gui(QObject):
         self.__obsProjectManager.refresh()
 
     def setCurrentProject(self, projectName):
-        self.__obsProjectManager.setCurrentProject(projectName)
+        self.__obsProjectManager.currentProject = projectName
 
     def runWizard(self, autoSelectProject=None):
         self.__wizard = ConfigWizard(self)

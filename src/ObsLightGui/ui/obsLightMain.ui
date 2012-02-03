@@ -1179,24 +1179,6 @@ in the source directory of the current package if it is installed.</string>
         <item row="1" column="0" colspan="2">
          <widget class="QListWidget" name="micProjectsListWidget"/>
         </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="micProjectsLabel">
-          <property name="font">
-           <font>
-            <pointsize>12</pointsize>
-            <weight>75</weight>
-            <bold>true</bold>
-            <underline>true</underline>
-           </font>
-          </property>
-          <property name="text">
-           <string>Projects</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-        </item>
         <item row="0" column="3" rowspan="4">
          <widget class="Line" name="line_3">
           <property name="orientation">
@@ -1214,7 +1196,7 @@ in the source directory of the current package if it is installed.</string>
         <item row="0" column="4" rowspan="6" colspan="2">
          <widget class="QTabWidget" name="micProjectsTabWidget">
           <property name="currentIndex">
-           <number>0</number>
+           <number>2</number>
           </property>
           <widget class="QWidget" name="kickstartMainTab">
            <attribute name="title">
