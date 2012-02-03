@@ -44,12 +44,12 @@ obslight
 	projectfilesystem	query 		[path |status] {<project_alias>}
 	projectfilesystem	enter		[package <package>] {<project_alias>}
 	projectfilesystem	executescript	<path> {<project_alias>}
-	#Not implement
+
 	projectfilesystem	repositories	add	<repository_url> <repository_alias> {<project_alias>}
 	projectfilesystem	repositories	add	from <from_project> {<project_alias>}
-	projectfilesystem	repositories	delete	??? 
-	projectfilesystem	repositories	modify	??? 
-	projectfilesystem	repositories	query	{<project_alias>}
+	projectfilesystem	repositories	delete	<repository_alias> {<project_alias>} 
+	projectfilesystem	repositories	query	
+	projectfilesystem	repositories	modify	repoAlias  [newUrl <newUrl>] [newAlias <newAlias>] {project_alias <project_alias>}
 	#___________________________________________________________________________________________________________________________________________
 	#Not implement
 	spec	prepare	{<package>} {<project_alias>}
@@ -58,12 +58,14 @@ obslight
 	spec	package	{<package>} {<project_alias>}
 	spec 	extractpatch {<package>} {<project_alias>}
 	#___________________________________________________________________________________________________________________________________________
+	#feature
 	#Not implement
 	micproject	add	<project_name> <kickstart_path> <architecture> <image_type>
 	micproject	delete	<project_name>
 	micproject	list
 	micproject	query	[kickstart] [architecture] [imagetype] {<project_name>}
 	#___________________________________________________________________________________________________________________________________________
+	#feature	
 	#Not implement
 	qemuproject	add
 	qemuproject	del

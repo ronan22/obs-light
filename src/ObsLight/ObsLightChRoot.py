@@ -786,9 +786,22 @@ class ObsLightChRoot(object):
             del self.__dicoRepos[repoAlias]
             return 0
         else:
-            raise ObsLightErr.ObsLightChRootError("Can't delete the repo", repoAlias)
+            raise ObsLightErr.ObsLightChRootError("Can't delete the repo '" + repoAlias + "'")
 
     def modifyRepo(self, repoAlias, newUrl, newAlias):
+        if newUrl == None:
+            newUrl = self.__dicoRepos[repoAlias]
+
         self.deleteRepo(repoAlias)
+
+        if newAlias == None:
+            newAlias = repoAlias
+
         self.__addRepo(newUrl, newAlias)
+
+        return self.addRepo(repos=newUrl, alias=newAlias)
+
+
+
+
 
