@@ -1169,9 +1169,6 @@ in the source directory of the current package if it is installed.</string>
        </layout>
       </widget>
       <widget class="QWidget" name="micProjectTab">
-       <property name="toolTip">
-        <string>(not implemented yet)</string>
-       </property>
        <attribute name="title">
         <string>MIC Projects</string>
        </attribute>
@@ -1195,6 +1192,9 @@ in the source directory of the current package if it is installed.</string>
         </item>
         <item row="0" column="4" rowspan="6" colspan="2">
          <widget class="QTabWidget" name="micProjectsTabWidget">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="currentIndex">
            <number>0</number>
           </property>
@@ -1240,13 +1240,6 @@ in the source directory of the current package if it is installed.</string>
             <item row="0" column="3">
              <widget class="QLineEdit" name="imageNameLineEdit"/>
             </item>
-            <item row="2" column="4">
-             <widget class="QPushButton" name="browseLogButton">
-              <property name="text">
-               <string>Browse...</string>
-              </property>
-             </widget>
-            </item>
             <item row="1" column="0">
              <widget class="QLabel" name="architectureLabel">
               <property name="text">
@@ -1257,9 +1250,32 @@ in the source directory of the current package if it is installed.</string>
             <item row="1" column="1">
              <widget class="QComboBox" name="architectureComboBox"/>
             </item>
+            <item row="0" column="4" rowspan="2">
+             <widget class="QPushButton" name="createImageButton">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Create image</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="4">
+             <widget class="QPushButton" name="browseLogButton">
+              <property name="text">
+               <string>Browse...</string>
+              </property>
+             </widget>
+            </item>
            </layout>
           </widget>
           <widget class="QWidget" name="kickstartOptionsTab">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <attribute name="title">
             <string>Kickstart options</string>
            </attribute>
@@ -1334,6 +1350,9 @@ in the source directory of the current package if it is installed.</string>
            </layout>
           </widget>
           <widget class="QWidget" name="kickstartRepositoriesTab">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <attribute name="title">
             <string>Repositories</string>
            </attribute>
@@ -1437,6 +1456,9 @@ in the source directory of the current package if it is installed.</string>
            </layout>
           </widget>
           <widget class="QWidget" name="kickstartPackagesTab">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <attribute name="title">
             <string>Packages</string>
            </attribute>
@@ -1534,6 +1556,9 @@ in the source directory of the current package if it is installed.</string>
            </layout>
           </widget>
           <widget class="QWidget" name="kickstartScriptsTab">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <attribute name="title">
             <string>Scripts</string>
            </attribute>

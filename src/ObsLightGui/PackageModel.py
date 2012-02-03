@@ -41,12 +41,13 @@ class PackageModel(QAbstractTableModel):
     __obsLightManager = None
     __project = None
     __emptyList = {}
+    __pkgList = None
 
     def __init__(self, obsLightManager, projectName):
         QAbstractTableModel.__init__(self)
         self.__obsLightManager = obsLightManager
         self.__project = projectName
-        self.__pkgList = None
+        self.__getPackageList()
         self._loadColors()
 
     #model

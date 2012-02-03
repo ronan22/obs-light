@@ -60,15 +60,17 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
 
     def __connectEvents(self):
         self.projectListWidget.currentTextChanged.connect(self.on_projectSelected)
-        self.__connectProjectEvents()
+        self.__connectProjectEventsAndButtons()
 
-    def __connectProjectEvents(self):
+    def __connectProjectEventsAndButtons(self):
         imgTypeChanged = self.mainWindow.imageTypeComboBox.currentIndexChanged[unicode]
         imgTypeChanged.connect(self.on_imageTypeComboBox_currentIndexChanged)
         archChanged = self.mainWindow.architectureComboBox.currentIndexChanged[unicode]
         archChanged.connect(self.on_architectureComboBox_currentIndexChanged)
+        createImageClicked = self.mainWindow.createImageButton.clicked
+        createImageClicked.connect(self.on_createImageButton_clicked)
 
-    def __diconnectProjectEvents(self):
+    def __disconnectProjectEventsAndButtons(self):
         imgTypeChanged = self.mainWindow.imageTypeComboBox.currentIndexChanged[unicode]
         imgTypeChanged.disconnect(self.on_imageTypeComboBox_currentIndexChanged)
         archChanged = self.mainWindow.architectureComboBox.currentIndexChanged[unicode]
@@ -140,6 +142,13 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
                                       micProject)
         self.__micProjects.pop(micProject, None)
         self.refresh()
+
+    @popupOnException
+    def on_createImageButton_clicked(self):
+        micProject = self.currentProject
+        if micProject is None:
+            return
+        self._currentProjectObj.createImage()
 # --- end Button handlers ----------------------------------------------------
 
 # --- Event handlers ---------------------------------------------------------
@@ -148,10 +157,10 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
         if self.currentProject is None:
             self.mainWindow.micProjectsTabWidget.setEnabled(False)
             return
-        self.__diconnectProjectEvents()
+        self.__disconnectProjectEventsAndButtons()
         self.mainWindow.micProjectsTabWidget.setEnabled(True)
         self._currentProjectObj.refresh()
-        self.__connectProjectEvents()
+        self.__connectProjectEventsAndButtons()
 
     def on_imageTypeComboBox_currentIndexChanged(self, imageType):
         """Called when user changes image type combo box"""
