@@ -287,46 +287,6 @@ class ObsLightProjects(object):
         '''
         return  self.getProject(projectLocalName).getPackageFileInfo(packageName, fileName)
 
-    def addPackageSourceInChRoot(self, projectLocalName=None, package=None):
-        '''
-        
-        '''
-        self.getProject(projectLocalName).addPackageSourceInChRoot(package=package)
-
-    def buildRpm(self, projectLocalName, package):
-        '''
-        
-        '''
-        self.getProject(projectLocalName).buildRpm(package=package)
-
-    def installRpm(self, projectLocalName, package):
-        '''
-        
-        '''
-        self.getProject(projectLocalName).installRpm(package=package)
-
-    def packageRpm(self, projectLocalName, package):
-        '''
-        
-        '''
-        self.getProject(projectLocalName).packageRpm(package=package)
-
-    def makePatch(self,
-                  projectLocalName=None,
-                  package=None,
-                  patch=None):
-        '''
-        
-        '''
-        self.getProject(projectLocalName).makePatch(package=package,
-                                                               patch=patch)
-
-    def updatePatch(self, projectLocalName, package):
-        '''
-        
-        '''
-        self.getProject(projectLocalName).updatePatch(package=package)
-
     def getObsServer(self, name=None):
         '''
         Return the OBS server name of a project.
@@ -444,11 +404,7 @@ class ObsLightProjects(object):
         else:
             return self.getProject(projectLocalName).refreshObsStatus(package=package)
 
-    def patchIsInit(self, ProjectName, packageName):
-        '''
-        
-        '''
-        return self.getProject(ProjectName).patchIsInit(packageName=packageName)
+
 
 
     def testConflict(self, projectLocalName, package):
