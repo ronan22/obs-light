@@ -254,9 +254,12 @@ __DICO_Help__[__repository_modify__[0]] = __repository_modify__[0] + ":" + "\t" 
 __DICO_Help__[__repository_query__[0]] = __repository_query__[0] + ":" + "\t" + "Doc __obsproject_Help__"
 
 __repository_From__ = ["from"]
+__repository_newUrl__ = ["newUrl"]
+__repository_newAlias__ = ["newAlias"]
 
 __DICO_Help__[__repository_From__[0]] = __repository_From__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-
+__DICO_Help__[__repository_newUrl__[0]] = __repository_newUrl__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Help__[__repository_newAlias__[0]] = __repository_newAlias__[0] + ":" + "\t" + "Doc __obsproject_Help__"
 
 def getParameter(listArgv):
     if listArgv == None:
@@ -2194,6 +2197,52 @@ class ObsLight():
             
             '''
             Help = False
+
+            alias = None
+            project_alias = None
+            newUrl = None
+            newAlias = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = getParameter(listArgv)
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
+                else:
+                    alias = currentCommand
+                    while(len(listArgv) > 0):
+                        currentCommand, listArgv = getParameter(listArgv)
+                        if currentCommand in __repository_newUrl__:
+                            newUrl, listArgv = getParameter(listArgv)
+                        elif currentCommand in __repository_newAlias__:
+                            newAlias, listArgv = getParameter(listArgv)
+                        else:
+                            break
+                    project_alias, listArgv = getParameter(listArgv)
+                    break
+
+            if  (Help == True):
+                return repository_help()
+            else:
+                m = ObsLightManager.getCommandLineManager()
+                if project_alias == None:
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return repository_help()
+                if alias == None:
+                    return repository_help()
+
+                if (newUrl == None) and (newAlias == None):
+                    return repository_help()
+
+                res = m.modifyRepo(projectLocalName=project_alias,
+                                   repoAlias=alias,
+                                   newUrl=newUrl,
+                                   newAlias=newAlias)
+
+                if res == None:
+                    print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                    return -1
+                return res
 
         def repository_query(listArgv):
             '''

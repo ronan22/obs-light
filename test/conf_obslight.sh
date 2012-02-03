@@ -15,5 +15,7 @@ PACKAGE=tzdata
 PRJREPOALIAS=testProject
 REPOALIAS=aTestProject
 REPOURL=http://128.224.218.251:82/MeeGo:/1.2.0:/oss/standard
+NEWREPOURL=http://repo.pub.meego.com//home:/ronan:/OBS_Light/openSUSE_11.4
+NEWREPOALIAS=aNewTestProject
 set -x
 

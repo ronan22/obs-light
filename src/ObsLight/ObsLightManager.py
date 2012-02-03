@@ -1107,7 +1107,7 @@ class ObsLightManagerCore(ObsLightManagerBase):
 
     @checkProjectLocalName(1)
     def modifyRepo(self, projectLocalName, repoAlias, newUrl, newAlias):
-        res = self._myObsLightProjects.modifyRepo(projectLocalName, repoAlias, newUrl, newAlias)
+        res = self._myObsLightProjects.getProject(projectLocalName).modifyRepo(repoAlias, newUrl, newAlias)
         self._myObsLightProjects.save()
         return res
 

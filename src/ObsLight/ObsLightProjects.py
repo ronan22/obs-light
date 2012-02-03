@@ -410,13 +410,6 @@ class ObsLightProjects(object):
         else:
             return self.getProject(projectLocalName).updatePackage(name=package)
 
-    def modifyRepo(self, projectLocalName, repoAlias, newUrl, newAlias):
-        '''
-        
-        '''
-        self.getProject(projectLocalName).modifyRepo(repoAlias, newUrl, newAlias)
-
-
     def refreshOscDirectoryStatus(self, projectLocalName, package, controlFunction=None):
         '''
         

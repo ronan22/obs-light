@@ -906,9 +906,7 @@ class ObsLightProject(object):
         '''
         
         '''
-        self.__chroot.modifyRepo(repoAlias, newUrl, newAlias)
-
-
+        return self.__chroot.modifyRepo(repoAlias, newUrl, newAlias)
 
     def getPackageFileInfo(self, packageName, fileName):
         '''
