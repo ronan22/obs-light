@@ -43,12 +43,10 @@ class PackageManager(QObject, ObsLightGuiObject):
     __pkgModel = None
     __fileManager = None
 
-    __packageWidget = None
     __packageTableView = None
     __packageNameLabel = None
     __packageTitleLabel = None
     __packageDescriptionLabel = None
-    __importPackageButton = None
     __deletePackageButton = None
     __rpmPrepButton = None
     __rpmBuildButton = None
@@ -61,8 +59,6 @@ class PackageManager(QObject, ObsLightGuiObject):
     __deletePatchButton = None
     __modifyPatchButton = None
     __addAndCommitButton = None
-    __refreshOscStatusButton = None
-    __repairOscButton = None
     __packagePathLineEdit = None
 
     __packageSelector = None
@@ -76,15 +72,12 @@ class PackageManager(QObject, ObsLightGuiObject):
         ObsLightGuiObject.__init__(self, gui)
         self.__fileManager = FileManager(self.gui)
         mainWindow = self.mainWindow
-        self.__packageWidget = mainWindow.findChild(QWidget,
-                                                    u"packageWidget")
+        # TODO: remove/move all these findChild calls
         self.__packageTableView = mainWindow.findChild(QTableView,
                                                        u"packageTableView")
         self.__packageTableView.setSelectionBehavior(QTableView.SelectionBehavior.SelectRows)
         self.__packageTableView.activated.connect(self.on_packageIndex_clicked)
-        self.__importPackageButton = mainWindow.findChild(QPushButton,
-                                                          u"importPackageButton")
-        self.__importPackageButton.clicked.connect(self.on_newPackageButton_clicked)
+        self.mainWindow.importPackageButton.clicked.connect(self.on_newPackageButton_clicked)
         self.__deletePackageButton = mainWindow.findChild(QPushButton,
                                                           u"deletePackageButton")
         self.__deletePackageButton.clicked.connect(self.on_deletePackageButton_clicked)
@@ -126,12 +119,10 @@ class PackageManager(QObject, ObsLightGuiObject):
 
         self.__packageSelector = PackageSelector(self.gui)
         self.__packageSelector.packagesSelected.connect(self.on_packageSelector_packagesSelected)
-        self.__refreshOscStatusButton = mainWindow.findChild(QPushButton,
-                                                             u"refreshOscStatusButton")
-        self.__refreshOscStatusButton.clicked.connect(self.on_refreshOscStatusButton_clicked)
-        self.__repairOscButton = mainWindow.findChild(QPushButton,
-                                                      u"repairOscButton")
-        self.__repairOscButton.clicked.connect(self.on_repairOscButton_clicked)
+        clickSignal = self.mainWindow.refreshOscStatusButton.clicked
+        clickSignal.connect(self.on_refreshOscStatusButton_clicked)
+        clickSignal = self.mainWindow.repairOscButton.clicked
+        clickSignal.connect(self.on_repairOscButton_clicked)
         self.__packagePathLineEdit = mainWindow.findChild(QLineEdit,
                                                           u"packagePathLineEdit")
 
@@ -282,7 +273,7 @@ class PackageManager(QObject, ObsLightGuiObject):
                                           "Loading package list",
                                           projectName)
             self.__packageTableView.setModel(self.__pkgModel)
-            self.__packageWidget.setEnabled(self.__project is not None)
+            self.mainWindow.packageWidget.setEnabled(self.__project is not None)
         if self.currentPackage() is not None:
             self.__fileManager.setCurrentPackage(self.__project, self.currentPackage())
         else:

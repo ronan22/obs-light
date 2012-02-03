@@ -150,14 +150,12 @@ class ObsLightMicProject(object):
         """
         Get the available architecture types as a list.
         """
-        # TODO Add to Manager
         return ["i686", "armv8" ]
 
     def getAvailableImageTypes(self):
         """
         Get the available image types as a list of strings.
         """
-        # TODO: Add to Manager
         return ["fs", "livecd", "liveusb", "loop" , "raw" ]
 
     def runQemu(self):

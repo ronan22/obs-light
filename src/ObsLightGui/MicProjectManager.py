@@ -79,3 +79,6 @@ class MicProjectManager(QObject, ObsLightGuiObject):
 
     def refresh(self):
         self.__loadUi()
+
+    def createImage(self):
+        self.manager.createImage(self.name)
