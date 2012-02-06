@@ -87,6 +87,18 @@ class MicProjectManager(QObject, ObsLightGuiObject):
 
     def refresh(self):
         self.__loadUi()
+        self.repositoryModel.refresh()
+
+    def removeRepository(self, name):
+        self.repositoryModel.removeRepository(name)
+
+    def getRepositoryNameByRowId(self, row):
+        if row < 0 or row > self.repositoryModel.rowCount():
+            return None
+        repoNameIndex = self.repositoryModel.createIndex(row,
+                                                         KickstartRepositoriesModel.NameColumn)
+        repoName = self.repositoryModel.data(repoNameIndex)
+        return repoName
 
     def createImage(self):
         self.manager.createImage(self.name)

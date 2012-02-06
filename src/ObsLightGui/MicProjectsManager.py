@@ -21,11 +21,11 @@ Created on 2 févr. 2012
 @author: Florent Vennetier
 '''
 
-from PySide.QtGui import QFileDialog, QInputDialog, QMessageBox
+from PySide.QtGui import QFileDialog, QInputDialog, QMessageBox, QTableView
 
 from ObsLightGuiObject import ObsLightGuiObject
 from ProjectsManagerBase import ProjectsManagerBase
-from Utils import popupOnException
+from Utils import getSelectedRows, popupOnException
 from MicProjectManager import MicProjectManager
 
 class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
@@ -39,6 +39,7 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
                                      self.manager.getMicProjectList)
         self.__connectButtons()
         self.__connectEvents()
+        self.mainWindow.kickstartRepositoriesTableView.setSelectionBehavior(QTableView.SelectRows)
         self.loadProjectList()
 
     @property
@@ -69,12 +70,18 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
         archChanged.connect(self.on_architectureComboBox_currentIndexChanged)
         createImageClicked = self.mainWindow.createImageButton.clicked
         createImageClicked.connect(self.on_createImageButton_clicked)
+        removeRepoClicked = self.mainWindow.removeRepositoryButton.clicked
+        removeRepoClicked.connect(self.on_removeRepositoryButton_clicked)
 
     def __disconnectProjectEventsAndButtons(self):
         imgTypeChanged = self.mainWindow.imageTypeComboBox.currentIndexChanged[unicode]
         imgTypeChanged.disconnect(self.on_imageTypeComboBox_currentIndexChanged)
         archChanged = self.mainWindow.architectureComboBox.currentIndexChanged[unicode]
         archChanged.disconnect(self.on_architectureComboBox_currentIndexChanged)
+        createImageClicked = self.mainWindow.createImageButton.clicked
+        createImageClicked.disconnect(self.on_createImageButton_clicked)
+        removeRepoClicked = self.mainWindow.removeRepositoryButton.clicked
+        removeRepoClicked.disconnect(self.on_removeRepositoryButton_clicked)
 
 # --- Button handlers --------------------------------------------------------
     @popupOnException
@@ -149,6 +156,26 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
         if micProject is None:
             return
         self._currentProjectObj.createImage()
+
+    @popupOnException
+    def on_removeRepositoryButton_clicked(self):
+        repositories = []
+        for row in getSelectedRows(self.mainWindow.kickstartRepositoriesTableView):
+            repo = self._currentProjectObj.getRepositoryNameByRowId(row)
+            if repo is not None:
+                repositories.append(repo)
+        if len(repositories) < 1:
+            return
+        result = QMessageBox.question(self.mainWindow,
+                                      u"Are you sure ?",
+                                      u"Are you sure you want to remove %d repositories ?"
+                                        % len(repositories),
+                                      buttons=QMessageBox.Yes | QMessageBox.No,
+                                      defaultButton=QMessageBox.Yes)
+        if result == QMessageBox.No:
+            return
+        for repo in repositories:
+            self._currentProjectObj.removeRepository(repo)
 # --- end Button handlers ----------------------------------------------------
 
 # --- Event handlers ---------------------------------------------------------

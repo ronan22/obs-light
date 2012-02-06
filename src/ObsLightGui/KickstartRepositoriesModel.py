@@ -27,9 +27,11 @@ class KickstartRepositoriesModel(QAbstractTableModel):
 
     NameColumn = 0
     UrlColumn = 1
+    CostColumn = 2
+    PriorityColumn = 3
 
     # A tuple containing the keys of repository dictionaries
-    ColumnKeys = ("name", "baseurl")
+    ColumnKeys = ("name", "baseurl", "cost", "priority")
 
     __manager = None
     __project = None
@@ -60,7 +62,7 @@ class KickstartRepositoriesModel(QAbstractTableModel):
 
     # from QAbstractTableModel
     def columnCount(self, _parent=None):
-        return 2
+        return len(self.ColumnKeys)
 
     # from QAbstractTableModel
     def rowCount(self, _parent=None):
@@ -76,6 +78,10 @@ class KickstartRepositoriesModel(QAbstractTableModel):
                     return "Name"
                 elif section == self.UrlColumn:
                     return "URL"
+                elif section == self.CostColumn:
+                    return "Cost (for Yum)"
+                elif section == self.PriorityColumn:
+                    return "Priority (for Zypper)"
         return None
 
     # from QAbstractTableModel
@@ -96,12 +102,18 @@ class KickstartRepositoriesModel(QAbstractTableModel):
             if value == self.displayRoleData(index):
                 # nothing to do
                 return False
+            row = index.row()
+            column = index.column()
+            # convert empty strings and "none" to None
+            if column in (self.CostColumn, self.PriorityColumn):
+                if isinstance(value, basestring) and (value.lower() == "none" or value == ""):
+                    value = None
             # in case repository name has changed, we must keep the old name
-            oldName = self.__repositories[index.row()][self.ColumnKeys[self.NameColumn]]
+            oldName = self.__repositories[row][self.ColumnKeys[self.NameColumn]]
             # do the change in memory
-            self.__repositories[index.row()][self.ColumnKeys[index.column()]] = value
+            self.__repositories[row][self.ColumnKeys[column]] = value
             # commit the change on disk
-            self.__updateRepoInManager(index.row(), oldName)
+            self.__updateRepoInManager(row, oldName)
             # update the view
             self.refresh()
             return True
@@ -118,7 +130,8 @@ class KickstartRepositoriesModel(QAbstractTableModel):
         """
         Return the "Qt.DisplayRole" data for cell at `index`.
         """
-        return self.__repositories[index.row()][self.ColumnKeys[index.column()]]
+        retVal = self.__repositories[index.row()][self.ColumnKeys[index.column()]]
+        return retVal if retVal is None else str(retVal)
 
     def __updateRepoInManager(self, row, oldName):
         """
@@ -130,3 +143,8 @@ class KickstartRepositoriesModel(QAbstractTableModel):
         self.manager.removeKickstartRepository(self.currentProject, oldName)
         self.manager.addKickstartRepository(self.currentProject, **repoDict)
         self.manager.saveKickstartFile(self.currentProject)
+
+    def removeRepository(self, name):
+        self.manager.removeKickstartRepository(self.currentProject, name)
+        self.manager.saveKickstartFile(self.currentProject)
+        self.refresh()
