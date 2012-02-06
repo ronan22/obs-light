@@ -22,8 +22,11 @@ obslight
 	obsproject	delete	<project_alias>
 	obsproject	add	<project_alias> <name_on_obs> <target> <arch> {<server_alias>}
 	obsproject	query	[title|description|server|webpage|repository|target|architecture] project_alias <project_alias>
-	obsproject	query	[title|description|target|architecture|remoteurl|maintainer|bugowner] server_alias <server_alias> project <project> 
+	obsproject	query	[title|description|target|architecture|remoteurl|maintainer|bugowner] server_alias <server_alias> obsproject <project> 
 	obsproject	set	[title <title>] [description <description>] {project_alias <project_alias>}
+	#Not implement
+	obsproject	importProject	???
+	obsproject	exportProject	???
 	#___________________________________________________________________________________________________________________________________________
 	#implement
 	package	list	[available] {project_alias <project_alias>}
@@ -31,11 +34,16 @@ obslight
 	package	add	<package> {project_alias <project_alias>}
 	package	delete	<package> {project_alias <project_alias>}
 	package	query	[title|description|url|listFile] {package <package> {server_alias <server_alias> {project <project>}}} 
-	package	query	[title|description|obsRev|oscRev|listFile|obsStatus|oscStatus|specFile|yamlFile|packageDirectory|chRootStatus|currentPatch] {package <package> {project_alias <project_alias>} } 
+	package	query	[title|description|obsRev|oscRev|listFile|obsStatus|oscStatus|specFile|yamlFile|fsPackageDirectory|oscPackageDirectory|chRootStatus|currentPatch] {package <package> {project_alias <project_alias>} } 
 	package	set	[title <title>] [description <description>] {package <package> {project_alias <project_alias>}} 
+	
 	package	update	{package <package> {project_alias <project_alias>}}
 	package	commit	<message> {package <package> {project_alias <project_alias>}}
 	package	repair	{package <package> {project_alias <project_alias>}
+	#Not implement
+	package refresh			OscStatus ObsStatus {package <package> {project_alias <project_alias>}}
+	package addFileToPackage	???
+	package deleteFileFromPackage	???
 	#___________________________________________________________________________________________________________________________________________
 	
 	#implement
@@ -57,6 +65,9 @@ obslight
 	rpmbuild	package		{<package>} {project_alias <project_alias>}
 	#Not implement
 	rpmbuild	extractpatch	{<package>} {project_alias <project_alias>}
+	#Not implement
+	patchIsInit 	???
+	testConflict	???
 	#___________________________________________________________________________________________________________________________________________
 	#feature
 	#Not implement

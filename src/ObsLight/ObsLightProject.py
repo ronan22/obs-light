@@ -174,7 +174,7 @@ class ObsLightProject(object):
         return None if the package is not install.
         '''
 
-        if self.__packages.isInstallInChroot(name):
+        if self.getPackage(name).isInstallInChroot():
             absPackagePath = self.__chroot.getDirectory() + self.__packages.getPackage(name).getPackageDirectory()
             return absPackagePath
         else:
@@ -336,7 +336,7 @@ class ObsLightProject(object):
         
         '''
         for package in self.__packages.getListPackages():
-            if self.__packages.isInstallInChroot(package):
+            if self.getPackage(package).isInstallInChroot(package):
                 self.__packages.delFromChroot(package)
 
         res = self.__chroot.removeChRoot()
@@ -620,12 +620,12 @@ class ObsLightProject(object):
             self.checkOscPackageStatus(package=name)
         return 0
 
-    def isInstallInChroot(self, package):
-        '''
-        Return True if the package is install into the chroot.
-        '''
-
-        return self.__packages.isInstallInChroot(name=package)
+#    def isInstallInChroot(self, package):
+#        '''
+#        Return True if the package is install into the chroot.
+#        '''
+#
+#        return self.__packages.isInstallInChroot(name=package)
 
 
 
@@ -780,11 +780,11 @@ class ObsLightProject(object):
                                        tarFile=tarFile)
         return 0
 
-    def patchIsInit(self, packageName):
-        '''
-        
-        '''
-        return self.__packages.getPackage(package=packageName).patchIsInit()
+#    def patchIsInit(self, packageName):
+#        '''
+#        
+#        '''
+#        return self.__packages.getPackage(package=packageName).patchIsInit()
 
     def getPackageFileList(self, packageName):
         '''
@@ -888,18 +888,6 @@ class ObsLightProject(object):
         res = urllib.basejoin(serverWeb , "project/show?project=" + self.__projectObsName)
         return res
 
-    def addFileToPackage(self, package, path):
-        '''
-        
-        '''
-
-        self.__packages.addFile(package=package, path=path)
-
-    def delFileToPackage(self, package, name):
-        '''
-        
-        '''
-        self.__packages.delFile(package=package, name=name)
 
     def deleteRepo(self, repoAlias):
         '''
@@ -913,17 +901,23 @@ class ObsLightProject(object):
         '''
         return self.__chroot.modifyRepo(repoAlias, newUrl, newAlias)
 
-    def getPackageFileInfo(self, packageName, fileName):
-        '''
-        
-        '''
-        return self.__packages.getPackage(packageName).getPackageFileInfo(fileName)
+#    def getPackageFileInfo(self, packageName, fileName):
+#        '''
+#        
+#        '''
+#        return self.__packages.getPackage(packageName).getPackageFileInfo(fileName)
 
-    def testConflict(self, package):
-        '''
-        
-        '''
-        return self.__packages.getPackage(package).testConflict()
+#    def testConflict(self, package):
+#        '''
+#        
+#        '''
+#        return self.__packages.getPackage(package).testConflict()
+
+    def getPackageInfo(self, package=None):
+        return self.__packages.getPackageInfo(package=package)
+
+    def getListOscStatus(self):
+        return self.__packages.getListOscStatus()
 
     #---------------------------------------------------------------------------
     def getPackageFilter(self):
@@ -941,14 +935,11 @@ class ObsLightProject(object):
     def getListStatus(self):
         return self.__packages.getListStatus()
 
-    def getListOscStatus(self):
-        return self.__packages.getListOscStatus()
+
 
     def getListChRootStatus(self):
         return self.__packages.getListChRootStatus()
 
-    def getPackageInfo(self, package=None):
-        return self.__packages.getPackageInfo(package=package)
     #---------------------------------------------------------------------------
 
 

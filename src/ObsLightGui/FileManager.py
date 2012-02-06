@@ -82,8 +82,10 @@ class FileManager(QObject, ObsLightGuiObject):
 
             if self.manager.isChRootInit(self.__project):
                 self.__chrootTreeView.setEnabled(True)
-                pathInChRoot = self.manager.getPackageDirectoryInChRoot(self.__project,
-                                                                                  self.__package)
+                pathInChRoot = self.manager.getPackageParameter(projectLocalName=self.__project,
+                                                    package=self.__package,
+                                                    parameter="fsPackageDirectory")
+
                 chrootPath = self.manager.getChRootPath(self.__project)
                 self.__chrootModel.directoryLoaded.connect(self.on_chrootPath_loaded)
                 self.__packageInChrootDir = chrootPath
@@ -102,7 +104,10 @@ class FileManager(QObject, ObsLightGuiObject):
 
         # --- working copy view ---
         if self.__project is not None and self.__package is not None:
-            path = self.manager.getPackageDirectory(self.__project, self.__package)
+            path = self.manager.getPackageParameter(projectLocalName=self.__project,
+                                                    package=self.__package,
+                                                    parameter="oscPackageDirectory")
+
             self.__packageDir = path
             self.__oscWcModel = OscWorkingCopyModel(self.manager,
                                                     self.__project,

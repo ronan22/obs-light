@@ -361,7 +361,8 @@ class ObsLightPackage(object):
             status
             specFile
             yamlFile
-            packageDirectory
+            fsPackageDirectory
+            oscPackageDirectory
             description
             title
             chRootStatus
@@ -378,8 +379,10 @@ class ObsLightPackage(object):
             return self.__specFile if self.__specFile != None else ""
         elif parameter == "yamlFile":
             return self.__yamlFile if self.__yamlFile != None else ""
-        elif parameter == "packageDirectory":
+        elif parameter == "fsPackageDirectory":
             return self.__packageDirectory if self.__packageDirectory != None else ""
+        elif parameter == "oscPackageDirectory":
+            return self.__packagePath if self.__packagePath != None else ""
         elif parameter == "description":
             return self.__description if self.__description != None else ""
         elif parameter == "title":
