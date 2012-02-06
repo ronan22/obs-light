@@ -62,8 +62,11 @@ class ObsLightProjects(object):
         if ((len(self.__dicOBSLightProjects.keys()) == 0) and (len(self.__dicOBSLightProjects_unload.keys()) == 0)) or (aFile != None):
             if aFile == None:
                 pathFile = self.__pathFile
+                self.__dicOBSLightProjects_unload = {}
+                self.__dicOBSLightProjects = {}
                 #If default file load, importFile=False and no update on osc directory.
             else:
+                self.__load()
                 pathFile = aFile
 
             if os.path.isfile(pathFile):
@@ -77,13 +80,15 @@ class ObsLightProjects(object):
                 if (not "saveProjects" in self.__saveconfigProject.keys()) or (not "currentProject" in self.__saveconfigProject.keys()):
                     raise ObsLightErr.ObsLightProjectsError("the file: " + pathFile + "  is not a backup")
 
-                self.__dicOBSLightProjects_unload = self.__saveconfigProject["saveProjects"]
-
-#                for projetName in saveProjects.keys():
-#                    aServer = saveProjects[projetName]
-#                    self.__addProjectFromSave(name=projetName, fromSave=aServer)
+                for p in self.__saveconfigProject["saveProjects"].keys():
+                    if (p in self.__dicOBSLightProjects_unload.keys()) or (p in self.__dicOBSLightProjects.keys()):
+                        raise ObsLightErr.ObsLightProjectsError("Can't import project: '" + p + "' already a obslight project.")
+                    self.__dicOBSLightProjects_unload[p] = self.__saveconfigProject["saveProjects"][p]
 
                 self.__currentProjects = self.__saveconfigProject["currentProject"]
+            else:
+                raise ObsLightErr.ObsLightProjectsError("Can't import file: '" + pathFile + "' not exist.")
+            return 0
 
     def save(self, aFile=None, projectName=None):
         '''
@@ -100,6 +105,7 @@ class ObsLightProjects(object):
         if projectName == None:
             for aProjectName in self.__dicOBSLightProjects.keys():
                 saveProject[aProjectName] = self.__dicOBSLightProjects[aProjectName].getDic()
+
             for aProjectName in self.__dicOBSLightProjects_unload.keys():
                 saveProject[aProjectName] = self.__dicOBSLightProjects_unload[aProjectName]
         else:
@@ -113,14 +119,41 @@ class ObsLightProjects(object):
         saveconfigProject = {}
         saveconfigProject["saveProjects"] = saveProject
         saveconfigProject["currentProject"] = self.__currentProjects
+#        print "(saveconfigProject != self.__saveconfigProject)", (saveconfigProject != self.__saveconfigProject)
+#        if ("fastinitTest" in saveconfigProject["saveProjects"].keys()) and ("fastinitTest" in self.__saveconfigProject["saveProjects"].keys()):
+#            print "***************************************************************"
+#            print "saveconfigProject[saveProjects][fastinitTest]"
+#            print  saveconfigProject["saveProjects"]["fastinitTest"]
+#            for i in saveconfigProject["saveProjects"]["fastinitTest"].keys():
+#                print "i", i, "id", id(saveconfigProject["saveProjects"]["fastinitTest"][i])
+#                if i == "packages":
+#                    for j in saveconfigProject["saveProjects"]["fastinitTest"][i]['savePackages'].keys():
+#                        print "\tj", j, "id", id(saveconfigProject["saveProjects"]["fastinitTest"][i]['savePackages'][j])
+#                        pk = saveconfigProject["saveProjects"]["fastinitTest"][i]['savePackages'][j]
+#                        for k in pk.keys():
+#                            print "\t\tk", k, id(pk[k])
+#            print "---------------------------------------------------------------"
+#            print "self.__saveconfigProject[saveProjects][fastinitTest]"
+#            print self.__saveconfigProject["saveProjects"]["fastinitTest"]
+#            for i in self.__saveconfigProject["saveProjects"]["fastinitTest"].keys():
+#                print "i", i, "id", id(self.__saveconfigProject["saveProjects"]["fastinitTest"][i])
+#                if i == "packages":
+#                    for j in self.__saveconfigProject["saveProjects"]["fastinitTest"][i]['savePackages'].keys():
+#                        print "\tj", j, "id", id(self.__saveconfigProject["saveProjects"]["fastinitTest"][i]['savePackages'][j])
+#                        pk = self.__saveconfigProject["saveProjects"]["fastinitTest"][i]['savePackages'][j]
+#                        for k in pk.keys():
+#                            print "\t\tk", k, id(pk[k])
+#            print "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 
         if (projectName != None) or (saveconfigProject != self.__saveconfigProject):
             aFile = open(pathFile, 'w')
             pickle.dump(saveconfigProject, aFile)
             aFile.close()
 
-        if projectName == None:
-            self.__saveconfigProject = saveconfigProject
+            if projectName == None:
+                self.__saveconfigProject = saveconfigProject
+
+        return 0
 
     def getProject(self, project):
         '''
@@ -188,8 +221,8 @@ class ObsLightProjects(object):
         '''
         
         '''
-        projectTitle = self.__obsServers.getProjectTitle(obsServer=obsServer, projectObsName=projectObsName)
-        description = self.__obsServers.getProjectDescription(obsServer=obsServer, projectObsName=projectObsName)
+        projectTitle = self.__obsServers.getObsServer(obsServer).getProjectTitle(projectObsName)
+        description = self.__obsServers.getObsServer(obsServer).getProjectDescription(projectObsName)
 
         if (projectLocalName in self.__dicOBSLightProjects_unload.keys()) or\
            (projectLocalName in self.__dicOBSLightProjects.keys()):
@@ -206,45 +239,6 @@ class ObsLightProjects(object):
                                                                        projectArchitecture=projectArchitecture)
 
     #---------------------------------------------------------------------------
-    def getPackageStatus(self, project, package):
-        '''
-        
-        '''
-        return self.getProject(project).getPackageStatus(package=package)
-
-    def getGetChRootStatus(self, projectLocalName, package):
-        '''
-        Return the status of the package  into the chroot.
-        '''
-        return self.getProject(projectLocalName).getGetChRootStatus(package=package)
-
-    def getOscPackageStatus(self, project, package):
-        '''
-        
-        '''
-        return self.getProject(project).getOscPackageStatus(package)
-
-    def getOscPackageRev(self,
-                         projectLocalName,
-                         packageName):
-        '''
-        
-        '''
-        return self.getProject(projectLocalName).getOscPackageRev(packageName)
-
-    def getObsPackageRev(self,
-                         projectLocalName,
-                         packageName):
-        '''
-        
-        '''
-        return self.getProject(projectLocalName).getObsPackageRev(packageName)
-    #---------------------------------------------------------------------------
-
-    def resetPackageFilter(self, projectLocalName):
-        return self.getProject[projectLocalName].resetPackageFilter()
-
-    #---------------------------------------------------------------------------
 
     def getObsLightWorkingDirectory(self):
         '''
@@ -252,59 +246,18 @@ class ObsLightProjects(object):
         '''
         return self.__workingDirectory
 
-    def openTerminal(self, projectLocalName, package):
-        '''
-        
-        '''
-        return  self.getProject(projectLocalName).openTerminal(package=package)
-
-
-
-    def getObsServer(self, name=None):
-        '''
-        Return the OBS server name of a project.
-        '''
-        return  self.getProject(name).getObsServer()
-
-    def getPackageFileList(self, projectLocalName, packageName):
-        '''
-        
-        '''
-        return self.getProject(projectLocalName).getPackageFileList(packageName)
-
-    def getProjectObsName(self, projectLocalName=None):
-        '''
-        
-        '''
-        return self.getProject(projectLocalName).getProjectObsName()
-
-    def getPackageDirectory(self, projectLocalName, packageName):
-        package = self.getProject(projectLocalName).getPackage(packageName)
-        return package.getOscDirectory()
-
-#    def getPackageDirectoryInChRoot(self, projectLocalName, packageName):
-#        package = self.getProject(projectLocalName).getPackage(packageName)
-#        return package.getPackageDirectory()
-
-    def setProjectparameter(self, projectLocalName=None, parameter=None, value=None):
-        '''
-        
-        '''
-        self.getProject(projectLocalName).setProjectparameter(parameter=parameter,
-                                                                         value=value)
-
     def importProject(self, path=None):
         '''
         Import a project from a file
         '''
-        self.__load(aFile=path)
+        return self.__load(aFile=path)
 
 
     def exportProject(self, projectLocalName=None, path=None):
         '''
         Export a project to a file
         '''
-        self.save(aFile=path, projectName=projectLocalName)
+        return self.save(aFile=path, projectName=projectLocalName)
 
     def updatePackage(self, projectLocalName, package, controlFunction=None):
         '''
@@ -358,13 +311,6 @@ class ObsLightProjects(object):
             return self.getProject(projectLocalName).refreshObsStatus(package=package)
 
 
-
-
-#    def testConflict(self, projectLocalName, package):
-#        '''
-#        
-#        '''
-#        return self.getProject(projectLocalName).testConflict(package)
 
 
 

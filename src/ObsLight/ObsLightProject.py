@@ -129,39 +129,6 @@ class ObsLightProject(object):
         if not os.path.isdir(self.getDirectory()):
             os.makedirs(self.getDirectory())
 
-    #---------------------------------------------------------------------------
-    def getPackageStatus(self, package=None):
-        '''
-        
-        '''
-        return self.__packages.getPackage(package).getPackageStatus()
-
-    def getGetChRootStatus(self, package):
-        '''
-        Return the status of the package  into the chroot.
-        '''
-        return self.__packages.getPackage(package).getGetChRootStatus()
-
-    def getOscPackageStatus(self, package):
-        '''
-        
-        '''
-        return self.__packages.getPackage(package).getOscStatus()
-
-    def getOscPackageRev(self, packageName):
-        '''
-        
-        '''
-        return self.getPackage(packageName).getOscPackageRev()
-
-    def getObsPackageRev(self, packageName):
-        '''
-        
-        '''
-        return self.__packages.getPackage(packageName).getObsPackageRev()
-
-    #---------------------------------------------------------------------------
-
     def getDirectory(self):
         '''
         Return the project directory.
@@ -336,7 +303,7 @@ class ObsLightProject(object):
         
         '''
         for package in self.__packages.getListPackages():
-            if self.getPackage(package).isInstallInChroot(package):
+            if self.getPackage(package).isInstallInChroot():
                 self.__packages.delFromChroot(package)
 
         res = self.__chroot.removeChRoot()
@@ -472,17 +439,14 @@ class ObsLightProject(object):
 
         packagePath, specFile, yamlFile, listFile = self.checkoutPackage(package=name)
 
-        status = self.__obsServers.getPackageStatus(obsServer=self.__obsServer,
-                                                    project=self.__projectObsName,
-                                                    package=name,
-                                                    repo=self.__projectTarget,
-                                                    arch=self.__projectArchitecture)
-        packageTitle = self.__obsServers.getPackageTitle(obsServer=self.__obsServer,
-                                                         projectObsName=self.__projectObsName,
-                                                         package=name)
-        description = self.__obsServers.getPackageDescription(obsServer=self.__obsServer,
-                                                              projectObsName=self.__projectObsName,
-                                                              package=name)
+        status = self.__obsServers.getObsServer(self.__obsServer).getPackageStatus(project=self.__projectObsName,
+                                                                                    package=name,
+                                                                                    repo=self.__projectTarget,
+                                                                                    arch=self.__projectArchitecture)
+        packageTitle = self.__obsServers.getObsServer(self.__obsServer).getPackageTitle(projectObsName=self.__projectObsName,
+                                                                                        package=name)
+        description = self.__obsServers.getObsServer(self.__obsServer).getPackageDescription(projectObsName=self.__projectObsName,
+                                                                                             package=name)
         self.__packages.addPackage(name=name,
                                    packagePath=packagePath,
                                    description=description,
@@ -499,9 +463,8 @@ class ObsLightProject(object):
         '''
         
         '''
-        rev = self.__obsServers.getObsPackageRev(self.__obsServer,
-                                                 self.__projectObsName,
-                                                 package)
+        rev = self.__obsServers.getObsServer(self.__obsServer).getObsPackageRev(self.__projectObsName,
+                                                                                package)
         if rev is not None:
             self.__packages.getPackage(package).setPackageParameter("obsRev", rev)
 
@@ -538,11 +501,10 @@ class ObsLightProject(object):
         
         '''
         if package != None:
-            status = self.__obsServers.getPackageStatus(obsServer=self.__obsServer,
-                                                        project=self.__projectObsName,
-                                                        package=package,
-                                                        repo=self.__projectTarget,
-                                                        arch=self.__projectArchitecture)
+            status = self.__obsServers.getObsServer(self.__obsServer).getPackageStatus(project=self.__projectObsName,
+                                                                                        package=package,
+                                                                                        repo=self.__projectTarget,
+                                                                                        arch=self.__projectArchitecture)
             if status != None:
                 self.__packages.getPackage(package).setPackageParameter(parameter="status",
                                                                         value=status)
@@ -550,11 +512,10 @@ class ObsLightProject(object):
 
         else:
             for pk in self.getListPackage(local=1):
-                status = self.__obsServers.getPackageStatus(obsServer=self.__obsServer,
-                                                        project=self.__projectObsName,
-                                                        package=pk,
-                                                        repo=self.__projectTarget,
-                                                        arch=self.__projectArchitecture)
+                status = self.__obsServers.getObsServer(self.__obsServer).getPackageStatus(project=self.__projectObsName,
+                                                                                            package=pk,
+                                                                                            repo=self.__projectTarget,
+                                                                                            arch=self.__projectArchitecture)
 
                 self.__packages.getPackage(pk).setPackageParameter(parameter="status",
                                                                    value=status)
@@ -594,19 +555,16 @@ class ObsLightProject(object):
         packagePath, specFile, yamlFile, listFile = self.__updatePackage(package=name,
                                                                          noOscUpdate=noOscUpdate)
 
-        status = self.__obsServers.getPackageStatus(obsServer=self.__obsServer,
-                                                    project=self.__projectObsName,
-                                                    package=name,
-                                                    repo=self.__projectTarget,
-                                                    arch=self.__projectArchitecture)
+        status = self.__obsServers.getObsServer(self.__obsServer).getPackageStatus(project=self.__projectObsName,
+                                                                                    package=name,
+                                                                                    repo=self.__projectTarget,
+                                                                                    arch=self.__projectArchitecture)
 
-        packageTitle = self.__obsServers.getPackageTitle(obsServer=self.__obsServer,
-                                                         projectObsName=self.__projectObsName,
-                                                         package=name)
+        packageTitle = self.__obsServers.getObsServer(self.__obsServer).getPackageTitle(projectObsName=self.__projectObsName,
+                                                                                        package=name)
 
-        description = self.__obsServers.getPackageDescription(obsServer=self.__obsServer,
-                                                              projectObsName=self.__projectObsName,
-                                                              package=name)
+        description = self.__obsServers.getObsServer(self.__obsServer).getPackageDescription(projectObsName=self.__projectObsName,
+                                                                                             package=name)
 
         self.__packages.getPackage(name).setPackageParameter(parameter="specFile", value=specFile)
         self.__packages.getPackage(name).setPackageParameter(parameter="yamlFile", value=yamlFile)
@@ -620,15 +578,6 @@ class ObsLightProject(object):
             self.checkOscPackageStatus(package=name)
         return 0
 
-#    def isInstallInChroot(self, package):
-#        '''
-#        Return True if the package is install into the chroot.
-#        '''
-#
-#        return self.__packages.isInstallInChroot(name=package)
-
-
-
     def getChRootRepositories(self):
         '''
         
@@ -640,11 +589,10 @@ class ObsLightProject(object):
         
         '''
         for name in self.__packages.getListPackages():
-            status = self.__obsServers.getPackageStatus(obsServer=self.__obsServer,
-                                                        project=self.__projectObsName,
-                                                        package=name,
-                                                        repo=self.__projectTarget,
-                                                        arch=self.__projectArchitecture)
+            status = self.__obsServers.getObsServer(self.__obsServer).getPackageStatus(project=self.__projectObsName,
+                                                                                        package=name,
+                                                                                        repo=self.__projectTarget,
+                                                                                        arch=self.__projectArchitecture)
             self.__packages.updatePackage(name=name, status=status)
 
     def getChRootPath(self):
@@ -707,7 +655,7 @@ class ObsLightProject(object):
         '''
         Return the URL of the Repo of the Project
         '''
-        return os.path.join(self.__obsServers.getRepo(obsServer=self.__obsServer),
+        return os.path.join(self.__obsServers.getObsServer(self.__obsServer).getRepo(),
                             self.__projectObsName.replace(":", ":/"),
                             self.__projectTarget)
 
@@ -779,18 +727,6 @@ class ObsLightProject(object):
                                        packagePath=path,
                                        tarFile=tarFile)
         return 0
-
-#    def patchIsInit(self, packageName):
-#        '''
-#        
-#        '''
-#        return self.__packages.getPackage(package=packageName).patchIsInit()
-
-    def getPackageFileList(self, packageName):
-        '''
-        
-        '''
-        return self.__packages.getPackage(package=packageName).getPackageFileList()
 
     def installRpm(self, package):
         '''
@@ -877,11 +813,7 @@ class ObsLightProject(object):
         '''
         
         '''
-        obsServer = self.__obsServers.getObsServer(name=self.__obsServer)
-
-        if obsServer == None:
-            return ""
-        serverWeb = obsServer.getUrlServerWeb()
+        serverWeb = self.__obsServers.getObsServer(name=self.__obsServer).getUrlServerWeb()
 
         if serverWeb in (None, "None", ""):
             raise ObsLightErr.ObsLightProjectsError("No Web Server")
@@ -900,18 +832,6 @@ class ObsLightProject(object):
         
         '''
         return self.__chroot.modifyRepo(repoAlias, newUrl, newAlias)
-
-#    def getPackageFileInfo(self, packageName, fileName):
-#        '''
-#        
-#        '''
-#        return self.__packages.getPackage(packageName).getPackageFileInfo(fileName)
-
-#    def testConflict(self, package):
-#        '''
-#        
-#        '''
-#        return self.__packages.getPackage(package).testConflict()
 
     def getPackageInfo(self, package=None):
         return self.__packages.getPackageInfo(package=package)
@@ -934,8 +854,6 @@ class ObsLightProject(object):
 
     def getListStatus(self):
         return self.__packages.getListStatus()
-
-
 
     def getListChRootStatus(self):
         return self.__packages.getListChRootStatus()

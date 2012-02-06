@@ -31,6 +31,8 @@ from ObsLightSubprocess import SubprocessCrt
 
 from ObsLightErr import ObsLightPackageErr
 
+from copy import copy
+
 class ObsLightPackage(object):
     '''
     classdocs
@@ -88,7 +90,7 @@ class ObsLightPackage(object):
             if "name" in fromSave.keys():
                 self.__name = fromSave["name"]
             if "listFile" in fromSave.keys():
-                self.__listFile = fromSave["listFile"]
+                self.__listFile = copy(fromSave["listFile"])
             if "status" in fromSave.keys():
                 self.__status = fromSave["status"]
             if "specFile" in fromSave.keys():
@@ -116,9 +118,9 @@ class ObsLightPackage(object):
             if "currentPatch" in fromSave.keys():
                 self.__currentPatch = fromSave["currentPatch"]
             if "listInfoFile" in fromSave.keys():
-                self.__listInfoFile = fromSave["listInfoFile"]
+                self.__listInfoFile = copy(fromSave["listInfoFile"])
             if "listFileToDel" in fromSave.keys():
-                self.__listFileToDel = fromSave["listFileToDel"]
+                self.__listFileToDel = copy(fromSave["listFileToDel"])
             if "prepDirName" in fromSave.keys():
                 self.__prepDirName = fromSave["prepDirName"]
 
@@ -334,7 +336,7 @@ class ObsLightPackage(object):
         '''
         aDic = {}
         aDic["name"] = self.__name
-        aDic["listFile"] = self.__listFile
+        aDic["listFile"] = copy(self.__listFile)
         aDic["status"] = self.__status
         aDic["specFile"] = self.__specFile
         aDic["yamlFile"] = self.__yamlFile
@@ -347,8 +349,8 @@ class ObsLightPackage(object):
         aDic["oscRev"] = self.__oscRev
         aDic["currentPatch"] = self.__currentPatch
         aDic["obsRev"] = self.__obsRev
-        aDic["listInfoFile"] = self.__listInfoFile
-        aDic["listFileToDel"] = self.__listFileToDel
+        aDic["listInfoFile"] = copy(self.__listInfoFile)
+        aDic["listFileToDel"] = copy(self.__listFileToDel)
         aDic["prepDirName"] = self.__prepDirName
         return aDic
 
@@ -626,7 +628,7 @@ class ObsLightPackage(object):
         Add a aFile to the package.
         '''
         if not os.path.exists(path):
-            raise ObsLightPackageErr("'" + path + "' is not a path, can't add to package")
+            raise ObsLightPackageErr("'" + path + "' is not a file, can't add to package")
 
         name = os.path.basename(path)
         shutil.copy2(path, os.path.join(self.getOscDirectory(), name))
