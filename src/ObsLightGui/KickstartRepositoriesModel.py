@@ -29,9 +29,10 @@ class KickstartRepositoriesModel(QAbstractTableModel):
     UrlColumn = 1
     CostColumn = 2
     PriorityColumn = 3
+    SslVerifyColumn = 4
 
     # A tuple containing the keys of repository dictionaries
-    ColumnKeys = ("name", "baseurl", "cost", "priority")
+    ColumnKeys = ("name", "baseurl", "cost", "priority", "ssl_verify")
 
     __manager = None
     __project = None
@@ -82,6 +83,8 @@ class KickstartRepositoriesModel(QAbstractTableModel):
                     return "Cost (for Yum)"
                 elif section == self.PriorityColumn:
                     return "Priority (for Zypper)"
+                elif section == self.SslVerifyColumn:
+                    return "SSL verification"
         return None
 
     # from QAbstractTableModel
@@ -143,6 +146,11 @@ class KickstartRepositoriesModel(QAbstractTableModel):
         self.manager.removeKickstartRepository(self.currentProject, oldName)
         self.manager.addKickstartRepository(self.currentProject, **repoDict)
         self.manager.saveKickstartFile(self.currentProject)
+
+    def addRepository(self, name, url):
+        self.manager.addKickstartRepository(self.currentProject, baseurl=url, name=name)
+        self.manager.saveKickstartFile(self.currentProject)
+        self.refresh()
 
     def removeRepository(self, name):
         self.manager.removeKickstartRepository(self.currentProject, name)

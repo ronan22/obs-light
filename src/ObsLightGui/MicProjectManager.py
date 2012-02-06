@@ -89,6 +89,9 @@ class MicProjectManager(QObject, ObsLightGuiObject):
         self.__loadUi()
         self.repositoryModel.refresh()
 
+    def addRepository(self, name, url):
+        self.repositoryModel.addRepository(name, url)
+
     def removeRepository(self, name):
         self.repositoryModel.removeRepository(name)
 

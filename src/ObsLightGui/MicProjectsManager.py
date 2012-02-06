@@ -31,6 +31,7 @@ from MicProjectManager import MicProjectManager
 class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
 
     __micProjects = {}
+    __configDialog = None
 
     def __init__(self, gui):
         ObsLightGuiObject.__init__(self, gui)
@@ -72,6 +73,8 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
         createImageClicked.connect(self.on_createImageButton_clicked)
         removeRepoClicked = self.mainWindow.removeRepositoryButton.clicked
         removeRepoClicked.connect(self.on_removeRepositoryButton_clicked)
+        addRepoClicked = self.mainWindow.addRepositoryButton.clicked
+        addRepoClicked.connect(self.on_addRepositoryButton_clicked)
 
     def __disconnectProjectEventsAndButtons(self):
         imgTypeChanged = self.mainWindow.imageTypeComboBox.currentIndexChanged[unicode]
@@ -82,6 +85,8 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
         createImageClicked.disconnect(self.on_createImageButton_clicked)
         removeRepoClicked = self.mainWindow.removeRepositoryButton.clicked
         removeRepoClicked.disconnect(self.on_removeRepositoryButton_clicked)
+        addRepoClicked = self.mainWindow.addRepositoryButton.clicked
+        addRepoClicked.disconnect(self.on_addRepositoryButton_clicked)
 
 # --- Button handlers --------------------------------------------------------
     @popupOnException
@@ -152,6 +157,7 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
 
     @popupOnException
     def on_createImageButton_clicked(self):
+        """Called when user clicks on 'create image'"""
         micProject = self.currentProject
         if micProject is None:
             return
@@ -159,6 +165,7 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
 
     @popupOnException
     def on_removeRepositoryButton_clicked(self):
+        """Called when user clicks on 'remove repository'"""
         repositories = []
         for row in getSelectedRows(self.mainWindow.kickstartRepositoriesTableView):
             repo = self._currentProjectObj.getRepositoryNameByRowId(row)
@@ -176,6 +183,13 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
             return
         for repo in repositories:
             self._currentProjectObj.removeRepository(repo)
+
+    def on_addRepositoryButton_clicked(self):
+        """Called when user clicks on 'add repository'"""
+        self.__configDialog = self.gui.loadWindow(u"obsRepoConfig.ui")
+        self.__configDialog.accepted.connect(self.on_configDialog_accepted)
+        self.__configDialog.checkButton.hide()
+        self.__configDialog.show()
 # --- end Button handlers ----------------------------------------------------
 
 # --- Event handlers ---------------------------------------------------------
@@ -196,4 +210,10 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
     def on_architectureComboBox_currentIndexChanged(self, architecture):
         """Called when user changes architecture combo box"""
         self._currentProjectObj.architecture = architecture
+
+    def on_configDialog_accepted(self):
+        """Called when user accepts repository configuration dialog"""
+        name = self.__configDialog.repoAliasLineEdit.text()
+        url = self.__configDialog.repoUrlLineEdit.text()
+        self._currentProjectObj.addRepository(name, url)
 # --- end Event handlers -----------------------------------------------------
