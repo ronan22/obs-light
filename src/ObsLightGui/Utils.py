@@ -1,5 +1,5 @@
 #
-# Copyright 2011, Intel Inc.
+# Copyright 2011-2012, Intel Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -518,3 +518,18 @@ def removeEffect(widget):
     Set the graphic effect of `widget` to None.
     """
     widget.setGraphicsEffect(None)
+
+def getSelectedRows(abstractItemView):
+    """
+    Return a set of indices of the selected rows of `abstractItemView`,
+    without duplicates.
+    """
+    indices = abstractItemView.selectedIndexes()
+    if len(indices) < 1:
+        indices.append(abstractItemView.currentIndex())
+    rows = set()
+    for index in indices:
+        if index.isValid():
+            row = index.row()
+            rows.add(row)
+    return rows

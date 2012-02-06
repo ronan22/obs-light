@@ -21,16 +21,17 @@ Created on 2 févr. 2012
 @author: Florent Vennetier
 '''
 
-from PySide.QtGui import QFileDialog, QInputDialog, QMessageBox
+from PySide.QtGui import QFileDialog, QInputDialog, QMessageBox, QTableView
 
 from ObsLightGuiObject import ObsLightGuiObject
 from ProjectsManagerBase import ProjectsManagerBase
-from Utils import popupOnException
+from Utils import getSelectedRows, popupOnException
 from MicProjectManager import MicProjectManager
 
 class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
 
     __micProjects = {}
+    __configDialog = None
 
     def __init__(self, gui):
         ObsLightGuiObject.__init__(self, gui)
@@ -39,6 +40,7 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
                                      self.manager.getMicProjectList)
         self.__connectButtons()
         self.__connectEvents()
+        self.mainWindow.kickstartRepositoriesTableView.setSelectionBehavior(QTableView.SelectRows)
         self.loadProjectList()
 
     @property
@@ -69,12 +71,26 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
         archChanged.connect(self.on_architectureComboBox_currentIndexChanged)
         createImageClicked = self.mainWindow.createImageButton.clicked
         createImageClicked.connect(self.on_createImageButton_clicked)
+        removeRepoClicked = self.mainWindow.removeRepositoryButton.clicked
+        removeRepoClicked.connect(self.on_removeRepositoryButton_clicked)
+        addRepoClicked = self.mainWindow.addRepositoryButton.clicked
+        addRepoClicked.connect(self.on_addRepositoryButton_clicked)
+        addRepo2Clicked = self.mainWindow.addRepositoryFromProjectButton.clicked
+        addRepo2Clicked.connect(self.on_addRepositoryFromProjectButton_clicked)
 
     def __disconnectProjectEventsAndButtons(self):
         imgTypeChanged = self.mainWindow.imageTypeComboBox.currentIndexChanged[unicode]
         imgTypeChanged.disconnect(self.on_imageTypeComboBox_currentIndexChanged)
         archChanged = self.mainWindow.architectureComboBox.currentIndexChanged[unicode]
         archChanged.disconnect(self.on_architectureComboBox_currentIndexChanged)
+        createImageClicked = self.mainWindow.createImageButton.clicked
+        createImageClicked.disconnect(self.on_createImageButton_clicked)
+        removeRepoClicked = self.mainWindow.removeRepositoryButton.clicked
+        removeRepoClicked.disconnect(self.on_removeRepositoryButton_clicked)
+        addRepoClicked = self.mainWindow.addRepositoryButton.clicked
+        addRepoClicked.disconnect(self.on_addRepositoryButton_clicked)
+        addRepo2Clicked = self.mainWindow.addRepositoryFromProjectButton.clicked
+        addRepo2Clicked.disconnect(self.on_addRepositoryFromProjectButton_clicked)
 
 # --- Button handlers --------------------------------------------------------
     @popupOnException
@@ -105,7 +121,7 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
                                                         filter=filters)
         if len(filePath) < 1:
             return
-        self.callWithInfiniteProgress(self.manager.saveKickstartFileAs,
+        self.callWithInfiniteProgress(self.manager.saveKickstartFile,
                                       "Exporting Kickstart file",
                                       self.currentProject,
                                       filePath)
@@ -145,10 +161,55 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
 
     @popupOnException
     def on_createImageButton_clicked(self):
+        """Called when user clicks on 'create image'"""
         micProject = self.currentProject
         if micProject is None:
             return
         self._currentProjectObj.createImage()
+
+    @popupOnException
+    def on_removeRepositoryButton_clicked(self):
+        """Called when user clicks on 'remove repository'"""
+        repositories = []
+        for row in getSelectedRows(self.mainWindow.kickstartRepositoriesTableView):
+            repo = self._currentProjectObj.getRepositoryNameByRowId(row)
+            if repo is not None:
+                repositories.append(repo)
+        if len(repositories) < 1:
+            return
+        result = QMessageBox.question(self.mainWindow,
+                                      u"Are you sure ?",
+                                      u"Are you sure you want to remove %d repositories ?"
+                                        % len(repositories),
+                                      buttons=QMessageBox.Yes | QMessageBox.No,
+                                      defaultButton=QMessageBox.Yes)
+        if result == QMessageBox.No:
+            return
+        for repo in repositories:
+            self._currentProjectObj.removeRepository(repo)
+
+    @popupOnException
+    def on_addRepositoryButton_clicked(self):
+        """Called when user clicks on 'add repository'"""
+        self.__configDialog = self.gui.loadWindow(u"obsRepoConfig.ui")
+        self.__configDialog.accepted.connect(self.on_configDialog_accepted)
+        self.__configDialog.checkButton.hide()
+        self.__configDialog.show()
+
+    @popupOnException
+    def on_addRepositoryFromProjectButton_clicked(self):
+        projects = self.manager.getLocalProjectList()
+        selectedProject, accepted = QInputDialog.getItem(self.mainWindow,
+                                                         "Select project",
+                                                         "Project to import repository from:",
+                                                         projects,
+                                                         editable=False)
+        if not accepted:
+            return
+        repoUrl = self.callWithInfiniteProgress(self.manager.getProjectRepository,
+                                                "Retrieving repository URL...",
+                                                selectedProject)
+        self._currentProjectObj.addRepository(selectedProject, repoUrl)
 # --- end Button handlers ----------------------------------------------------
 
 # --- Event handlers ---------------------------------------------------------
@@ -169,4 +230,11 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
     def on_architectureComboBox_currentIndexChanged(self, architecture):
         """Called when user changes architecture combo box"""
         self._currentProjectObj.architecture = architecture
+
+    @popupOnException
+    def on_configDialog_accepted(self):
+        """Called when user accepts repository configuration dialog"""
+        name = self.__configDialog.repoAliasLineEdit.text()
+        url = self.__configDialog.repoUrlLineEdit.text()
+        self._currentProjectObj.addRepository(name, url)
 # --- end Event handlers -----------------------------------------------------

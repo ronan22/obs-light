@@ -97,8 +97,59 @@ class ObsLightMicProject(object):
         """
         return self.__kickstartPath
 
-    def saveKickstartFileAs(self, path):
+    def saveKickstartFile(self, path=None):
+        """
+        Save the Kickstart of the project to `path`,
+        or to the previous path if None.
+        """
         self._ksManager.saveKickstart(path)
+
+    def addKickstartRepository(self, baseurl, name, cost=None, **otherParams):
+        """
+        Add a package repository in the Kickstart file.
+         baseurl: the URL of the repository
+         name:    a name for this repository
+         cost:    the cost of this repository, from 0 (highest priority) to 99, or None
+        Keyword arguments can be (default value):
+        - mirrorlist (""):
+        - priority (None):
+        - includepkgs ([]):
+        - excludepkgs ([]):
+        - save (False): keep the repository in the generated image
+        - proxy (None):
+        - proxy_username (None):
+        - proxy_password (None):
+        - debuginfo (False):
+        - source (False):
+        - gpgkey (None): the address of the GPG key of this repository
+            on the generated filesystem (ex: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-meego)
+        - disable (False): add the repository as disabled
+        - ssl_verify ("yes"):
+        """
+        self._ksManager.addRepository(baseurl, name, cost, **otherParams)
+
+    def removeKickstartRepository(self, name):
+        """
+        Remove the `name` package repository from the Kickstart file.
+        """
+        self._ksManager.removeRepository(name)
+
+    def getKickstartRepositoryDictionaries(self):
+        """
+        Return a list of repository dictionaries.
+        """
+        repoList = []
+        for repoName in self._ksManager.getRepositoryList():
+            repoList.append(self._ksManager.getRepositoryDict(repoName))
+        return repoList
+
+    def getKickstartPackageDictionaries(self):
+        pkgList = []
+        for pkgName in self._ksManager.getPackageList():
+            pkgList.append({"name": pkgName, "excluded": False})
+        for pkgName in self._ksManager.getExcludedPackageList():
+            pkgList.append({"name": pkgName, "excluded": True})
+        return pkgList
 
     def deleteProjectDirectory(self):
         """

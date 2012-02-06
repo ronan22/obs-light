@@ -53,11 +53,15 @@ class ObsLightMicProjects:
             try:
                 saveconfigServers = pickle.load(aFile)
             except:
-                raise  ObsLightErr.ObsLightMicProjectErr("the file: '" + pathFile + "' is not a backup file.")
+                raise  ObsLightErr.ObsLightMicProjectErr("the file: '" +
+                                                         pathFile +
+                                                         "' is not a backup file.")
             aFile.close()
 
             if not ("saveProjects" in saveconfigServers.keys()):
-                raise ObsLightErr.ObsLightMicProjectErr("the file: '" + pathFile + "'  is not a valid backup.")
+                raise ObsLightErr.ObsLightMicProjectErr("the file: '" +
+                                                        pathFile +
+                                                        "'  is not a valid backup.")
             saveProjects = saveconfigServers["saveProjects"]
 
             for projetName in saveProjects.keys():
@@ -149,12 +153,60 @@ class ObsLightMicProjects:
         self._checkMicProjectName(micProjectName)
         return self.__dicOBSLightProjects[micProjectName].getKickstartFile()
 
-    def saveKickstartFileAs(self, micProjectName, path):
+    def saveKickstartFile(self, micProjectName, path=None):
         """
-        Save the Kickstart file of `micProjectName` to `path`.
+        Save the Kickstart file of `micProjectName` to `path`,
+        or to the path returned by `getKickstartFile` if `path` is None.
         """
         self._checkMicProjectName(micProjectName)
-        self.__dicOBSLightProjects[micProjectName].saveKickstartFileAs(path)
+        self.__dicOBSLightProjects[micProjectName].saveKickstartFile(path)
+
+    def addKickstartRepository(self, micProjectName, baseurl, name, cost=None, **otherParams):
+        """
+        Add a package repository in the Kickstart file of `micProjectName`.
+         baseurl: the URL of the repository
+         name:    a name for this repository
+         cost:    the cost of this repository, from 0 (highest priority) to 99, or None
+        Keyword arguments can be (default value):
+        - mirrorlist (""):
+        - priority (None):
+        - includepkgs ([]):
+        - excludepkgs ([]):
+        - save (False): keep the repository in the generated image
+        - proxy (None):
+        - proxy_username (None):
+        - proxy_password (None):
+        - debuginfo (False):
+        - source (False):
+        - gpgkey (None): the address of the GPG key of this repository
+            on the generated filesystem (ex: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-meego)
+        - disable (False): add the repository as disabled
+        - ssl_verify ("yes"):
+        """
+        # Parameter names (expect micProjectName) are in lower case
+        # to be compatible without wrapper with pykickstart's internals
+        self.__dicOBSLightProjects[micProjectName].addKickstartRepository(baseurl,
+                                                                          name,
+                                                                          cost,
+                                                                          **otherParams)
+
+    def removeKickstartRepository(self, micProjectName, repositoryName):
+        """
+        Remove the `repositoryName` package repository from the
+        Kickstart file of `micProjectName`.
+        """
+        self.__dicOBSLightProjects[micProjectName].removeKickstartRepository(repositoryName)
+
+    def getKickstartRepositoryDictionaries(self, micProjectName):
+        """
+        Return a list of repository dictionaries.
+        """
+        self._checkMicProjectName(micProjectName)
+        return self.__dicOBSLightProjects[micProjectName].getKickstartRepositoryDictionaries()
+
+    def getKickstartPackageDictionaries(self, micProjectName):
+        self._checkMicProjectName(micProjectName)
+        return self.__dicOBSLightProjects[micProjectName].getKickstartPackageDictionaries()
 
     # TODO: rename to getArchitecture
     def getMicProjectArchitecture(self, micProjectName):

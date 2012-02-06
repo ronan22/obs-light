@@ -1312,11 +1312,54 @@ class ObsLightManager(ObsLightManagerCore):
     def getKickstartFile(self, micProjectName):
         return self._myObsLightMicProjects.getKickstartFile(micProjectName=micProjectName)
 
-    def saveKickstartFileAs(self, micProjectName, path):
+    def addKickstartRepository(self, micProjectName, baseurl, name, cost=None, **otherParams):
         """
-        Save the Kickstart file of `micProjectName` to `path`.
+        Add a package repository in the Kickstart file of `micProjectName`.
+         baseurl: the URL of the repository
+         name:    a name for this repository
+         cost:    the cost of this repository, from 0 (highest priority) to 99, or None
+        Keyword arguments can be (default value):
+        - mirrorlist (""):
+        - priority (None):
+        - includepkgs ([]):
+        - excludepkgs ([]):
+        - save (False): keep the repository in the generated image
+        - proxy (None):
+        - proxy_username (None):
+        - proxy_password (None):
+        - debuginfo (False):
+        - source (False):
+        - gpgkey (None): the address of the GPG key of this repository
+            on the generated filesystem (ex: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-meego)
+        - disable (False): add the repository as disabled
+        - ssl_verify ("yes"):
         """
-        self._myObsLightMicProjects.saveKickstartFileAs(micProjectName, path)
+        self._myObsLightMicProjects.addKickstartRepository(micProjectName,
+                                                           baseurl,
+                                                           name,
+                                                           cost,
+                                                           **otherParams)
+
+    def removeKickstartRepository(self, micProjectName, repositoryName):
+        self._myObsLightMicProjects.removeKickstartRepository(micProjectName,
+                                                              repositoryName)
+
+    def getKickstartRepositoryDictionaries(self, micProjectName):
+        """
+        Return the list (unsorted) of `micProjectName` repository dictionaries.
+        These dictionaries are compatible for input to `addKickstartRepository`.
+        """
+        return self._myObsLightMicProjects.getKickstartRepositoryDictionaries(micProjectName)
+
+    def getKickstartPackageDictionaries(self, micProjectName):
+        return self._myObsLightMicProjects.getKickstartPackageDictionaries(micProjectName)
+
+    def saveKickstartFile(self, micProjectName, path=None):
+        """
+        Save the Kickstart file of `micProjectName` to `path`,
+        or to the previous path if None.
+        """
+        self._myObsLightMicProjects.saveKickstartFile(micProjectName, path)
 
     def getMicProjectArchitecture(self, micProjectName):
         return self._myObsLightMicProjects.getMicProjectArchitecture(micProjectName=micProjectName)
@@ -1348,8 +1391,6 @@ class ObsLightManager(ObsLightManagerCore):
     def createImage(self, micProjectName):
         self._myObsLightMicProjects.createImage(micProjectName=micProjectName)
         self._myObsLightMicProjects.save()
-
-
 
 
 __myObsLightManager = None
