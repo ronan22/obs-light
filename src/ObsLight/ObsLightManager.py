@@ -1504,6 +1504,9 @@ class ObsLightManager(ObsLightManagerCore):
         """
         return self._myObsLightMicProjects.getKickstartRepositoryDictionaries(micProjectName)
 
+    def getKickstartPackageDictionaries(self, micProjectName):
+        return self._myObsLightMicProjects.getKickstartPackageDictionaries(micProjectName)
+
     def saveKickstartFile(self, micProjectName, path=None):
         """
         Save the Kickstart file of `micProjectName` to `path`,
@@ -1541,8 +1544,6 @@ class ObsLightManager(ObsLightManagerCore):
     def createImage(self, micProjectName):
         self._myObsLightMicProjects.createImage(micProjectName=micProjectName)
         self._myObsLightMicProjects.save()
-
-
 
 
 __myObsLightManager = None

@@ -143,6 +143,14 @@ class ObsLightMicProject(object):
             repoList.append(self._ksManager.getRepositoryDict(repoName))
         return repoList
 
+    def getKickstartPackageDictionaries(self):
+        pkgList = []
+        for pkgName in self._ksManager.getPackageList():
+            pkgList.append({"name": pkgName, "excluded": False})
+        for pkgName in self._ksManager.getExcludedPackageList():
+            pkgList.append({"name": pkgName, "excluded": True})
+        return pkgList
+
     def deleteProjectDirectory(self):
         """
         Recursively delete the project working directory.

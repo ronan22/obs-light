@@ -25,23 +25,27 @@ from PySide.QtCore import QObject, Qt
 
 from ObsLightGuiObject import ObsLightGuiObject
 from KickstartRepositoriesModel import KickstartRepositoriesModel
+from KickstartPackagesModel import KickstartPackagesModel
 
 class MicProjectManager(QObject, ObsLightGuiObject):
     # pylint: disable-msg=E0202, E1101
 
     __projectName = ""
     __repoModel = None
+    __pkgModel = None
 
     def __init__(self, gui, name):
         QObject.__init__(self)
         ObsLightGuiObject.__init__(self, gui)
         self.__projectName = name
         self.__repoModel = KickstartRepositoriesModel(self.manager, self.name)
+        self.__pkgModel = KickstartPackagesModel(self.manager, self.name)
 
     def __loadUi(self):
         self.__loadImageType()
         self.__loadArchitecture()
         self.mainWindow.kickstartRepositoriesTableView.setModel(self.repositoryModel)
+        self.mainWindow.kickstartPackageTableView.setModel(self.packageModel)
 
     def __loadImageType(self):
         imageTypes = self.manager.getAvailableMicProjectImageTypes(self.name)
@@ -85,9 +89,14 @@ class MicProjectManager(QObject, ObsLightGuiObject):
     def repositoryModel(self):
         return self.__repoModel
 
+    @property
+    def packageModel(self):
+        return self.__pkgModel
+
     def refresh(self):
         self.__loadUi()
         self.repositoryModel.refresh()
+        self.packageModel.refresh()
 
     def addRepository(self, name, url):
         self.repositoryModel.addRepository(name, url)

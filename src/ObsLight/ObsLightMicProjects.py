@@ -53,11 +53,15 @@ class ObsLightMicProjects:
             try:
                 saveconfigServers = pickle.load(aFile)
             except:
-                raise  ObsLightErr.ObsLightMicProjectErr("the file: '" + pathFile + "' is not a backup file.")
+                raise  ObsLightErr.ObsLightMicProjectErr("the file: '" +
+                                                         pathFile +
+                                                         "' is not a backup file.")
             aFile.close()
 
             if not ("saveProjects" in saveconfigServers.keys()):
-                raise ObsLightErr.ObsLightMicProjectErr("the file: '" + pathFile + "'  is not a valid backup.")
+                raise ObsLightErr.ObsLightMicProjectErr("the file: '" +
+                                                        pathFile +
+                                                        "'  is not a valid backup.")
             saveProjects = saveconfigServers["saveProjects"]
 
             for projetName in saveProjects.keys():
@@ -199,6 +203,10 @@ class ObsLightMicProjects:
         """
         self._checkMicProjectName(micProjectName)
         return self.__dicOBSLightProjects[micProjectName].getKickstartRepositoryDictionaries()
+
+    def getKickstartPackageDictionaries(self, micProjectName):
+        self._checkMicProjectName(micProjectName)
+        return self.__dicOBSLightProjects[micProjectName].getKickstartPackageDictionaries()
 
     # TODO: rename to getArchitecture
     def getMicProjectArchitecture(self, micProjectName):

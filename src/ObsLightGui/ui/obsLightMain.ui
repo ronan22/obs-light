@@ -1455,15 +1455,12 @@ in the source directory of the current package if it is installed.</string>
             </layout>
            </widget>
            <widget class="QWidget" name="kickstartPackagesTab">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
             <attribute name="title">
              <string>Packages</string>
             </attribute>
             <layout class="QGridLayout" name="gridLayout_8">
              <item row="0" column="0" colspan="2">
-              <widget class="QTableView" name="micPackageTableView"/>
+              <widget class="QTableView" name="kickstartPackageTableView"/>
              </item>
              <item row="1" column="0">
               <widget class="QPushButton" name="addPackageButton">
