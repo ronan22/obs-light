@@ -278,12 +278,11 @@ class ObsProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
         project = self.currentProject
         if project is not None:
             projectLink = self.manager.getProjectWebPage(project)
-            projectObsName = self.manager.getProjectParameter(project,
-                                                                 u"projectObsName")
-            target = self.manager.getProjectParameter(project, u"projectTarget")
+            projectObsName = self.manager.getProjectParameter(project, "projectObsName")
+            target = self.manager.getProjectParameter(project, "projectTarget")
             repoLink = self.manager.getProjectRepository(project)
-            projectTitle = self.manager.getProjectParameter(project, u"title")
-            projectDescription = self.manager.getProjectParameter(project, u"description")
+            projectTitle = self.manager.getProjectParameter(project, "title")
+            projectDescription = self.manager.getProjectParameter(project, "description")
 
             self.__projectLabel.setText(project)
             self.__projectTitleLabel.setText(projectTitle)

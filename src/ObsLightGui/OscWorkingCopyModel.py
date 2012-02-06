@@ -144,8 +144,10 @@ class OscWorkingCopyModel(QAbstractTableModel):
 #        files = self.__obsLightManager.getPackageParameter(self.__project,
 #                                                           self.__package,
 #                                                           u"listFile")
-        files = self.__obsLightManager.getPackageFileList(self.__project,
-                                                          self.__package)
+        files = self.__obsLightManager.getPackageParameter(projectLocalName=self.__project,
+                                                           package=self.__package,
+                                                           parameter="listFile")
+
         self.clearColumns()
         for fileName in files:
             inf = self.__obsLightManager.getPackageFileInfo(self.__project,

@@ -195,7 +195,8 @@ __obsStatus__ = ["obsStatus"]
 __oscStatus__ = ["oscStatus"]
 __specFile__ = ["specFile"]
 __yamlFile__ = ["yamlFile"]
-__packageDirectory__ = ["packageDirectory"]
+__fsPackageDirectory__ = ["fsPackageDirectory"]
+__oscPackageDirectory__ = ["oscPackageDirectory"]
 __chRootStatus__ = ["chRootStatus"]
 __currentPatch__ = ["currentPatch"]
 
@@ -208,7 +209,8 @@ __DICO_Help__[__obsStatus__[0]] = __obsStatus__[0] + ":" + "\t" + "Doc __obsproj
 __DICO_Help__[__oscStatus__[0]] = __oscStatus__[0] + ":" + "\t" + "Doc __obsproject_Help__"
 __DICO_Help__[__specFile__[0]] = __specFile__[0] + ":" + "\t" + "Doc __obsproject_Help__"
 __DICO_Help__[__yamlFile__[0]] = __yamlFile__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__packageDirectory__[0]] = __packageDirectory__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Help__[__fsPackageDirectory__[0]] = __fsPackageDirectory__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Help__[__oscPackageDirectory__[0]] = __oscPackageDirectory__[0] + ":" + "\t" + "Doc __obsproject_Help__"
 __DICO_Help__[__chRootStatus__[0]] = __chRootStatus__[0] + ":" + "\t" + "Doc __obsproject_Help__"
 __DICO_Help__[__currentPatch__[0]] = __currentPatch__[0] + ":" + "\t" + "Doc __obsproject_Help__"
 
@@ -975,6 +977,7 @@ class ObsLight():
                 elif currentCommand in __obsproject__:
                     obsproject , listArgv = getParameter(listArgv)
                 else:
+                    print "currentCommand", currentCommand
                     Help = True
                     break
 
@@ -1341,7 +1344,9 @@ class ObsLight():
             oscStatus = False
             specFile = False
             yamlFile = False
-            packageDirectory = False
+            fsPackageDirectory = False
+            oscPackageDirectory = False
+
             chRootStatus = False
             currentPatch = False
 
@@ -1359,8 +1364,6 @@ class ObsLight():
                     title = True
                 elif currentCommand in __project_description__:
                     description = True
-#                elif currentCommand in __package_status__ :
-#                    status = True
                 elif currentCommand in __package_revision__:
                     revision = True
                 elif currentCommand in __package_obsRev__ :
@@ -1377,8 +1380,10 @@ class ObsLight():
                     specFile = True
                 elif currentCommand in __yamlFile__:
                     yamlFile = True
-                elif currentCommand in __packageDirectory__:
-                    packageDirectory = True
+                elif currentCommand in __fsPackageDirectory__ :
+                    fsPackageDirectory = True
+                elif currentCommand in __oscPackageDirectory__ :
+                    oscPackageDirectory = True
                 elif currentCommand in __chRootStatus__:
                     chRootStatus = True
                 elif currentCommand in __currentPatch__:
@@ -1421,7 +1426,8 @@ class ObsLight():
                    (not oscStatus)and \
                    (not specFile)and \
                    (not yamlFile)and \
-                   (not packageDirectory)and \
+                   (not fsPackageDirectory)and \
+                   (not oscPackageDirectory)and \
                    (not chRootStatus)and \
                    (not currentPatch):
 
@@ -1437,7 +1443,8 @@ class ObsLight():
                     oscStatus = True
                     specFile = True
                     yamlFile = True
-                    packageDirectory = True
+                    fsPackageDirectory = True
+                    oscPackageDirectory = True
                     chRootStatus = True
                     currentPatch = True
 
@@ -1445,7 +1452,7 @@ class ObsLight():
                     if (server_alias == None) and (obsproject == None):
                         res = m.getPackageParameter(projectLocalName=project_alias,
                                                     package=package,
-                                                    parameter="packageTitle")
+                                                    parameter="title")
                     else:
                         res = m.getObsPackageParameter(serverApi=server_alias,
                                                        obsproject=obsproject,
@@ -1480,16 +1487,6 @@ class ObsLight():
                         print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
                         return -1
                     print "url:" + res
-
-#                if status and ((server_alias != None) and (obsproject != None)):
-#                    res = m.getObsPackageParameter(serverApi=server_alias,
-#                                                   obsproject=obsproject,
-#                                                   package=package,
-#                                                   parameter="status")
-#                    if res == None:
-#                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
-#                        return -1
-#                    print "status:" + res
 
                 if obsRev and (project_alias != None):
                     res = m.getPackageParameter(projectLocalName=project_alias,
@@ -1561,14 +1558,23 @@ class ObsLight():
                         return -1
                     print "yamlFile:" + res
 
-                if packageDirectory and (project_alias != None):
+                if fsPackageDirectory and (project_alias != None):
                     res = m.getPackageParameter(projectLocalName=project_alias,
                                                     package=package,
-                                                    parameter="packageDirectory")
+                                                    parameter="fsPackageDirectory")
                     if res == None:
                         print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
                         return -1
-                    print "oscRev:" + res
+                    print "fsPackageDirectory:" + res
+
+                if oscPackageDirectory and (project_alias != None):
+                    res = m.getPackageParameter(projectLocalName=project_alias,
+                                                    package=package,
+                                                    parameter="oscPackageDirectory")
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    print "oscPackageDirectory:" + res
 
                 if chRootStatus and (project_alias != None):
                     res = m.getPackageParameter(projectLocalName=project_alias,
@@ -2482,8 +2488,6 @@ class ObsLight():
             
             '''
             Help = False
-
-
 
         if len(listArgv) == 0:
             return rpmbuild_help()

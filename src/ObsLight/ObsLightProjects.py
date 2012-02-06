@@ -240,29 +240,9 @@ class ObsLightProjects(object):
         '''
         return self.getProject(projectLocalName).getObsPackageRev(packageName)
     #---------------------------------------------------------------------------
-    def getPackageFilter(self, projectLocalName):
-        return self.getProject(projectLocalName).getPackageFilter()
 
     def resetPackageFilter(self, projectLocalName):
         return self.getProject[projectLocalName].resetPackageFilter()
-
-    def removePackageFilter(self, projectLocalName, key):
-        return self.getProject(projectLocalName).removePackageFilter(key=key)
-
-    def addPackageFilter(self, projectLocalName, key, val):
-        return self.getProject(projectLocalName).addPackageFilter(key=key, val=val)
-
-    def getListStatus(self, projectLocalName):
-        return self.getProject(projectLocalName).getListStatus()
-
-    def getListOscStatus(self, projectLocalName):
-        return self.getProject(projectLocalName).getListOscStatus()
-
-    def getListChRootStatus(self, projectLocalName):
-        return self.getProject(projectLocalName).getListChRootStatus()
-
-    def getPackageInfo(self, projectLocalName, package=None):
-        return self.getProject(projectLocalName).getPackageInfo(package=package)
 
     #---------------------------------------------------------------------------
 
@@ -278,14 +258,7 @@ class ObsLightProjects(object):
         '''
         return  self.getProject(projectLocalName).openTerminal(package=package)
 
-    def getPackageFileInfo(self,
-                           projectLocalName,
-                           packageName,
-                           fileName):
-        '''
-        
-        '''
-        return  self.getProject(projectLocalName).getPackageFileInfo(packageName, fileName)
+
 
     def getObsServer(self, name=None):
         '''
@@ -309,9 +282,9 @@ class ObsLightProjects(object):
         package = self.getProject(projectLocalName).getPackage(packageName)
         return package.getOscDirectory()
 
-    def getPackageDirectoryInChRoot(self, projectLocalName, packageName):
-        package = self.getProject(projectLocalName).getPackage(packageName)
-        return package.getPackageDirectory()
+#    def getPackageDirectoryInChRoot(self, projectLocalName, packageName):
+#        package = self.getProject(projectLocalName).getPackage(packageName)
+#        return package.getPackageDirectory()
 
     def setProjectparameter(self, projectLocalName=None, parameter=None, value=None):
         '''
@@ -332,26 +305,6 @@ class ObsLightProjects(object):
         Export a project to a file
         '''
         self.save(aFile=path, projectName=projectLocalName)
-
-    def isInstallInChroot(self, projectLocalName, package):
-        '''
-        Return True if the package is install into the chroot.
-        '''
-        return self.getProject(projectLocalName).isInstallInChroot(package=package)
-
-    def addFileToPackage(self, projectLocalName, package, path):
-        '''
-        
-        '''
-        self.getProject(projectLocalName).addFileToPackage(package=package,
-                                                                      path=path)
-
-    def delFileToPackage(self, projectLocalName, package, name):
-        '''
-        
-        '''
-        self.getProject(projectLocalName).delFileToPackage(package=package,
-                                                                      name=name)
 
     def updatePackage(self, projectLocalName, package, controlFunction=None):
         '''
@@ -407,11 +360,11 @@ class ObsLightProjects(object):
 
 
 
-    def testConflict(self, projectLocalName, package):
-        '''
-        
-        '''
-        return self.getProject(projectLocalName).testConflict(package)
+#    def testConflict(self, projectLocalName, package):
+#        '''
+#        
+#        '''
+#        return self.getProject(projectLocalName).testConflict(package)
 
 
 

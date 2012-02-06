@@ -186,8 +186,9 @@ class ProjectConfigManager(QObject, ObsLightGuiObject):
         self.__targetCBox.clear()
         if len(self.getCurrentServerAlias()) > 0 and len(self.getCurrentProjectObsName()) > 0:
             try:
-                targets = self.manager.getTargetList(self.getCurrentServerAlias(),
-                                                               self.getCurrentProjectObsName())
+                targets = self.manager.getObsProjectParameter(serverApi=self.getCurrentServerAlias(),
+                                                       obsproject=self.getCurrentProjectObsName(),
+                                                       parameter="repository")
                 self.__targetCBox.addItems(targets)
                 removeEffect(self.__obsNameField)
             except BaseException:
@@ -201,9 +202,10 @@ class ProjectConfigManager(QObject, ObsLightGuiObject):
         '''
         self.__archCBox.clear()
         if len(self.getCurrentTarget()) > 0:
-            archs = self.manager.getArchitectureList(self.getCurrentServerAlias(),
-                                                               self.getCurrentProjectObsName(),
-                                                               self.getCurrentTarget())
+            archs = self.manager.getObsProjectParameter(serverApi=self.getCurrentServerAlias(),
+                                                       obsproject=self.getCurrentProjectObsName(),
+                                                       parameter="arch")
+
             self.__archCBox.addItems(archs)
 
     def handleObsNameEdited(self, _ignore):
@@ -311,12 +313,12 @@ class ProjectConfigManager(QObject, ObsLightGuiObject):
 #            self.manager.setProjectParameter(self.getCurrentProjectLocalName(),
 #                                                  "obsServer",
 #                                                  self.getCurrentServerAlias())
-            self.manager.setProjectParameter(self.getCurrentProjectLocalName(),
-                                                       u"projectTarget",
-                                                       self.getCurrentTarget())
-            self.manager.setProjectParameter(self.getCurrentProjectLocalName(),
-                                                       u"projectArchitecture",
-                                                       self.getCurrentArch())
+#            self.manager.setProjectParameter(self.getCurrentProjectLocalName(),
+#                                                       u"projectTarget",
+#                                                       self.getCurrentTarget())
+#            self.manager.setProjectParameter(self.getCurrentProjectLocalName(),
+#                                                       u"projectArchitecture",
+#                                                       self.getCurrentArch())
             self.manager.setProjectParameter(self.getCurrentProjectLocalName(),
                                                        u"projectTitle",
                                                        self.getCurrentTitle())

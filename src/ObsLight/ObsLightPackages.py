@@ -144,11 +144,11 @@ class ObsLightPackages(object):
         res.sort()
         return res
 
-    def isInstallInChroot(self, name):
-        '''
-        Return True if the package is install into the chroot.
-        '''
-        return self.getPackage(name).isInstallInChroot()
+#    def isInstallInChroot(self, name):
+#        '''
+#        Return True if the package is install into the chroot.
+#        '''
+#        return self.getPackage(name).isInstallInChroot()
 
     def delFromChroot(self, package):
         '''
@@ -269,18 +269,6 @@ class ObsLightPackages(object):
         '''
         self.getPackage(name).update(status=status)
 
-
-    def addFile(self, package, path):
-        '''
-        
-        '''
-        self.getPackage(package).addFile(path)
-
-    def delFile(self, package, name):
-        '''
-        
-        '''
-        self.getPackage(package).delFile(name)
 
     def getChrootRpmBuildDirectory(self, name):
         '''

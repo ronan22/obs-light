@@ -309,7 +309,9 @@ class PackageManager(QObject, ObsLightGuiObject):
 
             self.__packageTitleLabel.setText(packageTitle)
             self.__packageDescriptionLabel.setText(description)
-            pkgDir = self.manager.getPackageDirectory(project, package)
+            pkgDir = self.manager.getPackageParameter(projectLocalName=project,
+                                                    package=package,
+                                                    parameter="oscPackageDirectory")
             self.__packagePathLineEdit.setText(pkgDir)
         else:
             self.__packageNameLabel.setText(u"No package selected")
@@ -359,8 +361,7 @@ class PackageManager(QObject, ObsLightGuiObject):
         for index in indices:
             if index.isValid():
                 row = index.row()
-                packageNameIndex = self.__pkgModel.createIndex(row,
-                                                               PackageModel.NameColumn)
+                packageNameIndex = self.__pkgModel.createIndex(row, PackageModel.NameColumn)
                 packageName = self.__pkgModel.data(packageNameIndex)
                 packages.add(packageName)
         return list(packages)
@@ -371,12 +372,9 @@ class PackageManager(QObject, ObsLightGuiObject):
     def getPackageListFromServer(self):
         if self.getCurrentProject() is None:
             return list()
-        server = self.manager.getProjectParameter(self.getCurrentProject(),
-                                                            u"obsServer")
-        prjObsName = self.manager.getProjectParameter(self.getCurrentProject(),
-                                                                u"projectObsName")
-        packageList = self.manager.getObsProjectPackageList(server,
-                                                                      prjObsName)
+        server = self.manager.getProjectParameter(self.getCurrentProject(), "obsServer")
+        prjObsName = self.manager.getProjectParameter(self.getCurrentProject(), "projectObsName")
+        packageList = self.manager.getObsProjectPackageList(server, prjObsName)
         return packageList
 
     def showPackageSelectionDialog(self, packageList):
