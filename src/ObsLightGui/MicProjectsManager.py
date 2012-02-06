@@ -75,6 +75,8 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
         removeRepoClicked.connect(self.on_removeRepositoryButton_clicked)
         addRepoClicked = self.mainWindow.addRepositoryButton.clicked
         addRepoClicked.connect(self.on_addRepositoryButton_clicked)
+        addRepo2Clicked = self.mainWindow.addRepositoryFromProjectButton.clicked
+        addRepo2Clicked.connect(self.on_addRepositoryFromProjectButton_clicked)
 
     def __disconnectProjectEventsAndButtons(self):
         imgTypeChanged = self.mainWindow.imageTypeComboBox.currentIndexChanged[unicode]
@@ -87,6 +89,8 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
         removeRepoClicked.disconnect(self.on_removeRepositoryButton_clicked)
         addRepoClicked = self.mainWindow.addRepositoryButton.clicked
         addRepoClicked.disconnect(self.on_addRepositoryButton_clicked)
+        addRepo2Clicked = self.mainWindow.addRepositoryFromProjectButton.clicked
+        addRepo2Clicked.disconnect(self.on_addRepositoryFromProjectButton_clicked)
 
 # --- Button handlers --------------------------------------------------------
     @popupOnException
@@ -184,12 +188,28 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
         for repo in repositories:
             self._currentProjectObj.removeRepository(repo)
 
+    @popupOnException
     def on_addRepositoryButton_clicked(self):
         """Called when user clicks on 'add repository'"""
         self.__configDialog = self.gui.loadWindow(u"obsRepoConfig.ui")
         self.__configDialog.accepted.connect(self.on_configDialog_accepted)
         self.__configDialog.checkButton.hide()
         self.__configDialog.show()
+
+    @popupOnException
+    def on_addRepositoryFromProjectButton_clicked(self):
+        projects = self.manager.getLocalProjectList()
+        selectedProject, accepted = QInputDialog.getItem(self.mainWindow,
+                                                         "Select project",
+                                                         "Project to import repository from:",
+                                                         projects,
+                                                         editable=False)
+        if not accepted:
+            return
+        repoUrl = self.callWithInfiniteProgress(self.manager.getProjectRepository,
+                                                "Retrieving repository URL...",
+                                                selectedProject)
+        self._currentProjectObj.addRepository(selectedProject, repoUrl)
 # --- end Button handlers ----------------------------------------------------
 
 # --- Event handlers ---------------------------------------------------------
@@ -211,6 +231,7 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
         """Called when user changes architecture combo box"""
         self._currentProjectObj.architecture = architecture
 
+    @popupOnException
     def on_configDialog_accepted(self):
         """Called when user accepts repository configuration dialog"""
         name = self.__configDialog.repoAliasLineEdit.text()

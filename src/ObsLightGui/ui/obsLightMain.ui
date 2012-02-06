@@ -1426,10 +1426,7 @@ in the source directory of the current package if it is installed.</string>
               </widget>
              </item>
              <item row="6" column="0">
-              <widget class="QPushButton" name="pushButton_3">
-               <property name="enabled">
-                <bool>false</bool>
-               </property>
+              <widget class="QPushButton" name="addRepositoryFromProjectButton">
                <property name="text">
                 <string>Import from OBS project</string>
                </property>

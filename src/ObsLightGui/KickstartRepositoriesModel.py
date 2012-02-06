@@ -148,7 +148,10 @@ class KickstartRepositoriesModel(QAbstractTableModel):
         self.manager.saveKickstartFile(self.currentProject)
 
     def addRepository(self, name, url):
-        self.manager.addKickstartRepository(self.currentProject, baseurl=url, name=name)
+        sslVerify = "yes" if url.startswith("https") else "no"
+        self.manager.addKickstartRepository(self.currentProject, baseurl=url,
+                                            name=name,
+                                            ssl_verify=sslVerify)
         self.manager.saveKickstartFile(self.currentProject)
         self.refresh()
 
