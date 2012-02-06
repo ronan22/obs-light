@@ -105,7 +105,7 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
                                                         filter=filters)
         if len(filePath) < 1:
             return
-        self.callWithInfiniteProgress(self.manager.saveKickstartFileAs,
+        self.callWithInfiniteProgress(self.manager.saveKickstartFile,
                                       "Exporting Kickstart file",
                                       self.currentProject,
                                       filePath)

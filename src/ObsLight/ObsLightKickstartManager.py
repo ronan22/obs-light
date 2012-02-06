@@ -111,12 +111,19 @@ class ObsLightKickstartManager(object):
         file (only their name).
         """
         self._checkKsParser()
-        return [repo[0] for repo in kickstart.get_repos(self.kickstartParser)]
+        retVal = [repo[0] for repo in kickstart.get_repos(self.kickstartParser)]
+        retVal.sort()
+        return retVal
 
     def _checkRepository(self, name):
         if not name in self.getRepositoryList():
             msg = "Repository '%s' does not exist" % name
             raise ObsLightErr.ObsLightMicProjectErr(msg)
+
+    def __getRepoObj(self, name):
+        for repo in self.kickstartParser.handler.repo.repoList:
+            if repo.name == name:
+                return repo
 
     def addRepositoryByConfigLine(self, line):
         """
@@ -130,7 +137,7 @@ class ObsLightKickstartManager(object):
     def addRepository(self, baseurl, name, cost=None, **kwargs):
         """
         Add a package repository in the Kickstart file.
-         baseUrl: the URL of the repository
+         baseurl: the URL of the repository
          name:    a name for this repository
          cost:    the cost of this repository, from 0 (highest priority) to 99, or None
         Keyword arguments can be (default value from `Moblin_RepoData`):
@@ -138,7 +145,7 @@ class ObsLightKickstartManager(object):
         - priority (None):
         - includepkgs ([]):
         - excludepkgs ([]):
-        - save (False): keep the repository in the generated image (defaults to False)
+        - save (False): keep the repository in the generated image
         - proxy (None):
         - proxy_username (None):
         - proxy_password (None):
@@ -159,6 +166,15 @@ class ObsLightKickstartManager(object):
         repoObj.cost = cost
         self.kickstartParser.handler.repo.repoList.append(repoObj)
 
+    def updateRepository(self, oldname, **repoParams):
+        repoObj = self.__getRepoObj(oldname)
+        repoDict = repoObj.__dict__
+        for key in repoParams.keys():
+            if not key in repoDict.keys():
+                msg = "Unknown repository parameter '%s'" % key
+                raise ObsLightErr.ObsLightMicProjectErr(msg)
+        repoDict.update(repoParams)
+
     def removeRepository(self, name):
         """
         Remove the package repository `name` from the Kickstart file.
@@ -176,11 +192,8 @@ class ObsLightKickstartManager(object):
         suitable for input to `addRepository`.
         """
         self._checkRepository(name)
-        myDict = None
-        for repo in self.kickstartParser.handler.repo.repoList:
-            if repo.name == name:
-                myDict = dict(repo.__dict__)
-                break
+        repoObj = self.__getRepoObj(name)
+        myDict = dict(repoObj.__dict__)
         # these entries are no to be known by user and
         # may cause problems if dictionary is used as input
         # to addRepository
