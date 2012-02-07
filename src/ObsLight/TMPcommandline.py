@@ -174,6 +174,7 @@ __package_repair__ = ["repair"]
 __package_current__ = ["current"]
 __package_addfile__ = ["addfile"]
 __package_deletefile__ = ["deletefile"]
+__package_refresh__ = ["refresh"]
 
 __DICO_Help__[__package_Help__[0]] = __package_Help__[0] + ":" + "\t" + "Doc __obsproject_Help__"
 __DICO_Help__[__package_add__[0]] = __package_add__[0] + ":" + "\t" + "Doc __obsproject_Help__"
@@ -203,6 +204,9 @@ __fsPackageDirectory__ = ["fsPackageDirectory"]
 __oscPackageDirectory__ = ["oscPackageDirectory"]
 __chRootStatus__ = ["chRootStatus"]
 __currentPatch__ = ["currentPatch"]
+__package_oscstatus__ = ["oscstatus"]
+__package_obsstatus__ = ["obsstatus"]
+
 
 __DICO_Help__[__package_package__[0]] = __package_package__[0] + ":" + "\t" + "Doc __obsproject_Help__"
 __DICO_Help__[__package_available__[0]] = __package_available__[0] + ":" + "\t" + "Doc __obsproject_Help__"
@@ -1789,20 +1793,23 @@ class ObsLight():
 
             project_alias = None
             package = None
+            message = None
 
             while(len(listArgv) > 0):
                 currentCommand, listArgv = getParameter(listArgv)
                 if (currentCommand in __obsproject_Help__) or (listArgv == None):
                     Help = True
                     break
-                elif currentCommand in __package_update__:
-                    update = True
-                elif currentCommand in __project_alias__:
-                    project_alias , listArgv = getParameter(listArgv)
-                elif currentCommand in __package_package__:
-                    package , listArgv = getParameter(listArgv)
                 else:
                     message = currentCommand
+                    while(len(listArgv) > 0):
+                        if currentCommand in __project_alias__:
+                            project_alias , listArgv = getParameter(listArgv)
+                        elif currentCommand in __package_package__:
+                            package , listArgv = getParameter(listArgv)
+                        else:
+                            break
+                    break
 
             if  (Help == True) and (message != None):
                 return package_Help()
@@ -1819,8 +1826,9 @@ class ObsLight():
                     if package == None:
                         return package_Help()
 
-                res = m.updatePatch(projectLocalName=project_alias,
-                                     package=package)
+                res = m.addAndCommitChanges(projectLocalName=project_alias,
+                                            package=package,
+                                            message=message)
                 if res == None:
                     print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
                     return -1
@@ -1990,6 +1998,70 @@ class ObsLight():
                 return m.deleteFileFromPackage(project_alias, package, name)
             return 0
 
+        def package_refresh(listArgv):
+            '''
+            
+            '''
+            Help = False
+            OscStatus = False
+            ObsStatus = False
+            project_alias = None
+            package = None
+
+
+
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = getParameter(listArgv)
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
+                    break
+                else:
+                    path = currentCommand
+                    while(len(listArgv) > 0):
+                        currentCommand, listArgv = getParameter(listArgv)
+                        if currentCommand in __package_oscstatus__:
+                            OscStatus = True
+                        elif currentCommand in __package_obsstatus__:
+                            ObsStatus = True
+                        elif currentCommand in __project_alias__:
+                            project_alias , listArgv = getParameter(listArgv)
+                        elif currentCommand in __package_package__:
+                            package , listArgv = getParameter(listArgv)
+                        else:
+                            break
+                    break
+
+            if  (Help == True) :
+                return package_Help()
+            else:
+                m = ObsLightManager.getCommandLineManager()
+                if not (OscStatus or ObsStatus):
+                    OscStatus = True
+                    ObsStatus = True
+
+                if project_alias == None:
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return package_Help()
+
+                if (package == None) :
+                    package = m.getCurrentPackage(project_alias)
+                    if package == None:
+                        return package_Help()
+                if OscStatus:
+                    res = m.refreshOscDirectoryStatus(project_alias, package)
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                if ObsStatus:
+                    res = m.refreshObsStatus(project_alias, package)
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                return 0
+            return 0
+
 #-------------------------------------------------------------------------------
         if len(listArgv) == 0:
             package_Help()
@@ -2022,6 +2094,8 @@ class ObsLight():
                 return package_addfile(listArgv)
             elif currentCommand in __package_deletefile__:
                 return package_deletefile(listArgv)
+            elif currentCommand in __package_refresh__:
+                return package_refresh(listArgv)
             else:
                 return package_Help()
 
