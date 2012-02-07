@@ -1159,11 +1159,11 @@ class ObsLightManagerCore(ObsLightManagerBase):
         return res
 
     @checkProjectLocalName(1)
-    def patchIsInit(self, ProjectName, packageName):
+    def patchIsInit(self, projectLocalName, packageName):
         '''
         
         '''
-        return self._myObsLightProjects.getProject(ProjectName).getPackage(packageName).patchIsInit()
+        return self._myObsLightProjects.getProject(projectLocalName).getPackage(packageName).patchIsInit()
 
     @checkProjectLocalName(1)
     def testConflict(self, projectLocalName, package):
