@@ -467,7 +467,7 @@ class ObsLightProject(object):
                                                                                 package)
         if rev is not None:
             self.__packages.getPackage(package).setPackageParameter("obsRev", rev)
-
+        return 0
 
     def refreshOscDirectoryStatus(self, package=None):
         '''
@@ -484,6 +484,7 @@ class ObsLightProject(object):
                 #self.checkOscDirectoryStatus(pk)
                 self.__packages.getPackage(pk).initPackageFileInfo()
                 #self.checkOscPackageStatus(package)
+        return 0
 
     def repairOscPackageDirectory(self, package):
         '''
@@ -508,7 +509,7 @@ class ObsLightProject(object):
             if status != None:
                 self.__packages.getPackage(package).setPackageParameter(parameter="status",
                                                                         value=status)
-            self.checkObsPackageStatus(package=package)
+            return self.checkObsPackageStatus(package=package)
 
         else:
             for pk in self.getListPackage(local=1):
@@ -517,7 +518,7 @@ class ObsLightProject(object):
                                                                                             repo=self.__projectTarget,
                                                                                             arch=self.__projectArchitecture)
 
-                self.__packages.getPackage(pk).setPackageParameter(parameter="status",
+                return self.__packages.getPackage(pk).setPackageParameter(parameter="status",
                                                                    value=status)
 
 
@@ -612,7 +613,8 @@ class ObsLightProject(object):
         Init a chroot and add the project repository. 
         '''
         self.__initChRoot()
-        return self.addRepo()
+        res = self.addRepo()
+        return res
 
     def __initChRoot(self):
         '''
@@ -764,11 +766,11 @@ class ObsLightProject(object):
                                      tarFile=tarFile)
         return 0
 
-    def makePatch(self, package, patch):
+    def createPatch(self, package, patch):
         '''
         Create a patch
         '''
-        return self.__chroot.makePatch(package=self.__packages.getPackage(package),
+        return self.__chroot.createPatch(package=self.__packages.getPackage(package),
                                 patch=patch)
 
     def updatePatch(self, package):

@@ -174,7 +174,7 @@ __package_repair__ = ["repair"]
 __package_current__ = ["current"]
 __package_addfile__ = ["addfile"]
 __package_deletefile__ = ["deletefile"]
-
+__package_refresh__ = ["refresh"]
 
 __DICO_Help__[__package_Help__[0]] = __package_Help__[0] + ":" + "\t" + "Doc __obsproject_Help__"
 __DICO_Help__[__package_add__[0]] = __package_add__[0] + ":" + "\t" + "Doc __obsproject_Help__"
@@ -204,6 +204,9 @@ __fsPackageDirectory__ = ["fsPackageDirectory"]
 __oscPackageDirectory__ = ["oscPackageDirectory"]
 __chRootStatus__ = ["chRootStatus"]
 __currentPatch__ = ["currentPatch"]
+__package_oscstatus__ = ["oscstatus"]
+__package_obsstatus__ = ["obsstatus"]
+
 
 __DICO_Help__[__package_package__[0]] = __package_package__[0] + ":" + "\t" + "Doc __obsproject_Help__"
 __DICO_Help__[__package_available__[0]] = __package_available__[0] + ":" + "\t" + "Doc __obsproject_Help__"
@@ -273,17 +276,17 @@ __rpmbuild_prepare__ = ["prepare"]
 __rpmbuild_build__ = ["build"]
 __rpmbuild_install__ = ["install"]
 __rpmbuild_package__ = ["package"]
-__rpmbuild_extractpatch__ = ["extractpatch"]
 __rpmbuild_isInit__ = ["isinit"]
 __rpmbuild_testConflict__ = ["testconflict"]
-
+__rpmbuild_createPatch__ = ["createpatch"]
+__rpmbuild_updatepatch__ = ["updatepatch"]
 
 __DICO_Help__[__rpmbuild_prepare__[0]] = __rpmbuild_prepare__[0] + ":" + "\t" + "Doc __obsproject_Help__"
 __DICO_Help__[__rpmbuild_build__[0]] = __rpmbuild_build__[0] + ":" + "\t" + "Doc __obsproject_Help__"
 __DICO_Help__[__rpmbuild_install__[0]] = __rpmbuild_install__[0] + ":" + "\t" + "Doc __obsproject_Help__"
 __DICO_Help__[__rpmbuild_package__[0]] = __rpmbuild_package__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__rpmbuild_extractpatch__[0]] = __rpmbuild_extractpatch__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-
+__DICO_Help__[__rpmbuild_createPatch__[0]] = __rpmbuild_createPatch__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Help__[__rpmbuild_updatepatch__[0]] = __rpmbuild_updatepatch__[0] + ":" + "\t" + "Doc __obsproject_Help__"
 
 def getParameter(listArgv):
     if listArgv == None:
@@ -1790,20 +1793,23 @@ class ObsLight():
 
             project_alias = None
             package = None
+            message = None
 
             while(len(listArgv) > 0):
                 currentCommand, listArgv = getParameter(listArgv)
                 if (currentCommand in __obsproject_Help__) or (listArgv == None):
                     Help = True
                     break
-                elif currentCommand in __package_update__:
-                    update = True
-                elif currentCommand in __project_alias__:
-                    project_alias , listArgv = getParameter(listArgv)
-                elif currentCommand in __package_package__:
-                    package , listArgv = getParameter(listArgv)
                 else:
                     message = currentCommand
+                    while(len(listArgv) > 0):
+                        if currentCommand in __project_alias__:
+                            project_alias , listArgv = getParameter(listArgv)
+                        elif currentCommand in __package_package__:
+                            package , listArgv = getParameter(listArgv)
+                        else:
+                            break
+                    break
 
             if  (Help == True) and (message != None):
                 return package_Help()
@@ -1820,8 +1826,9 @@ class ObsLight():
                     if package == None:
                         return package_Help()
 
-                res = m.updatePatch(projectLocalName=project_alias,
-                                     package=package)
+                res = m.addAndCommitChanges(projectLocalName=project_alias,
+                                            package=package,
+                                            message=message)
                 if res == None:
                     print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
                     return -1
@@ -1991,6 +1998,70 @@ class ObsLight():
                 return m.deleteFileFromPackage(project_alias, package, name)
             return 0
 
+        def package_refresh(listArgv):
+            '''
+            
+            '''
+            Help = False
+            OscStatus = False
+            ObsStatus = False
+            project_alias = None
+            package = None
+
+
+
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = getParameter(listArgv)
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
+                    break
+                else:
+                    path = currentCommand
+                    while(len(listArgv) > 0):
+                        currentCommand, listArgv = getParameter(listArgv)
+                        if currentCommand in __package_oscstatus__:
+                            OscStatus = True
+                        elif currentCommand in __package_obsstatus__:
+                            ObsStatus = True
+                        elif currentCommand in __project_alias__:
+                            project_alias , listArgv = getParameter(listArgv)
+                        elif currentCommand in __package_package__:
+                            package , listArgv = getParameter(listArgv)
+                        else:
+                            break
+                    break
+
+            if  (Help == True) :
+                return package_Help()
+            else:
+                m = ObsLightManager.getCommandLineManager()
+                if not (OscStatus or ObsStatus):
+                    OscStatus = True
+                    ObsStatus = True
+
+                if project_alias == None:
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return package_Help()
+
+                if (package == None) :
+                    package = m.getCurrentPackage(project_alias)
+                    if package == None:
+                        return package_Help()
+                if OscStatus:
+                    res = m.refreshOscDirectoryStatus(project_alias, package)
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                if ObsStatus:
+                    res = m.refreshObsStatus(project_alias, package)
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                return 0
+            return 0
+
 #-------------------------------------------------------------------------------
         if len(listArgv) == 0:
             package_Help()
@@ -2023,6 +2094,8 @@ class ObsLight():
                 return package_addfile(listArgv)
             elif currentCommand in __package_deletefile__:
                 return package_deletefile(listArgv)
+            elif currentCommand in __package_refresh__:
+                return package_refresh(listArgv)
             else:
                 return package_Help()
 
@@ -2050,11 +2123,8 @@ class ObsLight():
                 if (currentCommand in __obsproject_Help__) or (listArgv == None):
                     Help = True
                     break
-                elif currentCommand in __project_alias__:
-                    project_alias, listArgv = getParameter(listArgv)
                 else:
-                    Help = True
-                    break
+                    project_alias = currentCommand
 
             if  (Help == True) :
                 return projectfilesystem_Help()
@@ -2525,9 +2595,6 @@ class ObsLight():
                 if res == None:
                     print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
                     return -1
-                print "repositories:"
-                for k in res:
-                    print "Alias: " + k + "\t\tURL: " + res[k]
             return 0
 
         def rpmbuild_build(listArgv):
@@ -2564,9 +2631,6 @@ class ObsLight():
                 if res == None:
                     print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
                     return -1
-                print "repositories:"
-                for k in res:
-                    print "Alias: " + k + "\t\tURL: " + res[k]
             return 0
 
         def rpmbuild_install(listArgv):
@@ -2603,9 +2667,6 @@ class ObsLight():
                 if res == None:
                     print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
                     return -1
-                print "repositories:"
-                for k in res:
-                    print "Alias: " + k + "\t\tURL: " + res[k]
             return 0
 
         def rpmbuild_package(listArgv):
@@ -2642,16 +2703,7 @@ class ObsLight():
                 if res == None:
                     print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
                     return -1
-                print "repositories:"
-                for k in res:
-                    print "Alias: " + k + "\t\tURL: " + res[k]
             return 0
-
-        def rpmbuild_extractpatch(listArgv):
-            '''
-            
-            '''
-            Help = False
 
         def rpmbuild_isInit(listArgv):
             '''
@@ -2696,7 +2748,99 @@ class ObsLight():
                     return -1
                 print "for '" + package + "' a patch is init: " + str(res)
                 return 0
-            return
+
+        def rpmbuild_createPatch(listArgv):
+            '''
+            
+            '''
+            Help = False
+            project_alias = None
+            package = None
+            patch = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = getParameter(listArgv)
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
+                    break
+                else:
+                    patch = currentCommand
+                    while (len(listArgv) > 0):
+                        if currentCommand in __project_alias__:
+                            project_alias , listArgv = getParameter(listArgv)
+                        elif currentCommand in __package_package__:
+                            package , listArgv = getParameter(listArgv)
+                        else:
+                            break
+                    break
+
+            if  (Help == True) :
+                return rpmbuild_help()
+            else:
+                m = ObsLightManager.getCommandLineManager()
+
+                if (project_alias == None) :
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return rpmbuild_help()
+
+                if (package == None) :
+                    package = m.getCurrentPackage(project_alias)
+                    if package == None:
+                        return rpmbuild_help()
+
+                if (patch == None) :
+                    return rpmbuild_help()
+
+                res = m.createPatch(projectLocalName=project_alias, package=package, patch=patch)
+                if res == None:
+                    print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                    return -1
+                return 0
+
+        def rpmbuild_updatepatch(listArgv):
+            '''
+            
+            '''
+            Help = False
+            project_alias = None
+            package = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = getParameter(listArgv)
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
+                    break
+                elif currentCommand in __project_alias__:
+                    project_alias , listArgv = getParameter(listArgv)
+                elif currentCommand in __package_package__:
+                    package , listArgv = getParameter(listArgv)
+                else:
+                    Help = True
+                    break
+
+            if  (Help == True) :
+                return rpmbuild_help()
+            else:
+                m = ObsLightManager.getCommandLineManager()
+
+                if (project_alias == None) :
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return rpmbuild_help()
+
+                if (package == None) :
+                    package = m.getCurrentPackage(project_alias)
+                    if package == None:
+                        return rpmbuild_help()
+
+                print "project_alias", project_alias
+                print "package", package
+                res = m.updatePatch(projectLocalName=project_alias, package=package)
+                if res == None:
+                    print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                    return -1
+                return 0
 
         def rpmbuild_testConflict(listArgv):
             '''
@@ -2722,12 +2866,14 @@ class ObsLight():
                 return rpmbuild_install(listArgv)
             elif currentCommand in __rpmbuild_package__:
                 return rpmbuild_package(listArgv)
-            elif currentCommand in __rpmbuild_extractpatch__:
-                return rpmbuild_extractpatch(listArgv)
             elif currentCommand in __rpmbuild_isInit__:
                 return rpmbuild_isInit(listArgv)
             elif currentCommand in __rpmbuild_testConflict__:
                 return rpmbuild_testConflict(listArgv)
+            elif currentCommand in __rpmbuild_createPatch__:
+                return rpmbuild_createPatch(listArgv)
+            elif currentCommand in __rpmbuild_updatepatch__:
+                return rpmbuild_updatepatch(listArgv)
             else:
                 return rpmbuild_help()
         return 0
