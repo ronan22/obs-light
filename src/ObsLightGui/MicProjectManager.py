@@ -45,7 +45,7 @@ class MicProjectManager(QObject, ObsLightGuiObject):
         self.__loadImageType()
         self.__loadArchitecture()
         self.mainWindow.kickstartRepositoriesTableView.setModel(self.repositoryModel)
-        self.mainWindow.kickstartPackageTableView.setModel(self.packageModel)
+        self.mainWindow.kickstartPackagesTableView.setModel(self.packageModel)
 
     def __loadImageType(self):
         imageTypes = self.manager.getAvailableMicProjectImageTypes(self.name)
@@ -104,6 +104,12 @@ class MicProjectManager(QObject, ObsLightGuiObject):
     def removeRepository(self, name):
         self.repositoryModel.removeRepository(name)
 
+    def addPackage(self, name):
+        self.packageModel.addPackage(name)
+
+    def removePackage(self, name):
+        self.packageModel.removePackage(name)
+
     def getRepositoryNameByRowId(self, row):
         if row < 0 or row > self.repositoryModel.rowCount():
             return None
@@ -111,6 +117,14 @@ class MicProjectManager(QObject, ObsLightGuiObject):
                                                          KickstartRepositoriesModel.NameColumn)
         repoName = self.repositoryModel.data(repoNameIndex)
         return repoName
+
+    def getPackageNameByRowId(self, row):
+        if row < 0 or row > self.packageModel.rowCount():
+            return None
+        pkgNameIndex = self.packageModel.createIndex(row,
+                                                     KickstartPackagesModel.NameColumn)
+        pkgName = self.packageModel.data(pkgNameIndex)
+        return pkgName
 
     def createImage(self):
         self.manager.createImage(self.name)

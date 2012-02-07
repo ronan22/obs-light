@@ -41,6 +41,7 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
         self.__connectButtons()
         self.__connectEvents()
         self.mainWindow.kickstartRepositoriesTableView.setSelectionBehavior(QTableView.SelectRows)
+        self.mainWindow.kickstartPackagesTableView.setSelectionBehavior(QTableView.SelectRows)
         self.loadProjectList()
 
     @property
@@ -77,6 +78,10 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
         addRepoClicked.connect(self.on_addRepositoryButton_clicked)
         addRepo2Clicked = self.mainWindow.addRepositoryFromProjectButton.clicked
         addRepo2Clicked.connect(self.on_addRepositoryFromProjectButton_clicked)
+        addPkgClicked = self.mainWindow.addPackageButton.clicked
+        addPkgClicked.connect(self.on_addPackageButton_clicked)
+        removePkgClicked = self.mainWindow.removePackageButton.clicked
+        removePkgClicked.connect(self.on_removePackageButton_clicked)
 
     def __disconnectProjectEventsAndButtons(self):
         imgTypeChanged = self.mainWindow.imageTypeComboBox.currentIndexChanged[unicode]
@@ -91,6 +96,10 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
         addRepoClicked.disconnect(self.on_addRepositoryButton_clicked)
         addRepo2Clicked = self.mainWindow.addRepositoryFromProjectButton.clicked
         addRepo2Clicked.disconnect(self.on_addRepositoryFromProjectButton_clicked)
+        addPkgClicked = self.mainWindow.addPackageButton.clicked
+        addPkgClicked.disconnect(self.on_addPackageButton_clicked)
+        removePkgClicked = self.mainWindow.removePackageButton.clicked
+        removePkgClicked.disconnect(self.on_removePackageButton_clicked)
 
 # --- Button handlers --------------------------------------------------------
     @popupOnException
@@ -210,6 +219,35 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
                                                 "Retrieving repository URL...",
                                                 selectedProject)
         self._currentProjectObj.addRepository(selectedProject, repoUrl)
+
+    @popupOnException
+    def on_addPackageButton_clicked(self):
+        selectedPackage, accepted = QInputDialog.getText(self.mainWindow,
+                                                         "Select package",
+                                                         "Enter a package name:")
+        if not accepted or len(selectedPackage) < 1:
+            return
+        self._currentProjectObj.addPackage(selectedPackage)
+
+    @popupOnException
+    def on_removePackageButton_clicked(self):
+        packages = []
+        for row in getSelectedRows(self.mainWindow.kickstartPackagesTableView):
+            package = self._currentProjectObj.getPackageNameByRowId(row)
+            if package is not None:
+                packages.append(package)
+        if len(packages) < 1:
+            return
+        result = QMessageBox.question(self.mainWindow,
+                                      u"Are you sure ?",
+                                      u"Are you sure you want to remove %d packages ?"
+                                        % len(packages),
+                                      buttons=QMessageBox.Yes | QMessageBox.No,
+                                      defaultButton=QMessageBox.Yes)
+        if result == QMessageBox.No:
+            return
+        # removePackage supports lists
+        self._currentProjectObj.removePackage(packages)
 # --- end Button handlers ----------------------------------------------------
 
 # --- Event handlers ---------------------------------------------------------

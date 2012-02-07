@@ -109,3 +109,13 @@ class KickstartPackagesModel(KickstartModelBase):
                                          pkgDict[self.ColumnKeys[self.NameColumn]],
                                          pkgDict[self.ColumnKeys[self.ExcludedColumn]])
         self.manager.saveKickstartFile(self.currentProject)
+
+    def addPackage(self, name):
+        self.manager.addKickstartPackage(self.currentProject, name)
+        self.manager.saveKickstartFile(self.currentProject)
+        self.refresh()
+
+    def removePackage(self, name):
+        self.manager.removeKickstartPackage(self.currentProject, name)
+        self.manager.saveKickstartFile(self.currentProject)
+        self.refresh()

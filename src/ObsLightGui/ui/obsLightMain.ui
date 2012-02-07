@@ -1460,12 +1460,12 @@ in the source directory of the current package if it is installed.</string>
             </attribute>
             <layout class="QGridLayout" name="gridLayout_8">
              <item row="0" column="0" colspan="2">
-              <widget class="QTableView" name="kickstartPackageTableView"/>
+              <widget class="QTableView" name="kickstartPackagesTableView"/>
              </item>
              <item row="1" column="0">
               <widget class="QPushButton" name="addPackageButton">
                <property name="text">
-                <string>PushButton</string>
+                <string>Add by name</string>
                </property>
               </widget>
              </item>
@@ -1481,6 +1481,13 @@ in the source directory of the current package if it is installed.</string>
                 </size>
                </property>
               </spacer>
+             </item>
+             <item row="2" column="0">
+              <widget class="QPushButton" name="removePackageButton">
+               <property name="text">
+                <string>Remove</string>
+               </property>
+              </widget>
              </item>
             </layout>
            </widget>
