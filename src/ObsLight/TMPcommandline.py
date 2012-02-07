@@ -274,6 +274,9 @@ __rpmbuild_build__ = ["build"]
 __rpmbuild_install__ = ["install"]
 __rpmbuild_package__ = ["package"]
 __rpmbuild_extractpatch__ = ["extractpatch"]
+__rpmbuild_isInit__ = ["isinit"]
+__rpmbuild_testConflict__ = ["testconflict"]
+
 
 __DICO_Help__[__rpmbuild_prepare__[0]] = __rpmbuild_prepare__[0] + ":" + "\t" + "Doc __obsproject_Help__"
 __DICO_Help__[__rpmbuild_build__[0]] = __rpmbuild_build__[0] + ":" + "\t" + "Doc __obsproject_Help__"
@@ -982,7 +985,6 @@ class ObsLight():
                 elif currentCommand in __obsproject__:
                     obsproject , listArgv = getParameter(listArgv)
                 else:
-                    print "currentCommand", currentCommand
                     Help = True
                     break
 
@@ -1693,7 +1695,6 @@ class ObsLight():
                 elif currentCommand in __package_package__:
                     package , listArgv = getParameter(listArgv)
                 else:
-                    print "currentCommand", currentCommand
                     Help = True
                     break
 
@@ -1753,7 +1754,6 @@ class ObsLight():
                 elif currentCommand in __package_package__:
                     package , listArgv = getParameter(listArgv)
                 else:
-                    print "currentCommand", currentCommand
                     Help = True
                     break
 
@@ -1848,7 +1848,6 @@ class ObsLight():
                 elif currentCommand in __package_package__:
                     package , listArgv = getParameter(listArgv)
                 else:
-                    print "currentCommand", currentCommand
                     Help = True
                     break
 
@@ -2654,6 +2653,59 @@ class ObsLight():
             '''
             Help = False
 
+        def rpmbuild_isInit(listArgv):
+            '''
+            
+            '''
+            Help = False
+            project_alias = None
+            package = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = getParameter(listArgv)
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
+                    break
+                elif currentCommand in __project_alias__:
+                    project_alias , listArgv = getParameter(listArgv)
+                elif currentCommand in __package_package__:
+                    package , listArgv = getParameter(listArgv)
+                else:
+                    Help = True
+                    break
+
+            if  (Help == True) :
+                return rpmbuild_help()
+            else:
+                m = ObsLightManager.getCommandLineManager()
+
+                if (project_alias == None) :
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return rpmbuild_help()
+
+                if (package == None) :
+                    package = m.getCurrentPackage(project_alias)
+                    if package == None:
+                        return rpmbuild_help()
+
+                print
+                res = m.patchIsInit(projectLocalName=project_alias, packageName=package)
+                if res == None:
+                    print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                    return -1
+                print "for '" + package + "' a patch is init: " + str(res)
+                return 0
+            return
+
+        def rpmbuild_testConflict(listArgv):
+            '''
+            
+            '''
+            Help = False
+            m = ObsLightManager.getCommandLineManager()
+            return m.testConflict(projectLocalName=None, package=None)
+
         if len(listArgv) == 0:
             return rpmbuild_help()
         else:
@@ -2672,6 +2724,10 @@ class ObsLight():
                 return rpmbuild_package(listArgv)
             elif currentCommand in __rpmbuild_extractpatch__:
                 return rpmbuild_extractpatch(listArgv)
+            elif currentCommand in __rpmbuild_isInit__:
+                return rpmbuild_isInit(listArgv)
+            elif currentCommand in __rpmbuild_testConflict__:
+                return rpmbuild_testConflict(listArgv)
             else:
                 return rpmbuild_help()
         return 0
