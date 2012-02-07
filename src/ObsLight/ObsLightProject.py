@@ -612,7 +612,8 @@ class ObsLightProject(object):
         Init a chroot and add the project repository. 
         '''
         self.__initChRoot()
-        return self.addRepo()
+        res = self.addRepo()
+        return res
 
     def __initChRoot(self):
         '''
@@ -764,11 +765,11 @@ class ObsLightProject(object):
                                      tarFile=tarFile)
         return 0
 
-    def makePatch(self, package, patch):
+    def createPatch(self, package, patch):
         '''
         Create a patch
         '''
-        return self.__chroot.makePatch(package=self.__packages.getPackage(package),
+        return self.__chroot.createPatch(package=self.__packages.getPackage(package),
                                 patch=patch)
 
     def updatePatch(self, package):

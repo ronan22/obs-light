@@ -50,7 +50,7 @@ __createChRoot__ = "createChRoot"
 __goToChRoot__ = "goToChRoot"
 
 __addPackageSourceInChRoot__ = "addPackageSourceInChRoot"
-__makePatch__ = "makePatch"
+__makePatch__ = "createPatch"
 __addAndCommitChange__ = "addAndCommitChanges"
 __addRepoInChRoot__ = "addRepoInChRoot"
 __exportProject__ = "exportProject"
@@ -267,7 +267,7 @@ class ObsLight():
                 elif (listArgv[0] == __addPackageSourceInChRoot__):
                     return self.addPackageSourceInChRoot(listArgv[1:])
                 elif (listArgv[0] == __makePatch__):
-                    return self.makePatch(listArgv[1:])
+                    return self.createPatch(listArgv[1:])
                 elif (listArgv[0] == __addAndCommitChange__):
                     return self.addAndCommitChanges(listArgv[1:])
                 elif (listArgv[0] == __addRepoInChRoot__):
@@ -678,7 +678,7 @@ class ObsLight():
         return 0
 
 
-    def makePatch(self, listArgv):
+    def createPatch(self, listArgv):
         '''
         Generate a patch from the modifications made in the chroot.
         '''
@@ -706,7 +706,7 @@ class ObsLight():
                     raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
 
             if (projectLocalName != None) and (package != None) and (patch != None):
-                ObsLightManager.getManager().makePatch(projectLocalName=projectLocalName,
+                ObsLightManager.getManager().createPatch(projectLocalName=projectLocalName,
                                                   package=package,
                                                   patch=patch)
             else:

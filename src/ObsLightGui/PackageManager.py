@@ -611,7 +611,7 @@ class PackageManager(QObject, ObsLightGuiObject):
         progress = self.gui.getInfiniteProgressDialog()
         runnable = ProgressRunnable2(progress)
         runnable.setDialogMessage(u"Creating patch...")
-        runnable.setRunMethod(self.manager.makePatch,
+        runnable.setRunMethod(self.manager.createPatch,
                               project,
                               package,
                               patchName)

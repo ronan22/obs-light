@@ -40,7 +40,7 @@ obslight
 	package	commit	<message> {package <package> {project_alias <project_alias>}}
 	package	repair	{package <package> {project_alias <project_alias>}
 	#Not implement
-	package refresh			OscStatus ObsStatus {package <package> {project_alias <project_alias>}}
+	package refresh	OscStatus ObsStatus {package <package> {project_alias <project_alias>}}
 	package addfile path {package <package> {project_alias <project_alias>}
 	package deletefile file {package <package> {project_alias <project_alias>}
 	#___________________________________________________________________________________________________________________________________________
@@ -63,6 +63,7 @@ obslight
 	rpmbuild	install		{<package>} {project_alias <project_alias>}
 	rpmbuild	package		{<package>} {project_alias <project_alias>}
 	rpmbuild	isinit		{package <package> {project_alias <project_alias>}
+	rpmbuild	createpatch	patch {<package>} {project_alias <project_alias>}
 	#Not implement
 	rpmbuild	extractpatch	{<package>} {project_alias <project_alias>}
 	rpmbuild	testconflict	{package <package> {project_alias <project_alias>}

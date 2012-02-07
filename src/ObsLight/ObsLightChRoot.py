@@ -698,7 +698,7 @@ class ObsLightChRoot(object):
         command.append(self.prepareGitCommand(path, " commit -a -m \"" + mess + "\""))
         self.execCommand(command=command)
 
-    def makePatch(self, package=None, patch=None):
+    def createPatch(self, package=None, patch=None):
         '''
         Create a patch from modifications made in the package directory.
         '''
@@ -707,7 +707,7 @@ class ObsLightChRoot(object):
         packagePath = package.getPackageDirectory()
         pathOscPackage = package.getOscDirectory()
 
-        self.commitGit(mess="makePatch", package=package)
+        self.commitGit(mess="createPatch", package=package)
 
         tag1 = package.getFirstCommit()
         if tag1 == None:
