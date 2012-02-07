@@ -210,17 +210,37 @@ class ObsLightMicProjects:
         "excluded" parameter allows to add package as "explicitly excluded"
         (defaults to False).
         """
+        self._checkMicProjectName(micProjectName)
         self.__dicOBSLightProjects[micProjectName].addKickstartPackage(name, excluded)
 
     def removeKickstartPackage(self, micProjectName, name):
         """
         Remove the package `name` from the Kickstart file of `micProjectName`.
         """
+        self._checkMicProjectName(micProjectName)
         self.__dicOBSLightProjects[micProjectName].removeKickstartPackage(name)
 
     def getKickstartPackageDictionaries(self, micProjectName):
         self._checkMicProjectName(micProjectName)
         return self.__dicOBSLightProjects[micProjectName].getKickstartPackageDictionaries()
+
+    def addKickstartPackageGroup(self, micProjectName, name):
+        """
+        Add the package group `name` in the Kickstart file of `micProjectName`.
+        """
+        self._checkMicProjectName(micProjectName)
+        self.__dicOBSLightProjects[micProjectName].addKickstartPackageGroup(name)
+
+    def removeKickstartPackageGroup(self, micProjectName, name):
+        """
+        Remove the package group `name` from the Kickstart file of `micProjectName`.
+        """
+        self._checkMicProjectName(micProjectName)
+        self.__dicOBSLightProjects[micProjectName].removeKickstartPackageGroup(name)
+
+    def getKickstartPackageGroupDictionaries(self, micProjectName):
+        self._checkMicProjectName(micProjectName)
+        return self.__dicOBSLightProjects[micProjectName].getKickstartPackageGroupDictionaries()
 
     # TODO: rename to getArchitecture
     def getMicProjectArchitecture(self, micProjectName):

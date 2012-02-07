@@ -42,6 +42,7 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
         self.__connectEvents()
         self.mainWindow.kickstartRepositoriesTableView.setSelectionBehavior(QTableView.SelectRows)
         self.mainWindow.kickstartPackagesTableView.setSelectionBehavior(QTableView.SelectRows)
+        self.mainWindow.kickstartPackageGroupsTableView.setSelectionBehavior(QTableView.SelectRows)
         self.loadProjectList()
 
     @property
@@ -82,6 +83,10 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
         addPkgClicked.connect(self.on_addPackageButton_clicked)
         removePkgClicked = self.mainWindow.removePackageButton.clicked
         removePkgClicked.connect(self.on_removePackageButton_clicked)
+        addPkgGrpClicked = self.mainWindow.addPackageGroupButton.clicked
+        addPkgGrpClicked.connect(self.on_addPackageGroupButton_clicked)
+        removePkgGrpClicked = self.mainWindow.removePackageGroupButton.clicked
+        removePkgGrpClicked.connect(self.on_removePackageGroupButton_clicked)
 
     def __disconnectProjectEventsAndButtons(self):
         imgTypeChanged = self.mainWindow.imageTypeComboBox.currentIndexChanged[unicode]
@@ -100,6 +105,10 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
         addPkgClicked.disconnect(self.on_addPackageButton_clicked)
         removePkgClicked = self.mainWindow.removePackageButton.clicked
         removePkgClicked.disconnect(self.on_removePackageButton_clicked)
+        addPkgGrpClicked = self.mainWindow.addPackageGroupButton.clicked
+        addPkgGrpClicked.disconnect(self.on_addPackageGroupButton_clicked)
+        removePkgGrpClicked = self.mainWindow.removePackageGroupButton.clicked
+        removePkgGrpClicked.disconnect(self.on_removePackageGroupButton_clicked)
 
 # --- Button handlers --------------------------------------------------------
     @popupOnException
@@ -248,6 +257,33 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
             return
         # removePackage supports lists
         self._currentProjectObj.removePackage(packages)
+
+    def on_addPackageGroupButton_clicked(self):
+        selectedPackageGroup, accepted = QInputDialog.getText(self.mainWindow,
+                                                              "Select package group",
+                                                              "Enter a package group name:")
+        if not accepted or len(selectedPackageGroup) < 1:
+            return
+        self._currentProjectObj.addPackageGroup(selectedPackageGroup)
+
+    def on_removePackageGroupButton_clicked(self):
+        packageGroups = []
+        for row in getSelectedRows(self.mainWindow.kickstartPackageGroupsTableView):
+            group = self._currentProjectObj.getPackageGroupNameByRowId(row)
+            if group is not None:
+                packageGroups.append(group)
+        if len(packageGroups) < 1:
+            return
+        result = QMessageBox.question(self.mainWindow,
+                                      u"Are you sure ?",
+                                      u"Are you sure you want to remove %d package groups ?"
+                                        % len(packageGroups),
+                                      buttons=QMessageBox.Yes | QMessageBox.No,
+                                      defaultButton=QMessageBox.Yes)
+        if result == QMessageBox.No:
+            return
+        # removePackageGroup supports lists
+        self._currentProjectObj.removePackageGroup(packageGroups)
 # --- end Button handlers ----------------------------------------------------
 
 # --- Event handlers ---------------------------------------------------------

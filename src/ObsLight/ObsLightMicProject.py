@@ -145,7 +145,7 @@ class ObsLightMicProject(object):
 
     def addKickstartPackage(self, name, excluded=False):
         """
-        Add the package `package` in the Kickstart file.
+        Add the package `name` in the Kickstart file.
         "excluded" parameter allows to add package as "explicitly excluded"
         (defaults to False).
         """
@@ -170,6 +170,24 @@ class ObsLightMicProject(object):
         for pkgName in self._ksManager.getExcludedPackageList():
             pkgList.append({"name": pkgName, "excluded": True})
         return pkgList
+
+    def addKickstartPackageGroup(self, name):
+        """
+        Add the package group `name` in the Kickstart file.
+        """
+        self._ksManager.addPackageGroup(name)
+
+    def removeKickstartPackageGroup(self, name):
+        """
+        Remove the package group `name` from the Kickstart file.
+        """
+        self._ksManager.removePackageGroup(name)
+
+    def getKickstartPackageGroupDictionaries(self):
+        pkgGrpList = []
+        for grpName in self._ksManager.getPackageGroupList():
+            pkgGrpList.append({"name": grpName})
+        return pkgGrpList
 
     def deleteProjectDirectory(self):
         """

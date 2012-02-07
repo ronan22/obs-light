@@ -26,6 +26,7 @@ from PySide.QtCore import QObject, Qt
 from ObsLightGuiObject import ObsLightGuiObject
 from KickstartRepositoriesModel import KickstartRepositoriesModel
 from KickstartPackagesModel import KickstartPackagesModel
+from KickstartPackageGroupsModel import KickstartPackageGroupsModel
 
 class MicProjectManager(QObject, ObsLightGuiObject):
     # pylint: disable-msg=E0202, E1101
@@ -33,6 +34,7 @@ class MicProjectManager(QObject, ObsLightGuiObject):
     __projectName = ""
     __repoModel = None
     __pkgModel = None
+    __pkgGrpModel = None
 
     def __init__(self, gui, name):
         QObject.__init__(self)
@@ -40,12 +42,14 @@ class MicProjectManager(QObject, ObsLightGuiObject):
         self.__projectName = name
         self.__repoModel = KickstartRepositoriesModel(self.manager, self.name)
         self.__pkgModel = KickstartPackagesModel(self.manager, self.name)
+        self.__pkgGrpModel = KickstartPackageGroupsModel(self.manager, self.name)
 
     def __loadUi(self):
         self.__loadImageType()
         self.__loadArchitecture()
         self.mainWindow.kickstartRepositoriesTableView.setModel(self.repositoryModel)
         self.mainWindow.kickstartPackagesTableView.setModel(self.packageModel)
+        self.mainWindow.kickstartPackageGroupsTableView.setModel(self.packageGroupModel)
 
     def __loadImageType(self):
         imageTypes = self.manager.getAvailableMicProjectImageTypes(self.name)
@@ -93,9 +97,14 @@ class MicProjectManager(QObject, ObsLightGuiObject):
     def packageModel(self):
         return self.__pkgModel
 
+    @property
+    def packageGroupModel(self):
+        return self.__pkgGrpModel
+
     def refresh(self):
         self.__loadUi()
         self.repositoryModel.refresh()
+        self.packageModel.refresh()
         self.packageModel.refresh()
 
     def addRepository(self, name, url):
@@ -109,6 +118,12 @@ class MicProjectManager(QObject, ObsLightGuiObject):
 
     def removePackage(self, name):
         self.packageModel.removePackage(name)
+
+    def addPackageGroup(self, name):
+        self.packageGroupModel.addPackageGroup(name)
+
+    def removePackageGroup(self, name):
+        self.packageGroupModel.removePackageGroup(name)
 
     def getRepositoryNameByRowId(self, row):
         if row < 0 or row > self.repositoryModel.rowCount():
@@ -125,6 +140,14 @@ class MicProjectManager(QObject, ObsLightGuiObject):
                                                      KickstartPackagesModel.NameColumn)
         pkgName = self.packageModel.data(pkgNameIndex)
         return pkgName
+
+    def getPackageGroupNameByRowId(self, row):
+        if row < 0 or row > self.packageGroupModel.rowCount():
+            return None
+        grpNameIndex = self.packageGroupModel.createIndex(row,
+                                                          KickstartPackageGroupsModel.NameColumn)
+        grpName = self.packageGroupModel.data(grpNameIndex)
+        return grpName
 
     def createImage(self):
         self.manager.createImage(self.name)

@@ -1491,6 +1491,43 @@ in the source directory of the current package if it is installed.</string>
              </item>
             </layout>
            </widget>
+           <widget class="QWidget" name="tab">
+            <attribute name="title">
+             <string>Package groups</string>
+            </attribute>
+            <layout class="QGridLayout" name="gridLayout_16">
+             <item row="0" column="0" colspan="2">
+              <widget class="QTableView" name="kickstartPackageGroupsTableView"/>
+             </item>
+             <item row="1" column="0">
+              <widget class="QPushButton" name="addPackageGroupButton">
+               <property name="text">
+                <string>Add by name</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0">
+              <widget class="QPushButton" name="removePackageGroupButton">
+               <property name="text">
+                <string>Remove</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <spacer name="horizontalSpacer_9">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </widget>
            <widget class="QWidget" name="kickstartScriptsTab">
             <property name="enabled">
              <bool>false</bool>

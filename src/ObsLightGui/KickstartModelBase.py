@@ -34,6 +34,11 @@ class KickstartModelBase(QAbstractTableModel):
 
     __getDataDictListFunc = None
 
+    # The index if the name column
+    NameColumn = 0
+    # The keys to get values for the different columns from __dataDictList dictionaries
+    ColumnKeys = ("name",)
+
     def __init__(self, obsLightManager, projectName, getDataDictListFunc):
         """
         Initialize the model.

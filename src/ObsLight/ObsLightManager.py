@@ -1291,6 +1291,14 @@ class ObsLightManager(ObsLightManagerCore):
         
         '''
         return ObsLightTools.openFileWithDefaultProgram(filePath)
+
+    # TODO: RLM check, called from ObsLightGui.Wizard.ChooseProjectTargetPage
+    def getTargetList(self, server, project):
+        return self._myObsServers.getObsServer(server).getTargetList(project)
+
+    # TODO: RLM check, called from ObsLightGui.Wizard.ChooseProjectArchPage
+    def getArchitectureList(self, server, project, target):
+        return self._myObsServers.getObsServer(server).getArchitectureList(project, target)
 #---------------------------------------------------------------------------
 
     def getMicProjectList(self):
@@ -1373,6 +1381,21 @@ class ObsLightManager(ObsLightManagerCore):
           "excluded": True if package is explicitly excluded, False otherwise
         """
         return self._myObsLightMicProjects.getKickstartPackageDictionaries(micProjectName)
+
+    def addKickstartPackageGroup(self, micProjectName, packageGroupName):
+        """
+        Add a package group in the Kickstart file of `micProjectName`.
+        """
+        self._myObsLightMicProjects.addKickstartPackageGroup(micProjectName, packageGroupName)
+
+    def removeKickstartPackageGroup(self, micProjectName, packageGroupName):
+        """
+        Remove a package group from the Kickstart file of `micProjectName`.
+        """
+        self._myObsLightMicProjects.removeKickstartPackageGroup(micProjectName, packageGroupName)
+
+    def getKickstartPackageGroupDictionaries(self, micProjectName):
+        return self._myObsLightMicProjects.getKickstartPackageGroupDictionaries(micProjectName)
 
     def saveKickstartFile(self, micProjectName, path=None):
         """
