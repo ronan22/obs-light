@@ -175,7 +175,6 @@ __package_current__ = ["current"]
 __package_addfile__ = ["addfile"]
 __package_deletefile__ = ["deletefile"]
 
-
 __DICO_Help__[__package_Help__[0]] = __package_Help__[0] + ":" + "\t" + "Doc __obsproject_Help__"
 __DICO_Help__[__package_add__[0]] = __package_add__[0] + ":" + "\t" + "Doc __obsproject_Help__"
 __DICO_Help__[__package_delete__[0]] = __package_delete__[0] + ":" + "\t" + "Doc __obsproject_Help__"
@@ -273,18 +272,17 @@ __rpmbuild_prepare__ = ["prepare"]
 __rpmbuild_build__ = ["build"]
 __rpmbuild_install__ = ["install"]
 __rpmbuild_package__ = ["package"]
-__rpmbuild_extractpatch__ = ["extractpatch"]
 __rpmbuild_isInit__ = ["isinit"]
 __rpmbuild_testConflict__ = ["testconflict"]
 __rpmbuild_createPatch__ = ["createpatch"]
+__rpmbuild_updatepatch__ = ["updatepatch"]
 
 __DICO_Help__[__rpmbuild_prepare__[0]] = __rpmbuild_prepare__[0] + ":" + "\t" + "Doc __obsproject_Help__"
 __DICO_Help__[__rpmbuild_build__[0]] = __rpmbuild_build__[0] + ":" + "\t" + "Doc __obsproject_Help__"
 __DICO_Help__[__rpmbuild_install__[0]] = __rpmbuild_install__[0] + ":" + "\t" + "Doc __obsproject_Help__"
 __DICO_Help__[__rpmbuild_package__[0]] = __rpmbuild_package__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__rpmbuild_extractpatch__[0]] = __rpmbuild_extractpatch__[0] + ":" + "\t" + "Doc __obsproject_Help__"
 __DICO_Help__[__rpmbuild_createPatch__[0]] = __rpmbuild_createPatch__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-
+__DICO_Help__[__rpmbuild_updatepatch__[0]] = __rpmbuild_updatepatch__[0] + ":" + "\t" + "Doc __obsproject_Help__"
 
 def getParameter(listArgv):
     if listArgv == None:
@@ -2633,12 +2631,6 @@ class ObsLight():
                     return -1
             return 0
 
-        def rpmbuild_extractpatch(listArgv):
-            '''
-            
-            '''
-            Help = False
-
         def rpmbuild_isInit(listArgv):
             '''
             
@@ -2682,7 +2674,6 @@ class ObsLight():
                     return -1
                 print "for '" + package + "' a patch is init: " + str(res)
                 return 0
-
 
         def rpmbuild_createPatch(listArgv):
             '''
@@ -2733,6 +2724,50 @@ class ObsLight():
                     return -1
                 return 0
 
+        def rpmbuild_updatepatch(listArgv):
+            '''
+            
+            '''
+            Help = False
+            project_alias = None
+            package = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = getParameter(listArgv)
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
+                    break
+                elif currentCommand in __project_alias__:
+                    project_alias , listArgv = getParameter(listArgv)
+                elif currentCommand in __package_package__:
+                    package , listArgv = getParameter(listArgv)
+                else:
+                    Help = True
+                    break
+
+            if  (Help == True) :
+                return rpmbuild_help()
+            else:
+                m = ObsLightManager.getCommandLineManager()
+
+                if (project_alias == None) :
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return rpmbuild_help()
+
+                if (package == None) :
+                    package = m.getCurrentPackage(project_alias)
+                    if package == None:
+                        return rpmbuild_help()
+
+                print "project_alias", project_alias
+                print "package", package
+                res = m.updatePatch(projectLocalName=project_alias, package=package)
+                if res == None:
+                    print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                    return -1
+                return 0
+
         def rpmbuild_testConflict(listArgv):
             '''
             
@@ -2757,14 +2792,14 @@ class ObsLight():
                 return rpmbuild_install(listArgv)
             elif currentCommand in __rpmbuild_package__:
                 return rpmbuild_package(listArgv)
-            elif currentCommand in __rpmbuild_extractpatch__:
-                return rpmbuild_extractpatch(listArgv)
             elif currentCommand in __rpmbuild_isInit__:
                 return rpmbuild_isInit(listArgv)
             elif currentCommand in __rpmbuild_testConflict__:
                 return rpmbuild_testConflict(listArgv)
             elif currentCommand in __rpmbuild_createPatch__:
                 return rpmbuild_createPatch(listArgv)
+            elif currentCommand in __rpmbuild_updatepatch__:
+                return rpmbuild_updatepatch(listArgv)
             else:
                 return rpmbuild_help()
         return 0

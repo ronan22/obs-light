@@ -749,6 +749,7 @@ class ObsLightChRoot(object):
         self.execCommand(command=command)
         shutil.copy(self.__chrootDirTransfert + "/" + patch, pathOscPackage + "/" + patch)
         package.save()
+        return 0
 
     def prepareChroot(self, chrootDir):
         '''

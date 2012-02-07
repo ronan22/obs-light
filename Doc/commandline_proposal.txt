@@ -65,7 +65,6 @@ obslight
 	rpmbuild	isinit		{package <package> {project_alias <project_alias>}
 	rpmbuild	createpatch	patch {<package>} {project_alias <project_alias>}
 	#Not implement
-	rpmbuild	extractpatch	{<package>} {project_alias <project_alias>}
 	rpmbuild	testconflict	{package <package> {project_alias <project_alias>}
 	#___________________________________________________________________________________________________________________________________________
 	#feature
