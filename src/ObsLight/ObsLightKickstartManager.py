@@ -1,3 +1,4 @@
+# -*- coding: utf8 -*-
 #
 # Copyright 2012, Intel Inc.
 #
@@ -15,7 +16,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 """
-Created on 1 Feb 2012
+Created on 1 févr. 2012
 
 @author: Florent Vennetier
 """
@@ -35,6 +36,9 @@ class ObsLightKickstartManager(object):
 
     _kickstartPath = None
     _ksParser = None
+
+    # Commands that must not appear in getCommandList()
+    SpecialCaseCommands = ("repo",)
 
     def __init__(self, kickstartPath=None):
         self.kickstartPath = kickstartPath
@@ -334,3 +338,21 @@ class ObsLightKickstartManager(object):
 #        self._checkKsParser()
 #        self.__addRemovePackages(packageOrList, action="remove", excluded=True, group=True)
 # --- end Packages -----------------------------------------------------------
+
+# --- Commands ---------------------------------------------------------------
+    def getCommandList(self):
+        self._checkKsParser()
+        actualCommands = self.kickstartParser.handler.commands.keys()
+        for bannedCommand in self.SpecialCaseCommands:
+            try:
+                actualCommands.remove(bannedCommand)
+            except ValueError:
+                pass
+        return actualCommands
+
+    def getCommandDict(self, command):
+        cmdObj = self.kickstartParser.handler.commands[command]
+        return {"name": command,
+                "in_use": (len(cmdObj.currentCmd) > 0),
+                "generatedtext": str(cmdObj)}
+# --- end Commands -----------------------------------------------------------

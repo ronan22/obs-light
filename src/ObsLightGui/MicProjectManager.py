@@ -50,6 +50,7 @@ class MicProjectManager(QObject, ObsLightGuiObject):
         self.mainWindow.kickstartRepositoriesTableView.setModel(self.repositoryModel)
         self.mainWindow.kickstartPackagesTableView.setModel(self.packageModel)
         self.mainWindow.kickstartPackageGroupsTableView.setModel(self.packageGroupModel)
+        self.__loadCommands()
 
     def __loadImageType(self):
         imageTypes = self.manager.getAvailableMicProjectImageTypes(self.name)
@@ -68,6 +69,12 @@ class MicProjectManager(QObject, ObsLightGuiObject):
                                                               Qt.MatchFixedString)
         if index >= 0:
             self.mainWindow.architectureComboBox.setCurrentIndex(index)
+
+    def __loadCommands(self):
+        commands = self.manager.getKickstartCommandDictionaries(self.name)
+        self.mainWindow.kickstartOptionsListWidget.clear()
+        commandNames = [cmd["name"] for cmd in commands if cmd["in_use"]]
+        self.mainWindow.kickstartOptionsListWidget.addItems(commandNames)
 
     @property
     def name(self):

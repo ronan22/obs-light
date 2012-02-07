@@ -189,6 +189,12 @@ class ObsLightMicProject(object):
             pkgGrpList.append({"name": grpName})
         return pkgGrpList
 
+    def getKickstartCommandDictionaries(self):
+        cmdList = []
+        for cmd in self._ksManager.getCommandList():
+            cmdList.append(self._ksManager.getCommandDict(cmd))
+        return cmdList
+
     def deleteProjectDirectory(self):
         """
         Recursively delete the project working directory.
