@@ -143,6 +143,26 @@ class ObsLightMicProject(object):
             repoList.append(self._ksManager.getRepositoryDict(repoName))
         return repoList
 
+    def addKickstartPackage(self, name, excluded=False):
+        """
+        Add the package `package` in the Kickstart file.
+        "excluded" parameter allows to add package as "explicitly excluded"
+        (defaults to False).
+        """
+        if excluded:
+            self._ksManager.addExcludedPackage(name)
+        else:
+            self._ksManager.addPackage(name)
+
+    def removeKickstartPackage(self, name):
+        """
+        Remove the package `name` from the Kickstart file.
+        """
+        # We don't know if package was explicitly excluded or not
+        # so we try to remove it from both lists.
+        self._ksManager.removePackage(name)
+        self._ksManager.removeExcludedPackage(name)
+
     def getKickstartPackageDictionaries(self):
         pkgList = []
         for pkgName in self._ksManager.getPackageList():

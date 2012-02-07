@@ -21,49 +21,21 @@ Created on 6 févr. 2012
 @author: Florent Vennetier
 '''
 
+from PySide.QtCore import Qt
+from KickstartModelBase import KickstartModelBase
 
-from PySide.QtCore import QAbstractTableModel, Qt
-
-class KickstartPackagesModel(QAbstractTableModel):
+class KickstartPackagesModel(KickstartModelBase):
 
     NameColumn = 0
     ExcludedColumn = 1
 
     ColumnKeys = ("name", "excluded")
 
-    __manager = None
-    __project = None
-    __packages = None
-
     def __init__(self, obsLightManager, projectName):
-        QAbstractTableModel.__init__(self)
-        self.__manager = obsLightManager
-        self.__project = projectName
-        self.refresh()
-
-    @property
-    def manager(self):
-        return self.__manager
-
-    @property
-    def currentProject(self):
-        return self.__project
-
-    def refresh(self):
-        """
-        Load the package list from Kickstart manager and sort it.
-        """
-        self.__packages = self.manager.getKickstartPackageDictionaries(self.currentProject)
-        self.__packages.sort(key=lambda x: x["name"])
-        self.layoutChanged.emit()
-
-    # from QAbstractTableModel
-    def columnCount(self, _parent=None):
-        return 2
-
-    # from QAbstractTableModel
-    def rowCount(self, _parent=None):
-        return len(self.__packages)
+        KickstartModelBase.__init__(self,
+                                    obsLightManager,
+                                    projectName,
+                                    obsLightManager.getKickstartPackageDictionaries)
 
     # from QAbstractTableModel
     def headerData(self, section, orientation, role=Qt.DisplayRole):
@@ -89,24 +61,51 @@ class KickstartPackagesModel(QAbstractTableModel):
 
     def displayRoleData(self, index):
         """
-        Return the "Qt.DisplayRole" data for cell at `index`.
+        Return the `Qt.DisplayRole` data for cell at `index`.
         """
-        retVal = self.__packages[index.row()][self.ColumnKeys[index.column()]]
+        retVal = self.dataDict(index.row())[self.ColumnKeys[index.column()]]
         return retVal if retVal is None else str(retVal)
 
     def checkStateRoleData(self, index):
+        """
+        Return the `Qt.CheckStateRole` data for cell at `index`.
+        Returning None for all columns, except ExcludedColumn:
+          Qt.CheckState.Checked if package is explicitly excluded,
+          Qt.CheckState.Unchecked otherwise
+        """
         if index.column() == self.ExcludedColumn:
-            excluded = self.__packages[index.row()][self.ColumnKeys[self.ExcludedColumn]]
+            excluded = self.dataDict(index.row())[self.ColumnKeys[self.ExcludedColumn]]
             return Qt.CheckState.Checked if excluded else Qt.CheckState.Unchecked
         return None
 
     # from QAbstractTableModel
     def flags(self, index):
         """
-        Calls `QAbstractTableModel.flags()` and add `Qt.ItemIsEditable` flag.
-        In this model, all cells are editable.
+        Calls `QAbstractTableModel.flags()` and add `Qt.ItemIsUserCheckable` flag
+        for items in ExcludedColumn. 
         """
         superFlags = super(KickstartPackagesModel, self).flags(index)
-        if index.column == self.ExcludedColumn:
+        if index.column() == self.ExcludedColumn:
             superFlags = superFlags | Qt.ItemIsUserCheckable
         return superFlags
+
+    # from QAbstractTableModel
+    def setData(self, index, value, role=Qt.EditRole):
+        if not index.isValid():
+            return False
+        if role == Qt.CheckStateRole:
+            if index.column() == self.ExcludedColumn:
+                excluded = (value == Qt.CheckState.Checked)
+                self.dataDict(index.row())[self.ColumnKeys[self.ExcludedColumn]] = excluded
+                self.__updatePackageInManager(index.row())
+                return True
+        return False
+
+    def __updatePackageInManager(self, row):
+        pkgDict = self.dataDict(row)
+        self.manager.removeKickstartPackage(self.currentProject,
+                                            pkgDict[self.ColumnKeys[self.NameColumn]])
+        self.manager.addKickstartPackage(self.currentProject,
+                                         pkgDict[self.ColumnKeys[self.NameColumn]],
+                                         pkgDict[self.ColumnKeys[self.ExcludedColumn]])
+        self.manager.saveKickstartFile(self.currentProject)

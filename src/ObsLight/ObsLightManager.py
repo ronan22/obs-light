@@ -1351,7 +1351,27 @@ class ObsLightManager(ObsLightManagerCore):
         """
         return self._myObsLightMicProjects.getKickstartRepositoryDictionaries(micProjectName)
 
+    def addKickstartPackage(self, micProjectName, packageName, excluded=False):
+        """
+        Add a package in the Kickstart file of `micProjectName`.
+        "excluded" parameter allows to add package as "explicitly excluded"
+        (defaults to False).
+        """
+        self._myObsLightMicProjects.addKickstartPackage(micProjectName, packageName, excluded)
+
+    def removeKickstartPackage(self, micProjectName, packageName):
+        """
+        Remove a package from the Kickstart file of `micProjectName`.
+        """
+        self._myObsLightMicProjects.removeKickstartPackage(micProjectName, packageName)
+
     def getKickstartPackageDictionaries(self, micProjectName):
+        """
+        Return the list (unsorted) of `micProjectName` package dictionaries.
+        Each package dictionary contains:
+          "name":     the name of the package
+          "excluded": True if package is explicitly excluded, False otherwise
+        """
         return self._myObsLightMicProjects.getKickstartPackageDictionaries(micProjectName)
 
     def saveKickstartFile(self, micProjectName, path=None):

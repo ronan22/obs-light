@@ -22,8 +22,9 @@ Created on 3 févr. 2012
 '''
 
 from PySide.QtCore import QAbstractTableModel, Qt
+from KickstartModelBase import KickstartModelBase
 
-class KickstartRepositoriesModel(QAbstractTableModel):
+class KickstartRepositoriesModel(KickstartModelBase):
 
     NameColumn = 0
     UrlColumn = 1
@@ -34,40 +35,13 @@ class KickstartRepositoriesModel(QAbstractTableModel):
     # A tuple containing the keys of repository dictionaries
     ColumnKeys = ("name", "baseurl", "cost", "priority", "ssl_verify")
 
-    __manager = None
-    __project = None
-    __repositories = None
     __modified = False
 
     def __init__(self, obsLightManager, projectName):
-        QAbstractTableModel.__init__(self)
-        self.__manager = obsLightManager
-        self.__project = projectName
-        self.refresh()
-
-    @property
-    def manager(self):
-        return self.__manager
-
-    @property
-    def currentProject(self):
-        return self.__project
-
-    def refresh(self):
-        """
-        Load the repository list from Kickstart manager and sort it.
-        """
-        self.__repositories = self.manager.getKickstartRepositoryDictionaries(self.__project)
-        self.__repositories.sort(key=lambda x: x["name"])
-        self.layoutChanged.emit()
-
-    # from QAbstractTableModel
-    def columnCount(self, _parent=None):
-        return len(self.ColumnKeys)
-
-    # from QAbstractTableModel
-    def rowCount(self, _parent=None):
-        return len(self.__repositories)
+        KickstartModelBase.__init__(self,
+                                    obsLightManager,
+                                    projectName,
+                                    obsLightManager.getKickstartRepositoryDictionaries)
 
     # from QAbstractTableModel
     def headerData(self, section, orientation, role=Qt.DisplayRole):
@@ -112,9 +86,9 @@ class KickstartRepositoriesModel(QAbstractTableModel):
                 if isinstance(value, basestring) and (value.lower() == "none" or value == ""):
                     value = None
             # in case repository name has changed, we must keep the old name
-            oldName = self.__repositories[row][self.ColumnKeys[self.NameColumn]]
+            oldName = self.dataDict(row)[self.ColumnKeys[self.NameColumn]]
             # do the change in memory
-            self.__repositories[row][self.ColumnKeys[column]] = value
+            self.dataDict(row)[self.ColumnKeys[column]] = value
             # commit the change on disk
             self.__updateRepoInManager(row, oldName)
             # update the view
@@ -133,7 +107,7 @@ class KickstartRepositoriesModel(QAbstractTableModel):
         """
         Return the "Qt.DisplayRole" data for cell at `index`.
         """
-        retVal = self.__repositories[index.row()][self.ColumnKeys[index.column()]]
+        retVal = self.dataDict(index.row())[self.ColumnKeys[index.column()]]
         return retVal if retVal is None else str(retVal)
 
     def __updateRepoInManager(self, row, oldName):
@@ -142,7 +116,7 @@ class KickstartRepositoriesModel(QAbstractTableModel):
         add the new one,
         flush the Kickstart file on disk.
         """
-        repoDict = self.__repositories[row]
+        repoDict = self.dataDict(row)
         self.manager.removeKickstartRepository(self.currentProject, oldName)
         self.manager.addKickstartRepository(self.currentProject, **repoDict)
         self.manager.saveKickstartFile(self.currentProject)
