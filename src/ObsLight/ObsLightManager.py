@@ -784,6 +784,14 @@ class ObsLightManagerCore(ObsLightManagerBase):
         '''
         return self._myObsLightProjects.exportProject(projectLocalName, path=path)
 
+
+    def getDependencyRepositories(self, projectLocalName):
+        '''
+        Export a project to a file.
+        '''
+        return self._myObsLightProjects.getProject(projectLocalName).getDependencyRepositories()
+
+
     #///////////////////////////////////////////////////////////////////////////package
     @checkProjectLocalName(1)
     def getLocalProjectPackageList(self, projectLocalName, local=0):

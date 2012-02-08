@@ -413,6 +413,24 @@ class ObsLightOsc(object):
 
         return aElement.attrib["code"]
 
+    def getDependencyProject(self, apiurl, projet, target):
+        self.get_config()
+        url = str(apiurl + "/source/" + projet + "/_meta")
+        res = self.getHttp_request(url)
+        if res == None:
+            return None
+        aElement = ElementTree.fromstring(res)
+
+        result = {}
+        for project in aElement:
+            if (project.tag == "repository") and (project.get("name") == target):
+                for path in project.getiterator():
+                    if path.tag == "path":
+                        repo = path.get("repository")
+                        target = path.get("project")
+                        result[target] = repo
+        return result
+
     def createChRoot(self,
                      chrootDir,
                      repos,

@@ -124,6 +124,7 @@ __obsproject_set__ = __server_set__
 __obsproject_current__ = ["current"]
 __obsproject_import__ = ["import"]
 __obsproject_export__ = ["export"]
+__obsproject_dependencyrepositories__ = ["dependencyrepositories"]
 
 __DICO_Help__[__obsproject_Help__[0]] = __obsproject_Help__[0] + ":" + "\t" + "Doc __obsproject_Help__"
 __DICO_Help__[__obsproject_list__[0]] = __obsproject_list__[0] + ":" + "\t" + "Doc __obsproject_Help__"
@@ -997,7 +998,10 @@ class ObsLight():
                 m = ObsLightManager.getCommandLineManager()
 
                 if (project_alias == None) and ((server_alias == None) or (obsproject == None)):
-                    return obsproject_Help()
+                    if project_alias == None:
+                        project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return obsproject_Help()
 
                 if  (not title) and \
                     (not description) and \
@@ -1024,7 +1028,7 @@ class ObsLight():
                 if title :
                     if (server_alias == None) and (obsproject == None):
                         res = m.getProjectParameter(projectLocalName=project_alias,
-                                                    parameter="projectTitle")
+                                                    parameter="title")
                     else:
                         res = m.getObsProjectParameter(serverApi=server_alias,
                                                        obsproject=obsproject,
@@ -1247,6 +1251,41 @@ class ObsLight():
                     return -1
             return 0
 
+        def obsproject_dependencyrepositories(listArgv):
+            '''
+            
+            '''
+            Help = False
+            project_alias = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = getParameter(listArgv)
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
+                    break
+                else:
+                    project_alias = currentCommand
+                    break
+
+            if  (Help == True):
+                return obsproject_Help()
+            else:
+                m = ObsLightManager.getCommandLineManager()
+
+                if project_alias == None:
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return obsproject_Help()
+
+                res = m.getDependencyRepositories(project_alias)
+
+                if res == None:
+                    print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                    return -1
+                for repo in res:
+                    print "Repository:" + str(repo)
+            return 0
+
         #_______________________________________________________________________
         if len(listArgv) == 0:
             obsproject_Help()
@@ -1273,6 +1312,8 @@ class ObsLight():
                 return obsproject_import(listArgv)
             elif currentCommand in __obsproject_export__ :
                 return obsproject_export(listArgv)
+            elif currentCommand in __obsproject_dependencyrepositories__:
+                return obsproject_dependencyrepositories(listArgv)
             else:
                 return obsproject_Help()
 

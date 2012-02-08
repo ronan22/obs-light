@@ -19,6 +19,7 @@ Created on 29 sept. 2011
 
 @author: ronan
 '''
+import os
 
 import ObsLightOsc
 import ObsLightErr
@@ -348,6 +349,35 @@ class ObsLightServer(object):
                                                            repo=repo,
                                                            arch=arch)
 
+    def getDependencyRepositories(self, projectObsName, target):
+        '''
+        Return the list of the dependency repositories.
+        '''
+        def getDependencyProject(projectObsName, target, result={}):
+            '''
+            Return the list of the dependency repositories.
+            '''
+            listProject = ObsLightOsc.getObsLightOsc().getLocalProjectList(obsServer=self.__serverAPI)
+            res = ObsLightOsc.getObsLightOsc().getDependencyProject(self.__serverAPI,
+                                                                    projectObsName,
+                                                                    target)
+            for prj in res.keys():
+                if (prj in listProject) and not (prj in result.keys()):
+                    result[prj] = res[prj]
+                    result = getDependencyProject(prj, res[prj], result)
+
+            return result
+
+        result1 = getDependencyProject(projectObsName, target)
+
+        result2 = []
+        for prj in result1.keys():
+            url = os.path.join(self.__serverRepo,
+                             prj.replace(":", ":/"),
+                             result1[prj])
+            result2.append(url)
+
+        return result2
 
     def getRepo(self):
         '''

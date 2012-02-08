@@ -19,9 +19,10 @@ obslight
 	obsproject	list	
 	obsproject	list	server_alias <server_alias> raw|[arch <arch>|maintainer|bugowner|remoteurl]
 	obsproject	current
+	obsproject	dependencyrepositories {<project_alias>}
 	obsproject	delete	<project_alias>
 	obsproject	add	<project_alias> <name_on_obs> <target> <arch> {<server_alias>}
-	obsproject	query	[title|description|server|webpage|repository|target|architecture] project_alias <project_alias>
+	obsproject	query	[title|description|server|webpage|repository|target|architecture] {project_alias <project_alias>}
 	obsproject	query	[title|description|target|architecture|remoteurl|maintainer|bugowner] server_alias <server_alias> obsproject <project> 
 	obsproject	set	[title <title>] [description <description>] {project_alias <project_alias>}
 	obsproject	import	path

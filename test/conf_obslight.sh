@@ -6,7 +6,7 @@ PASSWORD=opensuse
 API_URL=http://128.224.218.251:81
 REPOSITORY_URL=http://128.224.218.251:82
 WEB_URL=http://128.224.218.251
-PROJECT=MeeGo:1.2.0:oss 
+PROJECT=testProjectMeeGo:1.2.0:oss
 REMOTEPROJECT=meego.com
 PROJECTALIAS=fastinitTest
 TARGET=standard
@@ -18,4 +18,5 @@ REPOURL=http://128.224.218.251:82/MeeGo:/1.2.0:/oss/standard
 NEWREPOURL=http://repo.pub.meego.com//home:/ronan:/OBS_Light/openSUSE_11.4
 NEWREPOALIAS=aNewTestProject
 set -x
+
 
