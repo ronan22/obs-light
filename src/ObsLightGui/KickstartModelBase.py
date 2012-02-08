@@ -75,6 +75,9 @@ class KickstartModelBase(QAbstractTableModel):
         """
         return self.__dataDictList[row]
 
+    def dataDictList(self):
+        return self.__dataDictList
+
     def refresh(self):
         """
         Load the data dictionary list from Kickstart manager,

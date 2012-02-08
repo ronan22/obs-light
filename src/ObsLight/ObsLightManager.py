@@ -1396,6 +1396,12 @@ class ObsLightManager(ObsLightManagerCore):
     def getKickstartPackageGroupDictionaries(self, micProjectName):
         return self._myObsLightMicProjects.getKickstartPackageGroupDictionaries(micProjectName)
 
+    def addOrChangeKickstartCommand(self, micProjectName, fullText, command=None):
+        self._myObsLightMicProjects.addOrChangeKickstartCommand(micProjectName, fullText, command)
+
+    def removeKickstartCommand(self, micProjectName, command):
+        self._myObsLightMicProjects.removeKickstartCommand(micProjectName, command)
+
     def getKickstartCommandDictionaries(self, micProjectName):
         return self._myObsLightMicProjects.getKickstartCommandDictionaries(micProjectName)
 

@@ -22,11 +22,13 @@ Created on 3 févr. 2012
 '''
 
 from PySide.QtCore import QObject, Qt
+from PySide.QtGui import QItemSelectionModel
 
 from ObsLightGuiObject import ObsLightGuiObject
 from KickstartRepositoriesModel import KickstartRepositoriesModel
 from KickstartPackagesModel import KickstartPackagesModel
 from KickstartPackageGroupsModel import KickstartPackageGroupsModel
+from KickstartCommandsModel import KickstartCommandsModel
 
 class MicProjectManager(QObject, ObsLightGuiObject):
     # pylint: disable-msg=E0202, E1101
@@ -35,6 +37,7 @@ class MicProjectManager(QObject, ObsLightGuiObject):
     __repoModel = None
     __pkgModel = None
     __pkgGrpModel = None
+    __cmdModel = None
 
     def __init__(self, gui, name):
         QObject.__init__(self)
@@ -43,14 +46,17 @@ class MicProjectManager(QObject, ObsLightGuiObject):
         self.__repoModel = KickstartRepositoriesModel(self.manager, self.name)
         self.__pkgModel = KickstartPackagesModel(self.manager, self.name)
         self.__pkgGrpModel = KickstartPackageGroupsModel(self.manager, self.name)
+        self.__cmdModel = KickstartCommandsModel(self.manager, self.name)
 
     def __loadUi(self):
         self.__loadImageType()
         self.__loadArchitecture()
+        self.mainWindow.kickstartPathLineEdit.setText(self.manager.getKickstartFile(self.name))
         self.mainWindow.kickstartRepositoriesTableView.setModel(self.repositoryModel)
         self.mainWindow.kickstartPackagesTableView.setModel(self.packageModel)
         self.mainWindow.kickstartPackageGroupsTableView.setModel(self.packageGroupModel)
         self.__loadCommands()
+        self.__updateSaveState()
 
     def __loadImageType(self):
         imageTypes = self.manager.getAvailableMicProjectImageTypes(self.name)
@@ -71,13 +77,20 @@ class MicProjectManager(QObject, ObsLightGuiObject):
             self.mainWindow.architectureComboBox.setCurrentIndex(index)
 
     def __loadCommands(self):
-        commands = self.manager.getKickstartCommandDictionaries(self.name)
-        self.mainWindow.kickstartOptionsListWidget.clear()
-        commandNames = [cmd["name"] for cmd in commands if cmd["in_use"]]
-        self.mainWindow.kickstartOptionsListWidget.addItems(commandNames)
+        self.mainWindow.kickstartOptionsListView.setModel(self.commandModel)
+        for row in range(self.commandModel.rowCount()):
+            index = self.commandModel.createIndex(row, self.commandModel.InUseColumn)
+            inUse = self.commandModel.data(index, Qt.DisplayRole)
+            self.mainWindow.kickstartOptionsListView.setRowHidden(row, not inUse)
+
+    def __updateSaveState(self):
+        self.mainWindow.saveKickstartOptionButton.setEnabled(self.commandModel.hasBeenModified())
 
     @property
     def name(self):
+        """
+        Get the MIC project name.
+        """
         return self.__projectName
 
     @property
@@ -108,18 +121,36 @@ class MicProjectManager(QObject, ObsLightGuiObject):
     def packageGroupModel(self):
         return self.__pkgGrpModel
 
+    @property
+    def commandModel(self):
+        return self.__cmdModel
+
     def refresh(self):
-        self.__loadUi()
         self.repositoryModel.refresh()
         self.packageModel.refresh()
-        self.packageModel.refresh()
+        self.packageGroupModel.refresh()
+        self.commandModel.refresh()
+        self.__loadUi()
 
+    def createImage(self):
+        self.manager.createImage(self.name)
+
+# --- Repositories -----------------------------------------------------------
     def addRepository(self, name, url):
         self.repositoryModel.addRepository(name, url)
 
     def removeRepository(self, name):
         self.repositoryModel.removeRepository(name)
 
+    def getRepositoryNameByRowId(self, row):
+        if row < 0 or row > self.repositoryModel.rowCount():
+            return None
+        repoNameIndex = self.repositoryModel.createIndex(row,
+                                                         KickstartRepositoriesModel.NameColumn)
+        repoName = self.repositoryModel.data(repoNameIndex)
+        return repoName
+
+# --- Packages ---------------------------------------------------------------
     def addPackage(self, name):
         self.packageModel.addPackage(name)
 
@@ -131,14 +162,6 @@ class MicProjectManager(QObject, ObsLightGuiObject):
 
     def removePackageGroup(self, name):
         self.packageGroupModel.removePackageGroup(name)
-
-    def getRepositoryNameByRowId(self, row):
-        if row < 0 or row > self.repositoryModel.rowCount():
-            return None
-        repoNameIndex = self.repositoryModel.createIndex(row,
-                                                         KickstartRepositoriesModel.NameColumn)
-        repoName = self.repositoryModel.data(repoNameIndex)
-        return repoName
 
     def getPackageNameByRowId(self, row):
         if row < 0 or row > self.packageModel.rowCount():
@@ -156,5 +179,32 @@ class MicProjectManager(QObject, ObsLightGuiObject):
         grpName = self.packageGroupModel.data(grpNameIndex)
         return grpName
 
-    def createImage(self):
-        self.manager.createImage(self.name)
+# --- Commands ---------------------------------------------------------------
+    def displayCommand(self, row):
+        index = self.commandModel.createIndex(row, KickstartCommandsModel.GeneratedTextColumn)
+        cmdText = self.commandModel.data(index, Qt.DisplayRole)
+        self.mainWindow.kickstartOptionTextEdit.clear()
+        self.mainWindow.kickstartOptionTextEdit.appendPlainText(cmdText)
+
+    def editCommand(self, row):
+        index = self.commandModel.createIndex(row, KickstartCommandsModel.GeneratedTextColumn)
+        text = self.mainWindow.kickstartOptionTextEdit.toPlainText()
+        self.commandModel.setData(index, text, Qt.DisplayRole)
+        self.__updateSaveState()
+
+    def saveCommands(self):
+        self.commandModel.commitChanges()
+        self.__updateSaveState()
+        self.refresh()
+
+    def addNewCommand(self):
+        self.commandModel.newCommand()
+        self.__loadCommands()
+        index = self.commandModel.createIndex(0, 0)
+        selectionModel = self.mainWindow.kickstartOptionsListView.selectionModel()
+        selectionModel.select(index, QItemSelectionModel.SelectionFlag.SelectCurrent)
+        self.displayCommand(0)
+
+    def removeCommand(self, row):
+        self.commandModel.removeCommand(row)
+        self.__loadCommands()

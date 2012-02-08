@@ -242,6 +242,15 @@ class ObsLightMicProjects:
         self._checkMicProjectName(micProjectName)
         return self.__dicOBSLightProjects[micProjectName].getKickstartPackageGroupDictionaries()
 
+    def addOrChangeKickstartCommand(self, micProjectName, fullText, command=None):
+        self._checkMicProjectName(micProjectName)
+        return self.__dicOBSLightProjects[micProjectName].addOrChangeKickstartCommand(fullText,
+                                                                                      command)
+
+    def removeKickstartCommand(self, micProjectName, command):
+        self._checkMicProjectName(micProjectName)
+        self.__dicOBSLightProjects[micProjectName].removeKickstartCommand(command)
+
     def getKickstartCommandDictionaries(self, micProjectName):
         self._checkMicProjectName(micProjectName)
         return self.__dicOBSLightProjects[micProjectName].getKickstartCommandDictionaries()

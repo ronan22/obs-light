@@ -78,6 +78,7 @@ class ObsLightMicProject(object):
         aDic["workingDirectory"] = self.__workingDirectory
         return aDic
 
+# --- Kickstart management ---------------------------------------------------
     def setKickstartFile(self, filePath):
         """
         Set the kickstart file of this project.
@@ -189,11 +190,18 @@ class ObsLightMicProject(object):
             pkgGrpList.append({"name": grpName})
         return pkgGrpList
 
+    def addOrChangeKickstartCommand(self, fullText, command=None):
+        self._ksManager.addOrChangeCommand(fullText, command)
+
+    def removeKickstartCommand(self, command):
+        self._ksManager.removeCommand(command)
+
     def getKickstartCommandDictionaries(self):
         cmdList = []
         for cmd in self._ksManager.getCommandList():
             cmdList.append(self._ksManager.getCommandDict(cmd))
         return cmdList
+# --- end Kickstart management -----------------------------------------------
 
     def deleteProjectDirectory(self):
         """

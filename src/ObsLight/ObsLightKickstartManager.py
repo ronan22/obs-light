@@ -38,7 +38,7 @@ class ObsLightKickstartManager(object):
     _ksParser = None
 
     # Commands that must not appear in getCommandList()
-    SpecialCaseCommands = ("repo",)
+    SpecialCaseCommands = ("repo", "partition", "cmdline", "reboot", "shutdown")
 
     def __init__(self, kickstartPath=None):
         self.kickstartPath = kickstartPath
@@ -341,6 +341,10 @@ class ObsLightKickstartManager(object):
 
 # --- Commands ---------------------------------------------------------------
     def getCommandList(self):
+        """
+        Get the list of available Kickstart commands,
+        minus "repo" (handled separately) and "partition" (alias for "part").
+        """
         self._checkKsParser()
         actualCommands = self.kickstartParser.handler.commands.keys()
         for bannedCommand in self.SpecialCaseCommands:
@@ -351,8 +355,30 @@ class ObsLightKickstartManager(object):
         return actualCommands
 
     def getCommandDict(self, command):
+        self._checkKsParser()
         cmdObj = self.kickstartParser.handler.commands[command]
         return {"name": command,
                 "in_use": (len(cmdObj.currentCmd) > 0),
-                "generatedtext": str(cmdObj)}
+                "generated_text": str(cmdObj)}
+
+    def addOrChangeCommand(self, fullText, command=None):
+        self._checkKsParser()
+        if command is not None:
+            cmdObj = self.kickstartParser.handler.commands[command]
+            if cmdObj.dataList() is not None:
+                # we must do something to erase old data objects
+                del cmdObj.dataList()[:]
+            else:
+                # nothing to do since the reading of the new command options
+                # will erase the old command options
+                pass
+        # call main parser with str(fulltext) in case of fullText is unicode
+        self.kickstartParser.readKickstartFromString(str(fullText), reset=False)
+
+    def removeCommand(self, command):
+        cmdObj = self.kickstartParser.handler.commands[command]
+        if cmdObj.dataList() is not None:
+            del cmdObj.dataList()[:]
+        elif len(str(cmdObj)) > 1:
+            cmdObj.__init__()
 # --- end Commands -----------------------------------------------------------

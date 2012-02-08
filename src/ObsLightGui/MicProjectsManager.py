@@ -32,17 +32,49 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
 
     __micProjects = {}
     __configDialog = None
+    __signalSlotMap = None
 
     def __init__(self, gui):
         ObsLightGuiObject.__init__(self, gui)
         ProjectsManagerBase.__init__(self,
                                      self.mainWindow.micProjectsListWidget,
                                      self.manager.getMicProjectList)
-        self.__connectButtons()
-        self.__connectEvents()
-        self.mainWindow.kickstartRepositoriesTableView.setSelectionBehavior(QTableView.SelectRows)
-        self.mainWindow.kickstartPackagesTableView.setSelectionBehavior(QTableView.SelectRows)
-        self.mainWindow.kickstartPackageGroupsTableView.setSelectionBehavior(QTableView.SelectRows)
+        mw = self.mainWindow
+        # Build a mapping between signals and associated slots,
+        # to be used by self.__connectProjectEventsAndButtons()
+        # and self.__disconnectProjectEventsAndButtons()
+        m = {# Button clicks
+             mw.createImageButton.clicked: self.on_createImageButton_clicked,
+             mw.removeRepositoryButton.clicked: self.on_removeRepositoryButton_clicked,
+             # Repositories
+             mw.addRepositoryButton.clicked: self.on_addRepositoryButton_clicked,
+             mw.addRepositoryFromProjectButton.clicked: self.on_addRepositoryFromProjectButton_clicked,
+             # Packages
+             mw.addPackageButton.clicked: self.on_addPackageButton_clicked,
+             mw.removePackageButton.clicked: self.on_removePackageButton_clicked,
+             # Package groups
+             mw.addPackageGroupButton.clicked: self.on_addPackageGroupButton_clicked,
+             mw.removePackageGroupButton.clicked: self.on_removePackageGroupButton_clicked,
+             # MIC options
+             mw.imageTypeComboBox.currentIndexChanged[unicode]: self.on_imageTypeComboBox_currentIndexChanged,
+             mw.architectureComboBox.currentIndexChanged[unicode]: self.on_architectureComboBox_currentIndexChanged,
+             # KS options
+             mw.kickstartOptionsListView.clicked: self.on_kickstartOptionsListView_clicked,
+             mw.kickstartOptionTextEdit.textChanged: self.on_kickstartOptionTextEdit_textChanged,
+             mw.saveKickstartOptionButton.clicked: self.on_saveKickstartOptionButton_clicked,
+             mw.addKickstartOptionButton.clicked: self.on_addKickstartOptionButton_clicked,
+             mw.removeKickstartOptionButton.clicked: self.on_removeKickstartOptionButton_clicked
+             }
+        self.__signalSlotMap = m
+
+        self.__connectStaticButtons()
+        self.__connectStaticEvents()
+
+        self.__connectProjectEventsAndButtons()
+
+        mw.kickstartRepositoriesTableView.setSelectionBehavior(QTableView.SelectRows)
+        mw.kickstartPackagesTableView.setSelectionBehavior(QTableView.SelectRows)
+        mw.kickstartPackageGroupsTableView.setSelectionBehavior(QTableView.SelectRows)
         self.loadProjectList()
 
     @property
@@ -55,60 +87,24 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
                                                                         self.currentProject)
         return self.__micProjects[self.currentProject]
 
-    def __connectButtons(self):
-        self.mainWindow.importKickstartButton.clicked.connect(self.on_importKickstartButton_clicked)
-        self.mainWindow.exportKickstartButton.clicked.connect(self.on_exportKickstartButton_clicked)
-        self.mainWindow.newMicProjectButton.clicked.connect(self.on_newMicProjectButton_clicked)
-        delClickSignal = self.mainWindow.deleteMicProjectButton.clicked
+    def __connectStaticButtons(self):
+        mw = self.mainWindow
+        mw.importKickstartButton.clicked.connect(self.on_importKickstartButton_clicked)
+        mw.exportKickstartButton.clicked.connect(self.on_exportKickstartButton_clicked)
+        mw.newMicProjectButton.clicked.connect(self.on_newMicProjectButton_clicked)
+        delClickSignal = mw.deleteMicProjectButton.clicked
         delClickSignal.connect(self.on_deleteMicProjectButton_clicked)
 
-    def __connectEvents(self):
+    def __connectStaticEvents(self):
         self.projectListWidget.currentTextChanged.connect(self.on_projectSelected)
-        self.__connectProjectEventsAndButtons()
 
     def __connectProjectEventsAndButtons(self):
-        imgTypeChanged = self.mainWindow.imageTypeComboBox.currentIndexChanged[unicode]
-        imgTypeChanged.connect(self.on_imageTypeComboBox_currentIndexChanged)
-        archChanged = self.mainWindow.architectureComboBox.currentIndexChanged[unicode]
-        archChanged.connect(self.on_architectureComboBox_currentIndexChanged)
-        createImageClicked = self.mainWindow.createImageButton.clicked
-        createImageClicked.connect(self.on_createImageButton_clicked)
-        removeRepoClicked = self.mainWindow.removeRepositoryButton.clicked
-        removeRepoClicked.connect(self.on_removeRepositoryButton_clicked)
-        addRepoClicked = self.mainWindow.addRepositoryButton.clicked
-        addRepoClicked.connect(self.on_addRepositoryButton_clicked)
-        addRepo2Clicked = self.mainWindow.addRepositoryFromProjectButton.clicked
-        addRepo2Clicked.connect(self.on_addRepositoryFromProjectButton_clicked)
-        addPkgClicked = self.mainWindow.addPackageButton.clicked
-        addPkgClicked.connect(self.on_addPackageButton_clicked)
-        removePkgClicked = self.mainWindow.removePackageButton.clicked
-        removePkgClicked.connect(self.on_removePackageButton_clicked)
-        addPkgGrpClicked = self.mainWindow.addPackageGroupButton.clicked
-        addPkgGrpClicked.connect(self.on_addPackageGroupButton_clicked)
-        removePkgGrpClicked = self.mainWindow.removePackageGroupButton.clicked
-        removePkgGrpClicked.connect(self.on_removePackageGroupButton_clicked)
+        for signal, slot in self.__signalSlotMap.items():
+            signal.connect(slot)
 
     def __disconnectProjectEventsAndButtons(self):
-        imgTypeChanged = self.mainWindow.imageTypeComboBox.currentIndexChanged[unicode]
-        imgTypeChanged.disconnect(self.on_imageTypeComboBox_currentIndexChanged)
-        archChanged = self.mainWindow.architectureComboBox.currentIndexChanged[unicode]
-        archChanged.disconnect(self.on_architectureComboBox_currentIndexChanged)
-        createImageClicked = self.mainWindow.createImageButton.clicked
-        createImageClicked.disconnect(self.on_createImageButton_clicked)
-        removeRepoClicked = self.mainWindow.removeRepositoryButton.clicked
-        removeRepoClicked.disconnect(self.on_removeRepositoryButton_clicked)
-        addRepoClicked = self.mainWindow.addRepositoryButton.clicked
-        addRepoClicked.disconnect(self.on_addRepositoryButton_clicked)
-        addRepo2Clicked = self.mainWindow.addRepositoryFromProjectButton.clicked
-        addRepo2Clicked.disconnect(self.on_addRepositoryFromProjectButton_clicked)
-        addPkgClicked = self.mainWindow.addPackageButton.clicked
-        addPkgClicked.disconnect(self.on_addPackageButton_clicked)
-        removePkgClicked = self.mainWindow.removePackageButton.clicked
-        removePkgClicked.disconnect(self.on_removePackageButton_clicked)
-        addPkgGrpClicked = self.mainWindow.addPackageGroupButton.clicked
-        addPkgGrpClicked.disconnect(self.on_addPackageGroupButton_clicked)
-        removePkgGrpClicked = self.mainWindow.removePackageGroupButton.clicked
-        removePkgGrpClicked.disconnect(self.on_removePackageGroupButton_clicked)
+        for signal, slot in self.__signalSlotMap.items():
+            signal.disconnect(slot)
 
 # --- Button handlers --------------------------------------------------------
     @popupOnException
@@ -258,6 +254,7 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
         # removePackage supports lists
         self._currentProjectObj.removePackage(packages)
 
+    @popupOnException
     def on_addPackageGroupButton_clicked(self):
         selectedPackageGroup, accepted = QInputDialog.getText(self.mainWindow,
                                                               "Select package group",
@@ -266,6 +263,7 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
             return
         self._currentProjectObj.addPackageGroup(selectedPackageGroup)
 
+    @popupOnException
     def on_removePackageGroupButton_clicked(self):
         packageGroups = []
         for row in getSelectedRows(self.mainWindow.kickstartPackageGroupsTableView):
@@ -284,6 +282,24 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
             return
         # removePackageGroup supports lists
         self._currentProjectObj.removePackageGroup(packageGroups)
+
+    @popupOnException
+    def on_saveKickstartOptionButton_clicked(self):
+        self.__disconnectProjectEventsAndButtons()
+        try:
+            self._currentProjectObj.saveCommands()
+            self.mainWindow.kickstartOptionsListView.clearSelection()
+            self.mainWindow.kickstartOptionTextEdit.clear()
+        finally:
+            self.__connectProjectEventsAndButtons()
+
+    @popupOnException
+    def on_addKickstartOptionButton_clicked(self):
+        self._currentProjectObj.addNewCommand()
+
+    def on_removeKickstartOptionButton_clicked(self):
+        row = self.mainWindow.kickstartOptionsListView.currentIndex().row()
+        self._currentProjectObj.removeCommand(row)
 # --- end Button handlers ----------------------------------------------------
 
 # --- Event handlers ---------------------------------------------------------
@@ -311,4 +327,13 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
         name = self.__configDialog.repoAliasLineEdit.text()
         url = self.__configDialog.repoUrlLineEdit.text()
         self._currentProjectObj.addRepository(name, url)
+
+    def on_kickstartOptionsListView_clicked(self, index):
+        self.__disconnectProjectEventsAndButtons()
+        self._currentProjectObj.displayCommand(index.row())
+        self.__connectProjectEventsAndButtons()
+
+    def on_kickstartOptionTextEdit_textChanged(self):
+        row = self.mainWindow.kickstartOptionsListView.currentIndex().row()
+        self._currentProjectObj.editCommand(row)
 # --- end Event handlers -----------------------------------------------------
