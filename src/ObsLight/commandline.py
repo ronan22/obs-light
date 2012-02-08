@@ -28,54 +28,80 @@ import ObsLightPrintManager
 
 from ObsLightUtils import getLineno
 
-__PRGNAME__ = "ObsLight"
-__DICO_Help__ = {}
+__PRGNAME__ = "OBSlight"
 
-__DESCRIPTION__ = "ObsLight:" + "\n"
+def createDoc(command, comment):
+    firstBorder = "\t"
+    secondBorder = "\t"*5
+    doc = firstBorder + command[0]
+    if len(command) > 1:
+        doc += " (" + ",".join(__info_quiet__[1:]) + ") "
+    doc += ":\n" + secondBorder + comment
+    return doc
+
+__DICO_Command_Help__ = {}
+__DICO_Parameter_Help__ = {}
+
+__DESCRIPTION__ = __PRGNAME__ + ":" + "\n"
 __DESCRIPTION__ += "\t" + "Provides a tool to manage an OBS project on your local machine in command line" + "\n"
 __DESCRIPTION__ += "\t" + "For informations, see the Help section" + "\n"
 __DESCRIPTION__ += "\t\t" + "obslight --Help" + "\n"
-__DESCRIPTION__ += "\t" + "The gui for obslight is obslightgui" + "\n"
+__DESCRIPTION__ += "\t" + "The gui for " + __PRGNAME__ + " is obslightgui" + "\n"
 __DESCRIPTION__ += "\t" + "A FAQ is available at:" + "\n"
 __DESCRIPTION__ += "\t\t" + "*http://wiki.meego.com/OBS_Light_FAQ" + "\n"
 __DESCRIPTION__ += "\t" + "For additional informations, see:" + "\n"
-__DESCRIPTION__ += "\t\t" + "* http://wiki.meego.com/OBS_Light" + "\n"
+__DESCRIPTION__ += "\t\t" + "*http://wiki.meego.com/OBS_Light" + "\n"
 
-__Help__ = "Usage: " + __PRGNAME__ + " [global command] <command> [--command-options]" + "\n"
-__Help__ += "\n"
-__Help__ += "Type " + __PRGNAME__ + " <command> --Help to get Help on a specific command." + "\n"
-__Help__ += "Commands:" + "\n"
+__DESCRIPTION__ += "Usage: " + __PRGNAME__ + " [global command] <command> [--command-options]" + "\n"
+__DESCRIPTION__ += "\n"
+__DESCRIPTION__ += "Type " + __PRGNAME__ + " <command> --Help to get Help on a specific command." + "\n"
+__DESCRIPTION__ += "Commands:" + "\n"
 
+__list_arg_global__ = []
+__list_arg_level_0__ = []
 #Command Level 0
 __info_quiet__ = ["quiet", "-quiet", "--quiet"]
 __info_debug__ = ["debug", "-debug", "--debug"]
 __version__ = ["version", "-version", "--version"]
-__Help__ = ["--Help", "-h", "-Help", "Help"]
+__Help__ = ["--help", "-h", "-help", "help"]
 
-#Command Level 1
+#Private, uses only for completion.
+__completion__ = ["--completion"]
+
+__list_arg_global__.append(__info_quiet__[0])
+__list_arg_global__.append(__info_debug__[0])
+__list_arg_global__.append(__version__[0])
+__list_arg_global__.append(__Help__[0])
+
+__DICO_Command_Help__[__info_quiet__[0]] = createDoc(__info_quiet__, "run obslight in quiet mode")
+__DICO_Command_Help__[__info_debug__[0]] = createDoc(__info_debug__, "run obslight in debugger mode")
+__DICO_Command_Help__[__version__[0]] = createDoc(__version__, "show program's version number and exit")
+__DICO_Command_Help__[__Help__[0]] = createDoc(__Help__, "show this help message and exit")
+
+#Global command Level 0
 __server__ = ["server"]
 __obsproject__ = ["obsproject"]
 __Package__ = ["package"]
 __projectfilesystem__ = ["projectfilesystem", "projectfs", "filesystem", "pfs"]
 __rpmbuild__ = ["rpmbuild", "rb"]
 __micproject__ = ["micproject"]
-__qemuproject__ = ["qemuproject"]
+#__qemuproject__ = ["qemuproject"]
 
-__DICO_Help__[__server__[0]] = __server__[0] + ":" + "\t" + "Doc __server__"
-__DICO_Help__[__obsproject__[0]] = __obsproject__[0] + ":" + "\t" + "Doc __obsproject__"
-__DICO_Help__[__Package__[0]] = __Package__[0] + ":" + "\t" + "Doc __Package__"
-__DICO_Help__[__projectfilesystem__[0]] = __projectfilesystem__[0] + ":" + "\t" + "Doc __projectfilesystem__"
-__DICO_Help__[__rpmbuild__[0]] = __rpmbuild__[0] + ":" + "\t" + "Doc __rpmbuild__"
-__DICO_Help__[__micproject__[0]] = __server__[0] + ":" + "\t" + "Doc __micproject__"
-__DICO_Help__[__qemuproject__[0]] = __qemuproject__[0] + ":" + "\t" + "Doc __qemuproject__"
+__list_arg_level_0__.append(__server__[0])
+__list_arg_level_0__.append(__obsproject__[0])
+__list_arg_level_0__.append(__Package__[0])
+__list_arg_level_0__.append(__projectfilesystem__[0])
+__list_arg_level_0__.append(__rpmbuild__[0])
+__list_arg_level_0__.append(__micproject__[0])
+#__list_arg_level_0__.append(__qemuproject__[0])
 
-__Help__ += __DICO_Help__[__server__[0]]
-__Help__ += __DICO_Help__[__obsproject__[0]]
-__Help__ += __DICO_Help__[__Package__[0]]
-__Help__ += __DICO_Help__[__projectfilesystem__[0]]
-__Help__ += __DICO_Help__[__rpmbuild__[0]]
-__Help__ += __DICO_Help__[__micproject__[0]]
-__Help__ += __DICO_Help__[__qemuproject__[0]]
+__DICO_Command_Help__[__server__[0]] = createDoc(__server__, "Manage the OBS server")
+__DICO_Command_Help__[__obsproject__[0]] = createDoc(__obsproject__, "Manage the OBSlight project")
+__DICO_Command_Help__[__Package__[0]] = createDoc(__Package__, "Manage the packages of OBSlight project")
+__DICO_Command_Help__[__projectfilesystem__[0]] = createDoc(__projectfilesystem__, "Manage the project filesystem of OBSlight project")
+__DICO_Command_Help__[__rpmbuild__[0]] = createDoc(__rpmbuild__, "Manage the rpmbuild of the package into the project filesystem")
+__DICO_Command_Help__[__micproject__[0]] = createDoc(__micproject__, "Manage image biulding")
+#__DICO_Command_Help__[__qemuproject__[0]] = createDoc(__qemuproject__, "Manage qemu")
 
 #Command server Level 2
 __server_Help__ = __Help__
@@ -87,17 +113,17 @@ __server_add__ = ["add"]
 __server_del__ = ["delete", "del", "rm"]
 __server_current__ = ["current"]
 
-__DICO_Help__[__server_Help__[0]] = __server_Help__[0] + ":" + "\t" + "Doc __server_Help__"
-__DICO_Help__[__server_test__[0]] = __server_test__[0] + ":" + "\t" + " <server_alias> test the server alias \n \
+__DICO_Parameter_Help__[__server_Help__[0]] = __server_Help__[0] + ":" + "\t" + "Doc __server_Help__"
+__DICO_Parameter_Help__[__server_test__[0]] = __server_test__[0] + ":" + "\t" + " <server_alias> test the server alias \n \
                                                                         \t\t\t\t\t<login> <password> <api_url> test the API URL."
-__DICO_Help__[__server_list__[0]] = __server_list__[0] + ":" + "\t" + "[<reachable>] reachable =False->return all sever,\
+__DICO_Parameter_Help__[__server_list__[0]] = __server_list__[0] + ":" + "\t" + "[<reachable>] reachable =False->return all sever,\
                                                                         \t\t\t\t\treachable =True->return only the available server,\
                                                                         \t\t\t\t\default=False."
-__DICO_Help__[__server_query__[0]] = __server_query__[0] + ":" + "\t" + "[login] [apiurl] [repository_url] [weburl] {<server_alias>}."
+__DICO_Parameter_Help__[__server_query__[0]] = __server_query__[0] + ":" + "\t" + "[login] [apiurl] [repository_url] [weburl] {<server_alias>}."
 
-__DICO_Help__[__server_set__[0]] = __server_set__[0] + ":" + "\t" + "[login <login>] [apiurl <apiurl>] [repository_url <repository_url>] [weburl <web_url>] {server_alias <server_alias>}"
-__DICO_Help__[__server_add__[0]] = __server_add__[0] + ":" + "\t" + "server_alias <server_alias> login <login> password <password> api_url <api_url> repository_url <repository_url> web_url <web_url>"
-__DICO_Help__[__server_del__[0]] = __server_del__[0] + ":" + "\t" + "<server_alias>"
+__DICO_Parameter_Help__[__server_set__[0]] = __server_set__[0] + ":" + "\t" + "[login <login>] [apiurl <apiurl>] [repository_url <repository_url>] [weburl <web_url>] {server_alias <server_alias>}"
+__DICO_Parameter_Help__[__server_add__[0]] = __server_add__[0] + ":" + "\t" + "server_alias <server_alias> login <login> password <password> api_url <api_url> repository_url <repository_url> web_url <web_url>"
+__DICO_Parameter_Help__[__server_del__[0]] = __server_del__[0] + ":" + "\t" + "<server_alias>"
 
 #Command server Level 3
 __server_alias__ = ["server_alias", "alias"]
@@ -108,11 +134,11 @@ __server_repository_url__ = ["repository_url"]
 __server_web_url__ = ["web_url"]
 __server_reachable__ = ["reachable"]
 
-__DICO_Help__[__server_reachable__[0]] = __server_reachable__[0] + ":" + "\t" + "False->return all sever,reachable =True->return only the available server,default=False."
-__DICO_Help__[__server_alias__[0]] = __server_alias__[0] + ":" + "\t" + ""
-__DICO_Help__[__server_login__[0]] = __server_login__[0] + ":" + "\t" + ""
-__DICO_Help__[__server_password__[0]] = __server_password__[0] + ":" + "\t" + ""
-__DICO_Help__[__server_api_url__[0]] = __server_api_url__[0] + ":" + "\t" + ""
+__DICO_Parameter_Help__[__server_reachable__[0]] = __server_reachable__[0] + ":" + "\t" + "False->return all sever,reachable =True->return only the available server,default=False."
+__DICO_Parameter_Help__[__server_alias__[0]] = __server_alias__[0] + ":" + "\t" + ""
+__DICO_Parameter_Help__[__server_login__[0]] = __server_login__[0] + ":" + "\t" + ""
+__DICO_Parameter_Help__[__server_password__[0]] = __server_password__[0] + ":" + "\t" + ""
+__DICO_Parameter_Help__[__server_api_url__[0]] = __server_api_url__[0] + ":" + "\t" + ""
 
 #Command obsproject Level 2
 __obsproject_Help__ = __Help__
@@ -126,13 +152,13 @@ __obsproject_import__ = ["import"]
 __obsproject_export__ = ["export"]
 __obsproject_dependencyrepositories__ = ["dependencyrepositories"]
 
-__DICO_Help__[__obsproject_Help__[0]] = __obsproject_Help__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__obsproject_list__[0]] = __obsproject_list__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__obsproject_add__[0]] = __obsproject_add__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__obsproject_del__[0]] = __obsproject_del__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__obsproject_query__[0]] = __obsproject_query__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__obsproject_set__[0]] = __obsproject_set__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__obsproject_current__[0]] = __obsproject_current__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__obsproject_Help__[0]] = __obsproject_Help__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__obsproject_list__[0]] = __obsproject_list__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__obsproject_add__[0]] = __obsproject_add__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__obsproject_del__[0]] = __obsproject_del__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__obsproject_query__[0]] = __obsproject_query__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__obsproject_set__[0]] = __obsproject_set__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__obsproject_current__[0]] = __obsproject_current__[0] + ":" + "\t" + "Doc __obsproject_Help__"
 
 #Command obsproject Level 3
 __project_raw__ = ["raw"]
@@ -149,18 +175,18 @@ __project_maintainer__ = ["maintainer"]
 __project_bugowner__ = ["bugowner"]
 __project_remoteurl__ = ["remoteurl"]
 
-__DICO_Help__[__project_alias__[0]] = __project_alias__[0] + ":" + "\t" + ""
-__DICO_Help__[__project_name_on_obs__[0]] = __project_name_on_obs__[0] + ":" + "\t" + ""
-__DICO_Help__[__project_title__[0]] = __project_title__[0] + ":" + "\t" + ""
-__DICO_Help__[__project_description__[0]] = __project_description__[0] + ":" + "\t" + ""
-__DICO_Help__[__project_server__[0]] = __project_server__[0] + ":" + "\t" + ""
-__DICO_Help__[__project_webpage__[0]] = __project_webpage__[0] + ":" + "\t" + ""
-__DICO_Help__[__project_repository__[0]] = __project_repository__[0] + ":" + "\t" + ""
-__DICO_Help__[__project_target__[0]] = __project_target__[0] + ":" + "\t" + ""
-__DICO_Help__[__project_arch__[0]] = __project_arch__[0] + ":" + "\t" + ""
-__DICO_Help__[__project_maintainer__[0]] = __project_maintainer__[0] + ":" + "\t" + ""
-__DICO_Help__[__project_bugowner__[0]] = __project_bugowner__[0] + ":" + "\t" + ""
-__DICO_Help__[__project_remoteurl__[0]] = __project_remoteurl__[0] + ":" + "\t" + ""
+__DICO_Parameter_Help__[__project_alias__[0]] = __project_alias__[0] + ":" + "\t" + ""
+__DICO_Parameter_Help__[__project_name_on_obs__[0]] = __project_name_on_obs__[0] + ":" + "\t" + ""
+__DICO_Parameter_Help__[__project_title__[0]] = __project_title__[0] + ":" + "\t" + ""
+__DICO_Parameter_Help__[__project_description__[0]] = __project_description__[0] + ":" + "\t" + ""
+__DICO_Parameter_Help__[__project_server__[0]] = __project_server__[0] + ":" + "\t" + ""
+__DICO_Parameter_Help__[__project_webpage__[0]] = __project_webpage__[0] + ":" + "\t" + ""
+__DICO_Parameter_Help__[__project_repository__[0]] = __project_repository__[0] + ":" + "\t" + ""
+__DICO_Parameter_Help__[__project_target__[0]] = __project_target__[0] + ":" + "\t" + ""
+__DICO_Parameter_Help__[__project_arch__[0]] = __project_arch__[0] + ":" + "\t" + ""
+__DICO_Parameter_Help__[__project_maintainer__[0]] = __project_maintainer__[0] + ":" + "\t" + ""
+__DICO_Parameter_Help__[__project_bugowner__[0]] = __project_bugowner__[0] + ":" + "\t" + ""
+__DICO_Parameter_Help__[__project_remoteurl__[0]] = __project_remoteurl__[0] + ":" + "\t" + ""
 
 #Command package Level 2
 __package_Help__ = __Help__
@@ -177,16 +203,16 @@ __package_addfile__ = ["addfile"]
 __package_deletefile__ = ["deletefile"]
 __package_refresh__ = ["refresh"]
 
-__DICO_Help__[__package_Help__[0]] = __package_Help__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__package_add__[0]] = __package_add__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__package_delete__[0]] = __package_delete__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__package_list__[0]] = __package_list__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__package_query__[0]] = __package_query__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__package_set__[0]] = __package_set__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__package_update__[0]] = __package_update__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__package_commit__[0]] = __package_commit__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__package_repair__[0]] = __package_repair__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__package_current__[0]] = __package_current__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__package_Help__[0]] = __package_Help__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__package_add__[0]] = __package_add__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__package_delete__[0]] = __package_delete__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__package_list__[0]] = __package_list__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__package_query__[0]] = __package_query__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__package_set__[0]] = __package_set__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__package_update__[0]] = __package_update__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__package_commit__[0]] = __package_commit__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__package_repair__[0]] = __package_repair__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__package_current__[0]] = __package_current__[0] + ":" + "\t" + "Doc __obsproject_Help__"
 
 #Command obsproject Level 3
 __package_package__ = ["package", "pkg"]
@@ -209,19 +235,19 @@ __package_oscstatus__ = ["oscstatus"]
 __package_obsstatus__ = ["obsstatus"]
 
 
-__DICO_Help__[__package_package__[0]] = __package_package__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__package_available__[0]] = __package_available__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__package_status__[0]] = __package_status__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__package_revision__[0]] = __package_revision__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__listFile__[0]] = __listFile__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__obsStatus__[0]] = __obsStatus__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__oscStatus__[0]] = __oscStatus__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__specFile__[0]] = __specFile__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__yamlFile__[0]] = __yamlFile__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__fsPackageDirectory__[0]] = __fsPackageDirectory__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__oscPackageDirectory__[0]] = __oscPackageDirectory__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__chRootStatus__[0]] = __chRootStatus__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__currentPatch__[0]] = __currentPatch__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__package_package__[0]] = __package_package__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__package_available__[0]] = __package_available__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__package_status__[0]] = __package_status__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__package_revision__[0]] = __package_revision__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__listFile__[0]] = __listFile__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__obsStatus__[0]] = __obsStatus__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__oscStatus__[0]] = __oscStatus__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__specFile__[0]] = __specFile__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__yamlFile__[0]] = __yamlFile__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__fsPackageDirectory__[0]] = __fsPackageDirectory__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__oscPackageDirectory__[0]] = __oscPackageDirectory__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__chRootStatus__[0]] = __chRootStatus__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__currentPatch__[0]] = __currentPatch__[0] + ":" + "\t" + "Doc __obsproject_Help__"
 
 #Command projectfilesystem Level 2
 __projectfilesystem_Help__ = __Help__
@@ -235,21 +261,21 @@ __projectfilesystem_addrepository__ = ["addrepository", "ar"]
 __projectfilesystem_extractpatch__ = ["extractpatch"]
 __projectfilesystem_repositories__ = ["repositorie"]
 
-__DICO_Help__[__projectfilesystem_Help__[0]] = __package_Help__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__projectfilesystem_query__[0]] = __projectfilesystem_query__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__projectfilesystem_create__[0]] = __projectfilesystem_create__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__projectfilesystem_delete__[0]] = __projectfilesystem_delete__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__projectfilesystem_enter__[0]] = __projectfilesystem_enter__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__projectfilesystem_executescript__[0]] = __projectfilesystem_executescript__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__projectfilesystem_Help__[0]] = __package_Help__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__projectfilesystem_query__[0]] = __projectfilesystem_query__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__projectfilesystem_create__[0]] = __projectfilesystem_create__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__projectfilesystem_delete__[0]] = __projectfilesystem_delete__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__projectfilesystem_enter__[0]] = __projectfilesystem_enter__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__projectfilesystem_executescript__[0]] = __projectfilesystem_executescript__[0] + ":" + "\t" + "Doc __obsproject_Help__"
 
 #Command obsproject Level 3
 __projectfilesystem_status__ = ["status"]
 __projectfilesystem_path__ = ["path"]
 __projectfilesystem_repository__ = ["repository", "repo"]
 
-__DICO_Help__[__projectfilesystem_path__[0]] = __projectfilesystem_path__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__projectfilesystem_status__[0]] = __projectfilesystem_status__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__projectfilesystem_repository__[0]] = __projectfilesystem_repository__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__projectfilesystem_path__[0]] = __projectfilesystem_path__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__projectfilesystem_status__[0]] = __projectfilesystem_status__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__projectfilesystem_repository__[0]] = __projectfilesystem_repository__[0] + ":" + "\t" + "Doc __obsproject_Help__"
 
 
 #Command projectfilesystem Level 3
@@ -258,18 +284,18 @@ __repository_delete__ = __server_del__
 __repository_modify__ = ["modify"]
 __repository_query__ = __server_query__
 
-__DICO_Help__[__repository_add__[0]] = __repository_add__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__repository_delete__[0]] = __repository_delete__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__repository_modify__[0]] = __repository_modify__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__repository_query__[0]] = __repository_query__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__repository_add__[0]] = __repository_add__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__repository_delete__[0]] = __repository_delete__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__repository_modify__[0]] = __repository_modify__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__repository_query__[0]] = __repository_query__[0] + ":" + "\t" + "Doc __obsproject_Help__"
 
 __repository_From__ = ["from"]
 __repository_newUrl__ = ["newUrl"]
 __repository_newAlias__ = ["newAlias"]
 
-__DICO_Help__[__repository_From__[0]] = __repository_From__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__repository_newUrl__[0]] = __repository_newUrl__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__repository_newAlias__[0]] = __repository_newAlias__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__repository_From__[0]] = __repository_From__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__repository_newUrl__[0]] = __repository_newUrl__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__repository_newAlias__[0]] = __repository_newAlias__[0] + ":" + "\t" + "Doc __obsproject_Help__"
 
 #Command rpmbuild Level 2
 
@@ -282,29 +308,43 @@ __rpmbuild_testConflict__ = ["testconflict"]
 __rpmbuild_createPatch__ = ["createpatch"]
 __rpmbuild_updatepatch__ = ["updatepatch"]
 
-__DICO_Help__[__rpmbuild_prepare__[0]] = __rpmbuild_prepare__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__rpmbuild_build__[0]] = __rpmbuild_build__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__rpmbuild_install__[0]] = __rpmbuild_install__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__rpmbuild_package__[0]] = __rpmbuild_package__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__rpmbuild_createPatch__[0]] = __rpmbuild_createPatch__[0] + ":" + "\t" + "Doc __obsproject_Help__"
-__DICO_Help__[__rpmbuild_updatepatch__[0]] = __rpmbuild_updatepatch__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__rpmbuild_prepare__[0]] = __rpmbuild_prepare__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__rpmbuild_build__[0]] = __rpmbuild_build__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__rpmbuild_install__[0]] = __rpmbuild_install__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__rpmbuild_package__[0]] = __rpmbuild_package__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__rpmbuild_createPatch__[0]] = __rpmbuild_createPatch__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__rpmbuild_updatepatch__[0]] = __rpmbuild_updatepatch__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+
+
 
 
 
 class ObsLightBase():
-    """
-    
-    """
+    '''
+    only management doc print and obslight core.
+    '''
     def __init__(self):
         '''
-        
+        init ObsLightBase parameter
         '''
         sys.stderr = safewriter.SafeWriter(sys.stderr)
         sys.stdout = safewriter.SafeWriter(sys.stdout)
 
         self.__listArgv = sys.argv[1:]
 
+        self.completion = False
+
+    def setListArgv(self, arg):
+        """
+        Set the main list of arguments.
+        You can set many lists of args separated by " , "
+        """
+        self.__listArgv = arg
+
     def getParameter(self, listArgv):
+        '''
+        return the first paramater and listArgv
+        '''
         if listArgv == None:
             return None, None
         elif len(listArgv) > 0:
@@ -317,29 +357,63 @@ class ObsLightBase():
         Execute the main list of arguments
         """
         while ("," in self.__listArgv):
-
-            ll = self.__listArgv[:self.__listArgv.index(",")]
+            tmpListArgv = self.__listArgv[:self.__listArgv.index(",")]
             self.__listArgv = self.__listArgv[self.__listArgv.index(",") + 1:]
-            self.execute(ll)
+            self.execute(tmpListArgv)
 
         return self.execute(self.__listArgv)
 
+    def execute(self, listArgv):
+        '''
+        Execute a list of arguments.
+        '''
+        pass
+
+    def globalDescription(self):
+        '''
+        Print the global description
+        '''
+        print __DESCRIPTION__
+        for h in __list_arg_level_0__:
+            print __DICO_Command_Help__[h]
+        print "global Options:"
+        for h in __list_arg_global__:
+            print __DICO_Command_Help__[h]
+        return 0
+    def printDescriptionLevel0(self):
+        '''
+        print the global description or return the list for completion
+        '''
+        if self.completion:
+            listArg = __list_arg_global__
+            listArg.extend(__list_arg_level_0__)
+            print " ".join(listArg)
+        else:
+            self.globalDescription()
+        return 0
+
+    def printVersion(self):
+        '''
+        print the OBS Light version
+        '''
+        print "OBS Light version", ObsLightManager.getVersion()
+        return 0
+
+    def printUnknowCommand(self, currentCommand, listCommand=None):
+        print "ERROR UNKNOW COMMAND", currentCommand
+        if (listCommand != None) and (len(listCommand) > 0):
+            print "Available argument are :" + ",".join(listCommand)
+        return 1
+
 class ObsLight(ObsLightBase):
-    """
-    
-    """
+    '''
+    manage OBSlight
+    '''
     def __init__(self):
         '''
         
         '''
         ObsLightBase.__init__(self)
-
-    def setListArgv(self, arg):
-        """
-        Set the main list of arguments.
-        You can set many lists of args separated by " , "
-        """
-        self.__listArgv = arg
 
     def execute(self, listArgv):
         """
@@ -349,40 +423,39 @@ class ObsLight(ObsLightBase):
         ObsLightPrintManager.quiet = 0
         ObsLightPrintManager.DEBUG = 0
 
+        #If no argument print help
         if len(listArgv) == 0:
-            print __DESCRIPTION__
-            return None
+            return self.globalDescription()
         elif len(listArgv) > 0:
-
+            #Set the global variable
             while(len(listArgv) > 0):
-                currentCommand = listArgv[0]
+                currentCommand, listArgv = self.getParameter(listArgv)
+                #only use for completion
+                if currentCommand in __completion__:
+                    self.completion = True
+                    continue
 
-                if currentCommand in __info_quiet__:
-                    listArgv = listArgv[1:]
+                elif currentCommand in __info_quiet__:
                     ObsLightPrintManager.QUIET = 1
                     ObsLightPrintManager.setLoggerLevel('CRITICAL')
                     continue
+
                 elif currentCommand in __info_debug__:
-                    listArgv = listArgv[1:]
                     ObsLightPrintManager.DEBUG += 1
                     ObsLightPrintManager.setLoggerLevel('DEBUG')
                     continue
+
                 elif currentCommand in __version__:
-                    print "OBS Light version", ObsLightManager.getVersion()
-                    return None
+                    return self.printVersion()
+
                 elif currentCommand in __Help__:
-                    print __DESCRIPTION__
-                    print __Help__
-                    return None
+                    return self.printDescriptionLevel0()
                 else :
                     break
-
-            if len(listArgv) == 0:
-                print __DESCRIPTION__
-                return None
+            print "currentCommand", currentCommand
+            if currentCommand == None:
+                return self.printDescriptionLevel0()
             else:
-                currentCommand = listArgv[0]
-                listArgv = listArgv[1:]
                 if currentCommand in __server__ :
                     return self.server(listArgv)
                 elif currentCommand in __obsproject__ :
@@ -395,11 +468,10 @@ class ObsLight(ObsLightBase):
                     return self.rpmbuild(listArgv)
                 elif currentCommand in __micproject__ :
                     return self.micproject(listArgv)
-                elif currentCommand in __qemuproject__ :
-                    return self.qemuproject(listArgv)
+#                elif currentCommand in __qemuproject__ :
+#                    return self.qemuproject(listArgv)
                 else:
-                    print "ERROR UNKNOW COMMAND", currentCommand
-                    return 1
+                    return self.printUnknowCommand(currentCommand, __list_arg_level_0__)
 
     def server(self, listArgv):
         '''
@@ -413,7 +485,7 @@ class ObsLight(ObsLightBase):
             
             '''
             print __DESCRIPTION__
-            print __DICO_Help__[__server_Help__[0]]
+            print __DICO_Parameter_Help__[__server_Help__[0]]
 
             return 0
 
@@ -784,7 +856,7 @@ class ObsLight(ObsLightBase):
             
             '''
             print __DESCRIPTION__
-            print __DICO_Help__[__obsproject__[0]]
+            print __DICO_Parameter_Help__[__obsproject__[0]]
 
             return 0
 
@@ -1341,7 +1413,7 @@ class ObsLight(ObsLightBase):
             
             '''
             print __DESCRIPTION__
-            print __DICO_Help__[__obsproject__[0]]
+            print __DICO_Parameter_Help__[__obsproject__[0]]
 
             return 0
 
