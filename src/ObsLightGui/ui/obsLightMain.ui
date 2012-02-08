@@ -1277,18 +1277,27 @@ in the source directory of the current package if it is installed.</string>
                <layout class="QGridLayout" name="gridLayout_15">
                 <item row="2" column="0">
                  <widget class="QPushButton" name="importKickstartButton">
+                  <property name="toolTip">
+                   <string>If the selected kickstart file is not in the project directory, it will be copied</string>
+                  </property>
                   <property name="text">
                    <string>Import Kickstart File...</string>
                   </property>
                  </widget>
                 </item>
-                <item row="4" column="0">
+                <item row="5" column="0">
                  <widget class="QPushButton" name="createImageButton">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>40</height>
+                   </size>
                   </property>
                   <property name="text">
                    <string>Create image</string>
@@ -1303,17 +1312,18 @@ in the source directory of the current package if it is installed.</string>
                  </widget>
                 </item>
                 <item row="2" column="1">
-                 <spacer name="horizontalSpacer_6">
+                 <widget class="QLineEdit" name="kickstartPathLineEdit">
+                  <property name="toolTip">
+                   <string>Current kickstart path</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="0" colspan="2">
+                 <widget class="Line" name="line_3">
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
                   </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>40</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                 </spacer>
+                 </widget>
                 </item>
                </layout>
               </widget>
@@ -1334,79 +1344,96 @@ in the source directory of the current package if it is installed.</string>
             </layout>
            </widget>
            <widget class="QWidget" name="kickstartOptionsTab">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
             <attribute name="title">
              <string>Kickstart options</string>
             </attribute>
-            <layout class="QGridLayout" name="gridLayout_6">
-             <item row="0" column="0" rowspan="4" colspan="2">
-              <widget class="QTableWidget" name="kickstartOptionsTableWidget">
-               <column>
-                <property name="text">
-                 <string>option</string>
-                </property>
-               </column>
-               <column>
-                <property name="text">
-                 <string>value</string>
-                </property>
-               </column>
-              </widget>
-             </item>
-             <item row="4" column="0">
-              <widget class="QComboBox" name="kickstartOptionsComboBox"/>
-             </item>
-             <item row="4" column="1">
-              <widget class="QLineEdit" name="kickstartOptionValueLineEdit"/>
-             </item>
-             <item row="1" column="2">
-              <widget class="QPushButton" name="addKickstartOptionButton">
-               <property name="text">
-                <string>Add</string>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="2">
-              <widget class="QPushButton" name="removeKickstartOptionButton">
-               <property name="text">
-                <string>Remove</string>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="2">
-              <widget class="QPushButton" name="saveKickstartOptionButton">
-               <property name="text">
-                <string>Save</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="2">
-              <spacer name="verticalSpacer">
+            <layout class="QGridLayout" name="gridLayout_19">
+             <item row="0" column="0">
+              <widget class="QSplitter" name="splitter_3">
                <property name="orientation">
                 <enum>Qt::Vertical</enum>
                </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>20</width>
-                 <height>40</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item row="0" column="2">
-              <spacer name="verticalSpacer_4">
-               <property name="orientation">
-                <enum>Qt::Vertical</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>20</width>
-                 <height>40</height>
-                </size>
-               </property>
-              </spacer>
+               <widget class="QWidget" name="gridWidget" native="true">
+                <layout class="QGridLayout" name="gridLayout_6">
+                 <item row="0" column="0" rowspan="7" colspan="2">
+                  <widget class="QListWidget" name="kickstartOptionsListWidget"/>
+                 </item>
+                 <item row="1" column="2">
+                  <widget class="QPushButton" name="addKickstartOptionButton">
+                   <property name="text">
+                    <string>Add</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="2">
+                  <widget class="QPushButton" name="removeKickstartOptionButton">
+                   <property name="text">
+                    <string>Remove</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="5" column="2">
+                  <spacer name="verticalSpacer">
+                   <property name="orientation">
+                    <enum>Qt::Vertical</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>20</width>
+                     <height>40</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item row="0" column="2">
+                  <spacer name="verticalSpacer_3">
+                   <property name="orientation">
+                    <enum>Qt::Vertical</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>20</width>
+                     <height>40</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item row="3" column="2">
+                  <widget class="QPushButton" name="saveKickstartOptionButton">
+                   <property name="text">
+                    <string>Save</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="6" column="2">
+                  <widget class="QLabel" name="kickstartDocumentationLabel">
+                   <property name="maximumSize">
+                    <size>
+                     <width>16777215</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string>&lt;a href=&quot;http://fedoraproject.org/wiki/Anaconda/Kickstart&quot;&gt;Kickstart documentation&lt;/a&gt;</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignCenter</set>
+                   </property>
+                   <property name="openExternalLinks">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+               <widget class="QWidget" name="gridWidget_2" native="true">
+                <layout class="QGridLayout" name="gridLayout_18">
+                 <item row="0" column="0" colspan="2">
+                  <widget class="QPlainTextEdit" name="kickstartOptionTextEdit"/>
+                 </item>
+                </layout>
+               </widget>
+              </widget>
              </item>
             </layout>
            </widget>
@@ -1491,7 +1518,7 @@ in the source directory of the current package if it is installed.</string>
              </item>
             </layout>
            </widget>
-           <widget class="QWidget" name="tab">
+           <widget class="QWidget" name="kickstartPackageGroupsTab">
             <attribute name="title">
              <string>Package groups</string>
             </attribute>
@@ -1525,6 +1552,43 @@ in the source directory of the current package if it is installed.</string>
                 </size>
                </property>
               </spacer>
+             </item>
+            </layout>
+           </widget>
+           <widget class="QWidget" name="kickstartFilesTab">
+            <attribute name="title">
+             <string>Files</string>
+            </attribute>
+            <layout class="QGridLayout" name="gridLayout_17">
+             <item row="0" column="0" colspan="2">
+              <widget class="QTableView" name="tableView"/>
+             </item>
+             <item row="1" column="0">
+              <widget class="QPushButton" name="pushButton_3">
+               <property name="text">
+                <string>PushButton</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <spacer name="horizontalSpacer_10">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>421</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item row="2" column="0">
+              <widget class="QPushButton" name="pushButton_4">
+               <property name="text">
+                <string>PushButton</string>
+               </property>
+              </widget>
              </item>
             </layout>
            </widget>

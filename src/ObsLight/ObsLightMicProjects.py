@@ -242,6 +242,10 @@ class ObsLightMicProjects:
         self._checkMicProjectName(micProjectName)
         return self.__dicOBSLightProjects[micProjectName].getKickstartPackageGroupDictionaries()
 
+    def getKickstartCommandDictionaries(self, micProjectName):
+        self._checkMicProjectName(micProjectName)
+        return self.__dicOBSLightProjects[micProjectName].getKickstartCommandDictionaries()
+
     # TODO: rename to getArchitecture
     def getMicProjectArchitecture(self, micProjectName):
         """
