@@ -8,4 +8,4 @@ $OBSLIGHT rpmbuild prepare project_alias $PROJECTALIAS package $PACKAGE
 $OBSLIGHT rpmbuild isinit project_alias $PROJECTALIAS package $PACKAGE
 $OBSLIGHT rpmbuild createpatch "test.patch" project_alias $PROJECTALIAS package $PACKAGE
 $OBSLIGHT rpmbuild isinit project_alias $PROJECTALIAS package $PACKAGE
-$OBSLIGHT obsproject del $PROJECTALIAS
+

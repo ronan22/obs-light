@@ -23,120 +23,316 @@ Created on 29 sept. 2011
 import sys
 
 from util import safewriter
-import ObsLightErr
 import ObsLightManager
 import ObsLightPrintManager
 
-MAN_HEADER = r"""
+from ObsLightUtils import getLineno
 
-"""
-MAN_FOOTER = r"""
+__PRGNAME__ = "OBSlight"
+
+def createDoc(command, comment):
+    firstBorder = "\t"
+    secondBorder = "\t"*5
+    doc = firstBorder + command[0]
+    if len(command) > 1:
+        doc += " (" + ",".join(__info_quiet__[1:]) + ") "
+    doc += ":\n" + secondBorder + comment
+    return doc
+
+__DICO_Command_Help__ = {}
+__DICO_Parameter_Help__ = {}
+
+__DESCRIPTION__ = __PRGNAME__ + ":" + "\n"
+__DESCRIPTION__ += "\t" + "Provides a tool to manage an OBS project on your local machine in command line" + "\n"
+__DESCRIPTION__ += "\t" + "For informations, see the Help section" + "\n"
+__DESCRIPTION__ += "\t\t" + "obslight --Help" + "\n"
+__DESCRIPTION__ += "\t" + "The gui for " + __PRGNAME__ + " is obslightgui" + "\n"
+__DESCRIPTION__ += "\t" + "A FAQ is available at:" + "\n"
+__DESCRIPTION__ += "\t\t" + "*http://wiki.meego.com/OBS_Light_FAQ" + "\n"
+__DESCRIPTION__ += "\t" + "For additional informations, see:" + "\n"
+__DESCRIPTION__ += "\t\t" + "*http://wiki.meego.com/OBS_Light" + "\n"
+
+__DESCRIPTION__ += "Usage: " + __PRGNAME__ + " [global command] <command> [--command-options]" + "\n"
+__DESCRIPTION__ += "\n"
+__DESCRIPTION__ += "Type " + __PRGNAME__ + " <command> --Help to get Help on a specific command." + "\n"
+__DESCRIPTION__ += "Commands:" + "\n"
+
+__list_arg_global__ = []
+__list_arg_level_0__ = []
+#Command Level 0
+__info_quiet__ = ["quiet", "-quiet", "--quiet"]
+__info_debug__ = ["debug", "-debug", "--debug"]
+__version__ = ["version", "-version", "--version"]
+__Help__ = ["--help", "-h", "-help", "help"]
+
+#Private, uses only for completion.
+__completion__ = ["--completion"]
+
+__list_arg_global__.append(__info_quiet__[0])
+__list_arg_global__.append(__info_debug__[0])
+__list_arg_global__.append(__version__[0])
+__list_arg_global__.append(__Help__[0])
+
+__DICO_Command_Help__[__info_quiet__[0]] = createDoc(__info_quiet__, "run obslight in quiet mode")
+__DICO_Command_Help__[__info_debug__[0]] = createDoc(__info_debug__, "run obslight in debugger mode")
+__DICO_Command_Help__[__version__[0]] = createDoc(__version__, "show program's version number and exit")
+__DICO_Command_Help__[__Help__[0]] = createDoc(__Help__, "show this help message and exit")
+
+#Global command Level 0
+__server__ = ["server"]
+__obsproject__ = ["obsproject"]
+__Package__ = ["package"]
+__projectfilesystem__ = ["projectfilesystem", "projectfs", "filesystem", "pfs"]
+__rpmbuild__ = ["rpmbuild", "rb"]
+__micproject__ = ["micproject"]
+#__qemuproject__ = ["qemuproject"]
+
+__list_arg_level_0__.append(__server__[0])
+__list_arg_level_0__.append(__obsproject__[0])
+__list_arg_level_0__.append(__Package__[0])
+__list_arg_level_0__.append(__projectfilesystem__[0])
+__list_arg_level_0__.append(__rpmbuild__[0])
+__list_arg_level_0__.append(__micproject__[0])
+#__list_arg_level_0__.append(__qemuproject__[0])
+
+__DICO_Command_Help__[__server__[0]] = createDoc(__server__, "Manage the OBS server")
+__DICO_Command_Help__[__obsproject__[0]] = createDoc(__obsproject__, "Manage the OBSlight project")
+__DICO_Command_Help__[__Package__[0]] = createDoc(__Package__, "Manage the packages of OBSlight project")
+__DICO_Command_Help__[__projectfilesystem__[0]] = createDoc(__projectfilesystem__, "Manage the project filesystem of OBSlight project")
+__DICO_Command_Help__[__rpmbuild__[0]] = createDoc(__rpmbuild__, "Manage the rpmbuild of the package into the project filesystem")
+__DICO_Command_Help__[__micproject__[0]] = createDoc(__micproject__, "Manage image biulding")
+#__DICO_Command_Help__[__qemuproject__[0]] = createDoc(__qemuproject__, "Manage qemu")
+
+#Command server Level 2
+__server_Help__ = __Help__
+__server_test__ = ["test"]
+__server_list__ = ["list", "ll", "ls"]
+__server_query__ = ["query", "get"]
+__server_set__ = ["set"]
+__server_add__ = ["add"]
+__server_del__ = ["delete", "del", "rm"]
+__server_current__ = ["current"]
+
+__DICO_Parameter_Help__[__server_Help__[0]] = __server_Help__[0] + ":" + "\t" + "Doc __server_Help__"
+__DICO_Parameter_Help__[__server_test__[0]] = __server_test__[0] + ":" + "\t" + " <server_alias> test the server alias \n \
+                                                                        \t\t\t\t\t<login> <password> <api_url> test the API URL."
+__DICO_Parameter_Help__[__server_list__[0]] = __server_list__[0] + ":" + "\t" + "[<reachable>] reachable =False->return all sever,\
+                                                                        \t\t\t\t\treachable =True->return only the available server,\
+                                                                        \t\t\t\t\default=False."
+__DICO_Parameter_Help__[__server_query__[0]] = __server_query__[0] + ":" + "\t" + "[login] [apiurl] [repository_url] [weburl] {<server_alias>}."
+
+__DICO_Parameter_Help__[__server_set__[0]] = __server_set__[0] + ":" + "\t" + "[login <login>] [apiurl <apiurl>] [repository_url <repository_url>] [weburl <web_url>] {server_alias <server_alias>}"
+__DICO_Parameter_Help__[__server_add__[0]] = __server_add__[0] + ":" + "\t" + "server_alias <server_alias> login <login> password <password> api_url <api_url> repository_url <repository_url> web_url <web_url>"
+__DICO_Parameter_Help__[__server_del__[0]] = __server_del__[0] + ":" + "\t" + "<server_alias>"
+
+#Command server Level 3
+__server_alias__ = ["server_alias", "alias"]
+__server_login__ = ["login"]
+__server_password__ = ["password"]
+__server_api_url__ = ["api_url"]
+__server_repository_url__ = ["repository_url"]
+__server_web_url__ = ["web_url"]
+__server_reachable__ = ["reachable"]
+
+__DICO_Parameter_Help__[__server_reachable__[0]] = __server_reachable__[0] + ":" + "\t" + "False->return all sever,reachable =True->return only the available server,default=False."
+__DICO_Parameter_Help__[__server_alias__[0]] = __server_alias__[0] + ":" + "\t" + ""
+__DICO_Parameter_Help__[__server_login__[0]] = __server_login__[0] + ":" + "\t" + ""
+__DICO_Parameter_Help__[__server_password__[0]] = __server_password__[0] + ":" + "\t" + ""
+__DICO_Parameter_Help__[__server_api_url__[0]] = __server_api_url__[0] + ":" + "\t" + ""
+
+#Command obsproject Level 2
+__obsproject_Help__ = __Help__
+__obsproject_list__ = __server_list__
+__obsproject_add__ = __server_add__
+__obsproject_del__ = __server_del__
+__obsproject_query__ = __server_query__
+__obsproject_set__ = __server_set__
+__obsproject_current__ = ["current"]
+__obsproject_import__ = ["import"]
+__obsproject_export__ = ["export"]
+__obsproject_dependencyrepositories__ = ["dependencyrepositories"]
+
+__DICO_Parameter_Help__[__obsproject_Help__[0]] = __obsproject_Help__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__obsproject_list__[0]] = __obsproject_list__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__obsproject_add__[0]] = __obsproject_add__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__obsproject_del__[0]] = __obsproject_del__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__obsproject_query__[0]] = __obsproject_query__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__obsproject_set__[0]] = __obsproject_set__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__obsproject_current__[0]] = __obsproject_current__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+
+#Command obsproject Level 3
+__project_raw__ = ["raw"]
+__project_alias__ = ["project_alias"]
+__project_name_on_obs__ = ["name_on_obs"]
+__project_title__ = ["title"]
+__project_description__ = ["description"]
+__project_server__ = ["server"]
+__project_webpage__ = ["webpage"]
+__project_repository__ = ["repository"]
+__project_target__ = ["target"]
+__project_arch__ = ["arch", "architecture"]
+__project_maintainer__ = ["maintainer"]
+__project_bugowner__ = ["bugowner"]
+__project_remoteurl__ = ["remoteurl"]
+
+__DICO_Parameter_Help__[__project_alias__[0]] = __project_alias__[0] + ":" + "\t" + ""
+__DICO_Parameter_Help__[__project_name_on_obs__[0]] = __project_name_on_obs__[0] + ":" + "\t" + ""
+__DICO_Parameter_Help__[__project_title__[0]] = __project_title__[0] + ":" + "\t" + ""
+__DICO_Parameter_Help__[__project_description__[0]] = __project_description__[0] + ":" + "\t" + ""
+__DICO_Parameter_Help__[__project_server__[0]] = __project_server__[0] + ":" + "\t" + ""
+__DICO_Parameter_Help__[__project_webpage__[0]] = __project_webpage__[0] + ":" + "\t" + ""
+__DICO_Parameter_Help__[__project_repository__[0]] = __project_repository__[0] + ":" + "\t" + ""
+__DICO_Parameter_Help__[__project_target__[0]] = __project_target__[0] + ":" + "\t" + ""
+__DICO_Parameter_Help__[__project_arch__[0]] = __project_arch__[0] + ":" + "\t" + ""
+__DICO_Parameter_Help__[__project_maintainer__[0]] = __project_maintainer__[0] + ":" + "\t" + ""
+__DICO_Parameter_Help__[__project_bugowner__[0]] = __project_bugowner__[0] + ":" + "\t" + ""
+__DICO_Parameter_Help__[__project_remoteurl__[0]] = __project_remoteurl__[0] + ":" + "\t" + ""
+
+#Command package Level 2
+__package_Help__ = __Help__
+__package_add__ = __server_add__
+__package_delete__ = __server_del__
+__package_list__ = __server_list__
+__package_query__ = __server_query__
+__package_set__ = __server_set__
+__package_update__ = ["update", "up"]
+__package_commit__ = ["commit", "co"]
+__package_repair__ = ["repair"]
+__package_current__ = ["current"]
+__package_addfile__ = ["addfile"]
+__package_deletefile__ = ["deletefile"]
+__package_refresh__ = ["refresh"]
+
+__DICO_Parameter_Help__[__package_Help__[0]] = __package_Help__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__package_add__[0]] = __package_add__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__package_delete__[0]] = __package_delete__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__package_list__[0]] = __package_list__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__package_query__[0]] = __package_query__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__package_set__[0]] = __package_set__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__package_update__[0]] = __package_update__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__package_commit__[0]] = __package_commit__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__package_repair__[0]] = __package_repair__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__package_current__[0]] = __package_current__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+
+#Command obsproject Level 3
+__package_package__ = ["package", "pkg"]
+__package_available__ = ["available"]
+__package_status__ = ["status"]
+__package_revision__ = ["revision"]
+__package_url__ = ["url"]
+__package_obsRev__ = ["obsRev"]
+__package_oscRev__ = ["oscRev"]
+__listFile__ = ["listFile"]
+__obsStatus__ = ["obsStatus"]
+__oscStatus__ = ["oscStatus"]
+__specFile__ = ["specFile"]
+__yamlFile__ = ["yamlFile"]
+__fsPackageDirectory__ = ["fsPackageDirectory"]
+__oscPackageDirectory__ = ["oscPackageDirectory"]
+__chRootStatus__ = ["chRootStatus"]
+__currentPatch__ = ["currentPatch"]
+__package_oscstatus__ = ["oscstatus"]
+__package_obsstatus__ = ["obsstatus"]
 
 
-"""
+__DICO_Parameter_Help__[__package_package__[0]] = __package_package__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__package_available__[0]] = __package_available__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__package_status__[0]] = __package_status__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__package_revision__[0]] = __package_revision__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__listFile__[0]] = __listFile__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__obsStatus__[0]] = __obsStatus__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__oscStatus__[0]] = __oscStatus__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__specFile__[0]] = __specFile__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__yamlFile__[0]] = __yamlFile__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__fsPackageDirectory__[0]] = __fsPackageDirectory__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__oscPackageDirectory__[0]] = __oscPackageDirectory__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__chRootStatus__[0]] = __chRootStatus__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__currentPatch__[0]] = __currentPatch__[0] + ":" + "\t" + "Doc __obsproject_Help__"
 
-__PRGNAME__ = "ObsLight"
-__getListObsServers__ = "getObsServerList"
-__addObsServer__ = "addObsServer"
-__delObsServer__ = "delObsServer"
-__getListLocalProject__ = "getLocalProjectList"
-__addProject__ = "addProject"
-__removeProject__ = "removeProject"
-__removePackage__ = "removePackage"
-__getListPackage__ = "getPackageList"
-__addPackage__ = "addPackage"
+#Command projectfilesystem Level 2
+__projectfilesystem_Help__ = __Help__
+__projectfilesystem_create__ = ["create", "new"]
+__projectfilesystem_delete__ = __server_del__
+__projectfilesystem_query__ = __server_query__
+__projectfilesystem_enter__ = ["enter", "chroot"]
+__projectfilesystem_executescript__ = ["executescript", "exec"]
 
-__createChRoot__ = "createChRoot"
-__goToChRoot__ = "goToChRoot"
+__projectfilesystem_addrepository__ = ["addrepository", "ar"]
+__projectfilesystem_extractpatch__ = ["extractpatch"]
+__projectfilesystem_repositories__ = ["repositorie"]
 
-__addPackageSourceInChRoot__ = "addPackageSourceInChRoot"
-__makePatch__ = "createPatch"
-__addAndCommitChange__ = "addAndCommitChanges"
-__addRepoInChRoot__ = "addRepoInChRoot"
-__exportProject__ = "exportProject"
-__importProject__ = "importProject"
-__getWebProjectPage__ = "getWebProjectPage"
+__DICO_Parameter_Help__[__projectfilesystem_Help__[0]] = __package_Help__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__projectfilesystem_query__[0]] = __projectfilesystem_query__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__projectfilesystem_create__[0]] = __projectfilesystem_create__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__projectfilesystem_delete__[0]] = __projectfilesystem_delete__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__projectfilesystem_enter__[0]] = __projectfilesystem_enter__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__projectfilesystem_executescript__[0]] = __projectfilesystem_executescript__[0] + ":" + "\t" + "Doc __obsproject_Help__"
 
-__addMicProjects__ = "addMicProject"
-__delMicProjects__ = "deleteMicProject"
-__addKickstartFile__ = "setKickstartFile"
-__getKickstartFile__ = "getKickstartFile"
-__getMicProjectArchitecture__ = "getMicProjectArchitecture"
-__setMicProjectArchitecture__ = "setMicProjectArchitecture"
-__setMicProjectImageType__ = "setMicProjectImageType"
-__getMicProjectImageType__ = "getMicProjectImageType"
-__createImage__ = "createImage"
-__getMicProjectList__ = "getMicProjectList"
+#Command obsproject Level 3
+__projectfilesystem_status__ = ["status"]
+__projectfilesystem_path__ = ["path"]
+__projectfilesystem_repository__ = ["repository", "repo"]
+
+__DICO_Parameter_Help__[__projectfilesystem_path__[0]] = __projectfilesystem_path__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__projectfilesystem_status__[0]] = __projectfilesystem_status__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__projectfilesystem_repository__[0]] = __projectfilesystem_repository__[0] + ":" + "\t" + "Doc __obsproject_Help__"
 
 
-__info_quiet__ = "--quiet"
-__info_debug__ = "--debug"
-__version__ = "--version"
+#Command projectfilesystem Level 3
+__repository_add__ = __server_add__
+__repository_delete__ = __server_del__
+__repository_modify__ = ["modify"]
+__repository_query__ = __server_query__
 
-__DICO_HELP__ = {}
-__DICO_HELP__[__getListObsServers__] = "Print the list of OBS servers."
-__DICO_HELP__[__getListLocalProject__] = "Print the list of local projects."
-__DICO_HELP__[__getListPackage__] = "Print the list of packages of a project."
-__DICO_HELP__[__addObsServer__] = "Add an OBS server."
-__DICO_HELP__[__delObsServer__] = "Del an OBS server."
+__DICO_Parameter_Help__[__repository_add__[0]] = __repository_add__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__repository_delete__[0]] = __repository_delete__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__repository_modify__[0]] = __repository_modify__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__repository_query__[0]] = __repository_query__[0] + ":" + "\t" + "Doc __obsproject_Help__"
 
-__DICO_HELP__[__addProject__] = "Create a local project based on an existing project on an OBS server."
-__DICO_HELP__[__addPackage__] = "Create a local package in a local project, based on an existing package in a project on an OBS server."
-__DICO_HELP__[__createChRoot__] = "Create a chroot, built from a local project."
-__DICO_HELP__[__addPackageSourceInChRoot__] = "Install the source RPM of a package into the chroot of the project."
-__DICO_HELP__[__goToChRoot__] = "Open a bash in the chroot of a project."
-__DICO_HELP__[__makePatch__] = "Generate a patch with modifications made in the chroot of a local project."
-__DICO_HELP__[__addAndCommitChange__] = "Add the new files (including patches) and commit them to the OBS"
-__DICO_HELP__[__addRepoInChRoot__] = "Add a repository to the chroot's zypper configuration file."
-__DICO_HELP__[__removeProject__] = "Remove local project"
-__DICO_HELP__[__removePackage__] = "Remove local package from a local project"
-__DICO_HELP__[__exportProject__] = "save a Project into a path"
-__DICO_HELP__[__importProject__] = "import a Project from a file"
-__DICO_HELP__[__getWebProjectPage__] = "return the web URL of a project."
+__repository_From__ = ["from"]
+__repository_newUrl__ = ["newUrl"]
+__repository_newAlias__ = ["newAlias"]
 
-__DICO_HELP__[__getMicProjectList__] = "Return the Mic project list."
-__DICO_HELP__[__addMicProjects__] = "Add a Mic project."
-__DICO_HELP__[__delMicProjects__] = "Del a Mic project."
-__DICO_HELP__[__addKickstartFile__] = "Add a ks file to a Mic project."
-__DICO_HELP__[__getKickstartFile__ ] = "Get the ks file of the Mic project."
-__DICO_HELP__[__getMicProjectArchitecture__] = "return the architecture of a Mic project."
-__DICO_HELP__[__setMicProjectArchitecture__] = "Set the architecture of the Mic project."
-__DICO_HELP__[__setMicProjectImageType__] = "Set the image type of the  Mic project."
-__DICO_HELP__[__getMicProjectImageType__] = "Return the image type of the  Mic project."
-__DICO_HELP__[__createImage__] = "Create the image of the Mic project."
+__DICO_Parameter_Help__[__repository_From__[0]] = __repository_From__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__repository_newUrl__[0]] = __repository_newUrl__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__repository_newAlias__[0]] = __repository_newAlias__[0] + ":" + "\t" + "Doc __obsproject_Help__"
 
-__DICO_OPTION_HELP__ = {}
-__DICO_OPTION_HELP__[__info_quiet__] = "Print no outputs."
-__DICO_OPTION_HELP__[__info_debug__] = "Print all outputs."
-__DICO_OPTION_HELP__[__version__] = "print the obslight version number and exit"
+#Command rpmbuild Level 2
 
-class ObsLight():
-    """
-    
-    """
-    man_header = MAN_HEADER
-    man_footer = MAN_FOOTER
+__rpmbuild_prepare__ = ["prepare"]
+__rpmbuild_build__ = ["build"]
+__rpmbuild_install__ = ["install"]
+__rpmbuild_package__ = ["package"]
+__rpmbuild_isInit__ = ["isinit"]
+__rpmbuild_testConflict__ = ["testconflict"]
+__rpmbuild_createPatch__ = ["createpatch"]
+__rpmbuild_updatepatch__ = ["updatepatch"]
 
+__DICO_Parameter_Help__[__rpmbuild_prepare__[0]] = __rpmbuild_prepare__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__rpmbuild_build__[0]] = __rpmbuild_build__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__rpmbuild_install__[0]] = __rpmbuild_install__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__rpmbuild_package__[0]] = __rpmbuild_package__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__rpmbuild_createPatch__[0]] = __rpmbuild_createPatch__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+__DICO_Parameter_Help__[__rpmbuild_updatepatch__[0]] = __rpmbuild_updatepatch__[0] + ":" + "\t" + "Doc __obsproject_Help__"
+
+
+
+
+
+class ObsLightBase():
+    '''
+    only management doc print and obslight core.
+    '''
     def __init__(self):
         '''
-        
+        init ObsLightBase parameter
         '''
         sys.stderr = safewriter.SafeWriter(sys.stderr)
         sys.stdout = safewriter.SafeWriter(sys.stdout)
 
         self.__listArgv = sys.argv[1:]
 
-    def main(self):
-        """
-        Execute the main list of arguments
-        """
-        while ("," in self.__listArgv):
-
-            ll = self.__listArgv[:self.__listArgv.index(",")]
-            self.__listArgv = self.__listArgv[self.__listArgv.index(",") + 1:]
-            self.execute(ll)
-
-        return self.execute(self.__listArgv)
+        self.completion = False
 
     def setListArgv(self, arg):
         """
@@ -145,1131 +341,2678 @@ class ObsLight():
         """
         self.__listArgv = arg
 
+    def getParameter(self, listArgv):
+        '''
+        return the first paramater and listArgv
+        '''
+        if listArgv == None:
+            return None, None
+        elif len(listArgv) > 0:
+            return listArgv[0], listArgv[1:]
+        else:
+            return None, None
+
+    def main(self):
+        """
+        Execute the main list of arguments
+        """
+        while ("," in self.__listArgv):
+            tmpListArgv = self.__listArgv[:self.__listArgv.index(",")]
+            self.__listArgv = self.__listArgv[self.__listArgv.index(",") + 1:]
+            self.execute(tmpListArgv)
+
+        return self.execute(self.__listArgv)
+
+    def execute(self, listArgv):
+        '''
+        Execute a list of arguments.
+        '''
+        pass
+
+    def globalDescription(self):
+        '''
+        Print the global description
+        '''
+        print __DESCRIPTION__
+        for h in __list_arg_level_0__:
+            print __DICO_Command_Help__[h]
+        print "global Options:"
+        for h in __list_arg_global__:
+            print __DICO_Command_Help__[h]
+        return 0
+    def printDescriptionLevel0(self):
+        '''
+        print the global description or return the list for completion
+        '''
+        if self.completion:
+            listArg = __list_arg_global__
+            listArg.extend(__list_arg_level_0__)
+            print " ".join(listArg)
+        else:
+            self.globalDescription()
+        return 0
+
+    def printVersion(self):
+        '''
+        print the OBS Light version
+        '''
+        print "OBS Light version", ObsLightManager.getVersion()
+        return 0
+
+    def printUnknowCommand(self, currentCommand, listCommand=None):
+        print "ERROR UNKNOW COMMAND", currentCommand
+        if (listCommand != None) and (len(listCommand) > 0):
+            print "Available argument are :" + ",".join(listCommand)
+        return 1
+
+class ObsLight(ObsLightBase):
+    '''
+    manage OBSlight
+    '''
+    def __init__(self):
+        '''
+        
+        '''
+        ObsLightBase.__init__(self)
 
     def execute(self, listArgv):
         """
         Execute a list of arguments.
         """
-        __DESCRIPTION__ = "ObsLight:" + "\n"
-        __DESCRIPTION__ += "\t" + "Provides a tool to manage an OBS project on your local machine in command line" + "\n"
-        __DESCRIPTION__ += "\t" + "For informations, see the help section" + "\n"
-        __DESCRIPTION__ += "\t\t" + "obslight --help" + "\n"
-        __DESCRIPTION__ += "\t" + "The gui for obslight is obslightgui" + "\n"
-        __DESCRIPTION__ += "\t" + "A FAQ is available at:" + "\n"
-        __DESCRIPTION__ += "\t\t" + "*http://wiki.meego.com/OBS_Light_FAQ" + "\n"
-        __DESCRIPTION__ += "\t" + "For additional informations, see:" + "\n"
-        __DESCRIPTION__ += "\t\t" + "* http://wiki.meego.com/OBS_Light" + "\n"
-
-        __HELP__ = "Usage: " + __PRGNAME__ + " [global command] <command> [--command-options]" + "\n"
-        __HELP__ += "\n"
-        __HELP__ += "Type " + __PRGNAME__ + " <command> --help to get help on a specific command." + "\n"
-        __HELP__ += "Commands:" + "\n"
-        __HELP__ += "\n"
-        __HELP__ += "\t" + __getListLocalProject__ + ":" + "\t" + __DICO_HELP__[__getListLocalProject__] + "\n"
-        __HELP__ += "\t" + __getListPackage__ + ":" + "\t\t" + __DICO_HELP__[__getListPackage__] + "\n"
-        __HELP__ += "\n"
-        __HELP__ += "\t" + __getListObsServers__ + ":" + "\t" + __DICO_HELP__[__getListObsServers__] + "\n"
-        __HELP__ += "\t" + __addObsServer__ + ":" + "\t\t" + __DICO_HELP__[__addObsServer__] + "\n"
-        __HELP__ += "\t" + __delObsServer__ + ":" + "\t\t" + __DICO_HELP__[__delObsServer__] + "\n"
-        __HELP__ += "\n"
-        __HELP__ += "\t" + __addProject__ + ":" + "\t\t" + __DICO_HELP__[__addProject__] + "\n"
-        __HELP__ += "\t" + __exportProject__ + ":" + "\t\t" + __DICO_HELP__[__exportProject__] + "\n"
-        __HELP__ += "\t" + __importProject__ + ":" + "\t\t" + __DICO_HELP__[__importProject__] + "\n"
-        __HELP__ += "\t" + __getWebProjectPage__ + ":" + "\t\t" + __DICO_HELP__[__getWebProjectPage__] + "\n"
-        __HELP__ += "\n"
-        __HELP__ += "\t" + __removeProject__ + ":" + "\t\t" + __DICO_HELP__[__removeProject__] + "\n"
-        __HELP__ += "\t" + __removePackage__ + ":" + "\t\t" + __DICO_HELP__[__removePackage__] + "\n"
-        __HELP__ += "\n"
-        __HELP__ += "\t" + __addPackage__ + ":" + "\t\t" + __DICO_HELP__[__addPackage__] + "\n"
-        __HELP__ += "\t" + __createChRoot__ + ":" + "\t\t" + __DICO_HELP__[__createChRoot__] + "\n"
-        __HELP__ += "\t" + __addPackageSourceInChRoot__ + ":" + __DICO_HELP__[__addPackageSourceInChRoot__] + "\n"
-        __HELP__ += "\t" + __goToChRoot__ + ":" + "\t\t" + __DICO_HELP__[__goToChRoot__] + "\n"
-        __HELP__ += "\t" + __makePatch__ + ":" + "\t\t" + __DICO_HELP__[__makePatch__] + "\n"
-        __HELP__ += "\t" + __addAndCommitChange__ + ":" + "\t" + __DICO_HELP__[__addAndCommitChange__] + "\n"
-        __HELP__ += "\t" + __addRepoInChRoot__ + ":" + "\t" + __DICO_HELP__[__addRepoInChRoot__] + "\n"
-        __HELP__ += "\n"
-        __HELP__ += "\t" + __getMicProjectList__ + ":" + "\t" + __DICO_HELP__[__getMicProjectList__] + "\n"
-        __HELP__ += "\t" + __addMicProjects__ + ":" + "\t\t" + __DICO_HELP__[__addMicProjects__] + "\n"
-        __HELP__ += "\t" + __delMicProjects__ + ":" + "\t\t" + __DICO_HELP__[__delMicProjects__] + "\n"
-        __HELP__ += "\t" + __addKickstartFile__ + ":" + "\t" + __DICO_HELP__[__addKickstartFile__] + "\n"
-        __HELP__ += "\t" + __getKickstartFile__ + ":" + "\t" + __DICO_HELP__[__getKickstartFile__ ] + "\n"
-        __HELP__ += "\t" + __getMicProjectArchitecture__ + ":" + "\t" + __DICO_HELP__[__getMicProjectArchitecture__] + "\n"
-        __HELP__ += "\t" + __setMicProjectArchitecture__ + ":" + "" + __DICO_HELP__[__setMicProjectArchitecture__] + "\n"
-        __HELP__ += "\t" + __setMicProjectImageType__ + ":" + "\t" + __DICO_HELP__[__setMicProjectImageType__] + "\n"
-        __HELP__ += "\t" + __getMicProjectImageType__ + ":" + "\t" + __DICO_HELP__[__getMicProjectImageType__] + "\n"
-        __HELP__ += "\t" + __createImage__ + ":" + "\t\t" + __DICO_HELP__[__createImage__] + "\n"
-        __HELP__ += "\n"
-        __HELP__ += "\t" + __version__ + ":" + "\t" + __DICO_OPTION_HELP__[__version__] + "\n"
-        __HELP__ += "\n"
-        __HELP__ += "global commands\n"
-        __HELP__ += "\t" + __info_quiet__ + ":" + "\t" + __DICO_OPTION_HELP__[__info_quiet__] + "\n"
-        __HELP__ += "\t" + __info_debug__ + ":" + "\t" + __DICO_OPTION_HELP__[__info_debug__] + "\n"
-        __HELP__ += "\n"
-        __HELP__ += __DESCRIPTION__
-        __HELP__ += "\n"
 
         ObsLightPrintManager.quiet = 0
         ObsLightPrintManager.DEBUG = 0
+
+        #If no argument print help
         if len(listArgv) == 0:
-            print __DESCRIPTION__
-            return None
+            return self.globalDescription()
         elif len(listArgv) > 0:
-            while(1):
-                if (listArgv[0] == __info_quiet__):
-                    listArgv = listArgv[1:]
+            #Set the global variable
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = self.getParameter(listArgv)
+                #only use for completion
+                if currentCommand in __completion__:
+                    self.completion = True
+                    continue
+
+                elif currentCommand in __info_quiet__:
                     ObsLightPrintManager.QUIET = 1
                     ObsLightPrintManager.setLoggerLevel('CRITICAL')
                     continue
-                elif (listArgv[0] == __info_debug__):
-                    listArgv = listArgv[1:]
+
+                elif currentCommand in __info_debug__:
                     ObsLightPrintManager.DEBUG += 1
                     ObsLightPrintManager.setLoggerLevel('DEBUG')
                     continue
-                elif (listArgv[0] == __version__):
-                    listArgv = listArgv[1:]
-                    print "OBS Light version", ObsLightManager.getVersion()
-                    return None
-                elif self.__isHelp(listArgv[0]):
-                    if ObsLightPrintManager.DEBUG == 0:
-                        print __HELP__
-                        return None
-                    elif ObsLightPrintManager.DEBUG == 1:
-                        for k in __DICO_HELP__.keys():
-                            print k
-                        return None
-                    elif ObsLightPrintManager.DEBUG == 2:
-                        for k in __DICO_OPTION_HELP__.keys():
-                            print k
-                        return None
-                    elif ObsLightPrintManager.DEBUG == 3:
-                        for k in __DICO_HELP__.keys():
-                            print k
-                        for k in __DICO_OPTION_HELP__.keys():
-                            print k
-                        return None
 
-                elif (listArgv[0] == __getListObsServers__):
-                    return self.getObsServerList(listArgv[1:])
-                elif (listArgv[0] == __addObsServer__):
-                    return self.addObsServer(listArgv[1:])
-                elif (listArgv[0] == __getListLocalProject__):
-                    return self.getLocalProjectList(listArgv[1:])
-                elif (listArgv[0] == __addProject__):
-                    return self.addProject(listArgv[1:])
-                elif (listArgv[0] == __getListPackage__):
-                    return self.getListPackage(listArgv[1:])
-                elif (listArgv[0] == __addPackage__):
-                    return self.addPackage(listArgv[1:])
-                elif (listArgv[0] == __createChRoot__):
-                    return self.createChRoot(listArgv[1:])
-                elif (listArgv[0] == __goToChRoot__):
-                    return self.goToChRoot(listArgv[1:])
-                elif (listArgv[0] == __addPackageSourceInChRoot__):
-                    return self.addPackageSourceInChRoot(listArgv[1:])
-                elif (listArgv[0] == __makePatch__):
-                    return self.createPatch(listArgv[1:])
-                elif (listArgv[0] == __addAndCommitChange__):
-                    return self.addAndCommitChanges(listArgv[1:])
-                elif (listArgv[0] == __addRepoInChRoot__):
-                    return self.addRepoInChRoot(listArgv[1:])
-                elif (listArgv[0] == __removeProject__):
-                    return self.removeProject(listArgv[1:])
-                elif (listArgv[0] == __removePackage__):
-                    return self.removePackage(listArgv[1:])
-                elif (listArgv[0] == __exportProject__):
-                    return self.exportProject(listArgv[1:])
-                elif (listArgv[0] == __importProject__):
-                    return self.importProject(listArgv[1:])
-                elif (listArgv[0] == __getWebProjectPage__):
-                    return self.getWebProjectPage(listArgv[1:])
-                elif (listArgv[0] == __delObsServer__):
-                    return self.delObsServer(listArgv[1:])
-                elif (listArgv[0] == __getMicProjectList__):
-                    return self.getMicProjectList(listArgv[1:])
-                elif (listArgv[0] == __addMicProjects__):
-                    return self.addMicProject(listArgv[1:])
-                elif (listArgv[0] == __delMicProjects__):
-                    return self.deleteMicProject(listArgv[1:])
-                elif (listArgv[0] == __addKickstartFile__):
-                    return self.setKickstartFile(listArgv[1:])
-                elif (listArgv[0] == __getKickstartFile__):
-                    return self.getKickstartFile(listArgv[1:])
-                elif (listArgv[0] == __getMicProjectArchitecture__):
-                    return self.getMicProjectArchitecture(listArgv[1:])
-                elif (listArgv[0] == __setMicProjectArchitecture__):
-                    return self.setMicProjectArchitecture(listArgv[1:])
-                elif (listArgv[0] == __setMicProjectImageType__):
-                    return self.setMicProjectImageType(listArgv[1:])
-                elif (listArgv[0] == __getMicProjectImageType__):
-                    return self.getMicProjectImageType(listArgv[1:])
-                elif (listArgv[0] == __createImage__):
-                    return self.createImage(listArgv[1:])
+                elif currentCommand in __version__:
+                    return self.printVersion()
+
+                elif currentCommand in __Help__:
+                    return self.printDescriptionLevel0()
+                else :
+                    break
+            print "currentCommand", currentCommand
+            if currentCommand == None:
+                return self.printDescriptionLevel0()
+            else:
+                if currentCommand in __server__ :
+                    return self.server(listArgv)
+                elif currentCommand in __obsproject__ :
+                    return self.obsproject(listArgv)
+                elif currentCommand in __Package__ :
+                    return self.package(listArgv)
+                elif currentCommand in __projectfilesystem__ :
+                    return self.projectfilesystem(listArgv)
+                elif currentCommand in __rpmbuild__ :
+                    return self.rpmbuild(listArgv)
+                elif currentCommand in __micproject__ :
+                    return self.micproject(listArgv)
+#                elif currentCommand in __qemuproject__ :
+#                    return self.qemuproject(listArgv)
                 else:
-                    raise ObsLightErr.ArgError(listArgv[0] + " is not a valid command")
+                    return self.printUnknowCommand(currentCommand, __list_arg_level_0__)
 
-    def __isHelp(self, arg):
+    def server(self, listArgv):
         '''
-        Test if the argument is "--help", "-h" or "-help"
+        Help
+        test <server_alias>
+        testapi <login> <password> <api_url>
         '''
-        return arg in ["--help", "-h", "-help", "help"]
 
+        def server_Help():
+            '''
+            
+            '''
+            print __DESCRIPTION__
+            print __DICO_Parameter_Help__[__server_Help__[0]]
 
-    def getLocalProjectList(self, listArgv):
-        '''
-        Print the list of local projects.
-        '''
-        __COMMAND__ = __getListLocalProject__
-        __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " \n"
-        __HELP__ += __DICO_HELP__[__COMMAND__]
+            return 0
 
-        if len(listArgv) == 0:
-            result = ObsLightManager.getManager().getLocalProjectList()
-            if len(result) > 0:
-                for k in result:
-                    print k
-            else:
-                print "No project"
-        elif self.__isHelp(listArgv[0]):
-            print __HELP__
-        else:
-            raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
-        return 0
-
-
-    def getObsServerList(self, listArgv):
-        '''
-        Print the list OBS servers. 
-        '''
-        __COMMAND__ = __getListObsServers__
-        __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " \n"
-        __HELP__ += __DICO_HELP__[__getListObsServers__]
-
-        if len(listArgv) == 0:
-            result = ObsLightManager.getManager().getObsServerList()
-            if len(result) > 0:
-                for k in result:
-                    print k
-            else:
-                print "No OBS server"
-        elif self.__isHelp(listArgv[0]):
-            print __HELP__
-        else:
-            raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
-        return 0
-
-    def addObsServer(self, listArgv):
-        '''
-        Add an OBS Server
-        '''
-        __COMMAND__ = __addObsServer__
-        __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options]\n"
-        __HELP__ += "\t--serverApi api_url (required)\n"
-        __HELP__ += "\t--user user_name (required)\n"
-        __HELP__ += "\t--password password (required)\n"
-        __HELP__ += "\t--serverWeb web_url\n"
-        __HELP__ += "\t--serverRepo repo_url (required)\n"
-        __HELP__ += "\t--alias name\n"
-        __HELP__ += __DICO_HELP__[__COMMAND__]
-
-        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (6 * 2)):
-            serverWeb = ""
-            serverApi = None
-            serverRepo = ""
-            alias = None
-            user = None
+        def server_test(listArgv):
+            '''
+            
+            '''
+            Help = False
+            server_alias = None
+            login = None
             password = None
+            api_url = None
 
-            for i in range(0, len(listArgv), 2):
-                if listArgv[i] == "--serverWeb":
-                    serverWeb = listArgv[i + 1]
-                elif listArgv[i] == "--serverApi":
-                    serverApi = listArgv[i + 1]
-                elif listArgv[i] == "--serverRepo":
-                    serverRepo = listArgv[i + 1]
-                elif listArgv[i] == "--alias":
-                    alias = listArgv[i + 1]
-                elif listArgv[i] == "--user":
-                    user = listArgv[i + 1]
-                elif listArgv[i] == "--password":
-                    password = listArgv[i + 1]
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = self.getParameter(listArgv)
+                if (currentCommand in __server_Help__) or (listArgv == None):
+                    Help = True
+                    break
+                elif currentCommand in __server_alias__:
+                    server_alias, listArgv = self.getParameter(listArgv)
+                elif currentCommand in __server_login__:
+                    login, listArgv = self.getParameter(listArgv)
+                elif currentCommand in __server_password__:
+                    password, listArgv = self.getParameter(listArgv)
+                elif currentCommand in __server_api_url__:
+                    api_url, listArgv = self.getParameter(listArgv)
                 else:
-                    raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
+                    Help = True
+                    break
 
-            ObsLightManager.getManager().addObsServer(serverWeb=serverWeb,
-                                                      serverApi=serverApi,
-                                                      serverRepo=serverRepo,
-                                                      alias=alias,
-                                                      user=user,
-                                                      password=password)
+            m = ObsLightManager.getCommandLineManager()
+            if Help == True:
+                return server_Help()
+            elif server_alias != None:
+                res = m.testServer(obsServer=server_alias)
+                if res == None:
+                    print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                    return -1
+                else:
+                    if res == True:
+                        print "'" + server_alias + "' is reachable"
+                    else:
+                        print "'" + server_alias + "' is not reachable"
+                    return 0
+            elif (login != None) and (password != None) and (api_url != None):
+                res = m.testApi(api=api_url, user=login, passwd=password)
+                if res == None:
+                    print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                    return -1
+                else:
+                    if res == 0:
+                        print "'" + api_url + "' is reachable"
+                    elif res == 1:
+                        print "'" + api_url + "' is not reachable, user and passwd  are wrong."
+                    elif res == 2:
+                        print "'" + api_url + "' is not reachable, api is wrong.."
+                    else:
+                        print "'" + api_url + "' is not reachable"
+                    return 0
+            else:
+                return server_Help()
 
-        elif self.__isHelp(listArgv[0]):
-            print __HELP__
+
+        def server_list(listArgv):
+            '''
+            
+            '''
+            Help = False
+            reachable = False
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = self.getParameter(listArgv)
+                if (currentCommand in __server_Help__) or (listArgv == None):
+                    Help = True
+                    break
+                elif currentCommand in __server_reachable__:
+                    reachable = True
+                else:
+                    Help = True
+                    break
+
+            if Help == True:
+                return server_Help()
+
+            m = ObsLightManager.getCommandLineManager()
+            res = m.getObsServerList(reachable=reachable)
+            if res == None:
+                print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                return -1
+            else:
+                for r in res:
+                    print r
+                return 0
+
+        def server_query(listArgv):
+            '''
+            
+            '''
+            Help = False
+            login = None
+            api_url = None
+            repository_url = None
+            weburl = None
+            alias = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = self.getParameter(listArgv)
+                if (currentCommand in __server_Help__) or (listArgv == None):
+                    Help = True
+                    break
+                elif currentCommand in __server_login__:
+                    login = currentCommand
+                elif currentCommand in __server_api_url__:
+                    api_url = currentCommand
+                elif currentCommand in __server_repository_url__:
+                    repository_url = currentCommand
+                elif currentCommand in __server_web_url__:
+                    weburl = currentCommand
+                elif currentCommand in __server_alias__:
+                    alias , listArgv = self.getParameter(listArgv)
+                else:
+                    Help = True
+                    break
+
+            if Help == True:
+                return server_Help()
+            else:
+                m = ObsLightManager.getCommandLineManager()
+                if alias == None:
+                    alias = m.getCurrentObsServer()
+
+                    if alias == None:
+                        print "No alias"
+                        return 1
+
+                if (login == None) and\
+                   (api_url == None) and\
+                   (repository_url == None) and\
+                   (weburl == None):
+                    login = True
+                    api_url = True
+                    repository_url = True
+                    weburl = True
+
+                if login != None:
+                    res = m.getObsServerParameter(obsServerAlias=alias, parameter="user")
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    print "alias '" + alias + "' user:\t\t" + str(res)
+                if api_url != None:
+                    res = m.getObsServerParameter(obsServerAlias=alias, parameter="serverAPI")
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    print "alias '" + alias + "' serverAPI:\t" + str(res)
+                if repository_url != None:
+                    res = m.getObsServerParameter(obsServerAlias=alias, parameter="serverRepo")
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    print "alias '" + alias + "' serverRepo:\t" + str(res)
+                if weburl != None:
+                    res = m.getObsServerParameter(obsServerAlias=alias, parameter="serverWeb")
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    print "alias '" + alias + "' serverWeb:\t" + str(res)
+
+            return 0
+
+
+        def server_set(listArgv):
+            '''
+            
+            '''
+            Help = False
+            login = None
+            api_url = None
+            repository_url = None
+            weburl = None
+            alias = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = self.getParameter(listArgv)
+                if (currentCommand in __server_Help__) or (listArgv == None):
+                    Help = True
+                    break
+                elif currentCommand in __server_login__:
+                    login , listArgv = self.getParameter(listArgv)
+                elif currentCommand in __server_api_url__:
+                    api_url , listArgv = self.getParameter(listArgv)
+                elif currentCommand in __server_repository_url__:
+                    repository_url , listArgv = self.getParameter(listArgv)
+                elif currentCommand in __server_web_url__:
+                    weburl , listArgv = self.getParameter(listArgv)
+                elif currentCommand in __server_alias__:
+                    alias , listArgv = self.getParameter(listArgv)
+                else:
+                    Help = True
+                    break
+
+            if Help == True:
+                return server_Help()
+            else:
+                m = ObsLightManager.getCommandLineManager()
+                if alias == None:
+                    alias = m.getCurrentObsServer()
+                    if alias == None:
+                        print "No alias"
+                        return 1
+
+                if login != None:
+                    res = m.setObsServerParameter(obsServerAlias=alias, parameter="user", value=login)
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                if api_url != None:
+                    res = m.setObsServerParameter(obsServerAlias=alias, parameter="serverAPI", value=api_url)
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                if repository_url != None:
+                    res = m.setObsServerParameter(obsServerAlias=alias, parameter="serverRepo", value=repository_url)
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                if weburl != None:
+                    res = m.setObsServerParameter(obsServerAlias=alias, parameter="serverWeb", value=weburl)
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+
+            return 0
+
+        def server_add(listArgv):
+            '''
+            
+            '''
+            Help = False
+            alias = None
+            login = None
+            password = None
+            api_url = None
+            repository_url = None
+            weburl = None
+
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = self.getParameter(listArgv)
+                if (currentCommand in __server_Help__) or (listArgv == None):
+                    Help = True
+                    break
+                elif currentCommand in __server_alias__:
+                    alias , listArgv = self.getParameter(listArgv)
+                elif currentCommand in __server_login__:
+                    login , listArgv = self.getParameter(listArgv)
+                elif currentCommand in __server_password__:
+                    password , listArgv = self.getParameter(listArgv)
+                elif currentCommand in __server_api_url__:
+                    api_url , listArgv = self.getParameter(listArgv)
+                elif currentCommand in __server_repository_url__:
+                    repository_url , listArgv = self.getParameter(listArgv)
+                elif currentCommand in __server_web_url__:
+                    weburl , listArgv = self.getParameter(listArgv)
+                else:
+                    Help = True
+                    break
+
+            if  (Help == True) or\
+                ((alias == None) or
+                (login == None) or
+                (password == None) or
+                (api_url == None) or
+                (repository_url == None) or
+                (weburl == None)):
+                return server_Help()
+            else:
+                m = ObsLightManager.getCommandLineManager()
+                if login != None:
+                    return m.addObsServer(serverApi=api_url,
+                                          user=login,
+                                          password=password,
+                                          alias=alias,
+                                          serverRepo=repository_url,
+                                          serverWeb=weburl)
+
+
+        def server_del(listArgv):
+            '''
+            
+            '''
+            Help = False
+            alias = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = self.getParameter(listArgv)
+
+                if (currentCommand in __server_Help__) or (listArgv == None):
+                    Help = True
+                    break
+                else:
+                    alias = currentCommand
+                    break
+
+            if  (Help == True) :
+                return server_Help()
+            else:
+                m = ObsLightManager.getCommandLineManager()
+                return m.delObsServer(obsServer=alias)
+
+        def server_current(listArgv):
+            '''
+            
+            '''
+            Help = False
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = self.getParameter(listArgv)
+                if (currentCommand in __server_Help__) or (listArgv == None):
+                    Help = True
+                    break
+                else:
+                    Help = True
+                    break
+
+            if  (Help == True) :
+                return server_Help()
+            else:
+                m = ObsLightManager.getCommandLineManager()
+                res = m.getCurrentObsServer()
+                print res
+                return 0
+        #_______________________________________________________________________
+        if len(listArgv) == 0:
+            server_Help()
+            return 0
         else:
-            raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
+            currentCommand = listArgv[0]
+            listArgv = listArgv[1:]
+
+            if currentCommand in __server_Help__ :
+                return server_Help()
+            elif currentCommand in __server_test__ :
+                return server_test(listArgv)
+            elif currentCommand in __server_list__:
+                return server_list(listArgv)
+            elif currentCommand in __server_query__:
+                return server_query(listArgv)
+            elif currentCommand in __server_set__:
+                return server_set(listArgv)
+            elif currentCommand in __server_add__:
+                return server_add(listArgv)
+            elif currentCommand in __server_del__ :
+                return server_del(listArgv)
+            elif currentCommand in __server_current__ :
+                return server_current(listArgv)
+            else:
+                return server_Help()
         return 0
 
-
-    def addProject(self, listArgv):
+    def obsproject(self, listArgv):
         '''
-        Add a project to OBS Light.
+        
         '''
-        __COMMAND__ = __addProject__
-        __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
-        __HELP__ += "\t--projectLocalName name: if no name is defined, the projectLocalName is equal to projectObsName, the ':' characters are replaced by '_'\n"
-        __HELP__ += "\t--projectObsName name (required)\n"
-        __HELP__ += "\t--projectTitle title\n"
-        __HELP__ += "\t--obsServer api_url|alias (require)\n"
-        __HELP__ += "\t--projectTarget name\n"
-        __HELP__ += "\t--description description\n"
-        __HELP__ += "\t--projectArch architecture\n"
-        __HELP__ += __DICO_HELP__[__COMMAND__]
+        def obsproject_Help():
+            '''
+            
+            '''
+            print __DESCRIPTION__
+            print __DICO_Parameter_Help__[__obsproject__[0]]
 
-        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (7 * 2)):
-            projectLocalName = None
-            projectObsName = None
-            projectTitle = None
-            obsServer = None
-            projectTarget = None
+            return 0
+
+        def obsproject_list (listArgv):
+            '''
+            
+            '''
+            Help = False
+            server_alias = None
+            arch = None
+            raw = False
+            maintainer = False
+            bugowner = False
+            remoteurl = False
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = self.getParameter(listArgv)
+
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
+                    break
+                elif currentCommand in __project_raw__:
+                    raw = True
+                elif currentCommand in __server_alias__:
+                    server_alias , listArgv = self.getParameter(listArgv)
+                elif  currentCommand in __project_arch__ :
+                    arch , listArgv = self.getParameter(listArgv)
+                elif  currentCommand in __project_maintainer__ :
+                    maintainer = True
+                elif  currentCommand in __project_bugowner__ :
+                    bugowner = True
+                elif  currentCommand in __project_remoteurl__ :
+                    remoteurl = True
+                else:
+                    return obsproject_Help()
+
+            if Help == True:
+                return obsproject_Help()
+            else:
+                m = ObsLightManager.getCommandLineManager()
+                res = []
+                if server_alias == None:
+                    res = m.getLocalProjectList()
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                elif server_alias != None:
+                    res = m.getObsServerProjectList(serverApi=server_alias,
+                                                    maintainer=maintainer,
+                                                    bugowner=bugowner,
+                                                    remoteurl=remoteurl,
+                                                    arch=arch,
+                                                    raw=raw)
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                else:
+                    return obsproject_Help()
+
+                if res != None:
+                    for r in res:
+                        print r
+                else:
+                    print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                return 0
+
+        def obsproject_current(listArgv):
+            '''
+            
+            '''
+            Help = False
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = self.getParameter(listArgv)
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
+                    break
+                elif currentCommand in __server_del__:
+                    alias = currentCommand
+                    break
+                else:
+                    Help = True
+                    break
+
+            if  (Help == True) :
+                return obsproject_Help()
+            else:
+                m = ObsLightManager.getCommandLineManager()
+                res = m.getCurrentObsProject()
+                print res
+                return 0
+
+        def obsproject_add(listArgv):
+            '''
+            
+            '''
+            Help = False
+            project_alias = None
+            name_on_obs = None
+            target = None
+            arch = None
+            server_alias = None
+
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = self.getParameter(listArgv)
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
+                    break
+                else :
+                    project_alias = currentCommand
+                    name_on_obs , listArgv = self.getParameter(listArgv)
+                    target , listArgv = self.getParameter(listArgv)
+                    arch , listArgv = self.getParameter(listArgv)
+                    server_alias , listArgv = self.getParameter(listArgv)
+                    if listArgv == None:
+                        break
+
+            if  (Help == True) or\
+                ((project_alias == None) or\
+                 (name_on_obs == None) or\
+                 (target == None) or\
+                 (arch == None)):
+                return obsproject_Help()
+            else:
+                m = ObsLightManager.getCommandLineManager()
+
+                if server_alias == None:
+                    server_alias = m.getCurrentObsServer()
+                    if server_alias == None:
+                        return obsproject_Help()
+
+                return m.addProject(serverApi=server_alias,
+                                    projectObsName=name_on_obs,
+                                    projectTarget=target,
+                                    projectArchitecture=arch,
+                                    projectLocalName=project_alias)
+
+        def obsproject_del(listArgv):
+            '''
+            
+            '''
+            Help = False
+            project = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = self.getParameter(listArgv)
+
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
+                    break
+                else:
+                    project = currentCommand
+                    break
+
+            if  (Help == True) :
+                return obsproject_Help()
+            elif project != None:
+                m = ObsLightManager.getCommandLineManager()
+                return m.removeProject(projectLocalName=project)
+            else:
+                return obsproject_Help()
+
+
+        def obsproject_query(listArgv):
+            '''
+            
+            '''
+            Help = False
+            title = False
+            description = False
+            server = False
+            webpage = False
+            repository = False
+            target = False
+            architecture = False
+            project_alias = None
+            remoteurl = False
+            maintainer = False
+            bugowner = False
+
+            server_alias = None
+            obsproject = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = self.getParameter(listArgv)
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
+                    break
+                elif currentCommand in __project_title__:
+                    title = True
+                elif currentCommand in __project_description__:
+                    description = True
+                elif currentCommand in __project_server__ :
+                    server = True
+                elif currentCommand in __project_webpage__:
+                    webpage = True
+                elif currentCommand in __project_repository__:
+                    repository = True
+                elif currentCommand in __project_target__:
+                    target = True
+                elif currentCommand in __project_arch__:
+                    architecture = True
+                elif currentCommand in __project_remoteurl__:
+                    remoteurl = True
+                elif currentCommand in __project_maintainer__:
+                    maintainer = True
+                elif currentCommand in __project_bugowner__:
+                    bugowner = True
+                elif currentCommand in __project_alias__:
+                    project_alias , listArgv = self.getParameter(listArgv)
+                elif currentCommand in __server_alias__:
+                    server_alias , listArgv = self.getParameter(listArgv)
+                elif currentCommand in __obsproject__:
+                    obsproject , listArgv = self.getParameter(listArgv)
+                else:
+                    Help = True
+                    break
+
+            if  (Help == True) :
+                return obsproject_Help()
+            else:
+                m = ObsLightManager.getCommandLineManager()
+
+                if (project_alias == None) and ((server_alias == None) or (obsproject == None)):
+                    if project_alias == None:
+                        project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return obsproject_Help()
+
+                if  (not title) and \
+                    (not description) and \
+                    (not server) and \
+                    (not webpage) and \
+                    (not repository) and \
+                    (not target) and \
+                    (not architecture)and \
+                    (not remoteurl) and \
+                    (not maintainer) and \
+                    (not architecture):
+
+                    title = True
+                    description = True
+                    server = True
+                    webpage = True
+                    repository = True
+                    target = True
+                    architecture = True
+                    remoteurl = True
+                    maintainer = True
+                    bugowner = True
+
+                if title :
+                    if (server_alias == None) and (obsproject == None):
+                        res = m.getProjectParameter(projectLocalName=project_alias,
+                                                    parameter="title")
+                    else:
+                        res = m.getObsProjectParameter(serverApi=server_alias,
+                                                       obsproject=obsproject,
+                                                       parameter="title")
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    print "title:" + res
+                if description :
+                    if (server_alias == None) and (obsproject == None):
+                        res = m.getProjectParameter(projectLocalName=project_alias,
+                                                    parameter="description")
+                    else:
+                        res = m.getObsProjectParameter(serverApi=server_alias,
+                                                       obsproject=obsproject,
+                                                       parameter="title")
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    print "description:" + res
+                if server and (server_alias == None) and (obsproject == None):
+                    res = m.getProjectParameter(projectLocalName=project_alias,
+                                                parameter="obsServer")
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    print "server:" + res
+                if webpage and (server_alias == None) and (obsproject == None) :
+                    res = m.getProjectWebPage(projectLocalName=project_alias)
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    print "webpage:" + res
+                if repository and (server_alias == None) and (obsproject == None):
+                    res = m.getProjectRepository(projectLocalName=project_alias)
+
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    print "repository:" + res
+
+                if target :
+                    if (server_alias == None) and (obsproject == None):
+                        res = m.getProjectParameter(projectLocalName=project_alias,
+                                                    parameter="projectTarget")
+                    else:
+                        res = m.getObsProjectParameter(serverApi=server_alias,
+                                                       obsproject=obsproject,
+                                                       parameter="repository")
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    elif isinstance(res, (basestring)):
+                        print "target:" + res
+                    elif isinstance(res, (list, tuple)):
+                        print "target:" + ",".join(res)
+                    else:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+
+                if architecture :
+                    if (server_alias == None) and (obsproject == None):
+                        res = m.getProjectParameter(projectLocalName=project_alias,
+                                                    parameter="projectArchitecture")
+                    else:
+                        res = m.getObsProjectParameter(serverApi=server_alias,
+                                                       obsproject=obsproject,
+                                                       parameter="arch")
+
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    elif isinstance(res, (basestring)):
+                        print "architecture:" + res
+                    elif isinstance(res, (list, tuple)):
+                        print "architecture:" + ",".join(res)
+                    else:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+
+                if remoteurl and (server_alias != None) and (obsproject != None):
+                    res = m.getObsProjectParameter(serverApi=server_alias,
+                                                   obsproject=obsproject,
+                                                   parameter="remoteurl")
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    print "remoteurl:" + str(res)
+
+                if maintainer  and (server_alias != None) and (obsproject != None) :
+                    res = m.getObsProjectParameter(serverApi=server_alias,
+                                                obsproject=obsproject,
+                                                parameter="maintainer")
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    print "maintainer:" + ",".join(res)
+
+                if bugowner  and (server_alias != None) and (obsproject != None) :
+                    res = m.getObsProjectParameter(serverApi=server_alias,
+                                                obsproject=obsproject,
+                                                parameter="bugowner")
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    print "bugowner:" + ",".join(res)
+            return 0
+
+        def obsproject_set(listArgv):
+            '''
+            
+            '''
+            Help = False
+            title = None
             description = None
-            projectArchitecture = None
+            project_alias = None
 
-            for i in range(0, len(listArgv), 2):
-                if listArgv[i] == "--projectObsName":
-                    projectObsName = listArgv[i + 1]
-                elif listArgv[i] == "--projectLocalName":
-                    projectLocalName = listArgv[i + 1]
-                elif listArgv[i] == "--projectTitle":
-                    projectTitle = listArgv[i + 1]
-                elif listArgv[i] == "--obsServer":
-                    obsServer = listArgv[i + 1]
-                elif listArgv[i] == "--projectTarget":
-                    projectTarget = listArgv[i + 1]
-                elif listArgv[i] == "--description":
-                    description = listArgv[i + 1]
-                elif listArgv[i] == "--projectArch":
-                    projectArchitecture = listArgv[i + 1]
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = self.getParameter(listArgv)
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
+                    break
+                elif currentCommand in __project_title__:
+                    title , listArgv = self.getParameter(listArgv)
+                elif currentCommand in __project_description__:
+                    description , listArgv = self.getParameter(listArgv)
+                elif currentCommand in __project_alias__:
+                    project_alias , listArgv = self.getParameter(listArgv)
                 else:
-                    raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
+                    Help = True
+                    break
 
-            ObsLightManager.getManager().addProject(projectLocalName=projectLocalName,
-                                                    projectObsName=projectObsName,
-                                                    projectTitle=projectTitle,
-                                                    serverApi=obsServer ,
-                                                    projectTarget=projectTarget,
-                                                    description=description,
-                                                    projectArchitecture=projectArchitecture)
-
-        elif self.__isHelp(listArgv[0]):
-            print __HELP__
-        else:
-            raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
-        return 0
-
-    def delObsServer(self, listArgv):
-        '''
-        Add a project to OBS Light.
-        '''
-        __COMMAND__ = __addProject__
-        __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
-        __HELP__ += "\t--obsServer alias (require)\n"
-        __HELP__ += __DICO_HELP__[__COMMAND__]
-
-        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (1 * 2)):
-            obsServer = None
-
-            for i in range(0, len(listArgv), 2):
-                if listArgv[i] == "--obsServer":
-                    obsServer = listArgv[i + 1]
-                else:
-                    raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
-
-            ObsLightManager.getManager().delObsServer(obsServer=obsServer)
-
-        elif self.__isHelp(listArgv[0]):
-            print __HELP__
-        else:
-            raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
-        return 0
-
-
-
-    def getListPackage(self, listArgv):
-        '''
-        Print the list of packages of a project.
-        '''
-        __COMMAND__ = __getListPackage__
-        __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
-        __HELP__ += "Commands:" + "\n"
-        __HELP__ += "\t" + "--obsServer serverName (if no serverName, the projectLocalName is local)" + "\n"
-        __HELP__ += "\t" + "--projectLocalName projectLocalName" + "\n"
-        __HELP__ += "\t" + "--localPackage 1/0 (if the projectLocalName is local)" + "\n"
-        __HELP__ += __DICO_HELP__[__COMMAND__]
-
-        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (2 * 2)):
-            projectLocalName = None
-            obsServer = None
-            localPackage = "1"
-
-            for i in range(0, len(listArgv), 2):
-                if listArgv[i] == "--projectLocalName":
-                    projectLocalName = listArgv[i + 1]
-                elif listArgv[i] == "--obsServer":
-                    obsServer = listArgv[i + 1]
-                elif listArgv[i] == "--localPackage":
-                    localPackage = listArgv[i + 1]
-                else:
-                    raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
-
-            if (obsServer != None) and (projectLocalName != None):
-                res = ObsLightManager.getManager().getObsProjectPackageList(serverApi=obsServer,
-                                                                           projectObsName=projectLocalName)
-            elif (projectLocalName != None) and (localPackage in ["0", "1"]):
-                res = ObsLightManager.getManager().getLocalProjectPackageList(projectLocalName=projectLocalName,
-                                                                             local=int(localPackage))
+            if  (Help == True) :
+                return obsproject_Help()
             else:
-                raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
+                m = ObsLightManager.getCommandLineManager()
+                if project_alias == None:
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return obsproject_Help()
 
-            if res is not None and len(res) > 0:
-                for pk in res:
-                    print pk
+                if title != None:
+                    res = m.setProjectParameter(projectLocalName=project_alias,
+                                                parameter="projectTitle",
+                                                value=title)
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                if description != None:
+                    res = m.setProjectParameter(projectLocalName=project_alias,
+                                                parameter="description",
+                                                value=description)
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+            return 0
+
+        def obsproject_import(listArgv):
+            '''
+            
+            '''
+            Help = False
+            path = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = self.getParameter(listArgv)
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
+                    break
+                else:
+                    path = currentCommand
+
+                    break
+
+            if  (Help == True) and (path != None):
+                return obsproject_Help()
             else:
-                print "No Package."
 
-        elif self.__isHelp(listArgv[0]):
-            print __HELP__
+                m = ObsLightManager.getCommandLineManager()
+
+                res = m.importProject(path)
+
+                if res == None:
+                    print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                    return -1
+            return 0
+
+        def obsproject_export(listArgv):
+            '''
+            
+            '''
+            Help = False
+            path = None
+            project_alias = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = self.getParameter(listArgv)
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
+                    break
+                else:
+                    path = currentCommand
+                    project_alias, listArgv = self.getParameter(listArgv)
+                    break
+
+            if  (Help == True) and (path != None):
+                return obsproject_Help()
+            else:
+                m = ObsLightManager.getCommandLineManager()
+
+                if project_alias == None:
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return obsproject_Help()
+
+                res = m.exportProject(project_alias, path)
+
+                if res == None:
+                    print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                    return -1
+            return 0
+
+        def obsproject_dependencyrepositories(listArgv):
+            '''
+            
+            '''
+            Help = False
+            project_alias = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = self.getParameter(listArgv)
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
+                    break
+                else:
+                    project_alias = currentCommand
+                    break
+
+            if  (Help == True):
+                return obsproject_Help()
+            else:
+                m = ObsLightManager.getCommandLineManager()
+
+                if project_alias == None:
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return obsproject_Help()
+
+                res = m.getDependencyRepositories(project_alias)
+
+                if res == None:
+                    print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                    return -1
+                for repo in res.keys():
+                    print "Repository Alias: " + str(repo) + " Url: " + res[repo]
+            return 0
+
+        #_______________________________________________________________________
+        if len(listArgv) == 0:
+            obsproject_Help()
+            return 0
         else:
-            raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
+            currentCommand = listArgv[0]
+            listArgv = listArgv[1:]
+
+            if currentCommand in __obsproject_Help__ :
+                return obsproject_Help()
+            elif currentCommand in __obsproject_list__ :
+                return obsproject_list(listArgv)
+            elif currentCommand in __obsproject_add__:
+                return obsproject_add(listArgv)
+            elif currentCommand in __obsproject_del__:
+                return obsproject_del(listArgv)
+            elif currentCommand in __obsproject_query__:
+                return obsproject_query(listArgv)
+            elif currentCommand in __obsproject_set__:
+                return obsproject_set(listArgv)
+            elif currentCommand in __obsproject_current__:
+                return obsproject_current(listArgv)
+            elif currentCommand in  __obsproject_import__ :
+                return obsproject_import(listArgv)
+            elif currentCommand in __obsproject_export__ :
+                return obsproject_export(listArgv)
+            elif currentCommand in __obsproject_dependencyrepositories__:
+                return obsproject_dependencyrepositories(listArgv)
+            else:
+                return obsproject_Help()
+
         return 0
 
-
-    def addPackage(self, listArgv):
+    def package(self, listArgv):
         '''
-        Add a package to a project.
+        
         '''
-        __COMMAND__ = __addPackage__
-        __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
-        __HELP__ += "\t" + "--projectLocalName projectName" + "\n"
-        __HELP__ += "\t" + "--package packageName" + "\n"
-        __HELP__ += __DICO_HELP__[__COMMAND__]
 
-        projectLocalName = None
-        package = None
+        def package_Help():
+            '''
+            
+            '''
+            print __DESCRIPTION__
+            print __DICO_Parameter_Help__[__obsproject__[0]]
 
-        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (2 * 2)):
-            for i in range(0, len(listArgv), 2):
-                if listArgv[i] == "--projectLocalName":
-                    projectLocalName = listArgv[i + 1]
-                elif listArgv[i] == "--package":
-                    package = listArgv[i + 1]
+            return 0
+
+        def package_add(listArgv):
+            '''
+            
+            '''
+            Help = False
+            package = None
+            project_alias = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = self.getParameter(listArgv)
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
+                    break
+                elif currentCommand in __project_alias__:
+                    project_alias, listArgv = self.getParameter(listArgv)
                 else:
-                    raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
+                    package = currentCommand
 
-            if (projectLocalName != None) and (package != None):
-                ObsLightManager.getManager().addPackage(projectLocalName=projectLocalName  ,
-                                                   package=package)
+            if  (Help == True) or (package == None) :
+                return package_Help()
             else:
-                raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
+                m = ObsLightManager.getCommandLineManager()
+                if project_alias == None:
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return package_Help()
 
-        elif self.__isHelp(listArgv[0]):
-            print __HELP__
-        else:
-            raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
-        return 0
+                return m.addPackage(projectLocalName=project_alias,
+                                    package=package)
 
+        def package_delete(listArgv):
+            '''
+            
+            '''
+            Help = False
+            package = None
+            project_alias = None
 
-    def createChRoot(self, listArgv):
-        '''
-        Create a chroot.
-        '''
-        __COMMAND__ = __createChRoot__
-        __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
-        __HELP__ += "\t" + "--projectLocalName projectName" + "\n"
-        __HELP__ += __DICO_HELP__[__COMMAND__]
-
-        projectLocalName = None
-
-        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (1 * 2)):
-            for i in range(0, len(listArgv), 2):
-                if listArgv[i] == "--projectLocalName":
-                    projectLocalName = listArgv[i + 1]
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = self.getParameter(listArgv)
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
+                    break
+                elif currentCommand in __project_alias__:
+                    project_alias, listArgv = self.getParameter(listArgv)
                 else:
-                    raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
+                    package = currentCommand
 
-            if (projectLocalName != None):
-                ObsLightManager.getManager().createChRoot(projectLocalName=projectLocalName)
+            if  (Help == True) or (package == None) :
+                return package_Help()
             else:
-                raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
+                m = ObsLightManager.getCommandLineManager()
+                if project_alias == None:
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return package_Help()
 
-        elif self.__isHelp(listArgv[0]):
-            print __HELP__
-        else:
-            raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
-        return 0
+                return m.removePackage(projectLocalName=project_alias,
+                                       package=package)
 
+        def package_list(listArgv):
+            '''
+            
+            '''
+            Help = False
+            available = False
+            project_alias = None
 
-
-    def goToChRoot(self, listArgv):
-        '''
-        Open a bash in the chroot.
-        '''
-        __COMMAND__ = __goToChRoot__
-
-        __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
-        __HELP__ += "\t" + "--projectLocalName projectName (required)\n"
-        __HELP__ += "\t" + "--package packageName\t" + "directly go to the BUILD directory of the package\n"
-        __HELP__ += __DICO_HELP__[__COMMAND__]
-
-        projectLocalName = None
-        package = None
-
-        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (2 * 2)):
-            for i in range(0, len(listArgv), 2):
-                if listArgv[i] == "--projectLocalName":
-                    projectLocalName = listArgv[i + 1]
-                elif listArgv[i] == "--package":
-                    package = listArgv[i + 1]
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = self.getParameter(listArgv)
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
+                    break
+                elif currentCommand in __package_available__:
+                    available = True
+                elif currentCommand in __project_alias__:
+                    project_alias, listArgv = self.getParameter(listArgv)
                 else:
-                    raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
+                    Help = True
+                    break
 
-            if (projectLocalName != None):
-                ObsLightManager.getManager().goToChRoot(projectLocalName=projectLocalName,
-                                                   package=package)
+            if  (Help == True) :
+                return package_Help()
             else:
-                raise ObsLightErr.ArgError("wrong command for " + __COMMAND__ + "")
+                m = ObsLightManager.getCommandLineManager()
+                if project_alias == None:
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return package_Help()
 
-        elif self.__isHelp(listArgv[0]):
-            print __HELP__
-        else:
-            raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
-        return 0
+                if available:
+                    res = m.getLocalProjectPackageList(projectLocalName=project_alias, local=0)
 
-    def addPackageSourceInChRoot(self, listArgv):
-        '''
-        Install a source package in the chroot, and execute the %prep section of the spec file.
-        '''
-        __COMMAND__ = __addPackageSourceInChRoot__
-
-        __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
-        __HELP__ += "\t" + "--projectLocalName projectName (require)" + "\n"
-        __HELP__ += "\t" + "--package packageName" + "\n"
-        __HELP__ += __DICO_HELP__[__COMMAND__]
-
-        projectLocalName = None
-        package = None
-
-        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (2 * 2)):
-            for i in range(0, len(listArgv), 2):
-                if listArgv[i] == "--projectLocalName":
-                    projectLocalName = listArgv[i + 1]
-                elif listArgv[i] == "--package":
-                    package = listArgv[i + 1]
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    else:
+                        for r in res:
+                            print r
                 else:
-                    raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
-            if (projectLocalName != None) and (package != None):
-                ObsLightManager.getManager().addPackageSourceInChRoot(projectLocalName=projectLocalName,
-                                                                 package=package)
+                    res = m.getLocalProjectPackageList(projectLocalName=project_alias, local=1)
+
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    else:
+                        for r in res:
+                            print r
+            return 0
+
+
+
+        def package_query(listArgv):
+            '''
+            
+            '''
+            Help = False
+
+            title = False
+            description = False
+#            status = False
+            revision = False
+            obsRev = False
+            oscRev = False
+            url = False
+            listFile = False
+            obsStatus = False
+            oscStatus = False
+            specFile = False
+            yamlFile = False
+            fsPackageDirectory = False
+            oscPackageDirectory = False
+
+            chRootStatus = False
+            currentPatch = False
+
+            project_alias = None
+            server_alias = None
+            obsproject = None
+            package = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = self.getParameter(listArgv)
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
+                    break
+                elif currentCommand in __project_title__:
+                    title = True
+                elif currentCommand in __project_description__:
+                    description = True
+                elif currentCommand in __package_revision__:
+                    revision = True
+                elif currentCommand in __package_obsRev__ :
+                    obsRev = True
+                elif currentCommand in __package_oscRev__ :
+                    oscRev = True
+                elif currentCommand in __listFile__:
+                    listFile = True
+                elif currentCommand in __obsStatus__:
+                    obsStatus = True
+                elif currentCommand in __oscStatus__:
+                    oscStatus = True
+                elif currentCommand in __specFile__:
+                    specFile = True
+                elif currentCommand in __yamlFile__:
+                    yamlFile = True
+                elif currentCommand in __fsPackageDirectory__ :
+                    fsPackageDirectory = True
+                elif currentCommand in __oscPackageDirectory__ :
+                    oscPackageDirectory = True
+                elif currentCommand in __chRootStatus__:
+                    chRootStatus = True
+                elif currentCommand in __currentPatch__:
+                    currentPatch = True
+                elif currentCommand in __package_url__:
+                    url = True
+                elif currentCommand in __project_alias__:
+                    project_alias , listArgv = self.getParameter(listArgv)
+                elif currentCommand in __server_alias__:
+                    server_alias , listArgv = self.getParameter(listArgv)
+                elif currentCommand in __obsproject__:
+                    obsproject , listArgv = self.getParameter(listArgv)
+                elif currentCommand in __package_package__:
+                    package , listArgv = self.getParameter(listArgv)
+                else:
+                    Help = True
+                    break
+
+            if  (Help == True) :
+                return package_Help()
             else:
-                raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
+                m = ObsLightManager.getCommandLineManager()
 
-        elif self.__isHelp(listArgv[0]):
-            print __HELP__
-        else:
-            raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
-        return 0
+                if (package == None) and (project_alias != None):
+                    package = m.getCurrentPackage(project_alias)
+                if package == None:
+                    return package_Help()
 
+                if (project_alias == None) and ((server_alias == None) or (obsproject == None)):
+                    return package_Help()
 
-    def createPatch(self, listArgv):
-        '''
-        Generate a patch from the modifications made in the chroot.
-        '''
-        __COMMAND__ = __makePatch__
+                if (not title) and \
+                   (not description) and \
+                   (not revision)and \
+                   (not url)and \
+                   (not obsRev)and \
+                   (not oscRev)and \
+                   (not listFile)and \
+                   (not obsStatus)and \
+                   (not oscStatus)and \
+                   (not specFile)and \
+                   (not yamlFile)and \
+                   (not fsPackageDirectory)and \
+                   (not oscPackageDirectory)and \
+                   (not chRootStatus)and \
+                   (not currentPatch):
 
-        __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
-        __HELP__ += "\t" + "--projectLocalName projectName (required)" + "\n"
-        __HELP__ += "\t" + "--package packageName (required)" + "\n"
-        __HELP__ += "\t" + "--patch patchName (required)" + "\n"
-        __HELP__ += __DICO_HELP__[__COMMAND__]
+                    title = True
+                    description = True
+#                    status = True
+                    revision = True
+                    obsRev = True
+                    oscRev = True
+                    url = True
+                    listFile = True
+                    obsStatus = True
+                    oscStatus = True
+                    specFile = True
+                    yamlFile = True
+                    fsPackageDirectory = True
+                    oscPackageDirectory = True
+                    chRootStatus = True
+                    currentPatch = True
 
-        projectLocalName = None
-        package = None
-        patch = None
+                if title :
+                    if (server_alias == None) and (obsproject == None):
+                        res = m.getPackageParameter(projectLocalName=project_alias,
+                                                    package=package,
+                                                    parameter="title")
+                    else:
+                        res = m.getObsPackageParameter(serverApi=server_alias,
+                                                       obsproject=obsproject,
+                                                       package=package,
+                                                       parameter="title")
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    print "title:" + res
 
-        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (3 * 2)):
-            for i in range(0, len(listArgv), 2):
-                if listArgv[i] == "--projectLocalName":
-                    projectLocalName = listArgv[i + 1]
-                elif listArgv[i] == "--package":
-                    package = listArgv[i + 1]
-                elif listArgv[i] == "--patch":
-                    patch = listArgv[i + 1]
+                if description :
+                    if (server_alias == None) and (obsproject == None):
+                        res = m.getPackageParameter(projectLocalName=project_alias,
+                                                    package=package,
+                                                    parameter="description")
+                    else:
+                        res = m.getObsPackageParameter(serverApi=server_alias,
+                                                       obsproject=obsproject,
+                                                       package=package,
+                                                       parameter="title")
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    print "description:" + res
+
+                if url and ((server_alias != None) and (obsproject != None)):
+                    res = m.getObsPackageParameter(serverApi=server_alias,
+                                                       obsproject=obsproject,
+                                                       package=package,
+                                                       parameter="url")
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    print "url:" + res
+
+                if obsRev and (project_alias != None):
+                    res = m.getPackageParameter(projectLocalName=project_alias,
+                                                    package=package,
+                                                    parameter="obsRev")
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    print "obsRev:" + res
+
+                if oscRev and (project_alias != None):
+                    res = m.getPackageParameter(projectLocalName=project_alias,
+                                                    package=package,
+                                                    parameter="oscRev")
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    print "oscRev:" + res
+
+                if listFile :
+                    if (project_alias != None):
+                        res = m.getPackageParameter(projectLocalName=project_alias,
+                                                        package=package,
+                                                        parameter="listFile")
+                    else:
+                        res = m.getObsPackageParameter(serverApi=server_alias,
+                                                   obsproject=obsproject,
+                                                   package=package,
+                                                   parameter="listFile")
+
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    print "listFile:" + ",".join(res)
+
+                if obsStatus and (project_alias != None):
+                    res = m.getPackageParameter(projectLocalName=project_alias,
+                                                    package=package,
+                                                    parameter="obsStatus")
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    print "obsStatus:" + res
+
+                if oscStatus and (project_alias != None):
+                    res = m.getPackageParameter(projectLocalName=project_alias,
+                                                    package=package,
+                                                    parameter="oscStatus")
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    print "oscStatus:" + res
+
+                if specFile and (project_alias != None):
+                    res = m.getPackageParameter(projectLocalName=project_alias,
+                                                    package=package,
+                                                    parameter="specFile")
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    print "specFile:" + res
+
+                if yamlFile and (project_alias != None):
+                    res = m.getPackageParameter(projectLocalName=project_alias,
+                                                    package=package,
+                                                    parameter="yamlFile")
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    print "yamlFile:" + res
+
+                if fsPackageDirectory and (project_alias != None):
+                    res = m.getPackageParameter(projectLocalName=project_alias,
+                                                    package=package,
+                                                    parameter="fsPackageDirectory")
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    print "fsPackageDirectory:" + res
+
+                if oscPackageDirectory and (project_alias != None):
+                    res = m.getPackageParameter(projectLocalName=project_alias,
+                                                    package=package,
+                                                    parameter="oscPackageDirectory")
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    print "oscPackageDirectory:" + res
+
+                if chRootStatus and (project_alias != None):
+                    res = m.getPackageParameter(projectLocalName=project_alias,
+                                                    package=package,
+                                                    parameter="chRootStatus")
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    print "chRootStatus:" + res
+
+                if currentPatch and (project_alias != None):
+                    res = m.getPackageParameter(projectLocalName=project_alias,
+                                                    package=package,
+                                                    parameter="currentPatch")
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    print "currentPatch:" + res
+
+        def package_set(listArgv):
+            '''
+            
+            '''
+            Help = False
+
+            title = None
+            description = None
+
+            project_alias = None
+            package = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = self.getParameter(listArgv)
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
+                    break
+                elif currentCommand in __project_title__:
+                    title , listArgv = self.getParameter(listArgv)
+                elif currentCommand in __project_description__:
+                    description , listArgv = self.getParameter(listArgv)
+                elif currentCommand in __project_alias__:
+                    project_alias , listArgv = self.getParameter(listArgv)
+                elif currentCommand in __package_package__:
+                    package , listArgv = self.getParameter(listArgv)
                 else:
-                    raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
+                    Help = True
+                    break
 
-            if (projectLocalName != None) and (package != None) and (patch != None):
-                ObsLightManager.getManager().createPatch(projectLocalName=projectLocalName,
+            if  (Help == True) :
+                return package_Help()
+            else:
+                m = ObsLightManager.getCommandLineManager()
+
+                if (project_alias == None) :
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return package_Help()
+
+                if (package == None) :
+                    package = m.getCurrentPackage(project_alias)
+                    if package == None:
+                        return package_Help()
+
+                if title != None :
+                    res = m.setPackageParameter(projectLocalName=project_alias,
                                                   package=package,
-                                                  patch=patch)
-            else:
-                raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
+                                                  parameter="title",
+                                                  value=title)
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
 
-        elif self.__isHelp(listArgv[0]):
-            print __HELP__
-        else:
-            raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
-        return 0
+                if description != None :
+                    res = m.setPackageParameter(projectLocalName=project_alias,
+                                                  package=package,
+                                                  parameter="description",
+                                                  value=description)
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
 
+                return res
 
-    def addAndCommitChanges(self, listArgv):
-        '''
-        Add/delete files in an osc directory, and commit modifications to the OBS. 
-        '''
-        __COMMAND__ = __addAndCommitChange__
+        def package_update(listArgv):
+            '''
+            
+            '''
+            Help = False
 
-        __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
-        __HELP__ += "\t" + "--projectLocalName projectName (required)" + "\n"
-        __HELP__ += "\t" + "--package packageName (required)" + "\n"
-        __HELP__ += "\t" + "--message (-m) message(required)" + "\n"
-        __HELP__ += __DICO_HELP__[__COMMAND__]
+            project_alias = None
+            package = None
 
-        projectLocalName = None
-        package = None
-        message = None
-
-        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (3 * 2)):
-            for i in range(0, len(listArgv), 2):
-                if listArgv[i] == "--projectLocalName":
-                    projectLocalName = listArgv[i + 1]
-                elif listArgv[i] == "--package":
-                    package = listArgv[i + 1]
-                elif listArgv[i] in ("--message", "-m"):
-                    message = listArgv[i + 1]
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = self.getParameter(listArgv)
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
+                    break
+                elif currentCommand in __package_update__:
+                    update = True
+                elif currentCommand in __project_alias__:
+                    project_alias , listArgv = self.getParameter(listArgv)
+                elif currentCommand in __package_package__:
+                    package , listArgv = self.getParameter(listArgv)
                 else:
-                    raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
-            if (message == None):
-                raise ObsLightErr.ArgError("No message for " + __COMMAND__)
-            elif (projectLocalName != None) and (package != None) :
-                ObsLightManager.getManager().addAndCommitChanges(projectLocalName=projectLocalName,
-                                                           package=package, message=message)
+                    Help = True
+                    break
+
+            if  (Help == True) :
+                return package_Help()
             else:
-                raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
+                m = ObsLightManager.getCommandLineManager()
 
-        elif self.__isHelp(listArgv[0]):
-            print __HELP__
-        else:
-            raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
-        return 0
+                if (project_alias == None) :
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return package_Help()
 
-    def addRepoInChRoot(self, listArgv):
-        '''
-        Add a repository in chroot's zypper configuration file.
-        '''
-        __COMMAND__ = __addRepoInChRoot__
+                if (package == None) :
+                    package = m.getCurrentPackage(project_alias)
+                    if package == None:
+                        return package_Help()
 
-        __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
-        __HELP__ += "\t" + "--fromProject projectName " + "\n"
-        __HELP__ += "\t" + "--projectLocalName projectName (required)" + "\n"
-        __HELP__ += "\t" + "--alias message" + "\n"
-        __HELP__ += "\t" + "--url message" + "\n"
-        __HELP__ += "\t" + "if --fromProject is specified, --alias and --url are ignored" + "\n"
-        __HELP__ += __DICO_HELP__[__COMMAND__]
+                res = m.updatePackage(projectLocalName=project_alias,
+                                     package=package)
+                if res == None:
+                    print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                    return -1
 
-        fromProject = None
-        projectLocalName = None
-        alias = None
-        url = None
+                return res
 
-        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (3 * 2)):
-            for i in range(0, len(listArgv), 2):
-                if listArgv[i] == "--fromProject":
-                    fromProject = listArgv[i + 1]
-                elif listArgv[i] == "--projectLocalName":
-                    projectLocalName = listArgv[i + 1]
-                elif listArgv[i] == "--alias":
-                    alias = listArgv[i + 1]
-                elif listArgv[i] == "--url":
-                    url = listArgv[i + 1]
+        def package_commit(listArgv):
+            '''
+            
+            '''
+            Help = False
+
+            message = None
+
+            project_alias = None
+            package = None
+            message = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = self.getParameter(listArgv)
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
+                    break
                 else:
-                    raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
-            if (projectLocalName != None) and (fromProject != None):
-                ObsLightManager.getManager().addRepo(projectLocalName=projectLocalName,
-                                                 fromProject=fromProject)
-            elif (projectLocalName != None) and (alias != None) and (url != None):
-                ObsLightManager.getManager().addRepo(projectLocalName=projectLocalName,
-                                                 alias=alias,
-                                                 repoUrl=url)
-            else:
-                raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
+                    message = currentCommand
+                    while(len(listArgv) > 0):
+                        if currentCommand in __project_alias__:
+                            project_alias , listArgv = self.getParameter(listArgv)
+                        elif currentCommand in __package_package__:
+                            package , listArgv = self.getParameter(listArgv)
+                        else:
+                            break
+                    break
 
-        elif self.__isHelp(listArgv[0]):
-            print __HELP__
+            if  (Help == True) and (message != None):
+                return package_Help()
+            else:
+                m = ObsLightManager.getCommandLineManager()
+
+                if (project_alias == None) :
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return package_Help()
+
+                if (package == None) :
+                    package = m.getCurrentPackage(project_alias)
+                    if package == None:
+                        return package_Help()
+
+                res = m.addAndCommitChanges(projectLocalName=project_alias,
+                                            package=package,
+                                            message=message)
+                if res == None:
+                    print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                    return -1
+                return res
+
+        def package_repair(listArgv):
+            '''
+            
+            '''
+            Help = False
+
+            project_alias = None
+            package = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = self.getParameter(listArgv)
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
+                    break
+                elif currentCommand in __package_update__:
+                    update = True
+                elif currentCommand in __project_alias__:
+                    project_alias , listArgv = self.getParameter(listArgv)
+                elif currentCommand in __package_package__:
+                    package , listArgv = self.getParameter(listArgv)
+                else:
+                    Help = True
+                    break
+
+            if  (Help == True) :
+                return package_Help()
+            else:
+                m = ObsLightManager.getCommandLineManager()
+
+                if (project_alias == None) :
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return package_Help()
+
+                if (package == None) :
+                    package = m.getCurrentPackage(project_alias)
+                    if package == None:
+                        return package_Help()
+
+                res = m.repairOscPackageDirectory(projectLocalName=project_alias,
+                                                  package=package)
+                if res == None:
+                    print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                    return -1
+                return res
+
+        def package_current(listArgv):
+            '''
+            
+            '''
+            Help = False
+            project_alias = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = self.getParameter(listArgv)
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
+                    break
+                elif currentCommand in __project_alias__:
+                    project_alias, listArgv = self.getParameter(listArgv)
+                else:
+                    Help = True
+                    break
+
+            if  (Help == True) :
+                return package_Help()
+            else:
+                m = ObsLightManager.getCommandLineManager()
+                if project_alias == None:
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return package_Help()
+
+                return m.getCurrentPackage(projectLocalName=project_alias)
+            return 0
+
+        def package_addfile(listArgv):
+            '''
+            
+            '''
+            Help = False
+            path = None
+            project_alias = None
+            package = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = self.getParameter(listArgv)
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
+                    break
+                else:
+                    path = currentCommand
+                    while(len(listArgv) > 0):
+                        currentCommand, listArgv = self.getParameter(listArgv)
+                        if currentCommand in __project_alias__:
+                            project_alias , listArgv = self.getParameter(listArgv)
+                        elif currentCommand in __package_package__:
+                            package , listArgv = self.getParameter(listArgv)
+                        else:
+                            break
+                    break
+
+            if  (Help == True) :
+                return package_Help()
+            else:
+                m = ObsLightManager.getCommandLineManager()
+                if project_alias == None:
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return package_Help()
+
+                if (package == None) :
+                    package = m.getCurrentPackage(project_alias)
+                    if package == None:
+                        return package_Help()
+
+                return m.addFileToPackage(project_alias, package, path)
+            return 0
+
+        def package_deletefile(listArgv):
+            '''
+            
+            '''
+            Help = False
+            name = None
+            project_alias = None
+            package = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = self.getParameter(listArgv)
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
+                    break
+                elif currentCommand in __project_alias__:
+                    project_alias, listArgv = self.getParameter(listArgv)
+                else:
+                    name = currentCommand
+                    while(len(listArgv) > 0):
+                        currentCommand, listArgv = self.getParameter(listArgv)
+                        if currentCommand in __project_alias__:
+                            project_alias , listArgv = self.getParameter(listArgv)
+                        elif currentCommand in __package_package__:
+                            package , listArgv = self.getParameter(listArgv)
+                        else:
+                            break
+                    break
+
+            if  (Help == True) :
+                return package_Help()
+            else:
+                m = ObsLightManager.getCommandLineManager()
+                if project_alias == None:
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return package_Help()
+
+                if (package == None) :
+                    package = m.getCurrentPackage(project_alias)
+                    if package == None:
+                        return package_Help()
+
+                return m.deleteFileFromPackage(project_alias, package, name)
+            return 0
+
+        def package_refresh(listArgv):
+            '''
+            
+            '''
+            Help = False
+            OscStatus = False
+            ObsStatus = False
+            project_alias = None
+            package = None
+
+
+
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = self.getParameter(listArgv)
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
+                    break
+                else:
+                    path = currentCommand
+                    while(len(listArgv) > 0):
+                        currentCommand, listArgv = self.getParameter(listArgv)
+                        if currentCommand in __package_oscstatus__:
+                            OscStatus = True
+                        elif currentCommand in __package_obsstatus__:
+                            ObsStatus = True
+                        elif currentCommand in __project_alias__:
+                            project_alias , listArgv = self.getParameter(listArgv)
+                        elif currentCommand in __package_package__:
+                            package , listArgv = self.getParameter(listArgv)
+                        else:
+                            break
+                    break
+
+            if  (Help == True) :
+                return package_Help()
+            else:
+                m = ObsLightManager.getCommandLineManager()
+                if not (OscStatus or ObsStatus):
+                    OscStatus = True
+                    ObsStatus = True
+
+                if project_alias == None:
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return package_Help()
+
+                if (package == None) :
+                    package = m.getCurrentPackage(project_alias)
+                    if package == None:
+                        return package_Help()
+                if OscStatus:
+                    res = m.refreshOscDirectoryStatus(project_alias, package)
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                if ObsStatus:
+                    res = m.refreshObsStatus(project_alias, package)
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                return 0
+            return 0
+
+#-------------------------------------------------------------------------------
+        if len(listArgv) == 0:
+            package_Help()
+            return 0
         else:
-            raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
+            currentCommand = listArgv[0]
+            listArgv = listArgv[1:]
+
+            if currentCommand in __package_Help__ :
+                return package_Help()
+            elif currentCommand in __package_add__ :
+                return package_add(listArgv)
+            elif currentCommand in __package_delete__:
+                return package_delete(listArgv)
+            elif currentCommand in __package_list__:
+                return package_list(listArgv)
+            elif currentCommand in __package_query__:
+                return package_query(listArgv)
+            elif currentCommand in __package_set__:
+                return package_set(listArgv)
+            elif currentCommand in __package_update__:
+                return package_update(listArgv)
+            elif currentCommand in  __package_commit__ :
+                return package_commit(listArgv)
+            elif currentCommand in __package_repair__ :
+                return package_repair(listArgv)
+            elif currentCommand in __package_current__:
+                return package_current(listArgv)
+            elif currentCommand in __package_addfile__:
+                return package_addfile(listArgv)
+            elif currentCommand in __package_deletefile__:
+                return package_deletefile(listArgv)
+            elif currentCommand in __package_refresh__:
+                return package_refresh(listArgv)
+            else:
+                return package_Help()
+
         return 0
 
-    def removeProject(self, listArgv):
+    def projectfilesystem(self, listArgv):
         '''
         
         '''
-        __COMMAND__ = __removeProject__
+        def projectfilesystem_Help():
+            '''
+            
+            '''
+            return 0
 
-        __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
-        __HELP__ += "\t" + "--projectLocalName projectName (required)" + "\n"
-        __HELP__ += __DICO_HELP__[__COMMAND__]
+        def projectfilesystem_create(listArgv):
+            '''
+            
+            '''
+            Help = False
+            project_alias = None
 
-        projectLocalName = None
-
-        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (1 * 2)):
-            for i in range(0, len(listArgv), 2):
-                if listArgv[i] == "--projectLocalName":
-                    projectLocalName = listArgv[i + 1]
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = self.getParameter(listArgv)
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
+                    break
                 else:
-                    raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
-            if (projectLocalName != None):
-                ObsLightManager.getManager().removeProject(projectLocalName=projectLocalName)
+                    project_alias = currentCommand
+
+            if  (Help == True) :
+                return projectfilesystem_Help()
             else:
-                raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
+                m = ObsLightManager.getCommandLineManager()
+                if project_alias == None:
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return projectfilesystem_Help()
 
-        elif self.__isHelp(listArgv[0]):
-            print __HELP__
-        else:
-            raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
-        return 0
+                res = m.createChRoot(projectLocalName=project_alias)
+                if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                return res
+            return 0
 
-    def removePackage(self, listArgv):
-        '''
-        
-        '''
-        __COMMAND__ = __removeProject__
+        def projectfilesystem_delete(listArgv):
+            '''
+            
+            '''
+            Help = False
+            project_alias = None
 
-        __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
-        __HELP__ += "\t" + "--projectLocalName projectName (required)" + "\n"
-        __HELP__ += "\t" + "--package packageName (required)" + "\n"
-        __HELP__ += __DICO_HELP__[__COMMAND__]
-
-        projectLocalName = None
-        package = None
-
-        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (2 * 2)):
-            for i in range(0, len(listArgv), 2):
-                if listArgv[i] == "--projectLocalName":
-                    projectLocalName = listArgv[i + 1]
-                elif listArgv[i] == "--package":
-                    package = listArgv[i + 1]
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = self.getParameter(listArgv)
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
+                    break
+                elif currentCommand in __project_alias__:
+                    project_alias, listArgv = self.getParameter(listArgv)
                 else:
-                    raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
+                    Help = True
+                    break
 
-            if (projectLocalName != None) and (package != None):
-                ObsLightManager.getManager().removePackage(projectLocalName=projectLocalName, package=package)
+            if  (Help == True) :
+                return projectfilesystem_Help()
             else:
-                raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
+                m = ObsLightManager.getCommandLineManager()
+                if project_alias == None:
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return projectfilesystem_Help()
 
-        elif self.__isHelp(listArgv[0]):
-            print __HELP__
-        else:
-            raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
-        return 0
+                res = m.removeChRoot(projectLocalName=project_alias)
+                if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                return res
+            return 0
 
+        def projectfilesystem_query(listArgv):
+            '''
+            
+            '''
+            Help = False
+            path = False
+            status = False
 
-    def exportProject(self, listArgv):
-        '''
-        Export a project to a file.
-        '''
-        __COMMAND__ = __exportProject__
+            project_alias = None
 
-        __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
-        __HELP__ += "\t" + "--projectLocalName projectName (required)" + "\n"
-        __HELP__ += "\t" + "--path file (required)" + "\n"
-        __HELP__ += __DICO_HELP__[__COMMAND__]
-
-        projectLocalName = None
-        path = None
-
-        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (2 * 2)):
-            for i in range(0, len(listArgv), 2):
-                if listArgv[i] == "--projectLocalName":
-                    projectLocalName = listArgv[i + 1]
-                elif listArgv[i] == "--path":
-                    path = listArgv[i + 1]
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = self.getParameter(listArgv)
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
+                    break
+                elif currentCommand in __projectfilesystem_path__:
+                    path = True
+                elif currentCommand in __projectfilesystem_status__:
+                    status = True
+                elif currentCommand in __project_alias__:
+                    project_alias, listArgv = self.getParameter(listArgv)
                 else:
-                    raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
+                    Help = True
+                    break
 
-            if (projectLocalName != None) and (path != None):
-                ObsLightManager.getManager().exportProject(projectLocalName=projectLocalName, path=path)
+            if  (Help == True) :
+                return projectfilesystem_Help()
             else:
-                raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
+                m = ObsLightManager.getCommandLineManager()
 
-        elif self.__isHelp(listArgv[0]):
-            print __HELP__
-        else:
-            raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
-        return 0
+                if project_alias == None:
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return projectfilesystem_Help()
 
+                if (not path) and (not status) :
 
-    def importProject(self, listArgv):
-        '''
-        Import a project from a file.
-        '''
-        __COMMAND__ = __importProject__
-        __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
-        __HELP__ += "\t" + "--path file (required)" + "\n"
-        __HELP__ += __DICO_HELP__[__COMMAND__]
-        path = None
-        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (1 * 2)):
-            for i in range(0, len(listArgv), 2):
-                if listArgv[i] == "--path":
-                    path = listArgv[i + 1]
+                    path = True
+                    status = True
+
+                if path :
+                    res = m.getChRootPath(projectLocalName=project_alias)
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    print "path:" + res
+
+                if status :
+                    res = m.isChRootInit(projectLocalName=project_alias)
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    val = "init" if res else "not init"
+                    print "status: " + val
+
+        def projectfilesystem_enter(listArgv):
+            '''
+            
+            '''
+            Help = False
+
+            project_alias = None
+            package = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = self.getParameter(listArgv)
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
+                    break
+                elif currentCommand in __package_package__:
+                    package , listArgv = self.getParameter(listArgv)
                 else:
-                    raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
-            if  (path != None):
-                ObsLightManager.getManager().importProject(filePath=path)
+                    project_alias = currentCommand
+
+            if  (Help == True) :
+                return projectfilesystem_Help()
             else:
-                raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
+                m = ObsLightManager.getCommandLineManager()
+                if project_alias == None:
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return projectfilesystem_Help()
 
-        elif self.__isHelp(listArgv[0]):
-            print __HELP__
-        else:
-            raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
-        return 0
+                res = m.goToChRoot(projectLocalName=project_alias, package=package)
+                if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                return res
+            return 0
 
-    def getWebProjectPage(self, listArgv):
-        '''
-        return the Web url of an OBS project for a local project.
-        '''
-        __COMMAND__ = __getWebProjectPage__
+        def projectfilesystem_executescript(listArgv):
+            '''
+            
+            '''
+            Help = False
+            aPath = None
 
-        __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
-        __HELP__ += "\t" + "--projectLocalName projectName (required)" + "\n"
-        __HELP__ += __DICO_HELP__[__COMMAND__]
+            project_alias = None
 
-        projectLocalName = None
 
-        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (1 * 2)):
-            for i in range(0, len(listArgv), 2):
-                if listArgv[i] == "--projectLocalName":
-                    projectLocalName = listArgv[i + 1]
-                else:
-                    raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
-            if (projectLocalName != None):
-
-                print ObsLightManager.getManager().getProjectWebPage(projectLocalName=projectLocalName)
-
+            currentCommand, listArgv = self.getParameter(listArgv)
+            if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                Help = True
             else:
-                raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
+                aPath = currentCommand
+                project_alias, listArgv = self.getParameter(listArgv)
 
-        elif self.__isHelp(listArgv[0]):
-            print __HELP__
-        else:
-            raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
-        return 0
+            if  (Help == True)  :
+                return projectfilesystem_Help()
+            else:
+                m = ObsLightManager.getCommandLineManager()
+                if project_alias == None:
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return projectfilesystem_Help()
+                if aPath == None:
+                    return projectfilesystem_Help()
 
-    def getMicProjectList(self, listArgv):
-        '''
-        return the Mic project list.
-        '''
-        __COMMAND__ = __getMicProjectList__
+                res = m.execScript(projectLocalName=project_alias, aPath=aPath)
+                if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                return res
+            return 0
 
-        __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " \n"
-        __HELP__ += __DICO_HELP__[__COMMAND__]
+        def projectfilesystem_repository(listArgv):
+            '''
+            
+            '''
+            self.repository(listArgv)
 
         if len(listArgv) == 0:
-
-            res = ObsLightManager.getManager().getMicProjectList()
-
-            if len(res) > 0:
-                for r in res:
-                    print "\t" + r
-            else:
-                print "No Mic project."
+            return projectfilesystem_Help()
         else:
-            raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
+            currentCommand = listArgv[0]
+            listArgv = listArgv[1:]
+
+            if currentCommand in __projectfilesystem_Help__ :
+                return projectfilesystem_Help()
+            elif currentCommand in __projectfilesystem_create__ :
+                return projectfilesystem_create(listArgv)
+            elif currentCommand in __projectfilesystem_delete__:
+                return projectfilesystem_delete(listArgv)
+            elif currentCommand in __projectfilesystem_query__:
+                return projectfilesystem_query(listArgv)
+            elif currentCommand in __projectfilesystem_enter__:
+                return projectfilesystem_enter(listArgv)
+            elif currentCommand in __projectfilesystem_executescript__:
+                return projectfilesystem_executescript(listArgv)
+            elif currentCommand in __projectfilesystem_repository__:
+                return projectfilesystem_repository(listArgv)
+            else:
+                return projectfilesystem_Help()
         return 0
 
-    def addMicProject(self, listArgv):
+    def repository(self, listArgv):
         '''
-        add a Mic Project to obslight.
+        
         '''
-        __COMMAND__ = __addMicProjects__
+        def repository_help():
+            '''
+            
+            '''
+            Help = False
 
-        __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
-        __HELP__ += "\t" + "--micProjectName projectName" + "\n"
-        __HELP__ += __DICO_HELP__[__COMMAND__]
+            return 0
 
-        micProjectName = None
+        def repository_add(listArgv):
+            '''
+            
+            '''
+            Help = False
 
-        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (1 * 2)):
-            for i in range(0, len(listArgv), 2):
-                if listArgv[i] == "--micProjectName":
-                    micProjectName = listArgv[i + 1]
+            From = False
+
+            url = None
+            alias = None
+            fromProject = None
+            project_alias = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = self.getParameter(listArgv)
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
+                elif currentCommand in __repository_From__:
+                    From = True
+                    fromProject, listArgv = self.getParameter(listArgv)
+                    project_alias, listArgv = self.getParameter(listArgv)
+                    break
                 else:
-                    raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
-            if (micProjectName != None):
-                ObsLightManager.getManager().addMicProject(micProjectName=micProjectName)
+                    url = currentCommand
+                    alias, listArgv = self.getParameter(listArgv)
+                    project_alias, listArgv = self.getParameter(listArgv)
+                    break
+
+            if  (Help == True):
+                return repository_help()
             else:
-                raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
+                m = ObsLightManager.getCommandLineManager()
+                if project_alias == None:
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return repository_help()
 
-        elif self.__isHelp(listArgv[0]):
-            print __HELP__
-        else:
-            raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
-        return 0
+                if From :
+                    if fromProject == None:
+                        return repository_help()
 
-    def deleteMicProject(self, listArgv):
-        '''
-        Del a Mic Project to obslight.
-        '''
-        __COMMAND__ = __delMicProjects__
-
-        __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
-        __HELP__ += "\t" + "--micProjectName projectName" + "\n"
-        __HELP__ += __DICO_HELP__[__COMMAND__]
-
-        micProjectName = None
-
-        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (1 * 2)):
-            for i in range(0, len(listArgv), 2):
-                if listArgv[i] == "--micProjectName":
-                    micProjectName = listArgv[i + 1]
+                    res = m.addRepo(projectLocalName=project_alias,
+                                    fromProject=fromProject,
+                                    repoUrl=None,
+                                    alias=None)
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    return res
                 else:
-                    raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
-            if (micProjectName != None):
-                ObsLightManager.getManager().deleteMicProject(micProjectName=micProjectName)
+                    if url == None:
+                        return repository_help()
+                    if alias == None:
+                        return repository_help()
+
+                    res = m.addRepo(projectLocalName=project_alias,
+                                    fromProject=None,
+                                    repoUrl=url,
+                                    alias=alias)
+                    if res == None:
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                    return res
+
+        def repository_delete(listArgv):
+            '''
+            
+            '''
+            Help = False
+
+            alias = None
+            project_alias = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = self.getParameter(listArgv)
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
+                else:
+                    alias = currentCommand
+                    project_alias, listArgv = self.getParameter(listArgv)
+                    break
+
+            if  (Help == True):
+                return repository_help()
             else:
-                raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
+                m = ObsLightManager.getCommandLineManager()
+                if project_alias == None:
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return repository_help()
 
-        elif self.__isHelp(listArgv[0]):
-            print __HELP__
-        else:
-            raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
-        return 0
+                if alias == None:
+                    return repository_help()
 
-    def setKickstartFile(self, listArgv):
-        '''
-        Add a ks file to the Mic Project.
-        '''
-        __COMMAND__ = __addKickstartFile__
+                res = m.deleteRepo(projectLocalName=project_alias,
+                                    repoAlias=alias)
 
-        __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
-        __HELP__ += "\t" + "--micProjectName projectName" + "\n"
-        __HELP__ += "\t" + "--filePath aPath" + "\n"
-        __HELP__ += __DICO_HELP__[__COMMAND__]
-
-        micProjectName = None
-        filePath = None
-
-        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (2 * 2)):
-            for i in range(0, len(listArgv), 2):
-                if listArgv[i] == "--micProjectName":
-                    micProjectName = listArgv[i + 1]
-                elif listArgv[i] == "--filePath":
-                    filePath = listArgv[i + 1]
-                else:
-                    raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
-            if (micProjectName != None) and (filePath != None):
-                ObsLightManager.getManager().setKickstartFile(micProjectName=micProjectName,
-                                                              filePath=filePath)
-            else:
-                raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
-
-        elif self.__isHelp(listArgv[0]):
-            print __HELP__
-        else:
-            raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
-        return 0
-
-    def getKickstartFile(self, listArgv):
-        '''
-        Return the ks file of the Mic Project .
-        '''
-        __COMMAND__ = __getKickstartFile__
-
-        __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
-        __HELP__ += "\t" + "--micProjectName projectName" + "\n"
-        __HELP__ += __DICO_HELP__[__COMMAND__]
-
-        micProjectName = None
-
-        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (1 * 2)):
-            for i in range(0, len(listArgv), 2):
-                if listArgv[i] == "--micProjectName":
-                    micProjectName = listArgv[i + 1]
-                else:
-                    raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
-            if (micProjectName != None):
-                res = ObsLightManager.getManager().getKickstartFile(micProjectName=micProjectName)
                 if res == None:
-                    print "No kickstart file."
+                    print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                    return -1
+                return res
+
+
+        def repository_modify(listArgv):
+            '''
+            
+            '''
+            Help = False
+
+            alias = None
+            project_alias = None
+            newUrl = None
+            newAlias = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = self.getParameter(listArgv)
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
                 else:
-                    print "\t" + res
+                    alias = currentCommand
+                    while(len(listArgv) > 0):
+                        currentCommand, listArgv = self.getParameter(listArgv)
+                        if currentCommand in __repository_newUrl__:
+                            newUrl, listArgv = self.getParameter(listArgv)
+                        elif currentCommand in __repository_newAlias__:
+                            newAlias, listArgv = self.getParameter(listArgv)
+                        else:
+                            break
+                    project_alias, listArgv = self.getParameter(listArgv)
+                    break
+
+            if  (Help == True):
+                return repository_help()
             else:
-                raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
+                m = ObsLightManager.getCommandLineManager()
+                if project_alias == None:
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return repository_help()
+                if alias == None:
+                    return repository_help()
 
-        elif self.__isHelp(listArgv[0]):
-            print __HELP__
-        else:
-            raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
-        return 0
+                if (newUrl == None) and (newAlias == None):
+                    return repository_help()
 
-    def setMicProjectArchitecture(self, listArgv):
-        '''
-        set Architecture to the Mic Project.
-        '''
-        __COMMAND__ = __setMicProjectArchitecture__
+                res = m.modifyRepo(projectLocalName=project_alias,
+                                   repoAlias=alias,
+                                   newUrl=newUrl,
+                                   newAlias=newAlias)
 
-        __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
-        __HELP__ += "\t" + "--micProjectName projectName" + "\n"
-        __HELP__ += "\t" + "--arch arch" + "\n"
-        __HELP__ += __DICO_HELP__[__COMMAND__]
-
-        micProjectName = None
-        arch = None
-
-        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (2 * 2)):
-            for i in range(0, len(listArgv), 2):
-                if listArgv[i] == "--micProjectName":
-                    micProjectName = listArgv[i + 1]
-                elif listArgv[i] == "--arch":
-                    arch = listArgv[i + 1]
-                else:
-                    raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
-            if (micProjectName != None) and (arch != None):
-                ObsLightManager.getManager().setMicProjectArchitecture(micProjectName=micProjectName,
-                                                                       arch=arch)
-            else:
-                raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
-
-        elif self.__isHelp(listArgv[0]):
-            print __HELP__
-        else:
-            raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
-        return 0
-
-    def getMicProjectArchitecture(self, listArgv):
-        '''
-        Return the architecture of the Mic Project.
-        '''
-        __COMMAND__ = __getMicProjectArchitecture__
-
-        __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
-        __HELP__ += "\t" + "--micProjectName projectName" + "\n"
-        __HELP__ += __DICO_HELP__[__COMMAND__]
-
-        micProjectName = None
-
-        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (1 * 2)):
-            for i in range(0, len(listArgv), 2):
-                if listArgv[i] == "--micProjectName":
-                    micProjectName = listArgv[i + 1]
-                else:
-                    raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
-            if (micProjectName != None):
-                res = ObsLightManager.getManager().getMicProjectArchitecture(micProjectName=micProjectName)
                 if res == None:
-                    print "No Architecture Define."
-                else:
-                    print "\t" + res
+                    print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                    return -1
+                return res
+
+        def repository_query(listArgv):
+            '''
+            
+            '''
+            Help = False
+            project_alias = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = self.getParameter(listArgv)
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
+                    break
+                else :
+                    project_alias = currentCommand
+
+
+            if  (Help == True) :
+                return repository_help()
             else:
-                raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
-
-        elif self.__isHelp(listArgv[0]):
-            print __HELP__
-        else:
-            raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
-        return 0
-
-    def setMicProjectImageType(self, listArgv):
-        '''
-        set image type to the Mic Project.
-        '''
-        __COMMAND__ = __setMicProjectArchitecture__
-
-        __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
-        __HELP__ += "\t" + "--micProjectName projectName" + "\n"
-        __HELP__ += "\t" + "--imageType imageType" + "\n"
-        __HELP__ += __DICO_HELP__[__COMMAND__]
-
-        micProjectName = None
-        imageType = None
-
-        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (2 * 2)):
-            for i in range(0, len(listArgv), 2):
-                if listArgv[i] == "--micProjectName":
-                    micProjectName = listArgv[i + 1]
-                elif listArgv[i] == "--imageType":
-                    imageType = listArgv[i + 1]
-                else:
-                    raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
-            if (micProjectName != None) and (imageType != None):
-                ObsLightManager.getManager().setMicProjectImageType(micProjectName=micProjectName,
-                                                                       imageType=imageType)
-            else:
-                raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
-
-        elif self.__isHelp(listArgv[0]):
-            print __HELP__
-        else:
-            raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
-        return 0
-
-    def getMicProjectImageType(self, listArgv):
-        '''
-        Return the image type of Mic Project.
-        '''
-        __COMMAND__ = __getMicProjectImageType__
-
-        __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
-        __HELP__ += "\t" + "--micProjectName projectName" + "\n"
-        __HELP__ += __DICO_HELP__[__COMMAND__]
-
-        micProjectName = None
-
-        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (1 * 2)):
-            for i in range(0, len(listArgv), 2):
-                if listArgv[i] == "--micProjectName":
-                    micProjectName = listArgv[i + 1]
-                else:
-                    raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
-            if (micProjectName != None):
-                res = ObsLightManager.getManager().getMicProjectImageType(micProjectName=micProjectName)
+                m = ObsLightManager.getCommandLineManager()
+                if project_alias == None:
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return repository_help()
+                res = m.getChRootRepositories(projectLocalName=project_alias)
                 if res == None:
-                    print "No ImageType Define."
-                else:
-                    print "\t" + res
-            else:
-                raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
+                        print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                        return -1
+                print "repositories:"
+                for k in res:
+                    print "Alias: " + k + "\t\tURL: " + res[k]
+            return 0
 
-        elif self.__isHelp(listArgv[0]):
-            print __HELP__
+        if len(listArgv) == 0:
+            return repository_help()
         else:
-            raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
+            currentCommand = listArgv[0]
+            listArgv = listArgv[1:]
+
+            if currentCommand in __Help__ :
+                return repository_help()
+            elif currentCommand in __repository_add__:
+                return repository_add(listArgv)
+            elif currentCommand in __repository_delete__ :
+                return repository_delete(listArgv)
+            elif currentCommand in __repository_modify__:
+                return repository_modify(listArgv)
+            elif currentCommand in __repository_query__:
+                return repository_query(listArgv)
+            else:
+                return repository_help()
         return 0
 
-    def createImage(self, listArgv):
+    def rpmbuild(self, listArgv):
         '''
-        Create an Image.
+        
         '''
-        __COMMAND__ = __createImage__
+        def rpmbuild_help():
+            '''
+            
+            '''
+            return 0
 
-        __HELP__ = "usage: " + __PRGNAME__ + " " + __COMMAND__ + " [--command-options] \n"
-        __HELP__ += "\t" + "--micProjectName projectName" + "\n"
-        __HELP__ += __DICO_HELP__[__COMMAND__]
+        def rpmbuild_prepare(listArgv):
+            '''
+            
+            '''
+            Help = False
+            project_alias = None
+            package = None
 
-        micProjectName = None
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = self.getParameter(listArgv)
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
+                    break
+                elif currentCommand in __project_alias__:
+                    project_alias, listArgv = self.getParameter(listArgv)
+                else :
+                    package = currentCommand
 
-        if (len(listArgv) % 2 == 0) and (len(listArgv) <= (1 * 2)):
-            for i in range(0, len(listArgv), 2):
-                if listArgv[i] == "--micProjectName":
-                    micProjectName = listArgv[i + 1]
-                else:
-                    raise ObsLightErr.ArgUnknownError(__COMMAND__, listArgv[i])
-            if (micProjectName != None):
-                ObsLightManager.getManager().createImage(micProjectName=micProjectName)
+            if  (Help == True) :
+                return rpmbuild_help()
             else:
-                raise ObsLightErr.ArgError("wrong command for " + __COMMAND__)
+                m = ObsLightManager.getCommandLineManager()
+                if project_alias == None:
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return rpmbuild_help()
 
-        elif self.__isHelp(listArgv[0]):
-            print __HELP__
+                if (package == None):
+                    package = m.getCurrentPackage(project_alias)
+
+                res = m.addPackageSourceInChRoot(projectLocalName=project_alias, package=package)
+                if res == None:
+                    print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                    return -1
+            return 0
+
+        def rpmbuild_build(listArgv):
+            '''
+            
+            '''
+            Help = False
+            project_alias = None
+            package = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = self.getParameter(listArgv)
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
+                    break
+                elif currentCommand in __project_alias__:
+                    project_alias, listArgv = self.getParameter(listArgv)
+                else :
+                    package = currentCommand
+
+            if  (Help == True) :
+                return rpmbuild_help()
+            else:
+                m = ObsLightManager.getCommandLineManager()
+                if project_alias == None:
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return rpmbuild_help()
+
+                if (package == None):
+                    package = m.getCurrentPackage(project_alias)
+
+                res = m.buildRpm(projectLocalName=project_alias, package=package)
+                if res == None:
+                    print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                    return -1
+            return 0
+
+        def rpmbuild_install(listArgv):
+            '''
+            
+            '''
+            Help = False
+            project_alias = None
+            package = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = self.getParameter(listArgv)
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
+                    break
+                elif currentCommand in __project_alias__:
+                    project_alias, listArgv = self.getParameter(listArgv)
+                else :
+                    package = currentCommand
+
+            if  (Help == True) :
+                return rpmbuild_help()
+            else:
+                m = ObsLightManager.getCommandLineManager()
+                if project_alias == None:
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return rpmbuild_help()
+
+                if (package == None):
+                    package = m.getCurrentPackage(project_alias)
+
+                res = m.installRpm(projectLocalName=project_alias, package=package)
+                if res == None:
+                    print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                    return -1
+            return 0
+
+        def rpmbuild_package(listArgv):
+            '''
+            
+            '''
+            Help = False
+            project_alias = None
+            package = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = self.getParameter(listArgv)
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
+                    break
+                elif currentCommand in __project_alias__:
+                    project_alias, listArgv = self.getParameter(listArgv)
+                else :
+                    package = currentCommand
+
+            if  (Help == True) :
+                return rpmbuild_help()
+            else:
+                m = ObsLightManager.getCommandLineManager()
+                if project_alias == None:
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return rpmbuild_help()
+
+                if (package == None):
+                    package = m.getCurrentPackage(project_alias)
+
+                res = m.packageRpm(projectLocalName=project_alias, package=package)
+                if res == None:
+                    print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                    return -1
+            return 0
+
+        def rpmbuild_isInit(listArgv):
+            '''
+            
+            '''
+            Help = False
+            project_alias = None
+            package = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = self.getParameter(listArgv)
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
+                    break
+                elif currentCommand in __project_alias__:
+                    project_alias , listArgv = self.getParameter(listArgv)
+                elif currentCommand in __package_package__:
+                    package , listArgv = self.getParameter(listArgv)
+                else:
+                    Help = True
+                    break
+
+            if  (Help == True) :
+                return rpmbuild_help()
+            else:
+                m = ObsLightManager.getCommandLineManager()
+
+                if (project_alias == None) :
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return rpmbuild_help()
+
+                if (package == None) :
+                    package = m.getCurrentPackage(project_alias)
+                    if package == None:
+                        return rpmbuild_help()
+
+                print
+                res = m.patchIsInit(projectLocalName=project_alias, packageName=package)
+                if res == None:
+                    print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                    return -1
+                print "for '" + package + "' a patch is init: " + str(res)
+                return 0
+
+        def rpmbuild_createPatch(listArgv):
+            '''
+            
+            '''
+            Help = False
+            project_alias = None
+            package = None
+            patch = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = self.getParameter(listArgv)
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
+                    break
+                else:
+                    patch = currentCommand
+                    while (len(listArgv) > 0):
+                        if currentCommand in __project_alias__:
+                            project_alias , listArgv = self.getParameter(listArgv)
+                        elif currentCommand in __package_package__:
+                            package , listArgv = self.getParameter(listArgv)
+                        else:
+                            break
+                    break
+
+            if  (Help == True) :
+                return rpmbuild_help()
+            else:
+                m = ObsLightManager.getCommandLineManager()
+
+                if (project_alias == None) :
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return rpmbuild_help()
+
+                if (package == None) :
+                    package = m.getCurrentPackage(project_alias)
+                    if package == None:
+                        return rpmbuild_help()
+
+                if (patch == None) :
+                    return rpmbuild_help()
+
+                res = m.createPatch(projectLocalName=project_alias, package=package, patch=patch)
+                if res == None:
+                    print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                    return -1
+                return 0
+
+        def rpmbuild_updatepatch(listArgv):
+            '''
+            
+            '''
+            Help = False
+            project_alias = None
+            package = None
+
+            while(len(listArgv) > 0):
+                currentCommand, listArgv = self.getParameter(listArgv)
+                if (currentCommand in __obsproject_Help__) or (listArgv == None):
+                    Help = True
+                    break
+                elif currentCommand in __project_alias__:
+                    project_alias , listArgv = self.getParameter(listArgv)
+                elif currentCommand in __package_package__:
+                    package , listArgv = self.getParameter(listArgv)
+                else:
+                    Help = True
+                    break
+
+            if  (Help == True) :
+                return rpmbuild_help()
+            else:
+                m = ObsLightManager.getCommandLineManager()
+
+                if (project_alias == None) :
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return rpmbuild_help()
+
+                if (package == None) :
+                    package = m.getCurrentPackage(project_alias)
+                    if package == None:
+                        return rpmbuild_help()
+
+                print "project_alias", project_alias
+                print "package", package
+                res = m.updatePatch(projectLocalName=project_alias, package=package)
+                if res == None:
+                    print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
+                    return -1
+                return 0
+
+        def rpmbuild_testConflict(listArgv):
+            '''
+            
+            '''
+            Help = False
+            m = ObsLightManager.getCommandLineManager()
+            return m.testConflict(projectLocalName=None, package=None)
+
+        if len(listArgv) == 0:
+            return rpmbuild_help()
         else:
-            raise ObsLightErr.ArgNumError(None, __COMMAND__, len(listArgv))
+            currentCommand = listArgv[0]
+            listArgv = listArgv[1:]
+
+            if currentCommand in __Help__ :
+                return rpmbuild_help()
+            elif currentCommand in __rpmbuild_prepare__:
+                return rpmbuild_prepare(listArgv)
+            elif currentCommand in __rpmbuild_build__ :
+                return rpmbuild_build(listArgv)
+            elif currentCommand in __rpmbuild_install__:
+                return rpmbuild_install(listArgv)
+            elif currentCommand in __rpmbuild_package__:
+                return rpmbuild_package(listArgv)
+            elif currentCommand in __rpmbuild_isInit__:
+                return rpmbuild_isInit(listArgv)
+            elif currentCommand in __rpmbuild_testConflict__:
+                return rpmbuild_testConflict(listArgv)
+            elif currentCommand in __rpmbuild_createPatch__:
+                return rpmbuild_createPatch(listArgv)
+            elif currentCommand in __rpmbuild_updatepatch__:
+                return rpmbuild_updatepatch(listArgv)
+            else:
+                return rpmbuild_help()
         return 0
 
+    def micproject(self, listArgv):
+        '''
+        
+        '''
+        print "micproject #feature", listArgv
+        return 0
 
+    def qemuproject(self, listArgv):
+        '''
+        
+        '''
+        print "qemuproject #feature", listArgv
+        return 0

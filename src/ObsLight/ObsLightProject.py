@@ -614,7 +614,13 @@ class ObsLightProject(object):
         '''
         self.__initChRoot()
         res = self.addRepo()
-        return res
+
+        repos = self.getDependencyRepositories()
+
+        for alias in repos.keys():
+            res = self.addRepo(repos=repos[alias], alias=alias)
+
+        return 0
 
     def __initChRoot(self):
         '''
@@ -786,12 +792,13 @@ class ObsLightProject(object):
         obsRev = self.__packages.getPackage(package).getObsPackageRev()
         oscRev = self.__packages.getPackage(package).getOscPackageRev()
         if obsRev != oscRev:
-            raise ObsLightErr.ObsLightProjectsError("Can't Commit '" + package + "' because local rev '" + oscRev + "' and OBS rev '" + obsRev + "' do not match.\nPlease update the package.")
+            raise ObsLightErr.ObsLightProjectsError("Can't Commit '" + package + "' because local osc rev '" + oscRev + "' and OBS rev '" + obsRev + "' do not match.\nPlease update the package.")
 
         self.__packages.getPackage(package).commitToObs(message=message)
         self.checkOscDirectoryStatus(package=package)
         self.checkOscPackageStatus(package=package)
         self.refreshObsStatus(package=package)
+        return 0
 
     def addRemoveFileToTheProject(self, package=None):
         '''
@@ -863,7 +870,8 @@ class ObsLightProject(object):
     #---------------------------------------------------------------------------
 
 
-
+    def getDependencyRepositories(self):
+        return self.__obsServers.getObsServer(self.__obsServer).getDependencyRepositories(self.__projectObsName, self.__projectTarget)
 
 
 
