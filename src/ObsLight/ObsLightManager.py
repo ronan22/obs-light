@@ -803,7 +803,7 @@ class ObsLightManagerCore(ObsLightManagerBase):
         return self._myObsLightProjects.getProject(projectLocalName).getListPackage(local=local)
 
     def checkPackage(self, projectLocalName, package):
-        '''
+        ''' 
         
         '''
         def test(package):

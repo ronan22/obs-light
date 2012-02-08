@@ -1282,8 +1282,8 @@ class ObsLight():
                 if res == None:
                     print "ERROR NO RESULT " + __file__ + " " + str(getLineno())
                     return -1
-                for repo in res:
-                    print "Repository:" + str(repo)
+                for repo in res.keys():
+                    print "Repository Alias: " + str(repo) + " Url: " + res[repo]
             return 0
 
         #_______________________________________________________________________

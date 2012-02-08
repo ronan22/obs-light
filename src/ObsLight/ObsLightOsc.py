@@ -24,6 +24,9 @@ import os
 import sys
 from xml.etree import ElementTree
 import urlparse
+import urllib
+
+from ObsLight import ObsLightTools
 
 from osc import conf
 from osc import core
@@ -430,6 +433,24 @@ class ObsLightOsc(object):
                         target = path.get("project")
                         result[target] = repo
         return result
+
+    def getAliasOfRepo(self, repo):
+        """
+        
+        """
+        if ObsLightTools.testUrl(repo):
+            filehandle = urllib.urlopen(repo)
+            aFile = filehandle.read()
+            filehandle.close()
+            lines = aFile.split('\n')
+            for line in lines:
+                if line.startswith("name="):
+                    res = line.split("=")[1]
+                    return res
+            return None
+        else:
+            return None
+
 
     def createChRoot(self,
                      chrootDir,
@@ -874,6 +895,7 @@ class ObsLightOsc(object):
         os.chdir(packagePath)
         command = "osc resolved " + aFile
         self.__subprocess(command=command)
+
 
     def getHttp_request(self, url, headers={}, data=None, file=None):
         '''

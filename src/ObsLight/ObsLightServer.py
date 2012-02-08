@@ -370,12 +370,15 @@ class ObsLightServer(object):
 
         result1 = getDependencyProject(projectObsName, target)
 
-        result2 = []
+        result2 = {}
         for prj in result1.keys():
             url = os.path.join(self.__serverRepo,
                              prj.replace(":", ":/"),
                              result1[prj])
-            result2.append(url)
+
+            alias = ObsLightOsc.getObsLightOsc().getAliasOfRepo(url + "/" + prj + ".repo")
+            if alias != None:
+                result2[alias] = url
 
         return result2
 

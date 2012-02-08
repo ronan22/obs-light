@@ -614,7 +614,13 @@ class ObsLightProject(object):
         '''
         self.__initChRoot()
         res = self.addRepo()
-        return res
+
+        repos = self.getDependencyRepositories()
+
+        for alias in repos.keys():
+            res = self.addRepo(repos=repos[alias], alias=alias)
+
+        return 0
 
     def __initChRoot(self):
         '''
