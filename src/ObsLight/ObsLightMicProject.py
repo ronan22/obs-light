@@ -198,6 +198,9 @@ class ObsLightMicProject(object):
 
     def getKickstartCommandDictionaries(self):
         return self._ksManager.getFilteredCommandDictList()
+
+    def getKickstartScriptDictionaries(self):
+        return self._ksManager.getScriptDictList()
 # --- end Kickstart management -----------------------------------------------
 
     def deleteProjectDirectory(self):

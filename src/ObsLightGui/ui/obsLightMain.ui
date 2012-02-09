@@ -1173,13 +1173,13 @@ in the source directory of the current package if it is installed.</string>
         <string>MIC Projects</string>
        </attribute>
        <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <property name="margin">
+         <number>0</number>
+        </property>
         <item>
          <widget class="QSplitter" name="splitter_2">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="handleWidth">
-           <number>3</number>
           </property>
           <widget class="QWidget" name="gridWidget" native="true">
            <layout class="QGridLayout" name="gridLayout_3">
@@ -1401,7 +1401,7 @@ in the source directory of the current package if it is installed.</string>
                  <item row="2" column="2">
                   <widget class="QPushButton" name="removeKickstartOptionButton">
                    <property name="text">
-                    <string>Remove</string>
+                    <string>Delete</string>
                    </property>
                   </widget>
                  </item>
@@ -1498,7 +1498,7 @@ in the source directory of the current package if it is installed.</string>
              <item row="7" column="0">
               <widget class="QPushButton" name="removeRepositoryButton">
                <property name="text">
-                <string>Remove</string>
+                <string>Delete</string>
                </property>
               </widget>
              </item>
@@ -1548,7 +1548,7 @@ in the source directory of the current package if it is installed.</string>
              <item row="2" column="0">
               <widget class="QPushButton" name="removePackageButton">
                <property name="text">
-                <string>Remove</string>
+                <string>Delete</string>
                </property>
               </widget>
              </item>
@@ -1572,7 +1572,7 @@ in the source directory of the current package if it is installed.</string>
              <item row="2" column="0">
               <widget class="QPushButton" name="removePackageGroupButton">
                <property name="text">
-                <string>Remove</string>
+                <string>Delete</string>
                </property>
               </widget>
              </item>
@@ -1602,7 +1602,7 @@ in the source directory of the current package if it is installed.</string>
              <item row="1" column="0">
               <widget class="QPushButton" name="pushButton_3">
                <property name="text">
-                <string>PushButton</string>
+                <string>Add</string>
                </property>
               </widget>
              </item>
@@ -1620,25 +1620,19 @@ in the source directory of the current package if it is installed.</string>
               </spacer>
              </item>
              <item row="2" column="0">
-              <widget class="QPushButton" name="pushButton_4">
+              <widget class="QPushButton" name="removeOverlayFileButton">
                <property name="text">
-                <string>PushButton</string>
+                <string>Delete</string>
                </property>
               </widget>
              </item>
             </layout>
            </widget>
            <widget class="QWidget" name="kickstartScriptsTab">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
             <attribute name="title">
              <string>Scripts</string>
             </attribute>
             <layout class="QGridLayout" name="gridLayout_5">
-             <item row="0" column="0" rowspan="7" colspan="2">
-              <widget class="QListWidget" name="kickstartScriptsListWidget"/>
-             </item>
              <item row="2" column="2">
               <widget class="QRadioButton" name="postScriptRadioButton">
                <property name="text">
@@ -1649,17 +1643,10 @@ in the source directory of the current package if it is installed.</string>
                </property>
               </widget>
              </item>
-             <item row="8" column="0" colspan="5">
-              <widget class="QPlainTextEdit" name="kickstartScriptsTextEdit"/>
+             <item row="9" column="0" colspan="5">
+              <widget class="QPlainTextEdit" name="kickstartScriptTextEdit"/>
              </item>
-             <item row="2" column="3">
-              <widget class="QCheckBox" name="noChrootCheckBox">
-               <property name="text">
-                <string>No chroot</string>
-               </property>
-              </widget>
-             </item>
-             <item row="3" column="3" colspan="2">
+             <item row="4" column="3" colspan="2">
               <widget class="QLineEdit" name="interpreterLineEdit">
                <property name="enabled">
                 <bool>false</bool>
@@ -1669,20 +1656,13 @@ in the source directory of the current package if it is installed.</string>
                </property>
               </widget>
              </item>
-             <item row="4" column="3" colspan="2">
+             <item row="5" column="3" colspan="2">
               <widget class="QLineEdit" name="logLineEdit">
                <property name="enabled">
                 <bool>false</bool>
                </property>
                <property name="placeholderText">
                 <string>/root/ks-post.log</string>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="4">
-              <widget class="QCheckBox" name="errorOnFailCheckBox">
-               <property name="text">
-                <string>Error on fail</string>
                </property>
               </widget>
              </item>
@@ -1693,31 +1673,55 @@ in the source directory of the current package if it is installed.</string>
                </property>
               </widget>
              </item>
-             <item row="7" column="1">
+             <item row="8" column="1">
               <widget class="QPushButton" name="deleteScriptButton">
                <property name="text">
                 <string>Delete</string>
                </property>
               </widget>
              </item>
-             <item row="7" column="0">
+             <item row="8" column="0">
               <widget class="QPushButton" name="addScriptButton">
                <property name="text">
                 <string>Add</string>
                </property>
               </widget>
              </item>
-             <item row="3" column="2">
+             <item row="4" column="2">
               <widget class="QCheckBox" name="specifyInterpreterCheckBox">
                <property name="text">
                 <string>Specify interpreter</string>
                </property>
               </widget>
              </item>
-             <item row="4" column="2">
+             <item row="5" column="2">
               <widget class="QCheckBox" name="specifyLogFileCheckBox">
                <property name="text">
                 <string>Specify log file</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="0" rowspan="8" colspan="2">
+              <widget class="QListView" name="kickstartScriptsListView"/>
+             </item>
+             <item row="3" column="2">
+              <widget class="QRadioButton" name="tracebackScriptRadioButton">
+               <property name="text">
+                <string>Traceback script</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="3">
+              <widget class="QCheckBox" name="errorOnFailCheckBox">
+               <property name="text">
+                <string>Error on fail</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="3">
+              <widget class="QCheckBox" name="noChrootCheckBox">
+               <property name="text">
+                <string>No chroot</string>
                </property>
               </widget>
              </item>
@@ -1885,14 +1889,14 @@ in the source directory of the current package if it is installed.</string>
    </hints>
   </connection>
   <connection>
-   <sender>preScriptRadioButton</sender>
+   <sender>postScriptRadioButton</sender>
    <signal>toggled(bool)</signal>
    <receiver>noChrootCheckBox</receiver>
-   <slot>setDisabled(bool)</slot>
+   <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>711</x>
-     <y>116</y>
+     <x>586</x>
+     <y>130</y>
     </hint>
     <hint type="destinationlabel">
      <x>794</x>

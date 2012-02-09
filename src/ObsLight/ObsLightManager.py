@@ -1413,6 +1413,9 @@ class ObsLightManager(ObsLightManagerCore):
     def getKickstartCommandDictionaries(self, micProjectName):
         return self._myObsLightMicProjects.getKickstartCommandDictionaries(micProjectName)
 
+    def getKickstartScriptDictionaries(self, micProjectName):
+        return self._myObsLightMicProjects.getKickstartScriptDictionaries(micProjectName)
+
     def saveKickstartFile(self, micProjectName, path=None):
         """
         Save the Kickstart file of `micProjectName` to `path`,

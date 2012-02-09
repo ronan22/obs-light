@@ -39,7 +39,8 @@ class KickstartRepositoriesModel(KickstartModelBase):
         KickstartModelBase.__init__(self,
                                     obsLightManager,
                                     projectName,
-                                    obsLightManager.getKickstartRepositoryDictionaries)
+                                    obsLightManager.getKickstartRepositoryDictionaries,
+                                    self.ColumnKeys[self.NameColumn])
 
     # from QAbstractTableModel
     def headerData(self, section, orientation, role=Qt.DisplayRole):
@@ -143,6 +144,7 @@ class KickstartRepositoriesModel(KickstartModelBase):
         """
         repoDict = self.dataDict(row)
         self.manager.removeKickstartRepository(self.currentProject, oldName)
+        # pylint: disable-msg=W0142
         self.manager.addKickstartRepository(self.currentProject, **repoDict)
         self.manager.saveKickstartFile(self.currentProject)
 

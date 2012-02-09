@@ -29,6 +29,7 @@ from KickstartRepositoriesModel import KickstartRepositoriesModel
 from KickstartPackagesModel import KickstartPackagesModel
 from KickstartPackageGroupsModel import KickstartPackageGroupsModel
 from KickstartCommandsModel import KickstartCommandsModel
+from KickstartScriptsModel import KickstartScriptsModel
 
 class MicProjectManager(QObject, ObsLightGuiObject):
     # pylint: disable-msg=E0202, E1101
@@ -41,6 +42,7 @@ class MicProjectManager(QObject, ObsLightGuiObject):
         self.__pkgModel = KickstartPackagesModel(self.manager, self.currentProject)
         self.__pkgGrpModel = KickstartPackageGroupsModel(self.manager, self.currentProject)
         self.__cmdModel = KickstartCommandsModel(self.manager, self.currentProject)
+        self.__scriptModel = KickstartScriptsModel(self.manager, self.currentProject)
 
     def __loadUi(self):
         self.__loadImageType()
@@ -50,6 +52,7 @@ class MicProjectManager(QObject, ObsLightGuiObject):
         mw.kickstartRepositoriesTableView.setModel(self.repositoryModel)
         mw.kickstartPackagesTableView.setModel(self.packageModel)
         mw.kickstartPackageGroupsTableView.setModel(self.packageGroupModel)
+        mw.kickstartScriptsListView.setModel(self.scriptModel)
         self.__loadCommands()
         self.__updateSaveState()
 
@@ -129,12 +132,17 @@ class MicProjectManager(QObject, ObsLightGuiObject):
     def commandModel(self):
         return self.__cmdModel
 
+    @property
+    def scriptModel(self):
+        return self.__scriptModel
+
     def refresh(self):
         """Refresh the project, reload Kickstart data in the UI"""
         self.repositoryModel.refresh()
         self.packageModel.refresh()
         self.packageGroupModel.refresh()
         self.commandModel.refresh()
+        self.scriptModel.refresh()
         self.__loadUi()
 
     def createImage(self):
@@ -260,3 +268,36 @@ class MicProjectManager(QObject, ObsLightGuiObject):
         self.commandModel.removeCommand(row)
         self.__updateSaveState()
         self.__loadCommands()
+
+# --- Scripts ----------------------------------------------------------------
+    def displayScript(self, row):
+        """
+        Load the Kickstart script tab widgets
+        with the parameters of script at `row`
+        """
+        def getVal(column):
+            index = self.scriptModel.createIndex(row, column)
+            return self.scriptModel.data(index, Qt.DisplayRole)
+
+        scriptType = getVal(KickstartScriptsModel.TypeColumn)
+        self.mainWindow.preScriptRadioButton.setChecked(scriptType == 0)
+        self.mainWindow.postScriptRadioButton.setChecked(scriptType == 1)
+        self.mainWindow.tracebackScriptRadioButton.setChecked(scriptType == 2)
+
+        errorOnFail = getVal(KickstartScriptsModel.ErrorOnFailColumn)
+        self.mainWindow.errorOnFailCheckBox.setChecked(errorOnFail)
+
+        noChroot = not getVal(KickstartScriptsModel.RunInChrootColumn)
+        self.mainWindow.noChrootCheckBox.setChecked(noChroot)
+
+        interpreter = getVal(KickstartScriptsModel.InterpreterColumn)
+        self.mainWindow.interpreterLineEdit.setText(interpreter)
+        self.mainWindow.specifyInterpreterCheckBox.setChecked(interpreter != "/bin/sh")
+
+        logFile = getVal(KickstartScriptsModel.LogFileColumn)
+        self.mainWindow.logLineEdit.setText(logFile)
+        self.mainWindow.specifyLogFileCheckBox.setChecked(logFile is not None)
+
+        scriptText = getVal(KickstartScriptsModel.ScriptColumn)
+        self.mainWindow.kickstartScriptTextEdit.clear()
+        self.mainWindow.kickstartScriptTextEdit.appendPlainText(scriptText)

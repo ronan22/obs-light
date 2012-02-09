@@ -33,7 +33,7 @@ class KickstartModelBase(QAbstractTableModel):
     # The keys to get values for the different columns from __dataDictList dictionaries
     ColumnKeys = ("name",)
 
-    def __init__(self, obsLightManager, projectName, getDataDictListFunc):
+    def __init__(self, obsLightManager, projectName, getDataDictListFunc, sortOnKey=None):
         """
         Initialize the model.
           obsLightManager:  an instance of `ObsLightManager`
@@ -46,6 +46,7 @@ class KickstartModelBase(QAbstractTableModel):
         self.__manager = obsLightManager
         self.__project = projectName
         self.__getDataDictListFunc = getDataDictListFunc
+        self.sortOnKey = sortOnKey
         self.refresh()
 
     @property
@@ -86,5 +87,6 @@ class KickstartModelBase(QAbstractTableModel):
         and emit `QAbstractItemModel.layoutChanged`.
         """
         self.__dataDictList = self.__getDataDictListFunc(self.__project)
-        self.__dataDictList.sort(key=lambda x: x["name"])
+        if self.sortOnKey is not None:
+            self.__dataDictList.sort(key=lambda x: x[self.sortOnKey])
         self.layoutChanged.emit()

@@ -41,7 +41,8 @@ class KickstartCommandsModel(KickstartModelBase):
         KickstartModelBase.__init__(self,
                                     obsLightManager,
                                     projectName,
-                                    obsLightManager.getKickstartCommandDictionaries)
+                                    obsLightManager.getKickstartCommandDictionaries,
+                                    sortOnKey=self.ColumnKeys[self.NameColumn])
 
     # from QAbstractTableModel
     def data(self, index, role=Qt.DisplayRole):

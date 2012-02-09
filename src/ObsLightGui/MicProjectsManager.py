@@ -66,7 +66,9 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
              mw.kickstartOptionTextEdit.textChanged: self.on_kickstartOptionTextEdit_textChanged,
              mw.saveKickstartOptionButton.clicked: self.on_saveKickstartOptionButton_clicked,
              mw.addKickstartOptionButton.clicked: self.on_addKickstartOptionButton_clicked,
-             mw.removeKickstartOptionButton.clicked: self.on_removeKickstartOptionButton_clicked
+             mw.removeKickstartOptionButton.clicked: self.on_removeKickstartOptionButton_clicked,
+             # KS scripts
+             mw.kickstartScriptsListView.clicked: self.on_kickstartScriptsListView_clicked
              }
         self.__signalSlotMap = m
 
@@ -328,6 +330,8 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
             self.mainWindow.micProjectsTabWidget.setEnabled(False)
             return
         self.__disconnectProjectEventsAndButtons()
+        self.mainWindow.kickstartOptionTextEdit.clear()
+        self.mainWindow.kickstartScriptTextEdit.clear()
         self.mainWindow.micProjectsTabWidget.setEnabled(True)
         self._currentProjectObj.refresh()
         self.__connectProjectEventsAndButtons()
@@ -357,4 +361,10 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
         """Called when user modifies the text of a kickstart option"""
         row = self.mainWindow.kickstartOptionsListView.currentIndex().row()
         self._currentProjectObj.editCommand(row)
+
+    def on_kickstartScriptsListView_clicked(self, index):
+        """Called when user clicks on an item of kickstartScriptsListView"""
+        self.__disconnectProjectEventsAndButtons()
+        self._currentProjectObj.displayScript(index.row())
+        self.__connectProjectEventsAndButtons()
 # --- end Event handlers -----------------------------------------------------

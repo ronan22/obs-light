@@ -35,7 +35,8 @@ class KickstartPackagesModel(KickstartModelBase):
         KickstartModelBase.__init__(self,
                                     obsLightManager,
                                     projectName,
-                                    obsLightManager.getKickstartPackageDictionaries)
+                                    obsLightManager.getKickstartPackageDictionaries,
+                                    self.ColumnKeys[self.NameColumn])
 
     # from QAbstractTableModel
     def headerData(self, section, orientation, role=Qt.DisplayRole):

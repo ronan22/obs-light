@@ -16,25 +16,35 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 '''
-Created on 7 févr. 2012
+Created on 9 févr. 2012
 
 @author: Florent Vennetier
 '''
 
 from PySide.QtCore import Qt
+
 from KickstartModelBase import KickstartModelBase
 
-class KickstartPackageGroupsModel(KickstartModelBase):
+class KickstartScriptsModel(KickstartModelBase):
 
     NameColumn = 0
-    ColumnKeys = ("name",)
+    ScriptColumn = 1
+    TypeColumn = 2
+    InterpreterColumn = 3
+    ErrorOnFailColumn = 4
+    RunInChrootColumn = 5
+    LogFileColumn = 6
+
+    ColumnKeys = ("name", "script", "type", "interp", "errorOnFail",
+                  "inChroot", "logfile")
+    ColumnHeaders = ("Name", "Script", "Type", "Interpreter", "Error on fail",
+                     "Run in chroot", "Log file")
 
     def __init__(self, obsLightManager, projectName):
         KickstartModelBase.__init__(self,
                                     obsLightManager,
                                     projectName,
-                                    obsLightManager.getKickstartPackageGroupDictionaries,
-                                    sortOnKey=self.ColumnKeys[self.NameColumn])
+                                    obsLightManager.getKickstartScriptDictionaries)
 
     # from QAbstractTableModel
     def headerData(self, section, orientation, role=Qt.DisplayRole):
@@ -42,8 +52,7 @@ class KickstartPackageGroupsModel(KickstartModelBase):
             if orientation == Qt.Orientation.Vertical:
                 return section
             else:
-                if section == self.NameColumn:
-                    return "Name"
+                return self.ColumnHeaders[section]
         return None
 
     # from QAbstractTableModel
@@ -59,14 +68,4 @@ class KickstartPackageGroupsModel(KickstartModelBase):
         Return the `Qt.DisplayRole` data for cell at `index`.
         """
         retVal = self.dataDict(index.row())[self.ColumnKeys[index.column()]]
-        return retVal if retVal is None else str(retVal)
-
-    def addPackageGroup(self, name):
-        self.manager.addKickstartPackageGroup(self.currentProject, name)
-        self.manager.saveKickstartFile(self.currentProject)
-        self.refresh()
-
-    def removePackageGroup(self, name):
-        self.manager.removeKickstartPackageGroup(self.currentProject, name)
-        self.manager.saveKickstartFile(self.currentProject)
-        self.refresh()
+        return retVal
