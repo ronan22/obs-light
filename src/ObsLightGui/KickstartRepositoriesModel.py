@@ -21,23 +21,21 @@ Created on 3 févr. 2012
 @author: Florent Vennetier
 '''
 
-from PySide.QtCore import QAbstractTableModel, Qt
+from PySide.QtCore import Qt
 from KickstartModelBase import KickstartModelBase
 
 class KickstartRepositoriesModel(KickstartModelBase):
 
     NameColumn = 0
     UrlColumn = 1
-    CostColumn = 2
-    PriorityColumn = 3
-    SslVerifyColumn = 4
+    PriorityColumn = 2
+    SslVerifyColumn = 3
 
     # A tuple containing the keys of repository dictionaries
-    ColumnKeys = ("name", "baseurl", "cost", "priority", "ssl_verify")
-
-    __modified = False
+    ColumnKeys = ("name", "baseurl", "priority", "ssl_verify")
 
     def __init__(self, obsLightManager, projectName):
+        self.__modified = False
         KickstartModelBase.__init__(self,
                                     obsLightManager,
                                     projectName,
@@ -53,10 +51,8 @@ class KickstartRepositoriesModel(KickstartModelBase):
                     return "Name"
                 elif section == self.UrlColumn:
                     return "URL"
-                elif section == self.CostColumn:
-                    return "Cost (for Yum)"
                 elif section == self.PriorityColumn:
-                    return "Priority (for Zypper)"
+                    return "Priority"
                 elif section == self.SslVerifyColumn:
                     return "SSL verification"
         return None
@@ -69,20 +65,22 @@ class KickstartRepositoriesModel(KickstartModelBase):
             # We double-clicking on cell (Qt.EditRole) we return
             # same data as on normal display
             return self.displayRoleData(index)
+        elif role == Qt.CheckStateRole:
+            return self.checkStateRoleData(index)
         return None
 
     # from QAbstractTableModel
     def setData(self, index, value, role=Qt.EditRole):
         if not index.isValid():
             return False
+        row = index.row()
+        column = index.column()
         if role == Qt.EditRole:
             if value == self.displayRoleData(index):
                 # nothing to do
                 return False
-            row = index.row()
-            column = index.column()
             # convert empty strings and "none" to None
-            if column in (self.CostColumn, self.PriorityColumn):
+            if column == self.PriorityColumn:
                 if isinstance(value, basestring) and (value.lower() == "none" or value == ""):
                     value = None
             # in case repository name has changed, we must keep the old name
@@ -94,21 +92,48 @@ class KickstartRepositoriesModel(KickstartModelBase):
             # update the view
             self.refresh()
             return True
+        elif role == Qt.CheckStateRole:
+            if column == self.SslVerifyColumn:
+                if value == Qt.CheckState.Checked:
+                    self.dataDict(row)[self.ColumnKeys[column]] = "yes"
+                else:
+                    self.dataDict(row)[self.ColumnKeys[column]] = "no"
+        return False
 
     # from QAbstractTableModel
     def flags(self, index):
         """
         Calls `QAbstractTableModel.flags()` and add `Qt.ItemIsEditable` flag.
-        In this model, all cells are editable.
+        In this model, all cells except column SslVerifyColumn are editable.
+        Cells of column SslVerifyColumn are checkable.
         """
-        return super(KickstartRepositoriesModel, self).flags(index) | Qt.ItemIsEditable
+        superFlags = super(KickstartRepositoriesModel, self).flags(index)
+        if index.column() == self.SslVerifyColumn:
+            superFlags = superFlags | Qt.ItemIsUserCheckable
+        else:
+            superFlags = superFlags | Qt.ItemIsEditable
+        return superFlags
 
     def displayRoleData(self, index):
         """
         Return the "Qt.DisplayRole" data for cell at `index`.
         """
+        if index.column() == self.SslVerifyColumn:
+            return None
         retVal = self.dataDict(index.row())[self.ColumnKeys[index.column()]]
         return retVal if retVal is None else str(retVal)
+
+    def checkStateRoleData(self, index):
+        """
+        Return the `Qt.CheckStateRole` data for cell at `index`.
+        Returning None for all columns, except SslVerifyColumn:
+          Qt.CheckState.Checked if SSL verification is "yes",
+          Qt.CheckState.Unchecked otherwise
+        """
+        if index.column() == self.SslVerifyColumn:
+            verify = self.dataDict(index.row())[self.ColumnKeys[self.SslVerifyColumn]]
+            return Qt.CheckState.Checked if verify.lower() == "yes" else Qt.CheckState.Unchecked
+        return None
 
     def __updateRepoInManager(self, row, oldName):
         """

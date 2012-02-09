@@ -63,6 +63,8 @@ class KickstartPackagesModel(KickstartModelBase):
         """
         Return the `Qt.DisplayRole` data for cell at `index`.
         """
+        if index.column() == self.ExcludedColumn:
+            return None
         retVal = self.dataDict(index.row())[self.ColumnKeys[index.column()]]
         return retVal if retVal is None else str(retVal)
 
