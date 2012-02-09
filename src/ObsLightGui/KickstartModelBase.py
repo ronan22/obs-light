@@ -28,13 +28,7 @@ class KickstartModelBase(QAbstractTableModel):
     Base class for KickstartPackagesModel and KickstartRepositoriesModel
     """
 
-    __manager = None
-    __project = None
-    __dataDictList = None
-
-    __getDataDictListFunc = None
-
-    # The index if the name column
+    # The index of the name column
     NameColumn = 0
     # The keys to get values for the different columns from __dataDictList dictionaries
     ColumnKeys = ("name",)
@@ -48,6 +42,7 @@ class KickstartModelBase(QAbstractTableModel):
               returning a list of data dictionaries
         """
         QAbstractTableModel.__init__(self)
+        self.__dataDictList = None
         self.__manager = obsLightManager
         self.__project = projectName
         self.__getDataDictListFunc = getDataDictListFunc

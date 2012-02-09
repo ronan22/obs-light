@@ -30,15 +30,13 @@ from MicProjectManager import MicProjectManager
 
 class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
 
-    __micProjects = {}
-    __configDialog = None
-    __signalSlotMap = None
-
     def __init__(self, gui):
         ObsLightGuiObject.__init__(self, gui)
         ProjectsManagerBase.__init__(self,
                                      self.mainWindow.micProjectsListWidget,
                                      self.manager.getMicProjectList)
+        self.__micProjects = {}
+        self.__repoConfigDialog = None
         mw = self.mainWindow
         # Build a mapping between signals and associated slots,
         # to be used by self.__connectProjectEventsAndButtons()
@@ -48,7 +46,8 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
              mw.removeRepositoryButton.clicked: self.on_removeRepositoryButton_clicked,
              # Repositories
              mw.addRepositoryButton.clicked: self.on_addRepositoryButton_clicked,
-             mw.addRepositoryFromProjectButton.clicked: self.on_addRepositoryFromProjectButton_clicked,
+             mw.addRepositoryFromProjectButton.clicked:
+                                        self.on_addRepositoryFromProjectButton_clicked,
              # Packages
              mw.addPackageButton.clicked: self.on_addPackageButton_clicked,
              mw.removePackageButton.clicked: self.on_removePackageButton_clicked,
@@ -56,8 +55,12 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
              mw.addPackageGroupButton.clicked: self.on_addPackageGroupButton_clicked,
              mw.removePackageGroupButton.clicked: self.on_removePackageGroupButton_clicked,
              # MIC options
-             mw.imageTypeComboBox.currentIndexChanged[unicode]: self.on_imageTypeComboBox_currentIndexChanged,
-             mw.architectureComboBox.currentIndexChanged[unicode]: self.on_architectureComboBox_currentIndexChanged,
+             mw.imageTypeComboBox.currentIndexChanged[unicode]:
+                                        self.on_imageTypeComboBox_currentIndexChanged,
+             mw.architectureComboBox.currentIndexChanged[unicode]:
+                                        self.on_architectureComboBox_currentIndexChanged,
+             mw.importKickstartButton.clicked: self.on_importKickstartButton_clicked,
+             mw.exportKickstartButton.clicked: self.on_exportKickstartButton_clicked,
              # KS options
              mw.kickstartOptionsListView.clicked: self.on_kickstartOptionsListView_clicked,
              mw.kickstartOptionTextEdit.textChanged: self.on_kickstartOptionTextEdit_textChanged,
@@ -67,14 +70,13 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
              }
         self.__signalSlotMap = m
 
-        self.__connectStaticButtons()
-        self.__connectStaticEvents()
-
+        self.__connectStaticEventsAndButtons()
         self.__connectProjectEventsAndButtons()
 
         mw.kickstartRepositoriesTableView.setSelectionBehavior(QTableView.SelectRows)
         mw.kickstartPackagesTableView.setSelectionBehavior(QTableView.SelectRows)
         mw.kickstartPackageGroupsTableView.setSelectionBehavior(QTableView.SelectRows)
+
         self.loadProjectList()
 
     @property
@@ -87,22 +89,28 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
                                                                         self.currentProject)
         return self.__micProjects[self.currentProject]
 
-    def __connectStaticButtons(self):
+    def __connectStaticEventsAndButtons(self):
+        """
+        Connect the buttons and events which don't care of the state of the right panel.
+        """
         mw = self.mainWindow
-        mw.importKickstartButton.clicked.connect(self.on_importKickstartButton_clicked)
-        mw.exportKickstartButton.clicked.connect(self.on_exportKickstartButton_clicked)
         mw.newMicProjectButton.clicked.connect(self.on_newMicProjectButton_clicked)
         delClickSignal = mw.deleteMicProjectButton.clicked
         delClickSignal.connect(self.on_deleteMicProjectButton_clicked)
-
-    def __connectStaticEvents(self):
+        # self.projectListWidget comes from ProjectsManagerBase, not mainWindow
         self.projectListWidget.currentTextChanged.connect(self.on_projectSelected)
 
     def __connectProjectEventsAndButtons(self):
+        """
+        Connect events and buttons which have a role in the right panel.
+        """
         for signal, slot in self.__signalSlotMap.items():
             signal.connect(slot)
 
     def __disconnectProjectEventsAndButtons(self):
+        """
+        Disconnect events and buttons which have a role in the right panel.
+        """
         for signal, slot in self.__signalSlotMap.items():
             signal.disconnect(slot)
 
@@ -123,6 +131,7 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
                                       "Importing Kickstart file",
                                       micProject,
                                       filePath)
+        self._currentProjectObj.refresh()
 
     @popupOnException
     def on_exportKickstartButton_clicked(self):
@@ -205,13 +214,15 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
     @popupOnException
     def on_addRepositoryButton_clicked(self):
         """Called when user clicks on 'add repository'"""
-        self.__configDialog = self.gui.loadWindow(u"obsRepoConfig.ui")
-        self.__configDialog.accepted.connect(self.on_configDialog_accepted)
-        self.__configDialog.checkButton.hide()
-        self.__configDialog.show()
+        self.__repoConfigDialog = self.gui.loadWindow(u"obsRepoConfig.ui")
+        self.__repoConfigDialog.accepted.connect(self.on_configDialog_accepted)
+        # Hide the check button because we cannot test repo ATM.
+        self.__repoConfigDialog.checkButton.hide()
+        self.__repoConfigDialog.show()
 
     @popupOnException
     def on_addRepositoryFromProjectButton_clicked(self):
+        """Called when user clicks on 'import repository from OBS project'"""
         projects = self.manager.getLocalProjectList()
         selectedProject, accepted = QInputDialog.getItem(self.mainWindow,
                                                          "Select project",
@@ -227,6 +238,7 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
 
     @popupOnException
     def on_addPackageButton_clicked(self):
+        """Called when user clicks on 'add package'"""
         selectedPackage, accepted = QInputDialog.getText(self.mainWindow,
                                                          "Select package",
                                                          "Enter a package name:")
@@ -236,6 +248,7 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
 
     @popupOnException
     def on_removePackageButton_clicked(self):
+        """Called when user clicks on 'remove package'"""
         packages = []
         for row in getSelectedRows(self.mainWindow.kickstartPackagesTableView):
             package = self._currentProjectObj.getPackageNameByRowId(row)
@@ -256,6 +269,7 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
 
     @popupOnException
     def on_addPackageGroupButton_clicked(self):
+        """Called when user clicks on 'add package group'"""
         selectedPackageGroup, accepted = QInputDialog.getText(self.mainWindow,
                                                               "Select package group",
                                                               "Enter a package group name:")
@@ -265,6 +279,7 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
 
     @popupOnException
     def on_removePackageGroupButton_clicked(self):
+        """Called when user clicks on 'remove package group'"""
         packageGroups = []
         for row in getSelectedRows(self.mainWindow.kickstartPackageGroupsTableView):
             group = self._currentProjectObj.getPackageGroupNameByRowId(row)
@@ -285,6 +300,7 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
 
     @popupOnException
     def on_saveKickstartOptionButton_clicked(self):
+        """Called when user clicks on 'save' button of kickstart options tab"""
         self.__disconnectProjectEventsAndButtons()
         try:
             self._currentProjectObj.saveCommands()
@@ -295,9 +311,12 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
 
     @popupOnException
     def on_addKickstartOptionButton_clicked(self):
+        """Called when user clicks on 'add' button of kickstart options tab"""
         self._currentProjectObj.addNewCommand()
 
+    @popupOnException
     def on_removeKickstartOptionButton_clicked(self):
+        """Called when user clicks on 'remove' button of kickstart options tab"""
         row = self.mainWindow.kickstartOptionsListView.currentIndex().row()
         self._currentProjectObj.removeCommand(row)
 # --- end Button handlers ----------------------------------------------------
@@ -324,16 +343,18 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
     @popupOnException
     def on_configDialog_accepted(self):
         """Called when user accepts repository configuration dialog"""
-        name = self.__configDialog.repoAliasLineEdit.text()
-        url = self.__configDialog.repoUrlLineEdit.text()
+        name = self.__repoConfigDialog.repoAliasLineEdit.text()
+        url = self.__repoConfigDialog.repoUrlLineEdit.text()
         self._currentProjectObj.addRepository(name, url)
 
     def on_kickstartOptionsListView_clicked(self, index):
+        """Called when user clicks on an item of kickstartOptionsListView"""
         self.__disconnectProjectEventsAndButtons()
         self._currentProjectObj.displayCommand(index.row())
         self.__connectProjectEventsAndButtons()
 
     def on_kickstartOptionTextEdit_textChanged(self):
+        """Called when user modifies the text of a kickstart option"""
         row = self.mainWindow.kickstartOptionsListView.currentIndex().row()
         self._currentProjectObj.editCommand(row)
 # --- end Event handlers -----------------------------------------------------

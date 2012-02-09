@@ -27,6 +27,7 @@ from KickstartModelBase import KickstartModelBase
 class KickstartCommandsModel(KickstartModelBase):
 
     NewCommandName = "NEW_COMMAND"
+    NewCommandText = "# Enter command here\n"
 
     NameColumn = 0
     InUseColumn = 1
@@ -35,9 +36,8 @@ class KickstartCommandsModel(KickstartModelBase):
 
     ColumnKeys = ("name", "in_use", "generated_text", "aliases")
 
-    __modified = False
-
     def __init__(self, obsLightManager, projectName):
+        self.__modified = False
         KickstartModelBase.__init__(self,
                                     obsLightManager,
                                     projectName,
@@ -59,11 +59,13 @@ class KickstartCommandsModel(KickstartModelBase):
         if row >= self.rowCount():
             return None
         if column == self.AliasesColumn:
+            # aliases are maintained as a list of strings
             retVal = ", ".join(self.dataDict(row)[self.ColumnKeys[column]])
         else:
             retVal = self.dataDict(row)[self.ColumnKeys[column]]
         return retVal
 
+    # from QAbstractTableModel
     def setData(self, index, value, role=Qt.EditRole):
         if not index.isValid():
             return False
@@ -75,10 +77,17 @@ class KickstartCommandsModel(KickstartModelBase):
         return False
 
     def __updateGeneratedText(self, row, value):
+        """
+        Update the "generated_text" attribute of command at `row` with `value`.
+        Does not commit the change to ObsLightManager.
+        """
         self.dataDict(row)[self.ColumnKeys[self.GeneratedTextColumn]] = value
         self.__modified = True
 
     def commitChanges(self):
+        """
+        Commit all changes to ObsLightManager and write the Kickstart file.
+        """
         for cmdDict in self.dataDictList():
             cmd = cmdDict[self.ColumnKeys[self.NameColumn]]
             if cmd == self.NewCommandName:
@@ -93,33 +102,41 @@ class KickstartCommandsModel(KickstartModelBase):
         self.__modified = False
 
     def refresh(self):
+        """
+        Reload the command list from Kickstart file (only if all
+        modifications have been commited).
+        """
         if not self.__modified:
             super(KickstartCommandsModel, self).refresh()
 
     def hasBeenModified(self):
+        """
+        Return True if some modifications have not been commited,
+        False otherwise.
+        """
         return self.__modified
 
-    def getUnusedCommandList(self):
-        unusedCommands = []
-        for cmdDict in self.dataDictList():
-            if not cmdDict[self.ColumnKeys[self.InUseColumn]]:
-                unusedCommands.append(cmdDict[self.ColumnKeys[self.NameColumn]])
-        return unusedCommands
-
-    def activateCommand(self, command):
-        for cmdDict in self.dataDictList():
-            if cmdDict[self.ColumnKeys[self.NameColumn]] == command:
-                cmdDict[self.ColumnKeys[self.InUseColumn]] = True
-                break
-
     def newCommand(self):
-        newDict = {self.ColumnKeys[self.NameColumn]: self.NewCommandName,
-                   self.ColumnKeys[self.InUseColumn]: True,
-                   self.ColumnKeys[self.GeneratedTextColumn]: "# Enter command here\n"}
+        """
+        Add a new empty command to the list. Command name
+        will be `KickstartCommandsModel.NewCommandName` until
+        changes are commited.
+        """
+        ck = KickstartCommandsModel.ColumnKeys
+        newDict = {ck[KickstartCommandsModel.NameColumn]: KickstartCommandsModel.NewCommandName,
+                   ck[KickstartCommandsModel.InUseColumn]: True,
+                   ck[KickstartCommandsModel.GeneratedTextColumn]:
+                                            KickstartCommandsModel.NewCommandText,
+                   ck[KickstartCommandsModel.AliasesColumn]:
+                                            [KickstartCommandsModel.NewCommandName]}
         self.dataDictList().append(newDict)
         self.__modified = True
 
     def removeCommand(self, row):
+        """
+        Remove the command at `row`. It will not be removed from
+        Kickstart file until changes are commited.
+        """
         self.dataDict(row)[self.ColumnKeys[self.InUseColumn]] = False
         self.__modified = True
 
