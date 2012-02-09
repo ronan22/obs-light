@@ -58,6 +58,9 @@ class KickstartModelBase(QAbstractTableModel):
 
     # from QAbstractTableModel
     def columnCount(self, _parent=None):
+        # Must stay self.ColumnKeys, and not KickstartModelBase.columnKey,
+        # otherwise subclasses won't get their own column count
+        # but the one of this base class
         return len(self.ColumnKeys)
 
     # from QAbstractTableModel
@@ -71,6 +74,9 @@ class KickstartModelBase(QAbstractTableModel):
         return self.__dataDictList[row]
 
     def dataDictList(self):
+        """
+        Get the internal list of data dictionaries.
+        """
         return self.__dataDictList
 
     def refresh(self):

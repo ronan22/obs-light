@@ -20,7 +20,7 @@ Created on 27 oct. 2011
 @author: Florent Vennetier
 '''
 
-from PySide.QtGui import QAction, QLabel
+from PySide.QtGui import QLabel
 
 from ServerListManager import ServerListManager
 from ObsLightGuiObject import ObsLightGuiObject
@@ -30,29 +30,20 @@ class MainWindowActionManager(ObsLightGuiObject):
     Manage the action menu of the main window.
     Connects the actions signals to the appropriate slots.
     '''
-    __serverListManager = None
-    __aboutDialog = None
-    __wizard = None
-
-    actionAbout = None
-    actionLog = None
-    actionOBS_servers = None
-    actionWizard = None
 
     def __init__(self, gui):
         ObsLightGuiObject.__init__(self, gui)
-        mainWindow = self.gui.getMainWindow()
-        self.actionOBS_servers = mainWindow.findChild(QAction, u"actionOBS_servers")
-        self.actionOBS_servers.triggered.connect(self.on_actionOBS_servers_triggered)
+        self.__serverListManager = None
+
         self.__aboutDialog = self.gui.loadWindow(u"obsLightAbout.ui")
         versionLabel = self.__aboutDialog.findChild(QLabel, "versionLabel")
         versionLabel.setText(u"Version: %s" % self.manager.getVersion())
-        self.actionAbout = mainWindow.findChild(QAction, u"actionAbout")
-        self.actionAbout.triggered.connect(self.__aboutDialog.show)
-        self.actionLog = mainWindow.findChild(QAction, u"actionShow_log")
+        self.mainWindow.actionAbout.triggered.connect(self.__aboutDialog.show)
+        self.mainWindow.actionWizard.triggered.connect(self.on_actionWizard_triggered)
+        self.mainWindow.actionOBS_servers.triggered.connect(self.on_actionOBS_servers_triggered)
+
+        self.actionLog = self.mainWindow.actionShow_log
         self.actionLog.triggered.connect(self.on_actionLog_triggered)
-        self.actionWizard = mainWindow.findChild(QAction, u"actionWizard")
-        self.actionWizard.triggered.connect(self.on_actionWizard_triggered)
 
     def on_actionOBS_servers_triggered(self):
         self.__serverListManager = ServerListManager(self.gui)
