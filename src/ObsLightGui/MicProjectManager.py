@@ -78,6 +78,7 @@ class MicProjectManager(QObject, ObsLightGuiObject):
 
     def __loadCommands(self):
         self.mainWindow.kickstartOptionsListView.setModel(self.commandModel)
+        self.mainWindow.kickstartOptionsListView.setModelColumn(self.commandModel.AliasesColumn)
         for row in range(self.commandModel.rowCount()):
             index = self.commandModel.createIndex(row, self.commandModel.InUseColumn)
             inUse = self.commandModel.data(index, Qt.DisplayRole)
@@ -200,11 +201,14 @@ class MicProjectManager(QObject, ObsLightGuiObject):
     def addNewCommand(self):
         self.commandModel.newCommand()
         self.__loadCommands()
-        index = self.commandModel.createIndex(0, 0)
+        lastRow = self.commandModel.rowCount() - 1
+        index = self.commandModel.createIndex(lastRow, 0)
         selectionModel = self.mainWindow.kickstartOptionsListView.selectionModel()
-        selectionModel.select(index, QItemSelectionModel.SelectionFlag.SelectCurrent)
-        self.displayCommand(0)
+        selectionModel.setCurrentIndex(index, QItemSelectionModel.SelectionFlag.SelectCurrent)
+        self.displayCommand(lastRow)
+        self.__updateSaveState()
 
     def removeCommand(self, row):
         self.commandModel.removeCommand(row)
+        self.__updateSaveState()
         self.__loadCommands()

@@ -197,10 +197,7 @@ class ObsLightMicProject(object):
         self._ksManager.removeCommand(command)
 
     def getKickstartCommandDictionaries(self):
-        cmdList = []
-        for cmd in self._ksManager.getCommandList():
-            cmdList.append(self._ksManager.getCommandDict(cmd))
-        return cmdList
+        return self._ksManager.getFilteredCommandDictList()
 # --- end Kickstart management -----------------------------------------------
 
     def deleteProjectDirectory(self):

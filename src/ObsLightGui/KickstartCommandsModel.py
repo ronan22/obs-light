@@ -31,8 +31,9 @@ class KickstartCommandsModel(KickstartModelBase):
     NameColumn = 0
     InUseColumn = 1
     GeneratedTextColumn = 2
+    AliasesColumn = 3
 
-    ColumnKeys = ("name", "in_use", "generated_text")
+    ColumnKeys = ("name", "in_use", "generated_text", "aliases")
 
     __modified = False
 
@@ -53,7 +54,14 @@ class KickstartCommandsModel(KickstartModelBase):
         """
         Return the `Qt.DisplayRole` data for cell at `index`.
         """
-        retVal = self.dataDict(index.row())[self.ColumnKeys[index.column()]]
+        row = index.row()
+        column = index.column()
+        if row >= self.rowCount():
+            return None
+        if column == self.AliasesColumn:
+            retVal = ", ".join(self.dataDict(row)[self.ColumnKeys[column]])
+        else:
+            retVal = self.dataDict(row)[self.ColumnKeys[column]]
         return retVal
 
     def setData(self, index, value, role=Qt.EditRole):
@@ -71,7 +79,7 @@ class KickstartCommandsModel(KickstartModelBase):
         self.__modified = True
 
     def commitChanges(self):
-        for cmdDict in [self.dataDict(row) for row in range(self.rowCount())]:
+        for cmdDict in self.dataDictList():
             cmd = cmdDict[self.ColumnKeys[self.NameColumn]]
             if cmd == self.NewCommandName:
                 cmd = None
@@ -93,14 +101,13 @@ class KickstartCommandsModel(KickstartModelBase):
 
     def getUnusedCommandList(self):
         unusedCommands = []
-        # maybe we should create a method returning the original list...
-        for cmdDict in [self.dataDict(row) for row in range(self.rowCount())]:
+        for cmdDict in self.dataDictList():
             if not cmdDict[self.ColumnKeys[self.InUseColumn]]:
                 unusedCommands.append(cmdDict[self.ColumnKeys[self.NameColumn]])
         return unusedCommands
 
     def activateCommand(self, command):
-        for cmdDict in [self.dataDict(row) for row in range(self.rowCount())]:
+        for cmdDict in self.dataDictList():
             if cmdDict[self.ColumnKeys[self.NameColumn]] == command:
                 cmdDict[self.ColumnKeys[self.InUseColumn]] = True
                 break
@@ -109,7 +116,13 @@ class KickstartCommandsModel(KickstartModelBase):
         newDict = {self.ColumnKeys[self.NameColumn]: self.NewCommandName,
                    self.ColumnKeys[self.InUseColumn]: True,
                    self.ColumnKeys[self.GeneratedTextColumn]: "# Enter command here\n"}
-        self.dataDictList().insert(0, newDict)
+        self.dataDictList().append(newDict)
+        self.__modified = True
 
     def removeCommand(self, row):
         self.dataDict(row)[self.ColumnKeys[self.InUseColumn]] = False
+        self.__modified = True
+
+    def __dump(self):
+        for cmdDict in self.dataDictList():
+            print "%(name)s: %(in_use)s, '%(generated_text)s'" % cmdDict
