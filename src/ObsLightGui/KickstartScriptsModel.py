@@ -27,6 +27,11 @@ from KickstartModelBase import KickstartModelBase
 
 class KickstartScriptsModel(KickstartModelBase):
 
+    NewScriptName = "NEW_SCRIPT"
+    NewScriptText = "# Enter script here\n"
+    NewScriptInterpreter = "/bin/sh"
+    NewScriptType = 0
+
     NameColumn = 0
     ScriptColumn = 1
     TypeColumn = 2
@@ -45,6 +50,7 @@ class KickstartScriptsModel(KickstartModelBase):
                                     obsLightManager,
                                     projectName,
                                     obsLightManager.getKickstartScriptDictionaries)
+        self._scriptsToRemove = []
 
     # from QAbstractTableModel
     def headerData(self, section, orientation, role=Qt.DisplayRole):
@@ -67,5 +73,72 @@ class KickstartScriptsModel(KickstartModelBase):
         """
         Return the `Qt.DisplayRole` data for cell at `index`.
         """
-        retVal = self.dataDict(index.row())[self.ColumnKeys[index.column()]]
+        row = index.row()
+        if row >= self.rowCount():
+            return None
+        retVal = self.dataDict(row).get(self.ColumnKeys[index.column()], None)
         return retVal
+
+    # from QAbstractTableModel
+    def setData(self, index, value, role=Qt.EditRole):
+        if not index.isValid():
+            return False
+
+        if role == Qt.DisplayRole:
+            self.dataDict(index.row())[self.ColumnKeys[index.column()]] = value
+            self.modified = True
+            return True
+        return False
+
+    def commitChanges(self):
+        """
+        Commit all changes to the scripts and write the Kickstart file.
+        """
+        while len(self._scriptsToRemove) > 0:
+            scriptDict = self._scriptsToRemove[0]
+            self.manager.removeKickstartScript(self.currentProject,
+                                               scriptDict[self.ColumnKeys[self.NameColumn]])
+            del self._scriptsToRemove[0]
+        for scriptDict in self.dataDictList():
+            if scriptDict[self.ColumnKeys[self.NameColumn]] == self.NewScriptName:
+                exportDict = dict(scriptDict)
+                exportDict[self.ColumnKeys[self.NameColumn]] = None
+            else:
+                exportDict = scriptDict
+            # pylint: disable-msg=W0142
+            self.manager.addOrChangeKickstartScript(self.currentProject,
+                                                    **exportDict)
+        self.manager.saveKickstartFile(self.currentProject)
+        self.modified = False
+
+    def refresh(self):
+        """
+        Reload the script list from Kickstart file (only if all
+        modifications have been commited).
+        """
+        if not self.modified:
+            super(KickstartScriptsModel, self).refresh()
+
+    def newScript(self):
+        """
+        Add a new script. Will not be added to the Kickstart file
+        until `commitChanges()` is called.
+        """
+        ck = self.ColumnKeys
+        scriptDict = {ck[self.NameColumn]: self.NewScriptName,
+                      ck[self.ScriptColumn]: self.NewScriptText,
+                      ck[self.TypeColumn]: self.NewScriptType,
+                      ck[self.InterpreterColumn]: self.NewScriptInterpreter}
+        self.dataDictList().append(scriptDict)
+        self.modified = True
+
+    def removeScript(self, row):
+        """
+        Remove the script at `row`. Will not be removed from the
+        Kickstart file until `commitChanges()` is called.
+        """
+        scriptDict = self.dataDict(row)
+        if scriptDict[self.ColumnKeys[self.NameColumn]] != self.NewScriptName:
+            self._scriptsToRemove.append(scriptDict)
+        del self.dataDictList()[row]
+        self.modified = True

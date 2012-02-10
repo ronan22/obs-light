@@ -81,6 +81,7 @@ class MicProjectManager(QObject, ObsLightGuiObject):
         self.mainWindow.kickstartOptionsListView.setModel(self.commandModel)
         aliasColumn = KickstartCommandsModel.AliasesColumn
         self.mainWindow.kickstartOptionsListView.setModelColumn(aliasColumn)
+        # FIXME: modify ObsLightKickstartManager so it does not send unused commands
         for row in range(self.commandModel.rowCount()):
             index = self.commandModel.createIndex(row, KickstartCommandsModel.InUseColumn)
             inUse = self.commandModel.data(index, Qt.DisplayRole)
@@ -91,7 +92,8 @@ class MicProjectManager(QObject, ObsLightGuiObject):
         Activate/deactivate Kickstart option 'save' button, if
         commands have been modified or not
         """
-        self.mainWindow.saveKickstartOptionButton.setEnabled(self.commandModel.hasBeenModified())
+        self.mainWindow.saveKickstartOptionButton.setEnabled(self.commandModel.modified)
+        self.mainWindow.saveKickstartScriptButton.setEnabled(self.scriptModel.modified)
 
     @property
     def currentProject(self):
@@ -242,7 +244,6 @@ class MicProjectManager(QObject, ObsLightGuiObject):
         to the Kickstart file
         """
         self.commandModel.commitChanges()
-        self.__updateSaveState()
         self.refresh()
 
     def addNewCommand(self):
@@ -285,19 +286,83 @@ class MicProjectManager(QObject, ObsLightGuiObject):
         self.mainWindow.tracebackScriptRadioButton.setChecked(scriptType == 2)
 
         errorOnFail = getVal(KickstartScriptsModel.ErrorOnFailColumn)
-        self.mainWindow.errorOnFailCheckBox.setChecked(errorOnFail)
+        self.mainWindow.errorOnFailCheckBox.setChecked(bool(errorOnFail))
 
         noChroot = not getVal(KickstartScriptsModel.RunInChrootColumn)
-        self.mainWindow.noChrootCheckBox.setChecked(noChroot)
+        self.mainWindow.noChrootCheckBox.setChecked(bool(noChroot))
 
         interpreter = getVal(KickstartScriptsModel.InterpreterColumn)
         self.mainWindow.interpreterLineEdit.setText(interpreter)
-        self.mainWindow.specifyInterpreterCheckBox.setChecked(interpreter != "/bin/sh")
+        defaultInterpreter = KickstartScriptsModel.NewScriptInterpreter
+        self.mainWindow.specifyInterpreterCheckBox.setChecked(interpreter != defaultInterpreter)
 
         logFile = getVal(KickstartScriptsModel.LogFileColumn)
-        self.mainWindow.logLineEdit.setText(logFile)
+        self.mainWindow.logFileLineEdit.setText(logFile)
         self.mainWindow.specifyLogFileCheckBox.setChecked(logFile is not None)
 
         scriptText = getVal(KickstartScriptsModel.ScriptColumn)
         self.mainWindow.kickstartScriptTextEdit.clear()
         self.mainWindow.kickstartScriptTextEdit.appendPlainText(scriptText)
+
+    def addNewScript(self):
+        """
+        Add a new script at the end of the script list.
+        """
+        self.scriptModel.newScript()
+        self.__updateSaveState()
+
+    def removeScript(self, row):
+        """
+        Remove the script at `row` from the script list.
+        """
+        self.scriptModel.removeScript(row)
+        self.__updateSaveState()
+
+    def editScript(self, row):
+        """
+        Save the text in the Kickstart script TextEdit
+        and all selected options
+        as the content of the script at `row`
+        """
+        def setVal(column, value):
+            index = self.scriptModel.createIndex(row, column)
+            self.scriptModel.setData(index, value, Qt.DisplayRole)
+
+        text = self.mainWindow.kickstartScriptTextEdit.toPlainText()
+        setVal(KickstartScriptsModel.ScriptColumn, text)
+
+        if self.mainWindow.tracebackScriptRadioButton.isChecked():
+            scriptType = 2
+        elif self.mainWindow.postScriptRadioButton.isChecked():
+            scriptType = 1
+        else:
+            scriptType = 0
+        setVal(KickstartScriptsModel.TypeColumn, scriptType)
+
+        noChroot = self.mainWindow.noChrootCheckBox.isChecked()
+        setVal(KickstartScriptsModel.RunInChrootColumn, not noChroot)
+
+        errorOnFail = self.mainWindow.errorOnFailCheckBox.isChecked()
+        setVal(KickstartScriptsModel.ErrorOnFailColumn, errorOnFail)
+
+        if self.mainWindow.specifyInterpreterCheckBox.isChecked():
+            interpreter = self.mainWindow.interpreterLineEdit.text()
+        else:
+            interpreter = KickstartScriptsModel.NewScriptInterpreter
+        setVal(KickstartScriptsModel.InterpreterColumn, interpreter)
+
+        if self.mainWindow.specifyLogFileCheckBox.isChecked():
+            logFile = self.mainWindow.logFileLineEdit.text()
+        else:
+            logFile = None
+        setVal(KickstartScriptsModel.LogFileColumn, logFile)
+
+        self.__updateSaveState()
+
+    def saveScripts(self):
+        """
+        Commit all the changes made to Kickstart scripts
+        to the Kickstart file
+        """
+        self.scriptModel.commitChanges()
+        self.refresh()

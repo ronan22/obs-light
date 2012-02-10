@@ -43,6 +43,7 @@ class ObsLightKickstartManager(object):
     def __init__(self, kickstartPath=None):
         self._kickstartPath = kickstartPath
         self._ksParser = None
+        self._scriptCounter = 0
         # bidirectional mapping between script instances and script names
         self._scriptNameMap = {}
         if self.kickstartPath is not None:
@@ -437,24 +438,55 @@ class ObsLightKickstartManager(object):
         """
         self._checkKsParser()
         scriptDictList = []
-        for script in self.kickstartParser.handler.scripts:
+        for scriptObj in self.kickstartParser.handler.scripts:
             # do not add overlay file scripts
-            if script.script.lstrip().startswith(self.OverlayFileScriptTag):
+            if scriptObj.script.lstrip().startswith(self.OverlayFileScriptTag):
                 continue
             # make a copy of the object's attribute dictionary
-            scriptDict = dict(script.__dict__)
+            scriptDict = dict(scriptObj.__dict__)
             # remove the line number since we don't care
             scriptDict.pop("lineno", None)
             # find or generate a name for the script
-            if script in self._scriptNameMap:
-                scriptName = self._scriptNameMap[script]
+            if scriptObj in self._scriptNameMap:
+                scriptName = self._scriptNameMap[scriptObj]
             else:
-                scriptName = "script %d" % self.kickstartParser.handler.scripts.index(script)
+                scriptName = "script %d" % self._scriptCounter
+                self._scriptCounter += 1
             scriptDict["name"] = scriptName
             # save the name of the script
-            self._scriptNameMap[scriptName] = script
-            self._scriptNameMap[script] = scriptName
+            self._scriptNameMap[scriptName] = scriptObj
+            self._scriptNameMap[scriptObj] = scriptName
 
             scriptDictList.append(scriptDict)
         return scriptDictList
+
+    def addOrChangeScript(self, name=None, script="", **kwargs):
+        """
+        Add a new Kickstart script, or modify an existing one.
+        To add a new script, leave `name` at None.
+        To change an existing script, you must pass the script name
+        in `name`. `script` and other keyword args are those described
+        in `getScriptDictList()`.
+        """
+        if name is not None and name in self._scriptNameMap:
+            scriptObj = self._scriptNameMap[name]
+            scriptObj.__dict__.update({"script": str(script)})
+            scriptObj.__dict__.update(kwargs)
+        else:
+            scriptObj = kickstart.ksparser.Script(script=script, **kwargs)
+            self.kickstartParser.handler.scripts.append(scriptObj)
+
+    def removeScript(self, scriptName):
+        """
+        Remove script `scriptName` from the Kickstart file.
+        """
+        # get the script object and remove it from the name map
+        scriptObj = self._scriptNameMap.pop(scriptName, None)
+        # if it was not in the map, just return
+        if scriptObj is None:
+            return
+        # remove the script object from Kickstart
+        self.kickstartParser.handler.scripts.remove(scriptObj)
+        # remove the name of the script from the name map
+        self._scriptNameMap.pop(scriptObj)
 # --- end Scripts ------------------------------------------------------------

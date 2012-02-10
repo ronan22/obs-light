@@ -68,7 +68,20 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
              mw.addKickstartOptionButton.clicked: self.on_addKickstartOptionButton_clicked,
              mw.removeKickstartOptionButton.clicked: self.on_removeKickstartOptionButton_clicked,
              # KS scripts
-             mw.kickstartScriptsListView.clicked: self.on_kickstartScriptsListView_clicked
+             mw.kickstartScriptsListView.clicked: self.on_kickstartScriptsListView_clicked,
+             mw.kickstartScriptTextEdit.textChanged: self.on_kickstartScriptTextEdit_textChanged,
+             mw.preScriptRadioButton.toggled: self.on_kickstartScriptOption_toggled,
+             mw.postScriptRadioButton.toggled: self.on_kickstartScriptOption_toggled,
+             mw.tracebackScriptRadioButton.toggled: self.on_kickstartScriptOption_toggled,
+             mw.noChrootCheckBox.toggled: self.on_kickstartScriptOption_toggled,
+             mw.errorOnFailCheckBox.toggled: self.on_kickstartScriptOption_toggled,
+             mw.specifyInterpreterCheckBox.toggled: self.on_kickstartScriptOption_toggled,
+             mw.specifyLogFileCheckBox.toggled: self.on_kickstartScriptOption_toggled,
+             mw.interpreterLineEdit.textChanged: self.on_kickstartScriptOption_toggled,
+             mw.logFileLineEdit.textChanged: self.on_kickstartScriptOption_toggled,
+             mw.saveKickstartScriptButton.clicked: self.on_saveKickstartScriptButton_clicked,
+             mw.addKickstartScriptButton.clicked: self.on_addKickstartScriptButton_clicked,
+             mw.removeKickstartScriptButton.clicked: self.on_removeKickstartScriptButton_clicked
              }
         self.__signalSlotMap = m
 
@@ -321,6 +334,28 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
         """Called when user clicks on 'remove' button of kickstart options tab"""
         row = self.mainWindow.kickstartOptionsListView.currentIndex().row()
         self._currentProjectObj.removeCommand(row)
+
+    @popupOnException
+    def on_saveKickstartScriptButton_clicked(self):
+        """Called when user clicks on 'save' button of kickstart script tab"""
+        self.__disconnectProjectEventsAndButtons()
+        try:
+            self._currentProjectObj.saveScripts()
+            self.mainWindow.kickstartScriptsListView.clearSelection()
+            self.mainWindow.kickstartScriptTextEdit.clear()
+        finally:
+            self.__connectProjectEventsAndButtons()
+
+    @popupOnException
+    def on_addKickstartScriptButton_clicked(self):
+        """Called when user clicks on 'add' button of kickstart script tab"""
+        self._currentProjectObj.addNewScript()
+
+    @popupOnException
+    def on_removeKickstartScriptButton_clicked(self):
+        """Called when user clicks on 'remove' button of kickstart script tab"""
+        row = self.mainWindow.kickstartScriptsListView.currentIndex().row()
+        self._currentProjectObj.removeScript(row)
 # --- end Button handlers ----------------------------------------------------
 
 # --- Event handlers ---------------------------------------------------------
@@ -367,4 +402,14 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
         self.__disconnectProjectEventsAndButtons()
         self._currentProjectObj.displayScript(index.row())
         self.__connectProjectEventsAndButtons()
+
+    def on_kickstartScriptTextEdit_textChanged(self):
+        """Called when user modifies the text of a kickstart script"""
+        row = self.mainWindow.kickstartScriptsListView.currentIndex().row()
+        self._currentProjectObj.editScript(row)
+
+    def on_kickstartScriptOption_toggled(self, _value=False):
+        """Called when user modifies one of the kickstart script parameters"""
+        row = self.mainWindow.kickstartScriptsListView.currentIndex().row()
+        self._currentProjectObj.editScript(row)
 # --- end Event handlers -----------------------------------------------------

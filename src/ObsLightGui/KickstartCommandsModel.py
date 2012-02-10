@@ -37,7 +37,6 @@ class KickstartCommandsModel(KickstartModelBase):
     ColumnKeys = ("name", "in_use", "generated_text", "aliases")
 
     def __init__(self, obsLightManager, projectName):
-        self.__modified = False
         KickstartModelBase.__init__(self,
                                     obsLightManager,
                                     projectName,
@@ -83,7 +82,7 @@ class KickstartCommandsModel(KickstartModelBase):
         Does not commit the change to ObsLightManager.
         """
         self.dataDict(row)[self.ColumnKeys[self.GeneratedTextColumn]] = value
-        self.__modified = True
+        self.modified = True
 
     def commitChanges(self):
         """
@@ -100,22 +99,15 @@ class KickstartCommandsModel(KickstartModelBase):
             else:
                 self.manager.removeKickstartCommand(self.currentProject, cmd)
         self.manager.saveKickstartFile(self.currentProject)
-        self.__modified = False
+        self.modified = False
 
     def refresh(self):
         """
         Reload the command list from Kickstart file (only if all
         modifications have been commited).
         """
-        if not self.__modified:
+        if not self.modified:
             super(KickstartCommandsModel, self).refresh()
-
-    def hasBeenModified(self):
-        """
-        Return True if some modifications have not been commited,
-        False otherwise.
-        """
-        return self.__modified
 
     def newCommand(self):
         """
@@ -131,7 +123,7 @@ class KickstartCommandsModel(KickstartModelBase):
                    ck[KickstartCommandsModel.AliasesColumn]:
                                             [KickstartCommandsModel.NewCommandName]}
         self.dataDictList().append(newDict)
-        self.__modified = True
+        self.modified = True
 
     def removeCommand(self, row):
         """
@@ -139,7 +131,7 @@ class KickstartCommandsModel(KickstartModelBase):
         Kickstart file until changes are commited.
         """
         self.dataDict(row)[self.ColumnKeys[self.InUseColumn]] = False
-        self.__modified = True
+        self.modified = True
 
     def __dump(self):
         for cmdDict in self.dataDictList():
