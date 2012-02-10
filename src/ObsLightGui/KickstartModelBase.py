@@ -27,6 +27,7 @@ class KickstartModelBase(QAbstractTableModel):
     """
     Base class for KickstartPackagesModel and KickstartRepositoriesModel
     """
+    # pylint: disable-msg=E0202, E1101
 
     # The index of the name column
     NameColumn = 0
@@ -42,6 +43,7 @@ class KickstartModelBase(QAbstractTableModel):
               returning a list of data dictionaries
         """
         QAbstractTableModel.__init__(self)
+        self.__modified = False
         self.__dataDictList = None
         self.__manager = obsLightManager
         self.__project = projectName
@@ -56,6 +58,19 @@ class KickstartModelBase(QAbstractTableModel):
     @property
     def currentProject(self):
         return self.__project
+
+    @property
+    def modified(self):
+        """
+        Return True if some modifications have not been commited,
+        False otherwise.
+        """
+        return self.__modified
+
+    @modified.setter
+    def modified(self, value): # pylint: disable-msg=E0102
+        self.__modified = value
+        self.layoutChanged.emit()
 
     # from QAbstractTableModel
     def columnCount(self, _parent=None):

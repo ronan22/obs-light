@@ -255,6 +255,16 @@ class ObsLightMicProjects:
         self._checkMicProjectName(micProjectName)
         return self.__dicOBSLightProjects[micProjectName].getKickstartCommandDictionaries()
 
+    def addOrChangeKickstartScript(self, micProjectName, name=None, script="", **kwargs):
+        self._checkMicProjectName(micProjectName)
+        self.__dicOBSLightProjects[micProjectName].addOrChangeKickstartScript(name,
+                                                                              script,
+                                                                              **kwargs)
+
+    def removeKickstartScript(self, micProjectName, scriptName):
+        self._checkMicProjectName(micProjectName)
+        self.__dicOBSLightProjects[micProjectName].removeKickstartScript(scriptName)
+
     def getKickstartScriptDictionaries(self, micProjectName):
         self._checkMicProjectName(micProjectName)
         return self.__dicOBSLightProjects[micProjectName].getKickstartScriptDictionaries()
