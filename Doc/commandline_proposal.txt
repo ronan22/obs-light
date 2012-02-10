@@ -3,26 +3,26 @@ obslight
 	obsproject
 	package
 	filesystem
-	spec
+	rpmbuild
 	micproject
 	qemuproject
 #_____________________________________________________________________________________________________________________________________________________
 	server	test	server_alias <server_alias> 
 	server	test	login <login> password <password> api_url <api_url> 
 	server	list	[reachable]
-	server	query	[login] [apiurl] [repository_url] [weburl] {server_alias <server_alias>}
+	server	query	[login|apiurl|repository_url|weburl] {server_alias <server_alias>}
 	server	set	[login <login>] [apiurl <apiurl>] [repository_url <repository_url>] [weburl <web_url>] {server_alias <server_alias>}
 	server	add	server_alias <server_alias> login <login> password <password> api_url <api_url> repository_url <repository_url> web_url <web_url>
 	server	delete	<server_alias>  
-	server	current
+	server	current BLANK
 	#___________________________________________________________________________________________________________________________________________
-	obsproject	list	
+	obsproject	list	BLANK
 	obsproject	list	server_alias <server_alias> raw|[arch <arch>|maintainer|bugowner|remoteurl]
 	obsproject	current
 	obsproject	dependencyrepositories {<project_alias>}
 	obsproject	delete	<project_alias>
 	obsproject	add	<project_alias> <name_on_obs> <target> <arch> {<server_alias>}
-	obsproject	query	[title|description|server|webpage|repository|target|architecture] {project_alias <project_alias>}
+	obsproject	query	[title|description|obsServer|webpage|repository|target|architecture] {project_alias <project_alias>}
 	obsproject	query	[title|description|target|architecture|remoteurl|maintainer|bugowner] server_alias <server_alias> obsproject <project> 
 	obsproject	set	[title <title>] [description <description>] {project_alias <project_alias>}
 	obsproject	import	path
@@ -36,7 +36,6 @@ obslight
 	package	query	[title|description|url|listFile] {package <package> {server_alias <server_alias> {project <project>}}} 
 	package	query	[title|description|obsRev|oscRev|listFile|obsStatus|oscStatus|specFile|yamlFile|fsPackageDirectory|oscPackageDirectory|chRootStatus|currentPatch] {package <package> {project_alias <project_alias>} } 
 	package	set	[title <title>] [description <description>] {package <package> {project_alias <project_alias>}} 
-	
 	package	update	{package <package> {project_alias <project_alias>}}
 	package	commit	<message> {package <package> {project_alias <project_alias>}}
 	package	repair	{package <package> {project_alias <project_alias>}
@@ -83,11 +82,12 @@ obslight
 
 #_____________________________________________________________________________________________________________________________________________________
 synthax used:
- project	the string "project"
- [project]	the optional string "project"
- <project>	a project name
- [<project>]	an optional project name
- {<project>}	an optional project name, if absent: the most recently used is taken
+        project      the string "project"
+        [project]    the optional string "project"
+        <project>    a project name
+        [<project>]  an optional project name
+        {<project>}  an optional project name, if absent, the current used is taken
+	BLANK		
 
 abbreviations/synonyms:
  delete		del, rm
