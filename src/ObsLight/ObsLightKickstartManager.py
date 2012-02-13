@@ -39,6 +39,8 @@ class ObsLightKickstartManager(object):
 
     # The tag used to identify OBS Light overlay file script
     OverlayFileScriptTag = "#- OBS Light overlay file script -#"
+    OverlayFileSourceTag = "#- Source:"
+    OverlayFileDestinationTag = "#- Destination:"
 
     def __init__(self, kickstartPath=None):
         self._kickstartPath = kickstartPath
@@ -490,3 +492,67 @@ class ObsLightKickstartManager(object):
         # remove the name of the script from the name map
         self._scriptNameMap.pop(scriptObj)
 # --- end Scripts ------------------------------------------------------------
+
+# --- Overlay files ----------------------------------------------------------
+    def getOverlayFileDictList(self):
+        self._checkKsParser()
+        overlayDictList = []
+        for scriptObj in self.kickstartParser.handler.scripts:
+            scriptText = scriptObj.script.strip()
+            # do not add regular scripts
+            if not scriptText.startswith(self.OverlayFileScriptTag):
+                continue
+            overlayDict = {}
+            for scriptLine in scriptText.splitlines():
+                scriptLine = scriptLine.lstrip()
+                if scriptLine.startswith(self.OverlayFileSourceTag):
+                    src = scriptLine[len(self.OverlayFileSourceTag):].strip()
+                    overlayDict["source"] = src
+                elif scriptLine.startswith(self.OverlayFileDestinationTag):
+                    dst = scriptLine[len(self.OverlayFileDestinationTag):].strip()
+                    overlayDict["destination"] = dst
+                if "source" in overlayDict and "destination" in overlayDict:
+                    break
+
+            scriptName = overlayDict["source"] + " " + overlayDict["destination"]
+            # save the name of the script
+            self._scriptNameMap[scriptName] = scriptObj
+            self._scriptNameMap[scriptObj] = scriptName
+
+            overlayDictList.append(overlayDict)
+        return overlayDictList
+
+    def _generateCopyScript(self, source, destination):
+        # prepare script header
+        copyScript = self.OverlayFileScriptTag + "\n"
+        copyScript += self.OverlayFileSourceTag + source + "\n"
+        copyScript += self.OverlayFileDestinationTag + destination + "\n"
+        # split destination file and destination directory
+        # FIXME: use str.split
+        if destination.endswith("/"):
+            destFileName = ""
+            chrootDestDir = '$INSTALL_ROOT%s' % destination
+        else:
+            destFileName = destination[destination.rfind("/") + 1:]
+            chrootDestDir = '$INSTALL_ROOT%s' % destination[:destination.rfind("/") + 1]
+        # create destination directory if it does not exist
+        copyScript += '[ -d "%s" ] || mkdir -p "%s"\n' % (chrootDestDir, chrootDestDir)
+        # do the copy
+        copyScript += 'cp "%s" "%s"\n' % (source, chrootDestDir[:-1] + destFileName)
+        return copyScript
+
+    def addOrChangeOverlay(self, source, destination):
+        source = str(source)
+        destination = str(destination)
+        scriptName = source + " " + destination
+        copyScript = self._generateCopyScript(source, destination)
+        scriptObj = self._scriptNameMap.get(scriptName, None)
+        if scriptObj is None:
+            scriptObj = kickstart.ksparser.Script(script=copyScript,
+                                                  inChroot=False,
+                                                  type=1)
+            self.kickstartParser.handler.scripts.append(scriptObj)
+        else:
+            scriptObj.script = copyScript
+
+# --- end Overlay files ------------------------------------------------------

@@ -1,14 +1,15 @@
 #!/usr/bin/env python
 # Authors Dominig ar Foll (Intel OTC) (first versions in Bash)
 #         Florent Vennetier (Intel OTC) (third version in Python)
-# Date 04 October 2011
-# Version 3.1
+# Date 13 February 2012
+# Version 3.2
 # License GPLv2
 #
 # Credit Thanks to Yan Yin for providing the initial version used as a base
 #
 
 import sys
+import os
 import urllib
 import urllib2
 import urlparse
@@ -44,8 +45,37 @@ Return code:
           4 network error
           5 interrupted by user
 
-Version 3.1  License GPLv2"""  % (progName, progName, progName, progName, progName)
+Version 3.2  License GPLv2""" % (progName, progName, progName, progName, progName)
 
+logFilePath = "/tmp/obs2obscopy.log"
+logFile = None
+
+def openlogfile():
+    global logFilePath
+    global logFile
+    try:
+        logFile = open(logFilePath, "wu")
+    except IOError as e:
+        print >> sys.stderr, "Cannot open", logFilePath, ":", e.strerror
+        sys.exit(3)
+
+def printerror(message):
+    global logFile
+    if logFile is None or logFile.closed:
+        openlogfile()
+    print >> sys.stderr, message
+    print >> logFile, message
+
+def printmessage(message, newline=True):
+    global logFile
+    if logFile is None or logFile.closed:
+        openlogfile()
+    if newline:
+        print message
+        print >> logFile, message
+    else:
+        print message,
+        print >> logFile, message,
 
 def makeurl(baseurl, l, query=[]):
     """
@@ -69,6 +99,74 @@ def makeurl(baseurl, l, query=[]):
         print "->", finalurl
     return finalurl
 
+def copy_pac(src_apiurl, src_project, src_package,
+             dst_apiurl, dst_project, dst_package,
+             client_side_copy=False,
+             keep_maintainers=False,
+             keep_develproject=False,
+             expand=False,
+             revision=None,
+             comment=None):
+    """
+    Patched copy of osc 0.132.5 copy_pac() function.
+
+
+    Create a copy of a package.
+
+    Copying can be done by downloading the files from one package and commit
+    them into the other by uploading them (client-side copy) --
+    or by the server, in a single api call.
+    """
+
+    if not (src_apiurl == dst_apiurl and src_project == dst_project \
+        and src_package == dst_package):
+        src_meta = core.show_package_meta(src_apiurl, src_project, src_package)
+        dst_userid = conf.get_apiurl_usr(dst_apiurl)
+        src_meta = core.replace_pkg_meta(src_meta, dst_package, dst_project, keep_maintainers,
+                                    dst_userid, keep_develproject)
+
+        print 'Sending meta data...'
+        u = makeurl(dst_apiurl, ['source', dst_project, dst_package, '_meta'])
+        core.http_PUT(u, data=src_meta)
+
+    print 'Copying files...'
+    if not client_side_copy:
+        query = {'cmd': 'copy', 'oproject': src_project, 'opackage': src_package }
+        if expand:
+            query['expand'] = '1'
+        if revision:
+            query['orev'] = revision
+        if comment:
+            query['comment'] = comment
+        u = makeurl(dst_apiurl, ['source', dst_project, dst_package], query=query)
+        f = core.http_POST(u)
+        return f.read()
+
+    else:
+        # copy one file after the other
+        import tempfile
+        query = {'rev': 'upload'}
+        revision = core.show_upstream_srcmd5(src_apiurl, src_project, src_package, expand=expand, revision=revision)
+        for n in core.meta_get_filelist(src_apiurl, src_project, src_package, expand=expand, revision=revision):
+            if n.startswith('_service:') or n.startswith('_service_'):
+                continue
+            print '  ', n
+            tmpfile = None
+            try:
+                (fd, tmpfile) = tempfile.mkstemp(prefix='osc-copypac')
+                os.close(fd)
+                core.get_source_file(src_apiurl, src_project, src_package, n, targetfilename=tmpfile, revision=revision)
+                u = makeurl(dst_apiurl, ['source', dst_project, dst_package, core.pathname2url(n)], query=query)
+                core.http_PUT(u, file=tmpfile)
+            finally:
+                if not tmpfile is None:
+                    os.unlink(tmpfile)
+        if comment:
+            query['comment'] = comment
+        query['cmd'] = 'commit'
+        u = makeurl(dst_apiurl, ['source', dst_project, dst_package], query=query)
+        core.http_POST(u)
+        return 'Done.'
 
 def copyproject(apiUrl, srcProjectName, dstApiUrl, dstProjectName, tagFilePath):
     totalPkg = 0
@@ -82,22 +180,19 @@ def copyproject(apiUrl, srcProjectName, dstApiUrl, dstProjectName, tagFilePath):
     conf.get_config()
     core.makeurl = makeurl
 
+    global logFilePath
     logFilePath = tagFilePath + ".log"
-    try:
-        logFile = open(logFilePath, "wu")
-    except IOError as e:
-        print >> sys.stderr, "Cannot open", logFilePath, ":", e.strerror
-        sys.exit(3)
+    openlogfile()
+
     try:
         tagFile = open(tagFilePath, "ru")
     except IOError as e:
-        print >> sys.stderr, "Cannot open", tagFilePath, ":", e.strerror
-        print >> logFile, "Cannot open", tagFilePath, ":", e.strerror
+        message = "Cannot open %s: %s" % (tagFilePath, e.strerror)
+        printerror(message)
         sys.exit(3)
     message = "Copying revision version of source packages as defined in "
     message += tagFilePath
-    print message
-    print >> logFile, message
+    printmessage(message)
 
     print "info : Checking connectivity with target project...",
     sys.stdout.flush()
@@ -105,19 +200,15 @@ def copyproject(apiUrl, srcProjectName, dstApiUrl, dstProjectName, tagFilePath):
         core.meta_get_packagelist(dstApiUrl, dstProjectName)
     except KeyboardInterrupt:
         raise
-    except urllib2.HTTPError as e:
+    except (urllib2.HTTPError, urllib2.URLError) as e:
         print
-        message = "Error: Target project '%s' cannot be reached: %s"\
-            % (dstProjectName, str(e))
-        print >> sys.stderr, message
-        print >> logFile, message
-        sys.exit(4)
-    except urllib2.URLError as e:
-        print
-        message = "Error: Target project '%s' cannot be reached: %s"\
-            % (dstProjectName, str(e.reason))
-        print >> sys.stderr, message
-        print >> logFile, message
+        if type(e) == urllib2.HTTPError:
+            strerror = str(e) + " (%s)" % e.url
+        else:
+            strerror = str(e.reason)
+        message = "FAILED\nError: Target project '%s' cannot be reached: %s"\
+            % (dstProjectName, strerror)
+        printerror(message)
         sys.exit(4)
     print "OK"
 
@@ -127,22 +218,19 @@ def copyproject(apiUrl, srcProjectName, dstApiUrl, dstProjectName, tagFilePath):
         core.meta_get_packagelist(apiUrl, srcProjectName)
     except KeyboardInterrupt:
         raise
-    except urllib2.HTTPError as e:
+    except (urllib2.HTTPError, urllib2.URLError) as e:
         print
-        message = "Error: Source project '%s' cannot be reached: %s"\
-            % (srcProjectName, str(e))
-        print >> sys.stderr, message
-        print >> logFile, message
-        sys.exit(4)
-    except urllib2.URLError as e:
-        print
-        message = "Error: Source project '%s' cannot be reached: %s"\
-            % (srcProjectName, str(e.reason))
-        print >> sys.stderr, message
-        print >> logFile, message
+
+        if type(e) == urllib2.HTTPError:
+            strerror = str(e) + " (%s)" % e.url
+        else:
+            strerror = str(e.reason)
+        message = "FAILED\nError: Source project '%s' cannot be reached: %s"\
+            % (srcProjectName, strerror)
+        printerror(message)
         sys.exit(4)
     print "OK"
-    
+
     for line in tagFile:
         parts = line.split("|", 4) # only first 4 fields are relevant
 
@@ -154,7 +242,7 @@ def copyproject(apiUrl, srcProjectName, dstApiUrl, dstProjectName, tagFilePath):
 
         totalPkg += 1
         pkgName = parts[3].strip()
-        
+
         packagePresent = False
         try:
             fileList = core.meta_get_filelist(dstApiUrl, dstProjectName,
@@ -167,39 +255,37 @@ def copyproject(apiUrl, srcProjectName, dstApiUrl, dstProjectName, tagFilePath):
             if e.code == 404 or e.code == 400:
                 packagePresent = False
             else:
-                message = "Error: Cannot list files of project '%s': %s"\
+                message = "Error: Cannot list files of package '%s': %s"\
                     % (pkgName, str(e))
-                print >> sys.stderr, message
-                print >> logFile, message
+                printerror(message)
+                failPkg += 1
                 continue
         except Exception as e:
-            message = "Error: Cannot list files of project '%s': %s"\
-                % (pkgName, str(e))
-            print >> sys.stderr, message
-            print >> logFile, message
+            message = "Error: Cannot list files of package '%s': %s: %s\n"\
+                % (pkgName, str(type(e)), str(e))
+            printerror(message)
+            failPkg += 1
             continue
 
         if not packagePresent:
             copiedPkg += 1
             message = "info : Copying %s from %s" % (pkgName, srcProjectName)
-            print message,
-            print >> logFile, message,
+            printmessage(message, False)
 
             packageIsLink = False
             try:
                 fileList = core.meta_get_filelist(apiUrl, srcProjectName, pkgName)
                 if "_link" in fileList:
-                    print "(following the link) ",
-                    print >> logFile, "(following the link) ",
+                    printmessage("(following the link) ", False)
                     packageIsLink = True
             except Exception as e:
-                message = "Error checking if %s is a link: %s\tTrying standard copy" % (pkgName, str(e))
-                print >> sys.stderr, message
-                print >> logFile, message
+                message = "\nError checking if %s is a link: '%s', trying standard copy"\
+                    % (pkgName, str(e))
+                printerror(message)
 
             try:
                 print
-                core.copy_pac(apiUrl, srcProjectName, pkgName,
+                copy_pac(apiUrl, srcProjectName, pkgName,
                               dstApiUrl, dstProjectName, pkgName,
                               client_side_copy=(apiUrl != dstApiUrl),
                               revision=(None if packageIsLink else md5),
@@ -212,44 +298,36 @@ def copyproject(apiUrl, srcProjectName, dstApiUrl, dstProjectName, tagFilePath):
                     goodLink += 1
                 else:
                     goodPkg += 1
-                print "DONE"
-                print >> logFile, "DONE"
-                
+                printmessage("DONE")
+
             except Exception as e:
                 if packageIsLink:
                     failLink += 1
                 else:
                     failPkg += 1
-                print "FAILED: %s" % str(e)
-                print >> logFile, "FAILED"
+                message = "FAILED: %s" % (str(e))
+                if type(e) == urllib2.HTTPError:
+                    if e.code == 400 and md5 != "latest":
+                        message += "\nMaybe revision '%s' is not available" % md5
+                        message += "\n try 'curl -u user:password \"%s\"'" % e.url
+                printmessage(message)
 
         else:
             existPkg += 1
-            print "info : %s is already present on %s" \
-                % (pkgName, dstProjectName)
-            print >> logFile, "info : %s is already present on %s" \
-                % (pkgName, dstProjectName)
-    
+            message = "info : %s is already present on %s" % (pkgName, dstProjectName)
+            printmessage(message)
+
     tagFile.close()
 
-    print "Final reports"
-    print "   Total packages requested     = %s" % totalPkg
-    print "   Packages existing on target  = %s" % existPkg
-    print "   Packages needed copying      = %s" % copiedPkg
-    print "   Packages copied              = %s" % goodPkg
-    print "   Packages in error            = %s" % failPkg
-    print "   Linked packages copied       = %s" % goodLink
-    print "   Linked packages in error     = %s" % failLink
+    printmessage("Final reports")
+    printmessage("   Total packages requested     = %s" % totalPkg)
+    printmessage("   Packages existing on target  = %s" % existPkg)
+    printmessage("   Packages needed copying      = %s" % copiedPkg)
+    printmessage("   Packages copied              = %s" % goodPkg)
+    printmessage("   Packages in error            = %s" % failPkg)
+    printmessage("   Linked packages copied       = %s" % goodLink)
+    printmessage("   Linked packages in error     = %s" % failLink)
 
-    print >> logFile, "Final reports"
-    print >> logFile, "   Total packages requested     = %s" % totalPkg
-    print >> logFile, "   Packages existing on target  = %s" % existPkg
-    print >> logFile, "   Packages needed copying      = %s" % copiedPkg
-    print >> logFile, "   Packages copied              = %s" % goodPkg
-    print >> logFile, "   Packages in error            = %s" % failPkg
-    print >> logFile, "   Linked packages copied       = %s" % goodLink
-    print >> logFile, "   Linked packages in error     = %s" % failLink
-    logFile.close()
     print "Log file available in %s" % logFilePath
     if failPkg != 0:
         sys.exit(1)
