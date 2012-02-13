@@ -96,17 +96,23 @@ def createCommandFilesystemHelp(command, comment):
     '''
     __DICO_command_filesystem_help__[command[0]] = createDoc(command, comment)
 
+def createCommandMicprojectHelp(command, comment):
+    '''
+    format end store command/documentation for Micproject command
+    '''
+    __DICO_command_micproject_help__[command[0]] = createDoc(command, comment)
+
 def createCommandRpmbuildHelp(command, comment):
     '''
     format end store command/documentation for Rpmbuild command
     '''
     __DICO_command_rpmbuild_help__[command[0]] = createDoc(command, comment)
 
-def createCommandMicprojectHelp(command, comment):
+def createCommandRepositoryHelp(command, comment):
     '''
     format end store command/documentation for Micproject command
     '''
-    __DICO_command_micproject_help__[command[0]] = createDoc(command, comment)
+    __DICO_command_repositories_help__[command[0]] = createDoc(command, comment)
 
 #def createCommandQemuprojectHelp(command, comment):
 #    __DICO_command_qemuproject_help__[command[0]] = createDoc(command, comment)
@@ -153,6 +159,12 @@ def appendCommandFilesystem(command):
     """
     __LIST_filesystem__.append(command[0])
 
+def appendCommandRepositories(command):
+    """
+    Append sub command to command Repositories
+    """
+    __LIST_repositories__.append(command[0])
+
 def appendCommandRpmbuild(command):
     """
     Append sub command to command Rpmbuild
@@ -180,6 +192,8 @@ def createParameterServer(command, parameterList, completionBlacklist=None):
     for parameter in parameterList:
         __DICO_parameter_server__[command[0]].append(parameter[0])
         if (completionBlacklist != None) and (not parameter in  completionBlacklist):
+            if not command[0] in __DICO_parameter_server_completion__.keys():
+                __DICO_parameter_server_completion__[command[0]] = []
             __DICO_parameter_server_completion__[command[0]].append(parameter[0])
 
 def createParameterObsproject(command, parameterList, completionBlacklist=None):
@@ -191,6 +205,8 @@ def createParameterObsproject(command, parameterList, completionBlacklist=None):
     for parameter in parameterList:
         __DICO_parameter_obsproject__[command[0]].append(parameter[0])
         if (completionBlacklist != None) and (not parameter in  completionBlacklist):
+            if not command[0] in __DICO_parameter_obsproject_completion__.keys():
+                __DICO_parameter_obsproject_completion__[command[0]] = []
             __DICO_parameter_obsproject_completion__[command[0]].append(parameter[0])
 
 def createParameterPackage(command, parameterList, completionBlacklist=None):
@@ -202,6 +218,8 @@ def createParameterPackage(command, parameterList, completionBlacklist=None):
     for parameter in parameterList:
         __DICO_parameter_package__[command[0]].append(parameter[0])
         if (completionBlacklist != None) and (not parameter in  completionBlacklist):
+            if not command[0] in __DICO_parameter_package_completion__.keys():
+                __DICO_parameter_package_completion__[command[0]] = []
             __DICO_parameter_package_completion__[command[0]].append(parameter[0])
 
 def createParameterFilesystem(command, parameterList, completionBlacklist=None):
@@ -213,7 +231,22 @@ def createParameterFilesystem(command, parameterList, completionBlacklist=None):
     for parameter in parameterList:
         __DICO_parameter_filesystem__[command[0]].append(parameter[0])
         if (completionBlacklist != None) and (not parameter in  completionBlacklist):
+            if not command[0] in __DICO_parameter_filesystem_completion__.keys():
+                __DICO_parameter_filesystem_completion__[command[0]] = []
             __DICO_parameter_filesystem_completion__[command[0]].append(parameter[0])
+
+def createParameterRepositories(command, parameterList, completionBlacklist=None):
+    '''
+    Add parameter to the sub command of repositories, the parameter are automatically add
+    to the completion list except if present on the completionBlacklist.
+    '''
+    __DICO_parameter_repositories__[command[0]] = []
+    for parameter in parameterList:
+        __DICO_parameter_repositories__[command[0]].append(parameter[0])
+        if (completionBlacklist != None) and (not parameter in  completionBlacklist):
+            if not command[0] in __DICO_parameter_repositories_completion__.keys():
+                __DICO_parameter_repositories_completion__[command[0]] = []
+            __DICO_parameter_repositories_completion__[command[0]].append(parameter[0])
 
 def createParameterRpmbuild(command, parameterList, completionBlacklist=None):
     '''
@@ -224,6 +257,8 @@ def createParameterRpmbuild(command, parameterList, completionBlacklist=None):
     for parameter in parameterList:
         __DICO_parameter_rpmbuild__[command[0]].append(parameter[0])
         if (completionBlacklist != None) and (not parameter in  completionBlacklist):
+            if not command[0] in __DICO_parameter_rpmbuild_completion__.keys():
+                __DICO_parameter_rpmbuild_completion__[command[0]] = []
             __DICO_parameter_rpmbuild_completion__[command[0]].append(parameter[0])
 
 def createParameterMicproject(command, parameterList, completionBlacklist=None):
@@ -235,6 +270,8 @@ def createParameterMicproject(command, parameterList, completionBlacklist=None):
     for parameter in parameterList:
         __DICO_parameter_micproject__[command[0]].append(parameter[0])
         if (completionBlacklist != None) and (not parameter in  completionBlacklist):
+            if not command[0] in __DICO_parameter_micproject_completion__.keys():
+                __DICO_parameter_micproject_completion__[command[0]] = []
             __DICO_parameter_micproject_completion__[command[0]].append(parameter[0])
 
 __DESCRIPTION__ = __PRGNAME__ + ":" + "\n"
@@ -252,7 +289,7 @@ __DESCRIPTION__ += "\n"
 __DESCRIPTION__ += "Type " + __PRGNAME__ + " <command> --Help to get Help on a specific command." + "\n"
 __DESCRIPTION__ += "Commands:" + "\n"
 
-__SYNTAX_HELP__ = 'synthax used:\n'
+__SYNTAX_HELP__ = 'syntax used:\n'
 __SYNTAX_HELP__ += firstBorder + '  project    the string "project"\n'
 __SYNTAX_HELP__ += firstBorder + ' [project]   the optional string "project"\n'
 __SYNTAX_HELP__ += firstBorder + ' <project>   a project name\n'
@@ -270,6 +307,7 @@ __LIST_command_server__ = []
 __LIST_command_obsproject__ = []
 __LIST_package__ = []
 __LIST_filesystem__ = []
+__LIST_repositories__ = []
 __LIST_rpmbuild__ = []
 __LIST_micproject__ = []
 #__LIST_qemuproject__ = []
@@ -279,6 +317,7 @@ __DICO_command_server_help__ = {}
 __DICO_command_obsproject_help__ = {}
 __DICO_command_package_help__ = {}
 __DICO_command_filesystem_help__ = {}
+__DICO_command_repositories_help__ = {}
 __DICO_command_rpmbuild_help__ = {}
 __DICO_command_micproject_help__ = {}
 #__DICO_command_qemuproject_help__ = {}
@@ -288,6 +327,7 @@ __DICO_parameter_server__ = {}
 __DICO_parameter_obsproject__ = {}
 __DICO_parameter_package__ = {}
 __DICO_parameter_filesystem__ = {}
+__DICO_parameter_repositories__ = {}
 __DICO_parameter_rpmbuild__ = {}
 __DICO_parameter_micproject__ = {}
 #__DICO_parameter_qemuproject__ = {}
@@ -300,6 +340,7 @@ __DICO_parameter_server_completion__ = {}
 __DICO_parameter_obsproject_completion__ = {}
 __DICO_parameter_package_completion__ = {}
 __DICO_parameter_filesystem_completion__ = {}
+__DICO_parameter_repositories_completion__ = {}
 __DICO_parameter_rpmbuild_completion__ = {}
 __DICO_parameter_micproject_completion__ = {}
 __DICO_parameter_qemuproject_completion__ = {}
@@ -339,25 +380,44 @@ __command_query__ = ["query", "get"]
 __command_set__ = ["set"]
 __command_add__ = ["add"]
 __command_del__ = ["delete", "del", "rm"]
-__command_current__ = ["current"]
 __command_import__ = ["import"]
 __command_export__ = ["export"]
-__command_dependencyrepositories__ = ["dependencyrepositories"]
+__command_dependencyrepositories__ = ["dependencyrepositories", "deprepo"]
+__command_update__ = ["update", "up"]
+__command_commit__ = ["commit", "co"]
+__command_repair__ = ["repair"]
+__command_addfile__ = ["addfile"]
+__command_deletefile__ = ["deletefile"]
+__command_refresh__ = ["refresh"]
+__command_create__ = ["create", "new"]
+__command_enter__ = ["enter", "chroot"]
+__command_executescript__ = ["executescript", "exec"]
+__command_repositories__ = ["repositories"]
+__command_prepare__ = ["prepare"]
+__command_build__ = ["build"]
+__command_install__ = ["install"]
+__command_buildpackage__ = ["buildpackage"]
+__command_isInit__ = ["isinit"]
+__command_testConflict__ = ["testconflict"]
+__command_createPatch__ = ["createpatch"]
+__command_updatepatch__ = ["updatepatch"]
+__command_modify__ = ["modify"]
 
 #Parameter 
 __parameter_reachable__ = ["reachable"]
-__parameter_alias__ = ["server_alias", "alias"]
+__parameter_server_alias__ = ["server_alias", "alias"]
 __parameter_login__ = ["login", "user"]
 __parameter_password__ = ["password", "pwd"]
 __parameter_api_url__ = ["api_url"]
 __parameter_repository_url__ = ["repository_url"]
 __parameter_web_url__ = ["web_url"]
 __parameter_raw__ = ["raw"]
-__parameter_alias__ = ["project_alias"]
+__parameter_project_alias__ = ["project_alias"]
 __parameter_name_on_obs__ = ["name_on_obs"]
 __parameter_project_title__ = ["title"]
 __parameter_project_description__ = ["description"]
 __parameter_server__ = ["server"]
+__parameter_project__ = ["project"]
 __parameter_webpage__ = ["webpage"]
 __parameter_repository__ = ["repository"]
 __parameter_target__ = ["target"]
@@ -365,22 +425,49 @@ __parameter_arch__ = ["arch", "architecture"]
 __parameter_maintainer__ = ["maintainer"]
 __parameter_bugowner__ = ["bugowner"]
 __parameter_remoteurl__ = ["remoteurl"]
+__parameter_path__ = ["path"]
+__parameter_package__ = ["package", "pkg"]
+__parameter_available__ = ["available"]
+__parameter_status__ = ["status"]
+__parameter_revision__ = ["revision"]
+__parameter_url__ = ["url"]
+__parameter_obsRev__ = ["obsRev"]
+__parameter_oscRev__ = ["oscRev"]
+__parameter_listFile__ = ["listFile"]
+__parameter_obsstatus__ = ["obsStatus"]
+__parameter_oscstatus__ = ["oscStatus"]
+__parameter_specFile__ = ["specFile"]
+__parameter_yamlFile__ = ["yamlFile"]
+__parameter_fsPackageDirectory__ = ["fspackagedirectory"]
+__parameter_oscPackageDirectory__ = ["oscpackagedirectory"]
+__parameter_filesystemstatus__ = ["filesystemstatus"]
+__parameter_currentPatch__ = ["currentpatch"]
+__parameter_package_title__ = ["title"]
+__parameter_packge_description__ = ["description"]
+__parameter_message__ = ["message", "msg"]
+__parameter_file__ = ["file"]
+__parameter_From__ = ["from"]
+__parameter_newUrl__ = ["newUrl"]
+__parameter_newAlias__ = ["newAlias"]
+__parameter_repo_url__ = ["repository_url"]
+__parameter_repo_alias__ = ["repository_alias"]
 
 #Define the server parameter help
 createParameterHelp(__command_help__, __help_command_help__)
 createParameterHelp(__parameter_reachable__, ["[reachable] optional"])
-createParameterHelp(__parameter_alias__, "the alias of an OBS server ")
+createParameterHelp(__parameter_server_alias__, "the alias of an OBS server ")
 createParameterHelp(__parameter_login__, "the login for a account on an OBS server")
 createParameterHelp(__parameter_password__, "the password for a account on an OBS server")
 createParameterHelp(__parameter_api_url__, "the URL of an OBS server API")
 createParameterHelp(__parameter_repository_url__, "the URL of an OBS server repository")
 createParameterHelp(__parameter_web_url__, "the URL of an OBS server web")
 createParameterHelp(__parameter_raw__, "no filter on the project list")
-createParameterHelp(__parameter_alias__ , "the name of the obslight project on the locale drive.")
+createParameterHelp(__parameter_project_alias__ , "the name of the obslight project on the locale drive.")
 createParameterHelp(__parameter_name_on_obs__ , "the name of the project on the OBS server")
-createParameterHelp(__parameter_project_title__ , "the title of a OBS project")
-createParameterHelp(__parameter_project_description__ , "the description of a OBS project")
+createParameterHelp(__parameter_project_title__ , "the title of a project")
+createParameterHelp(__parameter_project_description__ , "the description of a project")
 createParameterHelp(__parameter_server__ , "the ???")
+createParameterHelp(__parameter_project__ , "the name of the project on the OBS sever.")
 createParameterHelp(__parameter_webpage__ , "the webpage of the OBS project management ")
 createParameterHelp(__parameter_repository__ , "the repository is the file depot of a OBS Project.")
 createParameterHelp(__parameter_target__ , "the target repository of an OBS project")
@@ -388,6 +475,32 @@ createParameterHelp(__parameter_arch__ , "the architecture of an OBS project")
 createParameterHelp(__parameter_maintainer__ , "the maintainer of an OBS project")
 createParameterHelp(__parameter_bugowner__ , "the bugowner of an OBS project")
 createParameterHelp(__parameter_remoteurl__ , "an OBS project can build again a remote project throught a remote project link")
+createParameterHelp(__parameter_path__ , "a file path")
+createParameterHelp(__parameter_package__, "a package name")
+createParameterHelp(__parameter_available__, "result is available ")
+createParameterHelp(__parameter_status__, "the status")
+createParameterHelp(__parameter_revision__, "the revision")
+createParameterHelp(__parameter_url__, "the url")
+createParameterHelp(__parameter_obsRev__, "the server package OBS revision")
+createParameterHelp(__parameter_oscRev__, "the osc local revision")
+createParameterHelp(__parameter_listFile__, "the list of file of a package")
+createParameterHelp(__parameter_obsstatus__, "the OBS status")
+createParameterHelp(__parameter_oscstatus__, "osc status")
+createParameterHelp(__parameter_specFile__, "the spec file name")
+createParameterHelp(__parameter_yamlFile__, "the yaml file name")
+createParameterHelp(__parameter_fsPackageDirectory__, "the directory of the project file system")
+createParameterHelp(__parameter_oscPackageDirectory__, "the osc package directory")
+createParameterHelp(__parameter_filesystemstatus__, "the project file system directory")
+createParameterHelp(__parameter_currentPatch__, "the name of the current patch of the local package")
+createParameterHelp(__parameter_package_title__, "the title of a package")
+createParameterHelp(__parameter_packge_description__, "the description of a package")
+createParameterHelp(__parameter_message__, "a text message")
+createParameterHelp(__parameter_file__, "a file name")
+createParameterHelp(__parameter_From__, "specify the local project")
+createParameterHelp(__parameter_newUrl__, "the new url of the repository")
+createParameterHelp(__parameter_newAlias__, "the new alias of the repository")
+createParameterHelp(__parameter_repo_url__, "the url of a repository")
+createParameterHelp(__parameter_repo_alias__, "the alias of a repository")
 
 #obslight   
 #    server
@@ -395,16 +508,17 @@ createParameterHelp(__parameter_remoteurl__ , "an OBS project can build again a 
 #    package
 #    filesystem
 #    rpmbuild
-#    micproject
+#    micproject #Feature
 #    qemuproject #Feature
 
-#Global command Level 0
+#Global command
 __server__ = ["server"]
 __obsproject__ = ["obsproject"]
 __Package__ = ["package"]
 __projectfilesystem__ = ["projectfilesystem", "projectfs", "filesystem", "pfs"]
 __rpmbuild__ = ["rpmbuild", "rb"]
-__micproject__ = ["micproject"]
+#__micproject__ = ["micproject"] #Feature
+__man__ = ["man"]
 #__qemuproject__ = ["qemuproject"] #Feature
 
 createCommand(__server__)
@@ -412,7 +526,8 @@ createCommand(__obsproject__)
 createCommand(__Package__)
 createCommand(__projectfilesystem__)
 createCommand(__rpmbuild__)
-createCommand(__micproject__)
+#createCommand(__micproject__) #Feature
+createCommand(__man__)
 #createCommand(__qemuproject__) #Feature
 
 createCommandHelp(__server__, "Manage the OBS server")
@@ -420,14 +535,16 @@ createCommandHelp(__obsproject__, "Manage the OBSlight project")
 createCommandHelp(__Package__, "Manage the packages of OBSlight project")
 createCommandHelp(__projectfilesystem__, "Manage the project filesystem of OBSlight project")
 createCommandHelp(__rpmbuild__, "Manage the rpmbuild of the package into the project filesystem")
-createCommandHelp(__micproject__, "Manage image biulding")
+#createCommandHelp(__micproject__, "Manage image biulding") #Feature
+createCommandHelp(__man__, "print the man help document")
+createCommandHelp(__command_repositories__, ["the command for file system repositorie"])
 #createCommandHelp(__qemuproject__, "Manage qemu") #Feature
 
 #    server    test    server_alias <server_alias> 
 #    server    test    login <login> password <password> api_url <api_url> 
-#    server    list    [reachable]
+#    server    list      [reachable]
 #    server    query    [login|apiurl|repository_url|weburl] {server_alias <server_alias>}
-#    server    set    [login <login>] [apiurl <apiurl>] [repository_url <repository_url>] [weburl <web_url>] {server_alias <server_alias>}
+#    server    set        [login <login>] [apiurl <apiurl>] [repository_url <repository_url>] [weburl <web_url>] {server_alias <server_alias>}
 #    server    add    server_alias <server_alias> login <login> password <password> api_url <api_url> repository_url <repository_url> web_url <web_url>
 #    server    delete    <server_alias>  
 #    server    current BLANK
@@ -445,57 +562,57 @@ appendCommandServer(__command_current__)
 #Define the server command help
 createCommandServerHelp(__command_help__, __help_command_help__)
 
-createCommandServerHelp(__command_test__, ["server_alias <server_alias>",
-                                          "test the server alias",
-                                          "login <login> password <password> api_url <api_url>",
-                                          "test the API URL."])
+createCommandServerHelp(__command_test__, ["server    test    server_alias <server_alias>",
+                                           "test the server alias",
+                                           "login <login> password <password> api_url <api_url> ",
+                                           "test the API URL."])
 
-createCommandServerHelp(__command_list__, ["[<reachable>]",
-                                          "if reachable  -> return all sever",
-                                          "else  -> return only the available server"])
+createCommandServerHelp(__command_list__, ["server    list    [reachable]",
+                                           "if reachable  -> return all sever",
+                                           "else  -> return only the available server"])
 
-createCommandServerHelp(__command_query__, ["[login|apiurl|repository_url|weburl] {server_alias <server_alias>}",
-                                           "return the server parameter."])
+createCommandServerHelp(__command_query__, ["server    query    [login|apiurl|repository_url|weburl] {server_alias <server_alias>}",
+                                            "return the server parameter."])
 
-createCommandServerHelp(__command_set__, ["[login <login>] [apiurl <apiurl>] [repository_url <repository_url>] [weburl <web_url>] {server_alias <server_alias>}",
-                                         "set the server parameter"])
+createCommandServerHelp(__command_set__, ["server    set    [login <login>] [apiurl <apiurl>] [repository_url <repository_url>] [weburl <web_url>] {server_alias <server_alias>}",
+                                          "set the server parameter"])
 
-createCommandServerHelp(__command_add__, ["server_alias <server_alias> login <login> password <password> api_url <api_url> repository_url <repository_url> web_url <web_url>",
-                                         "add a new OBS server"])
+createCommandServerHelp(__command_add__, ["server    add    server_alias <server_alias> login <login> password <password> api_url <api_url> repository_url <repository_url> web_url <web_url>",
+                                          "add a new OBS server"])
 
-createCommandServerHelp(__command_del__, ["<server_alias>",
-                                         "del an OBS server"])
+createCommandServerHelp(__command_del__, ["server    delete    <server_alias> ",
+                                          "del an OBS server"])
 
-createCommandServerHelp(__command_current__, ["BLANK",
-                                             "return the current OBS server"])
+createCommandServerHelp(__command_current__, ["server    current BLANK",
+                                              "return the current OBS server"])
 
 #Define the parameter list for server command
 createParameterServer(__command_list__, [__parameter_reachable__, __command_help__])
 
-createParameterServer(__command_current__, __command_help__)
+createParameterServer(__command_current__, [__command_help__])
 
 createParameterServer(__command_test__, [__command_help__,
-                                         __parameter_alias__,
+                                         __parameter_server_alias__,
                                          __parameter_login__,
                                          __parameter_password__,
                                          __parameter_api_url__])
 
 createParameterServer(__command_query__, [__command_help__,
-                                          __parameter_alias__,
+                                          __parameter_server_alias__,
                                           __parameter_login__,
                                           __parameter_api_url__,
                                           __parameter_repository_url__,
                                           __parameter_web_url__])
 
 createParameterServer(__command_set__, [__command_help__,
-                                        __parameter_alias__,
+                                        __parameter_server_alias__,
                                         __parameter_login__,
                                         __parameter_api_url__,
                                         __parameter_repository_url__,
                                         __parameter_web_url__])
 
 createParameterServer(__command_add__, [__command_help__,
-                                        __parameter_alias__,
+                                        __parameter_server_alias__,
                                         __parameter_login__,
                                         __parameter_password__,
                                         __parameter_api_url__,
@@ -503,20 +620,20 @@ createParameterServer(__command_add__, [__command_help__,
                                         __parameter_web_url__])
 
 createParameterServer(__command_del__, [__command_help__,
-                                      __parameter_alias__],
-                                      completionBlacklist=[__parameter_alias__])
+                                      __parameter_server_alias__],
+                                      completionBlacklist=[__parameter_server_alias__])
 
 #    obsproject    list    BLANK
 #    obsproject    list    server_alias <server_alias> raw|[arch <arch>|maintainer|bugowner|remoteurl]
-#    obsproject    current
+#    obsproject    current BLANK
 #    obsproject    dependencyrepositories {<project_alias>}
 #    obsproject    delete    <project_alias>
 #    obsproject    add    <project_alias> <name_on_obs> <target> <arch> {<server_alias>}
 #    obsproject    query    [title|description|obsServer|webpage|repository|target|architecture] {project_alias <project_alias>}
 #    obsproject    query    [title|description|target|architecture|remoteurl|maintainer|bugowner] server_alias <server_alias> obsproject <project> 
 #    obsproject    set    [title <title>] [description <description>] {project_alias <project_alias>}
-#    obsproject    import    path
-#    obsproject    export  path {<project_alias>}
+#    obsproject    import    <path>
+#    obsproject    export  <path> {<project_alias>}
 
 #Command obsproject 
 appendCommandObsproject(__command_help__)
@@ -530,78 +647,390 @@ appendCommandObsproject(__command_import__)
 appendCommandObsproject(__command_export__)
 appendCommandObsproject(__command_dependencyrepositories__)
 
-#Define the server obsproject help
+#Define the obsproject command help
 createCommandObsprojectHelp(__command_help__, __help_command_help__)
 
-createCommandObsprojectHelp(__command_list__, ["BLANK",
-                                         "return all local project.",
-                                         "server_alias <server_alias> raw|[arch <arch>|maintainer|bugowner|remoteurl]",
-                                         "return project on the OBS server filter with arch, maintainer, bugowner, remoteurl"])
+createCommandObsprojectHelp(__command_list__, ["obsproject    list    BLANK",
+                                               "return all local project.",
+                                               "obsproject    list    server_alias <server_alias> raw|[arch <arch>|maintainer|bugowner|remoteurl]",
+                                               "return project on the OBS server filter with arch, maintainer, bugowner, remoteurl"])
 
-createCommandObsprojectHelp(__command_add__, ["<project_alias> <name_on_obs> <target> <arch> {<server_alias>}",
-                                        "create a local project"])
+createCommandObsprojectHelp(__command_current__, ["obsproject    current BLANK",
+                                                  "print the curent local project"])
 
-createCommandObsprojectHelp(__command_del__, ["<project_alias>",
-                                        "delete a local project"])
+createCommandObsprojectHelp(__command_dependencyrepositories__, ["obsproject    dependencyrepositories {<project_alias>}",
+                                                                 "print the dependency repositories of a local project "])
 
-createCommandObsprojectHelp(__command_query__, ["[title|description|obsServer|webpage|repository|target|architecture] {project_alias <project_alias>}",
-                                          "query locale project parameter",
-                                          "[title|description|target|architecture|remoteurl|maintainer|bugowner] server_alias <server_alias> obsproject <project>",
-                                          "query OBS project parameter"])
+createCommandObsprojectHelp(__command_del__, ["obsproject    delete    <project_alias>",
+                                              "delete a local project"])
 
-createCommandObsprojectHelp(__command_set__, ["[title <title>] [description <description>] {project_alias <project_alias>}",
-                                        "modify local project parameter"])
+createCommandObsprojectHelp(__command_add__, ["obsproject    add    <project_alias> <name_on_obs> <target> <arch> {<server_alias>}",
+                                              "create a local project"])
 
-createCommandObsprojectHelp(__command_current__, ["BLANK",
-                                            "print the curent local project"])
+createCommandObsprojectHelp(__command_query__, ["obsproject    query    [title|description|obsServer|webpage|repository|target|architecture] {project_alias <project_alias>}",
+                                                "query locale project parameter",
+                                                "obsproject    query    [title|description|target|architecture|remoteurl|maintainer|bugowner] server_alias <server_alias> obsproject <project> ",
+                                                "query OBS project parameter"])
 
-createCommandObsprojectHelp(__command_import__, ["path",
-                                           "import a back up file"])
+createCommandObsprojectHelp(__command_set__, ["obsproject    set    [title <title>] [description <description>] {project_alias <project_alias>}",
+                                              "modify local project parameter"])
 
-createCommandObsprojectHelp(__command_export__, ["path {<project_alias>}",
-                                           "export a back up file"])
 
-createCommandObsprojectHelp(__command_dependencyrepositories__, ["dependencyrepositories {<project_alias>}",
-                                                           "print the dependency repositories of a local project "])
+
+createCommandObsprojectHelp(__command_import__, ["obsproject    import    <path>",
+                                                 "import a back up file"])
+
+createCommandObsprojectHelp(__command_export__, ["obsproject    export  <path> {<project_alias>}}",
+                                                 "export a back up file"])
 
 #Define the obsproject parameter help
-createParameterObsproject(__command_list__, [])
-createParameterObsproject(__command_add__, [])
-createParameterObsproject(__command_del__, [])
-createParameterObsproject(__command_query__, [])
-createParameterObsproject(__command_set__, [])
-createParameterObsproject(__command_current__, [])
-createParameterObsproject(__command_import__, [])
-createParameterObsproject(__command_export__, [])
-createParameterObsproject(__command_dependencyrepositories__, [])
+createParameterObsproject(__command_list__, [__command_help__,
+                                             __parameter_server_alias__,
+                                             __parameter_raw__,
+                                             __parameter_arch__,
+                                             __parameter_maintainer__,
+                                             __parameter_bugowner__,
+                                             __parameter_remoteurl__])
 
+createParameterObsproject(__command_current__, [__command_help__])
 
+createParameterObsproject(__command_dependencyrepositories__, [__command_help__])
 
+createParameterObsproject(__command_del__, [__command_help__,
+                                            __parameter_project_alias__], [__parameter_project_alias__])
 
+createParameterObsproject(__command_add__, [__command_help__,
+                                            __parameter_project_alias__,
+                                            __parameter_name_on_obs__,
+                                            __parameter_target__,
+                                            __parameter_arch__,
+                                            __parameter_server_alias__], [__parameter_project_alias__,
+                                                                         __parameter_name_on_obs__,
+                                                                         __parameter_target__,
+                                                                         __parameter_arch__,
+                                                                         __parameter_server_alias__])
 
+createParameterObsproject(__command_query__, [__command_help__,
+                                              __parameter_project_title__,
+                                              __parameter_project_description__,
+                                              __parameter_server__,
+                                              __parameter_webpage__,
+                                              __parameter_repository__,
+                                              __parameter_target__,
+                                              __parameter_arch__,
+                                              __parameter_project_alias__,
+                                              __parameter_remoteurl__,
+                                              __parameter_maintainer__,
+                                              __parameter_bugowner__,
+                                              __parameter_server_alias__,
+                                              __parameter_project_alias__], [])
 
+createParameterObsproject(__command_set__, [__command_help__,
+                                            __parameter_project_title__,
+                                            __parameter_project_description__,
+                                            __parameter_project_alias__])
 
-##Command package
-#appendCommandPackage
-##Define the package command help
-#createCommandPackageHelp
-##Define the package parameter help
-#createParameterPackage
-#
-##Command filesystem
-#appendCommandFilesystem
-##Define the filesystem command help
-#createCommandFilesystemHelp
-##Define the filesystem parameter help
-#createParameterFilesystem
-#
-##Command rpmbuild
-#appendCommandRpmbuild
-##Define the rpmbuild command help
-#createCommandRpmbuildHelp
-##Define the rpmbuild parameter help
-#createParameterRpmbuild
-#
+createParameterObsproject(__command_import__, [__command_help__,
+                                               __parameter_path__], [__parameter_path__])
+
+createParameterObsproject(__command_export__, [__command_help__,
+                                               __parameter_path__,
+                                               __parameter_project_alias__], [__parameter_path__,
+                                                                              __parameter_project_alias__])
+
+#Command package
+appendCommandPackage(__command_help__)
+appendCommandPackage(__command_list__)
+appendCommandPackage(__command_current__)
+appendCommandPackage(__command_add__)
+appendCommandPackage(__command_del__)
+appendCommandPackage(__command_query__)
+appendCommandPackage(__command_set__)
+appendCommandPackage(__command_update__)
+appendCommandPackage(__command_commit__)
+appendCommandPackage(__command_repair__)
+appendCommandPackage(__command_addfile__)
+appendCommandPackage(__command_deletefile__)
+appendCommandPackage(__command_refresh__)
+
+#Define the package command help
+createCommandPackageHelp(__command_help__, __help_command_help__)
+createCommandPackageHelp(__command_list__, ["package    list    [available] {project_alias <project_alias>}",
+                                            "print the package list of the project",
+                                            "if available, print the packages avaible on the OBS project server"])
+
+createCommandPackageHelp(__command_current__, ["package    current {project_alias <project_alias>}",
+                                               "print the current package use on the local project"])
+
+createCommandPackageHelp(__command_add__, ["package    add    <package> {project_alias <project_alias>}",
+                                           "add a package from the OBS project to local project"])
+
+createCommandPackageHelp(__command_del__, ["package    delete    <package> {project_alias <project_alias>}",
+                                           "delete package from local project"])
+
+createCommandPackageHelp(__command_query__, ["package    query    [title|description|url|listFile] {package <package> {server_alias <server_alias> {project <project>}}} ",
+                                             "query information from OBS project",
+                                             "package    query    [title|description|obsrev|oscrev|listfile|obsstatus|oscstatus|specfile|yamlfile|fspackagedirectory|oscpackagedirectory|filesystemstatus|currentPatch] {package <package> {project_alias <project_alias>} }",
+                                             "query information from local project",
+                                             "if no information is specify all informations are query"])
+
+createCommandPackageHelp(__command_set__, ["package    set    [title <title>] [description <description>] {package <package> {project_alias <project_alias>}} ",
+                                           "set information to local project"])
+
+createCommandPackageHelp(__command_update__, ["package    update    {package <package> {project_alias <project_alias>}}",
+                                              "update information from OBS project to local project"])
+
+createCommandPackageHelp(__command_commit__, ["package    commit    <message> {package <package> {project_alias <project_alias>}}",
+                                              "commit information from local project to OBS project"])
+
+createCommandPackageHelp(__command_repair__, ["package    repair    {package <package> {project_alias <project_alias>}",
+                                              "repair conflict betwen OBS project and local project"])
+
+createCommandPackageHelp(__command_addfile__, ["package addfile <path> {package <package> {project_alias <project_alias>}",
+                                               "add file to local package"])
+
+createCommandPackageHelp(__command_deletefile__, ["package deletefile <file> {package <package> {project_alias <project_alias>}",
+                                                  "delete file from local package"])
+
+createCommandPackageHelp(__command_refresh__, ["package refresh    [oscStatus|obsstatus] {package <package> {project_alias <project_alias>}}",
+                                               "refresh osc,obs status",
+                                               "if oscStatus and obsstatus ar not specify, the two status aure refresh"])
+
+#Define the package parameter help
+createParameterPackage(__command_list__, [__command_help__,
+                                          __parameter_available__,
+                                          __parameter_project_alias__])
+
+createParameterPackage(__command_current__, [__command_help__,
+                                             __parameter_project_alias__])
+
+createParameterPackage(__command_add__, [__command_help__,
+                                         __parameter_package__,
+                                         __parameter_project_alias__], [__parameter_package__])
+
+createParameterPackage(__command_del__, [__command_help__,
+                                         __parameter_package__,
+                                         __parameter_project_alias__], [__parameter_package__])
+
+createParameterPackage(__command_query__, [__command_help__,
+                                           __parameter_package_title__,
+                                           __parameter_packge_description__,
+                                           __parameter_url__,
+                                           __parameter_listFile__,
+                                           __parameter_package__,
+                                           __parameter_server_alias__,
+                                           __parameter_project__,
+                                           __parameter_obsRev__,
+                                           __parameter_oscRev__,
+                                           __parameter_obsstatus__,
+                                           __parameter_oscstatus__,
+                                           __parameter_specFile__,
+                                           __parameter_yamlFile__,
+                                           __parameter_fsPackageDirectory__,
+                                           __parameter_oscPackageDirectory__,
+                                           __parameter_filesystemstatus__,
+                                           __parameter_currentPatch__,
+                                           __parameter_project_alias__])
+
+createParameterPackage(__command_set__, [__command_help__,
+                                         __parameter_package_title__,
+                                         __parameter_packge_description__,
+                                         __parameter_package__,
+                                           __parameter_project_alias__])
+
+createParameterPackage(__command_update__, [__command_help__,
+                                            __parameter_package__,
+                                           __parameter_project_alias__])
+
+createParameterPackage(__command_commit__, [__command_help__,
+                                            __parameter_message__,
+                                            __parameter_package__,
+                                           __parameter_project_alias__], [__parameter_message__])
+
+createParameterPackage(__command_repair__, [__command_help__,
+                                            __parameter_package__,
+                                           __parameter_project_alias__])
+
+createParameterPackage(__command_addfile__, [__command_help__,
+                                             __parameter_path__,
+                                             __parameter_package__,
+                                             __parameter_project_alias__], [__parameter_path__])
+
+createParameterPackage(__command_deletefile__, [__command_help__,
+                                                __parameter_file__,
+                                             __parameter_package__,
+                                             __parameter_project_alias__], [__parameter_file__])
+
+createParameterPackage(__command_refresh__, [__command_help__,
+                                             __parameter_obsstatus__,
+                                             __parameter_oscstatus__,
+                                             __parameter_package__,
+                                             __parameter_project_alias__])
+
+#Command filesystem
+appendCommandFilesystem(__command_help__)
+appendCommandFilesystem(__command_create__)
+appendCommandFilesystem(__command_del__)
+appendCommandFilesystem(__command_query__)
+appendCommandFilesystem(__command_enter__)
+appendCommandFilesystem(__command_executescript__)
+appendCommandFilesystem(__command_repositories__)
+
+#Define the filesystem command help
+createCommandFilesystemHelp(__command_help__, __help_command_help__)
+
+createCommandFilesystemHelp(__command_create__, ["projectfilesystem    create        {<project_alias>}",
+                                                 "Create a new project filesystem"])
+
+createCommandFilesystemHelp(__command_del__, ["projectfilesystem    delete        <project_alias>",
+                                              "Remove the project filesystem"])
+
+createCommandFilesystemHelp(__command_query__, ["projectfilesystem    query         [path|status] {<project_alias>}",
+                                                "print the path and the status of a filesystem"])
+
+createCommandFilesystemHelp(__command_enter__, ["projectfilesystem    enter        [package <package>] {<project_alias>}",
+                                                "chroot into the filesystem"])
+
+createCommandFilesystemHelp(__command_executescript__, ["projectfilesystem    executescript    <path> {<project_alias>}",
+                                                        ""])
+
+createCommandFilesystemHelp(__command_repositories__, ["the command for file system repositorie"])
+
+#Define the filesystem parameter help
+createParameterFilesystem(__command_create__, [__command_help__,
+                                               __parameter_project_alias__], [__parameter_project_alias__])
+
+createParameterFilesystem(__command_del__, [__command_help__,
+                                            __parameter_project_alias__], [__parameter_project_alias__])
+
+createParameterFilesystem(__command_query__, [__command_help__,
+                                              __parameter_path__, __parameter_filesystemstatus__])
+
+createParameterFilesystem(__command_enter__, [__command_help__,
+                                              __parameter_package__,
+                                              __parameter_project_alias__])
+
+createParameterFilesystem(__command_executescript__, [__command_help__,
+                                                      __parameter_path__,
+                                                      __parameter_project_alias__], [__parameter_project_alias__])
+
+createParameterFilesystem(__command_repositories__, [__command_help__])
+
+#Command Repositories
+appendCommandRepositories(__command_help__)
+appendCommandRepositories(__command_add__)
+appendCommandRepositories(__command_del__)
+appendCommandRepositories(__command_query__)
+appendCommandRepositories(__command_modify__)
+
+#Define the Repositories command help
+createCommandRepositoryHelp(__command_help__, __help_command_help__)
+
+createCommandRepositoryHelp(__command_add__, ["projectfilesystem    repositories    add    <repository_url> <repository_alias> {<project_alias>}",
+                                             "add a repository by url/alias to the project filesystem",
+                                             "projectfilesystem    repositories    add    from <project_alias> ",
+                                             "add a repository of a local project to the project filesystem"])
+createCommandRepositoryHelp(__command_del__, ["projectfilesystem    repositories    delete    <repository_alias> {<project_alias>} ",
+                                             "remove a repository from a project file system"])
+createCommandRepositoryHelp(__command_query__, ["projectfilesystem    repositories    query    BLANK",
+                                               "print the url/alias of the repositories of the project filesystem"])
+createCommandRepositoryHelp(__command_modify__, ["projectfilesystem    repositories    modify    [newUrl <repository_url>] [newAlias <repository_alias>] {project_alias <project_alias>}",
+                                                "modify the url/alias of a repository"])
+
+#Define the Repositories parameter help
+createParameterRepositories(__command_add__, [__command_help__,
+                                              __parameter_repo_url__,
+                                              __parameter_repo_alias__,
+                                              __parameter_project_alias__], [__parameter_repo_url__,
+                                                                            __parameter_repo_alias__,
+                                                                            __parameter_project_alias__])
+
+createParameterRepositories(__command_del__, [__command_help__,
+                                              __parameter_From__,
+                                              __parameter_project_alias__], [__parameter_From__,
+                                                                            __parameter_project_alias__])
+createParameterRepositories(__command_query__, [__command_help__])
+
+createParameterRepositories(__command_modify__, [__command_help__,
+                                                 __parameter_newUrl__,
+                                                 __parameter_newAlias__,
+                                                 __parameter_repo_url__,
+                                                 __parameter_repo_alias__,
+                                                 __parameter_project_alias__], [__parameter_repo_url__,
+                                                                                __parameter_repo_alias__,
+                                                                                __parameter_project_alias__])
+
+#Command rpmbuild
+appendCommandRpmbuild(__command_help__)
+appendCommandRpmbuild(__command_prepare__)
+appendCommandRpmbuild(__command_build__)
+appendCommandRpmbuild(__command_install__)
+appendCommandRpmbuild(__command_buildpackage__)
+appendCommandRpmbuild(__command_isInit__)
+appendCommandRpmbuild(__command_createPatch__)
+appendCommandRpmbuild(__command_updatepatch__)
+appendCommandRpmbuild(__command_testConflict__)
+
+#Define the rpmbuild command help
+createCommandRpmbuildHelp(__command_help__, __help_command_help__)
+createCommandRpmbuildHelp(__command_prepare__, ["rpmbuild    prepare        {<package>} {project_alias <project_alias>}",
+                                                "create the the rpmbuild directorie, build one time the package and initialise git "])
+
+createCommandRpmbuildHelp(__command_build__, ["rpmbuild    build        {<package>} {project_alias <project_alias>}",
+                                              "build the package"])
+
+createCommandRpmbuildHelp(__command_install__, ["rpmbuild    install        {<package>} {project_alias <project_alias>}",
+                                                "build and install the package"])
+
+createCommandRpmbuildHelp(__command_buildpackage__, ["rpmbuild    buildpackage    {<package>} {project_alias <project_alias>}",
+                                                     "build,install and create the rpm package"])
+
+createCommandRpmbuildHelp(__command_isInit__, ["rpmbuild    isinit        {package <package> {project_alias <project_alias>}",
+                                               "print if package prepare was doing"])
+
+createCommandRpmbuildHelp(__command_createPatch__, ["rpmbuild    createpatch    <patch> {package <package>} {project_alias <project_alias>}",
+                                                    "create a current patch and add patch file into osc local package, and into yaml/specfile"])
+
+createCommandRpmbuildHelp(__command_updatepatch__, ["rpmbuild    updatepatch    {package <package> {project_alias <project_alias>}",
+                                                    "update the current patch"])
+
+createCommandRpmbuildHelp(__command_testConflict__, ["rpmbuild    testconflict    {package <package> {project_alias <project_alias>}",
+                                                     "test and print the status of conflict"])
+
+#Define the rpmbuild parameter help
+createParameterRpmbuild(__command_prepare__, [__command_help__,
+                                              __parameter_package__,
+                                              __parameter_project_alias__])
+
+createParameterRpmbuild(__command_build__, [__command_help__,
+                                            __parameter_package__,
+                                              __parameter_project_alias__])
+
+createParameterRpmbuild(__command_install__, [__command_help__,
+                                              __parameter_package__,
+                                              __parameter_project_alias__])
+
+createParameterRpmbuild(__command_buildpackage__, [__command_help__,
+                                                   __parameter_package__,
+                                              __parameter_project_alias__])
+
+createParameterRpmbuild(__command_isInit__, [__command_help__,
+                                             __parameter_package__,
+                                              __parameter_project_alias__])
+
+createParameterRpmbuild(__command_createPatch__, [__command_help__,
+                                                  __parameter_path__,
+                                                  __parameter_package__,
+                                                  __parameter_project_alias__], [__parameter_path__])
+
+createParameterRpmbuild(__command_updatepatch__, [__command_help__,
+                                                  __parameter_package__,
+                                                  __parameter_project_alias__])
+
+createParameterRpmbuild(__command_testConflict__, [__command_help__,
+                                                   __parameter_package__,
+                                                  __parameter_project_alias__])
+
 ##Command micproject
 #appendCommandMicproject
 ##Define the micproject command help
@@ -609,141 +1038,13 @@ createParameterObsproject(__command_dependencyrepositories__, [])
 ##Define the micproject parameter help
 #createParameterMicproject
 
-
-
-#Command obsproject Level 3
-
-
-#Command package Level 2
-__package_Help__ = __command_help__
-__package_add__ = __command_add__
-__package_delete__ = __command_del__
-__package_list__ = __command_list__
-__package_query__ = __command_query__
-__package_set__ = __command_set__
-__package_update__ = ["update", "up"]
-__package_commit__ = ["commit", "co"]
-__package_repair__ = ["repair"]
-__package_current__ = ["current"]
-__package_addfile__ = ["addfile"]
-__package_deletefile__ = ["deletefile"]
-__package_refresh__ = ["refresh"]
-
-#__DICO_parameter_help__[__self.print_Help__[0]] = __self.print_Help__[0] + ":" + "\t" + "Doc __command_help__"
-__DICO_parameter_help__[__package_add__[0]] = __package_add__[0] + ":" + "\t" + "Doc __command_help__"
-__DICO_parameter_help__[__package_delete__[0]] = __package_delete__[0] + ":" + "\t" + "Doc __command_help__"
-__DICO_parameter_help__[__package_list__[0]] = __package_list__[0] + ":" + "\t" + "Doc __command_help__"
-__DICO_parameter_help__[__package_query__[0]] = __package_query__[0] + ":" + "\t" + "Doc __command_help__"
-__DICO_parameter_help__[__package_set__[0]] = __package_set__[0] + ":" + "\t" + "Doc __command_help__"
-__DICO_parameter_help__[__package_update__[0]] = __package_update__[0] + ":" + "\t" + "Doc __command_help__"
-__DICO_parameter_help__[__package_commit__[0]] = __package_commit__[0] + ":" + "\t" + "Doc __command_help__"
-__DICO_parameter_help__[__package_repair__[0]] = __package_repair__[0] + ":" + "\t" + "Doc __command_help__"
-__DICO_parameter_help__[__package_current__[0]] = __package_current__[0] + ":" + "\t" + "Doc __command_help__"
-
-#Command obsproject Level 3
-__package_package__ = ["package", "pkg"]
-__package_available__ = ["available"]
-__package_status__ = ["status"]
-__package_revision__ = ["revision"]
-__package_url__ = ["url"]
-__package_obsRev__ = ["obsRev"]
-__package_oscRev__ = ["oscRev"]
-__listFile__ = ["listFile"]
-__obsStatus__ = ["obsStatus"]
-__oscStatus__ = ["oscStatus"]
-__specFile__ = ["specFile"]
-__yamlFile__ = ["yamlFile"]
-__fsPackageDirectory__ = ["fsPackageDirectory"]
-__oscPackageDirectory__ = ["oscPackageDirectory"]
-__chRootStatus__ = ["chRootStatus"]
-__currentPatch__ = ["currentPatch"]
-__package_oscstatus__ = ["oscstatus"]
-__package_obsstatus__ = ["obsstatus"]
-
-__DICO_parameter_help__[__package_package__[0]] = __package_package__[0] + ":" + "\t" + "Doc __command_help__"
-__DICO_parameter_help__[__package_available__[0]] = __package_available__[0] + ":" + "\t" + "Doc __command_help__"
-__DICO_parameter_help__[__package_status__[0]] = __package_status__[0] + ":" + "\t" + "Doc __command_help__"
-__DICO_parameter_help__[__package_revision__[0]] = __package_revision__[0] + ":" + "\t" + "Doc __command_help__"
-__DICO_parameter_help__[__listFile__[0]] = __listFile__[0] + ":" + "\t" + "Doc __command_help__"
-__DICO_parameter_help__[__obsStatus__[0]] = __obsStatus__[0] + ":" + "\t" + "Doc __command_help__"
-__DICO_parameter_help__[__oscStatus__[0]] = __oscStatus__[0] + ":" + "\t" + "Doc __command_help__"
-__DICO_parameter_help__[__specFile__[0]] = __specFile__[0] + ":" + "\t" + "Doc __command_help__"
-__DICO_parameter_help__[__yamlFile__[0]] = __yamlFile__[0] + ":" + "\t" + "Doc __command_help__"
-__DICO_parameter_help__[__fsPackageDirectory__[0]] = __fsPackageDirectory__[0] + ":" + "\t" + "Doc __command_help__"
-__DICO_parameter_help__[__oscPackageDirectory__[0]] = __oscPackageDirectory__[0] + ":" + "\t" + "Doc __command_help__"
-__DICO_parameter_help__[__chRootStatus__[0]] = __chRootStatus__[0] + ":" + "\t" + "Doc __command_help__"
-__DICO_parameter_help__[__currentPatch__[0]] = __currentPatch__[0] + ":" + "\t" + "Doc __command_help__"
-
-#Command projectfilesystem Level 2
-__projectfilesystem_Help__ = __command_help__
-__projectfilesystem_create__ = ["create", "new"]
-__projectfilesystem_delete__ = __command_del__
-__projectfilesystem_query__ = __command_query__
-__projectfilesystem_enter__ = ["enter", "chroot"]
-__projectfilesystem_executescript__ = ["executescript", "exec"]
-
-__projectfilesystem_addrepository__ = ["addrepository", "ar"]
-__projectfilesystem_extractpatch__ = ["extractpatch"]
-__projectfilesystem_repositories__ = ["repositorie"]
-
-#__DICO_parameter_help__[__projectfilesystem_Help__[0]] = __self.print_Help__[0] + ":" + "\t" + "Doc __command_help__"
-__DICO_parameter_help__[__projectfilesystem_query__[0]] = __projectfilesystem_query__[0] + ":" + "\t" + "Doc __command_help__"
-__DICO_parameter_help__[__projectfilesystem_create__[0]] = __projectfilesystem_create__[0] + ":" + "\t" + "Doc __command_help__"
-__DICO_parameter_help__[__projectfilesystem_delete__[0]] = __projectfilesystem_delete__[0] + ":" + "\t" + "Doc __command_help__"
-__DICO_parameter_help__[__projectfilesystem_enter__[0]] = __projectfilesystem_enter__[0] + ":" + "\t" + "Doc __command_help__"
-__DICO_parameter_help__[__projectfilesystem_executescript__[0]] = __projectfilesystem_executescript__[0] + ":" + "\t" + "Doc __command_help__"
-
-#Command obsproject Level 3
-__projectfilesystem_status__ = ["status"]
-__projectfilesystem_path__ = ["path"]
-__projectfilesystem_repository__ = ["repository", "repo"]
-
-__DICO_parameter_help__[__projectfilesystem_path__[0]] = __projectfilesystem_path__[0] + ":" + "\t" + "Doc __command_help__"
-__DICO_parameter_help__[__projectfilesystem_status__[0]] = __projectfilesystem_status__[0] + ":" + "\t" + "Doc __command_help__"
-__DICO_parameter_help__[__projectfilesystem_repository__[0]] = __projectfilesystem_repository__[0] + ":" + "\t" + "Doc __command_help__"
-
-#Command projectfilesystem Level 3
-__repository_add__ = __command_add__
-__repository_delete__ = __command_del__
-__repository_modify__ = ["modify"]
-__repository_query__ = __command_query__
-
-__DICO_parameter_help__[__repository_add__[0]] = __repository_add__[0] + ":" + "\t" + "Doc __command_help__"
-__DICO_parameter_help__[__repository_delete__[0]] = __repository_delete__[0] + ":" + "\t" + "Doc __command_help__"
-__DICO_parameter_help__[__repository_modify__[0]] = __repository_modify__[0] + ":" + "\t" + "Doc __command_help__"
-__DICO_parameter_help__[__repository_query__[0]] = __repository_query__[0] + ":" + "\t" + "Doc __command_help__"
-
-__repository_From__ = ["from"]
-__repository_newUrl__ = ["newUrl"]
-__repository_newAlias__ = ["newAlias"]
-
-__DICO_parameter_help__[__repository_From__[0]] = __repository_From__[0] + ":" + "\t" + "Doc __command_help__"
-__DICO_parameter_help__[__repository_newUrl__[0]] = __repository_newUrl__[0] + ":" + "\t" + "Doc __command_help__"
-__DICO_parameter_help__[__repository_newAlias__[0]] = __repository_newAlias__[0] + ":" + "\t" + "Doc __command_help__"
-
-#Command rpmbuild Level 2
-
-__rpmbuild_prepare__ = ["prepare"]
-__rpmbuild_build__ = ["build"]
-__rpmbuild_install__ = ["install"]
-__rpmbuild_package__ = ["package"]
-__rpmbuild_isInit__ = ["isinit"]
-__rpmbuild_testConflict__ = ["testconflict"]
-__rpmbuild_createPatch__ = ["createpatch"]
-__rpmbuild_updatepatch__ = ["updatepatch"]
-
-__DICO_parameter_help__[__rpmbuild_prepare__[0]] = __rpmbuild_prepare__[0] + ":" + "\t" + "Doc __command_help__"
-__DICO_parameter_help__[__rpmbuild_build__[0]] = __rpmbuild_build__[0] + ":" + "\t" + "Doc __command_help__"
-__DICO_parameter_help__[__rpmbuild_install__[0]] = __rpmbuild_install__[0] + ":" + "\t" + "Doc __command_help__"
-__DICO_parameter_help__[__rpmbuild_package__[0]] = __rpmbuild_package__[0] + ":" + "\t" + "Doc __command_help__"
-__DICO_parameter_help__[__rpmbuild_createPatch__[0]] = __rpmbuild_createPatch__[0] + ":" + "\t" + "Doc __command_help__"
-__DICO_parameter_help__[__rpmbuild_updatepatch__[0]] = __rpmbuild_updatepatch__[0] + ":" + "\t" + "Doc __command_help__"
-
 class ObsLightBase():
     '''
     only management doc print and obslight core.
     '''
     noaction = False
+    manTag = False
+
     def __init__(self):
         '''
         init ObsLightBase parameter
@@ -753,10 +1054,13 @@ class ObsLightBase():
 
         self.__listArgv = sys.argv[1:]
 
-        self.listCommand = __LIST_command_server__
-        self.dicoParameterServerCompletion = __DICO_parameter_server_completion__
-        self.dicoCommandHelp = __DICO_command_server_help__
-        self.dicoParameter = __DICO_parameter_server__
+        self.listCommand = None
+        self.dicoParameterServerCompletion = None
+        self.dicoCommandHelp = None
+        self.dicoParameter = None
+
+        self.currentCommand = None
+
         self.dicoParameterHelp = __DICO_parameter_help__
 
     def setListArgv(self, arg):
@@ -799,7 +1103,6 @@ class ObsLightBase():
                 print "No alias"
         return server_alias
 
-
     def main(self):
         """
         Execute the main list of arguments
@@ -821,25 +1124,76 @@ class ObsLightBase():
         '''
         print help.
         '''
+        if isinstance(cmd, (list, tuple)):
+            cmd = cmd[0]
+
         if ObsLightBase.noaction:
             if cmd == None:
-                print " ".join(self.listCommand)
+                if self.listCommand != None:
+                    print " ".join(self.listCommand)
             else:
-                print " ".join(self.dicoParameterServerCompletion[cmd[0]])
+                if self.dicoParameterServerCompletion != None:
+                    if cmd in self.dicoParameterServerCompletion.keys():
+                        print " ".join(self.dicoParameterServerCompletion[cmd])
+                    else:
+                        print "ERROR '" + cmd + "' is not in self.dicoParameterServerCompletion.keys() : " + ",".join(self.dicoParameterServerCompletion.keys())
+                        return 1
             return 0
         else:
             if cmd == None:
-                for cmd in self.listCommand:
-                    print self.dicoCommandHelp[cmd]
+                print "Command: " + self.currentCommand
+                if self.currentCommand in __DICO_command_help__.keys():
+                    print __DICO_command_help__[self.currentCommand]
+                    print
+                else:
+                    print "ERROR '" + self.currentCommand + "' is not in __DICO_command_help__.keys() : " + ",".join(__DICO_command_help__.keys())
+                    return 1
 
+                print "Sub command:"
+                if self.listCommand != None:
+                    for cmd in self.listCommand:
+                        if cmd in self.dicoCommandHelp.keys():
+                            print self.dicoCommandHelp[cmd]
+                        else:
+                            print "ERROR '" + cmd + "' is not in self.dicoCommandHelp.keys() : " + ",".join(self.dicoCommandHelp.keys())
+                            return 1
             else:
-                print self.dicoCommandHelp[cmd[0]]
-                print "Parameter:"
-                for para in self.dicoParameter[cmd[0]]:
-                    print self.dicoParameterHelp[para]
-            print __SYNTAX_HELP__
+                if self.dicoCommandHelp != None:
+                    if cmd in __command_help__:
+                        return 0
+                    if cmd in self.dicoCommandHelp.keys():
+                        print "Sub command : " + self.currentCommand + " " + cmd
+                        print self.dicoCommandHelp[cmd]
 
+                        print "Parameter:"
+                        if self.dicoParameter != None:
+                            if cmd in self.dicoParameter.keys():
+                                for para in self.dicoParameter[cmd]:
+                                    if self.dicoParameterHelp != None:
+                                        if para in self.dicoParameterHelp.keys():
+                                            print self.dicoParameterHelp[para]
+                                        else:
+                                            print "ERROR '" + para + "' is not in self.dicoParameterHelp.keys() : " + ",".join(self.dicoParameterHelp.keys())
+                                            return 1
+                                print
+                            else:
+                                print "ERROR '" + cmd + "' is not in self.dicoParameter.keys() : " + ",".join(self.dicoParameter.keys())
+                                return 1
+                    else:
+                        print "ERROR '" + cmd + "' is not in self.dicoCommandHelp.keys() : " + ",".join(self.dicoCommandHelp.keys())
+                        return 1
+            if not ObsLightBase.manTag:
+                self.printSyntaxHelp()
         return 0
+
+    def printSyntaxHelp(self):
+        print __SYNTAX_HELP__
+
+    def man(self):
+        self.print_Help()
+
+        for command in self.listCommand:
+            self.print_Help(command)
 
     def globalDescription(self):
         '''
@@ -849,10 +1203,13 @@ class ObsLightBase():
             print __DESCRIPTION__
             for h in __LIST_command__:
                 print __DICO_command_help__[h]
-            print "\nglobal Options:\n"
+            print
+            print "global Options:\n"
             for h in __LIST_command_global__:
                 print __DICO_command_help__[h]
+            print
         return 0
+
     def printDescriptionLevel0(self):
         '''
         print the global description or return the list for completion
@@ -889,13 +1246,13 @@ class ObsLightServer(ObsLightBase):
         init class
         '''
         ObsLightBase.__init__(self)
+
+        self.currentCommand = __server__[0]
+
         self.listCommand = __LIST_command_server__
         self.dicoParameterServerCompletion = __DICO_parameter_server_completion__
-        self.dicoParameter = __DICO_parameter_server__
-
         self.dicoCommandHelp = __DICO_command_server_help__
-
-        self.dicoParameterHelp = __DICO_parameter_help__
+        self.dicoParameter = __DICO_parameter_server__
 
     def printCompletionListAlias(self):
         '''
@@ -950,7 +1307,7 @@ class ObsLightServer(ObsLightBase):
             if (currentCommand in __command_help__) or (listArgv == None):
                 Help = True
                 break
-            elif currentCommand in __parameter_alias__:
+            elif currentCommand in __parameter_server_alias__:
                 server_alias, listArgv = self.getParameter(listArgv)
                 if (server_alias == None) and ObsLightBase.noaction:
                     return self.printCompletionListAlias()
@@ -1051,7 +1408,7 @@ class ObsLightServer(ObsLightBase):
                 repository_url = True
             elif currentCommand in __parameter_web_url__:
                 weburl = True
-            elif currentCommand in __parameter_alias__:
+            elif currentCommand in __parameter_server_alias__:
                 server_alias, listArgv = self.getParameter(listArgv)
                 if (server_alias == None) and ObsLightBase.noaction:
                     return self.printCompletionListAlias()
@@ -1122,7 +1479,7 @@ class ObsLightServer(ObsLightBase):
                 repository_url , listArgv = self.getParameter(listArgv)
             elif currentCommand in __parameter_web_url__:
                 weburl , listArgv = self.getParameter(listArgv)
-            elif currentCommand in __parameter_alias__:
+            elif currentCommand in __parameter_server_alias__:
                 server_alias, listArgv = self.getParameter(listArgv)
                 if (server_alias == None) and ObsLightBase.noaction:
                     return self.printCompletionListAlias()
@@ -1170,7 +1527,7 @@ class ObsLightServer(ObsLightBase):
             if (currentCommand in __command_help__) or (listArgv == None):
                 Help = True
                 break
-            elif currentCommand in __parameter_alias__:
+            elif currentCommand in __parameter_server_alias__:
                 server_alias, listArgv = self.getParameter(listArgv)
                 if (server_alias == None) and ObsLightBase.noaction:
                     return self.printCompletionListAlias()
@@ -1268,13 +1625,12 @@ class ObsLightObsproject(ObsLightBase):
         '''
         ObsLightBase.__init__(self)
 
-        self.listCommand = __LIST_command_server__
-        self.dicoParameterServerCompletion = __DICO_parameter_server_completion__
-        self.dicoParameter = __DICO_parameter_server__
+        self.currentCommand = __obsproject__[0]
 
-        self.dicoCommandHelp = __DICO_command_server_help__
-
-        self.dicoParameterHelp = __DICO_parameter_help__
+        self.listCommand = __LIST_command_obsproject__
+        self.dicoParameterServerCompletion = __DICO_parameter_obsproject_completion__
+        self.dicoCommandHelp = __DICO_command_obsproject_help__
+        self.dicoParameter = __DICO_parameter_obsproject__
 
     def obsproject_list (self, listArgv):
         '''
@@ -1296,7 +1652,7 @@ class ObsLightObsproject(ObsLightBase):
                 break
             elif currentCommand in __parameter_raw__:
                 raw = True
-            elif currentCommand in __parameter_alias__:
+            elif currentCommand in __parameter_server_alias__:
                 server_alias , listArgv = self.getParameter(listArgv)
             elif  currentCommand in __parameter_arch__ :
                 arch , listArgv = self.getParameter(listArgv)
@@ -1479,11 +1835,11 @@ class ObsLightObsproject(ObsLightBase):
                 maintainer = True
             elif currentCommand in __parameter_bugowner__:
                 bugowner = True
-            elif currentCommand in __parameter_alias__:
+            elif currentCommand in __parameter_project_alias__:
                 project_alias , listArgv = self.getParameter(listArgv)
-            elif currentCommand in __parameter_alias__:
+            elif currentCommand in __parameter_server_alias__:
                 server_alias , listArgv = self.getParameter(listArgv)
-            elif currentCommand in __obsproject__:
+            elif currentCommand in __parameter_project__:
                 obsproject , listArgv = self.getParameter(listArgv)
             else:
                 Help = True
@@ -1652,7 +2008,7 @@ class ObsLightObsproject(ObsLightBase):
                 title , listArgv = self.getParameter(listArgv)
             elif currentCommand in __parameter_project_description__:
                 description , listArgv = self.getParameter(listArgv)
-            elif currentCommand in __parameter_alias__:
+            elif currentCommand in __parameter_project_alias__:
                 project_alias , listArgv = self.getParameter(listArgv)
             else:
                 Help = True
@@ -1830,13 +2186,12 @@ class ObsLightObsPackage(ObsLightBase):
         '''
         ObsLightBase.__init__(self)
 
-        self.listCommand = __LIST_command_server__
-        self.dicoParameterServerCompletion = __DICO_parameter_server_completion__
-        self.dicoParameter = __DICO_parameter_server__
+        self.currentCommand = __Package__[0]
 
-        self.dicoCommandHelp = __DICO_command_server_help__
-
-        self.dicoParameterHelp = __DICO_parameter_help__
+        self.listCommand = __LIST_package__
+        self.dicoParameterServerCompletion = __DICO_parameter_package_completion__
+        self.dicoCommandHelp = __DICO_command_package_help__
+        self.dicoParameter = __DICO_parameter_package__
 
     def package_add(self, listArgv):
         '''
@@ -1851,7 +2206,7 @@ class ObsLightObsPackage(ObsLightBase):
             if (currentCommand in __command_help__) or (listArgv == None):
                 Help = True
                 break
-            elif currentCommand in __parameter_alias__:
+            elif currentCommand in __parameter_project_alias__:
                 project_alias, listArgv = self.getParameter(listArgv)
             else:
                 package = currentCommand
@@ -1881,7 +2236,7 @@ class ObsLightObsPackage(ObsLightBase):
             if (currentCommand in __command_help__) or (listArgv == None):
                 Help = True
                 break
-            elif currentCommand in __parameter_alias__:
+            elif currentCommand in __parameter_project_alias__:
                 project_alias, listArgv = self.getParameter(listArgv)
             else:
                 package = currentCommand
@@ -1911,9 +2266,9 @@ class ObsLightObsPackage(ObsLightBase):
             if (currentCommand in __command_help__) or (listArgv == None):
                 Help = True
                 break
-            elif currentCommand in __package_available__:
+            elif currentCommand in __parameter_available__:
                 available = True
-            elif currentCommand in __parameter_alias__:
+            elif currentCommand in __parameter_project_alias__:
                 project_alias, listArgv = self.getParameter(listArgv)
             else:
                 Help = True
@@ -1988,39 +2343,39 @@ class ObsLightObsPackage(ObsLightBase):
                 title = True
             elif currentCommand in __parameter_project_description__:
                 description = True
-            elif currentCommand in __package_revision__:
+            elif currentCommand in __parameter_revision__:
                 revision = True
-            elif currentCommand in __package_obsRev__ :
+            elif currentCommand in __parameter_obsRev__ :
                 obsRev = True
-            elif currentCommand in __package_oscRev__ :
+            elif currentCommand in __parameter_oscRev__ :
                 oscRev = True
-            elif currentCommand in __listFile__:
+            elif currentCommand in __parameter_listFile__:
                 listFile = True
-            elif currentCommand in __obsStatus__:
+            elif currentCommand in __parameter_obsstatus__:
                 obsStatus = True
-            elif currentCommand in __oscStatus__:
+            elif currentCommand in __parameter_oscstatus__:
                 oscStatus = True
-            elif currentCommand in __specFile__:
+            elif currentCommand in __parameter_specFile__:
                 specFile = True
-            elif currentCommand in __yamlFile__:
+            elif currentCommand in __parameter_yamlFile__:
                 yamlFile = True
-            elif currentCommand in __fsPackageDirectory__ :
+            elif currentCommand in __parameter_fsPackageDirectory__ :
                 fsPackageDirectory = True
-            elif currentCommand in __oscPackageDirectory__ :
+            elif currentCommand in __parameter_oscPackageDirectory__ :
                 oscPackageDirectory = True
-            elif currentCommand in __chRootStatus__:
+            elif currentCommand in __parameter_filesystemstatus__:
                 chRootStatus = True
-            elif currentCommand in __currentPatch__:
+            elif currentCommand in __parameter_currentPatch__:
                 currentPatch = True
-            elif currentCommand in __package_url__:
+            elif currentCommand in __parameter_url__:
                 url = True
-            elif currentCommand in __parameter_alias__:
+            elif currentCommand in __parameter_project_alias__:
                 project_alias , listArgv = self.getParameter(listArgv)
-            elif currentCommand in __parameter_alias__:
+            elif currentCommand in __parameter_server_alias__:
                 server_alias , listArgv = self.getParameter(listArgv)
             elif currentCommand in __obsproject__:
                 obsproject , listArgv = self.getParameter(listArgv)
-            elif currentCommand in __package_package__:
+            elif currentCommand in __parameter_package__:
                 package , listArgv = self.getParameter(listArgv)
             else:
                 Help = True
@@ -2239,9 +2594,9 @@ class ObsLightObsPackage(ObsLightBase):
                 title , listArgv = self.getParameter(listArgv)
             elif currentCommand in __parameter_project_description__:
                 description , listArgv = self.getParameter(listArgv)
-            elif currentCommand in __parameter_alias__:
+            elif currentCommand in __parameter_project_alias__:
                 project_alias , listArgv = self.getParameter(listArgv)
-            elif currentCommand in __package_package__:
+            elif currentCommand in __parameter_package__:
                 package , listArgv = self.getParameter(listArgv)
             else:
                 Help = True
@@ -2296,9 +2651,9 @@ class ObsLightObsPackage(ObsLightBase):
             if (currentCommand in __command_help__) or (listArgv == None):
                 Help = True
                 break
-            elif currentCommand in __parameter_alias__:
+            elif currentCommand in __parameter_project_alias__:
                 project_alias , listArgv = self.getParameter(listArgv)
-            elif currentCommand in __package_package__:
+            elif currentCommand in __parameter_package__:
                 package , listArgv = self.getParameter(listArgv)
             else:
                 Help = True
@@ -2345,9 +2700,9 @@ class ObsLightObsPackage(ObsLightBase):
             else:
                 message = currentCommand
                 while(len(listArgv) > 0):
-                    if currentCommand in __parameter_alias__:
+                    if currentCommand in __parameter_project_alias__:
                         project_alias , listArgv = self.getParameter(listArgv)
-                    elif currentCommand in __package_package__:
+                    elif currentCommand in __parameter_package__:
                         package , listArgv = self.getParameter(listArgv)
                     else:
                         break
@@ -2390,9 +2745,9 @@ class ObsLightObsPackage(ObsLightBase):
             if (currentCommand in __command_help__) or (listArgv == None):
                 Help = True
                 break
-            elif currentCommand in __parameter_alias__:
+            elif currentCommand in __parameter_project_alias__:
                 project_alias , listArgv = self.getParameter(listArgv)
-            elif currentCommand in __package_package__:
+            elif currentCommand in __parameter_package__:
                 package , listArgv = self.getParameter(listArgv)
             else:
                 Help = True
@@ -2432,7 +2787,7 @@ class ObsLightObsPackage(ObsLightBase):
             if (currentCommand in __command_help__) or (listArgv == None):
                 Help = True
                 break
-            elif currentCommand in __parameter_alias__:
+            elif currentCommand in __parameter_project_alias__:
                 project_alias, listArgv = self.getParameter(listArgv)
             else:
                 Help = True
@@ -2468,9 +2823,9 @@ class ObsLightObsPackage(ObsLightBase):
                 path = currentCommand
                 while(len(listArgv) > 0):
                     currentCommand, listArgv = self.getParameter(listArgv)
-                    if currentCommand in __parameter_alias__:
+                    if currentCommand in __parameter_project_alias__:
                         project_alias , listArgv = self.getParameter(listArgv)
-                    elif currentCommand in __package_package__:
+                    elif currentCommand in __parameter_package__:
                         package , listArgv = self.getParameter(listArgv)
                     else:
                         break
@@ -2507,15 +2862,15 @@ class ObsLightObsPackage(ObsLightBase):
             if (currentCommand in __command_help__) or (listArgv == None):
                 Help = True
                 break
-            elif currentCommand in __parameter_alias__:
+            elif currentCommand in __parameter_project_alias__:
                 project_alias, listArgv = self.getParameter(listArgv)
             else:
                 name = currentCommand
                 while(len(listArgv) > 0):
                     currentCommand, listArgv = self.getParameter(listArgv)
-                    if currentCommand in __parameter_alias__:
+                    if currentCommand in __parameter_project_alias__:
                         project_alias , listArgv = self.getParameter(listArgv)
-                    elif currentCommand in __package_package__:
+                    elif currentCommand in __parameter_package__:
                         package , listArgv = self.getParameter(listArgv)
                     else:
                         break
@@ -2553,13 +2908,13 @@ class ObsLightObsPackage(ObsLightBase):
             if (currentCommand in __command_help__) or (listArgv == None):
                 Help = True
                 break
-            elif currentCommand in __package_oscstatus__:
+            elif currentCommand in __parameter_oscstatus__:
                 OscStatus = True
-            elif currentCommand in __package_obsstatus__:
+            elif currentCommand in __parameter_obsstatus__:
                 ObsStatus = True
-            elif currentCommand in __parameter_alias__:
+            elif currentCommand in __parameter_project_alias__:
                 project_alias , listArgv = self.getParameter(listArgv)
-            elif currentCommand in __package_package__:
+            elif currentCommand in __parameter_package__:
                 package , listArgv = self.getParameter(listArgv)
             else:
                 break
@@ -2603,31 +2958,31 @@ class ObsLightObsPackage(ObsLightBase):
             currentCommand = listArgv[0]
             listArgv = listArgv[1:]
 
-            if currentCommand in __package_Help__ :
+            if currentCommand in __command_help__ :
                 return self.print_Help()
-            elif currentCommand in __package_add__ :
+            elif currentCommand in __command_add__ :
                 return self.package_add(listArgv)
-            elif currentCommand in __package_delete__:
+            elif currentCommand in __command_del__:
                 return self.package_delete(listArgv)
-            elif currentCommand in __package_list__:
+            elif currentCommand in __command_list__:
                 return self.package_list(listArgv)
-            elif currentCommand in __package_query__:
+            elif currentCommand in __command_query__:
                 return self.package_query(listArgv)
-            elif currentCommand in __package_set__:
+            elif currentCommand in __command_set__:
                 return self.package_set(listArgv)
-            elif currentCommand in __package_update__:
+            elif currentCommand in __command_update__:
                 return self.package_update(listArgv)
-            elif currentCommand in  __package_commit__ :
+            elif currentCommand in  __command_commit__ :
                 return self.package_commit(listArgv)
-            elif currentCommand in __package_repair__ :
+            elif currentCommand in __command_repair__ :
                 return self.package_repair(listArgv)
-            elif currentCommand in __package_current__:
+            elif currentCommand in __command_current__:
                 return self.package_current(listArgv)
-            elif currentCommand in __package_addfile__:
+            elif currentCommand in __command_addfile__:
                 return self.package_addfile(listArgv)
-            elif currentCommand in __package_deletefile__:
+            elif currentCommand in __command_deletefile__:
                 return self.package_deletefile(listArgv)
-            elif currentCommand in __package_refresh__:
+            elif currentCommand in __command_refresh__:
                 return self.package_refresh(listArgv)
             else:
                 return self.print_Help()
@@ -2644,13 +2999,12 @@ class ObsLightObsRepository(ObsLightBase):
         '''
         ObsLightBase.__init__(self)
 
-        self.listCommand = __LIST_command_server__
-        self.dicoParameterServerCompletion = __DICO_parameter_server_completion__
-        self.dicoParameter = __DICO_parameter_server__
+        self.currentCommand = __command_repositories__[0]
 
-        self.dicoCommandHelp = __DICO_command_server_help__
-
-        self.dicoParameterHelp = __DICO_parameter_help__
+        self.listCommand = __LIST_repositories__
+        self.dicoParameterServerCompletion = __DICO_parameter_repositories_completion__
+        self.dicoCommandHelp = __DICO_command_repositories_help__
+        self.dicoParameter = __DICO_parameter_repositories__
 
     def repository_add(self, listArgv):
         '''
@@ -2669,7 +3023,7 @@ class ObsLightObsRepository(ObsLightBase):
             currentCommand, listArgv = self.getParameter(listArgv)
             if (currentCommand in __command_help__) or (listArgv == None):
                 Help = True
-            elif currentCommand in __repository_From__:
+            elif currentCommand in __parameter_From__:
                 From = True
                 fromProject, listArgv = self.getParameter(listArgv)
                 project_alias, listArgv = self.getParameter(listArgv)
@@ -2774,9 +3128,9 @@ class ObsLightObsRepository(ObsLightBase):
                 alias = currentCommand
                 while(len(listArgv) > 0):
                     currentCommand, listArgv = self.getParameter(listArgv)
-                    if currentCommand in __repository_newUrl__:
+                    if currentCommand in __parameter_newUrl__:
                         newUrl, listArgv = self.getParameter(listArgv)
-                    elif currentCommand in __repository_newAlias__:
+                    elif currentCommand in __parameter_newAlias__:
                         newAlias, listArgv = self.getParameter(listArgv)
                     else:
                         break
@@ -2849,13 +3203,13 @@ class ObsLightObsRepository(ObsLightBase):
 
             if currentCommand in __command_help__ :
                 return self.print_Help()
-            elif currentCommand in __repository_add__:
+            elif currentCommand in __command_add__:
                 return self.repository_add(listArgv)
-            elif currentCommand in __repository_delete__ :
+            elif currentCommand in __command_del__ :
                 return self.repository_delete(listArgv)
-            elif currentCommand in __repository_modify__:
+            elif currentCommand in __command_modify__:
                 return self.repository_modify(listArgv)
-            elif currentCommand in __repository_query__:
+            elif currentCommand in __command_query__:
                 return self.repository_query(listArgv)
             else:
                 return self.print_Help()
@@ -2872,13 +3226,17 @@ class ObsLightObsProjectfilesystem(ObsLightBase):
         '''
         ObsLightBase.__init__(self)
 
-        self.listCommand = __LIST_command_server__
-        self.dicoParameterServerCompletion = __DICO_parameter_server_completion__
-        self.dicoParameter = __DICO_parameter_server__
+        self.currentCommand = __projectfilesystem__[0]
 
-        self.dicoCommandHelp = __DICO_command_server_help__
+        self.listCommand = __LIST_filesystem__
+        self.dicoParameterServerCompletion = __DICO_parameter_filesystem_completion__
+        self.dicoCommandHelp = __DICO_command_filesystem_help__
+        self.dicoParameter = __DICO_parameter_filesystem__
 
-        self.dicoParameterHelp = __DICO_parameter_help__
+
+    def man(self):
+        ObsLightBase.man(self)
+        ObsLightObsRepository().man()
 
     def projectfilesystem_create(self, listArgv):
         '''
@@ -2923,7 +3281,7 @@ class ObsLightObsProjectfilesystem(ObsLightBase):
             if (currentCommand in __command_help__) or (listArgv == None):
                 Help = True
                 break
-            elif currentCommand in __parameter_alias__:
+            elif currentCommand in __parameter_project_alias__:
                 project_alias, listArgv = self.getParameter(listArgv)
             else:
                 Help = True
@@ -2960,11 +3318,11 @@ class ObsLightObsProjectfilesystem(ObsLightBase):
             if (currentCommand in __command_help__) or (listArgv == None):
                 Help = True
                 break
-            elif currentCommand in __projectfilesystem_path__:
+            elif currentCommand in __parameter_path__:
                 path = True
-            elif currentCommand in __projectfilesystem_status__:
+            elif currentCommand in __parameter_filesystemstatus__:
                 status = True
-            elif currentCommand in __parameter_alias__:
+            elif currentCommand in __parameter_project_alias__:
                 project_alias, listArgv = self.getParameter(listArgv)
             else:
                 Help = True
@@ -3014,7 +3372,7 @@ class ObsLightObsProjectfilesystem(ObsLightBase):
             if (currentCommand in __command_help__) or (listArgv == None):
                 Help = True
                 break
-            elif currentCommand in __package_package__:
+            elif currentCommand in __parameter_package__:
                 package , listArgv = self.getParameter(listArgv)
             else:
                 project_alias = currentCommand
@@ -3070,12 +3428,6 @@ class ObsLightObsProjectfilesystem(ObsLightBase):
             return res
         return 0
 
-    def projectfilesystem_repository(self, listArgv):
-        '''
-        
-        '''
-        ObsLightObsRepository().execute(listArgv)
-
     def execute(self, listArgv):
         if len(listArgv) == 0:
             return self.print_Help()
@@ -3083,25 +3435,23 @@ class ObsLightObsProjectfilesystem(ObsLightBase):
             currentCommand = listArgv[0]
             listArgv = listArgv[1:]
 
-            if currentCommand in __projectfilesystem_Help__ :
+            if currentCommand in __command_help__ :
                 return self.print_Help()
-            elif currentCommand in __projectfilesystem_create__ :
+            elif currentCommand in __command_create__ :
                 return self.projectfilesystem_create(listArgv)
-            elif currentCommand in __projectfilesystem_delete__:
+            elif currentCommand in __command_del__:
                 return self.projectfilesystem_delete(listArgv)
-            elif currentCommand in __projectfilesystem_query__:
+            elif currentCommand in __command_query__:
                 return self.projectfilesystem_query(listArgv)
-            elif currentCommand in __projectfilesystem_enter__:
+            elif currentCommand in __command_enter__:
                 return self.projectfilesystem_enter(listArgv)
-            elif currentCommand in __projectfilesystem_executescript__:
+            elif currentCommand in __command_executescript__:
                 return self.projectfilesystem_executescript(listArgv)
-            elif currentCommand in __projectfilesystem_repository__:
-                return self.projectfilesystem_repository(listArgv)
+            elif currentCommand in __command_repositories__:
+                return ObsLightObsRepository().execute(listArgv)
             else:
                 return self.print_Help()
         return 0
-
-
 
 class ObsLightRpmbuild(ObsLightBase):
     '''
@@ -3113,13 +3463,12 @@ class ObsLightRpmbuild(ObsLightBase):
         '''
         ObsLightBase.__init__(self)
 
-        self.listCommand = __LIST_command_server__
-        self.dicoParameterServerCompletion = __DICO_parameter_server_completion__
-        self.dicoParameter = __DICO_parameter_server__
+        self.currentCommand = __rpmbuild__[0]
 
-        self.dicoCommandHelp = __DICO_command_server_help__
-
-        self.dicoParameterHelp = __DICO_parameter_help__
+        self.listCommand = __LIST_rpmbuild__
+        self.dicoParameterServerCompletion = __DICO_parameter_rpmbuild_completion__
+        self.dicoCommandHelp = __DICO_command_rpmbuild_help__
+        self.dicoParameter = __DICO_parameter_rpmbuild__
 
     def rpmbuild_prepare(self, listArgv):
         '''
@@ -3134,7 +3483,7 @@ class ObsLightRpmbuild(ObsLightBase):
             if (currentCommand in __command_help__) or (listArgv == None):
                 Help = True
                 break
-            elif currentCommand in __parameter_alias__:
+            elif currentCommand in __parameter_project_alias__:
                 project_alias, listArgv = self.getParameter(listArgv)
             else :
                 package = currentCommand
@@ -3170,7 +3519,7 @@ class ObsLightRpmbuild(ObsLightBase):
             if (currentCommand in __command_help__) or (listArgv == None):
                 Help = True
                 break
-            elif currentCommand in __parameter_alias__:
+            elif currentCommand in __parameter_project_alias__:
                 project_alias, listArgv = self.getParameter(listArgv)
             else :
                 package = currentCommand
@@ -3206,7 +3555,7 @@ class ObsLightRpmbuild(ObsLightBase):
             if (currentCommand in __command_help__) or (listArgv == None):
                 Help = True
                 break
-            elif currentCommand in __parameter_alias__:
+            elif currentCommand in __parameter_project_alias__:
                 project_alias, listArgv = self.getParameter(listArgv)
             else :
                 package = currentCommand
@@ -3242,7 +3591,7 @@ class ObsLightRpmbuild(ObsLightBase):
             if (currentCommand in __command_help__) or (listArgv == None):
                 Help = True
                 break
-            elif currentCommand in __parameter_alias__:
+            elif currentCommand in __parameter_project_alias__:
                 project_alias, listArgv = self.getParameter(listArgv)
             else :
                 package = currentCommand
@@ -3278,9 +3627,9 @@ class ObsLightRpmbuild(ObsLightBase):
             if (currentCommand in __command_help__) or (listArgv == None):
                 Help = True
                 break
-            elif currentCommand in __parameter_alias__:
+            elif currentCommand in __parameter_project_alias__:
                 project_alias , listArgv = self.getParameter(listArgv)
-            elif currentCommand in __package_package__:
+            elif currentCommand in __parameter_package__:
                 package , listArgv = self.getParameter(listArgv)
             else:
                 Help = True
@@ -3326,9 +3675,9 @@ class ObsLightRpmbuild(ObsLightBase):
             else:
                 patch = currentCommand
                 while (len(listArgv) > 0):
-                    if currentCommand in __parameter_alias__:
+                    if currentCommand in __parameter_project_alias__:
                         project_alias , listArgv = self.getParameter(listArgv)
-                    elif currentCommand in __package_package__:
+                    elif currentCommand in __parameter_package__:
                         package , listArgv = self.getParameter(listArgv)
                     else:
                         break
@@ -3371,9 +3720,9 @@ class ObsLightRpmbuild(ObsLightBase):
             if (currentCommand in __command_help__) or (listArgv == None):
                 Help = True
                 break
-            elif currentCommand in __parameter_alias__:
+            elif currentCommand in __parameter_project_alias__:
                 project_alias , listArgv = self.getParameter(listArgv)
-            elif currentCommand in __package_package__:
+            elif currentCommand in __parameter_package__:
                 package , listArgv = self.getParameter(listArgv)
             else:
                 Help = True
@@ -3421,21 +3770,21 @@ class ObsLightRpmbuild(ObsLightBase):
 
             if currentCommand in __command_help__ :
                 return self.print_Help()
-            elif currentCommand in __rpmbuild_prepare__:
+            elif currentCommand in __command_prepare__:
                 return self.rpmbuild_prepare(listArgv)
-            elif currentCommand in __rpmbuild_build__ :
+            elif currentCommand in __command_build__ :
                 return self.rpmbuild_build(listArgv)
-            elif currentCommand in __rpmbuild_install__:
+            elif currentCommand in __command_install__:
                 return self.rpmbuild_install(listArgv)
-            elif currentCommand in __rpmbuild_package__:
+            elif currentCommand in __command_buildpackage__:
                 return self.rpmbuild_package(listArgv)
-            elif currentCommand in __rpmbuild_isInit__:
+            elif currentCommand in __command_isInit__:
                 return self.rpmbuild_isInit(listArgv)
-            elif currentCommand in __rpmbuild_testConflict__:
+            elif currentCommand in __command_testConflict__:
                 return self.rpmbuild_testConflict()
-            elif currentCommand in __rpmbuild_createPatch__:
+            elif currentCommand in __command_createPatch__:
                 return self.rpmbuild_createPatch(listArgv)
-            elif currentCommand in __rpmbuild_updatepatch__:
+            elif currentCommand in __command_updatepatch__:
                 return self.rpmbuild_updatepatch(listArgv)
             else:
                 return self.print_Help()
@@ -3509,6 +3858,16 @@ class ObsLight(ObsLightBase):
                     return ObsLightRpmbuild().execute(listArgv)
                 elif currentCommand in __micproject__ :
                     return self.micproject(listArgv)
+                elif currentCommand in __man__ :
+                    ObsLightBase.manTag = True
+                    self.printDescriptionLevel0()
+                    ObsLightServer().man()
+                    ObsLightObsproject().man()
+                    ObsLightObsPackage().man()
+                    ObsLightObsProjectfilesystem().man()
+                    ObsLightRpmbuild().man()
+                    self.printSyntaxHelp()
+                    ObsLightBase.manTag = False
 #                elif currentCommand in __qemuproject__ :
 #                    return self.qemuproject(listArgv)
                 else:
@@ -3545,7 +3904,7 @@ class ObsLight(ObsLightBase):
 #            if (currentCommand in __command_help__) or (listArgv == None):
 #                Help = True
 #                break
-#            elif currentCommand in __parameter_alias__:
+#            elif currentCommand in __parameter_project_alias__:
 #                project_alias, listArgv = self.getParameter(listArgv)
 #            else :
 #                package = currentCommand
@@ -3581,7 +3940,7 @@ class ObsLight(ObsLightBase):
 #            if (currentCommand in __command_help__) or (listArgv == None):
 #                Help = True
 #                break
-#            elif currentCommand in __parameter_alias__:
+#            elif currentCommand in __parameter_project_alias__:
 #                project_alias, listArgv = self.getParameter(listArgv)
 #            else :
 #                package = currentCommand
@@ -3617,7 +3976,7 @@ class ObsLight(ObsLightBase):
 #            if (currentCommand in __command_help__) or (listArgv == None):
 #                Help = True
 #                break
-#            elif currentCommand in __parameter_alias__:
+#            elif currentCommand in __parameter_project_alias__:
 #                project_alias, listArgv = self.getParameter(listArgv)
 #            else :
 #                package = currentCommand
@@ -3653,7 +4012,7 @@ class ObsLight(ObsLightBase):
 #            if (currentCommand in __command_help__) or (listArgv == None):
 #                Help = True
 #                break
-#            elif currentCommand in __parameter_alias__:
+#            elif currentCommand in __parameter_project_alias__:
 #                project_alias, listArgv = self.getParameter(listArgv)
 #            else :
 #                package = currentCommand
@@ -3689,9 +4048,9 @@ class ObsLight(ObsLightBase):
 #            if (currentCommand in __command_help__) or (listArgv == None):
 #                Help = True
 #                break
-#            elif currentCommand in __parameter_alias__:
+#            elif currentCommand in __parameter_project_alias__:
 #                project_alias , listArgv = self.getParameter(listArgv)
-#            elif currentCommand in __package_package__:
+#            elif currentCommand in __parameter_package__:
 #                package , listArgv = self.getParameter(listArgv)
 #            else:
 #                Help = True
@@ -3737,9 +4096,9 @@ class ObsLight(ObsLightBase):
 #            else:
 #                patch = currentCommand
 #                while (len(listArgv) > 0):
-#                    if currentCommand in __parameter_alias__:
+#                    if currentCommand in __parameter_project_alias__:
 #                        project_alias , listArgv = self.getParameter(listArgv)
-#                    elif currentCommand in __package_package__:
+#                    elif currentCommand in __parameter_package__:
 #                        package , listArgv = self.getParameter(listArgv)
 #                    else:
 #                        break
@@ -3782,9 +4141,9 @@ class ObsLight(ObsLightBase):
 #            if (currentCommand in __command_help__) or (listArgv == None):
 #                Help = True
 #                break
-#            elif currentCommand in __parameter_alias__:
+#            elif currentCommand in __parameter_project_alias__:
 #                project_alias , listArgv = self.getParameter(listArgv)
-#            elif currentCommand in __package_package__:
+#            elif currentCommand in __parameter_package__:
 #                package , listArgv = self.getParameter(listArgv)
 #            else:
 #                Help = True
@@ -3834,21 +4193,21 @@ class ObsLight(ObsLightBase):
 #
 #            if currentCommand in __command_help__ :
 #                return self.print_Help()
-#            elif currentCommand in __rpmbuild_prepare__:
+#            elif currentCommand in __command_prepare__:
 #                return self.rpmbuild_prepare(listArgv)
-#            elif currentCommand in __rpmbuild_build__ :
+#            elif currentCommand in __command_build__ :
 #                return self.rpmbuild_build(listArgv)
-#            elif currentCommand in __rpmbuild_install__:
+#            elif currentCommand in __command_install__:
 #                return self.rpmbuild_install(listArgv)
-#            elif currentCommand in __rpmbuild_package__:
+#            elif currentCommand in __command_buildpackage__:
 #                return self.rpmbuild_package(listArgv)
-#            elif currentCommand in __rpmbuild_isInit__:
+#            elif currentCommand in __command_isInit__:
 #                return self.rpmbuild_isInit(listArgv)
-#            elif currentCommand in __rpmbuild_testConflict__:
+#            elif currentCommand in __command_testConflict__:
 #                return self.rpmbuild_testConflict(listArgv)
-#            elif currentCommand in __rpmbuild_createPatch__:
+#            elif currentCommand in __command_createPatch__:
 #                return self.rpmbuild_createPatch(listArgv)
-#            elif currentCommand in __rpmbuild_updatepatch__:
+#            elif currentCommand in __command_updatepatch__:
 #                return self.rpmbuild_updatepatch(listArgv)
 #            else:
 #                return self.print_Help()
