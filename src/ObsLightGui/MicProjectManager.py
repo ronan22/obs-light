@@ -21,8 +21,10 @@ Created on 3 févr. 2012
 @author: Florent Vennetier
 '''
 
+import os.path
+
 from PySide.QtCore import QObject, Qt
-from PySide.QtGui import QItemSelectionModel
+from PySide.QtGui import QFileDialog, QItemSelectionModel
 
 from ObsLightGuiObject import ObsLightGuiObject
 from KickstartRepositoriesModel import KickstartRepositoriesModel
@@ -30,6 +32,7 @@ from KickstartPackagesModel import KickstartPackagesModel
 from KickstartPackageGroupsModel import KickstartPackageGroupsModel
 from KickstartCommandsModel import KickstartCommandsModel
 from KickstartScriptsModel import KickstartScriptsModel
+from KickstartOverlayFilesModel import KickstartOverlayFilesModel
 
 class MicProjectManager(QObject, ObsLightGuiObject):
     # pylint: disable-msg=E0202, E1101
@@ -43,6 +46,8 @@ class MicProjectManager(QObject, ObsLightGuiObject):
         self.__pkgGrpModel = KickstartPackageGroupsModel(self.manager, self.currentProject)
         self.__cmdModel = KickstartCommandsModel(self.manager, self.currentProject)
         self.__scriptModel = KickstartScriptsModel(self.manager, self.currentProject)
+        self.__overlayModel = KickstartOverlayFilesModel(self.manager,
+                                                         self.currentProject)
 
     def __loadUi(self):
         self.__loadImageType()
@@ -53,6 +58,7 @@ class MicProjectManager(QObject, ObsLightGuiObject):
         mw.kickstartPackagesTableView.setModel(self.packageModel)
         mw.kickstartPackageGroupsTableView.setModel(self.packageGroupModel)
         mw.kickstartScriptsListView.setModel(self.scriptModel)
+        mw.kickstartOverlayFilesTableView.setModel(self.overlayModel)
         self.__loadCommands()
         self.__updateSaveState()
 
@@ -138,6 +144,10 @@ class MicProjectManager(QObject, ObsLightGuiObject):
     def scriptModel(self):
         return self.__scriptModel
 
+    @property
+    def overlayModel(self):
+        return self.__overlayModel
+
     def refresh(self):
         """Refresh the project, reload Kickstart data in the UI"""
         self.repositoryModel.refresh()
@@ -145,6 +155,7 @@ class MicProjectManager(QObject, ObsLightGuiObject):
         self.packageGroupModel.refresh()
         self.commandModel.refresh()
         self.scriptModel.refresh()
+        self.overlayModel.refresh()
         self.__loadUi()
 
     def createImage(self):
@@ -366,3 +377,27 @@ class MicProjectManager(QObject, ObsLightGuiObject):
         """
         self.scriptModel.commitChanges()
         self.refresh()
+
+# --- Overlay files ----------------------------------------------------------
+    def addNewOverlay(self):
+        """
+        Add a new overlay file. Asks user for source and destination.
+        """
+        srcPath, _filter = QFileDialog.getOpenFileName(self.mainWindow,
+                                                       "Select source file")
+        if len(srcPath) < 1:
+            return
+        defaultDstPath = "/%s" % os.path.basename(srcPath)
+        dstPath, _filter = QFileDialog.getSaveFileName(self.mainWindow,
+                                                       "Select destination file or directory",
+                                                       dir=defaultDstPath,
+                                                       options=QFileDialog.DontConfirmOverwrite)
+        if len(dstPath) < 1:
+            return
+        self.overlayModel.newOverlayFile(source=srcPath, destination=dstPath)
+
+    def removeOverlays(self, rows):
+        """
+        Remove the overlay file at `row` from the Kickstart file.
+        """
+        self.overlayModel.removeOverlayFiles(rows)

@@ -22,6 +22,7 @@ Created on 1 févr. 2012
 """
 
 import os
+import shutil
 
 from mic import kickstart
 from mic.kickstart.custom_commands.moblinrepo import Moblin_RepoData
@@ -32,6 +33,9 @@ from ObsLightUtils import isNonEmptyString
 # TODO: create a KickstartManagerException class
 
 class ObsLightKickstartManager(object):
+    """
+    Manage configuration of a Kickstart file.
+    """
     # pylint: disable-msg=E0202, E1101
 
     # Commands that must not appear in getCommandList()
@@ -53,10 +57,17 @@ class ObsLightKickstartManager(object):
 
     @property
     def kickstartPath(self):
+        """
+        Get the path of the Kickstart file this object is managing.
+        """
         return self._kickstartPath
 
     @kickstartPath.setter
     def kickstartPath(self, value): # pylint: disable-msg=E0102
+        """
+        Set the path of the Kickstart file this object is managing.
+        You must call `parseKickstart()` for the change to be effective.
+        """
         self._kickstartPath = value
 
     @property
@@ -192,6 +203,24 @@ class ObsLightKickstartManager(object):
         """
         Get a dictionary object representing a repository,
         suitable for input to `addRepository`.
+        Each dictionary contains:
+         baseurl: the URL of the repository
+         name:    a name for this repository
+         cost:    the cost of this repository, from 0 (highest priority) to 99, or None
+         mirrorlist (""):
+         priority (None):
+         includepkgs ([]):
+         excludepkgs ([]):
+         save (False): keep the repository in the generated image
+         proxy (None):
+         proxy_username (None):
+         proxy_password (None):
+         debuginfo (False):
+         source (False):
+         gpgkey (None): the address of the GPG key of this repository
+                on the generated filesystem (ex: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-meego)
+         disable (False): add the repository as disabled
+         ssl_verify ("yes"):
         """
         self._checkRepository(name)
         repoObj = self.__getRepoObj(name)
@@ -495,6 +524,12 @@ class ObsLightKickstartManager(object):
 
 # --- Overlay files ----------------------------------------------------------
     def getOverlayFileDictList(self):
+        """
+        Get a list of overlay file dictionaries containing:
+          "source": the path of the file to be copied in the chroot
+          "destination": the path where the file will be copied
+                         in target file system
+        """
         self._checkKsParser()
         overlayDictList = []
         for scriptObj in self.kickstartParser.handler.scripts:
@@ -522,7 +557,22 @@ class ObsLightKickstartManager(object):
             overlayDictList.append(overlayDict)
         return overlayDictList
 
+    def _copySourceFileIfNecessary(self, source):
+        """
+        Copy `source` to the same directory as the kickstart file
+        if it is not already there, and return the new path.
+        """
+        fileName = os.path.basename(source)
+        wantedPath = os.path.join(os.path.dirname(self.kickstartPath), fileName)
+        if os.path.abspath(source) != wantedPath:
+            shutil.copy(os.path.abspath(source), wantedPath)
+        return wantedPath
+
     def _generateCopyScript(self, source, destination):
+        """
+        Generate the shell script that will make the copy from `source`
+        to `destination` in the file system created by MIC.
+        """
         # prepare script header
         copyScript = self.OverlayFileScriptTag + "\n"
         copyScript += self.OverlayFileSourceTag + source + "\n"
@@ -541,18 +591,36 @@ class ObsLightKickstartManager(object):
         copyScript += 'cp "%s" "%s"\n' % (source, chrootDestDir[:-1] + destFileName)
         return copyScript
 
-    def addOrChangeOverlay(self, source, destination):
-        source = str(source)
+    def addOverlayFile(self, source, destination):
+        """
+        Add a new overlay file. `source` is the path where the file
+        is currently located, `destination` is the path where the file
+        will be copied in the target file system.
+        """
+        self._checkKsParser()
+        source = self._copySourceFileIfNecessary(str(source))
         destination = str(destination)
-        scriptName = source + " " + destination
+
         copyScript = self._generateCopyScript(source, destination)
+        scriptName = source + " " + destination
+        scriptObj = kickstart.ksparser.Script(script=copyScript,
+                                              inChroot=False,
+                                              type=1)
+        self.kickstartParser.handler.scripts.append(scriptObj)
+        self._scriptNameMap[scriptName] = scriptObj
+        self._scriptNameMap[scriptObj] = scriptName
+
+    def removeOverlayFile(self, source, destination):
+        """
+        Remove the overlay file which was to be copied
+        from `source` to `destination`.
+        """
+        self._checkKsParser()
+        scriptName = source + " " + destination
         scriptObj = self._scriptNameMap.get(scriptName, None)
-        if scriptObj is None:
-            scriptObj = kickstart.ksparser.Script(script=copyScript,
-                                                  inChroot=False,
-                                                  type=1)
-            self.kickstartParser.handler.scripts.append(scriptObj)
-        else:
-            scriptObj.script = copyScript
+        if scriptObj is not None:
+            self.kickstartParser.handler.scripts.remove(scriptObj)
+            self._scriptNameMap.pop(scriptObj)
+            self._scriptNameMap.pop(scriptName)
 
 # --- end Overlay files ------------------------------------------------------

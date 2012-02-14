@@ -138,6 +138,24 @@ class ObsLightMicProject(object):
     def getKickstartRepositoryDictionaries(self):
         """
         Return a list of repository dictionaries.
+        Each dictionary contains:
+         baseurl: the URL of the repository
+         name: a name for this repository
+         cost: the cost of this repository (for yum), from 0 (highest priority) to 99, or None
+         mirrorlist (""):
+         priority (None): the priority of this repository (for zypper)
+         includepkgs ([]):
+         excludepkgs ([]):
+         save (False): keep the repository in the generated image
+         proxy (None):
+         proxy_username (None):
+         proxy_password (None):
+         debuginfo (False):
+         source (False):
+         gpgkey (None): the address of the GPG key of this repository
+                on the generated filesystem (ex: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-meego)
+         disable (False): add the repository as disabled
+         ssl_verify ("yes"):
         """
         repoList = []
         for repoName in self._ksManager.getRepositoryList():
@@ -197,7 +215,7 @@ class ObsLightMicProject(object):
         """
         Get a list of package group dictionaries. Each package dictionary
         has keys:
-          "name": the name of the package
+          "name": the name of the package group
         More keys will come...
         """
         pkgGrpList = []
@@ -262,6 +280,31 @@ class ObsLightMicProject(object):
           "script": all the lines of the script
         """
         return self._ksManager.getScriptDictList()
+
+    def addKickstartOverlayFile(self, source, destination):
+        """
+        Add a new overlay file in the target file system.
+        `source` is the path where the file is currently located,
+        `destination` is the path where the file will be copied
+        in the target file system.
+        """
+        return self._ksManager.addOverlayFile(source, destination)
+
+    def removeOverlayFile(self, source, destination):
+        """
+        Remove the overlay file which was to be copied
+        from `source` to `destination` in the target file system.
+        """
+        return self._ksManager.removeOverlayFile(source, destination)
+
+    def getKickstartOverlayFileDictionaries(self):
+        """
+        Get a list of overlay file dictionaries containing:
+          "source": the path of the file to be copied in the chroot
+          "destination": the path where the file will be copied
+                         in target file system
+        """
+        return self._ksManager.getOverlayFileDictList()
 # --- end Kickstart management -----------------------------------------------
 
     def deleteProjectDirectory(self):
