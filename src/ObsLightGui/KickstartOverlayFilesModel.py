@@ -21,6 +21,8 @@ Created on 10 févr. 2012
 @author: Florent Vennetier
 '''
 
+from os.path import basename
+
 from PySide.QtCore import Qt
 from KickstartModelBase import KickstartModelBase
 
@@ -95,14 +97,21 @@ class KickstartOverlayFilesModel(KickstartModelBase):
         """
         Return the `Qt.DisplayRole` data for cell at `index`.
         """
-        row = index.row()
-        if row >= self.rowCount():
+        if index.row() >= self.rowCount():
             return None
-        retVal = self.dataDict(row).get(self.ColumnKeys[index.column()], None)
+        retVal = self.editRoleData(index)
+        if index.column() == self.SourceColumn:
+            retVal = basename(retVal)
         return retVal
 
     def editRoleData(self, index):
-        return self.displayRoleData(index)
+        """
+        Return the `Qt.EditRole` data for cell at `index`.
+        """
+        row = index.row()
+        if row >= self.rowCount():
+            return None
+        return self.dataDict(row).get(self.ColumnKeys[index.column()], None)
 
     def newOverlayFile(self, source="/dev/null", destination="/tmp/"):
         """

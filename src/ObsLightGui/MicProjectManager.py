@@ -52,15 +52,10 @@ class MicProjectManager(QObject, ObsLightGuiObject):
     def __loadUi(self):
         self.__loadImageType()
         self.__loadArchitecture()
-        mw = self.mainWindow
-        mw.kickstartPathLineEdit.setText(self.manager.getKickstartFile(self.currentProject))
-        mw.kickstartRepositoriesTableView.setModel(self.repositoryModel)
-        mw.kickstartPackagesTableView.setModel(self.packageModel)
-        mw.kickstartPackageGroupsTableView.setModel(self.packageGroupModel)
-        mw.kickstartScriptsListView.setModel(self.scriptModel)
-        mw.kickstartOverlayFilesTableView.setModel(self.overlayModel)
+        self.__loadModels()
         self.__loadCommands()
         self.__updateSaveState()
+
 
     def __loadImageType(self):
         """Load MIC image type values and preselect the current one"""
@@ -81,6 +76,22 @@ class MicProjectManager(QObject, ObsLightGuiObject):
                                                               Qt.MatchFixedString)
         if index >= 0:
             self.mainWindow.architectureComboBox.setCurrentIndex(index)
+
+    def __loadModels(self):
+        """Associate view objects to their respective model"""
+        mw = self.mainWindow
+        mw.kickstartPathLineEdit.setText(self.manager.getKickstartFile(self.currentProject))
+        mw.kickstartRepositoriesTableView.setModel(self.repositoryModel)
+        mw.kickstartPackagesTableView.setModel(self.packageModel)
+        mw.kickstartPackageGroupsTableView.setModel(self.packageGroupModel)
+        mw.kickstartScriptsListView.setModel(self.scriptModel)
+        mw.kickstartOverlayFilesTableView.setModel(self.overlayModel)
+
+        mw.kickstartPackageGroupsTableView.resizeColumnToContents(self.packageGroupModel.NameColumn)
+        for col in (self.packageModel.NameColumn, self.packageModel.ExcludedColumn):
+            mw.kickstartPackagesTableView.resizeColumnToContents(col)
+        for col in (self.overlayModel.DestinationColumn, self.overlayModel.SourceColumn):
+            mw.kickstartOverlayFilesTableView.resizeColumnToContents(col)
 
     def __loadCommands(self):
         """Load commands in Kickstart options tab, and hide those which are not active"""
@@ -394,10 +405,14 @@ class MicProjectManager(QObject, ObsLightGuiObject):
                                                        options=QFileDialog.DontConfirmOverwrite)
         if len(dstPath) < 1:
             return
-        self.overlayModel.newOverlayFile(source=srcPath, destination=dstPath)
+        self.callWithInfiniteProgress(self.overlayModel.newOverlayFile,
+                                      "Preparing overlay file...",
+                                      source=srcPath, destination=dstPath)
+        self.refresh()
 
     def removeOverlays(self, rows):
         """
         Remove the overlay file at `row` from the Kickstart file.
         """
         self.overlayModel.removeOverlayFiles(rows)
+        self.refresh()
