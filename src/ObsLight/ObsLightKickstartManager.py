@@ -511,6 +511,9 @@ class ObsLightKickstartManager(object):
         """
         Remove script `scriptName` from the Kickstart file.
         """
+        if self._scriptCounter < 1:
+            # scripts have never been parsed
+            self.getScriptDictList()
         # get the script object and remove it from the name map
         scriptObj = self._scriptNameMap.pop(scriptName, None)
         # if it was not in the map, just return
