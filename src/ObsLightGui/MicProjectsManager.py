@@ -373,6 +373,8 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
     def on_removeKickstartOverlayFileButton_clicked(self):
         """Called when user clicks on 'remove' button of kickstart overlay files tab"""
         rows = getSelectedRows(self.mainWindow.kickstartOverlayFilesTableView)
+        if len(rows) < 1:
+            return
         result = QMessageBox.question(self.mainWindow,
                                       u"Are you sure ?",
                                       u"Are you sure you want to remove %d overlay files ?"

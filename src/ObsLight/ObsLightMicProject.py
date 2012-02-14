@@ -22,6 +22,7 @@ Created on jan 10 2012
 '''
 
 import os.path
+import stat
 import ObsLightErr
 import shutil
 
@@ -54,8 +55,18 @@ class ObsLightMicProject(object):
                 self.__kickstartPath = fromSave["kickstartPath"]
                 self.__loadKsManager()
 
-        if not os.path.isdir(self.getProjectDirectory()):
-            os.makedirs(self.getProjectDirectory())
+        pDir = self.getProjectDirectory()
+        if not os.path.isdir(pDir):
+            os.makedirs(pDir)
+        # If project has no Kickstart file, create an empty one
+        if self.getKickstartFile() is None:
+            # same name as the project
+            ksPath = os.path.join(pDir, self.__name + ".ks")
+            # file rights rw-r--r-- (644)
+            rights = stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH
+            # create the empty KS file
+            os.mknod(ksPath, stat.S_IFREG | rights)
+            self.setKickstartFile(ksPath)
 
     def __subprocess(self, command):
         return self.__mySubprocessCrt.execSubprocess(command)
