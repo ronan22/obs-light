@@ -31,8 +31,6 @@ from mic.kickstart.custom_commands.moblinrepo import Moblin_RepoData
 import ObsLightErr
 from ObsLightUtils import isNonEmptyString
 
-# TODO: create a KickstartManagerException class
-
 class ObsLightKickstartManager(object):
     """
     Manage configuration of a Kickstart file.
@@ -268,17 +266,14 @@ class ObsLightKickstartManager(object):
 
     def __addRemovePackages(self, packageOrList, action="add", excluded=False, group=False):
         # if packageOrList is a string, transform it in a list of one string
-        if isinstance(packageOrList, basestring):
-            pkgList = [packageOrList]
-        else:
-            pkgList = packageOrList
+        pkgList = [packageOrList] if isinstance(packageOrList, basestring) else packageOrList
 
         if action == "add":
             # The kickstartParser.handler.packages.add method takes a 
             # list of strings formatted as in the %packages section of
             # the Kickstart file:
             #  - package groups start with '@'
-            #  - excluded packages or groups start with '-'
+            #  - excluded packages start with '-'
             if group:
                 pkgList = [("@" + pkg) for pkg in pkgList]
             if excluded:
