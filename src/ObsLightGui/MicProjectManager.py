@@ -24,7 +24,7 @@ Created on 3 févr. 2012
 import os.path
 
 from PySide.QtCore import QObject, Qt
-from PySide.QtGui import QFileDialog, QItemSelectionModel
+from PySide.QtGui import QFileDialog, QInputDialog, QItemSelectionModel
 
 from ObsLightGuiObject import ObsLightGuiObject
 from KickstartRepositoriesModel import KickstartRepositoriesModel
@@ -394,19 +394,27 @@ class MicProjectManager(QObject, ObsLightGuiObject):
         """
         Add a new overlay file. Asks user for source and destination.
         """
+        extensions = (".tar", ".tar.gz", ".tar.bz2", ".tgz", ".tbz", ".tz2")
+        filters = "Tar archives (%s);;" % " *".join(extensions)
+        filters += "All files (*)"
         srcPath, _filter = QFileDialog.getOpenFileName(self.mainWindow,
-                                                       "Select source file")
+                                                       "Select source file",
+                                                       filter=filters)
         if len(srcPath) < 1:
             return
         defaultDstPath = "/%s" % os.path.basename(srcPath)
-        dstPath, _filter = QFileDialog.getSaveFileName(self.mainWindow,
-                                                       "Select destination file or directory",
-                                                       dir=defaultDstPath,
-                                                       options=QFileDialog.DontConfirmOverwrite)
-        if len(dstPath) < 1:
+        for ext in extensions:
+            if srcPath.endswith(ext):
+                defaultDstPath = "/"
+        dstPath, accepted = QInputDialog.getText(self.mainWindow,
+                                                 "Select destination",
+                                                 "Select destination file or directory where " +
+                                                 "archive will be extracted",
+                                                 text=defaultDstPath)
+        if not accepted:
             return
         self.callWithInfiniteProgress(self.overlayModel.newOverlayFile,
-                                      "Preparing overlay file...",
+                                      "Copying overlay file in project directory...",
                                       source=srcPath, destination=dstPath)
         self.refresh()
 
