@@ -584,7 +584,6 @@ class ObsLightPackage(object):
         else:
             return self.__mySpecFile.getResolveMacroName("%{name}")
 
-
     def addPatch(self, aFile=None):
         '''
         add a Patch aFile to package, the patch is automatically add to the spec aFile.
@@ -740,7 +739,7 @@ class ObsLightPackage(object):
         for aFile in self.__listFile:
             if self.testConflict(aFile=aFile):
                 ObsLightOsc.getObsLightOsc().autoResolvedConflict(packagePath=self.getOscDirectory(), aFile=aFile)
-        self.initPackageFileInfo()
+        return self.initPackageFileInfo()
 
     def commitToObs(self, message=None):
         '''
@@ -773,6 +772,7 @@ class ObsLightPackage(object):
             self.__listInfoFile = {}
             for status, aFile in res:
                 self.__listInfoFile[aFile] = status
+        return 0
 
     def getPackageFileInfo(self, fileName):
         '''

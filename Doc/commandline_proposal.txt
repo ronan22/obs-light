@@ -41,6 +41,8 @@ obslight
 	package addfile <path> {package <package> {project_alias <project_alias>}
 	package deletefile <file> {package <package> {project_alias <project_alias>}
 	package refresh	[oscStatus|obsstatus] {package <package> {project_alias <project_alias>}}
+	package	testconflict {package <package>} {project_alias <project_alias>}
+	package resolveconflict {package <package>} {project_alias <project_alias>}
 	#___________________________________________________________________________________________________________________________________________
 	projectfilesystem	create		{<project_alias>}
 	projectfilesystem	delete		<project_alias>
@@ -61,8 +63,6 @@ obslight
 	rpmbuild	isinit		{package <package>} {project_alias <project_alias>}
 	rpmbuild	createpatch	<patch> {package <package>} {project_alias <project_alias>}
 	rpmbuild	updatepatch	{package <package> {project_alias <project_alias>}
-	#Not implement
-	rpmbuild	testconflict	{package <package>} {project_alias <project_alias>}
 	#___________________________________________________________________________________________________________________________________________
 	#feature
 	#Not implement

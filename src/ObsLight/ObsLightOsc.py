@@ -255,6 +255,7 @@ class ObsLightOsc(object):
             return the list of a projectLocalName
         '''
         url = str(apiurl + "/source/" + projectLocalName)
+
         res = self.getHttp_request(url)
         if res == None:
             return None
@@ -275,6 +276,7 @@ class ObsLightOsc(object):
         
         '''
         url = str(apiurl + "/source/" + projectObsName + "/" + package)
+        self.cleanBuffer(url)
         res = self.getHttp_request(url)
         if res == None:
             return None
@@ -300,6 +302,7 @@ class ObsLightOsc(object):
         
         '''
         url = str(apiurl + "/source/" + projectObsName + "/" + package)
+        self.cleanBuffer(url)
         res = self.getHttp_request(url)
         if res == None:
             return res
@@ -409,6 +412,7 @@ class ObsLightOsc(object):
                  short intermediate state for new packages.
         '''
         url = str(obsServer + "/build/" + project + "/" + repo + "/" + arch + "/" + package + "/_status")
+        self.cleanBuffer(url)
         res = self.getHttp_request(url)
         if res == None:
             return None
@@ -896,6 +900,9 @@ class ObsLightOsc(object):
         command = "osc resolved " + aFile
         self.__subprocess(command=command)
 
+    def cleanBuffer(self, url):
+        if url in self.__httpBuffer.keys():
+            del self.__httpBuffer[url]
 
     def getHttp_request(self, url, headers={}, data=None, file=None):
         '''

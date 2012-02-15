@@ -898,8 +898,7 @@ class ObsLightManagerCore(ObsLightManagerBase):
         self.checkPackage(projectLocalName=projectLocalName, package=package)
         project = self._myObsLightProjects.getProject(projectLocalName)
         project.getPackage(package=package).addRemoveFileToTheProject()
-        res = self._myObsLightProjects.getProject(projectLocalName).commitToObs(message=message,
-                                                                                package=package)
+        res = project.commitToObs(message=message, package=package)
         self._myObsLightProjects.save()
         return res
 
@@ -970,6 +969,19 @@ class ObsLightManagerCore(ObsLightManagerBase):
         - "File name length": just to test
         '''
         return self._myObsLightProjects.getProject(projectLocalName).getPackage(package).getPackageFileInfo(fileName)
+
+    @checkProjectLocalName(1)
+    def testConflict(self, projectLocalName, package):
+        '''
+        Return True if 'package' has conflict else False.
+        '''
+        project = self._myObsLightProjects.getProject(projectLocalName)
+        return project.getPackage(package).testConflict()
+
+    @checkProjectLocalName(1)
+    def resolveConflict(self, projectLocalName, package):
+        project = self._myObsLightProjects.getProject(projectLocalName)
+        return project.getPackage(package).autoResolvedConflict()
 
     #///////////////////////////////////////////////////////////////////////////filesystem
     @checkProjectLocalName(1)
@@ -1138,13 +1150,7 @@ class ObsLightManagerCore(ObsLightManagerBase):
         project = self._myObsLightProjects.getProject(projectLocalName)
         return project.getPackage(packageName).patchIsInit()
 
-    @checkProjectLocalName(1)
-    def testConflict(self, projectLocalName, package):
-        '''
-        Return True if 'package' has conflict else False.
-        '''
-        project = self._myObsLightProjects.getProject(projectLocalName)
-        return project.getPackage(package).testConflict()
+
 
     #///////////////////////////////////////////////////////////////////////////micproject
     #///////////////////////////////////////////////////////////////////////////qemuproject
