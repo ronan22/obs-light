@@ -1233,7 +1233,7 @@ in the source directory of the current package if it is installed.</string>
             <bool>false</bool>
            </property>
            <property name="currentIndex">
-            <number>6</number>
+            <number>0</number>
            </property>
            <widget class="QWidget" name="kickstartMainTab">
             <attribute name="title">
@@ -1703,10 +1703,24 @@ in the source directory of the current package if it is installed.</string>
             </attribute>
             <layout class="QGridLayout" name="gridLayout_17">
              <item row="0" column="0" colspan="2">
-              <widget class="QTableView" name="overlayFilesTableView"/>
+              <widget class="QTableView" name="kickstartOverlayFilesTableView">
+               <property name="editTriggers">
+                <set>QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
+               </property>
+              </widget>
              </item>
              <item row="1" column="0">
-              <widget class="QPushButton" name="addOverlayFileButton">
+              <widget class="QPushButton" name="addKickstartOverlayFileButton">
+               <property name="minimumSize">
+                <size>
+                 <width>80</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="toolTip">
+                <string>Add an overlay file. Pops-up a dialog to select source file and then another to select destination.
+If destination does not exist on your host, select '/', validate, and edit destination column.</string>
+               </property>
                <property name="text">
                 <string>Add</string>
                </property>
@@ -1726,7 +1740,10 @@ in the source directory of the current package if it is installed.</string>
               </spacer>
              </item>
              <item row="2" column="0">
-              <widget class="QPushButton" name="removeOverlayFileButton">
+              <widget class="QPushButton" name="removeKickstartOverlayFileButton">
+               <property name="toolTip">
+                <string>Delete the currently selected overlay files.</string>
+               </property>
                <property name="text">
                 <string>Delete</string>
                </property>

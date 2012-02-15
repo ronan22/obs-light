@@ -21,7 +21,7 @@ Created on 7 févr. 2012
 @author: Florent Vennetier
 '''
 
-from PySide.QtCore import QAbstractTableModel
+from PySide.QtCore import QAbstractTableModel, Qt
 
 class KickstartModelBase(QAbstractTableModel):
     """
@@ -94,6 +94,11 @@ class KickstartModelBase(QAbstractTableModel):
         Get the internal list of data dictionaries.
         """
         return self.__dataDictList
+
+    def textAlignmentRoleData(self, index):
+        if (self.flags(index) & Qt.ItemFlag.ItemIsUserCheckable) > 0:
+            return Qt.AlignHCenter | Qt.AlignVCenter
+        return None
 
     def refresh(self):
         """

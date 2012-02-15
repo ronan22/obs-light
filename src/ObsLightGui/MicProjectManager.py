@@ -21,8 +21,10 @@ Created on 3 févr. 2012
 @author: Florent Vennetier
 '''
 
+import os.path
+
 from PySide.QtCore import QObject, Qt
-from PySide.QtGui import QItemSelectionModel
+from PySide.QtGui import QFileDialog, QItemSelectionModel
 
 from ObsLightGuiObject import ObsLightGuiObject
 from KickstartRepositoriesModel import KickstartRepositoriesModel
@@ -30,6 +32,7 @@ from KickstartPackagesModel import KickstartPackagesModel
 from KickstartPackageGroupsModel import KickstartPackageGroupsModel
 from KickstartCommandsModel import KickstartCommandsModel
 from KickstartScriptsModel import KickstartScriptsModel
+from KickstartOverlayFilesModel import KickstartOverlayFilesModel
 
 class MicProjectManager(QObject, ObsLightGuiObject):
     # pylint: disable-msg=E0202, E1101
@@ -43,18 +46,16 @@ class MicProjectManager(QObject, ObsLightGuiObject):
         self.__pkgGrpModel = KickstartPackageGroupsModel(self.manager, self.currentProject)
         self.__cmdModel = KickstartCommandsModel(self.manager, self.currentProject)
         self.__scriptModel = KickstartScriptsModel(self.manager, self.currentProject)
+        self.__overlayModel = KickstartOverlayFilesModel(self.manager,
+                                                         self.currentProject)
 
     def __loadUi(self):
         self.__loadImageType()
         self.__loadArchitecture()
-        mw = self.mainWindow
-        mw.kickstartPathLineEdit.setText(self.manager.getKickstartFile(self.currentProject))
-        mw.kickstartRepositoriesTableView.setModel(self.repositoryModel)
-        mw.kickstartPackagesTableView.setModel(self.packageModel)
-        mw.kickstartPackageGroupsTableView.setModel(self.packageGroupModel)
-        mw.kickstartScriptsListView.setModel(self.scriptModel)
+        self.__loadModels()
         self.__loadCommands()
         self.__updateSaveState()
+
 
     def __loadImageType(self):
         """Load MIC image type values and preselect the current one"""
@@ -75,6 +76,22 @@ class MicProjectManager(QObject, ObsLightGuiObject):
                                                               Qt.MatchFixedString)
         if index >= 0:
             self.mainWindow.architectureComboBox.setCurrentIndex(index)
+
+    def __loadModels(self):
+        """Associate view objects to their respective model"""
+        mw = self.mainWindow
+        mw.kickstartPathLineEdit.setText(self.manager.getKickstartFile(self.currentProject))
+        mw.kickstartRepositoriesTableView.setModel(self.repositoryModel)
+        mw.kickstartPackagesTableView.setModel(self.packageModel)
+        mw.kickstartPackageGroupsTableView.setModel(self.packageGroupModel)
+        mw.kickstartScriptsListView.setModel(self.scriptModel)
+        mw.kickstartOverlayFilesTableView.setModel(self.overlayModel)
+
+        mw.kickstartPackageGroupsTableView.resizeColumnToContents(self.packageGroupModel.NameColumn)
+        for col in (self.packageModel.NameColumn, self.packageModel.ExcludedColumn):
+            mw.kickstartPackagesTableView.resizeColumnToContents(col)
+        for col in (self.overlayModel.DestinationColumn, self.overlayModel.SourceColumn):
+            mw.kickstartOverlayFilesTableView.resizeColumnToContents(col)
 
     def __loadCommands(self):
         """Load commands in Kickstart options tab, and hide those which are not active"""
@@ -138,6 +155,10 @@ class MicProjectManager(QObject, ObsLightGuiObject):
     def scriptModel(self):
         return self.__scriptModel
 
+    @property
+    def overlayModel(self):
+        return self.__overlayModel
+
     def refresh(self):
         """Refresh the project, reload Kickstart data in the UI"""
         self.repositoryModel.refresh()
@@ -145,6 +166,7 @@ class MicProjectManager(QObject, ObsLightGuiObject):
         self.packageGroupModel.refresh()
         self.commandModel.refresh()
         self.scriptModel.refresh()
+        self.overlayModel.refresh()
         self.__loadUi()
 
     def createImage(self):
@@ -365,4 +387,32 @@ class MicProjectManager(QObject, ObsLightGuiObject):
         to the Kickstart file
         """
         self.scriptModel.commitChanges()
+        self.refresh()
+
+# --- Overlay files ----------------------------------------------------------
+    def addNewOverlay(self):
+        """
+        Add a new overlay file. Asks user for source and destination.
+        """
+        srcPath, _filter = QFileDialog.getOpenFileName(self.mainWindow,
+                                                       "Select source file")
+        if len(srcPath) < 1:
+            return
+        defaultDstPath = "/%s" % os.path.basename(srcPath)
+        dstPath, _filter = QFileDialog.getSaveFileName(self.mainWindow,
+                                                       "Select destination file or directory",
+                                                       dir=defaultDstPath,
+                                                       options=QFileDialog.DontConfirmOverwrite)
+        if len(dstPath) < 1:
+            return
+        self.callWithInfiniteProgress(self.overlayModel.newOverlayFile,
+                                      "Preparing overlay file...",
+                                      source=srcPath, destination=dstPath)
+        self.refresh()
+
+    def removeOverlays(self, rows):
+        """
+        Remove the overlay file at `row` from the Kickstart file.
+        """
+        self.overlayModel.removeOverlayFiles(rows)
         self.refresh()

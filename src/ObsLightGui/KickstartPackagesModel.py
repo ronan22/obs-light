@@ -47,7 +47,7 @@ class KickstartPackagesModel(KickstartModelBase):
                 if section == self.NameColumn:
                     return "Name"
                 elif section == self.ExcludedColumn:
-                    return "Excluded"
+                    return "Included"
         return None
 
     # from QAbstractTableModel
@@ -58,6 +58,8 @@ class KickstartPackagesModel(KickstartModelBase):
             return self.displayRoleData(index)
         elif role == Qt.CheckStateRole:
             return self.checkStateRoleData(index)
+        elif role == Qt.TextAlignmentRole:
+            return self.textAlignmentRoleData(index)
         return None
 
     def displayRoleData(self, index):
@@ -77,8 +79,8 @@ class KickstartPackagesModel(KickstartModelBase):
           Qt.CheckState.Unchecked otherwise
         """
         if index.column() == self.ExcludedColumn:
-            excluded = self.dataDict(index.row())[self.ColumnKeys[self.ExcludedColumn]]
-            return Qt.CheckState.Checked if excluded else Qt.CheckState.Unchecked
+            included = not self.dataDict(index.row())[self.ColumnKeys[self.ExcludedColumn]]
+            return Qt.CheckState.Checked if included else Qt.CheckState.Unchecked
         return None
 
     # from QAbstractTableModel
@@ -89,7 +91,7 @@ class KickstartPackagesModel(KickstartModelBase):
         """
         superFlags = super(KickstartPackagesModel, self).flags(index)
         if index.column() == self.ExcludedColumn:
-            superFlags = superFlags | Qt.ItemIsUserCheckable
+            superFlags = (superFlags & ~Qt.ItemIsEditable) | Qt.ItemIsUserCheckable
         return superFlags
 
     # from QAbstractTableModel
@@ -98,13 +100,16 @@ class KickstartPackagesModel(KickstartModelBase):
             return False
         if role == Qt.CheckStateRole:
             if index.column() == self.ExcludedColumn:
-                excluded = (value == Qt.CheckState.Checked)
+                excluded = (value != Qt.CheckState.Checked)
                 self.dataDict(index.row())[self.ColumnKeys[self.ExcludedColumn]] = excluded
-                self.__updatePackageInManager(index.row())
+                self.__updatePackageInKs(index.row())
                 return True
         return False
 
-    def __updatePackageInManager(self, row):
+    def __updatePackageInKs(self, row):
+        """
+        Update the Kickstart file with the last status of the package at `row`.
+        """
         pkgDict = self.dataDict(row)
         self.manager.removeKickstartPackage(self.currentProject,
                                             pkgDict[self.ColumnKeys[self.NameColumn]])
@@ -114,11 +119,18 @@ class KickstartPackagesModel(KickstartModelBase):
         self.manager.saveKickstartFile(self.currentProject)
 
     def addPackage(self, name):
+        """
+        Add the package `name` in the package section of the Kickstart file.
+        """
         self.manager.addKickstartPackage(self.currentProject, name)
         self.manager.saveKickstartFile(self.currentProject)
         self.refresh()
 
     def removePackage(self, name):
+        """
+        Remove the package `name` from the package section
+        of the Kickstart file.
+        """
         self.manager.removeKickstartPackage(self.currentProject, name)
         self.manager.saveKickstartFile(self.currentProject)
         self.refresh()

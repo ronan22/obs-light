@@ -771,8 +771,9 @@ class ObsLightPackage(object):
                 self.__listInfoFile = {}
                 for status, aFile in res:
                     self.__listInfoFile[aFile] = status
-
+        print "self.__listInfoFile", self.__listInfoFile
         if fileName in self.__listInfoFile.keys():
+            print "************************ fileName " + fileName
             res = self.__listInfoFile[fileName]
             if res == "A":
                 res += " (Added)"

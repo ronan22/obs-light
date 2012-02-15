@@ -76,7 +76,8 @@ def checkProjectLocalName(position=None):
             if not isNonEmptyString(projectLocalName):
                 raise ObsLightObsServers("Invalid project name: '" + str(projectLocalName) + "'")
             elif not mngr.isALocalProject(projectLocalName):
-                raise ObsLightProjectsError("'" + str(projectLocalName) + "' is not a local project")
+                raise ObsLightProjectsError("'%s' is not a local project"
+                                            % str(projectLocalName))
             return f(*args, **kwargs)
         return checkProjectLocalName2
     return checkProjectLocalName1
@@ -247,7 +248,8 @@ def checkProjectObsName(position1=None, position2=None):
             if not isNonEmptyString(projectObsName):
                 raise ObsLightObsServers("No projectObsName")
             if projectObsName in mngr.getObsServerProjectList(serverApi):
-                raise ObsLightObsServers("'" + projectObsName + "' is not a project in the OBS server")
+                raise ObsLightObsServers("'%s' is not a project in the OBS server"
+                                         % projectObsName)
             return f(*args, **kwargs)
         return checkAvailableProjectObsName2
     return checkAvailableProjectObsName1
@@ -319,7 +321,8 @@ def checkNonEmptyStringLocalName(projectLocalName):
     if not isNonEmptyString(projectLocalName):
         raise ObsLightObsServers("Invalid projectLocalName name: '" + str(projectLocalName) + "'")
     elif ":" in projectLocalName:
-        raise ObsLightProjectsError("You can't use ':' in projectLocalName '" + str(projectLocalName) + "'")
+        raise ObsLightProjectsError("':' is forbidden in projectLocalName (%s)"
+                                    % str(projectLocalName))
 
 #-------------------------------------------------------------------------------
 
@@ -331,12 +334,12 @@ class ObsLightManagerBase(object):
         '''
         self.__workingDirectory = getWorkingDirectory()
 
-        self._myObsLightMicProjects = ObsLightMicProjects(workingDirectory=self.getObsLightWorkingDirectory())
+        self._myObsLightMicProjects = ObsLightMicProjects(self.getObsLightWorkingDirectory())
 
-        self._myObsServers = ObsLightServers(workingDirectory=self.getObsLightWorkingDirectory())
+        self._myObsServers = ObsLightServers(self.getObsLightWorkingDirectory())
 
-        self._myObsLightProjects = ObsLightProjects(obsServers=self._myObsServers,
-                                                    workingDirectory=self.getObsLightWorkingDirectory())
+        self._myObsLightProjects = ObsLightProjects(self._myObsServers,
+                                                    self.getObsLightWorkingDirectory())
 
     def getObsLightWorkingDirectory(self):
         '''
@@ -461,7 +464,7 @@ class ObsLightManagerCore(ObsLightManagerBase):
             passw
         '''
         self.checkObsServerAlias(serverApi=obsServerAlias)
-        return self._myObsServers.getObsServer(obsServerAlias).getObsServerParameter(parameter=parameter)
+        return self._myObsServers.getObsServer(obsServerAlias).getObsServerParameter(parameter)
 
     def setObsServerParameter(self, obsServerAlias, parameter, value):
         '''
@@ -476,8 +479,8 @@ class ObsLightManagerCore(ObsLightManagerBase):
             passw
         '''
         self.checkObsServerAlias(serverApi=obsServerAlias)
-        res = self._myObsServers.getObsServer(obsServerAlias).setObsServerParameter(parameter=parameter,
-                                                                                    value=value)
+        res = self._myObsServers.getObsServer(obsServerAlias).setObsServerParameter(parameter,
+                                                                                    value)
         self._myObsServers.save()
         return res
 
@@ -556,11 +559,12 @@ class ObsLightManagerCore(ObsLightManagerBase):
         '''
         checkNonEmptyStringServerApi(serverApi=serverApi)
         self.checkObsServerAlias(serverApi=serverApi)
-        return self._myObsServers.getObsServer(serverApi).getLocalProjectList(maintainer=maintainer,
-                                                                              bugowner=bugowner,
-                                                                              remoteurl=remoteurl,
-                                                                              arch=arch,
-                                                                              raw=raw)
+        server = self._myObsServers.getObsServer(serverApi)
+        return server.getLocalProjectList(maintainer=maintainer,
+                                          bugowner=bugowner,
+                                          remoteurl=remoteurl,
+                                          arch=arch,
+                                          raw=raw)
 
     def checkAvailableProjectObsName(self, projectObsName, serverApi):
         '''
@@ -569,7 +573,8 @@ class ObsLightManagerCore(ObsLightManagerBase):
         if not isNonEmptyString(projectObsName):
             raise ObsLightObsServers("No projectObsName")
         if not projectObsName in self.getObsServerProjectList(serverApi, raw=True):
-            raise ObsLightObsServers("'" + projectObsName + "' is not a project in the OBS server")
+            raise ObsLightObsServers("'%s' is not a project in the OBS server"
+                                     % projectObsName)
 
 
         #used by decorator.
@@ -670,7 +675,8 @@ class ObsLightManagerCore(ObsLightManagerBase):
 
         checkNonEmptyStringServerApi(serverApi=serverApi)
         self.checkObsServerAlias(serverApi=serverApi)
-        return self._myObsServers.getObsServer(serverApi).getProjectParameter(obsproject, parameter)
+        server = self._myObsServers.getObsServer(serverApi)
+        return server.getProjectParameter(obsproject, parameter)
 
     @checkProjectLocalName(1)
     def getProjectWebPage(self, projectLocalName):
@@ -738,8 +744,10 @@ class ObsLightManagerCore(ObsLightManagerBase):
         
         '''
         def test(package):
-            if not package in self.getLocalProjectPackageList(projectLocalName=projectLocalName, local=1):
-                raise ObsLightObsServers("'" + package + "' is not a local package of '" + projectLocalName + "'")
+            if not package in self.getLocalProjectPackageList(projectLocalName=projectLocalName,
+                                                              local=1):
+                raise ObsLightObsServers("'%s' is not a local package of '%s'"
+                                         % (package, projectLocalName))
 
         if isinstance(package, collections.Iterable) and\
            not isinstance(package, str) and\
@@ -754,8 +762,10 @@ class ObsLightManagerCore(ObsLightManagerBase):
         
         '''
         def test(package):
-            if package in self.getLocalProjectPackageList(projectLocalName=projectLocalName, local=1):
-                raise ObsLightObsServers("'" + package + "' is already a local package of '" + projectLocalName + "'")
+            if package in self.getLocalProjectPackageList(projectLocalName=projectLocalName,
+                                                          local=1):
+                raise ObsLightObsServers("'%s' is already a local package of '%s'"
+                                         % (package, projectLocalName))
 
         if isinstance(package, collections.Iterable) and\
            not isinstance(package, str) and\
@@ -797,7 +807,8 @@ class ObsLightManagerCore(ObsLightManagerBase):
         '''
         checkNonEmptyStringServerApi(serverApi=serverApi)
         self.checkAvailableProjectObsName(projectObsName=projectObsName, serverApi=serverApi)
-        return self._myObsServers.getObsServer(serverApi).getListPackage(projectLocalName=projectObsName)
+        server = self._myObsServers.getObsServer(serverApi)
+        return server.getListPackage(projectLocalName=projectObsName)
 
     @checkProjectLocalName(1)
     @checkNonEmptyStringPackage(1)
@@ -827,8 +838,8 @@ class ObsLightManagerCore(ObsLightManagerBase):
             title
         '''
         self.checkPackage(projectLocalName=projectLocalName, package=package)
-        return  self._myObsLightProjects.getProject(projectLocalName).getPackageParameter(package=package,
-                                                                                          parameter=parameter)
+        project = self._myObsLightProjects.getProject(projectLocalName)
+        return project.getPackageParameter(package=package, parameter=parameter)
 
     def getObsPackageParameter(self, serverApi, obsproject, package, parameter):
         '''
@@ -841,7 +852,9 @@ class ObsLightManagerCore(ObsLightManagerBase):
         checkNonEmptyStringServerApi(serverApi=serverApi)
         self.checkObsServerAlias(serverApi=serverApi)
 
-        return  self._myObsServers.getObsServer(serverApi).getPackageParameter(obsproject, package, parameter)
+        return  self._myObsServers.getObsServer(serverApi).getPackageParameter(obsproject,
+                                                                               package,
+                                                                               parameter)
 
     @checkProjectLocalName(1)
     @checkNonEmptyStringPackage(2)
@@ -856,9 +869,9 @@ class ObsLightManagerCore(ObsLightManagerBase):
             packageTitle
         '''
         self.checkPackage(projectLocalName=projectLocalName, package=package)
-        res = self._myObsLightProjects.getProject(projectLocalName).setPackageParameter(package=package,
-                                                                                        parameter=parameter,
-                                                                                        value=value)
+        res = self._myObsLightProjects.getProject(projectLocalName).setPackageParameter(package,
+                                                                                        parameter,
+                                                                                        value)
         self._myObsLightProjects.save()
         return res
 
@@ -883,7 +896,8 @@ class ObsLightManagerCore(ObsLightManagerBase):
         Add/Remove file in the local directory of a package, and commit change to the OBS.
         '''
         self.checkPackage(projectLocalName=projectLocalName, package=package)
-        self._myObsLightProjects.getProject(projectLocalName).getPackage(package=package).addRemoveFileToTheProject()
+        project = self._myObsLightProjects.getProject(projectLocalName)
+        project.getPackage(package=package).addRemoveFileToTheProject()
         res = self._myObsLightProjects.getProject(projectLocalName).commitToObs(message=message,
                                                                                 package=package)
         self._myObsLightProjects.save()
@@ -894,7 +908,8 @@ class ObsLightManagerCore(ObsLightManagerBase):
         '''
         Reset a the osc directory.
         '''
-        res = self._myObsLightProjects.getProject(projectLocalName).repairOscPackageDirectory(package=package)
+        project = self._myObsLightProjects.getProject(projectLocalName)
+        res = project.repairOscPackageDirectory(package=package)
         self._myObsLightProjects.save()
         return res
 
@@ -903,7 +918,9 @@ class ObsLightManagerCore(ObsLightManagerBase):
         '''
         Refresh the osc status of a package.
         '''
-        res = self._myObsLightProjects.refreshOscDirectoryStatus(projectLocalName, package=package, controlFunction=controlFunction)
+        res = self._myObsLightProjects.refreshOscDirectoryStatus(projectLocalName,
+                                                                 package=package,
+                                                                 controlFunction=controlFunction)
         self._myObsLightProjects.save()
         return res
 
@@ -913,8 +930,9 @@ class ObsLightManagerCore(ObsLightManagerBase):
         Refresh the OBS status.
         '''
         res = self._myObsLightProjects.refreshObsStatus(projectLocalName=projectLocalName,
-                                                         package=package,
-                                                         controlFunction=controlFunction)
+                                                        package=package,
+                                                        controlFunction=controlFunction)
+
         self._myObsLightProjects.save()
         return res
 
@@ -926,7 +944,8 @@ class ObsLightManagerCore(ObsLightManagerBase):
         Add a file to a package.
         '''
         self.checkPackage(projectLocalName=projectLocalName, package=package)
-        res = self._myObsLightProjects.getProject(projectLocalName).getPackage(package).addFile(path)
+        project = self._myObsLightProjects.getProject(projectLocalName)
+        res = project.getPackage(package).addFile(path)
         self._myObsLightProjects.save()
         return res
 
@@ -951,7 +970,6 @@ class ObsLightManagerCore(ObsLightManagerBase):
         - "File name length": just to test
         '''
         return self._myObsLightProjects.getProject(projectLocalName).getPackage(package).getPackageFileInfo(fileName)
-
 
     #///////////////////////////////////////////////////////////////////////////filesystem
     @checkProjectLocalName(1)
@@ -1000,7 +1018,7 @@ class ObsLightManagerCore(ObsLightManagerBase):
         
         '''
         return self._myObsLightProjects.getProject(projectLocalName).execScript(aPath)
-    #///////////////////////////////////////////////////////////////////////////filesystem->Repositories
+    #/////////////////////////////////////////////////////////////filesystem->Repositories
 
     @checkProjectLocalName(1)
     def addRepo(self, projectLocalName, fromProject=None, repoUrl=None, alias=None):
@@ -1015,9 +1033,12 @@ class ObsLightManagerCore(ObsLightManagerBase):
             raise ObsLightProjectsError("'" + fromProject + "' is not a local project")
 
         if fromProject != None:
-            res = self._myObsLightProjects.getProject(fromProject).addRepo(chroot=self._myObsLightProjects.getProject(projectLocalName).getChRoot())
+            project1 = self._myObsLightProjects.getProject(fromProject)
+            project2 = self._myObsLightProjects.getProject(projectLocalName)
+            res = project1.addRepo(chroot=project2.getChRoot())
         else:
-            res = self._myObsLightProjects.getProject(projectLocalName).addRepo(repos=repoUrl, alias=alias)
+            project = self._myObsLightProjects.getProject(projectLocalName)
+            res = project.addRepo(repos=repoUrl, alias=alias)
 
         self._myObsLightProjects.save()
         return res
@@ -1043,7 +1064,9 @@ class ObsLightManagerCore(ObsLightManagerBase):
 
     @checkProjectLocalName(1)
     def modifyRepo(self, projectLocalName, repoAlias, newUrl, newAlias):
-        res = self._myObsLightProjects.getProject(projectLocalName).modifyRepo(repoAlias, newUrl, newAlias)
+        res = self._myObsLightProjects.getProject(projectLocalName).modifyRepo(repoAlias,
+                                                                               newUrl,
+                                                                               newAlias)
         self._myObsLightProjects.save()
         return res
 
@@ -1054,7 +1077,8 @@ class ObsLightManagerCore(ObsLightManagerBase):
         '''
         Add a source RPM from the OBS repository into the chroot.
         '''
-        res = self._myObsLightProjects.getProject(projectLocalName).addPackageSourceInChRoot(package=package)
+        project = self._myObsLightProjects.getProject(projectLocalName)
+        res = project.addPackageSourceInChRoot(package=package)
         self._myObsLightProjects.save()
         return res
 
@@ -1111,17 +1135,16 @@ class ObsLightManagerCore(ObsLightManagerBase):
 
     @checkProjectLocalName(1)
     def patchIsInit(self, projectLocalName, packageName):
-        '''
-        
-        '''
-        return self._myObsLightProjects.getProject(projectLocalName).getPackage(packageName).patchIsInit()
+        project = self._myObsLightProjects.getProject(projectLocalName)
+        return project.getPackage(packageName).patchIsInit()
 
     @checkProjectLocalName(1)
     def testConflict(self, projectLocalName, package):
         '''
         Return True if 'package' has conflict else False.
         '''
-        return self._myObsLightProjects.getProject(projectLocalName).getPackage(package).testConflict()
+        project = self._myObsLightProjects.getProject(projectLocalName)
+        return project.getPackage(package).testConflict()
 
     #///////////////////////////////////////////////////////////////////////////micproject
     #///////////////////////////////////////////////////////////////////////////qemuproject
@@ -1216,7 +1239,8 @@ class ObsLightManager(ObsLightManagerCore):
         Return True if the package is installed into the chroot of the project.
         '''
         self.checkPackage(projectLocalName=projectLocalName, package=package)
-        return self._myObsLightProjects.getProject(projectLocalName).getPackage(package).isInstallInChroot()
+        project = self._myObsLightProjects.getProject(projectLocalName)
+        return project.getPackage(package).isInstallInChroot()
 
 #---------------------------------------------------------------------------
     @checkProjectLocalName(1)
@@ -1227,37 +1251,60 @@ class ObsLightManager(ObsLightManagerCore):
         return  self._myObsLightProjects.getProject(projectLocalName).openTerminal(package)
 
     def openFile(self, filePath):
-        '''
-        
-        '''
+        """
+        Open file `filePath` with the default configured program.
+        """
         return ObsLightTools.openFileWithDefaultProgram(filePath)
 
     # TODO: RLM check, called from ObsLightGui.Wizard.ChooseProjectTargetPage
     def getTargetList(self, server, project):
+        """
+        Get the list of available targets for `project` on `server`.
+        Does network calls.
+        """
         return self._myObsServers.getObsServer(server).getTargetList(project)
 
     # TODO: RLM check, called from ObsLightGui.Wizard.ChooseProjectArchPage
     def getArchitectureList(self, server, project, target):
+        """
+        Get the list of available architectures for `target` on `project` on `server`.
+        Does network calls.
+        """
         return self._myObsServers.getObsServer(server).getArchitectureList(project, target)
 #---------------------------------------------------------------------------
 
     def getMicProjectList(self):
+        """
+        Get the list of current MIC projects.
+        """
         return self._myObsLightMicProjects.getMicProjectList()
 
     def addMicProject(self, micProjectName):
+        """
+        Create new MIC project with name `micProjectName`.
+        """
         self._myObsLightMicProjects.addMicProject(micProjectName=micProjectName)
         self._myObsLightMicProjects.save()
 
     def deleteMicProject(self, micProjectName):
+        """
+        Delete `micProjectName` project.
+        """
         self._myObsLightMicProjects.deleteMicProject(micProjectName)
         self._myObsLightMicProjects.save()
 
     def setKickstartFile(self, micProjectName, filePath):
+        """
+        Set the Kickstart file of `micProjectName` project to `filePath`.
+        """
         self._myObsLightMicProjects.setKickstartFile(micProjectName=micProjectName,
                                                       filePath=filePath)
         self._myObsLightMicProjects.save()
 
     def getKickstartFile(self, micProjectName):
+        """
+        Get the path of the Kickstart file of `micProjectName`.
+        """
         return self._myObsLightMicProjects.getKickstartFile(micProjectName=micProjectName)
 
     def addKickstartRepository(self, micProjectName, baseurl, name, cost=None, **otherParams):
@@ -1289,6 +1336,10 @@ class ObsLightManager(ObsLightManagerCore):
                                                            **otherParams)
 
     def removeKickstartRepository(self, micProjectName, repositoryName):
+        """
+        Remove the `repositoryName` package repository from the
+        Kickstart file of `micProjectName`.
+        """
         self._myObsLightMicProjects.removeKickstartRepository(micProjectName,
                                                               repositoryName)
 
@@ -1335,28 +1386,108 @@ class ObsLightManager(ObsLightManagerCore):
         self._myObsLightMicProjects.removeKickstartPackageGroup(micProjectName, packageGroupName)
 
     def getKickstartPackageGroupDictionaries(self, micProjectName):
+        """
+        Get the list of Kickstart package group dictionaries of `micProjectName`.
+        Each package dictionary has keys:
+          "name": the name of the package group
+        More keys will come...
+        """
         return self._myObsLightMicProjects.getKickstartPackageGroupDictionaries(micProjectName)
 
     def addOrChangeKickstartCommand(self, micProjectName, fullText, command=None):
+        """
+        Add a new command to the Kickstart file of `micProjectName`,
+        or modify an existing one.
+        To add a new command, just pass the whole commandline in `fullText`.
+        To change an existing command, it is preferable to pass the command
+        name (or an alias) in `command` so that the old commandline can be
+        erased first.
+        """
         self._myObsLightMicProjects.addOrChangeKickstartCommand(micProjectName, fullText, command)
 
     def removeKickstartCommand(self, micProjectName, command):
+        """
+        Remove `command` from the Kickstart file of `micProjectName`.
+        `command` must be a command name or an alias,
+        but not the whole commandline.
+        """
         self._myObsLightMicProjects.removeKickstartCommand(micProjectName, command)
 
     def getKickstartCommandDictionaries(self, micProjectName):
+        """
+        Get the list of Kickstart command dictionaries of `micProjectName`.
+        Each dictionary contains:
+          "name": the command name
+          "in_use": True if the command is used in the current Kickstart file, False otherwise
+          "generated_text": the text that is printed in the Kickstart file by this command
+          "aliases": a list of command aliases
+        """
         return self._myObsLightMicProjects.getKickstartCommandDictionaries(micProjectName)
 
     def addOrChangeKickstartScript(self, micProjectName, name=None, script="", **kwargs):
+        """
+        Add a new Kickstart script to `micProjectName`,
+        or modify an existing one.
+        To add a new script, leave `name` at None.
+        To change an existing script, you must pass the script name
+        in `name`. `script` and other keyword args are those described
+        in `getKickstartScriptDictionaries()`.
+        """
         self._myObsLightMicProjects.addOrChangeKickstartScript(micProjectName,
                                                                name,
                                                                script,
                                                                **kwargs)
 
     def removeKickstartScript(self, micProjectName, scriptName):
+        """
+        Remove script `scriptName` from the Kickstart file of `micProjectName`.
+        """
         self._myObsLightMicProjects.removeKickstartScript(micProjectName, scriptName)
 
     def getKickstartScriptDictionaries(self, micProjectName):
+        """
+        Get the list of Kickstart script dictionaries of `micProjectName`.
+        Each dictionary contains (default value):
+          "name": the name of the script (generated by OBS Light)
+          "type": the type of script, one of
+               pykickstart.constants.[KS_SCRIPT_PRE, KS_SCRIPT_POST, KS_SCRIPT_TRACEBACK]
+          "interp": the interpreter to use to run the script ('/bin/sh')
+          "errorOnFail": whether to quit or continue the script if a command fails (False)
+          "inChroot": whether to run inside the chroot or outside (False)
+          "logfile": the path where to log the output of the script (None)
+          "script": all the lines of the script
+        """
         return self._myObsLightMicProjects.getKickstartScriptDictionaries(micProjectName)
+
+    def addKickstartOverlayFile(self, micProjectName, source, destination):
+        """
+        Add a new overlay file in the target file system of `micProjectName`.
+        `source` is the path where the file is currently located,
+        `destination` is the path where the file will be copied
+        in the target file system.
+        """
+        return self._myObsLightMicProjects.addKickstartOverlayFile(micProjectName,
+                                                                   source,
+                                                                   destination)
+
+    def removeKickstartOverlayFile(self, micProjectName, source, destination):
+        """
+        Remove the overlay file which was to be copied from `source`
+        to `destination` in the target file system of `micProjectName`.
+        """
+        return self._myObsLightMicProjects.removeKickstartOverlayFile(micProjectName,
+                                                                      source,
+                                                                      destination)
+
+    def getKickstartOverlayFileDictionaries(self, micProjectName):
+        """
+        Get a list of overlay file dictionaries for project `micProjectName`
+        containing:
+          "source": the path of the file to be copied
+          "destination": the path where the file will be copied
+                         in target file system of `micProjectName`
+        """
+        return self._myObsLightMicProjects.getKickstartOverlayFileDictionaries(micProjectName)
 
     def saveKickstartFile(self, micProjectName, path=None):
         """
@@ -1366,12 +1497,19 @@ class ObsLightManager(ObsLightManagerCore):
         self._myObsLightMicProjects.saveKickstartFile(micProjectName, path)
 
     def getMicProjectArchitecture(self, micProjectName):
+        """
+        Get the architecture of `micProjectName` project.
+        """
         res = self._myObsLightMicProjects.getMicProjectArchitecture(micProjectName=micProjectName)
         self._myObsLightMicProjects.save()
         return res
 
     def setMicProjectArchitecture(self, micProjectName, arch):
-        self._myObsLightMicProjects.setMicProjectArchitecture(micProjectName=micProjectName, arch=arch)
+        """
+        Set the architecture of `micProjectName` project.
+        """
+        self._myObsLightMicProjects.setMicProjectArchitecture(micProjectName=micProjectName,
+                                                              arch=arch)
         self._myObsLightMicProjects.save()
 
     def getAvailableMicProjectArchitectures(self, micProjectName):
@@ -1381,10 +1519,19 @@ class ObsLightManager(ObsLightManagerCore):
         return self._myObsLightMicProjects.getAvailableMicProjectArchitectures(micProjectName)
 
     def setMicProjectImageType(self, micProjectName, imageType):
-        self._myObsLightMicProjects.setMicProjectImageType(micProjectName=micProjectName, imageType=imageType)
+        """
+        Set the image type of `micProjectName` project.
+        `imageType` must be one of those returned by
+        `getAvailableMicProjectImageTypes()`.
+        """
+        self._myObsLightMicProjects.setMicProjectImageType(micProjectName=micProjectName,
+                                                           imageType=imageType)
         self._myObsLightMicProjects.save()
 
     def getMicProjectImageType(self, micProjectName):
+        """
+        Get the image type of `micProjectName` project.
+        """
         return self._myObsLightMicProjects.getMicProjectImageType(micProjectName=micProjectName)
 
     def getAvailableMicProjectImageTypes(self, micProjectName):
@@ -1419,21 +1566,3 @@ def getManager():
         __myObsLightManager = ObsLightManager()
 
     return __myObsLightManager
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

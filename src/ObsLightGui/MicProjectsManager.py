@@ -81,7 +81,10 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
              mw.logFileLineEdit.textChanged: self.on_kickstartScriptOption_toggled,
              mw.saveKickstartScriptButton.clicked: self.on_saveKickstartScriptButton_clicked,
              mw.addKickstartScriptButton.clicked: self.on_addKickstartScriptButton_clicked,
-             mw.removeKickstartScriptButton.clicked: self.on_removeKickstartScriptButton_clicked
+             mw.removeKickstartScriptButton.clicked: self.on_removeKickstartScriptButton_clicked,
+             # KS overlay files
+             mw.addKickstartOverlayFileButton.clicked: self.on_addKickstartOverlayFileButton_clicked,
+             mw.removeKickstartOverlayFileButton.clicked: self.on_removeKickstartOverlayFileButton_clicked
              }
         self.__signalSlotMap = m
 
@@ -91,6 +94,7 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
         mw.kickstartRepositoriesTableView.setSelectionBehavior(QTableView.SelectRows)
         mw.kickstartPackagesTableView.setSelectionBehavior(QTableView.SelectRows)
         mw.kickstartPackageGroupsTableView.setSelectionBehavior(QTableView.SelectRows)
+        mw.kickstartOverlayFilesTableView.setSelectionBehavior(QTableView.SelectRows)
 
         self.loadProjectList()
 
@@ -127,7 +131,10 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
         Disconnect events and buttons which have a role in the right panel.
         """
         for signal, slot in self.__signalSlotMap.items():
-            signal.disconnect(slot)
+            try:
+                signal.disconnect(slot)
+            except RuntimeError as re:
+                print re
 
 # --- Button handlers --------------------------------------------------------
     @popupOnException
@@ -356,6 +363,27 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
         """Called when user clicks on 'remove' button of kickstart script tab"""
         row = self.mainWindow.kickstartScriptsListView.currentIndex().row()
         self._currentProjectObj.removeScript(row)
+
+    @popupOnException
+    def on_addKickstartOverlayFileButton_clicked(self):
+        """Called when user clicks on 'add' button of kickstart script tab"""
+        self._currentProjectObj.addNewOverlay()
+
+    @popupOnException
+    def on_removeKickstartOverlayFileButton_clicked(self):
+        """Called when user clicks on 'remove' button of kickstart overlay files tab"""
+        rows = getSelectedRows(self.mainWindow.kickstartOverlayFilesTableView)
+        if len(rows) < 1:
+            return
+        result = QMessageBox.question(self.mainWindow,
+                                      u"Are you sure ?",
+                                      u"Are you sure you want to remove %d overlay files ?"
+                                        % len(rows),
+                                      buttons=QMessageBox.Yes | QMessageBox.No,
+                                      defaultButton=QMessageBox.Yes)
+        if result == QMessageBox.No:
+            return
+        self._currentProjectObj.removeOverlays(rows)
 # --- end Button handlers ----------------------------------------------------
 
 # --- Event handlers ---------------------------------------------------------
