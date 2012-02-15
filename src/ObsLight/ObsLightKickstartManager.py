@@ -114,8 +114,8 @@ class ObsLightKickstartManager(object):
         self._checkKsFile()
         try:
             self._ksParser = kickstart.read_kickstart(self.kickstartPath)
-        except kserrors.KickstartError as ke:
-            raise ObsLightErr.ObsLightKickstartError(str(ke))
+        except (IOError, kserrors.KickstartError) as e:
+            raise ObsLightErr.ObsLightKickstartError(str(e))
 
     def saveKickstart(self, alternateFile=None):
         """
