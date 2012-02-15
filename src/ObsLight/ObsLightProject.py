@@ -574,9 +574,13 @@ class ObsLightProject(object):
         self.__packages.getPackage(name).setPackageParameter(parameter="title", value=packageTitle)
         self.__packages.getPackage(name).setPackageParameter(parameter="description", value=description)
 
+
+
         self.checkOscDirectoryStatus(package=name)
         if noOscUpdate == False:
             self.checkOscPackageStatus(package=name)
+
+        self.__packages.getPackage(name).initPackageFileInfo()
         return 0
 
     def getChRootRepositories(self):
