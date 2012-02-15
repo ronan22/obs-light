@@ -25,6 +25,7 @@ import os
 import shutil
 
 from mic import kickstart
+from mic.kickstart import kserrors
 from mic.kickstart.custom_commands.moblinrepo import Moblin_RepoData
 
 import ObsLightErr
@@ -109,7 +110,10 @@ class ObsLightKickstartManager(object):
         Raises `ObsLightErr.ObsLightMicProjectErr` if no Kickstart file is set.
         """
         self._checkKsFile()
-        self._ksParser = kickstart.read_kickstart(self.kickstartPath)
+        try:
+            self._ksParser = kickstart.read_kickstart(self.kickstartPath)
+        except kserrors.KickstartError as ke:
+            raise ObsLightErr.ObsLightKickstartError(str(ke))
 
     def saveKickstart(self, alternateFile=None):
         """
@@ -436,7 +440,10 @@ class ObsLightKickstartManager(object):
                 # will erase the old command options
                 pass
         # call main parser with str(fulltext) in case of fullText is unicode
-        self.kickstartParser.readKickstartFromString(str(fullText), reset=False)
+        try:
+            self.kickstartParser.readKickstartFromString(str(fullText), reset=False)
+        except kserrors.KickstartError as ke:
+            raise ObsLightErr.ObsLightKickstartError(str(ke))
 
     def removeCommand(self, command):
         """
