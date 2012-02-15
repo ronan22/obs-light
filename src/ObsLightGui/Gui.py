@@ -43,20 +43,8 @@ class Gui(QObject):
     ObsLight GUI main class. Keeps reference to the main window
     and to the ObsLightManager.
     '''
-    application = None
-    splash = None
-    uiLoader = None
-    __mainWindow = None
-    __statusBar = None
-    __obsLightManager = None
-    __obsProjectManager = None
-    __micProjectsManager = None
-    __logManager = None
-    __mainWindowActionManager = None
-    __infiniteProgress = None
-    __progress = None
-    __wizard = None
 
+    # signal to display a message in the status bar of the main window
     __messageSignal = Signal((str, int))
 
     def __init__(self):
@@ -67,7 +55,31 @@ class Gui(QObject):
         # Need to set working directory in order to load icons
         self.uiLoader.setWorkingDirectory(UI_PATH)
 
+        # loaded in loadManager()
+        self.splash = None
+        self.__obsLightManager = None
+        self.__obsProjectManager = None
+        self.__micProjectsManager = None
+        self.__logManager = None
+
+        # loaded in __loadMainWindow()
+        self.__mainWindow = None
+        self.__mainWindowActionManager = None
+        self.__statusBar = None
+
+        # loaded in __createInfiniteProgressDialog()
+        self.__infiniteProgress = None
+        # loaded in __createProgressDialog()
+        self.__progress = None
+
+        # loaded in runWizard()
+        self.__wizard = None
+
     def __beforeQuitting(self):
+        """
+        Method called before the main QApplication quits.
+        It disconnects the LogManager.
+        """
         self.__logManager.disconnectLogger()
 
     def loadWindow(self, uiFile, mainWindowAsParent=True):
@@ -97,6 +109,7 @@ class Gui(QObject):
         self.__infiniteProgress.setCancelButton(None)
         # make the progress "infinite"
         self.__infiniteProgress.setRange(0, 0)
+        # add "show log" to the right-click menu
         self.__infiniteProgress.addAction(self.__mainWindowActionManager.actionLog)
         self.__infiniteProgress.setContextMenuPolicy(Qt.ActionsContextMenu)
 
@@ -104,10 +117,12 @@ class Gui(QObject):
         self.__progress = QProgressDialog(self.__mainWindow)
         self.__progress.setMinimumDuration(500)
         self.__progress.setWindowModality(Qt.WindowModal)
+        # add "show log" to the right-click menu
         self.__progress.addAction(self.__mainWindowActionManager.actionLog)
         self.__progress.setContextMenuPolicy(Qt.ActionsContextMenu)
 
-    def getMainWindow(self):
+    @property
+    def mainWindow(self):
         '''
         Returns the main window object (may be None).
         '''
@@ -115,8 +130,8 @@ class Gui(QObject):
 
     def getInfiniteProgressDialog(self):
         '''
-        Get the main QProgressDialog. It is window-modal, has no cancel
-        button and is infinite.
+        Get a reference to the main QProgressDialog.
+        It is window-modal, has no cancel button and is infinite.
         '''
         if self.__infiniteProgress is None:
             self.__createInfiniteProgressDialog()
@@ -124,7 +139,8 @@ class Gui(QObject):
 
     def getProgressDialog(self):
         '''
-        Get the
+        Get a reference to a QProgressDialog instance.
+        This progress dialog is window-modal and has a cancel button.
         '''
         if self.__progress is None:
             self.__createProgressDialog()
@@ -137,6 +153,9 @@ class Gui(QObject):
         return self.__obsLightManager
 
     def getLogManager(self):
+        """
+        Get a reference to the LogManager instance.
+        """
         return self.__logManager
 
     def statusBarErrorCallback(self, error):
@@ -163,6 +182,11 @@ class Gui(QObject):
         self.__messageSignal.emit(message, timeout)
 
     def processEvents(self):
+        """
+        Call QApplication.processEvents().
+        To be used if a function prevents the UI thread from
+        returning to its event loop.
+        """
         self.application.processEvents()
 
     def refresh(self):
@@ -172,6 +196,11 @@ class Gui(QObject):
         self.__obsProjectManager.currentProject = projectName
 
     def runWizard(self, autoSelectProject=None):
+        """
+        Run the OBS project creation wizard.
+        If `autoSelectProject` is the name of an existing OBS Light
+        project, go directly to the package selection page of the wizard.
+        """
         self.__wizard = ConfigWizard(self)
         self.__wizard.accepted.connect(self.refresh)
         if autoSelectProject is not None:
@@ -179,6 +208,10 @@ class Gui(QObject):
         self.__wizard.show()
 
     def loadManager(self, methodToGetManager, *args, **kwargs):
+        """
+        Show splash screen while calling `methodToGetManager(*args, **kwargs)`
+        to get a reference to the ObsLightManager.
+        """
         pixmap = QPixmap(join(UI_PATH, "splashscreen.png"))
         self.splash = QSplashScreen(pixmap)
         self.splash.show()
@@ -192,7 +225,7 @@ class Gui(QObject):
         self.__obsProjectManager = ObsProjectsManager(self)
         self.__micProjectsManager = MicProjectsManager(self)
         self.__logManager = LogManager(self)
-        self.splash.finish(self.getMainWindow())
+        self.splash.finish(self.mainWindow)
 
     def main(self):
         return self.application.exec_()

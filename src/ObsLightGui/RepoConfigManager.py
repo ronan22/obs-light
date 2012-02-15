@@ -113,7 +113,7 @@ class RepoConfigManager(QObject, ObsLightGuiObject):
         repos = self.manager.getChRootRepositories(self.__projectAlias)
         if repos is None or len(repos) < 1:
             return
-        selectedAlias, accepted = QInputDialog.getItem(self.gui.getMainWindow(),
+        selectedAlias, accepted = QInputDialog.getItem(self.mainWindow,
                                                        "Select repository",
                                                        "Project repository to modify:",
                                                        repos.keys(),
