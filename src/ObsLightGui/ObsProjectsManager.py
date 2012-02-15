@@ -20,7 +20,6 @@ Created on 27 sept. 2011
 @author: Florent Vennetier
 '''
 
-from PySide.QtGui import QPushButton, QLineEdit, QLabel
 from PySide.QtGui import QFileDialog, QMessageBox
 
 from Utils import ProgressRunnable2, popupOnException
@@ -36,86 +35,41 @@ class ObsProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
     Manages the local project list widget and project-related buttons
     of the main window.
     '''
-    __newObsProjectButton = None
-    __modifyObsProjectButton = None
-    __deleteObsProjectButton = None
-    __loadObsProjectButton = None
-    __saveObsProjectButton = None
-    __newChrootButton = None
-    __deleteChrootButton = None
-    __addRepoInChrootButton = None
-    __deleteRepoButton = None
-    __modifyRepoButton = None
-    __importRepoInChrootButton = None
-    __projectLinkLabel = None
-    __projectRepoLinkLabel = None
-    __projectTitleLabel = None
-    __projectLabel = None
-    __chrootPathLineEdit = None
-    __projectConfigManager = None
-    __repoConfigManager = None
-    __packageManager = None
-    __statusBar = None
 
     def __init__(self, gui):
+        """
+        Initialize the ObsProjectsManager.
+        `gui` must be a reference to the main `Gui` instance.
+        """
         ObsLightGuiObject.__init__(self, gui)
         ProjectsManagerBase.__init__(self,
                                      self.mainWindow.obsProjectsListWidget,
                                      self.manager.getLocalProjectList)
-        mainWindow = self.mainWindow
-        self.projectListWidget.currentTextChanged.connect(self.on_projectSelected)
+        self.__projectConfigManager = None
+        self.__repoConfigManager = None
         self.loadProjectList()
+        self.projectListWidget.currentTextChanged.connect(self.on_projectSelected)
         self.__packageManager = PackageManager(self.gui)
-        self.__newObsProjectButton = mainWindow.findChild(QPushButton,
-                                                          u"newObsProjectButton")
-        self.__newObsProjectButton.clicked.connect(self.gui.runWizard)
-        self.__modifyObsProjectButton = mainWindow.findChild(QPushButton,
-                                                             u"modifyObsProjectButton")
-        self.__modifyObsProjectButton.clicked.connect(self.on_modifyObsProjectButton_clicked)
-        self.__deleteObsProjectButton = mainWindow.findChild(QPushButton,
-                                                             u"deleteObsProjectButton")
-        self.__deleteObsProjectButton.clicked.connect(self.on_deleteObsProjectButton_clicked)
-        self.__loadObsProjectButton = mainWindow.findChild(QPushButton,
-                                                           u"loadObsProjectButton")
-        self.__loadObsProjectButton.clicked.connect(self.on_importObsProjectButton_clicked)
-        self.__saveObsProjectButton = mainWindow.findChild(QPushButton,
-                                                           u"saveObsProjectButton")
-        self.__saveObsProjectButton.clicked.connect(self.on_exportObsProjectButton_clicked)
+        self.__connectButtons()
 
-        self.__newChrootButton = mainWindow.findChild(QPushButton,
-                                                      u"newChrootButton")
-        self.__newChrootButton.clicked.connect(self.on_newChrootButton_clicked)
-        self.__openChrootButton = mainWindow.findChild(QPushButton,
-                                                       u"openChrootButton")
-        self.__openChrootButton.clicked.connect(self.on_openChrootButton_clicked)
-        self.__deleteChrootButton = mainWindow.findChild(QPushButton,
-                                                         u"deleteChrootButton")
-        self.__deleteChrootButton.clicked.connect(self.on_deleteChrootButton_clicked)
-
-        self.__addRepoInChrootButton = mainWindow.findChild(QPushButton,
-                                                            u"addRepoInChrootButton")
-        self.__addRepoInChrootButton.clicked.connect(self.on_addRepoInChrootButton_clicked)
-        self.__deleteRepoButton = mainWindow.findChild(QPushButton,
-                                                       "deleteRepositoryButton")
-        self.__deleteRepoButton.clicked.connect(self.on_deleteRepoButton_clicked)
-        self.__modifyRepoButton = mainWindow.findChild(QPushButton,
-                                                       "modifyRepositoryButton")
-        self.__modifyRepoButton.clicked.connect(self.on_modifyRepoButton_clicked)
-        self.__importRepoInChrootButton = mainWindow.findChild(QPushButton,
-                                                               u"importRepoInChrootButton")
-        self.__importRepoInChrootButton.clicked.connect(self.on_importRepoInChrootButton_clicked)
-        self.__projectLinkLabel = mainWindow.findChild(QLabel,
-                                                       u"projectPageLinkLabel")
-        self.__projectRepoLinkLabel = mainWindow.findChild(QLabel,
-                                                           u"projectRepoPageLinkLabel")
-        self.__projectDescriptionLabel = mainWindow.findChild(QLabel,
-                                                              u"projectDescriptionLabel")
-        self.__projectTitleLabel = mainWindow.findChild(QLabel,
-                                                        u"projectTitleLabel")
-        self.__projectLabel = mainWindow.findChild(QLabel,
-                                                   u"projectLabelValue")
-        self.__chrootPathLineEdit = mainWindow.findChild(QLineEdit,
-                                                         u"chrootPathLineEdit")
+    def __connectButtons(self):
+        """
+        Connect project-related, chroot-related and repository-related
+        buttons of the OBS project tab to the appropriate methods.
+        """
+        mw = self.mainWindow
+        mw.newObsProjectButton.clicked.connect(self.gui.runWizard)
+        mw.modifyObsProjectButton.clicked.connect(self.on_modifyObsProjectButton_clicked)
+        mw.deleteObsProjectButton.clicked.connect(self.on_deleteObsProjectButton_clicked)
+        mw.loadObsProjectButton.clicked.connect(self.on_importObsProjectButton_clicked)
+        mw.saveObsProjectButton.clicked.connect(self.on_exportObsProjectButton_clicked)
+        mw.newChrootButton.clicked.connect(self.on_newChrootButton_clicked)
+        mw.openChrootButton.clicked.connect(self.on_openChrootButton_clicked)
+        mw.deleteChrootButton.clicked.connect(self.on_deleteChrootButton_clicked)
+        mw.addRepoInChrootButton.clicked.connect(self.on_addRepoInChrootButton_clicked)
+        mw.deleteRepositoryButton.clicked.connect(self.on_deleteRepoButton_clicked)
+        mw.modifyRepositoryButton.clicked.connect(self.on_modifyRepoButton_clicked)
+        mw.importRepoInChrootButton.clicked.connect(self.on_importRepoInChrootButton_clicked)
 
     @popupOnException
     def on_modifyObsProjectButton_clicked(self):
@@ -265,6 +219,9 @@ class ObsProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
         self.refreshProject()
 
     def refreshProject(self):
+        """
+        Refresh the project, package and chroot views.
+        """
         project = self.currentProject
         self.__packageManager.setCurrentProject(project)
         self.updateProjectLabels()
@@ -284,16 +241,16 @@ class ObsProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
             projectTitle = self.manager.getProjectParameter(project, "title")
             projectDescription = self.manager.getProjectParameter(project, "description")
 
-            self.__projectLabel.setText(project)
-            self.__projectTitleLabel.setText(projectTitle)
-            self.__projectDescriptionLabel.setText(projectDescription)
-            self.__projectLinkLabel.setText(u'<a href="%s">%s</a>' % (projectLink,
-                                                                      projectObsName))
-            self.__projectRepoLinkLabel.setText(u'<a href="%s">%s</a>' % (repoLink,
-                                                                          target))
-            self.__saveObsProjectButton.setEnabled(True)
+            self.mainWindow.projectLabelValue.setText(project)
+            self.mainWindow.projectTitleLabel.setText(projectTitle)
+            self.mainWindow.projectDescriptionLabel.setText(projectDescription)
+            self.mainWindow.projectPageLinkLabel.setText(u'<a href="%s">%s</a>' % (projectLink,
+                                                                                   projectObsName))
+            self.mainWindow.projectRepoPageLinkLabel.setText(u'<a href="%s">%s</a>' % (repoLink,
+                                                                                       target))
+            self.mainWindow.saveObsProjectButton.setEnabled(True)
         else:
-            self.__saveObsProjectButton.setEnabled(False)
+            self.mainWindow.saveObsProjectButton.setEnabled(False)
 
     @popupOnException
     def updateChrootPathAndButtons(self):
@@ -308,18 +265,18 @@ class ObsProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
             isChrootInit = self.manager.isChRootInit(project)
             if isChrootInit:
                 chrootPath = self.manager.getChRootPath(project)
-                self.__chrootPathLineEdit.setText(chrootPath)
+                self.mainWindow.chrootPathLineEdit.setText(chrootPath)
 
-                self.__newChrootButton.setEnabled(False)
-                self.__openChrootButton.setEnabled(True)
+                self.mainWindow.newChrootButton.setEnabled(False)
+                self.mainWindow.openChrootButton.setEnabled(True)
             else:
-                self.__newChrootButton.setEnabled(True)
-                self.__openChrootButton.setEnabled(False)
-                self.__chrootPathLineEdit.setText("")
+                self.mainWindow.newChrootButton.setEnabled(True)
+                self.mainWindow.openChrootButton.setEnabled(False)
+                self.mainWindow.chrootPathLineEdit.setText("")
 
-            self.__addRepoInChrootButton.setEnabled(isChrootInit)
-            self.__importRepoInChrootButton.setEnabled(isChrootInit)
-            self.__deleteRepoButton.setEnabled(isChrootInit)
-            self.__modifyRepoButton.setEnabled(isChrootInit)
+            self.mainWindow.addRepoInChrootButton.setEnabled(isChrootInit)
+            self.mainWindow.importRepoInChrootButton.setEnabled(isChrootInit)
+            self.mainWindow.deleteRepositoryButton.setEnabled(isChrootInit)
+            self.mainWindow.modifyRepositoryButton.setEnabled(isChrootInit)
 
-            self.__deleteChrootButton.setEnabled(isChrootInit)
+            self.mainWindow.deleteChrootButton.setEnabled(isChrootInit)

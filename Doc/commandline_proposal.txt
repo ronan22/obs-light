@@ -70,6 +70,12 @@ obslight
 	micproject	delete	<project_name>
 	micproject	list
 	micproject	query	[kickstart] [architecture] [imagetype] {<project_name>}
+	micproject  importkickstart <path> {<project_name>}
+	micproject  exportkickstart <path> {<project_name>}
+	micproject  createimage {<project_name>}
+	micproject  overlayfile list {<project_name>}
+	micproject  overlayfile add <src_path> <dst_path> {<project_name>}
+	micproject  overlayfile delete <src_path> <dst_path> {<project_name>}
 	#___________________________________________________________________________________________________________________________________________
 	#feature	
 	#Not implement

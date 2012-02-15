@@ -31,8 +31,6 @@ from mic.kickstart.custom_commands.moblinrepo import Moblin_RepoData
 import ObsLightErr
 from ObsLightUtils import isNonEmptyString
 
-# TODO: create a KickstartManagerException class
-
 class ObsLightKickstartManager(object):
     """
     Manage configuration of a Kickstart file.
@@ -41,6 +39,10 @@ class ObsLightKickstartManager(object):
 
     # Commands that must not appear in getCommandList()
     SpecialCaseCommands = ("repo",) # handled separately
+
+    ArchiveFileExtensions = (".tar", ".tar.gz", ".tar.bz2", ".tgz", ".tbz", ".tz2")
+    UntarCommand = 'tar -x -a -f "%(source)s" -C "%(destination)s"'
+
 
     # The tag used to identify OBS Light overlay file script
     OverlayFileScriptTag = "#- OBS Light overlay file script -#"
@@ -264,17 +266,14 @@ class ObsLightKickstartManager(object):
 
     def __addRemovePackages(self, packageOrList, action="add", excluded=False, group=False):
         # if packageOrList is a string, transform it in a list of one string
-        if isinstance(packageOrList, basestring):
-            pkgList = [packageOrList]
-        else:
-            pkgList = packageOrList
+        pkgList = [packageOrList] if isinstance(packageOrList, basestring) else packageOrList
 
         if action == "add":
             # The kickstartParser.handler.packages.add method takes a 
             # list of strings formatted as in the %packages section of
             # the Kickstart file:
             #  - package groups start with '@'
-            #  - excluded packages or groups start with '-'
+            #  - excluded packages start with '-'
             if group:
                 pkgList = [("@" + pkg) for pkg in pkgList]
             if excluded:
@@ -581,15 +580,22 @@ class ObsLightKickstartManager(object):
     def _generateCopyScript(self, source, destination):
         """
         Generate the shell script that will make the copy from `source`
-        to `destination` in the file system created by MIC.
+        to `destination` (or extract `source` in `destination`)
+        in the file system created by MIC.
         """
         # prepare script header
         copyScript = self.OverlayFileScriptTag + "\n"
         copyScript += self.OverlayFileSourceTag + source + "\n"
         copyScript += self.OverlayFileDestinationTag + destination + "\n"
+
+        # test if source is an archive or not
+        sourceIsArchive = False
+        for ext in self.ArchiveFileExtensions:
+            if source.endswith(ext):
+                sourceIsArchive = True
+                break
         # split destination file and destination directory
-        # FIXME: use str.split
-        if destination.endswith("/"):
+        if destination.endswith("/") or sourceIsArchive:
             destFileName = ""
             chrootDestDir = '$INSTALL_ROOT%s' % destination
         else:
@@ -597,8 +603,12 @@ class ObsLightKickstartManager(object):
             chrootDestDir = '$INSTALL_ROOT%s' % destination[:destination.rfind("/") + 1]
         # create destination directory if it does not exist
         copyScript += '[ -d "%s" ] || mkdir -p "%s"\n' % (chrootDestDir, chrootDestDir)
-        # do the copy
-        copyScript += 'cp "%s" "%s"\n' % (source, chrootDestDir[:-1] + destFileName)
+        if sourceIsArchive:
+            # do the extraction
+            copyScript += self.UntarCommand % {"source": source, "destination": chrootDestDir}
+        else:
+            # do the copy
+            copyScript += 'cp "%s" "%s"\n' % (source, chrootDestDir + destFileName)
         return copyScript
 
     def addOverlayFile(self, source, destination):
