@@ -30,8 +30,8 @@ obslight
 	#___________________________________________________________________________________________________________________________________________
 	package	list	[available] {project_alias <project_alias>}
 	package	current {project_alias <project_alias>}
-	package	add	<package> {project_alias <project_alias>}
-	package	delete	<package> {project_alias <project_alias>}
+	package	add	{package <package>} {project_alias <project_alias>}
+	package	delete	{package <package>} {project_alias <project_alias>}
 	package	query	[title|description|url|listFile] {package <package> {server_alias <server_alias> {project <project>}}} 
 	package	query	[title|description|obsrev|oscrev|listfile|obsstatus|oscstatus|specfile|yamlfile|fspackagedirectory|oscpackagedirectory|filesystemstatus|currentPatch] {package <package> {project_alias <project_alias>} } 
 	package	set	[title <title>] [description <description>] {package <package> {project_alias <project_alias>}} 

@@ -348,7 +348,7 @@ __DICO_parameter_qemuproject_completion__ = {}
 #Command 
 __info_quiet__ = ["quiet", "-quiet", "--quiet"]
 __info_debug__ = ["debug", "-debug", "--debug"]
-__version__ = ["version", "-version", "--version"]
+__version__ = ["version", "--version"]
 __command_help__ = ["help", "-h", "-help", "--help"]
 __noaction__ = ["noaction"]
 __man__ = ["man"]
@@ -764,10 +764,10 @@ createCommandPackageHelp(__command_list__, ["package list [available] {project_a
 createCommandPackageHelp(__command_current__, ["package current {project_alias <project_alias>}",
                                                "print the current package use on the local project"])
 
-createCommandPackageHelp(__command_add__, ["package add <package> {project_alias <project_alias>}",
+createCommandPackageHelp(__command_add__, ["package add {package <package>} {project_alias <project_alias>}",
                                            "add a package from the OBS project to local project"])
 
-createCommandPackageHelp(__command_del__, ["package delete <package> {project_alias <project_alias>}",
+createCommandPackageHelp(__command_del__, ["package delete {package <package>} {project_alias <project_alias>}",
                                            "delete package from local project"])
 
 createCommandPackageHelp(__command_query__, ["package query [title|description|url|listFile] {package <package> {server_alias <server_alias> {project <project>}}} ",
@@ -813,11 +813,11 @@ createParameterPackage(__command_current__, [__command_help__,
 
 createParameterPackage(__command_add__, [__command_help__,
                                          __parameter_package__,
-                                         __parameter_project_alias__], [__parameter_package__])
+                                         __parameter_project_alias__])
 
 createParameterPackage(__command_del__, [__command_help__,
                                          __parameter_package__,
-                                         __parameter_project_alias__], [__parameter_package__])
+                                         __parameter_project_alias__])
 
 createParameterPackage(__command_query__, [__command_help__,
                                            __parameter_package_title__,
@@ -1147,7 +1147,17 @@ class ObsLightBase():
             print " ".join(res)
         return 0
 
-    def  printCompletionListObsProject(self, server_alias):
+    def printCompletionListPackage(self, project_alias, local=1):
+        m = ObsLightManager.getCommandLineManager()
+        if m.isALocalProject(project_alias):
+            res = m.getLocalProjectPackageList(projectLocalName=project_alias, local=local)
+            if res != None:
+                print " ".join(res)
+            return 0
+        else:
+            return -1
+
+    def printCompletionListObsProject(self, server_alias):
         m = ObsLightManager.getCommandLineManager()
         res = m.getObsServerProjectList(serverApi=server_alias)
         if res != None:
@@ -1259,9 +1269,12 @@ class ObsLightBase():
                 sys.stdout.write(comment + "\n")
             if row :
                 for res in result:
-                    sys.stdout.write(" "*len(comment) + res + "\n")
+                    if comment != None:
+                        sys.stdout.write(" "*len(comment))
+                    sys.stdout.write(res + "\n")
             else:
                 sys.stdout.write(", ".join(result) + "\n")
+
             sys.stdout.flush()
         else:
             sys.stdout.write(" ".join(result) + "\n")
@@ -1493,7 +1506,7 @@ class ObsLightServer(ObsLightBase):
             m = ObsLightManager.getCommandLineManager()
             if reachable:self.networkRequest()
             res = m.getObsServerList(reachable=reachable)
-            if self.testResult(res, getLineno()) == 0 :return - 1
+            if self.testResult(res, getLineno()) == -1 :return - 1
             self.printListResult(res)
             return 0
         else:
@@ -2347,8 +2360,12 @@ class ObsLightObsPackage(ObsLightBase):
                 project_alias, listArgv = self.getParameter(listArgv)
                 if (project_alias == None) and ObsLightBase.noaction:
                     return self.printCompletionListProject()
+            elif currentCommand in __parameter_package__:
+                package, listArgv = self.getParameter(listArgv)
+                if (package == None) and (project_alias != None) and ObsLightBase.noaction:
+                    return self.printCompletionListPackage(project_alias, local=0)
             else:
-                package = currentCommand
+                self.printUnknownCommand(currentCommand, __command_add__)
 
         if  Help  :
             return self.print_Help(__command_add__)
@@ -2385,8 +2402,12 @@ class ObsLightObsPackage(ObsLightBase):
                 project_alias, listArgv = self.getParameter(listArgv)
                 if (project_alias == None) and ObsLightBase.noaction:
                     return self.printCompletionListProject()
+            elif currentCommand in __parameter_package__:
+                package, listArgv = self.getParameter(listArgv)
+                if (package == None) and (project_alias != None) and ObsLightBase.noaction:
+                    return self.printCompletionListPackage(project_alias)
             else:
-                package = currentCommand
+                self.printUnknownCommand(currentCommand, __command_del__)
 
         if  Help or (package == None) :
             return self.print_Help(__command_del__)
@@ -2531,7 +2552,9 @@ class ObsLightObsPackage(ObsLightBase):
                 if (server_alias != None) and (obsproject == None) and ObsLightBase.noaction:
                     return self.printCompletionListObsProject(server_alias)
             elif currentCommand in __parameter_package__:
-                package , listArgv = self.getParameter(listArgv)
+                package, listArgv = self.getParameter(listArgv)
+                if (package == None) and (project_alias != None) and ObsLightBase.noaction:
+                    return self.printCompletionListPackage(project_alias)
             else:
                 return self.printUnknownCommand(currentCommand, __command_query__)
 
@@ -2749,7 +2772,9 @@ class ObsLightObsPackage(ObsLightBase):
                 if (project_alias == None) and ObsLightBase.noaction:
                     return self.printCompletionListProject()
             elif currentCommand in __parameter_package__:
-                package , listArgv = self.getParameter(listArgv)
+                package, listArgv = self.getParameter(listArgv)
+                if (package == None) and (project_alias != None) and ObsLightBase.noaction:
+                    return self.printCompletionListPackage(project_alias)
             else:
                 return self.printUnknownCommand(currentCommand, __command_set__)
 
@@ -2805,7 +2830,9 @@ class ObsLightObsPackage(ObsLightBase):
                 if (project_alias == None) and ObsLightBase.noaction:
                     return self.printCompletionListProject()
             elif currentCommand in __parameter_package__:
-                package , listArgv = self.getParameter(listArgv)
+                package, listArgv = self.getParameter(listArgv)
+                if (package == None) and (project_alias != None) and ObsLightBase.noaction:
+                    return self.printCompletionListPackage(project_alias)
             else:
                 return self.printUnknownCommand(currentCommand, __command_update__)
 
@@ -2856,7 +2883,9 @@ class ObsLightObsPackage(ObsLightBase):
                         if (project_alias == None) and ObsLightBase.noaction:
                             return self.printCompletionListProject()
                     elif currentCommand in __parameter_package__:
-                        package , listArgv = self.getParameter(listArgv)
+                        package, listArgv = self.getParameter(listArgv)
+                        if (package == None) and (project_alias != None) and ObsLightBase.noaction:
+                            return self.printCompletionListPackage(project_alias)
                     else:
                         return self.printUnknownCommand(currentCommand, __command_commit__)
                 break
@@ -2913,7 +2942,9 @@ class ObsLightObsPackage(ObsLightBase):
                 if (project_alias == None) and ObsLightBase.noaction:
                     return self.printCompletionListProject()
             elif currentCommand in __parameter_package__:
-                package , listArgv = self.getParameter(listArgv)
+                package, listArgv = self.getParameter(listArgv)
+                if (package == None) and (project_alias != None) and ObsLightBase.noaction:
+                    return self.printCompletionListPackage(project_alias)
             else:
                 return self.printUnknownCommand(currentCommand, __command_repair__)
 
@@ -2996,7 +3027,9 @@ class ObsLightObsPackage(ObsLightBase):
                         if (project_alias == None) and ObsLightBase.noaction:
                             return self.printCompletionListProject()
                     elif currentCommand in __parameter_package__:
-                        package , listArgv = self.getParameter(listArgv)
+                        package, listArgv = self.getParameter(listArgv)
+                        if (package == None) and (project_alias != None) and ObsLightBase.noaction:
+                            return self.printCompletionListPackage(project_alias)
                     else:
                         return self.printUnknownCommand(currentCommand, __command_addfile__)
                 break
@@ -3043,7 +3076,9 @@ class ObsLightObsPackage(ObsLightBase):
                         if (project_alias == None) and ObsLightBase.noaction:
                             return self.printCompletionListProject()
                     elif currentCommand in __parameter_package__:
-                        package , listArgv = self.getParameter(listArgv)
+                        package, listArgv = self.getParameter(listArgv)
+                        if (package == None) and (project_alias != None) and ObsLightBase.noaction:
+                            return self.printCompletionListPackage(project_alias)
                     else:
                         return self.printUnknownCommand(currentCommand, __command_deletefile__)
                 break
@@ -3091,7 +3126,9 @@ class ObsLightObsPackage(ObsLightBase):
                 if (project_alias == None) and ObsLightBase.noaction:
                     return self.printCompletionListProject()
             elif currentCommand in __parameter_package__:
-                package , listArgv = self.getParameter(listArgv)
+                package, listArgv = self.getParameter(listArgv)
+                if (package == None) and (project_alias != None) and ObsLightBase.noaction:
+                    return self.printCompletionListPackage(project_alias)
             else:
                 return self.printUnknownCommand(currentCommand, __command_refresh__)
 
@@ -3141,7 +3178,9 @@ class ObsLightObsPackage(ObsLightBase):
                 if (project_alias == None) and ObsLightBase.noaction:
                     return self.printCompletionListProject()
             elif currentCommand in __parameter_package__:
-                package , listArgv = self.getParameter(listArgv)
+                package, listArgv = self.getParameter(listArgv)
+                if (package == None) and (project_alias != None) and ObsLightBase.noaction:
+                    return self.printCompletionListPackage(project_alias)
             else:
                 return self.printUnknownCommand(currentCommand, __command_testConflict__)
 
@@ -3187,7 +3226,9 @@ class ObsLightObsPackage(ObsLightBase):
                 if (project_alias == None) and ObsLightBase.noaction:
                     return self.printCompletionListProject()
             elif currentCommand in __parameter_package__:
-                package , listArgv = self.getParameter(listArgv)
+                package, listArgv = self.getParameter(listArgv)
+                if (package == None) and (project_alias != None) and ObsLightBase.noaction:
+                    return self.printCompletionListPackage(project_alias)
             else:
                 return self.printUnknownCommand(currentCommand, __command_testConflict__)
 
@@ -3652,7 +3693,9 @@ class ObsLightObsProjectfilesystem(ObsLightBase):
                 Help = True
                 break
             elif currentCommand in __parameter_package__:
-                package , listArgv = self.getParameter(listArgv)
+                package, listArgv = self.getParameter(listArgv)
+                if (package == None) and (project_alias != None) and ObsLightBase.noaction:
+                    return self.printCompletionListPackage(project_alias)
             elif currentCommand in __parameter_project_alias__:
                 project_alias, listArgv = self.getParameter(listArgv)
                 if (project_alias == None) and ObsLightBase.noaction:
@@ -3773,7 +3816,9 @@ class ObsLightRpmbuild(ObsLightBase):
                 if (project_alias == None) and ObsLightBase.noaction:
                     return self.printCompletionListProject()
             elif currentCommand in __parameter_package__:
-                package , listArgv = self.getParameter(listArgv)
+                package, listArgv = self.getParameter(listArgv)
+                if (package == None) and (project_alias != None) and ObsLightBase.noaction:
+                    return self.printCompletionListPackage(project_alias)
             else :
                 return self.printUnknownCommand(currentCommand, __command_prepare__)
 
@@ -3814,7 +3859,9 @@ class ObsLightRpmbuild(ObsLightBase):
                 if (project_alias == None) and ObsLightBase.noaction:
                     return self.printCompletionListProject()
             elif currentCommand in __parameter_package__:
-                package , listArgv = self.getParameter(listArgv)
+                package, listArgv = self.getParameter(listArgv)
+                if (package == None) and (project_alias != None) and ObsLightBase.noaction:
+                    return self.printCompletionListPackage(project_alias)
             else :
                 return self.printUnknownCommand(currentCommand, __command_build__)
 
@@ -3856,7 +3903,9 @@ class ObsLightRpmbuild(ObsLightBase):
                 if (project_alias == None) and ObsLightBase.noaction:
                     return self.printCompletionListProject()
             elif currentCommand in __parameter_package__:
-                package , listArgv = self.getParameter(listArgv)
+                package, listArgv = self.getParameter(listArgv)
+                if (package == None) and (project_alias != None) and ObsLightBase.noaction:
+                    return self.printCompletionListPackage(project_alias)
             else :
                 return self.printUnknownCommand(currentCommand, __command_install__)
 
@@ -3897,7 +3946,9 @@ class ObsLightRpmbuild(ObsLightBase):
                 if (project_alias == None) and ObsLightBase.noaction:
                     return self.printCompletionListProject()
             elif currentCommand in __parameter_package__:
-                package , listArgv = self.getParameter(listArgv)
+                package, listArgv = self.getParameter(listArgv)
+                if (package == None) and (project_alias != None) and ObsLightBase.noaction:
+                    return self.printCompletionListPackage(project_alias)
             else :
                 return self.printUnknownCommand(currentCommand, __command_buildpackage__)
 
@@ -3938,7 +3989,9 @@ class ObsLightRpmbuild(ObsLightBase):
                 if (project_alias == None) and ObsLightBase.noaction:
                     return self.printCompletionListProject()
             elif currentCommand in __parameter_package__:
-                package , listArgv = self.getParameter(listArgv)
+                package, listArgv = self.getParameter(listArgv)
+                if (package == None) and (project_alias != None) and ObsLightBase.noaction:
+                    return self.printCompletionListPackage(project_alias)
             else :
                 return self.printUnknownCommand(currentCommand, __command_isInit__)
 
@@ -3989,7 +4042,9 @@ class ObsLightRpmbuild(ObsLightBase):
                         if (project_alias == None) and ObsLightBase.noaction:
                             return self.printCompletionListProject()
                     elif currentCommand in __parameter_package__:
-                        package , listArgv = self.getParameter(listArgv)
+                        package, listArgv = self.getParameter(listArgv)
+                        if (package == None) and (project_alias != None) and ObsLightBase.noaction:
+                            return self.printCompletionListPackage(project_alias)
                     else:
                         return self.printUnknownCommand(currentCommand, __command_createPatch__)
                 break
@@ -4037,7 +4092,9 @@ class ObsLightRpmbuild(ObsLightBase):
                 if (project_alias == None) and ObsLightBase.noaction:
                     return self.printCompletionListProject()
             elif currentCommand in __parameter_package__:
-                package , listArgv = self.getParameter(listArgv)
+                package, listArgv = self.getParameter(listArgv)
+                if (package == None) and (project_alias != None) and ObsLightBase.noaction:
+                    return self.printCompletionListPackage(project_alias)
             else:
                 return self.printUnknownCommand(currentCommand, __command_updatepatch__)
 
