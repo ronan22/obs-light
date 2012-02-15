@@ -99,6 +99,8 @@ class KickstartRepositoriesModel(KickstartModelBase):
                     self.dataDict(row)[self.ColumnKeys[column]] = "yes"
                 else:
                     self.dataDict(row)[self.ColumnKeys[column]] = "no"
+            oldName = self.dataDict(row)[self.ColumnKeys[self.NameColumn]]
+            self.__updateRepoInManager(row, oldName)
         return False
 
     # from QAbstractTableModel
