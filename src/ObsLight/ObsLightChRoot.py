@@ -35,6 +35,7 @@ import ObsLightConfig
 from ObsLightSubprocess import SubprocessCrt
 
 import ObsLightPrintManager
+import copy
 
 class ObsLightChRoot(object):
     '''
@@ -58,7 +59,7 @@ class ObsLightChRoot(object):
             self.__dicoRepos = {}
         else:
             if "dicoRepos" in fromSave.keys():
-                self.__dicoRepos = fromSave["dicoRepos"]
+                self.__dicoRepos = copy.copy(fromSave["dicoRepos"])
         self.initChRoot()
 
     @staticmethod
@@ -407,10 +408,14 @@ class ObsLightChRoot(object):
         '''
         Add a repository in the chroot's zypper configuration file.
         '''
+        print "tic self.__dicoRepos.keys()", self.__dicoRepos.keys()
+
         if alias in self.__dicoRepos.keys():
             raise ObsLightErr.ObsLightChRootError("can't add '" + alias + "' , already configure in the chroot")
         else:
             self.__dicoRepos[alias] = repos
+
+        print "toc self.__dicoRepos.keys()", self.__dicoRepos.keys()
 
         return self.__addRepo(repos=repos, alias=alias)
 

@@ -199,7 +199,6 @@ class ObsLightServer(object):
             status       
             listFile    
         '''
-        print "parameter", parameter
 
         if not parameter in ["title",
                              "description",

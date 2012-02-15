@@ -194,6 +194,7 @@ class ObsLightServers(object):
                                passw=passw)
         ObsLightTools.importCert(serverAPI)
         self.__dicOBSLightServers[aOBSServer.getName()] = aOBSServer
+        return 0
 
     def delObsServer(self, alias):
         '''
@@ -206,7 +207,7 @@ class ObsLightServers(object):
         else:
             raise ObsLightObsServers("'" + alias + "' can't be deleted, it's not an OBS Server")
 
-
+        return 0
 
 
 

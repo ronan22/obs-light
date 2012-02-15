@@ -237,6 +237,7 @@ class ObsLightProjects(object):
                                                                        obsServer=obsServer,
                                                                        projectTarget=projectTarget,
                                                                        projectArchitecture=projectArchitecture)
+        return 0
 
     #---------------------------------------------------------------------------
 

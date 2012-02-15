@@ -128,7 +128,7 @@ class ProjectConfigManager(QObject, ObsLightGuiObject):
             self.__archCBox.setCurrentIndex(lineIndex)
 
     def __loadProjectTitle(self):
-        title = self.manager.getProjectParameter(self.__projectAlias, u"projectTitle")
+        title = self.manager.getProjectParameter(self.__projectAlias, u"title")
         self.__titleLineEdit.setText(title)
         self.__titleLineEdit.setEnabled(True)
 
@@ -320,7 +320,7 @@ class ProjectConfigManager(QObject, ObsLightGuiObject):
 #                                                       u"projectArchitecture",
 #                                                       self.getCurrentArch())
             self.manager.setProjectParameter(self.getCurrentProjectLocalName(),
-                                                       u"projectTitle",
+                                                       u"title",
                                                        self.getCurrentTitle())
             self.manager.setProjectParameter(self.getCurrentProjectLocalName(),
                                                        u"description",

@@ -236,7 +236,7 @@ class ObsLightProject(object):
         elif parameter == "description":
             self.__description = value
         else:
-            raise ObsLightErr.ObsLightProjectsError("parameter value is not valid for setProjectParameter")
+            raise ObsLightErr.ObsLightProjectsError("parameter '" + parameter + "' is not valid for setProjectParameter")
         return 0
 
     def getPackageParameter(self, package, parameter=None):
@@ -332,7 +332,7 @@ class ObsLightProject(object):
         aDic["obsServer"] = self.__obsServer
         aDic["projectTarget"] = self.__projectTarget
         aDic["projectArchitecture"] = self.__projectArchitecture
-        aDic["projectTitle"] = self.__projectTitle
+        aDic["title"] = self.__projectTitle
         aDic["description"] = self.__description
         aDic["packages"] = self.__packages.getDic()
         aDic["aChroot"] = self.__chroot.getDic()

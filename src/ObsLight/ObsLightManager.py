@@ -22,7 +22,6 @@ Created on 17 juin 2011
 '''
 
 import os
-import sys
 import collections
 
 from ObsLightServers import ObsLightServers
@@ -163,80 +162,6 @@ def checkNonEmptyStringDirectory(position=None):
         return checkNonEmptyStringDirectory2
     return checkNonEmptyStringDirectory1
 
-def checkAvailableServerApi(position=None):
-    def checkAvailableServerApi1(f):
-        def checkAvailableServerApi2(*args, **kwargs):
-            mngr = getManager()
-            serverApi = None
-            if (position is not None) and (position < len(args)):
-                serverApi = args[position]
-            elif "serverApi" in kwargs :
-                serverApi = kwargs["serverApi"]
-            else:
-                raise ObsLightProjectsError("checkAvailableServerApi Fails")
-            if mngr.isAnObsServer(serverApi):
-                raise ObsLightObsServers(serverApi + " is already an OBS server")
-            return f(*args, **kwargs)
-        return checkAvailableServerApi2
-    return checkAvailableServerApi1
-
-def checkAvailableAlias(position=None):
-    def checkAvailableAlias1(f):
-        def checkAvailableAlias2(*args, **kwargs):
-            mngr = getManager()
-            alias = None
-            if (position is not None) and (position < len(args)):
-                alias = args[position]
-            elif "alias" in kwargs :
-                alias = kwargs["alias"]
-            else:
-                raise ObsLightProjectsError("checkAvailableAlias Fails")
-            if mngr.isAnObsServer(alias):
-                raise ObsLightObsServers(alias + " is already an OBS server")
-            return f(*args, **kwargs)
-        return checkAvailableAlias2
-    return checkAvailableAlias1
-
-def checkAvailableAliasOsc(position1=None, position2=None):
-    def checkAvailableAliasOsc1(f):
-        def checkAvailableAliasOsc2(*args, **kwargs):
-            mngr = getManager()
-            serverApi = None
-            alias = None
-            if (position1 is not None) and (position1 < len(args)):
-                serverApi = args[position1]
-            elif "serverApi" in kwargs :
-                serverApi = kwargs["serverApi"]
-            else:
-                raise ObsLightProjectsError("checkPackage Fails no serverApi")
-            if (position2 is not None) and (position2 < len(args)):
-                alias = args[position2]
-            elif "alias" in kwargs :
-                alias = kwargs["alias"]
-            else:
-                raise ObsLightProjectsError("checkPackage Fails no alias")
-            if mngr._myObsServers.isAnObsServerOscAlias(serverApi, alias):
-                raise ObsLightObsServers(alias + " is already an OBS alias define in ~/.oscrc ")
-            return f(*args, **kwargs)
-        return checkAvailableAliasOsc2
-    return checkAvailableAliasOsc1
-
-def checkNonEmptyStringUser(position=None):
-    def checkNonEmptyStringUser1(f):
-        def checkNonEmptyStringUser2(*args, **kwargs):
-            user = None
-            if (position is not None) and (position < len(args)):
-                user = args[position]
-            elif "user" in kwargs :
-                user = kwargs["user"]
-            else:
-                raise ObsLightProjectsError("checkAvailableAlias Fails")
-            if not isNonEmptyString(user):
-                raise ObsLightObsServers("Can't create a OBSServer: no user")
-            return f(*args, **kwargs)
-        return checkNonEmptyStringUser2
-    return checkNonEmptyStringUser1
-
 def checkNonEmptyStringMessage(position=None):
     def checkNonEmptyStringMessage1(f):
         def checkNonEmptyStringMessage2(*args, **kwargs):
@@ -268,22 +193,6 @@ def checkNonEmptyStringPatch(position=None):
             return f(*args, **kwargs)
         return checkNonEmptyStringPatch2
     return checkNonEmptyStringPatch1
-
-def checkNonEmptyStringPassword(position=None):
-    def checkNonEmptyStringPassword1(f):
-        def checkNonEmptyStringPassword2(*args, **kwargs):
-            password = None
-            if (position is not None) and (position < len(args)):
-                password = args[position]
-            elif "password" in kwargs :
-                password = kwargs["password"]
-            else:
-                raise ObsLightProjectsError("checkAvailableAlias Fails")
-            if not isNonEmptyString(password):
-                raise ObsLightObsServers("no password")
-            return f(*args, **kwargs)
-        return checkNonEmptyStringPassword2
-    return checkNonEmptyStringPassword1
 
 def checkNonEmptyStringProjectTarget(position=None):
     def checkNonEmptyStringProjectTarget1(f):
@@ -412,7 +321,6 @@ def checkNonEmptyStringLocalName(projectLocalName):
     elif ":" in projectLocalName:
         raise ObsLightProjectsError("You can't use ':' in projectLocalName '" + str(projectLocalName) + "'")
 
-
 #-------------------------------------------------------------------------------
 
 class ObsLightManagerBase(object):
@@ -484,7 +392,15 @@ class ObsLightManagerBase(object):
         '''
         return VERSION
 
+    def checkNonEmptyStringUser(self, user):
+        if not isNonEmptyString(user):
+            raise ObsLightObsServers("Can't create a OBSServer: no user")
+        return 0
 
+    def checkNonEmptyStringPassword(self, password):
+        if not isNonEmptyString(password):
+            raise ObsLightObsServers("Can't create a OBSServer: no password")
+        return 0
 
 class ObsLightManagerCore(ObsLightManagerBase):
 
@@ -571,11 +487,21 @@ class ObsLightManagerCore(ObsLightManagerBase):
         '''
         return self._myObsServers.getCurrentServer()
 
-    @checkAvailableServerApi(1)
-    @checkAvailableAlias(4)
-    @checkAvailableAliasOsc(1, 4)
-    @checkNonEmptyStringUser(2)
-    @checkNonEmptyStringPassword(3)
+    def checkAvailableAliasOsc(self, serverApi, alias):
+        if self._myObsServers.isAnObsServerOscAlias(serverApi, alias):
+            raise ObsLightObsServers(alias + " is already an OBS alias define in ~/.oscrc ")
+        return 0
+
+    def checkAvailableServerApi(self, serverApi):
+        if self.isAnObsServer(serverApi):
+            raise ObsLightObsServers(serverApi + " is already an OBS server")
+        return 0
+
+    def checkAvailableAlias(self, alias):
+        if self.isAnObsServer(alias):
+            raise ObsLightObsServers(alias + " is already an OBS server")
+        return 0
+
     def addObsServer(self,
                      serverApi,
                      user,
@@ -587,13 +513,19 @@ class ObsLightManagerCore(ObsLightManagerBase):
         Add a new OBS server.
         '''
         checkNonEmptyStringServerApi(serverApi=serverApi)
-        self._myObsServers.addObsServer(serverWeb=serverWeb,
-                                         serverAPI=serverApi,
-                                         serverRepo=serverRepo,
-                                         alias=alias,
-                                         user=user,
-                                         passw=password)
+        self.checkAvailableAlias(alias)
+        self.checkAvailableAliasOsc(serverApi, alias)
+        self.checkAvailableServerApi(serverApi)
+        self.checkNonEmptyStringUser(user)
+        self.checkNonEmptyStringPassword(password)
+        res = self._myObsServers.addObsServer(serverWeb=serverWeb,
+                                             serverAPI=serverApi,
+                                             serverRepo=serverRepo,
+                                             alias=alias,
+                                             user=user,
+                                             passw=password)
         self._myObsServers.save()
+        return res
 
     def delObsServer(self, obsServer):
         '''
@@ -689,12 +621,13 @@ class ObsLightManagerCore(ObsLightManagerBase):
         self.checkAvailableProjectObsName(projectObsName=projectObsName, serverApi=serverApi)
         self.checkObsServerAlias(serverApi=serverApi)
 
-        self._myObsLightProjects.addProject(projectLocalName=projectLocalName,
-                                             projectObsName=projectObsName,
-                                             obsServer=serverApi,
-                                             projectTarget=projectTarget,
-                                             projectArchitecture=projectArchitecture)
+        res = self._myObsLightProjects.addProject(projectLocalName=projectLocalName,
+                                                 projectObsName=projectObsName,
+                                                 obsServer=serverApi,
+                                                 projectTarget=projectTarget,
+                                                 projectArchitecture=projectArchitecture)
         self._myObsLightProjects.save()
+        return res
 
     @checkProjectLocalName(1)
     def getProjectParameter(self, projectLocalName, parameter):
@@ -739,7 +672,6 @@ class ObsLightManagerCore(ObsLightManagerBase):
         self.checkObsServerAlias(serverApi=serverApi)
         return self._myObsServers.getObsServer(serverApi).getProjectParameter(obsproject, parameter)
 
-
     @checkProjectLocalName(1)
     def getProjectWebPage(self, projectLocalName):
         '''
@@ -772,7 +704,6 @@ class ObsLightManagerCore(ObsLightManagerBase):
         '''
         Import a project from a file.
         '''
-        print "importProject ", filePath
         res = self._myObsLightProjects.importProject(filePath)
         self._myObsLightProjects.save()
         return res
@@ -981,7 +912,9 @@ class ObsLightManagerCore(ObsLightManagerBase):
         '''
         Refresh the OBS status.
         '''
-        res = self._myObsLightProjects.refreshObsStatus(projectLocalName=projectLocalName, package=package)
+        res = self._myObsLightProjects.refreshObsStatus(projectLocalName=projectLocalName,
+                                                         package=package,
+                                                         controlFunction=controlFunction)
         self._myObsLightProjects.save()
         return res
 
@@ -1008,6 +941,16 @@ class ObsLightManagerCore(ObsLightManagerBase):
             raise ObsLightProjectsError(" invalid path name: " + str(name))
         self._myObsLightProjects.getProject(projectLocalName).getPackage(package).delFile(name)
         self._myObsLightProjects.save()
+
+    @checkProjectLocalName(1)
+    @checkNonEmptyStringPackage(2)
+    def getPackageFileInfo(self, projectLocalName, package, fileName):
+        '''
+        Get a dictionary containing file information:
+        - "Status": status returned by osc (one character of " MADC?!")
+        - "File name length": just to test
+        '''
+        return self._myObsLightProjects.getProject(projectLocalName).getPackage(package).getPackageFileInfo(fileName)
 
 
     #///////////////////////////////////////////////////////////////////////////filesystem
@@ -1275,16 +1218,6 @@ class ObsLightManager(ObsLightManagerCore):
         self.checkPackage(projectLocalName=projectLocalName, package=package)
         return self._myObsLightProjects.getProject(projectLocalName).getPackage(package).isInstallInChroot()
 
-    @checkProjectLocalName(1)
-    @checkNonEmptyStringPackage(2)
-    def getPackageFileInfo(self, projectLocalName, packageName, fileName):
-        '''
-        Get a dictionary containing file information:
-        - "Status": status returned by osc (one character of " MADC?!")
-        - "File name length": just to test
-        '''
-        return self._myObsLightProjects.getProject(projectLocalName).getPackage(packageName).getPackageFileInfo(fileName)
-
 #---------------------------------------------------------------------------
     @checkProjectLocalName(1)
     def openTerminal(self, projectLocalName, package):
@@ -1433,8 +1366,9 @@ class ObsLightManager(ObsLightManagerCore):
         self._myObsLightMicProjects.saveKickstartFile(micProjectName, path)
 
     def getMicProjectArchitecture(self, micProjectName):
-        return self._myObsLightMicProjects.getMicProjectArchitecture(micProjectName=micProjectName)
+        res = self._myObsLightMicProjects.getMicProjectArchitecture(micProjectName=micProjectName)
         self._myObsLightMicProjects.save()
+        return res
 
     def setMicProjectArchitecture(self, micProjectName, arch):
         self._myObsLightMicProjects.setMicProjectArchitecture(micProjectName=micProjectName, arch=arch)

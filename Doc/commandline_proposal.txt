@@ -44,25 +44,25 @@ obslight
 	#___________________________________________________________________________________________________________________________________________
 	projectfilesystem	create		{<project_alias>}
 	projectfilesystem	delete		<project_alias>
-	projectfilesystem	query 		[path|status] {<project_alias>}
+	projectfilesystem	query 		[path|status] {project_alias <project_alias>}
 	projectfilesystem	enter		[package <package>] {<project_alias>}
 	projectfilesystem	executescript	<path> {<project_alias>}
 
 	projectfilesystem	repositories	add	<repository_url> <repository_alias> {<project_alias>}
 	projectfilesystem	repositories	add	from <project_alias> 
 	projectfilesystem	repositories	delete	<repository_alias> {<project_alias>} 
-	projectfilesystem	repositories	query	
-	projectfilesystem	repositories	modify	repoAlias  [newUrl <newUrl>] [newAlias <newAlias>] {project_alias <project_alias>}
+	projectfilesystem	repositories	query	project_alias <project_alias>
+	projectfilesystem	repositories	modify	[newUrl <repository_url>] [newAlias <repository_alias>]  repository_alias <repository_alias> {project_alias <project_alias>}
 	#___________________________________________________________________________________________________________________________________________
-	rpmbuild	prepare		{<package>} {project_alias <project_alias>}
-	rpmbuild	build		{<package>} {project_alias <project_alias>}
-	rpmbuild	install		{<package>} {project_alias <project_alias>}
-	rpmbuild	buildpackage	{<package>} {project_alias <project_alias>}
-	rpmbuild	isinit		{package <package> {project_alias <project_alias>}
+	rpmbuild	prepare		{package <package>} {project_alias <project_alias>}
+	rpmbuild	build		{package <package>} {project_alias <project_alias>}
+	rpmbuild	install		{package <package>} {project_alias <project_alias>}
+	rpmbuild	buildpackage	{package <package>} {project_alias <project_alias>}
+	rpmbuild	isinit		{package <package>} {project_alias <project_alias>}
 	rpmbuild	createpatch	<patch> {package <package>} {project_alias <project_alias>}
 	rpmbuild	updatepatch	{package <package> {project_alias <project_alias>}
 	#Not implement
-	rpmbuild	testconflict	{package <package> {project_alias <project_alias>}
+	rpmbuild	testconflict	{package <package>} {project_alias <project_alias>}
 	#___________________________________________________________________________________________________________________________________________
 	#feature
 	#Not implement
