@@ -399,6 +399,7 @@ __command_install__ = ["install"]
 __command_buildpackage__ = ["buildpackage"]
 __command_isInit__ = ["isinit"]
 __command_testConflict__ = ["testconflict"]
+__command_resolveConflict__ = ["resolveConflict"]
 __command_createPatch__ = ["createpatch"]
 __command_updatepatch__ = ["updatepatch"]
 __command_modify__ = ["modify"]
@@ -753,7 +754,7 @@ appendCommandPackage(__command_addfile__)
 appendCommandPackage(__command_deletefile__)
 appendCommandPackage(__command_refresh__)
 appendCommandPackage(__command_testConflict__)
-
+appendCommandPackage(__command_resolveConflict__)
 #Define the package command help
 createCommandPackageHelp(__command_help__, __help_command_help__)
 createCommandPackageHelp(__command_list__, ["package list [available] {project_alias <project_alias>}",
@@ -800,6 +801,8 @@ createCommandPackageHelp(__command_refresh__, ["package refresh [oscStatus|obsst
 createCommandPackageHelp(__command_testConflict__, ["package testconflict {package <package>} {project_alias <project_alias>}",
                                                      "test and print the status of conflict"])
 
+createCommandPackageHelp(__command_resolveConflict__, ["package resolveconflict {package <package>} {project_alias <project_alias>}",
+                                                      "test and print the status of conflict"])
 #Define the package parameter help
 createParameterPackage(__command_list__, [__command_help__,
                                           __parameter_available__,
@@ -875,6 +878,10 @@ createParameterPackage(__command_refresh__, [__command_help__,
 createParameterPackage(__command_testConflict__, [__command_help__,
                                                    __parameter_package__,
                                                    __parameter_project_alias__])
+
+createParameterPackage(__command_resolveConflict__, [__command_help__,
+                                                     __parameter_package__,
+                                                     __parameter_project_alias__])
 
 #Command filesystem
 appendCommandFilesystem(__command_help__)
@@ -1259,6 +1266,18 @@ class ObsLightBase():
         else:
             sys.stdout.write(" ".join(result) + "\n")
             sys.stdout.flush()
+
+    def printMessageError(self, message):
+        '''
+        
+        '''
+        if ObsLightBase.noaction:
+            print ""
+        else:
+            if ObsLightPrintManager.QUIET == 0:
+                print message
+            else:
+                print message
 
     def printError(self, message, command):
         '''
@@ -2861,6 +2880,12 @@ class ObsLightObsPackage(ObsLightBase):
                     if package == None:
                         return self.print_Help(__command_commit__)
 
+                res = m.updatePackage(projectLocalName=project_alias, package=package)
+                if self.testResult(res, getLineno()) == -1:return - 1
+                res = m.testConflict(projectLocalName=project_alias, package=package)
+                if self.testResult(res, getLineno()) == -1:return - 1
+                if res : return self.printMessageError("Can't commit, package '" + package + "' is on conflict.")
+
                 res = m.addAndCommitChanges(project_alias,
                                             package,
                                             message)
@@ -3129,12 +3154,12 @@ class ObsLightObsPackage(ObsLightBase):
                 if (project_alias == None) :
                     project_alias = m.getCurrentObsProject()
                     if project_alias == None:
-                        return self.print_Help()
+                        return self.print_Help(__command_testConflict__)
 
                 if (package == None) :
                     package = m.getCurrentPackage(project_alias)
                     if package == None:
-                        return self.print_Help()
+                        return self.print_Help(__command_testConflict__)
                 res = m.updatePackage(projectLocalName=project_alias, package=package)
                 if self.testResult(res, getLineno()) == -1:return - 1
                 res = m.testConflict(projectLocalName=project_alias, package=package)
@@ -3143,6 +3168,50 @@ class ObsLightObsPackage(ObsLightBase):
                 return 0
             else:
                 return self.print_Help(__command_testConflict__)
+
+    def package_resolveConflict(self, listArgv):
+        '''
+        
+        '''
+        Help = False
+        project_alias = None
+        package = None
+
+        while self.testListArgv(listArgv):
+            currentCommand, listArgv = self.getParameter(listArgv)
+            if currentCommand in __command_help__:
+                Help = True
+                break
+            elif currentCommand in __parameter_project_alias__:
+                project_alias, listArgv = self.getParameter(listArgv)
+                if (project_alias == None) and ObsLightBase.noaction:
+                    return self.printCompletionListProject()
+            elif currentCommand in __parameter_package__:
+                package , listArgv = self.getParameter(listArgv)
+            else:
+                return self.printUnknownCommand(currentCommand, __command_testConflict__)
+
+        if  Help :
+            return self.print_Help(__command_resolveConflict__)
+        else:
+            if not ObsLightBase.noaction:
+                m = ObsLightManager.getCommandLineManager()
+
+                if (project_alias == None) :
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return self.print_Help(__command_resolveConflict__)
+
+                if (package == None) :
+                    package = m.getCurrentPackage(project_alias)
+                    if package == None:
+                        return self.print_Help(__command_resolveConflict__)
+
+                res = m.resolveConflict(projectLocalName=project_alias, package=package)
+                if self.testResult(res, getLineno()) == -1:return - 1
+                return 0
+            else:
+                return self.print_Help(__command_resolveConflict__)
 
     def execute(self, listArgv):
 
@@ -3181,6 +3250,8 @@ class ObsLightObsPackage(ObsLightBase):
                 return self.package_refresh(listArgv)
             elif currentCommand in __command_testConflict__:
                 return self.package_testConflict(listArgv)
+            elif currentCommand in __command_resolveConflict__:
+                return self.package_resolveConflict(listArgv)
             else:
                 return self.print_Help()
 
