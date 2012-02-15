@@ -642,6 +642,9 @@ class ObsLightPackage(object):
             self.__yamlFile = name
             self.__initYamlFile()
 
+        self.initPackageFileInfo()
+        return 0
+
     def delFile(self, name):
         '''
         
@@ -662,6 +665,8 @@ class ObsLightPackage(object):
         else:
             if name in self.__listFileToDel:
                 self.__listFileToDel.remove(name)
+        self.initPackageFileInfo()
+        return 0
 
     def save(self):
         '''
@@ -680,6 +685,7 @@ class ObsLightPackage(object):
         '''
         if self.__mySpecFile != None:
             self.__mySpecFile.saveTmpSpec(path=path, excludePatch=self.__currentPatch, archive=archive)
+            self.initPackageFileInfo()
         else:
             raise ObsLightPackageErr("No Spec or Yaml in the package")
 
@@ -699,11 +705,13 @@ class ObsLightPackage(object):
 
         if self.__myYamlFile != None:
             res = self.__myYamlFile.addFile(baseFile=baseFile, aFile=aFile)
+            self.initPackageFileInfo()
             self.save()
             return res
         elif self.__mySpecFile != None:
             self.save()
             res = self.__mySpecFile.addFile(baseFile=baseFile, aFile=aFile)
+            self.initPackageFileInfo()
             return res
         else:
             raise ObsLightPackageErr("No Spec or Yaml in the package")
@@ -714,10 +722,12 @@ class ObsLightPackage(object):
         '''
         if self.__myYamlFile != None:
             res = self.__myYamlFile.delFile(aFile=aFile)
+            self.initPackageFileInfo()
             self.save()
             return res
         elif self.__mySpecFile != None:
             res = self.__mySpecFile.delFile(aFile=aFile)
+            self.initPackageFileInfo()
             self.save()
             return res
         else:
@@ -730,6 +740,7 @@ class ObsLightPackage(object):
         for aFile in self.__listFile:
             if self.testConflict(aFile=aFile):
                 ObsLightOsc.getObsLightOsc().autoResolvedConflict(packagePath=self.getOscDirectory(), aFile=aFile)
+        self.initPackageFileInfo()
 
     def commitToObs(self, message=None):
         '''
@@ -738,12 +749,14 @@ class ObsLightPackage(object):
         self.autoResolvedConflict()
         ObsLightOsc.getObsLightOsc().commitProject(path=self.getOscDirectory(), message=message)
         self.__listFileToDel = []
+        self.initPackageFileInfo()
 
     def addRemoveFileToTheProject(self):
         '''
         add new file and remove file to the project.
         '''
         ObsLightOsc.getObsLightOsc().addremove(path=self.getOscDirectory())
+        self.initPackageFileInfo()
 
     def destroy(self):
         '''
@@ -765,15 +778,14 @@ class ObsLightPackage(object):
         '''
         
         '''
+
         if self.__listInfoFile == None:
             res = ObsLightOsc.getObsLightOsc().getPackageFileInfo(workingdir=self.__packagePath)
             if res != None:
                 self.__listInfoFile = {}
                 for status, aFile in res:
                     self.__listInfoFile[aFile] = status
-        print "self.__listInfoFile", self.__listInfoFile
         if fileName in self.__listInfoFile.keys():
-            print "************************ fileName " + fileName
             res = self.__listInfoFile[fileName]
             if res == "A":
                 res += " (Added)"

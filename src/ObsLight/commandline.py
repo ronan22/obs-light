@@ -752,6 +752,7 @@ appendCommandPackage(__command_repair__)
 appendCommandPackage(__command_addfile__)
 appendCommandPackage(__command_deletefile__)
 appendCommandPackage(__command_refresh__)
+appendCommandPackage(__command_testConflict__)
 
 #Define the package command help
 createCommandPackageHelp(__command_help__, __help_command_help__)
@@ -795,6 +796,9 @@ createCommandPackageHelp(__command_deletefile__, ["package deletefile <file> {pa
 createCommandPackageHelp(__command_refresh__, ["package refresh [oscStatus|obsstatus] {package <package> {project_alias <project_alias>}}",
                                                "refresh osc,obs status",
                                                "if oscStatus and obsstatus ar not specify, the two status aure refresh"])
+
+createCommandPackageHelp(__command_testConflict__, ["package testconflict {package <package>} {project_alias <project_alias>}",
+                                                     "test and print the status of conflict"])
 
 #Define the package parameter help
 createParameterPackage(__command_list__, [__command_help__,
@@ -867,6 +871,10 @@ createParameterPackage(__command_refresh__, [__command_help__,
                                              __parameter_oscstatus__,
                                              __parameter_package__,
                                              __parameter_project_alias__])
+
+createParameterPackage(__command_testConflict__, [__command_help__,
+                                                   __parameter_package__,
+                                                   __parameter_project_alias__])
 
 #Command filesystem
 appendCommandFilesystem(__command_help__)
@@ -974,7 +982,7 @@ appendCommandRpmbuild(__command_buildpackage__)
 appendCommandRpmbuild(__command_isInit__)
 appendCommandRpmbuild(__command_createPatch__)
 appendCommandRpmbuild(__command_updatepatch__)
-appendCommandRpmbuild(__command_testConflict__)
+
 
 #Define the rpmbuild command help
 createCommandRpmbuildHelp(__command_help__, __help_command_help__)
@@ -999,8 +1007,7 @@ createCommandRpmbuildHelp(__command_createPatch__, ["rpmbuild createpatch <patch
 createCommandRpmbuildHelp(__command_updatepatch__, ["rpmbuild updatepatch {package <package> {project_alias <project_alias>}",
                                                     "update the current patch"])
 
-createCommandRpmbuildHelp(__command_testConflict__, ["rpmbuild testconflict {package <package>} {project_alias <project_alias>}",
-                                                     "test and print the status of conflict"])
+
 
 #Define the rpmbuild parameter help
 createParameterRpmbuild(__command_prepare__, [__command_help__,
@@ -3091,6 +3098,51 @@ class ObsLightObsPackage(ObsLightBase):
             else:
                 return self.print_Help(__command_refresh__)
 
+    def package_testConflict(self, listArgv):
+        '''
+        
+        '''
+        Help = False
+        project_alias = None
+        package = None
+
+        while self.testListArgv(listArgv):
+            currentCommand, listArgv = self.getParameter(listArgv)
+            if currentCommand in __command_help__:
+                Help = True
+                break
+            elif currentCommand in __parameter_project_alias__:
+                project_alias, listArgv = self.getParameter(listArgv)
+                if (project_alias == None) and ObsLightBase.noaction:
+                    return self.printCompletionListProject()
+            elif currentCommand in __parameter_package__:
+                package , listArgv = self.getParameter(listArgv)
+            else:
+                return self.printUnknownCommand(currentCommand, __command_testConflict__)
+
+        if  Help :
+            return self.print_Help(__command_testConflict__)
+        else:
+            if not ObsLightBase.noaction:
+                m = ObsLightManager.getCommandLineManager()
+
+                if (project_alias == None) :
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return self.print_Help()
+
+                if (package == None) :
+                    package = m.getCurrentPackage(project_alias)
+                    if package == None:
+                        return self.print_Help()
+                res = m.updatePackage(projectLocalName=project_alias, package=package)
+                if self.testResult(res, getLineno()) == -1:return - 1
+                res = m.testConflict(projectLocalName=project_alias, package=package)
+                if self.testResult(res, getLineno()) == -1:return - 1
+                self.printSimpleResult("the '" + package + "' is on Conflict: " + str(res), str(res))
+                return 0
+            else:
+                return self.print_Help(__command_testConflict__)
 
     def execute(self, listArgv):
 
@@ -3127,6 +3179,8 @@ class ObsLightObsPackage(ObsLightBase):
                 return self.package_deletefile(listArgv)
             elif currentCommand in __command_refresh__:
                 return self.package_refresh(listArgv)
+            elif currentCommand in __command_testConflict__:
+                return self.package_testConflict(listArgv)
             else:
                 return self.print_Help()
 
@@ -3938,49 +3992,7 @@ class ObsLightRpmbuild(ObsLightBase):
             else:
                 return self.print_Help(__command_updatepatch__)
 
-    def rpmbuild_testConflict(self, listArgv):
-        '''
-        
-        '''
-        Help = False
-        project_alias = None
-        package = None
 
-        while self.testListArgv(listArgv):
-            currentCommand, listArgv = self.getParameter(listArgv)
-            if currentCommand in __command_help__:
-                Help = True
-                break
-            elif currentCommand in __parameter_project_alias__:
-                project_alias, listArgv = self.getParameter(listArgv)
-                if (project_alias == None) and ObsLightBase.noaction:
-                    return self.printCompletionListProject()
-            elif currentCommand in __parameter_package__:
-                package , listArgv = self.getParameter(listArgv)
-            else:
-                return self.printUnknownCommand(currentCommand, __command_testConflict__)
-
-        if  Help :
-            return self.print_Help(__command_testConflict__)
-        else:
-            if not ObsLightBase.noaction:
-                m = ObsLightManager.getCommandLineManager()
-
-                if (project_alias == None) :
-                    project_alias = m.getCurrentObsProject()
-                    if project_alias == None:
-                        return self.print_Help()
-
-                if (package == None) :
-                    package = m.getCurrentPackage(project_alias)
-                    if package == None:
-                        return self.print_Help()
-                res = m.testConflict(projectLocalName=project_alias, package=package)
-                if self.testResult(res, getLineno()) == -1:return - 1
-                self.printSimpleResult("for '" + package + "' a patch is on Conflict: " + str(res), str(res))
-                return 0
-            else:
-                return self.print_Help(__command_testConflict__)
 
 
     def execute(self, listArgv):
@@ -4005,8 +4017,6 @@ class ObsLightRpmbuild(ObsLightBase):
                 return self.rpmbuild_package(listArgv)
             elif currentCommand in __command_isInit__:
                 return self.rpmbuild_isInit(listArgv)
-            elif currentCommand in __command_testConflict__:
-                return self.rpmbuild_testConflict(listArgv)
             elif currentCommand in __command_createPatch__:
                 return self.rpmbuild_createPatch(listArgv)
             elif currentCommand in __command_updatepatch__:
