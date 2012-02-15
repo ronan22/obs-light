@@ -139,5 +139,8 @@ class ObsLightMicProjectErr(OBSLightBaseError):
         OBSLightBaseError.__init__(self)
         self.msg = msg
 
-
-
+class ObsLightKickstartError(OBSLightBaseError):
+    """Exception wrapping Kickstart errors"""
+    def __init__(self, msg):
+        OBSLightBaseError.__init__(self)
+        self.msg = msg
