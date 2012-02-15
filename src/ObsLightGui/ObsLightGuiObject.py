@@ -40,7 +40,7 @@ class ObsLightGuiObject(object):
 
     @property
     def mainWindow(self):
-        return self.gui.getMainWindow()
+        return self.gui.mainWindow
 
     def callWithProgress(self, func, iterable, message, *args, **kwargs):
         if len(iterable) > 1:
