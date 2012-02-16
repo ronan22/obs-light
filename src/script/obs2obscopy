@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # Authors Dominig ar Foll (Intel OTC) (first versions in Bash)
 #         Florent Vennetier (Intel OTC) (third version in Python)
-# Date 13 February 2012
-# Version 3.2
+# Date 16 February 2012
+# Version 3.3
 # License GPLv2
 #
 # Credit Thanks to Yan Yin for providing the initial version used as a base
@@ -40,12 +40,12 @@ Example3: Remote copy
 Return code:
           0 success
           1 some packages not copied
-          2 wrong number of arguments
+          2 wrong (number of) arguments
           3 problem reading MD5 file or writing log file
           4 network error
           5 interrupted by user
 
-Version 3.2  License GPLv2""" % (progName, progName, progName, progName, progName)
+Version 3.3  License GPLv2""" % (progName, progName, progName, progName, progName)
 
 logFilePath = "/tmp/obs2obscopy.log"
 logFile = None
@@ -168,6 +168,17 @@ def copy_pac(src_apiurl, src_project, src_package,
         core.http_POST(u)
         return 'Done.'
 
+def getApiUrlFromAlias(alias):
+    if not alias.startswith("http"):
+        apiUrl = conf.config["apiurl_aliases"].get(alias, None)
+        if apiUrl is None:
+            message = "Wrong API URL or alias: '%s'" % alias
+            printerror(message)
+            sys.exit(2)
+        return apiUrl
+    else:
+        return alias
+
 def copyproject(apiUrl, srcProjectName, dstApiUrl, dstProjectName, tagFilePath):
     totalPkg = 0
     existPkg = 0
@@ -183,6 +194,9 @@ def copyproject(apiUrl, srcProjectName, dstApiUrl, dstProjectName, tagFilePath):
     global logFilePath
     logFilePath = tagFilePath + ".log"
     openlogfile()
+
+    apiUrl = getApiUrlFromAlias(apiUrl)
+    dstApiUrl = getApiUrlFromAlias(dstApiUrl)
 
     try:
         tagFile = open(tagFilePath, "ru")

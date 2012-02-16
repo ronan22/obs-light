@@ -29,7 +29,7 @@ Example: """ + progName + """ http://myObs.mynetwork:81 meego.com:MeeGo:1.2:oss 
         revision info will be empty. obs2obscopy will then copy the current
         release.
 
-Version 3.0   License GLPv2"""
+Version 3.1   License GLPv2"""
 
 
 class PackageRevision(object):
