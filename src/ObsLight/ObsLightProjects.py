@@ -86,8 +86,6 @@ class ObsLightProjects(object):
                     self.__dicOBSLightProjects_unload[p] = self.__saveconfigProject["saveProjects"][p]
 
                 self.__currentProjects = self.__saveconfigProject["currentProject"]
-            else:
-                raise ObsLightErr.ObsLightProjectsError("Can't import file: '" + pathFile + "' not exist.")
             return 0
 
     def save(self, aFile=None, projectName=None):
