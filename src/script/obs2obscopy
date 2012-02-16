@@ -249,7 +249,7 @@ def copyproject(apiUrl, srcProjectName, dstApiUrl, dstProjectName, tagFilePath):
         parts = line.split("|", 4) # only first 4 fields are relevant
 
         md5 = parts[0].strip()
-        if len(parts) < 4 or parts[0].startswith("#"):
+        if len(parts) < 4 or parts[0].lstrip().startswith("#"):
             continue
         elif len(md5) < 1:
             md5 = "latest"
