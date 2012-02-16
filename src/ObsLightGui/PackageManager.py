@@ -24,11 +24,10 @@ Created on 2 nov. 2011
 import inspect
 
 from PySide.QtCore import QObject, QRegExp
-from PySide.QtGui import QLabel, QInputDialog, QPushButton, QTableView, QWidget
-from PySide.QtGui import QLineEdit, QMessageBox, QRegExpValidator, QComboBox
+from PySide.QtGui import QInputDialog, QTableView
+from PySide.QtGui import QLineEdit, QMessageBox, QRegExpValidator
 
 from PackageModel import PackageModel
-from PackageSelector import PackageSelector
 from ObsLightGui.FileManager import FileManager
 from Utils import popupOnException, ProgressRunnable2, firstArgLast
 from ObsLightGuiObject import ObsLightGuiObject
@@ -39,225 +38,137 @@ class PackageManager(QObject, ObsLightGuiObject):
     of the main window.
     '''
 
-    __project = None
-    __pkgModel = None
-    __fileManager = None
-
-    __packageTableView = None
-    __packageNameLabel = None
-    __packageTitleLabel = None
-    __packageDescriptionLabel = None
-    __deletePackageButton = None
-    __rpmPrepButton = None
-    __rpmBuildButton = None
-    __rpmInstallButton = None
-    __rpmBuildRpmButton = None
-    __openTermButton = None
-    __updateFilesButton = None
-    __generatePatchButton = None
-    __importPatchButton = None
-    __deletePatchButton = None
-    __modifyPatchButton = None
-    __addAndCommitButton = None
-    __packagePathLineEdit = None
-
-    __packageSelector = None
-
-    __menu = None
-
-    __isInitPackageFilter = False
-
     def __init__(self, gui):
         QObject.__init__(self)
         ObsLightGuiObject.__init__(self, gui)
         self.__fileManager = FileManager(self.gui)
-        mainWindow = self.mainWindow
-        # TODO: remove/move all these findChild calls
-        self.__packageTableView = mainWindow.findChild(QTableView,
-                                                       u"packageTableView")
-        self.__packageTableView.setSelectionBehavior(QTableView.SelectionBehavior.SelectRows)
-        self.__packageTableView.activated.connect(self.on_packageIndex_clicked)
-        self.mainWindow.importPackageButton.clicked.connect(self.on_newPackageButton_clicked)
-        self.__deletePackageButton = mainWindow.findChild(QPushButton,
-                                                          u"deletePackageButton")
-        self.__deletePackageButton.clicked.connect(self.on_deletePackageButton_clicked)
-        self.__rpmPrepButton = mainWindow.findChild(QPushButton,
-                                                    u"rpmPrepButton")
-        self.__rpmPrepButton.clicked.connect(self.on_rpmPrepButton_clicked)
-        self.__rpmBuildButton = mainWindow.findChild(QPushButton,
-                                                     u"rpmBuildButton")
-        self.__rpmBuildButton.clicked.connect(self.on_rpmBuildButton_clicked)
-        self.__rpmInstallButton = mainWindow.findChild(QPushButton,
-                                                       u"rpmInstallButton")
-        self.__rpmInstallButton.clicked.connect(self.on_rpmInstallButton_clicked)
-        self.__rpmBuildRpmButton = mainWindow.findChild(QPushButton,
-                                                        u"rpmBuildRpmButton")
-        self.__rpmBuildRpmButton.clicked.connect(self.on_rpmBuildRpmButton_clicked)
-        self.__openTermButton = mainWindow.findChild(QPushButton,
-                                                     u"openTermButton")
-        self.__openTermButton.clicked.connect(self.on_openTermButton_clicked)
-        self.__updateFilesButton = mainWindow.findChild(QPushButton,
-                                                        u"updateFilesButton")
-        self.__updateFilesButton.clicked.connect(self.on_updateFilesButton_clicked)
-        self.__generatePatchButton = mainWindow.findChild(QPushButton,
-                                                          u"generatePatchButton")
-        self.__generatePatchButton.clicked.connect(self.on_makePatchButton_clicked)
-        self.__importPatchButton = mainWindow.findChild(QPushButton,
-                                                        u"importPatchButton")
-        self.__deletePatchButton = mainWindow.findChild(QPushButton,
-                                                        u"deletePatchButton")
-        self.__modifyPatchButton = mainWindow.findChild(QPushButton,
-                                                        u"modifyPatchButton")
-        self.__modifyPatchButton.clicked.connect(self.on_modifyPatchButton_clicked)
-        self.__addAndCommitButton = mainWindow.findChild(QPushButton,
-                                                         u"addAndCommitButton")
-        self.__addAndCommitButton.clicked.connect(self.on_addAndCommitButton_clicked)
-        self.__packageNameLabel = mainWindow.findChild(QLabel, u"packageNameLabelValue")
-        self.__packageTitleLabel = mainWindow.findChild(QLabel, u"packageTitleLabel")
-        self.__packageDescriptionLabel = mainWindow.findChild(QLabel,
-                                                              u"packageDescriptionLabel")
 
-        self.__packageSelector = PackageSelector(self.gui)
-        self.__packageSelector.packagesSelected.connect(self.on_packageSelector_packagesSelected)
-        clickSignal = self.mainWindow.refreshOscStatusButton.clicked
-        clickSignal.connect(self.on_refreshOscStatusButton_clicked)
-        clickSignal = self.mainWindow.repairOscButton.clicked
-        clickSignal.connect(self.on_repairOscButton_clicked)
-        self.__packagePathLineEdit = mainWindow.findChild(QLineEdit,
-                                                          u"packagePathLineEdit")
+        # loaded in __loadPkgModel()
+        self.__pkgModel = None
+        # loaded in setCurrentProject()
+        self.__project = None
+        # in use in initializePackageFilters()
+        self.__packageFilterInitialized = False
 
-        #Package Filter
-        self.__packageOscStatusFilter = mainWindow.findChild(QComboBox,
-                                                          u"OscStatusFilter")
-        self.__packageOscStatusFilter.currentIndexChanged.connect(self.on_packageOscStatusFilter)
+        mw = self.mainWindow
+        mw.packageTableView.setSelectionBehavior(QTableView.SelectionBehavior.SelectRows)
+        mw.packageTableView.activated.connect(self.on_packageTableView_activated)
 
-        self.__packageOscRev = mainWindow.findChild(QLineEdit,
-                                                          u"OscRev")
-        self.__packageOscRev.editingFinished.connect(self.on_packageOscRev)
-        self.__packageObsStatusFilter = mainWindow.findChild(QComboBox,
-                                                          u"ObsStatusFilter")
-        self.__packageObsStatusFilter.currentIndexChanged.connect(self.on_packageObsStatusFilter)
+        self.__connectButtons()
+        self.__connectPackageFilterSignals()
 
-        self.__packageObsRev = mainWindow.findChild(QLineEdit, u"ObsRev")
-        self.__packageObsRev.editingFinished.connect(self.on_packageObsRev)
-        self.__packageChRootStatus = mainWindow.findChild(QComboBox,
-                                                          u"ChRootStatus")
-        self.__packageChRootStatus.currentIndexChanged.connect(self.on_packageChRootStatus)
-    #---------------------------------------------------------------------------
-    def initPackageFilter(self):
+    def __connectButtons(self):
+        """
+        Connect all package-related buttons to the appropriate methods.
+        """
+        mw = self.mainWindow
+        mw.importPackageButton.clicked.connect(self.on_newPackageButton_clicked)
+        mw.deletePackageButton.clicked.connect(self.on_deletePackageButton_clicked)
+        mw.openTermButton.clicked.connect(self.on_openTermButton_clicked)
+        mw.updateFilesButton.clicked.connect(self.on_updateFilesButton_clicked)
+        mw.generatePatchButton.clicked.connect(self.on_makePatchButton_clicked)
+        mw.modifyPatchButton.clicked.connect(self.on_modifyPatchButton_clicked)
+        mw.addAndCommitButton.clicked.connect(self.on_addAndCommitButton_clicked)
+        mw.refreshOscStatusButton.clicked.connect(self.on_refreshOscStatusButton_clicked)
+        mw.repairOscButton.clicked.connect(self.on_repairOscButton_clicked)
+
+    def __connectPackageFilterSignals(self):
+        """
+        Connect package filter signals to the appropriate methods.
+        """
+        mw = self.mainWindow
+        signal = mw.oscStatusFilterComboBox.currentIndexChanged
+        signal.connect(self.on_oscStatusFilterComboBox_currentIndexChanged)
+        signal = mw.obsStatusFilterComboBox.currentIndexChanged
+        signal.connect(self.on_obsStatusFilterComboBox_currentIndexChanged)
+        signal = mw.chrootStatusComboBox.currentIndexChanged
+        signal.connect(self.on_chrootStatusComboBox_currentIndexChanged)
+
+        signal = mw.obsRevFilterLineEdit.editingFinished
+        signal.connect(self.on_obsRevFilterLineEdit_editingFinished)
+        signal = mw.oscRevFilterLineEdit.editingFinished
+        signal.connect(self.on_oscRevFilterLineEdit_editingFinished)
+
+    def initializePackageFilters(self):
         currentProject = self.getCurrentProject()
-        if currentProject != None:
-            if not self.__isInitPackageFilter:
-                self.__packageOscStatusFilter.insertItem(0, "")
-                self.__packageObsStatusFilter.insertItem(0, "")
-                self.__packageChRootStatus.insertItem(0, "")
+        if currentProject is not None:
+            if not self.__packageFilterInitialized:
+                self.mainWindow.oscStatusFilterComboBox.insertItem(0, "")
+                self.mainWindow.obsStatusFilterComboBox.insertItem(0, "")
+                self.mainWindow.chrootStatusComboBox.insertItem(0, "")
 
                 for i in self.manager.getListOscStatus(currentProject):
-                    self.__packageOscStatusFilter.addItem(i)
+                    self.mainWindow.oscStatusFilterComboBox.addItem(i)
 
                 for i in self.manager.getListStatus(currentProject):
-                    self.__packageObsStatusFilter.addItem(i)
+                    self.mainWindow.obsStatusFilterComboBox.addItem(i)
 
                 for i in self.manager.getListChRootStatus(currentProject):
-                    self.__packageChRootStatus.addItem(i)
+                    self.mainWindow.chrootStatusComboBox.addItem(i)
 
-                self.__isInitPackageFilter = True
+                self.__packageFilterInitialized = True
 
             packageFilter = self.manager.getPackageFilter(currentProject)
-            if "oscStatus" in packageFilter.keys():
-                val = packageFilter["oscStatus"]
-                i = self.__packageOscStatusFilter.findText(val)
-                self.__packageOscStatusFilter.setCurrentIndex(i)
-            else:
-                self.__packageOscStatusFilter.setCurrentIndex(0)
+            for status, cbox in [("oscStatus", self.mainWindow.oscStatusFilterComboBox),
+                                 ("status", self.mainWindow.obsStatusFilterComboBox),
+                                 ("chRootStatus", self.mainWindow.chrootStatusComboBox)]:
+                if status in packageFilter:
+                    val = packageFilter[status]
+                    index = cbox.findText(val)
+                    cbox.setCurrentIndex(index)
+                else:
+                    cbox.setCurrentIndex(0)
 
-            if "oscRev" in packageFilter.keys():
-                val = packageFilter["oscRev"]
-                self.__packageOscRev.setText(val)
-            else:
-                self.__packageOscRev.setText("")
+            for revType, lineEdit in [("oscRev", self.mainWindow.obsRevFilterLineEdit),
+                                      ("obsRev", self.mainWindow.oscRevFilterLineEdit)]:
+                if revType in packageFilter:
+                    val = packageFilter[revType]
+                    lineEdit.setText(val)
+                else:
+                    lineEdit.setText("")
 
-            if "status" in packageFilter.keys():
-                val = packageFilter["status"]
-                i = self.__packageObsStatusFilter.findText(val)
-                self.__packageObsStatusFilter.setCurrentIndex(i)
-            else:
-                self.__packageObsStatusFilter.setCurrentIndex(0)
-
-            if "obsRev" in packageFilter.keys():
-                val = packageFilter["obsRev"]
-                self.__packageObsRev.setText(val)
-            else:
-                self.__packageObsRev.setText("")
-
-            if "chRootStatus" in packageFilter.keys():
-                val = packageFilter["chRootStatus"]
-                i = self.__packageChRootStatus.findText(val)
-                self.__packageChRootStatus.setCurrentIndex(i)
-            else:
-                self.__packageChRootStatus.setCurrentIndex(0)
-    #---------------------------------------------------------------------------
-    def on_packageOscRev(self):
-        currentProject = self.getCurrentProject()
-        packageFilter = self.manager.getPackageFilter(currentProject)
-        if "oscRev" in packageFilter.keys():
-            self.manager.removePackageFilter(currentProject, "oscRev")
-
-        if self.__packageOscRev.text() != "":
-            self.manager.addPackageFilter(currentProject,
-                                          "oscRev",
-                                          self.__packageOscRev.text())
+    def __updatePackageFilter(self, filterType, filterValue):
+        """
+        Update `filterType` package filter with `filterValue`,
+        and refresh package view. 
+        """
+        project = self.getCurrentProject()
+        packageFilter = self.manager.getPackageFilter(project)
+        if filterType in packageFilter:
+            self.manager.removePackageFilter(project, filterType)
+        if filterValue != "":
+            self.manager.addPackageFilter(project, filterType, filterValue)
         self.refresh()
 
-    def on_packageObsRev(self):
-        currentProject = self.getCurrentProject()
-        packageFilter = self.manager.getPackageFilter(currentProject)
-        if "obsRev" in packageFilter.keys():
-            self.manager.removePackageFilter(currentProject, "obsRev")
-        if self.__packageObsRev.text() != "":
-            self.manager.addPackageFilter(currentProject,
-                                          "obsRev",
-                                          self.__packageObsRev.text())
-        self.refresh()
+    def on_oscRevFilterLineEdit_editingFinished(self):
+        self.__updatePackageFilter("oscRev", self.mainWindow.oscRevFilterLineEdit.text())
 
-    def on_packageOscStatusFilter(self):
-        currentProject = self.getCurrentProject()
-        packageFilter = self.manager.getPackageFilter(currentProject)
-        if "oscStatus" in packageFilter.keys():
-            self.manager.removePackageFilter(currentProject, "oscStatus")
-        if self.__packageOscStatusFilter.currentIndex() != 0:
-            self.manager.addPackageFilter(currentProject,
-                                          "oscStatus",
-                                          self.__packageOscStatusFilter.currentText())
-        self.refresh()
+    def on_obsRevFilterLineEdit_editingFinished(self):
+        self.__updatePackageFilter("obsRev", self.mainWindow.obsRevFilterLineEdit.text())
 
+    def on_oscStatusFilterComboBox_currentIndexChanged(self):
+        self.__updatePackageFilter("oscStatus",
+                                   self.mainWindow.oscStatusFilterComboBox.currentText())
 
-    def on_packageObsStatusFilter(self):
-        currentProject = self.getCurrentProject()
-        packageFilter = self.manager.getPackageFilter(currentProject)
-        if "status" in packageFilter.keys():
-            self.manager.removePackageFilter(currentProject, "status")
-        if self.__packageObsStatusFilter.currentIndex() != 0:
-            self.manager.addPackageFilter(currentProject,
-                                          "status",
-                                          self.__packageObsStatusFilter.currentText())
-        self.refresh()
+    def on_obsStatusFilterComboBox_currentIndexChanged(self):
+        self.__updatePackageFilter("status",
+                                   self.mainWindow.obsStatusFilterComboBox.currentText())
 
-    def on_packageChRootStatus(self):
-        currentProject = self.getCurrentProject()
-        packageFilter = self.manager.getPackageFilter(currentProject)
-        if "chRootStatus" in packageFilter.keys():
-            self.manager.removePackageFilter(currentProject, "chRootStatus")
-        if self.__packageChRootStatus.currentIndex () != 0:
-            self.manager.addPackageFilter(currentProject,
-                                          "chRootStatus",
-                                          self.__packageChRootStatus.currentText())
-        self.refresh()
-    #---------------------------------------------------------------------------
+    def on_chrootStatusComboBox_currentIndexChanged(self):
+        self.__updatePackageFilter("chRootStatus",
+                                   self.mainWindow.chrootStatusComboBox.currentText())
+
     def __loadPkgModel(self, projectName):
+        """
+        Create a new PackageModel instance for `projectName`.
+        May take a little time.
+        """
         self.__pkgModel = PackageModel(self.manager, projectName)
 
     def getCurrentProject(self):
+        """
+        Get the current project managed by the PackageManager.
+        """
         return self.__project
 
     def setCurrentProject(self, projectName):
@@ -272,75 +183,80 @@ class PackageManager(QObject, ObsLightGuiObject):
             self.callWithInfiniteProgress(self.__loadPkgModel,
                                           "Loading package list",
                                           projectName)
-            self.__packageTableView.setModel(self.__pkgModel)
+            self.mainWindow.packageTableView.setModel(self.__pkgModel)
             self.mainWindow.packageWidget.setEnabled(self.__project is not None)
         if self.currentPackage() is not None:
             self.__fileManager.setCurrentPackage(self.__project, self.currentPackage())
         else:
             self.__fileManager.setCurrentPackage(None, None)
-        self.initPackageFilter()
+        self.initializePackageFilters()
         self.refresh()
 
-    def on_packageIndex_clicked(self, index):
+    def on_packageTableView_activated(self, index):
         if index.isValid():
             self.__fileManager.setCurrentPackage(self.__project, self.currentPackage())
         self.refresh()
 
     def refresh(self):
+        """
+        Refresh the PackageManager.
+        """
         if self.__pkgModel != None:
             self.__pkgModel.refresh()
         self.__fileManager.refresh()
         self.updateLabels()
         self.updateButtons()
-        self.__packageTableView.resizeColumnToContents(PackageModel.ObsRevColumn)
-        self.__packageTableView.resizeColumnToContents(PackageModel.OscRevColumn)
+        self.mainWindow.packageTableView.resizeColumnToContents(PackageModel.ObsRevColumn)
+        self.mainWindow.packageTableView.resizeColumnToContents(PackageModel.OscRevColumn)
 
     def updateLabels(self):
+        """
+        Update the package-related labels of the OBS project tab.
+        """
         package = self.currentPackage()
         project = self.getCurrentProject()
         if package is not None:
-            self.__packageNameLabel.setText(package)
-            packageTitle = self.manager.getPackageParameter(project,
-                                                            package,
-                                                            "title")
-            description = self.manager.getPackageParameter(project,
-                                                           package,
-                                                           "description")
+            self.mainWindow.packageNameLabel.setText(package)
+            packageTitle = self.manager.getPackageParameter(project, package, "title")
+            description = self.manager.getPackageParameter(project, package, "description")
 
-            self.__packageTitleLabel.setText(packageTitle)
-            self.__packageDescriptionLabel.setText(description)
-            pkgDir = self.manager.getPackageParameter(projectLocalName=project,
-                                                    package=package,
-                                                    parameter="oscPackageDirectory")
-            self.__packagePathLineEdit.setText(pkgDir)
+            self.mainWindow.packageTitleLabel.setText(packageTitle)
+            self.mainWindow.packageDescriptionLabel.setText(description)
+            pkgDir = self.manager.getPackageParameter(project, package,
+                                                      parameter="oscPackageDirectory")
+            self.mainWindow.packagePathLineEdit.setText(pkgDir)
         else:
-            self.__packageNameLabel.setText(u"No package selected")
-            self.__packageTitleLabel.setText(u"")
-            self.__packageDescriptionLabel.setText(u"")
-            self.__packagePathLineEdit.setText("")
+            self.mainWindow.packageNameLabel.setText("No package selected")
+            self.mainWindow.packageTitleLabel.setText("")
+            self.mainWindow.packageDescriptionLabel.setText("")
+            self.mainWindow.packagePathLineEdit.setText("")
 
     def updateButtons(self):
+        """
+        Activate/deactivate the package-related buttons of the
+        OBS project tab, according to the package statuses.
+        """
         package = self.currentPackage()
         project = self.getCurrentProject()
         chrootInit = (project is not None and
                       self.manager.isChRootInit(project))
         installed = (chrootInit and package is not None and
                      self.manager.isInstalledInChRoot(project, package))
-        self.__rpmPrepButton.setEnabled(chrootInit)
-        self.__rpmBuildButton.setEnabled(installed)
-        self.__rpmInstallButton.setEnabled(installed)
-        self.__rpmBuildRpmButton.setEnabled(installed)
+        self.mainWindow.rpmPrepButton.setEnabled(chrootInit)
+        self.mainWindow.rpmBuildButton.setEnabled(installed)
+        self.mainWindow.rpmInstallButton.setEnabled(installed)
+        self.mainWindow.rpmBuildRpmButton.setEnabled(installed)
         patchIsInitialized = (package is not None and
                               self.manager.patchIsInit(project, package))
-        self.__generatePatchButton.setEnabled(installed and not patchIsInitialized)
-        self.__modifyPatchButton.setEnabled(installed and patchIsInitialized)
+        self.mainWindow.generatePatchButton.setEnabled(installed and not patchIsInitialized)
+        self.mainWindow.modifyPatchButton.setEnabled(installed and patchIsInitialized)
 
     def currentPackage(self):
         '''
         Get the name of the package that is currently selected in the
         package list. May return None.
         '''
-        index = self.__packageTableView.currentIndex()
+        index = self.mainWindow.packageTableView.currentIndex()
         if index.isValid():
             row = index.row()
             pkgNameIndex = self.__pkgModel.createIndex(row, PackageModel.NameColumn)
@@ -354,9 +270,9 @@ class PackageManager(QObject, ObsLightGuiObject):
         Get the list of currently selected packages. If no package selected,
         returns an empty list (not None).
         '''
-        indices = self.__packageTableView.selectedIndexes()
+        indices = self.mainWindow.packageTableView.selectedIndexes()
         if len(indices) < 1:
-            indices.append(self.__packageTableView.currentIndex())
+            indices.append(self.mainWindow.packageTableView.currentIndex())
         packages = set()
         for index in indices:
             if index.isValid():
@@ -367,23 +283,22 @@ class PackageManager(QObject, ObsLightGuiObject):
         return list(packages)
 
     def selectAllPackages(self):
-        self.__packageTableView.selectAll()
+        """
+        Select all packages of displayed in the package table view.
+        """
+        self.mainWindow.packageTableView.selectAll()
 
     def getPackageListFromServer(self):
+        """
+        Get a list of all packages of the current project on the server.
+        This list is most probably longer than the list of local packages.
+        """
         if self.getCurrentProject() is None:
             return list()
         server = self.manager.getProjectParameter(self.getCurrentProject(), "obsServer")
         prjObsName = self.manager.getProjectParameter(self.getCurrentProject(), "projectObsName")
         packageList = self.manager.getObsProjectPackageList(server, prjObsName)
         return packageList
-
-    def showPackageSelectionDialog(self, packageList):
-        if packageList is None or len(packageList) < 1:
-            QMessageBox.information(self.mainWindow,
-                                    u"No package",
-                                    u"No packages were found.")
-            return
-        self.__packageSelector.showPackageSelectionDialog(packageList)
 
     def __mapOnSelectedPackages(self,
                                 method,
@@ -392,21 +307,36 @@ class PackageManager(QObject, ObsLightGuiObject):
                                 callback,
                                 *args,
                                 **kwargs):
+        """
+        Call `method(package, *args, **kwargs)` with package
+        being successively each of the currently selected packages.
+        `callback` will be called at the end of the process. If `callback`
+        takes an argument, it will get the list of results of the
+        different `method` calls. `initialMessage` will be displayed
+        on the progress dialog before the beginning of the internal loop
+        on selected packages. `loopMessage` will be displayed at each loop,
+        and "%(arg)s" will be replaced by the name of package being
+        processed.
+        """
         packagesNames = self.selectedPackages()
         if len(packagesNames) < 1:
+            # no package selected, return
             return
         elif len(packagesNames) < 2:
+            # just one package selected, show an infinite progress dialog
             progress = self.gui.getInfiniteProgressDialog()
         else:
+            # several packages selected, show a standard progress dialog
             progress = self.gui.getProgressDialog()
             progress.setValue(0)
         runnable = ProgressRunnable2(progress)
         if initialMessage is not None:
             runnable.setDialogMessage(initialMessage)
         runnable.setFunctionToMap(method, packagesNames, loopMessage, *args, **kwargs)
-        #runnable.setRunMethod(method, packagesNames, *args, **kwargs)
         runnable.caughtException.connect(self.gui.popupErrorCallback)
         if callback is not None:
+            # detect if callback takes arguments in order to call
+            # the appropriate finish signal
             argNum = len(inspect.getargspec(callback)[0])
             if argNum > 1:
                 runnable.finished[object].connect(callback)
@@ -414,13 +344,20 @@ class PackageManager(QObject, ObsLightGuiObject):
                 runnable.finished.connect(callback)
         runnable.runOnGlobalInstance()
 
-    def __mapOnSelectedPackages2(self,
-                                method,
-                                initialMessage,
-                                loopMessage,
-                                callback,
-                                *args,
-                                **kwargs):
+    def __callWithSelectedPackages(self,
+                                   method,
+                                   initialMessage,
+                                   callback,
+                                   *args,
+                                   **kwargs):
+        """
+        Call `method(packages, *args, **kwargs)` with packages being
+        the list of currently selected packages.
+        `callback` will be called at the end of the process.
+        If `callback` takes an argument, it will get the result of
+        the call to `method`.
+        `initialMessage` will be displayed on the progress dialog.
+        """
         packagesNames = self.selectedPackages()
         if len(packagesNames) < 1:
             return
@@ -429,10 +366,11 @@ class PackageManager(QObject, ObsLightGuiObject):
         runnable = ProgressRunnable2(progress)
         if initialMessage is not None:
             runnable.setDialogMessage(initialMessage)
-#        runnable.setFunctionToMap(method, packagesNames, loopMessage, *args, **kwargs)
         runnable.setRunMethod(method, packagesNames, *args, **kwargs)
         runnable.caughtException.connect(self.gui.popupErrorCallback)
         if callback is not None:
+            # detect if callback takes arguments in order to call
+            # the appropriate finish signal
             argNum = len(inspect.getargspec(callback)[0])
             if argNum > 1:
                 runnable.finished[object].connect(callback)
@@ -445,20 +383,6 @@ class PackageManager(QObject, ObsLightGuiObject):
         if self.getCurrentProject() is None:
             return
         self.gui.runWizard(autoSelectProject=self.getCurrentProject())
-
-    def on_packageSelector_packagesSelected(self, packages):
-        if len(packages) < 2:
-            progress = self.gui.getInfiniteProgressDialog()
-        else:
-            progress = self.gui.getProgressDialog()
-            progress.setValue(0)
-        runnable = ProgressRunnable2(progress)
-        runnable.setFunctionToMap(self.__pkgModel.addPackage,
-                                  packages,
-                                  message=u"Adding package %(arg)s")
-        runnable.caughtException.connect(self.gui.popupErrorCallback)
-        runnable.finished.connect(self.refresh)
-        runnable.runOnGlobalInstance()
 
     @popupOnException
     def on_deletePackageButton_clicked(self):
@@ -598,11 +522,10 @@ class PackageManager(QObject, ObsLightGuiObject):
         project = self.getCurrentProject()
         if project is None:
             return
-        self.__mapOnSelectedPackages2(firstArgLast(self.manager.updatePackage),
-                                     u"Updating packages",
-                                     u"Updating <i>%(arg)s</i> package...",
-                                     self.__refreshStatus,
-                                     project)
+        self.__callWithSelectedPackages(firstArgLast(self.manager.updatePackage),
+                                        u"Updating packages",
+                                        self.__refreshStatus,
+                                        project)
 
     @popupOnException
     def __createPatch(self, patchName):
@@ -638,6 +561,7 @@ class PackageManager(QObject, ObsLightGuiObject):
         dialog.textValueSelected.connect(self.__createPatch)
         dialog.show()
 
+    @popupOnException
     def on_modifyPatchButton_clicked(self):
         project = self.getCurrentProject()
         package = self.currentPackage()
@@ -698,14 +622,17 @@ class PackageManager(QObject, ObsLightGuiObject):
     def __refreshStatus(self):
         if len(self.selectedPackages()) == 0:
             self.selectAllPackages()
-        self.__mapOnSelectedPackages2(firstArgLast(self.__refreshBothStatuses),
-                                     u"Refreshing package status",
-                                     u"Refreshing <i>%(arg)s</i> package status...",
-                                     self.refresh,
-                                     self.getCurrentProject())
+        self.__callWithSelectedPackages(firstArgLast(self.__refreshBothStatuses),
+                                        u"Refreshing package status",
+                                        self.refresh,
+                                        self.getCurrentProject())
 
     @popupOnException
     def on_refreshOscStatusButton_clicked(self):
+        """
+        Called when user clicks on "refresh status" button.
+        Refreshes both OBS and OSC statuses.
+        """
         self.__refreshStatus()
 
     @popupOnException
