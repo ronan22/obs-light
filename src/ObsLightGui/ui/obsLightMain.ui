@@ -353,7 +353,7 @@
              <widget class="QWidget" name="gridWidget" native="true">
               <layout class="QHBoxLayout" name="horizontalLayout_2">
                <item>
-                <widget class="QComboBox" name="ObsStatusFilter">
+                <widget class="QComboBox" name="obsStatusFilterComboBox">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -366,7 +366,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="ObsRev">
+                <widget class="QLineEdit" name="obsRevFilterLineEdit">
                  <property name="minimumSize">
                   <size>
                    <width>50</width>
@@ -388,7 +388,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QComboBox" name="OscStatusFilter">
+                <widget class="QComboBox" name="oscStatusFilterComboBox">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -407,7 +407,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="OscRev">
+                <widget class="QLineEdit" name="oscRevFilterLineEdit">
                  <property name="minimumSize">
                   <size>
                    <width>50</width>
@@ -429,7 +429,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QComboBox" name="ChRootStatus">
+                <widget class="QComboBox" name="chrootStatusComboBox">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                    <horstretch>0</horstretch>
