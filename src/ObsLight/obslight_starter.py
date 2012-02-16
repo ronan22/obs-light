@@ -14,5 +14,3 @@ if os.path.exists(pidFilePath):
 else:
     with open(getpidFilePath(), "w") as pidFile:
         pidFile.write(str(os.getpid()))
-
-
