@@ -465,7 +465,6 @@ class ObsLightProject(object):
         '''
         rev = self.__obsServers.getObsServer(self.__obsServer).getObsPackageRev(self.__projectObsName,
                                                                                 package)
-        print "checkObsPackageStatus rev", rev
         if rev is not None:
             self.__packages.getPackage(package).setPackageParameter("obsRev", rev)
         return 0
@@ -541,11 +540,8 @@ class ObsLightProject(object):
                                                                                             package=package)
         if dicoListFile != None:
             listOscFile = self.__packages.getPackage(package).getPackageParameter(parameter="listFile")
-            print "listOscFile", listOscFile
-            print "dicoListFile.keys()", dicoListFile.keys()
+
             for obsFile in dicoListFile.keys():
-                print "obsFile", obsFile
-                print "(not obsFile in listOscFile) and (obsFile != _link)", (not obsFile in listOscFile) and (obsFile != "_link")
                 if (not obsFile in listOscFile) and (obsFile != "_link"):
                     self.__packages.getPackage(package).setOscStatus("inconsistent state")
                     return None

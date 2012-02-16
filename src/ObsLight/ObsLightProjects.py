@@ -117,31 +117,6 @@ class ObsLightProjects(object):
         saveconfigProject = {}
         saveconfigProject["saveProjects"] = saveProject
         saveconfigProject["currentProject"] = self.__currentProjects
-#        print "(saveconfigProject != self.__saveconfigProject)", (saveconfigProject != self.__saveconfigProject)
-#        if ("fastinitTest" in saveconfigProject["saveProjects"].keys()) and ("fastinitTest" in self.__saveconfigProject["saveProjects"].keys()):
-#            print "***************************************************************"
-#            print "saveconfigProject[saveProjects][fastinitTest]"
-#            print  saveconfigProject["saveProjects"]["fastinitTest"]
-#            for i in saveconfigProject["saveProjects"]["fastinitTest"].keys():
-#                print "i", i, "id", id(saveconfigProject["saveProjects"]["fastinitTest"][i])
-#                if i == "packages":
-#                    for j in saveconfigProject["saveProjects"]["fastinitTest"][i]['savePackages'].keys():
-#                        print "\tj", j, "id", id(saveconfigProject["saveProjects"]["fastinitTest"][i]['savePackages'][j])
-#                        pk = saveconfigProject["saveProjects"]["fastinitTest"][i]['savePackages'][j]
-#                        for k in pk.keys():
-#                            print "\t\tk", k, id(pk[k])
-#            print "---------------------------------------------------------------"
-#            print "self.__saveconfigProject[saveProjects][fastinitTest]"
-#            print self.__saveconfigProject["saveProjects"]["fastinitTest"]
-#            for i in self.__saveconfigProject["saveProjects"]["fastinitTest"].keys():
-#                print "i", i, "id", id(self.__saveconfigProject["saveProjects"]["fastinitTest"][i])
-#                if i == "packages":
-#                    for j in self.__saveconfigProject["saveProjects"]["fastinitTest"][i]['savePackages'].keys():
-#                        print "\tj", j, "id", id(self.__saveconfigProject["saveProjects"]["fastinitTest"][i]['savePackages'][j])
-#                        pk = self.__saveconfigProject["saveProjects"]["fastinitTest"][i]['savePackages'][j]
-#                        for k in pk.keys():
-#                            print "\t\tk", k, id(pk[k])
-#            print "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 
         if (projectName != None) or (saveconfigProject != self.__saveconfigProject):
             aFile = open(pathFile, 'w')
