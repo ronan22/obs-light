@@ -4120,9 +4120,6 @@ class ObsLightRpmbuild(ObsLightBase):
             else:
                 return self.print_Help(__command_updatepatch__)
 
-
-
-
     def execute(self, listArgv):
         '''
         Execute a list of arguments.

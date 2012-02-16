@@ -909,7 +909,7 @@ You can select several packages.</string>
              </sizepolicy>
             </property>
             <attribute name="title">
-             <string>chroot</string>
+             <string>project filesystem</string>
             </attribute>
             <layout class="QGridLayout" name="gridLayout_13">
              <item row="2" column="0">
@@ -1031,7 +1031,8 @@ You can select several packages.</string>
                 <item row="2" column="2">
                  <widget class="QLabel" name="ChrootLabel">
                   <property name="text">
-                   <string>Chroot</string>
+                   <string>project 
+ filesystem</string>
                   </property>
                   <property name="alignment">
                    <set>Qt::AlignCenter</set>

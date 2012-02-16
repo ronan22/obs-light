@@ -78,7 +78,7 @@ class PackageModel(QAbstractTableModel):
                 elif section == self.ObsStatusColumn:
                     return u"OBS status"
                 elif section == self.ChrootStatusColumn:
-                    return u"Chroot status"
+                    return u"Filesystem status"
                 elif section == self.OscStatusColumn:
                     return u"Local status"
                 elif section == self.OscRevColumn:

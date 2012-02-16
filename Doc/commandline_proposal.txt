@@ -30,24 +30,24 @@ obslight
 	#___________________________________________________________________________________________________________________________________________
 	package	list	[available] {project_alias <project_alias>}
 	package	current {project_alias <project_alias>}
-	package	add	{package <package>} {project_alias <project_alias>}
-	package	delete	{package <package>} {project_alias <project_alias>}
-	package	query	[title|description|url|listFile] {package <package> {server_alias <server_alias> {project <project>}}} 
-	package	query	[title|description|obsrev|oscrev|listfile|obsstatus|oscstatus|specfile|yamlfile|fspackagedirectory|oscpackagedirectory|filesystemstatus|currentPatch] {package <package> {project_alias <project_alias>} } 
-	package	set	[title <title>] [description <description>] {package <package> {project_alias <project_alias>}} 
-	package	update	{package <package> {project_alias <project_alias>}}
-	package	commit	<message> {package <package> {project_alias <project_alias>}}
-	package	repair	{package <package> {project_alias <project_alias>}
-	package addfile <path> {package <package> {project_alias <project_alias>}
-	package deletefile <file> {package <package> {project_alias <project_alias>}
-	package refresh	[oscStatus|obsstatus] {package <package> {project_alias <project_alias>}}
-	package	testconflict {package <package>} {project_alias <project_alias>}
-	package resolveconflict {package <package>} {project_alias <project_alias>}
+	package	add	{project_alias <project_alias>} {package <package>} 
+	package	delete	{project_alias <project_alias>} {package <package>} 
+	package	query	[title|description|url|listFile]  {server_alias <server_alias>} {project <project>} {package <package>} 
+	package	query	[title|description|obsrev|oscrev|listfile|obsstatus|oscstatus|specfile|yamlfile|fspackagedirectory|oscpackagedirectory|filesystemstatus|currentPatch] {project_alias <project_alias>} {package <package>} 
+	package	set	[title <title>] [description <description>] {project_alias <project_alias>}{package <package>} 
+	package	update	{project_alias <project_alias>}{package <package>}
+	package	commit	<message> {project_alias <project_alias>}{package <package>}
+	package	repair	{project_alias <project_alias>{package <package>}
+	package addfile <path> {project_alias <project_alias> {package <package>}
+	package deletefile <file> {project_alias <project_alias>{package <package>}
+	package refresh	[oscStatus|obsstatus] {project_alias <project_alias>}{package <package>}
+	package	testconflict {project_alias <project_alias>}{package <package>} 
+	package resolveconflict {project_alias <project_alias>}{package <package>} 
 	#___________________________________________________________________________________________________________________________________________
 	projectfilesystem	create		{<project_alias>}
 	projectfilesystem	delete		<project_alias>
 	projectfilesystem	query 		[path|status] {project_alias <project_alias>}
-	projectfilesystem	enter		[package <package>] {<project_alias>}
+	projectfilesystem	enter		{<project_alias>}[package <package>]
 	projectfilesystem	executescript	<path> {<project_alias>}
 
 	projectfilesystem	repositories	add	<repository_url> <repository_alias> {<project_alias>}
@@ -56,13 +56,13 @@ obslight
 	projectfilesystem	repositories	query	project_alias <project_alias>
 	projectfilesystem	repositories	modify	[newUrl <repository_url>] [newAlias <repository_alias>]  repository_alias <repository_alias> {project_alias <project_alias>}
 	#___________________________________________________________________________________________________________________________________________
-	rpmbuild	prepare		{package <package>} {project_alias <project_alias>}
-	rpmbuild	build		{package <package>} {project_alias <project_alias>}
-	rpmbuild	install		{package <package>} {project_alias <project_alias>}
-	rpmbuild	buildpackage	{package <package>} {project_alias <project_alias>}
-	rpmbuild	isinit		{package <package>} {project_alias <project_alias>}
-	rpmbuild	createpatch	<patch> {package <package>} {project_alias <project_alias>}
-	rpmbuild	updatepatch	{package <package> {project_alias <project_alias>}
+	rpmbuild	prepare		{project_alias <project_alias>}{package <package>} 
+	rpmbuild	build		{project_alias <project_alias>}{package <package>} 
+	rpmbuild	install		{project_alias <project_alias>}{package <package>} 
+	rpmbuild	buildpackage	{project_alias <project_alias>}{package <package>} 
+	rpmbuild	isinit		{project_alias <project_alias>}{package <package>} 
+	rpmbuild	createpatch	<patch> {project_alias <project_alias>}{package <package>} 
+	rpmbuild	updatepatch	{project_alias <project_alias>}{package <package> 
 	#___________________________________________________________________________________________________________________________________________
 	#feature
 	#Not implement
