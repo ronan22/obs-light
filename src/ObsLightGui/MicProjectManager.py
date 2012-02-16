@@ -171,7 +171,9 @@ class MicProjectManager(QObject, ObsLightGuiObject):
 
     def createImage(self):
         """Start the creation of an image"""
-        self.manager.createImage(self.currentProject)
+        self.callWithInfiniteProgress(self.manager.createImage,
+                                      "Creating file system image... (may be long)",
+                                      self.currentProject)
 
 # --- Repositories -----------------------------------------------------------
     def addRepository(self, name, url):
@@ -394,7 +396,7 @@ class MicProjectManager(QObject, ObsLightGuiObject):
         """
         Add a new overlay file. Asks user for source and destination.
         """
-        extensions = (".tar", ".tar.gz", ".tar.bz2", ".tgz", ".tbz", ".tz2")
+        extensions = (".tar", ".tar.gz", ".tar.bz2", ".tgz", ".tbz", ".tz2", ".tar.xz")
         filters = "Tar archives (%s);;" % " *".join(extensions)
         filters += "All files (*)"
         srcPath, _filter = QFileDialog.getOpenFileName(self.mainWindow,
