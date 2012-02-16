@@ -40,8 +40,8 @@ class ObsLightKickstartManager(object):
     # Commands that must not appear in getCommandList()
     SpecialCaseCommands = ("repo",) # handled separately
 
-    ArchiveFileExtensions = (".tar", ".tar.gz", ".tar.bz2", ".tgz", ".tbz", ".tz2")
-    UntarCommand = 'tar -x -a -f "%(source)s" -C "%(destination)s"'
+    ArchiveFileExtensions = (".tar", ".tar.gz", ".tar.bz2", ".tgz", ".tbz", ".tz2", ".tar.xz")
+    UntarCommand = 'tar -xf "%(source)s" -C "%(destination)s"'
 
 
     # The tag used to identify OBS Light overlay file script
