@@ -16,7 +16,7 @@ if "--version" in sys.argv:
 from ObsLight import babysitter, ObsLightManager
 from ObsLightGui.Gui import Gui
 
-import obslight_starter
+import ObsLight.obslight_starter
 
 try:
     # Now we can load the GUI
@@ -25,4 +25,4 @@ try:
     r = babysitter.run(gui.main)
     sys.exit(r)
 finally:
-    import obslight_extinguisher
+    import ObsLight.obslight_extinguisher

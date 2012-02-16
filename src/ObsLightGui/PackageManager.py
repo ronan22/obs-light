@@ -72,6 +72,11 @@ class PackageManager(QObject, ObsLightGuiObject):
         mw.refreshOscStatusButton.clicked.connect(self.on_refreshOscStatusButton_clicked)
         mw.repairOscButton.clicked.connect(self.on_repairOscButton_clicked)
 
+        mw.rpmPrepButton.clicked.connect(self.on_rpmPrepButton_clicked)
+        mw.rpmBuildButton.clicked.connect(self.on_rpmBuildButton_clicked)
+        mw.rpmInstallButton.clicked.connect(self.on_rpmInstallButton_clicked)
+        mw.rpmBuildRpmButton.clicked.connect(self.on_rpmBuildRpmButton_clicked)
+
     def __connectPackageFilterSignals(self):
         """
         Connect package filter signals to the appropriate methods.

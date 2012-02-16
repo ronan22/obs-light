@@ -1,3 +1,8 @@
+* Thu Feb 16 2012 Florent Vennetier (Intel OTC) <florent@fridu.net> 0.4.16
+- Added support for OBS aliases in obstag and obs2obscopy
+- Implemented MIC project management from OBS Light UI
+- Implemented new commandline with completion
+
 * Tue Jan 17 2012 Florent Vennetier (Intel OTC) <florent@fridu.net> 0.4.15
 - fixed user rights in chroot so user can work from outside the chroot
 - small fix in obstag
