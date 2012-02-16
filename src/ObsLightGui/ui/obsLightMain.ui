@@ -361,7 +361,7 @@
                   </sizepolicy>
                  </property>
                  <property name="toolTip">
-                  <string>Select OBS status Filter</string>
+                  <string>Select OBS status filter</string>
                  </property>
                 </widget>
                </item>
@@ -380,7 +380,7 @@
                   </size>
                  </property>
                  <property name="toolTip">
-                  <string>Select OBS rev Filter (-1,1,2..)</string>
+                  <string>Select OBS rev filter (-1,1,2..)</string>
                  </property>
                  <property name="maxLength">
                   <number>100</number>
@@ -402,7 +402,7 @@
                   </size>
                  </property>
                  <property name="toolTip">
-                  <string>Select OSC status Filter</string>
+                  <string>Select OSC status filter</string>
                  </property>
                 </widget>
                </item>
@@ -421,7 +421,7 @@
                   </size>
                  </property>
                  <property name="toolTip">
-                  <string>Select OSC rev Filter (-1,1,2..)</string>
+                  <string>Select OSC rev filter (-1,1,2..)</string>
                  </property>
                  <property name="maxLength">
                   <number>100</number>
@@ -437,7 +437,7 @@
                   </sizepolicy>
                  </property>
                  <property name="toolTip">
-                  <string>Select ChRoot status Filter</string>
+                  <string>Select filesystem status filter</string>
                  </property>
                 </widget>
                </item>
@@ -909,7 +909,7 @@ You can select several packages.</string>
              </sizepolicy>
             </property>
             <attribute name="title">
-             <string>project filesystem</string>
+             <string>Project filesystem</string>
             </attribute>
             <layout class="QGridLayout" name="gridLayout_13">
              <item row="2" column="0">
@@ -1031,8 +1031,8 @@ You can select several packages.</string>
                 <item row="2" column="2">
                  <widget class="QLabel" name="ChrootLabel">
                   <property name="text">
-                   <string>project 
- filesystem</string>
+                   <string>Project
+filesystem</string>
                   </property>
                   <property name="alignment">
                    <set>Qt::AlignCenter</set>
