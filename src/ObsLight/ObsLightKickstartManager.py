@@ -620,6 +620,8 @@ class ObsLightKickstartManager(object):
         self._checkKsParser()
         source = self._copySourceFileIfNecessary(str(source))
         destination = str(destination)
+        if not destination.startswith("/"):
+            destination = "/" + destination
 
         copyScript = self._generateCopyScript(source, destination)
         scriptName = source + " " + destination
