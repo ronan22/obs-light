@@ -48,6 +48,9 @@
      <property name="text">
       <string>Show only projects on which I am maintainer</string>
      </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
     </widget>
    </item>
    <item row="5" column="1">
