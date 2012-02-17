@@ -58,6 +58,8 @@ class KickstartOverlayFilesModel(KickstartModelBase):
             return self.displayRoleData(index)
         elif role == Qt.EditRole:
             return self.editRoleData(index)
+        elif role == Qt.ToolTipRole:
+            return self.editRoleData(index)
         return None
 
     # from QAbstractTableModel

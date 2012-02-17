@@ -55,7 +55,7 @@ class MicProjectManager(QObject, ObsLightGuiObject):
         self.__loadModels()
         self.__loadCommands()
         self.__updateSaveState()
-
+        self.mainWindow.micProjectPathLineEdit.setText(self.currentProjectPath)
 
     def __loadImageType(self):
         """Load MIC image type values and preselect the current one"""
@@ -80,7 +80,6 @@ class MicProjectManager(QObject, ObsLightGuiObject):
     def __loadModels(self):
         """Associate view objects to their respective model"""
         mw = self.mainWindow
-        mw.kickstartPathLineEdit.setText(self.manager.getKickstartFile(self.currentProject))
         mw.kickstartRepositoriesTableView.setModel(self.repositoryModel)
         mw.kickstartPackagesTableView.setModel(self.packageModel)
         mw.kickstartPackageGroupsTableView.setModel(self.packageGroupModel)
@@ -116,6 +115,12 @@ class MicProjectManager(QObject, ObsLightGuiObject):
     def currentProject(self):
         """Get the MIC project name."""
         return self.__projectName
+
+    @property
+    def currentProjectPath(self):
+        ksPath = self.manager.getKickstartFile(self.currentProject)
+        projectPath = os.path.dirname(ksPath)
+        return projectPath
 
     @property
     def imageType(self):
