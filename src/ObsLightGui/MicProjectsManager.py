@@ -179,6 +179,8 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
                                               "Select a name for the new project:")
         if not accepted or len(name) < 1:
             return
+        name = name.replace(" ", "_")
+        name = name.replace(":", "_")
         self.callWithInfiniteProgress(self.manager.addMicProject,
                                       "Creating MIC project",
                                       name)

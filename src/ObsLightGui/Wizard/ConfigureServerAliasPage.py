@@ -21,6 +21,9 @@ Created on 20 déc. 2011
 @author: Florent Vennetier
 '''
 
+from PySide.QtCore import QRegExp
+from PySide.QtGui import QRegExpValidator
+
 from ObsLightGui.Utils import colorizeWidget, uiFriendly, popupOnException
 from ObsLight.ObsLightUtils import isNonEmptyString
 
@@ -30,6 +33,9 @@ class ConfigureServerAliasPage(ObsLightWizardPage):
 
     def __init__(self, gui, index):
         ObsLightWizardPage.__init__(self, gui, index, u"wizard_configServerAlias.ui")
+        noSpaceValidator = QRegExpValidator()
+        noSpaceValidator.setRegExp(QRegExp(u"[^\\s:]+"))
+        self.ui_WizardPage.aliasLineEdit.setValidator(noSpaceValidator)
         self.registerField(u"serverAlias*", self.ui_WizardPage.aliasLineEdit)
         self.setCommitPage(True)
 
