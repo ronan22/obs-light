@@ -23,13 +23,13 @@ Created on 2 nov. 2011
 
 import inspect
 
-from PySide.QtCore import QObject, QRegExp
+from PySide.QtCore import QObject
 from PySide.QtGui import QInputDialog, QTableView
 from PySide.QtGui import QLineEdit, QMessageBox, QRegExpValidator
 
 from PackageModel import PackageModel
 from ObsLightGui.FileManager import FileManager
-from Utils import popupOnException, ProgressRunnable2, firstArgLast
+from Utils import popupOnException, ProgressRunnable2, firstArgLast, PATCH_NAME_REGEXP
 from ObsLightGuiObject import ObsLightGuiObject
 
 class PackageManager(QObject, ObsLightGuiObject):
@@ -560,7 +560,7 @@ class PackageManager(QObject, ObsLightGuiObject):
         le = dialog.findChildren(QLineEdit)
         if len(le) > 0:
             validator = QRegExpValidator(le[0])
-            validator.setRegExp(QRegExp(u"\\S+\.patch"))
+            validator.setRegExp(PATCH_NAME_REGEXP)
             le[0].setText(u".patch")
             le[0].setValidator(validator)
         dialog.textValueSelected.connect(self.__createPatch)

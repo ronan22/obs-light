@@ -21,10 +21,9 @@ Created on 19 déc. 2011
 @author: Florent Vennetier
 '''
 
-from PySide.QtCore import QRegExp
 from PySide.QtGui import QRegExpValidator
 
-from ObsLightGui.Utils import colorizeWidget, removeEffect, uiFriendly
+from ObsLightGui.Utils import colorizeWidget, removeEffect, uiFriendly, URL_REGEXP
 from ObsLight.ObsLightUtils import isNonEmptyString
 
 from WizardPageWrapper import ObsLightWizardPage
@@ -37,7 +36,7 @@ class ConfigureServerUrlPage(ObsLightWizardPage):
         ObsLightWizardPage.__init__(self, gui, index, u"wizard_configServerUrl.ui")
 
         httpValidator = QRegExpValidator()
-        httpValidator.setRegExp(QRegExp(u"http[s]?://.+"))
+        httpValidator.setRegExp(URL_REGEXP)
         self.ui_WizardPage.webUrlLineEdit.setValidator(httpValidator)
         self.ui_WizardPage.apiUrlLineEdit.setValidator(httpValidator)
         self.ui_WizardPage.repoUrlLineEdit.setValidator(httpValidator)

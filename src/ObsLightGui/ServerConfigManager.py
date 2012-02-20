@@ -20,13 +20,13 @@ Created on 17 nov. 2011
 @author: Florent Vennetier
 '''
 
-from PySide.QtCore import QObject, QRegExp, Signal
+from PySide.QtCore import QObject, Signal
 from PySide.QtGui import QDialog, QDialogButtonBox
 from PySide.QtGui import QLineEdit, QPushButton, QRegExpValidator
 
 from ObsLight.ObsLightUtils import isNonEmptyString
 
-from Utils import popupOnException, colorizeWidget
+from Utils import popupOnException, colorizeWidget, SERVER_ALIAS_REGEXP, URL_REGEXP
 from ObsLightGuiObject import ObsLightGuiObject
 
 class ServerConfigManager(QObject, ObsLightGuiObject):
@@ -70,7 +70,7 @@ class ServerConfigManager(QObject, ObsLightGuiObject):
         self.__webUrlLineEdit = self.__srvConfDialog.findChild(QLineEdit,
                                                                u"serverWebUrlLineEdit")
         httpValidator = QRegExpValidator()
-        httpValidator.setRegExp(QRegExp(u"http[s]?://.+"))
+        httpValidator.setRegExp(URL_REGEXP)
         self.__webUrlLineEdit.setValidator(httpValidator)
         self.__webUrlLineEdit.setPlaceholderText(u"http://myObs")
         self.__webUrlLineEdit.textEdited.connect(self.disableOkButton)
@@ -87,7 +87,7 @@ class ServerConfigManager(QObject, ObsLightGuiObject):
         self.__aliasLineEdit = self.__srvConfDialog.findChild(QLineEdit,
                                                               u"serverAliasLineEdit")
         noSpaceValidator = QRegExpValidator()
-        noSpaceValidator.setRegExp(QRegExp(u"\\S+"))
+        noSpaceValidator.setRegExp(SERVER_ALIAS_REGEXP)
         self.__aliasLineEdit.setValidator(noSpaceValidator)
         self.__userLineEdit = self.__srvConfDialog.findChild(QLineEdit,
                                                              u"usernameLineEdit")

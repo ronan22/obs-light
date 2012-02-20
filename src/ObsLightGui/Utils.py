@@ -24,7 +24,7 @@ import sys
 import traceback
 from time import sleep
 
-from PySide.QtCore import QObject, QRunnable, QThreadPool, Signal
+from PySide.QtCore import QObject, QRegExp, QRunnable, QThreadPool, Signal
 from PySide.QtGui import QApplication, QColor, QGraphicsColorizeEffect
 from PySide.QtGui import QMessageBox, QProgressDialog
 
@@ -535,3 +535,8 @@ def getSelectedRows(abstractItemView):
             row = index.row()
             rows.add(row)
     return rows
+
+URL_REGEXP = QRegExp(u"http[s]?://.+")
+SERVER_ALIAS_REGEXP = QRegExp(u"[^\\s:;,/]+")
+PROJECT_ALIAS_REGEXP = QRegExp(u"[^\\s:;,/]+")
+PATCH_NAME_REGEXP = QRegExp(u"\\S+\.patch")

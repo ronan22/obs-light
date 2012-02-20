@@ -21,10 +21,9 @@ Created on 21 déc. 2011
 @author: Florent Vennetier
 '''
 
-from PySide.QtCore import QRegExp
 from PySide.QtGui import QRegExpValidator
 
-from ObsLightGui.Utils import colorizeWidget, uiFriendly
+from ObsLightGui.Utils import colorizeWidget, PROJECT_ALIAS_REGEXP
 
 from WizardPageWrapper import ObsLightWizardPage
 
@@ -32,7 +31,7 @@ class ConfigureProjectAliasPage(ObsLightWizardPage):
     def __init__(self, gui, index):
         ObsLightWizardPage.__init__(self, gui, index, u"wizard_configProjectAlias.ui")
         noSpaceValidator = QRegExpValidator()
-        noSpaceValidator.setRegExp(QRegExp(u"[^\\s:]+"))
+        noSpaceValidator.setRegExp(PROJECT_ALIAS_REGEXP)
         self.ui_WizardPage.aliasLineEdit.setValidator(noSpaceValidator)
         self.registerField(u"projectAlias*", self.ui_WizardPage.aliasLineEdit)
         self.registerField(u"CreateChroot", self.ui_WizardPage.createChrootCheckBox)

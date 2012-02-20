@@ -20,13 +20,14 @@ Created on 17 nov. 2011
 @author: Florent Vennetier
 '''
 
-from PySide.QtCore import QObject, QRegExp, QThreadPool, Signal
+from PySide.QtCore import QObject, QThreadPool, Signal
 from PySide.QtGui import QComboBox, QDialogButtonBox, QLineEdit, QRegExpValidator, QTextEdit
 from PySide.QtGui import QCompleter
 
 from ObsLight.ObsLightErr import OBSLightBaseError
 from ObsLight.ObsLightUtils import isNonEmptyString
 from Utils import popupOnException, colorizeWidget, removeEffect, ProgressRunnable2
+from Utils import PROJECT_ALIAS_REGEXP
 from ObsLightGuiObject import ObsLightGuiObject
 
 class ProjectConfigManager(QObject, ObsLightGuiObject):
@@ -83,7 +84,7 @@ class ProjectConfigManager(QObject, ObsLightGuiObject):
                                                               u"projectLocalNameLineEdit")
         # obslight do not like whitespace characters
         noSpaceValidator = QRegExpValidator()
-        noSpaceValidator.setRegExp(QRegExp(u"[^\\s:]+"))
+        noSpaceValidator.setRegExp(PROJECT_ALIAS_REGEXP)
         self.__localNameField.setValidator(noSpaceValidator)
         self.__obsNameField = self.__configDialog.findChild(QLineEdit,
                                                             u"projectObsNameLineEdit")
