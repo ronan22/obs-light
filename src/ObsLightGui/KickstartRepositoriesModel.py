@@ -30,9 +30,36 @@ class KickstartRepositoriesModel(KickstartModelBase):
     UrlColumn = 1
     PriorityColumn = 2
     SslVerifyColumn = 3
+    GpgKeyColumn = 4
+    DisableColumn = 5
+    SaveColumn = 6
+    IncludePkgsColumn = 7
+    ExcludePkgsColumn = 8
+    SourceColumn = 9
+    DebugInfoColumn = 10
+
 
     # A tuple containing the keys of repository dictionaries
-    ColumnKeys = ("name", "baseurl", "priority", "ssl_verify")
+    ColumnKeys = ("name", "baseurl", "priority", "ssl_verify", "gpgkey", "disable",
+                  "save", "includepkgs", "excludepkgs", "source", "debuginfo")
+
+    ColumnHeaders = ("Name", "URL", "Priority", "SSL verif", "GPG key", "Disable",
+                     "Save", "Included packages", "Excluded packages", "Source", "Debug info")
+    ColumnToolTips = ("A name for the repository, must be unique",
+                      "The URL of the repository",
+                      "The priority of the repository. 1 is the highest priority, " +
+                        "the default is 99. You can let the field empty.",
+                      "Do SSL verification for HTTPS repositories",
+                      "The path (or URL) to the GPG key for this repository " +
+                        "in the final filesystem",
+                      "Add the repository as disabled",
+                      "Save the repository in the generated image",
+                      "A comma-separated list of package names and globs" +
+                        " that must be pulled from this repository",
+                      "A comma-separated list of package names and globs" +
+                        " that must not be pulled from this repository",
+                      "Also add source packages repository",
+                      "Also add debuginfo packages repository")
 
     def __init__(self, obsLightManager, projectName):
         self.__modified = False
@@ -48,14 +75,9 @@ class KickstartRepositoriesModel(KickstartModelBase):
             if orientation == Qt.Orientation.Vertical:
                 return section
             else:
-                if section == self.NameColumn:
-                    return "Name"
-                elif section == self.UrlColumn:
-                    return "URL"
-                elif section == self.PriorityColumn:
-                    return "Priority"
-                elif section == self.SslVerifyColumn:
-                    return "SSL verification"
+                return self.ColumnHeaders[section]
+        elif role == Qt.ToolTipRole:
+            return self.ColumnToolTips[section]
         return None
 
     # from QAbstractTableModel
@@ -84,6 +106,12 @@ class KickstartRepositoriesModel(KickstartModelBase):
             if column == self.PriorityColumn:
                 if isinstance(value, basestring) and (value.lower() == "none" or value == ""):
                     value = None
+            elif column in (self.IncludePkgsColumn, self.ExcludePkgsColumn):
+                value = value.strip()
+                if len(value) < 1:
+                    value = ""
+                else:
+                    value = [p.strip() for p in value.split(",")]
             # in case repository name has changed, we must keep the old name
             oldName = self.dataDict(row)[self.ColumnKeys[self.NameColumn]]
             # do the change in memory
@@ -99,6 +127,9 @@ class KickstartRepositoriesModel(KickstartModelBase):
                     self.dataDict(row)[self.ColumnKeys[column]] = "yes"
                 else:
                     self.dataDict(row)[self.ColumnKeys[column]] = "no"
+            elif column in (self.DisableColumn, self.SaveColumn,
+                            self.SourceColumn, self.DebugInfoColumn):
+                self.dataDict(row)[self.ColumnKeys[column]] = (value == Qt.CheckState.Checked)
             oldName = self.dataDict(row)[self.ColumnKeys[self.NameColumn]]
             self.__updateRepoInManager(row, oldName)
         return False
@@ -111,7 +142,8 @@ class KickstartRepositoriesModel(KickstartModelBase):
         Cells of column SslVerifyColumn are checkable.
         """
         superFlags = super(KickstartRepositoriesModel, self).flags(index)
-        if index.column() == self.SslVerifyColumn:
+        if index.column() in (self.SslVerifyColumn, self.DisableColumn,
+                              self.SaveColumn, self.SourceColumn, self.DebugInfoColumn):
             superFlags = superFlags | Qt.ItemIsUserCheckable
         else:
             superFlags = superFlags | Qt.ItemIsEditable
@@ -121,9 +153,13 @@ class KickstartRepositoriesModel(KickstartModelBase):
         """
         Return the "Qt.DisplayRole" data for cell at `index`.
         """
-        if index.column() == self.SslVerifyColumn:
+        column = index.column()
+        retVal = self.dataDict(index.row())[self.ColumnKeys[column]]
+        if column in (self.SslVerifyColumn, self.DisableColumn,
+                      self.SaveColumn, self.SourceColumn, self.DebugInfoColumn):
             return None
-        retVal = self.dataDict(index.row())[self.ColumnKeys[index.column()]]
+        elif column in (self.IncludePkgsColumn, self.ExcludePkgsColumn):
+            retVal = ",".join(retVal)
         return retVal if retVal is None else str(retVal)
 
     def checkStateRoleData(self, index):
@@ -133,9 +169,14 @@ class KickstartRepositoriesModel(KickstartModelBase):
           Qt.CheckState.Checked if SSL verification is "yes",
           Qt.CheckState.Unchecked otherwise
         """
-        if index.column() == self.SslVerifyColumn:
+        column = index.column()
+        if column == self.SslVerifyColumn:
             verify = self.dataDict(index.row())[self.ColumnKeys[self.SslVerifyColumn]]
             return Qt.CheckState.Checked if verify.lower() == "yes" else Qt.CheckState.Unchecked
+        elif column in (self.DisableColumn, self.SaveColumn,
+                        self.SourceColumn, self.DebugInfoColumn):
+            retVal = bool(self.dataDict(index.row())[self.ColumnKeys[column]])
+            return Qt.CheckState.Checked if retVal else Qt.CheckState.Unchecked
         return None
 
     def __updateRepoInManager(self, row, oldName):
