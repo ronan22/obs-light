@@ -356,7 +356,7 @@ class ProgressRunnable2(QObject, QRunnable):
                     caughtException = None
                     try:
                         if isNonEmptyString(message):
-                            unicodeArg = unicode(arg)
+                            unicodeArg = unicode(str(arg), errors='replace')
                             self.setDialogMessage(message % {"arg":unicodeArg})
                         results.append(function(arg, *otherArgs, **kwargs))
                     except BaseException as e:

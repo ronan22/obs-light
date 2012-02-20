@@ -41,13 +41,11 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
         # Build a mapping between signals and associated slots,
         # to be used by self.__connectProjectEventsAndButtons()
         # and self.__disconnectProjectEventsAndButtons()
-        m = {# Button clicks
-             mw.createImageButton.clicked: self.on_createImageButton_clicked,
-             mw.removeRepositoryButton.clicked: self.on_removeRepositoryButton_clicked,
-             # Repositories
+        m = {# Repositories
              mw.addRepositoryButton.clicked: self.on_addRepositoryButton_clicked,
              mw.addRepositoryFromProjectButton.clicked:
                                         self.on_addRepositoryFromProjectButton_clicked,
+             mw.removeRepositoryButton.clicked: self.on_removeRepositoryButton_clicked,
              # Packages
              mw.addPackageButton.clicked: self.on_addPackageButton_clicked,
              mw.removePackageButton.clicked: self.on_removePackageButton_clicked,
@@ -61,6 +59,8 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
                                         self.on_architectureComboBox_currentIndexChanged,
              mw.importKickstartButton.clicked: self.on_importKickstartButton_clicked,
              mw.exportKickstartButton.clicked: self.on_exportKickstartButton_clicked,
+             mw.createImageButton.clicked: self.on_createImageButton_clicked,
+             mw.openMicProjectDirectoryButton.clicked: self.on_openMicProjectDirectoryButton_clicked,
              # KS options
              mw.kickstartOptionsListView.clicked: self.on_kickstartOptionsListView_clicked,
              mw.kickstartOptionTextEdit.textChanged: self.on_kickstartOptionTextEdit_textChanged,
@@ -179,6 +179,8 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
                                               "Select a name for the new project:")
         if not accepted or len(name) < 1:
             return
+        name = name.replace(" ", "_")
+        name = name.replace(":", "_")
         self.callWithInfiniteProgress(self.manager.addMicProject,
                                       "Creating MIC project",
                                       name)
@@ -211,6 +213,13 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
         if micProject is None:
             return
         self._currentProjectObj.createImage()
+
+    @popupOnException
+    def on_openMicProjectDirectoryButton_clicked(self):
+        if self.currentProject is None:
+            return
+        projectPath = self._currentProjectObj.currentProjectPath
+        self.manager.openFile(projectPath)
 
     @popupOnException
     def on_removeRepositoryButton_clicked(self):

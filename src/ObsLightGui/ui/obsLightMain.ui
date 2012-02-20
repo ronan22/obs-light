@@ -1267,6 +1267,30 @@ in the source directory of the current package if it is installed.</string>
                 <item row="0" column="3">
                  <widget class="QComboBox" name="architectureComboBox"/>
                 </item>
+                <item row="1" column="1" colspan="4">
+                 <widget class="QLineEdit" name="micProjectPathLineEdit">
+                  <property name="toolTip">
+                   <string>Current kickstart path</string>
+                  </property>
+                  <property name="readOnly">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QLabel" name="label_4">
+                  <property name="text">
+                   <string>Project directory:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="5">
+                 <widget class="QPushButton" name="openMicProjectDirectoryButton">
+                  <property name="text">
+                   <string>Open</string>
+                  </property>
+                 </widget>
+                </item>
                 <item row="0" column="4">
                  <spacer name="horizontalSpacer_11">
                   <property name="orientation">
@@ -1279,23 +1303,6 @@ in the source directory of the current package if it is installed.</string>
                    </size>
                   </property>
                  </spacer>
-                </item>
-                <item row="1" column="1" colspan="4">
-                 <widget class="QLineEdit" name="kickstartPathLineEdit">
-                  <property name="toolTip">
-                   <string>Current kickstart path</string>
-                  </property>
-                  <property name="readOnly">
-                   <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="0">
-                 <widget class="QLabel" name="label_4">
-                  <property name="text">
-                   <string>Kickstart file:</string>
-                  </property>
-                 </widget>
                 </item>
                </layout>
               </widget>
@@ -1448,6 +1455,19 @@ in the source directory of the current package if it is installed.</string>
                  <item row="0" column="0" rowspan="7" colspan="2">
                   <widget class="QListView" name="kickstartOptionsListView"/>
                  </item>
+                 <item row="4" column="2">
+                  <widget class="QLabel" name="label_5">
+                   <property name="text">
+                    <string>Don't forget to save after editing an option</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignCenter</set>
+                   </property>
+                   <property name="wordWrap">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
                 </layout>
                </widget>
                <widget class="QWidget" name="gridWidget_2" native="true">
@@ -1584,7 +1604,7 @@ in the source directory of the current package if it is installed.</string>
              <string>Scripts</string>
             </attribute>
             <layout class="QGridLayout" name="gridLayout_5">
-             <item row="5" column="2">
+             <item row="6" column="2">
               <widget class="QRadioButton" name="postScriptRadioButton">
                <property name="text">
                 <string>Post script</string>
@@ -1594,10 +1614,10 @@ in the source directory of the current package if it is installed.</string>
                </property>
               </widget>
              </item>
-             <item row="12" column="0" colspan="5">
+             <item row="13" column="0" colspan="5">
               <widget class="QPlainTextEdit" name="kickstartScriptTextEdit"/>
              </item>
-             <item row="7" column="3" colspan="2">
+             <item row="8" column="3" colspan="2">
               <widget class="QLineEdit" name="interpreterLineEdit">
                <property name="enabled">
                 <bool>false</bool>
@@ -1607,7 +1627,7 @@ in the source directory of the current package if it is installed.</string>
                </property>
               </widget>
              </item>
-             <item row="8" column="3" colspan="2">
+             <item row="9" column="3" colspan="2">
               <widget class="QLineEdit" name="logFileLineEdit">
                <property name="enabled">
                 <bool>false</bool>
@@ -1617,45 +1637,45 @@ in the source directory of the current package if it is installed.</string>
                </property>
               </widget>
              </item>
-             <item row="4" column="2">
+             <item row="5" column="2">
               <widget class="QRadioButton" name="preScriptRadioButton">
                <property name="text">
                 <string>Pre script</string>
                </property>
               </widget>
              </item>
-             <item row="7" column="2">
+             <item row="8" column="2">
               <widget class="QCheckBox" name="specifyInterpreterCheckBox">
                <property name="text">
                 <string>Specify interpreter</string>
                </property>
               </widget>
              </item>
-             <item row="8" column="2">
+             <item row="9" column="2">
               <widget class="QCheckBox" name="specifyLogFileCheckBox">
                <property name="text">
                 <string>Specify log file</string>
                </property>
               </widget>
              </item>
-             <item row="0" column="0" rowspan="11" colspan="2">
+             <item row="0" column="0" rowspan="12" colspan="2">
               <widget class="QListView" name="kickstartScriptsListView"/>
              </item>
-             <item row="6" column="2">
+             <item row="7" column="2">
               <widget class="QRadioButton" name="tracebackScriptRadioButton">
                <property name="text">
                 <string>Traceback script</string>
                </property>
               </widget>
              </item>
-             <item row="6" column="3">
+             <item row="7" column="3">
               <widget class="QCheckBox" name="errorOnFailCheckBox">
                <property name="text">
                 <string>Error on fail</string>
                </property>
               </widget>
              </item>
-             <item row="5" column="3">
+             <item row="6" column="3">
               <widget class="QCheckBox" name="noChrootCheckBox">
                <property name="text">
                 <string>No chroot</string>
@@ -1683,7 +1703,7 @@ in the source directory of the current package if it is installed.</string>
                </property>
               </widget>
              </item>
-             <item row="3" column="2">
+             <item row="4" column="2">
               <spacer name="verticalSpacer_4">
                <property name="orientation">
                 <enum>Qt::Vertical</enum>
@@ -1695,6 +1715,19 @@ in the source directory of the current package if it is installed.</string>
                 </size>
                </property>
               </spacer>
+             </item>
+             <item row="3" column="2">
+              <widget class="QLabel" name="label_6">
+               <property name="text">
+                <string>Don't forget to save after editing a script</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+               <property name="wordWrap">
+                <bool>true</bool>
+               </property>
+              </widget>
              </item>
             </layout>
            </widget>
