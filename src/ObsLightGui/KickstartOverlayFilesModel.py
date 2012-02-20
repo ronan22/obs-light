@@ -27,6 +27,9 @@ from PySide.QtCore import Qt
 from KickstartModelBase import KickstartModelBase
 
 class KickstartOverlayFilesModel(KickstartModelBase):
+    """
+    Class to manage the overlay file list of the Kickstart file of a MIC project.
+    """
 
     SourceColumn = 0
     DestinationColumn = 1
@@ -35,6 +38,10 @@ class KickstartOverlayFilesModel(KickstartModelBase):
     ColumnHeaders = ("Source", "Destination")
 
     def __init__(self, obsLightManager, projectName):
+        """
+        `obsLightManager`: a reference to the ObsLightManager instance
+        `projectName`: the name of the MIC project to manage Kickstart commands
+        """
         KickstartModelBase.__init__(self,
                                     obsLightManager,
                                     projectName,

@@ -25,11 +25,18 @@ from PySide.QtCore import Qt
 from KickstartModelBase import KickstartModelBase
 
 class KickstartPackageGroupsModel(KickstartModelBase):
+    """
+    Class to manage the list of package groups of the Kickstart file of a MIC project.
+    """
 
     NameColumn = 0
     ColumnKeys = ("name",)
 
     def __init__(self, obsLightManager, projectName):
+        """
+        `obsLightManager`: a reference to the ObsLightManager instance
+        `projectName`: the name of the MIC project to manage Kickstart commands
+        """
         KickstartModelBase.__init__(self,
                                     obsLightManager,
                                     projectName,
@@ -62,11 +69,17 @@ class KickstartPackageGroupsModel(KickstartModelBase):
         return retVal if retVal is None else str(retVal)
 
     def addPackageGroup(self, name):
+        """
+        Add the package group `name` to the package section of the Kickstart file.
+        """
         self.manager.addKickstartPackageGroup(self.currentProject, name)
         self.manager.saveKickstartFile(self.currentProject)
         self.refresh()
 
     def removePackageGroup(self, name):
+        """
+        Remove the package group `name` from the package section of the Kickstart file.
+        """
         self.manager.removeKickstartPackageGroup(self.currentProject, name)
         self.manager.saveKickstartFile(self.currentProject)
         self.refresh()

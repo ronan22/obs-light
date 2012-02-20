@@ -25,6 +25,9 @@ from PySide.QtCore import Qt
 from KickstartModelBase import KickstartModelBase
 
 class KickstartPackagesModel(KickstartModelBase):
+    """
+    Class to manage the list of packages of the Kickstart file of a MIC project.
+    """
 
     NameColumn = 0
     ExcludedColumn = 1

@@ -25,7 +25,9 @@ from PySide.QtCore import QAbstractTableModel, Qt
 
 class KickstartModelBase(QAbstractTableModel):
     """
-    Base class for KickstartPackagesModel and KickstartRepositoriesModel
+    Subclass of QAbstractTableModel, base class for Kickstart management
+    classes. Auto-loads entries when `refresh` is called.
+    Implements `columnCount` and `rowCount` required by QAbstractTableModel.
     """
     # pylint: disable-msg=E0202, E1101
 

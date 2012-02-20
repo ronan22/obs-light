@@ -25,6 +25,9 @@ from PySide.QtCore import Qt
 from KickstartModelBase import KickstartModelBase
 
 class KickstartRepositoriesModel(KickstartModelBase):
+    """
+    Class to manage the repositories of the Kickstart file of a MIC project.
+    """
 
     NameColumn = 0
     UrlColumn = 1
@@ -62,7 +65,10 @@ class KickstartRepositoriesModel(KickstartModelBase):
                       "Also add debuginfo packages repository")
 
     def __init__(self, obsLightManager, projectName):
-        self.__modified = False
+        """
+        `obsLightManager`: a reference to the ObsLightManager instance
+        `projectName`: the name of the MIC project to manage Kickstart commands
+        """
         KickstartModelBase.__init__(self,
                                     obsLightManager,
                                     projectName,
@@ -192,6 +198,10 @@ class KickstartRepositoriesModel(KickstartModelBase):
         self.manager.saveKickstartFile(self.currentProject)
 
     def addRepository(self, name, url):
+        """
+        Add a repository `name` with `url`. Other repository parameters
+        will have default values, and can be modified using `setData`.
+        """
         sslVerify = "yes" if url.startswith("https") else "no"
         self.manager.addKickstartRepository(self.currentProject, baseurl=url,
                                             name=name,
@@ -200,6 +210,9 @@ class KickstartRepositoriesModel(KickstartModelBase):
         self.refresh()
 
     def removeRepository(self, name):
+        """
+        Remove the repository `name` from the Kickstart file.
+        """
         self.manager.removeKickstartRepository(self.currentProject, name)
         self.manager.saveKickstartFile(self.currentProject)
         self.refresh()

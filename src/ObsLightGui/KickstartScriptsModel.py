@@ -26,6 +26,9 @@ from PySide.QtCore import Qt
 from KickstartModelBase import KickstartModelBase
 
 class KickstartScriptsModel(KickstartModelBase):
+    """
+    Class to manage the scripts of the Kickstart file of a MIC project.
+    """
 
     NewScriptName = "NEW_SCRIPT"
     NewScriptText = "# Enter script here\n"
@@ -46,6 +49,10 @@ class KickstartScriptsModel(KickstartModelBase):
                      "Run in chroot", "Log file")
 
     def __init__(self, obsLightManager, projectName):
+        """
+        `obsLightManager`: a reference to the ObsLightManager instance
+        `projectName`: the name of the MIC project to manage Kickstart commands
+        """
         KickstartModelBase.__init__(self,
                                     obsLightManager,
                                     projectName,

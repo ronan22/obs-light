@@ -108,10 +108,17 @@ class FileManager(QObject, ObsLightGuiObject):
         self.mainWindow.fileTableView.resizeColumnToContents(1)
 
     def on_chrootPath_loaded(self, path):
+        """
+        Called when the QFileSystem model loads paths.
+        """
         if path == self.__chrootPath:
+            # Set the root index of the QTreeView to the root directory of
+            # the project file system, so user does not see outside
             self.mainWindow.chrootTreeView.setRootIndex(self.__chrootModel.index(path))
             self.mainWindow.chrootTreeView.resizeColumnToContents(0)
         elif path == self.__packageInChrootDir:
+            # Set the current index of the QTreeView to the package directory
+            # so it appears unfolded
             self.mainWindow.chrootTreeView.setCurrentIndex(self.__chrootModel.index(path))
             self.mainWindow.chrootTreeView.resizeColumnToContents(0)
 
