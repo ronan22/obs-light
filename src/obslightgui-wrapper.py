@@ -13,10 +13,27 @@ if "--version" in sys.argv:
     print u"OBS Light GUI version %s" % getVersion()
     sys.exit(0)
 
+from PySide.QtGui import QApplication, QMessageBox
+from ObsLight.obslight_starter import alreadyRunning, userIsRoot, writePidFile, getpidFilePath
+
+if userIsRoot():
+    qa = QApplication(sys.argv)
+    QMessageBox.critical(u"Cannot run as root", u"OBS Light cannot run as root!")
+    sys.exit(0)
+
+if alreadyRunning():
+    qa = QApplication(sys.argv)
+    pidFilePath = getpidFilePath()
+    message = u"OBS Light is already running.\n"
+    message += u"If it is not the case, please remove the file '%s' " % pidFilePath
+    message += u"and retry."
+    QMessageBox.warning(None, u"Already running", message)
+    sys.exit(1)
+
+writePidFile()
+
 from ObsLight import babysitter, ObsLightManager
 from ObsLightGui.Gui import Gui
-
-import ObsLight.obslight_starter
 
 try:
     # Now we can load the GUI

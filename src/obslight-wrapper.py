@@ -21,7 +21,11 @@ def signal_handler(signal, frame):
         print >> sys.stderr, "kill process..."
     sys.exit(0)
 
-import ObsLight.obslight_starter
+from ObsLight.obslight_starter import exitIfRoot, exitIfAlreadyRunning, writePidFile
+
+exitIfRoot()
+exitIfAlreadyRunning()
+writePidFile()
 
 try:
     signal.signal(signal.SIGINT, signal_handler)
