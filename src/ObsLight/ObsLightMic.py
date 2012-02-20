@@ -103,9 +103,12 @@ class ObsLightMic(object):
         '''
         if os.path.isdir(path):
             if os.stat(path).st_uid != 0:
-                raise ObsLightErr.ObsLightChRootError("the chroot '" + path + "' is not owned by root.")
+                message = "The project file system '%s' is not owned by root." % path
+                raise ObsLightErr.ObsLightChRootError(message)
         else:
-            raise ObsLightErr.ObsLightChRootError("Can't test Owner of the project file system, the directory'" + path + "' do not exist.")
+            message = "Can't test owner of the project file system, "
+            message += "the directory '%s' does not exist." % path
+            raise ObsLightErr.ObsLightChRootError(message)
 
     def __subprocess(self, command=None):
         '''
@@ -301,7 +304,9 @@ class ObsLightMic(object):
 
         os.close(dev_null)
         if not architecture_found:
-            raise fs_related.CreatorError("Failed to getObsLightMic architecture from any of the following files %s from chroot." % files_to_check)
+            message = "Failed to getObsLightMic architecture from "
+            message += "any of the following files from chroot: %s" % files_to_check
+            raise fs_related.CreatorError(message)
 
         self.__qemu_emulator = qemu_emulator
 

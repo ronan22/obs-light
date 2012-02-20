@@ -143,7 +143,7 @@ class ObsProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
         if projectName is None or self.manager.isChRootInit(projectName):
             return
         runnable = ProgressRunnable2(self.gui.getInfiniteProgressDialog())
-        runnable.setDialogMessage(u"Creating chroot...")
+        runnable.setDialogMessage(u"Creating project file system...")
         runnable.setRunMethod(self.manager.createChRoot,
                               projectName)
         runnable.caughtException.connect(self.gui.popupErrorCallback)
@@ -177,7 +177,7 @@ class ObsProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
         if projectName is not None:
             result = QMessageBox.question(self.mainWindow,
                                       "Are you sure ?",
-                                      "Are you sure you want to delete %s's chroot ?"
+                                      "Are you sure you want to delete %s's file system ?"
                                         % projectName,
                                       buttons=QMessageBox.Yes | QMessageBox.No,
                                       defaultButton=QMessageBox.Yes)
@@ -185,7 +185,7 @@ class ObsProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
                 return
             progress = self.gui.getInfiniteProgressDialog()
             runnable = ProgressRunnable2(progress)
-            runnable.setDialogMessage(u"Deleting chroot")
+            runnable.setDialogMessage(u"Deleting file system")
             runnable.setRunMethod(self.manager.removeChRoot, projectName)
             runnable.finished.connect(self.refreshProject)
             runnable.caughtException.connect(self.gui.popupErrorCallback)

@@ -425,8 +425,8 @@ class PackageManager(QObject, ObsLightGuiObject):
             questionString = u"The packages <b>%s" % unicode(alreadyInstalled[0])
             for package in alreadyInstalled[1:]:
                 questionString += u", %s" % unicode(package)
-            questionString += u"</b> are already present in the chroot, do you want to"
-            questionString += u" overwrite them ?"
+            questionString += u"</b> are already present in the project file system, "
+            questionString += u"do you want to overwrite them ?"
             result = QMessageBox.question(self.mainWindow,
                                           u"Overwrite ?",
                                           questionString,
@@ -436,7 +436,8 @@ class PackageManager(QObject, ObsLightGuiObject):
                 return
         self.__mapOnSelectedPackages(firstArgLast(self.manager.addPackageSourceInChRoot),
                                      None,
-                                     u"Importing %(arg)s source in chroot and executing %%prep",
+                                     u"Importing %(arg)s source in file system " +
+                                     "and executing %%prep",
                                      None,
                                      projectName)
 

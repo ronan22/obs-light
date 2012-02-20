@@ -339,7 +339,7 @@ class ObsLightMicProjects:
                pykickstart.constants.[KS_SCRIPT_PRE, KS_SCRIPT_POST, KS_SCRIPT_TRACEBACK]
           "interp": the interpreter to use to run the script ('/bin/sh')
           "errorOnFail": whether to quit or continue the script if a command fails (False)
-          "inChroot": whether to run inside the chroot or outside (False)
+          "inChroot": whether to run inside chroot or not (False)
           "logfile": the path where to log the output of the script (None)
           "script": all the lines of the script
         """
@@ -369,7 +369,7 @@ class ObsLightMicProjects:
         """
         Get a list of overlay file dictionaries for project `micProjectName`
         containing:
-          "source": the path of the file to be copied in the chroot
+          "source": the path of the file to be copied
           "destination": the path where the file will be copied
                          in target file system
         """

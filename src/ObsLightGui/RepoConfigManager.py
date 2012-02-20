@@ -177,7 +177,7 @@ class RepoConfigManager(QObject, ObsLightGuiObject):
         runnable = ProgressRunnable2()
         runnable.setProgressDialog(progress)
         if self.__oldRepoAlias is None:
-            runnable.setDialogMessage("Importing repository in chroot...")
+            runnable.setDialogMessage("Importing repository in project file system...")
             runnable.setRunMethod(self.manager.addRepo,
                                   self.__projectAlias,
                                   repoUrl=self.getRepoUrl(),

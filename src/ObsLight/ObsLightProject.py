@@ -294,7 +294,8 @@ class ObsLightProject(object):
         if res == 0:
             return shutil.rmtree(self.getDirectory())
         else:
-            raise ObsLightErr.ObsLightProjectsError("Error in removeProject, can't remove chroot")
+            message = "Error in removeProject, can't remove project file system"
+            raise ObsLightErr.ObsLightProjectsError(message)
 
         return 0
 
@@ -660,7 +661,8 @@ class ObsLightProject(object):
         if not __aChroot.isAlreadyAReposAlias(__anAlias):
             return __aChroot.addRepo(repos=__aRepos  , alias=__anAlias)
         else:
-            ObsLightPrintManager.getLogger().info(__anAlias + " is already installed in the chroot")
+            message = __anAlias + " is already installed in the project file system"
+            ObsLightPrintManager.getLogger().info(message)
             return 0
 
     def getReposProject(self):

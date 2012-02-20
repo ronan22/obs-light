@@ -162,7 +162,7 @@ class ObsLightChRoot(object):
                                                   mountPoint + "' as root to enable them.")
 
         if res != 0:
-            raise ObsLightErr.ObsLightChRootError("Can't create the chroot")
+            raise ObsLightErr.ObsLightChRootError("Can't create the project file system")
 
         self.__subprocess(command="sudo chown root:users " + self.getDirectory())
         self.__subprocess(command="sudo chown root:users " + self.getDirectory() + "/root")
@@ -182,9 +182,10 @@ class ObsLightChRoot(object):
 
     def __resolveMacro(self, name):
         if not os.path.isdir(self.getDirectory()):
-            raise ObsLightErr.ObsLightChRootError("goToChRoot: chroot is not initialized, use createChRoot")
+            message = "project file system is not initialized"
+            raise ObsLightErr.ObsLightChRootError(message)
         elif not os.path.isdir(self.getDirectory()):
-            raise ObsLightErr.ObsLightChRootError("goToChRoot: the path: " + self.getDirectory() + " is not a directory")
+            raise ObsLightErr.ObsLightChRootError("'%s' is not a directory" % self.getDirectory())
 
         if  not ObsLightMic.getObsLightMic(name=self.getDirectory()).isInit():
             ObsLightMic.getObsLightMic(name=self.getDirectory()).initChroot(chrootDirectory=self.getDirectory(),
@@ -231,7 +232,7 @@ class ObsLightChRoot(object):
 
             pathBuild = self.getDirectory() + "/" + package.getChrootRpmBuildDirectory() + "/" + "BUILD"
             if not os.path.isdir(pathBuild):
-                raise ObsLightErr.ObsLightChRootError("in the chroot path: " + pathBuild + " is not a directory")
+                raise ObsLightErr.ObsLightChRootError("'%s' is not a directory" % pathBuild)
             resultPath = package.getChrootRpmBuildDirectory() + "/BUILD/" + prepDirname
             subDir = os.listdir(pathBuild + "/" + prepDirname)
             if len(subDir) == 0:
@@ -269,7 +270,7 @@ class ObsLightChRoot(object):
             else:
                 return resultPath
         else:
-            raise ObsLightErr.ObsLightChRootError("Too many sub-directories in '" + pathBuild + "'")
+            raise ObsLightErr.ObsLightChRootError("Too many sub-directories in '%s'" % pathBuild)
 
     def getChRootRepositories(self):
         return self.__dicoRepos
@@ -306,7 +307,11 @@ class ObsLightChRoot(object):
             if res != 0:
                 #ObsLightPrintManager.getLogger().error(packageName + " the zypper Script fail to install '" + packageName + "' dependency.")
                 #return None
-                raise ObsLightErr.ObsLightChRootError("The installation of some dependencies of '" + packageName + "' failed.\nPlease test the command line:\n'zypper si --build-deps-only " + packageMacroName + "'\ninto the chroot.\nMaybe a repository is missing.")
+                msg = "The installation of some dependencies of '%s' failed\n" % packageName
+                msg += "Please test the following command line inside the project file system:\n"
+                msg += "  zypper si --build-deps-only %s\n" % packageMacroName
+                msg += "Maybe a repository is missing."
+                raise ObsLightErr.ObsLightChRootError(msg)
 
             if os.path.isdir(self.getDirectory() + "/" + package.getChrootRpmBuildDirectory() + "/SPECS/"):
                 aspecFile = package.getChrootRpmBuildDirectory() + "/SPECS/" + specFile
@@ -402,7 +407,8 @@ class ObsLightChRoot(object):
 
     def testOwnerChRoot(self):
         if os.stat(self.getDirectory()).st_uid != 0:
-            raise ObsLightErr.ObsLightChRootError("the chroot '" + self.getDirectory() + "' is not owned by root.")
+            msg = "The path '%s' is not owned by root." % self.getDirectory()
+            raise ObsLightErr.ObsLightChRootError(msg)
 
     def addRepo(self, repos=None, alias=None):
         '''
@@ -411,7 +417,8 @@ class ObsLightChRoot(object):
         print "tic self.__dicoRepos.keys()", self.__dicoRepos.keys()
 
         if alias in self.__dicoRepos.keys():
-            raise ObsLightErr.ObsLightChRootError("can't add '" + alias + "' , already configure in the chroot")
+            msg = "Can't add %s, already configured in project file system" % alias
+            raise ObsLightErr.ObsLightChRootError(msg)
         else:
             self.__dicoRepos[alias] = repos
 
@@ -611,9 +618,10 @@ class ObsLightChRoot(object):
         Open a Bash in the chroot.
         '''
         if not os.path.isdir(self.getDirectory()):
-            raise ObsLightErr.ObsLightChRootError("goToChRoot: chroot is not initialized, use createChRoot")
+            msg = "Project file system not initialized"
+            raise ObsLightErr.ObsLightChRootError(msg)
         elif not os.path.isdir(self.getDirectory()):
-            raise ObsLightErr.ObsLightChRootError("goToChRoot: the path: " + self.getDirectory() + " is not a directory")
+            raise ObsLightErr.ObsLightChRootError("'%s' is not a directory" % self.getDirectory())
 
         if  not ObsLightMic.getObsLightMic(name=self.getDirectory()).isInit():
             ObsLightMic.getObsLightMic(name=self.getDirectory()).initChroot(chrootDirectory=self.getDirectory(),
