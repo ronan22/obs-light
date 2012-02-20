@@ -160,10 +160,12 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
         """Called when user clicks on 'export kickstart'"""
         if self.currentProject is None:
             return
+        ksPath = self._currentProjectObj.currentProjectKickstartPath
         filters = "Kickstart files (*.ks);;All files (*)"
         filePath, _filter = QFileDialog.getSaveFileName(self.mainWindow,
                                                         "Select the file to export kickstart to",
-                                                        filter=filters)
+                                                        filter=filters,
+                                                        dir=ksPath)
         if len(filePath) < 1:
             return
         self.callWithInfiniteProgress(self.manager.saveKickstartFile,

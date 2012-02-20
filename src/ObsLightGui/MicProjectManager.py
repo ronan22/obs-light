@@ -123,6 +123,10 @@ class MicProjectManager(QObject, ObsLightGuiObject):
         return projectPath
 
     @property
+    def currentProjectKickstartPath(self):
+        return self.manager.getKickstartFile(self.currentProject)
+
+    @property
     def imageType(self):
         """Get the MIC project image type"""
         return self.manager.getMicProjectImageType(self.currentProject)
