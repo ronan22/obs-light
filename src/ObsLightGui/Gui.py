@@ -146,10 +146,11 @@ class Gui(QObject):
             self.__createProgressDialog()
         return self.__progress
 
-    def getObsLightManager(self):
-        '''
-        Get the unique ObsLightManager instance.
-        '''
+    @property
+    def manager(self):
+        """
+        Get a reference to the unique ObsLightManager instance.
+        """
         return self.__obsLightManager
 
     def getLogManager(self):
