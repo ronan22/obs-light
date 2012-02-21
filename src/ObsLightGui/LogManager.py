@@ -1,5 +1,5 @@
 #
-# Copyright 2011, Intel Inc.
+# Copyright 2011-2012, Intel Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,59 +24,76 @@ from logging import Handler
 from logging import Formatter
 
 from PySide.QtCore import QObject, Signal
-from PySide.QtGui import QPlainTextEdit
 
 from ObsLight import ObsLightConfig
 from ObsLightGuiObject import ObsLightGuiObject
 
 class LogManager(QObject, ObsLightGuiObject):
-    '''
-    
-    '''
+    """
+    Manage the printing of logs in a separate window.
+    """
 
+    # We cannot implement emit() in LogManager because it has
+    # already an emit() method inherited from QObject.
+    # So we wrote MyHandler class.
     class MyHandler(Handler):
-
-        reEmit = None
+        """
+        A subclass of logging.Handler which forward calls
+        to `emit` to the function it got as constructor parameter.
+        """
 
         def __init__(self, reEmitMethod):
+            """
+            Initialize the handler. `reEmitMethod` should be a function
+            taking one logging.LogRecord parameter.
+            """
             Handler.__init__(self)
             self.reEmit = reEmitMethod
 
         def emit(self, record):
+            """
+            Forward `record` to the function passed as constructor
+            parameter.
+            """
             self.reEmit(record)
 
-
-    __logDialog = None
-    __logTextEdit = None
-    __myHandler = None
 
     appendMessage = Signal(unicode)
 
     def __init__(self, gui):
-        '''
-        
-        '''
+        """
+        Initialise the LogManager. `gui` must be a reference to
+        the main `Gui` instance.
+        """
         QObject.__init__(self)
         ObsLightGuiObject.__init__(self, gui)
         self.__logDialog = self.gui.loadWindow(u"obsLightLog.ui")
-        self.__logTextEdit = self.__logDialog.findChild(QPlainTextEdit, u"logTextEdit")
+        self.__logTextEdit = self.__logDialog.logTextEdit
+        self.__myHandler = None
         self.connectLogger()
 
     def connectLogger(self):
-        #self.appendMessage.connect(self.__logTextEdit.appendPlainText)
+        """
+        Create a MyHandler instance and bind it to the logger of ObsLight.
+        """
         self.appendMessage.connect(self.__logTextEdit.appendHtml)
         self.__myHandler = LogManager.MyHandler(self.emitRecord)
-        #formatter = Formatter(u"%(asctime)s <font color=\"#0000FF\">%(name)s</font>: %(message)s")
         formatter = Formatter(ObsLightConfig.getObsLightGuiFormatterString())
         self.__myHandler.setFormatter(formatter)
         self.manager.addLoggerHandler(self.__myHandler)
 
     def disconnectLogger(self):
-        #self.appendMessage.disconnect(self.__logTextEdit.appendPlainText)
+        """
+        Unbind the MyHandler instance from the logger of ObsLight.
+        """
         self.appendMessage.disconnect(self.__logTextEdit.appendHtml)
         self.manager.removeLoggerHandler(self.__myHandler)
 
     def emitRecord(self, record):
+        """
+        Display the content of a logging.LogRecord instance
+        in the log window.
+        """
         formatted = self.__myHandler.format(record)
         try:
             if isinstance(formatted, unicode):
@@ -89,8 +106,14 @@ class LogManager(QObject, ObsLightGuiObject):
             self.__myHandler.handleError(record)
 
     def show(self):
+        """
+        Display the log window and give it the focus.
+        """
         self.__logDialog.show()
         self.__logDialog.activateWindow()
 
     def close(self):
+        """
+        Close the log window.
+        """
         self.__logDialog.close()

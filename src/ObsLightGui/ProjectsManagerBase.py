@@ -26,6 +26,8 @@ from PySide.QtCore import QObject, Qt
 class ProjectsManagerBase(QObject):
     """
     Base class for MicProjectsManager and ObsProjectsManager.
+    Handles the loading of a list of projects, and provide a method
+    to get the currently selected project in the UI.
     """
     # pylint: disable-msg=E0202, E1101
 

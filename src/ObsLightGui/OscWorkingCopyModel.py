@@ -1,6 +1,6 @@
 # -*- coding: utf8 -*-
 #
-# Copyright 2011, Intel Inc.
+# Copyright 2011-2012, Intel Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -29,20 +29,18 @@ STATUS_COLUMN = u"Status"
 
 
 class OscWorkingCopyModel(QAbstractTableModel):
-
-    __obsLightManager = None
-    __project = None
-    __package = None
-    __columnList = None
-    __fileList = None
-    __fileInfos = None
-
-    sortKey = None
-    sortOrder = Qt.SortOrder.AscendingOrder
-    # dict<unicode, dict<object, QColor>>
-    colors = dict()
+    """
+    A subclass of QAbstractTableModel which represents the file
+    list of an osc working copy.
+    """
 
     def __init__(self, obsLightManager, projectName, packageName):
+        """
+        Initialize the OscWorkingCopyModel.
+        `obsLightManager`: a reference to the ObsLightManager.
+        `projectName`: the name of the OBS project in which we are working.
+        `packageName`: the name of the package we are managing the working copy of.
+        """
         QAbstractTableModel.__init__(self)
         self.__obsLightManager = obsLightManager
         self.__project = projectName
@@ -50,6 +48,10 @@ class OscWorkingCopyModel(QAbstractTableModel):
         self.__columnList = list()
         self.__fileList = list()
         self.__fileInfos = dict()
+        self.sortKey = None
+        self.sortOrder = Qt.SortOrder.AscendingOrder
+        # dict<unicode, dict<object, QColor>>
+        self.colors = dict()
         self._loadColors()
         self.refresh()
 
@@ -64,15 +66,21 @@ class OscWorkingCopyModel(QAbstractTableModel):
                                       u'!': QColor(u"orange")}
 
     def clearColumns(self):
+        """
+        Clear the list of columns. Only keep one "File" column.
+        """
         self.__columnList[:] = []
         self.__columnList.append(u"File")
 
+    # from QAbstractTableModel
     def rowCount(self, _parent=None):
         return len(self.fileList())
 
+    # from QAbstractTableModel
     def columnCount(self, _parent=None):
         return len(self.__columnList)
 
+    # from QAbstractTableModel
     def headerData(self, section, orientation, role):
         if role == Qt.DisplayRole:
             if orientation == Qt.Orientation.Vertical:
@@ -113,6 +121,7 @@ class OscWorkingCopyModel(QAbstractTableModel):
             return Qt.AlignHCenter | Qt.AlignVCenter
         return None
 
+    # from QAbstractTableModel
     def data(self, index, role=Qt.DisplayRole):
         if not index.isValid() or index.row() >= self.rowCount():
             return None
@@ -124,6 +133,7 @@ class OscWorkingCopyModel(QAbstractTableModel):
             return self.textAlignmentRoleData(index)
         return None
 
+    # from QAbstractTableModel
     def sort(self, Ncol, order):
         self.sortOrder = order
         if Ncol == 0:
@@ -133,26 +143,34 @@ class OscWorkingCopyModel(QAbstractTableModel):
         self.refresh()
 
     def fileList(self):
+        """
+        Get the list of files of the working copy.
+        """
         return self.__fileList
 
     def fileName(self, index):
+        """
+        Get the name of the file at `index`.
+        """
         if not index.isValid() or index.row() >= self.rowCount():
             return None
         return self.fileList()[index.row()]
 
     def refresh(self):
-#        files = self.__obsLightManager.getPackageParameter(self.__project,
-#                                                           self.__package,
-#                                                           u"listFile")
-        files = self.__obsLightManager.getPackageParameter(projectLocalName=self.__project,
-                                                           package=self.__package,
-                                                           parameter="listFile")
+        """
+        Refresh the list of files, and reload the list of columns.
+        """
+        files = self.__obsLightManager.getPackageParameter(self.__project,
+                                                           self.__package,
+                                                           "listFile")
 
         self.clearColumns()
         for fileName in files:
+            # get informations about a file as a dictionary
             inf = self.__obsLightManager.getPackageFileInfo(self.__project,
                                                             self.__package,
                                                             fileName)
+            # search for new columns
             for key in inf.keys():
                 if not key in self.__columnList:
                     self.__columnList.append(key)

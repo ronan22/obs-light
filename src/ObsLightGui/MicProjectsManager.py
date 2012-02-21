@@ -29,6 +29,10 @@ from Utils import getSelectedRows, popupOnException
 from MicProjectManager import MicProjectManager
 
 class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
+    """
+    Manage the list of MIC projects and all the buttons of the MIC
+    project tab.
+    """
 
     def __init__(self, gui):
         ObsLightGuiObject.__init__(self, gui)
@@ -218,6 +222,10 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
 
     @popupOnException
     def on_openMicProjectDirectoryButton_clicked(self):
+        """
+        Called when user clicks on the 'open' button near the
+        MIC project directory QLineEdit.
+        """
         if self.currentProject is None:
             return
         projectPath = self._currentProjectObj.currentProjectPath

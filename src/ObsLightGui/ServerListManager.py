@@ -1,5 +1,5 @@
 #
-# Copyright 2011, Intel Inc.
+# Copyright 2011-2012, Intel Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,19 +21,16 @@ Created on 27 oct. 2011
 '''
 
 from PySide.QtCore import QObject
-from PySide.QtGui import QListWidget, QMessageBox, QPushButton
+from PySide.QtGui import QMessageBox
 
 from ServerConfigManager import ServerConfigManager
 from Utils import popupOnException
 from ObsLightGuiObject import ObsLightGuiObject
 
 class ServerListManager(QObject, ObsLightGuiObject):
-    u"""
+    """
     Manage the OBS server list window.
     """
-    __srvListDialog = None
-    __listWidget = None
-    __serverConfigManager = None
 
     def __init__(self, gui):
         """
@@ -42,23 +39,16 @@ class ServerListManager(QObject, ObsLightGuiObject):
         QObject.__init__(self)
         ObsLightGuiObject.__init__(self, gui)
         self.__srvListDialog = self.gui.loadWindow(u"obsServerList.ui")
-        self.__listWidget = self.__srvListDialog.findChild(QListWidget,
-                                                           u"obsServersListWidget")
+        self.__listWidget = self.__srvListDialog.obsServersListWidget
+        self.__serverConfigManager = None
         self.loadServerList()
-        addExistingServerButton = self.__srvListDialog.findChild(QPushButton,
-                                                                 u"addExistingServerButton")
-        addExistingServerButton.clicked.connect(self.on_addExistingServerButton_clicked)
-        createVirtualServerButton = self.__srvListDialog.findChild(QPushButton,
-                                                                   u"createVirtualServerButton")
-        createVirtualServerButton.clicked.connect(self.on_createVirtualServerButton_clicked)
-        modifyServerButton = self.__srvListDialog.findChild(QPushButton,
-                                                            u"modifyServerButton")
-        modifyServerButton.clicked.connect(self.on_modifyServerButton_clicked)
-        deleteServerButton = self.__srvListDialog.findChild(QPushButton, u"deleteServerButton")
-        deleteServerButton.clicked.connect(self.on_deleteServerButton_clicked)
-        testServerButton = self.__srvListDialog.findChild(QPushButton, u"checkConnectionButton")
-        testServerButton.clicked.connect(self.on_testServerButton_clicked)
-        self.__srvListDialog.show()
+        sld = self.__srvListDialog
+        sld.addExistingServerButton.clicked.connect(self.on_addExistingServerButton_clicked)
+        sld.createVirtualServerButton.clicked.connect(self.on_createVirtualServerButton_clicked)
+        sld.modifyServerButton.clicked.connect(self.on_modifyServerButton_clicked)
+        sld.deleteServerButton.clicked.connect(self.on_deleteServerButton_clicked)
+        sld.checkConnectionButton.clicked.connect(self.on_testServerButton_clicked)
+        sld.show()
 
     def loadServerList(self):
         '''
@@ -88,7 +78,7 @@ class ServerListManager(QObject, ObsLightGuiObject):
             serverAlias = currentItem.text()
             result = QMessageBox.question(self.mainWindow,
                                       "Are you sure ?",
-                                      "Are you sure you want to delete %s server ?"
+                                      "Are you sure you want to delete '%s' server ?"
                                         % serverAlias,
                                       buttons=QMessageBox.Yes | QMessageBox.No,
                                       defaultButton=QMessageBox.Yes)

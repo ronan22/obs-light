@@ -35,9 +35,17 @@ from KickstartScriptsModel import KickstartScriptsModel
 from KickstartOverlayFilesModel import KickstartOverlayFilesModel
 
 class MicProjectManager(QObject, ObsLightGuiObject):
+    """
+    Manage the display and interactions with a MIC project.
+    """
     # pylint: disable-msg=E0202, E1101
 
     def __init__(self, gui, name):
+        """
+        Initialize a MicProjectManager.
+        `gui` is a reference to the main Gui instance.
+        `name` is the name of the MIC project to manage.
+        """
         QObject.__init__(self)
         ObsLightGuiObject.__init__(self, gui)
         self.__projectName = name
@@ -46,8 +54,7 @@ class MicProjectManager(QObject, ObsLightGuiObject):
         self.__pkgGrpModel = KickstartPackageGroupsModel(self.manager, self.currentProject)
         self.__cmdModel = KickstartCommandsModel(self.manager, self.currentProject)
         self.__scriptModel = KickstartScriptsModel(self.manager, self.currentProject)
-        self.__overlayModel = KickstartOverlayFilesModel(self.manager,
-                                                         self.currentProject)
+        self.__overlayModel = KickstartOverlayFilesModel(self.manager, self.currentProject)
 
     def __loadUi(self):
         self.__loadImageType()
@@ -118,12 +125,17 @@ class MicProjectManager(QObject, ObsLightGuiObject):
 
     @property
     def currentProjectPath(self):
+        """
+        Get the path where the different files related to the MIC
+        project are stored.
+        """
         ksPath = self.manager.getKickstartFile(self.currentProject)
         projectPath = os.path.dirname(ksPath)
         return projectPath
 
     @property
     def currentProjectKickstartPath(self):
+        """Get the path of the Kickstart file of the MIC project"""
         return self.manager.getKickstartFile(self.currentProject)
 
     @property
@@ -146,26 +158,32 @@ class MicProjectManager(QObject, ObsLightGuiObject):
 
     @property
     def repositoryModel(self):
+        """Get a reference to the KickstartRepositoriesModel instance used by this class"""
         return self.__repoModel
 
     @property
     def packageModel(self):
+        """Get a reference to the KickstartPackagesModel instance used by this class"""
         return self.__pkgModel
 
     @property
     def packageGroupModel(self):
+        """Get a reference to the KickstartPackageGroupsModel instance used by this class"""
         return self.__pkgGrpModel
 
     @property
     def commandModel(self):
+        """Get a reference to the KickstartCommandsModel instance used by this class"""
         return self.__cmdModel
 
     @property
     def scriptModel(self):
+        """Get a reference to the KickstartScriptsModel instance used by this class"""
         return self.__scriptModel
 
     @property
     def overlayModel(self):
+        """Get a reference to the KickstartOverlayFilesModel instance used by this class"""
         return self.__overlayModel
 
     def refresh(self):

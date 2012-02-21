@@ -31,80 +31,10 @@ from PySide.QtGui import QMessageBox, QProgressDialog
 from ObsLight import ObsLightErr
 from ObsLight.ObsLightUtils import isNonEmptyString
 
-class QRunnableImpl(QRunnable):
-    '''
-    Empty QRunnable implementation.
-    PySide's `QRunnable` maps to Qt's C++ QRunnable abstract class, so we can't
-    instantiate it first and then replace its "run" method.
-    This class provides an implementation which does nothing.
-    '''
-    def run(self):
-        pass
-
-
-class ProgressRunnable(QRunnable, QObject):
-    '''
-    QRunnable implementation which can update a QProgressDialog, and
-    send exceptions to a callback.
-    Deprecated, use ProgressRunnable2.
-    '''
-    __progressDialog = None
-    __isFinite = False
-    # Create two signals: one with no parameter, the other with one integer parameter
-    __finished = Signal((), (int,))
-    finished = Signal()
-    finishedWithException = Signal(BaseException)
-
-    def __init__(self, func, *args, **kwargs):
-        '''
-        Initialize the ProgressRunnable with the function to run in thread
-        and its optional arguments.
-        '''
-        QRunnable.__init__(self)
-        QObject.__init__(self)
-        self.func = func
-        self.params = args
-        self.kwargs = kwargs
-
-    def setProgressDialog(self, dialog):
-        '''
-        Set the QProgressDialog (or QProgressBar) to update when finished
-        running the function.
-        If it is an infinite progress dialog (minimum == maximum),
-        the ProgressRunnable will call reset().
-        If it is a regular progress dialog (minimum < maximum),
-        the ProgressRunnable will increment its value().
-        '''
-        self.__progressDialog = dialog
-        if self.__progressDialog is not None:
-            self.__isFinite = self.__progressDialog.minimum() < self.__progressDialog.maximum()
-
-    def __updateValue(self):
-        if self.__progressDialog is not None:
-            if self.__isFinite:
-                # "Real" progress dialog, so increase value
-                self.__finished[int].connect(self.__progressDialog.setValue)
-                value = self.__progressDialog.value()
-                self.__finished[int].emit(value + 1)
-                self.__finished[int].disconnect(self.__progressDialog.setValue)
-            else:
-                # "Infinite" progress dialog, so reset it
-                self.__finished.connect(self.__progressDialog.reset)
-                self.__finished.emit()
-                self.__finished.disconnect(self.__progressDialog.reset)
-
-    def run(self):
-        caughtException = None
-        try:
-            self.func(*self.params, **self.kwargs)
-        except BaseException as e:
-            caughtException = e
-        finally:
-            self.__updateValue()
-            if caughtException is not None:
-                self.finishedWithException.emit(e)
-            self.finished.emit()
-
+URL_REGEXP = QRegExp(u"http[s]?://.+")
+SERVER_ALIAS_REGEXP = QRegExp(u"[^\\s:;,/]+")
+PROJECT_ALIAS_REGEXP = QRegExp(u"[^\\s:;,/]+")
+PATCH_NAME_REGEXP = QRegExp(u"\\S+\.patch")
 
 class ProgressRunnable2(QObject, QRunnable):
     """
@@ -535,8 +465,3 @@ def getSelectedRows(abstractItemView):
             row = index.row()
             rows.add(row)
     return rows
-
-URL_REGEXP = QRegExp(u"http[s]?://.+")
-SERVER_ALIAS_REGEXP = QRegExp(u"[^\\s:;,/]+")
-PROJECT_ALIAS_REGEXP = QRegExp(u"[^\\s:;,/]+")
-PATCH_NAME_REGEXP = QRegExp(u"\\S+\.patch")

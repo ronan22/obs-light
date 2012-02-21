@@ -1,5 +1,5 @@
 #
-# Copyright 2011, Intel Inc.
+# Copyright 2011-2012, Intel Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,8 +21,7 @@ Created on 17 nov. 2011
 '''
 
 from PySide.QtCore import QObject, Signal
-from PySide.QtGui import QDialog, QDialogButtonBox
-from PySide.QtGui import QLineEdit, QPushButton, QRegExpValidator
+from PySide.QtGui import QDialog, QDialogButtonBox, QRegExpValidator
 
 from ObsLight.ObsLightUtils import isNonEmptyString
 
@@ -33,17 +32,6 @@ class ServerConfigManager(QObject, ObsLightGuiObject):
     '''
     Manage an OBS server configuration window.
     '''
-    __serverAlias = None
-    __srvConfDialog = None
-    __checkConnectionButton = None
-
-    __dialogButtonBox = None
-    __webUrlLineEdit = None
-    __apiUrlLineEdit = None
-    __repoUrlLineEdit = None
-    __aliasLineEdit = None
-    __userLineEdit = None
-    __passLineEdit = None
 
     finished = Signal(bool)
 
@@ -64,71 +52,60 @@ class ServerConfigManager(QObject, ObsLightGuiObject):
         self.__srvConfDialog.show()
 
     def __loadWidgets(self):
-        self.__dialogButtonBox = self.__srvConfDialog.findChild(QDialogButtonBox,
-                                                                "obsServerConfigButtonBox")
         self.disableOkButton()
-        self.__webUrlLineEdit = self.__srvConfDialog.findChild(QLineEdit,
-                                                               u"serverWebUrlLineEdit")
         httpValidator = QRegExpValidator()
         httpValidator.setRegExp(URL_REGEXP)
-        self.__webUrlLineEdit.setValidator(httpValidator)
-        self.__webUrlLineEdit.setPlaceholderText(u"http://myObs")
-        self.__webUrlLineEdit.textEdited.connect(self.disableOkButton)
-        self.__apiUrlLineEdit = self.__srvConfDialog.findChild(QLineEdit,
-                                                               u"serverApiLineEdit")
-        self.__apiUrlLineEdit.setValidator(httpValidator)
-        self.__apiUrlLineEdit.setPlaceholderText(u"http://myObs:81")
-        self.__apiUrlLineEdit.textEdited.connect(self.disableOkButton)
-        self.__repoUrlLineEdit = self.__srvConfDialog.findChild(QLineEdit,
-                                                                u"serverRepoLineEdit")
-        self.__repoUrlLineEdit.setValidator(httpValidator)
-        self.__repoUrlLineEdit.setPlaceholderText(u"http://myObs:82")
-        self.__repoUrlLineEdit.textEdited.connect(self.disableOkButton)
-        self.__aliasLineEdit = self.__srvConfDialog.findChild(QLineEdit,
-                                                              u"serverAliasLineEdit")
+        self.__srvConfDialog.serverWebUrlLineEdit.setValidator(httpValidator)
+        self.__srvConfDialog.serverWebUrlLineEdit.setPlaceholderText(u"http://myObs")
+        self.__srvConfDialog.serverWebUrlLineEdit.textEdited.connect(self.disableOkButton)
+
+        self.__srvConfDialog.serverApiLineEdit.setValidator(httpValidator)
+        self.__srvConfDialog.serverApiLineEdit.setPlaceholderText(u"http://myObs:81")
+        self.__srvConfDialog.serverApiLineEdit.textEdited.connect(self.disableOkButton)
+
+        self.__srvConfDialog.serverRepoLineEdit.setValidator(httpValidator)
+        self.__srvConfDialog.serverRepoLineEdit.setPlaceholderText(u"http://myObs:82")
+        self.__srvConfDialog.serverRepoLineEdit.textEdited.connect(self.disableOkButton)
+
         noSpaceValidator = QRegExpValidator()
         noSpaceValidator.setRegExp(SERVER_ALIAS_REGEXP)
-        self.__aliasLineEdit.setValidator(noSpaceValidator)
-        self.__userLineEdit = self.__srvConfDialog.findChild(QLineEdit,
-                                                             u"usernameLineEdit")
-        self.__passLineEdit = self.__srvConfDialog.findChild(QLineEdit,
-                                                             u"passwordLineEdit")
-        self.__checkConnectionButton = self.__srvConfDialog.findChild(QPushButton,
-                                                                      u"checkConnectionButton")
-        self.__checkConnectionButton.clicked.connect(self.on_checkConnectionButton_clicked)
+        self.__srvConfDialog.serverAliasLineEdit.setValidator(noSpaceValidator)
+
+        self.__srvConfDialog.checkConnectionButton.clicked.connect(self.on_checkConnectionButton_clicked)
 
     def __loadInitialFieldValues(self):
         manager = self.manager
-        self.__aliasLineEdit.setText(self.__serverAlias)
-        self.__aliasLineEdit.setReadOnly(True)
-        self.__webUrlLineEdit.setText(manager.getObsServerParameter(self.__serverAlias,
-                                                                    u"serverWeb"))
-        self.__apiUrlLineEdit.setText(manager.getObsServerParameter(self.__serverAlias,
-                                                                    u"serverAPI"))
-        self.__repoUrlLineEdit.setText(manager.getObsServerParameter(self.__serverAlias,
-                                                                     u"serverRepo"))
-        self.__userLineEdit.setText(manager.getObsServerParameter(self.__serverAlias,
-                                                                  u"user"))
-        self.__passLineEdit.setText(manager.getObsServerParameter(self.__serverAlias,
-                                                                  u"passw"))
+        scd = self.__srvConfDialog
+        scd.serverAliasLineEdit.setText(self.__serverAlias)
+        scd.serverAliasLineEdit.setReadOnly(True)
+        scd.serverWebUrlLineEdit.setText(manager.getObsServerParameter(self.__serverAlias,
+                                                                       "serverWeb"))
+        scd.serverApiLineEdit.setText(manager.getObsServerParameter(self.__serverAlias,
+                                                                    "serverAPI"))
+        scd.serverRepoLineEdit.setText(manager.getObsServerParameter(self.__serverAlias,
+                                                                     "serverRepo"))
+        scd.usernameLineEdit.setText(manager.getObsServerParameter(self.__serverAlias,
+                                                                   "user"))
+        scd.passwordLineEdit.setText(manager.getObsServerParameter(self.__serverAlias,
+                                                                   "passw"))
 
     def getWebIfaceUrl(self):
-        return self.__webUrlLineEdit.text()
+        return self.__srvConfDialog.serverWebUrlLineEdit.text()
 
     def getApiUrl(self):
-        return self.__apiUrlLineEdit.text()
+        return self.__srvConfDialog.serverApiLineEdit.text()
 
     def getRepoUrl(self):
-        return self.__repoUrlLineEdit.text()
+        return self.__srvConfDialog.serverRepoLineEdit.text()
 
     def getAlias(self):
-        return self.__aliasLineEdit.text()
+        return self.__srvConfDialog.serverAliasLineEdit.text()
 
     def getUser(self):
-        return self.__userLineEdit.text()
+        return self.__srvConfDialog.usernameLineEdit.text()
 
     def getPass(self):
-        return self.__passLineEdit.text()
+        return self.__srvConfDialog.passwordLineEdit.text()
 
     @popupOnException
     def on_obsServerConfigDialog_finished(self, result):
@@ -150,25 +127,25 @@ class ServerConfigManager(QObject, ObsLightGuiObject):
         # so modify it.
         else:
             manager.setObsServerParameter(self.__serverAlias,
-                                          u"serverWeb",
+                                          "serverWeb",
                                           self.getWebIfaceUrl())
             manager.setObsServerParameter(self.__serverAlias,
-                                          u"serverAPI",
+                                          "serverAPI",
                                           self.getApiUrl())
             manager.setObsServerParameter(self.__serverAlias,
-                                          u"serverRepo",
+                                          "serverRepo",
                                           self.getRepoUrl())
             manager.setObsServerParameter(self.__serverAlias,
-                                          u"user",
+                                          "user",
                                           self.getUser())
             manager.setObsServerParameter(self.__serverAlias,
-                                          u"passw",
+                                          "passw",
                                           self.getPass())
             self.finished.emit(True)
 
     def disableOkButton(self, _=None):
         # We need a parameter ^ in order to call this method from textEdited signal
-        self.__dialogButtonBox.button(QDialogButtonBox.Ok).setEnabled(False)
+        self.__srvConfDialog.obsServerConfigButtonBox.button(QDialogButtonBox.Ok).setEnabled(False)
 
     @popupOnException
     def on_checkConnectionButton_clicked(self):
@@ -201,35 +178,37 @@ class ServerConfigManager(QObject, ObsLightGuiObject):
         password = self.getPass()
         alias = self.getAlias()
 
-        userPassOk = testAndColorizeString(user, self.__userLineEdit)
-        userPassOk = testAndColorizeString(password, self.__passLineEdit) and userPassOk
+        scd = self.__srvConfDialog
+
+        userPassOk = testAndColorizeString(user, scd.usernameLineEdit)
+        userPassOk = testAndColorizeString(password, scd.passwordLineEdit) and userPassOk
 
         allOk = userPassOk
-        allOk = testAndColorizeUrl(web, self.__webUrlLineEdit) and allOk
-        allOk = testAndColorizeUrl(repo, self.__repoUrlLineEdit) and allOk
+        allOk = testAndColorizeUrl(web, scd.serverWebUrlLineEdit) and allOk
+        allOk = testAndColorizeUrl(repo, scd.serverRepoLineEdit) and allOk
 
         if userPassOk:
             apiRes = self.manager.testApi(api, user, password)
             if apiRes == 1:
-                colorizeWidget(self.__userLineEdit, "red")
-                colorizeWidget(self.__passLineEdit, "red")
+                colorizeWidget(scd.usernameLineEdit, "red")
+                colorizeWidget(scd.passwordLineEdit, "red")
                 allOk = False
             elif apiRes == 2:
-                colorizeWidget(self.__apiUrlLineEdit, "red")
-                colorizeWidget(self.__userLineEdit, "orange")
-                colorizeWidget(self.__passLineEdit, "orange")
+                colorizeWidget(scd.serverApiLineEdit, "red")
+                colorizeWidget(scd.usernameLineEdit, "orange")
+                colorizeWidget(scd.passwordLineEdit, "orange")
                 allOk = False
             else:
-                colorizeWidget(self.__apiUrlLineEdit, "green")
-                colorizeWidget(self.__userLineEdit, "green")
-                colorizeWidget(self.__passLineEdit, "green")
+                colorizeWidget(scd.serverApiLineEdit, "green")
+                colorizeWidget(scd.usernameLineEdit, "green")
+                colorizeWidget(scd.passwordLineEdit, "green")
 
         srvList = self.manager.getObsServerList()
         if (isNonEmptyString(alias) and
                 (alias == self.__serverAlias or self.getAlias() not in srvList)):
-            colorizeWidget(self.__aliasLineEdit, "green")
+            colorizeWidget(scd.serverAliasLineEdit, "green")
         else:
             allOk = False
-            colorizeWidget(self.__aliasLineEdit, "red")
+            colorizeWidget(scd.serverAliasLineEdit, "red")
 
-        self.__dialogButtonBox.button(QDialogButtonBox.Ok).setEnabled(allOk)
+        scd.obsServerConfigButtonBox.button(QDialogButtonBox.Ok).setEnabled(allOk)

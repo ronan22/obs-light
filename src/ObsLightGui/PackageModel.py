@@ -1,5 +1,5 @@
 #
-# Copyright 2011, Intel Inc.
+# Copyright 2011-2012, Intel Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -30,23 +30,23 @@ class PackageModel(QAbstractTableModel):
     '''
 
     NameColumn = 0
-    OscStatusColumn = 3
-    OscRevColumn = 4
     ObsStatusColumn = 1
     ObsRevColumn = 2
-    ChrootStatusColumn = 5
+    OscStatusColumn = 3
+    OscRevColumn = 4
+    FSStatusColumn = 5
 
     colors = list(({}, {}, {}, {}, {}, {}))
+    ColumnHeaders = ("Package", "OBS status", "Rev",
+                     "Local status", "Rev", "Filesystem status")
 
-    __obsLightManager = None
-    __project = None
     __emptyList = {}
-    __pkgList = None
 
     def __init__(self, obsLightManager, projectName):
         QAbstractTableModel.__init__(self)
         self.__obsLightManager = obsLightManager
         self.__project = projectName
+        self.__pkgList = None
         self.__getPackageList()
         self._loadColors()
 
@@ -73,18 +73,7 @@ class PackageModel(QAbstractTableModel):
             if orientation == Qt.Orientation.Vertical:
                 return section
             else:
-                if section == self.NameColumn:
-                    return u"Package"
-                elif section == self.ObsStatusColumn:
-                    return u"OBS status"
-                elif section == self.ChrootStatusColumn:
-                    return u"Filesystem status"
-                elif section == self.OscStatusColumn:
-                    return u"Local status"
-                elif section == self.OscRevColumn:
-                    return u"Rev"
-                elif section == self.ObsRevColumn:
-                    return u"Rev"
+                return self.ColumnHeaders[section]
         elif role == Qt.SizeHintRole:
             if orientation == Qt.Orientation.Vertical:
                 pass
@@ -103,7 +92,7 @@ class PackageModel(QAbstractTableModel):
         self.colors[self.ObsStatusColumn]["scheduled"] = QColor(u"blue")
         self.colors[self.ObsStatusColumn]["unresolvable"] = QColor(u"darkred")
 
-        self.colors[self.ChrootStatusColumn]["Installed"] = QColor(u"green")
+        self.colors[self.FSStatusColumn]["Installed"] = QColor(u"green")
 
         self.colors[self.OscStatusColumn]["Unknown"] = QColor(u"grey")
         self.colors[self.OscStatusColumn]["Succeeded"] = QColor(u"green")
@@ -142,7 +131,7 @@ class PackageModel(QAbstractTableModel):
             retVal = packageName
         elif column == self.ObsStatusColumn:
             retVal = packageList[packageName]["status"]
-        elif column == self.ChrootStatusColumn:
+        elif column == self.FSStatusColumn:
             retVal = packageList[packageName]["chRootStatus"]
         elif column == self.OscStatusColumn:
             retVal = packageList[packageName]["oscStatus"]

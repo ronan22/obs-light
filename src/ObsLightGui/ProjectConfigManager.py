@@ -1,5 +1,5 @@
 #
-# Copyright 2011, Intel Inc.
+# Copyright 2011-2012, Intel Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@ Created on 17 nov. 2011
 '''
 
 from PySide.QtCore import QObject, QThreadPool, Signal
-from PySide.QtGui import QComboBox, QDialogButtonBox, QLineEdit, QRegExpValidator, QTextEdit
+from PySide.QtGui import QDialogButtonBox, QRegExpValidator
 from PySide.QtGui import QCompleter
 
 from ObsLight.ObsLightErr import OBSLightBaseError
@@ -32,115 +32,86 @@ from ObsLightGuiObject import ObsLightGuiObject
 
 class ProjectConfigManager(QObject, ObsLightGuiObject):
     '''
-    Manages the project configuration dialog.
+    Manages the OBS project configuration dialog.
     '''
 
-    __projectAlias = None
-    __obsNameCompleter = None
-
-    __configDialog = None
-    __configButtonBox = None
-
-    __localNameField = None
-    __obsNameField = None
-    __serverCBox = None
-    __targetCBox = None
-    __archCBox = None
-    __titleLineEdit = None
-    __descriptionTextEdit = None
-
     finished = Signal(bool)
-    __projectObsNameEdited = False
 
     def __init__(self, gui, projectAlias=None):
         QObject.__init__(self)
         ObsLightGuiObject.__init__(self, gui)
         self.__projectAlias = projectAlias
         self.__configDialog = self.gui.loadWindow(u"obsProjectConfig.ui")
-        self.__loadFieldObjects()
+        self.__projectObsNameEdited = False
+
+        # obslight do not like whitespace characters
+        noSpaceValidator = QRegExpValidator()
+        noSpaceValidator.setRegExp(PROJECT_ALIAS_REGEXP)
+        self.__configDialog.projectLocalNameLineEdit.setValidator(noSpaceValidator)
+
+        self.__obsNameCompleter = None
         self.__loadInitialFieldValues()
         self.__makeConnections()
         if self.__isNewProject():
             self.handleServerChanged()
         self.__configDialog.accepted.connect(self.on_configDialog_accepted)
         self.__configDialog.rejected.connect(self.on_configDialog_rejected)
-        self.__configButtonBox.button(QDialogButtonBox.Ok).clicked.connect(self.validate)
+        obsProjectConfigButtonBox = self.__configDialog.obsProjectConfigButtonBox
+        obsProjectConfigButtonBox.button(QDialogButtonBox.Ok).clicked.connect(self.validate)
         self.__configDialog.show()
         self.__undefaultButtons()
 
 
     def __undefaultButtons(self):
-        for button in self.__configButtonBox.buttons():
+        for button in self.__configDialog.obsProjectConfigButtonBox.buttons():
             button.setAutoDefault(False)
             button.setDefault(False)
 
     def __isNewProject(self):
         return self.__projectAlias is None
 
-    def __loadFieldObjects(self):
-        self.__configButtonBox = self.__configDialog.findChild(QDialogButtonBox,
-                                                               u"obsProjectConfigButtonBox")
-        self.__localNameField = self.__configDialog.findChild(QLineEdit,
-                                                              u"projectLocalNameLineEdit")
-        # obslight do not like whitespace characters
-        noSpaceValidator = QRegExpValidator()
-        noSpaceValidator.setRegExp(PROJECT_ALIAS_REGEXP)
-        self.__localNameField.setValidator(noSpaceValidator)
-        self.__obsNameField = self.__configDialog.findChild(QLineEdit,
-                                                            u"projectObsNameLineEdit")
-        self.__serverCBox = self.__configDialog.findChild(QComboBox,
-                                                          u"projectServerComboBox")
-        self.__targetCBox = self.__configDialog.findChild(QComboBox,
-                                                          u"projectTargetComboBox")
-        self.__archCBox = self.__configDialog.findChild(QComboBox,
-                                                        u"projectArchitectureComboBox")
-        self.__titleLineEdit = self.__configDialog.findChild(QLineEdit,
-                                                             u"projectTitleLineEdit")
-        self.__descriptionTextEdit = self.__configDialog.findChild(QTextEdit,
-                                                                   u"projectDescriptionTextEdit")
-
     def __loadAliasField(self):
-        self.__localNameField.setText(self.__projectAlias)
-        self.__localNameField.setReadOnly(True)
+        self.__configDialog.projectLocalNameLineEdit.setText(self.__projectAlias)
+        self.__configDialog.projectLocalNameLineEdit.setReadOnly(True)
 
     def __preselectActualServer(self):
         obsServerAlias = self.manager.getProjectParameter(self.__projectAlias,
                                                                     u"obsServer")
-        lineIndex = self.__serverCBox.findText(obsServerAlias)
+        lineIndex = self.__configDialog.projectServerComboBox.findText(obsServerAlias)
         if lineIndex >= 0:
-            self.__serverCBox.setCurrentIndex(lineIndex)
-        self.__serverCBox.setEnabled(False)
+            self.__configDialog.projectServerComboBox.setCurrentIndex(lineIndex)
+        self.__configDialog.projectServerComboBox.setEnabled(False)
 
     def __loadObsNameField(self):
         projectObsName = self.manager.getProjectParameter(self.__projectAlias, u"projectObsName")
-        self.__obsNameField.setText(projectObsName)
-        self.__obsNameField.setReadOnly(True)
+        self.__configDialog.projectObsNameLineEdit.setText(projectObsName)
+        self.__configDialog.projectObsNameLineEdit.setReadOnly(True)
 
     def __preselectActualTarget(self):
         target = self.manager.getProjectParameter(self.__projectAlias, u"projectTarget")
-        lineIndex = self.__targetCBox.findText(target)
+        lineIndex = self.__configDialog.projectTargetComboBox.findText(target)
         if lineIndex >= 0:
-            self.__targetCBox.setCurrentIndex(lineIndex)
+            self.__configDialog.projectTargetComboBox.setCurrentIndex(lineIndex)
 
     def __preselectActualArch(self):
         arch = self.manager.getProjectParameter(self.__projectAlias, u"projectArchitecture")
-        lineIndex = self.__archCBox.findText(arch)
+        lineIndex = self.__configDialog.projectArchitectureComboBox.findText(arch)
         if lineIndex >= 0:
-            self.__archCBox.setCurrentIndex(lineIndex)
+            self.__configDialog.projectArchitectureComboBox.setCurrentIndex(lineIndex)
 
     def __loadProjectTitle(self):
         title = self.manager.getProjectParameter(self.__projectAlias, u"title")
-        self.__titleLineEdit.setText(title)
-        self.__titleLineEdit.setEnabled(True)
+        self.__configDialog.projectTitleLineEdit.setText(title)
+        self.__configDialog.projectTitleLineEdit.setEnabled(True)
 
     def __loadProjectDescription(self):
         description = self.manager.getProjectParameter(self.__projectAlias, u"description")
-        self.__descriptionTextEdit.setText(description)
-        self.__descriptionTextEdit.setEnabled(True)
+        self.__configDialog.projectDescriptionTextEdit.setText(description)
+        self.__configDialog.projectDescriptionTextEdit.setEnabled(True)
 
     def __loadServerList(self, serverList):
-        self.__serverCBox.clear()
-        self.__serverCBox.addItems(serverList)
+        self.__configDialog.projectServerComboBox.clear()
+        self.__configDialog.projectServerComboBox.addItems(serverList)
 
     def __loadKnownProjectValues(self):
         # load project local name
@@ -170,12 +141,13 @@ class ProjectConfigManager(QObject, ObsLightGuiObject):
         QThreadPool.globalInstance().start(runnable)
 
     def __makeConnections(self):
+        scd = self.__configDialog
         if self.__isNewProject():
-            self.__obsNameField.textEdited.connect(self.handleObsNameEdited)
-            self.__obsNameField.editingFinished.connect(self.handleObsNameEditingFinished)
-            self.__obsNameField.returnPressed.connect(self.handleObsNameReturnPressed)
-            self.__serverCBox.currentIndexChanged.connect(self.handleServerChanged)
-        self.__targetCBox.currentIndexChanged.connect(self.handleTargetIndexChanged)
+            scd.projectObsNameLineEdit.textEdited.connect(self.handleObsNameEdited)
+            scd.projectObsNameLineEdit.editingFinished.connect(self.handleObsNameEditingFinished)
+            scd.projectObsNameLineEdit.returnPressed.connect(self.handleObsNameReturnPressed)
+            scd.projectServerComboBox.currentIndexChanged.connect(self.handleServerChanged)
+        scd.projectTargetComboBox.currentIndexChanged.connect(self.handleTargetIndexChanged)
 
     def __loadTargetPossibilities(self):
         '''
@@ -183,17 +155,17 @@ class ProjectConfigManager(QObject, ObsLightGuiObject):
         according to the current server and project.
         May take some time, so you should run it asynchronously.
         '''
-        self.__archCBox.clear()
-        self.__targetCBox.clear()
+        self.__configDialog.projectArchitectureComboBox.clear()
+        self.__configDialog.projectTargetComboBox.clear()
         if len(self.getCurrentServerAlias()) > 0 and len(self.getCurrentProjectObsName()) > 0:
             try:
-                targets = self.manager.getObsProjectParameter(serverApi=self.getCurrentServerAlias(),
-                                                       obsproject=self.getCurrentProjectObsName(),
-                                                       parameter="repository")
-                self.__targetCBox.addItems(targets)
-                removeEffect(self.__obsNameField)
+                targets = self.manager.getObsProjectParameter(self.getCurrentServerAlias(),
+                                                              self.getCurrentProjectObsName(),
+                                                              parameter="repository")
+                self.__configDialog.projectTargetComboBox.addItems(targets)
+                removeEffect(self.__configDialog.projectObsNameLineEdit)
             except BaseException:
-                colorizeWidget(self.__obsNameField, 'red')
+                colorizeWidget(self.__configDialog.projectObsNameLineEdit, 'red')
 
     def __loadArchPossibilities(self):
         '''
@@ -201,13 +173,13 @@ class ProjectConfigManager(QObject, ObsLightGuiObject):
         according to the current server, project and target.
         May take some time, so you should run it asynchronously.
         '''
-        self.__archCBox.clear()
+        self.__configDialog.projectArchitectureComboBox.clear()
         if len(self.getCurrentTarget()) > 0:
             archs = self.manager.getObsProjectParameter(serverApi=self.getCurrentServerAlias(),
                                                        obsproject=self.getCurrentProjectObsName(),
                                                        parameter="arch")
 
-            self.__archCBox.addItems(archs)
+            self.__configDialog.projectArchitectureComboBox.addItems(archs)
 
     def handleObsNameEdited(self, _ignore):
         self.__projectObsNameEdited = True
@@ -216,9 +188,9 @@ class ProjectConfigManager(QObject, ObsLightGuiObject):
         try:
             projectList = self.manager.getObsServerProjectList(self.getCurrentServerAlias())
             self.__obsNameCompleter = QCompleter(projectList, self.__configDialog)
-            self.__obsNameField.setCompleter(self.__obsNameCompleter)
+            self.__configDialog.projectObsNameLineEdit.setCompleter(self.__obsNameCompleter)
         except OBSLightBaseError:
-            self.__obsNameField.setCompleter(None)
+            self.__configDialog.projectObsNameLineEdit.setCompleter(None)
         self.handleObsNameEditingFinished()
 
     def handleObsNameEditingFinished(self):
@@ -238,53 +210,53 @@ class ProjectConfigManager(QObject, ObsLightGuiObject):
         QThreadPool.globalInstance().start(task)
 
     def getCurrentServerAlias(self):
-        return self.__serverCBox.currentText()
+        return self.__configDialog.projectServerComboBox.currentText()
 
     def getCurrentProjectLocalName(self):
-        return self.__localNameField.text()
+        return self.__configDialog.projectLocalNameLineEdit.text()
 
     def getCurrentProjectObsName(self):
-        return self.__obsNameField.text()
+        return self.__configDialog.projectObsNameLineEdit.text()
 
     def getCurrentTarget(self):
-        return self.__targetCBox.currentText()
+        return self.__configDialog.projectTargetComboBox.currentText()
 
     def getCurrentArch(self):
-        return self.__archCBox.currentText()
+        return self.__configDialog.projectArchitectureComboBox.currentText()
 
     def getCurrentTitle(self):
-        return self.__titleLineEdit.text()
+        return self.__configDialog.projectTitleLineEdit.text()
 
     def getCurrentDescription(self):
-        return self.__descriptionTextEdit.toPlainText()
+        return self.__configDialog.projectDescriptionTextEdit.toPlainText()
 
     def validate(self):
         localName = self.getCurrentProjectLocalName()
         validated = True
         if (not isNonEmptyString(localName) or
                 self.__isNewProject() and self.manager.isALocalProject(localName)):
-            colorizeWidget(self.__localNameField, "red")
+            colorizeWidget(self.__configDialog.projectLocalNameLineEdit, "red")
             validated = False
         else:
-            removeEffect(self.__localNameField)
+            removeEffect(self.__configDialog.projectLocalNameLineEdit)
 
         if not isNonEmptyString(self.getCurrentProjectObsName()):
-            colorizeWidget(self.__obsNameField, "red")
+            colorizeWidget(self.__configDialog.projectObsNameLineEdit, "red")
             validated = False
         else:
-            removeEffect(self.__obsNameField)
+            removeEffect(self.__configDialog.projectObsNameLineEdit)
 
         if not isNonEmptyString(self.getCurrentTarget()):
-            colorizeWidget(self.__targetCBox, "red")
+            colorizeWidget(self.__configDialog.projectTargetComboBox, "red")
             validated = False
         else:
-            removeEffect(self.__targetCBox)
+            removeEffect(self.__configDialog.projectTargetComboBox)
 
         if not isNonEmptyString(self.getCurrentArch()):
-            colorizeWidget(self.__archCBox, "red")
+            colorizeWidget(self.__configDialog.projectArchitectureComboBox, "red")
             validated = False
         else:
-            removeEffect(self.__archCBox)
+            removeEffect(self.__configDialog.projectArchitectureComboBox)
 
         if validated:
             self.__configDialog.accept()
