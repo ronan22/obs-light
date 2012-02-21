@@ -46,7 +46,7 @@ class ObsLightGuiObject(object):
         """
         Get a reference to the `ObsLight.ObsLightManager.ObsLightManager` instance.
         """
-        return self.gui.manager()
+        return self.gui.manager
 
     @property
     def mainWindow(self):

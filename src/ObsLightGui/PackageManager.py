@@ -49,6 +49,8 @@ class PackageManager(QObject, ObsLightGuiObject):
         self.__project = None
         # in use in initializePackageFilters()
         self.__packageFilterInitialized = False
+        # in use in on_addAndCommitButton_clicked()
+        self.__commitDialog = None
 
         mw = self.mainWindow
         mw.packageTableView.setSelectionBehavior(QTableView.SelectionBehavior.SelectRows)
@@ -606,20 +608,22 @@ class PackageManager(QObject, ObsLightGuiObject):
             if result != QMessageBox.Yes:
                 return
 
-        message, accepted = QInputDialog.getText(self.mainWindow,
-                                                 u"Enter commit message...",
-                                                 u"Commit message:")
-        if accepted:
-            progress = self.gui.getInfiniteProgressDialog()
-            runnable = ProgressRunnable2(progress)
-            runnable.setDialogMessage(u"Committing changes")
-            runnable.setRunMethod(self.manager.addAndCommitChanges,
-                                  project,
-                                  package,
-                                  message)
-            runnable.caughtException.connect(self.gui.popupErrorCallback)
-            runnable.finished.connect(self.__refreshStatus)
-            runnable.runOnGlobalInstance()
+        self.__commitDialog = self.gui.loadWindow(u"commitMessageDialog.ui")
+        self.__commitDialog.accepted.connect(self.__doCommit)
+        self.__commitDialog.show()
+
+    def __doCommit(self):
+        message = self.__commitDialog.commitMessageTextEdit.toPlainText()
+        progress = self.gui.getInfiniteProgressDialog()
+        runnable = ProgressRunnable2(progress)
+        runnable.setDialogMessage(u"Committing changes")
+        runnable.setRunMethod(self.manager.addAndCommitChanges,
+                              self.getCurrentProject(),
+                              self.currentPackage(),
+                              message)
+        runnable.caughtException.connect(self.gui.popupErrorCallback)
+        runnable.finished.connect(self.__refreshStatus)
+        runnable.runOnGlobalInstance()
 
     def __refreshBothStatuses(self, *args, **kwargs):
         self.manager.refreshOscDirectoryStatus(*args, **kwargs)
