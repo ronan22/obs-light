@@ -1,4 +1,5 @@
 #!/bin/bash -e
 
 echo "Appliance from http://susestudio.com/a/e0uuBG/meego-obs-light"
-echo Login/PW:root/linux
+echo "Login/PW:root/opensuse"
+echo "Login/PW:tux/opensuse"

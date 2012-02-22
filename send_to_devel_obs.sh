@@ -15,8 +15,9 @@ fi
 TMPDIR=`mktemp -d`
 PROJECTDIR=`pwd`
 cd $TMPDIR
+echo TMPDIR $TMPDIR
 # Checkout the project
-osc -A https://api.pub.meego.com co -c home:ronan:OBS_Light obslight
+osc -A https://api.pub.meego.com co -c Project:OBS_Light:openSUSE:12.1 obslight
 # Delete the old source archive
 rm obslight/obslight*.tar.gz
 cd $PROJECTDIR

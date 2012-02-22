@@ -5,8 +5,9 @@
 # License GLPv2
 
 echo "Appliance from http://susestudio.com/a/e0uuBG/meego-imager"
-echo Login/PW:root/linux
-echo Login/PW:imager/imager
+echo "Login/PW:root/opensuse"
+echo "Login/PW:tux/opensuse"
+echo "Login/PW:imager/imager"
 echo "http://wiki.meego.com/Release_Infrastructure/IMG_Installation_using_Suse_Studio"
 echo "http://wiki.meego.com/OBS_Light"
 echo Server Imager ready http://`/sbin/ifconfig  | grep 'inet '| grep -v '127.0.0.1' | cut -d: -f2 | awk '{ print $1}'`/img/
