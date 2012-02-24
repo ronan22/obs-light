@@ -1,6 +1,6 @@
 Name: obslight
 Summary: OBS Light
-Version: 0.4.16
+Version: 0.4.17
 Release: 1
 Group: Development/Tools/Building
 License: GPLv2
@@ -13,6 +13,9 @@ PkgBR:
     - python >= 2.6.0
     - python-devel >= 2.6.0
     - fdupes
+    - xinetd
+    - rpcbind
+    - nfs-kernel-server
 Configure: none
 Builder: python
 BuildArch: noarch
@@ -21,6 +24,19 @@ NoFiles: yes
 Vendor:
     - Intel Open Source Technology Center (OTC)
 SubPackages:
+    - Name: server
+      Summary: Utilities to work with OBS Light - web/tftp/nfs server for OBS Light
+      Group: Development/Tools/Building
+      Description: |
+          Utilities to work with OBS Light, a lighter version of OBS.
+          This package contains web/tftp/nfs server for OBS Light
+      Requires:
+          - obslight-base = %{version}
+          - tftp
+          - nfs-kernel-server
+      Provides:
+          - obslightserver
+
     - Name: gui
       Summary: Utilities to work with OBS Light - graphical interface
       Group: Development/Tools/Building

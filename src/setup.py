@@ -16,9 +16,9 @@ class build_obslight(distutils.command.build.build, object):
 
 
 setup(name='obslight',
-      version="0.4.16",
+      version="0.4.17",
       description='OBS Light',
-      long_description='Command-line client and UI for the OBS.',
+      long_description='Command-line client , UI and tools for the OBS.',
       author='Ronan Le Martret',
       author_email='ronan@fridu.net',
       license='GPLv2',
@@ -41,7 +41,8 @@ setup(name='obslight',
       data_files=[('/etc', ['sudoers.obslight']),
                   ('/etc/bash_completion.d/', ['obslight.sh']),
                   ('/usr/share/applications/', ['obslightgui.desktop']),
-                  ('/usr/share/pixmaps/', ['ObsLightGui/ui/obslight.png'])],
+                  ('/usr/share/pixmaps/', ['ObsLightGui/ui/obslight.png']),
+                  ('/etc/xinetd.d/', ['ObsLightServer/tftp'])],
 
       cmdclass={
         'build': build_obslight,

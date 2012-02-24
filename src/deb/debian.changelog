@@ -1,4 +1,4 @@
-obslight (0.4.16-1) stable; urgency=low
+obslight (0.4.17-1) stable; urgency=low
 
   * Version 0.4.16
     Added support for OBS aliases in obstag and obs2obscopy

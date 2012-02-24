@@ -8,7 +8,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 Name:       obslight
 Summary:    OBS Light
-Version:    0.4.16
+Version:    0.4.17
 Release:    1
 Group:      Development/Tools/Building
 License:    GPLv2
@@ -20,11 +20,28 @@ BuildRequires:  python >= 2.6.0
 BuildRequires:  python-devel >= 2.6.0
 BuildRequires:  fdupes
 BuildRequires:  desktop-file-utils
+BuildRequires:  xinetd
+BuildRequires:  rpcbind
+BuildRequires:  nfs-kernel-server
+
 BuildRoot:  %{_tmppath}/%{name}-%{version}-build
 
 
 %description
 Utilities to work with OBS Light, a lighter version of OBS.
+
+
+%package server
+Summary:    Utilities to work with OBS Light - web/tftp/nfs server for OBS Light
+Group:      Development/Tools/Building
+Requires:   obslight-base = %{version}
+Requires:   tftp
+Requires:   nfs-kernel-server
+Provides:   obslightserver
+
+%description server
+Utilities to work with OBS Light, a lighter version of OBS.
+This package contains web/tftp/nfs server for OBS Light
 
 
 %package gui
@@ -118,6 +135,9 @@ desktop-file-install --delete-original       \
 
 
 
+
+
+
 %preun base
 # >> preun base
 echo "Trying to remove OBS Light sudoers rule..."
@@ -153,10 +173,31 @@ fi
 # << post base
 
 
+%preun server
+# >> preun server
+echo "Trying to remove OBS Light server..."
+%insserv_cleanup
+%verify_permissions
+
+# << preun server
+
+%post server
+# >> post server
+echo "Trying to add OBS Light server..."
+[ -d $RPM_BUILD_ROOT/srv/obslight ] || install -d -o nobody -g nobody $RPM_BUILD_ROOT/srv/obslight
+echo "/srv/obslight  *(rw,fsid=0,no_root_squash,insecure,no_subtree_check)" >> /etc/exports
+/sbin/insserv %{_sysconfdir}/init.d/xinetd
+/sbin/insserv %{_sysconfdir}/init.d/rpcbind
+/sbin/insserv %{_sysconfdir}/init.d/nfsserver
+# << post server
 
 
 
-
+%files server
+%defattr(-,root,root,-)
+# >> files server
+%config %{_sysconfdir}/xinetd.d/tftp
+# << files server
 
 %files gui
 %defattr(-,root,root,-)
