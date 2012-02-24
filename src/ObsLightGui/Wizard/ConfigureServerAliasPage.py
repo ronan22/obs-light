@@ -23,7 +23,7 @@ Created on 20 déc. 2011
 
 from PySide.QtGui import QRegExpValidator
 
-from ObsLightGui.Utils import colorizeWidget, uiFriendly, popupOnException, SERVER_ALIAS_REGEXP
+from ObsLightGui.Utils import colorizeWidget, popupOnException, SERVER_ALIAS_REGEXP
 from ObsLight.ObsLightUtils import isNonEmptyString
 
 from WizardPageWrapper import ObsLightWizardPage
@@ -55,16 +55,12 @@ class ConfigureServerAliasPage(ObsLightWizardPage):
         srvList = self.manager.getObsServerList()
         if (isNonEmptyString(alias) and alias not in srvList):
             colorizeWidget(self.ui_WizardPage.aliasLineEdit, u"green")
-            self._addServer()
+            self.callWithInfiniteProgress(self._doAddServer, "Adding server")
             return True
         else:
             colorizeWidget(self.ui_WizardPage.aliasLineEdit, u"red")
             return False
 
-    def _addServer(self):
-        self.setBusyCursor(self._doAddServer)
-
-    @uiFriendly()
     def _doAddServer(self):
         self.manager.addObsServer(self.field(u"apiUrl"),
                                   self.field(u"username"),

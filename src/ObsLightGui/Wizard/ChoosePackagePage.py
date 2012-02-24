@@ -23,7 +23,7 @@ Created on 22 déc. 2011
 
 from ObsLightGui.FilterableWidget import FilterableWidget
 
-from ObsLightGui.Utils import uiFriendly, popupOnException, firstArgLast, ProgressRunnable2
+from ObsLightGui.Utils import popupOnException, firstArgLast
 
 from WizardPageWrapper import ObsLightWizardPage
 
@@ -65,10 +65,6 @@ class ChoosePackagePage(ObsLightWizardPage, FilterableWidget):
 
     def _getPackageList(self, serverAlias, project):
         return self.manager.getObsProjectPackageList(serverAlias, project)
-
-    @uiFriendly()
-    def _addPackage(self, project, package):
-        self.manager.addPackage(project, package)
 
     def _addPackages(self, project, packages):
         swappedAddPackage = firstArgLast(self.manager.addPackage)
