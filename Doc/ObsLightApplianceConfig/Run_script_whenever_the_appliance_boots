@@ -19,10 +19,27 @@ then
   echo "Running SUSE Studio first boot script..."
   #echo appliance info 
   sed -i "/^exit 0/ i\. /var/config_ObsLight_boot_info" /etc/init.d/rc
+
+  # fix rights of tux's KDE configuration directory
+  chown -R tux:users /home/tux/.kde4
+  chmod -R a-rwx,u+rwX /home/tux/.kde4
 fi
 
+# remount / with ACLs
+if [ -z "`mount | grep acl`" ]
+then
+  mount -o remount,acl /
+fi
+
+# use kwrite to open Kickstart files (recognized as java keystore files)
 if [ -z `grep x-java-keystore /usr/share/applications/kde4/kwrite.desktop` ]
 then
   sed -i s,"text/plain;","text/plain;application/x-java-keystore;", /usr/share/applications/kde4/kwrite.desktop
+fi
+
+# add consoleblank=0 option to the kernel command line
+if [ -z "`grep consoleblank /boot/grub/menu.lst`" ]
+then
+  sed -i -r s/"(^[ \t]*kernel.*)"/"\1 consoleblank=0"/ /boot/grub/menu.lst
 fi
 
