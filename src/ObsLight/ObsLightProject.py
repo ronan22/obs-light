@@ -561,16 +561,19 @@ class ObsLightProject(object):
         packagePath, specFile, yamlFile, listFile = self.__updatePackage(package=name,
                                                                          noOscUpdate=noOscUpdate)
 
-        status = self.__obsServers.getObsServer(self.__obsServer).getPackageStatus(project=self.__projectObsName,
-                                                                                    package=name,
-                                                                                    repo=self.__projectTarget,
-                                                                                    arch=self.__projectArchitecture)
+        server = self.__obsServers.getObsServer(self.__obsServer)
+        status = server.getPackageStatus(project=self.__projectObsName,
+                                         package=name,
+                                         repo=self.__projectTarget,
+                                         arch=self.__projectArchitecture)
 
-        packageTitle = self.__obsServers.getObsServer(self.__obsServer).getPackageTitle(projectObsName=self.__projectObsName,
-                                                                                        package=name)
+        packageTitle = server.getPackageParameter(self.__projectObsName,
+                                                  package=name,
+                                                  parameter="title")
 
-        description = self.__obsServers.getObsServer(self.__obsServer).getPackageDescription(projectObsName=self.__projectObsName,
-                                                                                             package=name)
+        description = server.getPackageParameter(self.__projectObsName,
+                                                  package=name,
+                                                  parameter="description")
 
         self.__packages.getPackage(name).setPackageParameter(parameter="specFile", value=specFile)
         self.__packages.getPackage(name).setPackageParameter(parameter="yamlFile", value=yamlFile)
