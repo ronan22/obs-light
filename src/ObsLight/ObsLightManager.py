@@ -27,6 +27,8 @@ import collections
 from ObsLightServers import ObsLightServers
 from ObsLightProjects import ObsLightProjects
 from ObsLightMicProjects import ObsLightMicProjects
+from ObsLightLocalServer import ObsLightLocalServer
+
 
 from ObsLightUtils import isNonEmptyString
 from ObsLightUtils import isBool
@@ -340,6 +342,8 @@ class ObsLightManagerBase(object):
 
         self._myObsLightProjects = ObsLightProjects(self._myObsServers,
                                                     self.getObsLightWorkingDirectory())
+
+        self.__myObsLightLocalServer = ObsLightLocalServer()
 
     def getObsLightWorkingDirectory(self):
         '''
@@ -1549,6 +1553,20 @@ class ObsLightManager(ObsLightManagerCore):
     def createImage(self, micProjectName):
         self._myObsLightMicProjects.createImage(micProjectName=micProjectName)
         self._myObsLightMicProjects.save()
+
+#---------------------------------------------------------------------------
+    def isObsLightServerIsAvailable(self):
+        '''
+        return True/False if the OBS Light server (tftp/nfs/http) is available on the local host 
+        '''
+        return self.__myObsLightLocalServer.isObsLightServerIsAvailable()
+
+    def addDirectoryToServer(self, directory):
+        '''
+        Add mount a directory into the OBS Light server (tftp/nfs/http) /srv/obslight
+        '''
+        return self.__myObsLightLocalServer.addDirectoryToServer(directory)
+
 
 
 __myObsLightManager = None
