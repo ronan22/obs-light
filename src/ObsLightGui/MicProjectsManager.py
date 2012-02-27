@@ -65,6 +65,7 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
              mw.exportKickstartButton.clicked: self.on_exportKickstartButton_clicked,
              mw.createImageButton.clicked: self.on_createImageButton_clicked,
              mw.openMicProjectDirectoryButton.clicked: self.on_openMicProjectDirectoryButton_clicked,
+             mw.publishMicProjectButton.clicked: self.on_publishMicProjectButton_clicked,
              # KS options
              mw.kickstartOptionsListView.clicked: self.on_kickstartOptionsListView_clicked,
              mw.kickstartOptionTextEdit.textChanged: self.on_kickstartOptionTextEdit_textChanged,
@@ -230,6 +231,19 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
             return
         projectPath = self._currentProjectObj.currentProjectPath
         self.manager.openFile(projectPath)
+
+    @popupOnException
+    def on_publishMicProjectButton_clicked(self):
+        """
+        Called when user clicks on the 'Publish project directory' button.
+        """
+        projectPath = self._currentProjectObj.currentProjectPath
+        selectedPath = QFileDialog.getExistingDirectory(self.mainWindow,
+                                                        "Select directory to publish",
+                                                        dir=projectPath)
+        if selectedPath is None or len(selectedPath) < 1:
+            return
+        self.manager.addDirectoryToServer(selectedPath)
 
     @popupOnException
     def on_removeRepositoryButton_clicked(self):
@@ -415,6 +429,12 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
         self.mainWindow.kickstartOptionTextEdit.clear()
         self.mainWindow.kickstartScriptTextEdit.clear()
         self.mainWindow.micProjectsTabWidget.setEnabled(True)
+        # FIXME: replace isObsLightServerIsAvailable() by its final name
+        try:
+            serverAvailable = self.manager.isObsLightServerIsAvailable()
+            self.mainWindow.publishMicProjectButton.setEnabled(serverAvailable)
+        except BaseException as be:
+            print "Failed to get OBS Light server availability: ", be
         self._currentProjectObj.refresh()
         self.__connectProjectEventsAndButtons()
 
