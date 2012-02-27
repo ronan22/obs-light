@@ -429,9 +429,9 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
         self.mainWindow.kickstartOptionTextEdit.clear()
         self.mainWindow.kickstartScriptTextEdit.clear()
         self.mainWindow.micProjectsTabWidget.setEnabled(True)
-        # FIXME: replace isObsLightServerIsAvailable() by its final name
+        # FIXME: replace isObsLightServerAvailable() by its final name
         try:
-            serverAvailable = self.manager.isObsLightServerIsAvailable()
+            serverAvailable = self.manager.isObsLightServerAvailable()
             self.mainWindow.publishMicProjectButton.setEnabled(serverAvailable)
         except BaseException as be:
             print "Failed to get OBS Light server availability: ", be

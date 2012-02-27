@@ -1555,11 +1555,11 @@ class ObsLightManager(ObsLightManagerCore):
         self._myObsLightMicProjects.save()
 
 #---------------------------------------------------------------------------
-    def isObsLightServerIsAvailable(self):
+    def isObsLightServerAvailable(self):
         '''
         return True/False if the OBS Light server (tftp/nfs/http) is available on the local host 
         '''
-        return self.__myObsLightLocalServer.isObsLightServerIsAvailable()
+        return self.__myObsLightLocalServer.isObsLightServerAvailable()
 
     def addDirectoryToServer(self, directory):
         '''

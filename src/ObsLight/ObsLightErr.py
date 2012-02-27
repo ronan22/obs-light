@@ -144,3 +144,14 @@ class ObsLightKickstartError(OBSLightBaseError):
     def __init__(self, msg):
         OBSLightBaseError.__init__(self)
         self.msg = msg
+
+class ObsLightLocalServerErr(OBSLightBaseError):
+    """Exception wrapping local server http/tftp/nfs errors"""
+    def __init__(self, msg):
+        OBSLightBaseError.__init__(self)
+        self.msg = msg
+
+
+
+
+

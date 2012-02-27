@@ -83,5 +83,10 @@ def run(prg=None):
         print >> sys.stderr, 'Package Error: ', err.msg
         return 1
 
+    except ObsLightErr.ObsLightLocalServerErr, err:
+        print >> sys.stderr, 'Local Server Error: ', err.msg
+        return 1
+
+
 
 
