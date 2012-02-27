@@ -26,6 +26,8 @@ import stat
 import ObsLightErr
 import shutil
 
+import time
+
 from ObsLightSubprocess import SubprocessCrt
 from ObsLightKickstartManager import ObsLightKickstartManager
 
@@ -352,6 +354,7 @@ class ObsLightMicProject(object):
         """
         Launch the build of an image.
         """
+        timeString = time.strftime("%Y-%m-%d_%Hh%Mm") + str(time.time() % 1).split(".")[1]
         logFilePath = os.path.join(self.getProjectDirectory(), "buildLog")
         cacheDirPath = os.path.join(self.getProjectDirectory(), "cache")
         cmd = "sudo mic create " + self.getImageType()
@@ -360,7 +363,7 @@ class ObsLightMicProject(object):
         cmd += " --cachedir=" + cacheDirPath
         cmd += " --outdir=" + self.getProjectDirectory()
         cmd += " --arch=" + self.__architecture
-        cmd += " --release=latest"
+        cmd += " --release=build_" + timeString
         print cmd
         self.__subprocess(cmd)
 

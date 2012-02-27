@@ -189,6 +189,7 @@ echo "/srv/obslight  *(rw,fsid=0,no_root_squash,insecure,no_subtree_check)" >> /
 /sbin/insserv %{_sysconfdir}/init.d/xinetd
 /sbin/insserv %{_sysconfdir}/init.d/rpcbind
 /sbin/insserv %{_sysconfdir}/init.d/nfsserver
+/sbin/insserv %{_sysconfdir}/init.d/obslightserver
 # << post server
 
 
@@ -197,6 +198,10 @@ echo "/srv/obslight  *(rw,fsid=0,no_root_squash,insecure,no_subtree_check)" >> /
 %defattr(-,root,root,-)
 # >> files server
 %config %{_sysconfdir}/xinetd.d/tftp
+%config %attr(440, root, root) %{_sysconfdir}/init.d/obslightserver
+%dir %{_sysconfdir}/obslight 
+%config(noreplace) %attr(0644,root,root) %{_sysconfdir}/obslight/obslight.conf
+%{_bindir}/ObsLightServer.py
 # << files server
 
 %files gui
