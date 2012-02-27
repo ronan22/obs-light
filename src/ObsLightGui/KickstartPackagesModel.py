@@ -89,12 +89,13 @@ class KickstartPackagesModel(KickstartModelBase):
     # from QAbstractTableModel
     def flags(self, index):
         """
-        Calls `QAbstractTableModel.flags()` and add `Qt.ItemIsUserCheckable` flag
-        for items in ExcludedColumn. 
+        Returns `Qt.ItemIsEnabled | Qt.ItemIsUserCheckable` for items in ExcludedColumn,
+         `Qt.ItemIsEnabled` for other columns
         """
-        superFlags = super(KickstartPackagesModel, self).flags(index)
         if index.column() == self.ExcludedColumn:
-            superFlags = (superFlags & ~Qt.ItemIsEditable) | Qt.ItemIsUserCheckable
+            superFlags = Qt.ItemIsEnabled | Qt.ItemIsUserCheckable
+        else:
+            superFlags = Qt.ItemIsEnabled
         return superFlags
 
     # from QAbstractTableModel

@@ -1487,7 +1487,11 @@ in the source directory of the current package if it is installed.</string>
             </attribute>
             <layout class="QGridLayout" name="gridLayout_7">
              <item row="0" column="0" rowspan="5" colspan="3">
-              <widget class="QTableView" name="kickstartRepositoriesTableView"/>
+              <widget class="QTableView" name="kickstartRepositoriesTableView">
+               <attribute name="verticalHeaderVisible">
+                <bool>false</bool>
+               </attribute>
+              </widget>
              </item>
              <item row="5" column="0">
               <widget class="QPushButton" name="addRepositoryButton">
@@ -1531,7 +1535,11 @@ in the source directory of the current package if it is installed.</string>
             </attribute>
             <layout class="QGridLayout" name="gridLayout_8">
              <item row="0" column="0" colspan="2">
-              <widget class="QTableView" name="kickstartPackagesTableView"/>
+              <widget class="QTableView" name="kickstartPackagesTableView">
+               <attribute name="verticalHeaderVisible">
+                <bool>false</bool>
+               </attribute>
+              </widget>
              </item>
              <item row="1" column="0">
               <widget class="QPushButton" name="addPackageButton">
@@ -1568,7 +1576,11 @@ in the source directory of the current package if it is installed.</string>
             </attribute>
             <layout class="QGridLayout" name="gridLayout_16">
              <item row="0" column="0" colspan="2">
-              <widget class="QTableView" name="kickstartPackageGroupsTableView"/>
+              <widget class="QTableView" name="kickstartPackageGroupsTableView">
+               <attribute name="verticalHeaderVisible">
+                <bool>false</bool>
+               </attribute>
+              </widget>
              </item>
              <item row="1" column="0">
               <widget class="QPushButton" name="addPackageGroupButton">
@@ -1741,6 +1753,9 @@ in the source directory of the current package if it is installed.</string>
                <property name="editTriggers">
                 <set>QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
                </property>
+               <attribute name="verticalHeaderVisible">
+                <bool>false</bool>
+               </attribute>
               </widget>
              </item>
              <item row="1" column="0">
