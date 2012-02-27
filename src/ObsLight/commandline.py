@@ -2629,7 +2629,7 @@ class ObsLightObsPackage(ObsLightBase):
                         res = m.getObsPackageParameter(serverApi=server_alias,
                                                        obsproject=obsproject,
                                                        package=package,
-                                                       parameter="title")
+                                                       parameter="description")
                     if self.testResult(res, getLineno()) == -1:return - 1
                     self.printSimpleResult("description: " + res, str(res))
 

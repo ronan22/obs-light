@@ -458,22 +458,5 @@ class ObsLightServer(object):
                                                                 apiurl=self.__serverAPI,
                                                                 parameter="description")
 
-    def getPackageTitle(self, projectObsName, package):
-        '''
-        
-        '''
-        return ObsLightOsc.getObsLightOsc().getPackageParameter(projectObsName=projectObsName,
-                                                                package=package,
-                                                                apiurl=self.__serverAPI,
-                                                                parameter="title")
-
-    def getPackageDescription(self, projectObsName, package):
-        '''
-        
-        '''
-        return ObsLightOsc.getObsLightOsc().getPackageParameter(projectObsName=projectObsName,
-                                                                package=package,
-                                                                apiurl=self.__serverAPI,
-                                                                parameter="description")
 
 

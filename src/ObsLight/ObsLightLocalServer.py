@@ -1,5 +1,5 @@
 '''
-Created on 27 févr. 2012
+Created on 27 fev. 2012
 
 @author: meego
 '''

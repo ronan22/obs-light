@@ -122,6 +122,10 @@ echo "%{version}-%{release}" > VERSION
 ln -s obslight-wrapper.py %{buildroot}/%{_bindir}/obslight
 ln -s obslightgui-wrapper.py %{buildroot}/%{_bindir}/obslightgui
 
+install -d $RPM_BUILD_ROOT/etc/init.d
+
+install -m 744 ObsLightServer/obslightserver %{buildroot}%{_sysconfdir}/init.d/obslightserver
+
 # << install post
 desktop-file-install --delete-original       \
   --dir %{buildroot}%{_datadir}/applications             \
@@ -186,6 +190,7 @@ echo "Trying to remove OBS Light server..."
 echo "Trying to add OBS Light server..."
 [ -d $RPM_BUILD_ROOT/srv/obslight ] || install -d -o nobody -g nobody $RPM_BUILD_ROOT/srv/obslight
 echo "/srv/obslight  *(rw,fsid=0,no_root_squash,insecure,no_subtree_check)" >> /etc/exports
+
 /sbin/insserv %{_sysconfdir}/init.d/xinetd
 /sbin/insserv %{_sysconfdir}/init.d/rpcbind
 /sbin/insserv %{_sysconfdir}/init.d/nfsserver
@@ -198,7 +203,7 @@ echo "/srv/obslight  *(rw,fsid=0,no_root_squash,insecure,no_subtree_check)" >> /
 %defattr(-,root,root,-)
 # >> files server
 %config %{_sysconfdir}/xinetd.d/tftp
-%config %attr(440, root, root) %{_sysconfdir}/init.d/obslightserver
+%config %attr(0755, root, root) %{_sysconfdir}/init.d/obslightserver
 %dir %{_sysconfdir}/obslight 
 %config(noreplace) %attr(0644,root,root) %{_sysconfdir}/obslight/obslight.conf
 %{_bindir}/ObsLightServer.py

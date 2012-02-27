@@ -219,7 +219,9 @@ class ObsLightMic(object):
             self.__subprocess(command="sudo touch " + self.__chrootDirectory + "/etc/resolv.conf")
 
             if os.path.exists(self.__chrootDirectory + "/etc/mtab"):
-                os.unlink(self.__chrootDirectory + "/etc/mtab")
+                command = "sudo rm " + self.__chrootDirectory + "/etc/mtab"
+                self.__subprocess(command=command)
+
             kill_processes(self.__chrootDirectory)
 
         self.cleanup_mountdir(self.__chrootDirectory, bindmounts)

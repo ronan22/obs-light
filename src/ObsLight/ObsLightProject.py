@@ -444,10 +444,14 @@ class ObsLightProject(object):
                                                                                     package=name,
                                                                                     repo=self.__projectTarget,
                                                                                     arch=self.__projectArchitecture)
-        packageTitle = self.__obsServers.getObsServer(self.__obsServer).getPackageTitle(projectObsName=self.__projectObsName,
-                                                                                        package=name)
-        description = self.__obsServers.getObsServer(self.__obsServer).getPackageDescription(projectObsName=self.__projectObsName,
-                                                                                             package=name)
+        packageTitle = self.__obsServers.getObsServer(self.__obsServer).getPackageParameter(self.__projectObsName,
+                                                                                            name,
+                                                                                            "title")
+
+        description = self.__obsServers.getObsServer(self.__obsServer).getPackageParameter(self.__projectObsName,
+                                                                                           name,
+                                                                                           "description")
+
         self.__packages.addPackage(name=name,
                                    packagePath=packagePath,
                                    description=description,
