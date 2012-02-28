@@ -22,10 +22,14 @@ class ObsLightLocalServer(object):
         self.__mySubprocessCrt = SubprocessCrt()
 
 
-    def __subprocess(self, command=None, waitMess=False):
+    def __subprocess(self, command, command2=None, waitMess=False):
         '''
         
         '''
+        if command2 != None:
+            return self.__mySubprocessCrt.execPipeSubprocess(command=command,
+                                                             command2=command2)
+
         return self.__mySubprocessCrt.execSubprocess(command=command,
                                                      waitMess=waitMess)
 
@@ -38,12 +42,13 @@ class ObsLightLocalServer(object):
             theBasename = os.path.basename(directory)
             command1 = "sudo mkdir /srv/obslight/" + theBasename
             command2 = "sudo mount --bind " + directory + " /srv/obslight/" + theBasename
-            command3 = '''sudo /bin/bash -c "echo '/srv/obslight/''' + theBasename + '''  *(rw,no_root_squash,nohide,insecure,no_subtree_check)' >> /etc/exports"'''
+            command31 = '''echo '/srv/obslight/''' + theBasename + '''  *(rw,no_root_squash,nohide,insecure,no_subtree_check)' '''
+            command32 = '''sudo tee -a /etc/exports'''
             command4 = "sudo /usr/sbin/exportfs -ra"
 
             self.__subprocess(command=command1)
             self.__subprocess(command=command2)
-            self.__subprocess(command=command3)
+            self.__subprocess(command=command31, command2=command32)
             self.__subprocess(command=command4)
 
             return 0

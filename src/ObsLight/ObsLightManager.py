@@ -343,7 +343,7 @@ class ObsLightManagerBase(object):
         self._myObsLightProjects = ObsLightProjects(self._myObsServers,
                                                     self.getObsLightWorkingDirectory())
 
-        self.__myObsLightLocalServer = ObsLightLocalServer()
+        self._myObsLightLocalServer = ObsLightLocalServer()
 
     def getObsLightWorkingDirectory(self):
         '''
@@ -1559,13 +1559,13 @@ class ObsLightManager(ObsLightManagerCore):
         '''
         return True/False if the OBS Light server (tftp/nfs/http) is available on the local host 
         '''
-        return self.__myObsLightLocalServer.isObsLightServerAvailable()
+        return self._myObsLightLocalServer.isObsLightServerAvailable()
 
     def addDirectoryToServer(self, directory):
         '''
         Add mount a directory into the OBS Light server (tftp/nfs/http) /srv/obslight
         '''
-        return self.__myObsLightLocalServer.addDirectoryToServer(directory)
+        return self._myObsLightLocalServer.addDirectoryToServer(directory)
 
 
 

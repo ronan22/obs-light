@@ -1,0 +1,2 @@
+config_ObsLight_boot_info 	/var/ 				nobody / nobody 	rw-r--r-- 	
+powerdevil2profilesrc 		/home/tux/.kde4/share/config/ 	tux / users 		rw-r--r--

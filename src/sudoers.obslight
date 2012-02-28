@@ -20,4 +20,7 @@
 %users ALL=(ALL)NOPASSWD:/sbin/modprobe binfmt_misc
 %users ALL=(ALL)NOPASSWD:/bin/mount -t binfmt_misc none /proc/sys/fs/binfmt_misc
 %users ALL=(ALL)NOPASSWD:/bin/chmod *w /proc/sys/fs/binfmt_misc/*
-
+%users ALL=(ALL)NOPASSWD:/bin/mkdir /srv/obslight/*
+%users ALL=(ALL)NOPASSWD:/bin/mount --bind * /srv/obslight/*
+%users ALL=(ALL)NOPASSWD:/usr/bin/tee -a /etc/exports
+%users ALL=(ALL)NOPASSWD:/usr/sbin/exportfs -ra

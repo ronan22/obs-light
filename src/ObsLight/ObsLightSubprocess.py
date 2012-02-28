@@ -46,7 +46,7 @@ class SubprocessCrt(object):
         the "command" must be a valid bash command.
         _args and _kwargs are for compatibility.
         '''
-        #ObsLightPrintManager.obsLightPrint("command: " + command, isDebug=True)
+
         ObsLightPrintManager.getLogger().debug("command: " + command)
         #need Python 2.7.3 to do shlex.split(command) 
         splittedCommand = shlex.split(str(command))
@@ -82,3 +82,19 @@ class SubprocessCrt(object):
         if res == None:
             res = 0
         return res
+
+
+    def execPipeSubprocess(self, command, command2):
+        ObsLightPrintManager.getLogger().debug("command: " + command + " | " + command2)
+        splittedCommand1 = shlex.split(str(command))
+        splittedCommand2 = shlex.split(str(command2))
+        p1 = subprocess.Popen(splittedCommand1, stdout=subprocess.PIPE)
+        p2 = subprocess.Popen(splittedCommand2, stdin=p1.stdout, stdout=subprocess.PIPE)
+        p1.stdout.close()
+
+        return 0
+
+
+
+
+

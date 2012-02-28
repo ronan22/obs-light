@@ -1241,7 +1241,7 @@ in the source directory of the current package if it is installed.</string>
              <string>Project options</string>
             </attribute>
             <layout class="QGridLayout" name="gridLayout_4">
-             <item row="0" column="0">
+             <item row="0" column="1">
               <widget class="QGroupBox" name="groupBox">
                <property name="title">
                 <string>Image options</string>
@@ -1283,13 +1283,13 @@ in the source directory of the current package if it is installed.</string>
                </layout>
               </widget>
              </item>
-             <item row="1" column="0">
+             <item row="1" column="1">
               <widget class="QGroupBox" name="groupBox_2">
                <property name="title">
                 <string>Project actions</string>
                </property>
                <layout class="QGridLayout" name="gridLayout_15">
-                <item row="9" column="0" colspan="5">
+                <item row="9" column="0" colspan="4">
                  <widget class="Line" name="line_3">
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
@@ -1313,7 +1313,7 @@ in the source directory of the current package if it is installed.</string>
                   </property>
                  </widget>
                 </item>
-                <item row="5" column="3" colspan="2">
+                <item row="5" column="2" colspan="2">
                  <spacer name="horizontalSpacer_6">
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
@@ -1326,7 +1326,7 @@ in the source directory of the current package if it is installed.</string>
                   </property>
                  </spacer>
                 </item>
-                <item row="3" column="1" colspan="3">
+                <item row="3" column="1" colspan="2">
                  <widget class="QLineEdit" name="micProjectPathLineEdit">
                   <property name="toolTip">
                    <string>Current kickstart path</string>
@@ -1365,27 +1365,17 @@ in the source directory of the current package if it is installed.</string>
                   </property>
                  </widget>
                 </item>
-                <item row="3" column="4">
+                <item row="3" column="3">
                  <widget class="QPushButton" name="openMicProjectDirectoryButton">
                   <property name="text">
                    <string>Open</string>
                   </property>
                  </widget>
                 </item>
-                <item row="5" column="2">
-                 <widget class="QPushButton" name="publishMicProjectButton">
-                  <property name="toolTip">
-                   <string>Make project directory (or any subdirectory) accessible with NFS, TFTP and HTTP</string>
-                  </property>
-                  <property name="text">
-                   <string>Publish project directory (experimental)</string>
-                  </property>
-                 </widget>
-                </item>
                </layout>
               </widget>
              </item>
-             <item row="2" column="0">
+             <item row="3" column="1">
               <spacer name="verticalSpacer_2">
                <property name="orientation">
                 <enum>Qt::Vertical</enum>
@@ -1397,6 +1387,53 @@ in the source directory of the current package if it is installed.</string>
                 </size>
                </property>
               </spacer>
+             </item>
+             <item row="2" column="1">
+              <widget class="QGroupBox" name="groupBox_3">
+               <property name="title">
+                <string>(http TFTP NFS) server (experimental)</string>
+               </property>
+               <layout class="QGridLayout" name="gridLayout_21">
+                <item row="4" column="0">
+                 <widget class="QPushButton" name="publishMicProjectButton">
+                  <property name="toolTip">
+                   <string>Make project directory (or any subdirectory) accessible with NFS, TFTP and HTTP</string>
+                  </property>
+                  <property name="text">
+                   <string>Publish project directory (experimental)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="0">
+                 <widget class="QLabel" name="label_7">
+                  <property name="text">
+                   <string>The directory is temporary mount into /srv/obslight</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QLabel" name="label_8">
+                  <property name="text">
+                   <string>http: server avalable on http://HOST_IP/</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="0">
+                 <widget class="QLabel" name="label_9">
+                  <property name="text">
+                   <string>TFTP: server is avalable by #tpfp HOST_IP</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="0">
+                 <widget class="QLabel" name="label_10">
+                  <property name="text">
+                   <string>NFS: mount -t nfs  HOST_IP:/srv/obslight/SOURCE_DIRECTORY TARGET_DIRECTORY</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
              </item>
             </layout>
            </widget>
