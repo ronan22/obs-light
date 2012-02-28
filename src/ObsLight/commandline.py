@@ -1,5 +1,5 @@
 #
-# Copyright 2011, Intel Inc.
+# Copyright 2011-2012, Intel Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -39,7 +39,10 @@ secondBorder = " "*secondBorderLen
 # function to format the help.
 def createDoc(command, comment):
     '''
-    Generate/format the documentation to be bash friendly
+    Generate/format the documentation to be bash friendly.
+     `command` should be a list of command aliases
+     `comment` should be a string or a string list of comments
+    about the command.
     '''
 
     doc = ""
@@ -68,112 +71,111 @@ def createDoc(command, comment):
 
 def createCommandHelp(command, comment):
     '''
-    format end store command/documentation
+    Format and store documentation for `command`.
     '''
     __DICO_command_help__[command[0]] = createDoc(command, comment)
 
-def createCommandServerHelp(command, comment):
+def createServerSubCommandHelp(command, comment):
     '''
-    format end store command/documentation for server command
+    Format and store documentation for a sub-command of 'server' command.
     '''
     __DICO_command_server_help__[command[0]] = createDoc(command, comment)
 
-def createCommandObsprojectHelp(command, comment):
+def createObsProjectSubCommandHelp(command, comment):
     '''
-    format end store command/documentation for Obsproject command
+    Format and store documentation for a sub-command of 'obsproject' command.
     '''
     __DICO_command_obsproject_help__[command[0]] = createDoc(command, comment)
 
-def createCommandPackageHelp(command, comment):
+def createPackageSubCommandHelp(command, comment):
     '''
-    format end store command/documentation for Package command
+    Format and store documentation for a sub-command of 'package' command.
     '''
     __DICO_command_package_help__[command[0]] = createDoc(command, comment)
 
-def createCommandFilesystemHelp(command, comment):
+def createFileSystemSubCommandHelp(command, comment):
     '''
-    format end store command/documentation for Filesystem command
+    Format and store documentation for a sub-command of 'filesystem' command.
     '''
     __DICO_command_filesystem_help__[command[0]] = createDoc(command, comment)
 
-def createCommandMicprojectHelp(command, comment):
+def createMicProjectSubCommandHelp(command, comment):
     '''
-    format end store command/documentation for Micproject command
+    Format and store documentation for a sub-command of 'micproject' command.
     '''
     __DICO_command_micproject_help__[command[0]] = createDoc(command, comment)
 
-def createCommandRpmbuildHelp(command, comment):
+def createRpmBuildSubCommandHelp(command, comment):
     '''
-    format end store command/documentation for Rpmbuild command
+    Format and store documentation for a sub-command of 'rpmbuild' command.
     '''
     __DICO_command_rpmbuild_help__[command[0]] = createDoc(command, comment)
 
-def createCommandRepositoryHelp(command, comment):
+def createRepositorySubCommandHelp(command, comment):
     '''
-    format end store command/documentation for Micproject command
+    Format and store documentation for a sub-command of 'repository' command.
     '''
     __DICO_command_repositories_help__[command[0]] = createDoc(command, comment)
 
-#def createCommandQemuprojectHelp(command, comment):
-#    __DICO_command_qemuproject_help__[command[0]] = createDoc(command, comment)
 
 def createCommandGlobal(command):
     '''
-    Add command to the command global list (global)
+    Add command to the global command list (global)
     '''
     __LIST_command_global__.append(command[0])
 
 def createCommand(command):
     '''
-    Add command to the command global list (main command)
+    Add command to the global command list (main command)
     '''
     __LIST_command__.append(command[0])
 
 def createParameterHelp(command, comment):
     '''
-    Format end store parameter/documentation, the parameter/documentation is unique for all OBSlight.
+    Format and store parameter/documentation.
+    The parameter/documentation couple is unique.
     '''
     __DICO_parameter_help__[command[0]] = createDoc(command, comment)
 
 def appendCommandServer(command):
     """
-    Append sub command to command server
+    Append sub command to command 'server'.
     """
     __LIST_command_server__.append(command[0])
 
 def appendCommandObsproject(command):
     """
-    Append sub command to command Obsproject
+    Append sub command to command 'obsproject'
     """
     __LIST_command_obsproject__.append(command[0])
 
 def appendCommandPackage(command):
     """
-    Append sub command to command Package
+    Append sub command to command 'package'
     """
     __LIST_package__.append(command[0])
 
 def appendCommandFilesystem(command):
     """
-    Append sub command to command Filesystem
+    Append sub command to command 'filesystem'
     """
     __LIST_filesystem__.append(command[0])
 
 def appendCommandRepositories(command):
     """
-    Append sub command to command Repositories
+    Append sub command to command 'repositories'
     """
     __LIST_repositories__.append(command[0])
 
 def appendCommandRpmbuild(command):
     """
-    Append sub command to command Rpmbuild
+    Append sub command to command 'rpmbuild'
     """
     __LIST_rpmbuild__.append(command[0])
 
 def appendCommandMicproject(command):
     """
-    Append sub command to command Micproject
+    Append sub command to command 'micproject'
     """
     __LIST_micproject__.append(command[0])
 
@@ -185,20 +187,20 @@ def appendCommandMicproject(command):
 
 def createParameterServer(command, parameterList, completionBlacklist=None):
     '''
-    Add parameter to the sub command of server, the parameter are automatically add
-    to the completion list except if present on the completionBlacklist.
+    Add parameter to the sub command of 'server'. The parameters are automatically added
+    to the completion list except if present in `completionBlacklist`.
     '''
     __DICO_parameter_server__[command[0]] = []
     for parameter in parameterList:
         __DICO_parameter_server__[command[0]].append(parameter[0])
-        if (completionBlacklist == None) or (not parameter in  completionBlacklist):
+        if (completionBlacklist == None) or (not parameter in completionBlacklist):
             if not command[0] in __DICO_parameter_server_completion__.keys():
                 __DICO_parameter_server_completion__[command[0]] = []
             __DICO_parameter_server_completion__[command[0]].append(parameter[0])
 
 def createParameterObsproject(command, parameterList, completionBlacklist=None):
     '''
-    Add parameter to the sub command of Obsproject, the parameter are automatically add
+    Add parameter to the sub command of 'obsproject'. the parameter are automatically add
     to the completion list except if present on the completionBlacklist.
     '''
     __DICO_parameter_obsproject__[command[0]] = []
@@ -364,12 +366,12 @@ createCommandGlobal(__noaction__)
 createCommandHelp(__info_quiet__,
                  "run obslight in quiet mode")
 createCommandHelp(__info_debug__,
-                 "run obslight in debugger mode")
+                 "run obslight in debug mode")
 createCommandHelp(__version__,
-                 "show program's version number and exit")
+                 "show program version and exit")
 createCommandHelp(__command_help__, __help_command_help__)
 createCommandHelp(__noaction__,
-                 "Execute command but do nothing")
+                 "execute command but do nothing")
 createCommandHelp(__man__,
                  "print the full help ")
 #Command 
@@ -563,30 +565,30 @@ appendCommandServer(__command_del__)
 appendCommandServer(__command_current__)
 
 #Define the server command help
-createCommandServerHelp(__command_help__, __help_command_help__)
+createServerSubCommandHelp(__command_help__, __help_command_help__)
 
-createCommandServerHelp(__command_test__, ["server test server_alias <server_alias>",
+createServerSubCommandHelp(__command_test__, ["server test server_alias <server_alias>",
                                            "test the server alias",
                                            "login <login> password <password> api_url <api_url> ",
                                            "test the API URL."])
 
-createCommandServerHelp(__command_list__, ["server list [reachable]",
+createServerSubCommandHelp(__command_list__, ["server list [reachable]",
                                            "if reachable  -> return all sever",
                                            "else  -> return only the available server"])
 
-createCommandServerHelp(__command_query__, ["server query [login|apiurl|repository_url|weburl] {server_alias <server_alias>}",
+createServerSubCommandHelp(__command_query__, ["server query [login|apiurl|repository_url|weburl] {server_alias <server_alias>}",
                                             "return the server parameter."])
 
-createCommandServerHelp(__command_set__, ["server set [login <login>] [apiurl <apiurl>] [repository_url <repository_url>] [weburl <web_url>] {server_alias <server_alias>}",
+createServerSubCommandHelp(__command_set__, ["server set [login <login>] [apiurl <apiurl>] [repository_url <repository_url>] [weburl <web_url>] {server_alias <server_alias>}",
                                           "set the server parameter"])
 
-createCommandServerHelp(__command_add__, ["server add server_alias <server_alias> login <login> password <password> api_url <api_url> repository_url <repository_url> web_url <web_url>",
+createServerSubCommandHelp(__command_add__, ["server add server_alias <server_alias> login <login> password <password> api_url <api_url> repository_url <repository_url> web_url <web_url>",
                                           "add a new OBS server"])
 
-createCommandServerHelp(__command_del__, ["server delete <server_alias> ",
+createServerSubCommandHelp(__command_del__, ["server delete <server_alias> ",
                                           "del an OBS server"])
 
-createCommandServerHelp(__command_current__, ["server current BLANK",
+createServerSubCommandHelp(__command_current__, ["server current BLANK",
                                               "return the current OBS server"])
 
 #Define the parameter list for server command
@@ -650,37 +652,37 @@ appendCommandObsproject(__command_export__)
 appendCommandObsproject(__command_dependencyrepositories__)
 
 #Define the obsproject command help
-createCommandObsprojectHelp(__command_help__, __help_command_help__)
+createObsProjectSubCommandHelp(__command_help__, __help_command_help__)
 
-createCommandObsprojectHelp(__command_list__, ["obsproject list BLANK",
+createObsProjectSubCommandHelp(__command_list__, ["obsproject list BLANK",
                                                "return all local project.",
                                                "obsproject list server_alias <server_alias> raw|[arch <arch>|maintainer|bugowner|remoteurl]",
                                                "return project on the OBS server filter with arch, maintainer, bugowner, remoteurl"])
 
-createCommandObsprojectHelp(__command_current__, ["obsproject current BLANK",
+createObsProjectSubCommandHelp(__command_current__, ["obsproject current BLANK",
                                                   "print the curent local project"])
 
-createCommandObsprojectHelp(__command_dependencyrepositories__, ["obsproject dependencyrepositories {<project_alias>}",
+createObsProjectSubCommandHelp(__command_dependencyrepositories__, ["obsproject dependencyrepositories {<project_alias>}",
                                                                  "print the dependency repositories of a local project "])
 
-createCommandObsprojectHelp(__command_del__, ["obsproject delete <project_alias>",
+createObsProjectSubCommandHelp(__command_del__, ["obsproject delete <project_alias>",
                                               "delete a local project"])
 
-createCommandObsprojectHelp(__command_add__, ["obsproject add <project_alias> <name_on_obs> <target> <arch> {<server_alias>}",
+createObsProjectSubCommandHelp(__command_add__, ["obsproject add <project_alias> <name_on_obs> <target> <arch> {<server_alias>}",
                                               "create a local project"])
 
-createCommandObsprojectHelp(__command_query__, ["obsproject query [title|description|obsServer|webpage|repository|target|architecture] {project_alias <project_alias>}",
+createObsProjectSubCommandHelp(__command_query__, ["obsproject query [title|description|obsServer|webpage|repository|target|architecture] {project_alias <project_alias>}",
                                                 "query locale project parameter",
                                                 "obsproject query [title|description|target|architecture|remoteurl|maintainer|bugowner] server_alias <server_alias> obsproject <project> ",
                                                 "query OBS project parameter"])
 
-createCommandObsprojectHelp(__command_set__, ["obsproject set [title <title>] [description <description>] {project_alias <project_alias>}",
+createObsProjectSubCommandHelp(__command_set__, ["obsproject set [title <title>] [description <description>] {project_alias <project_alias>}",
                                               "modify local project parameter"])
 
-createCommandObsprojectHelp(__command_import__, ["obsproject import <path>",
+createObsProjectSubCommandHelp(__command_import__, ["obsproject import <path>",
                                                  "import a back up file"])
 
-createCommandObsprojectHelp(__command_export__, ["obsproject export <path> {<project_alias>}}",
+createObsProjectSubCommandHelp(__command_export__, ["obsproject export <path> {<project_alias>}}",
                                                  "export a back up file"])
 
 #Define the obsproject parameter help
@@ -756,52 +758,52 @@ appendCommandPackage(__command_refresh__)
 appendCommandPackage(__command_testConflict__)
 appendCommandPackage(__command_resolveConflict__)
 #Define the package command help
-createCommandPackageHelp(__command_help__, __help_command_help__)
-createCommandPackageHelp(__command_list__, ["package list [available] {project_alias <project_alias>}",
+createPackageSubCommandHelp(__command_help__, __help_command_help__)
+createPackageSubCommandHelp(__command_list__, ["package list [available] {project_alias <project_alias>}",
                                             "print the package list of the project",
                                             "if available, print the packages avaible on the OBS project server"])
 
-createCommandPackageHelp(__command_current__, ["package current {project_alias <project_alias>}",
+createPackageSubCommandHelp(__command_current__, ["package current {project_alias <project_alias>}",
                                                "print the current package use on the local project"])
 
-createCommandPackageHelp(__command_add__, ["package add {package <package>} {project_alias <project_alias>}",
+createPackageSubCommandHelp(__command_add__, ["package add {package <package>} {project_alias <project_alias>}",
                                            "add a package from the OBS project to local project"])
 
-createCommandPackageHelp(__command_del__, ["package delete {package <package>} {project_alias <project_alias>}",
+createPackageSubCommandHelp(__command_del__, ["package delete {package <package>} {project_alias <project_alias>}",
                                            "delete package from local project"])
 
-createCommandPackageHelp(__command_query__, ["package query [title|description|url|listFile] {package <package> {server_alias <server_alias> {project <project>}}} ",
+createPackageSubCommandHelp(__command_query__, ["package query [title|description|url|listFile] {package <package> {server_alias <server_alias> {project <project>}}} ",
                                              "query information from OBS project",
                                              "package query [title|description|obsrev|oscrev|listfile|listFile_status|obsstatus|oscstatus|specfile|yamlfile|fspackagedirectory|oscpackagedirectory|filesystemstatus|currentPatch] {package <package> {project_alias <project_alias>} }",
                                              "query information from local project",
                                              "if no information is specify all informations are query"])
 
-createCommandPackageHelp(__command_set__, ["package set [title <title>] [description <description>] {package <package> {project_alias <project_alias>}} ",
+createPackageSubCommandHelp(__command_set__, ["package set [title <title>] [description <description>] {package <package> {project_alias <project_alias>}} ",
                                            "set information to local project"])
 
-createCommandPackageHelp(__command_update__, ["package update {package <package> {project_alias <project_alias>}}",
+createPackageSubCommandHelp(__command_update__, ["package update {package <package> {project_alias <project_alias>}}",
                                               "update information from OBS project to local project"])
 
-createCommandPackageHelp(__command_commit__, ["package commit <message> {package <package> {project_alias <project_alias>}}",
+createPackageSubCommandHelp(__command_commit__, ["package commit <message> {package <package> {project_alias <project_alias>}}",
                                               "commit information from local project to OBS project"])
 
-createCommandPackageHelp(__command_repair__, ["package repair {package <package> {project_alias <project_alias>}",
+createPackageSubCommandHelp(__command_repair__, ["package repair {package <package> {project_alias <project_alias>}",
                                               "repair conflict betwen OBS project and local project"])
 
-createCommandPackageHelp(__command_addfile__, ["package addfile <path> {package <package> {project_alias <project_alias>}",
+createPackageSubCommandHelp(__command_addfile__, ["package addfile <path> {package <package> {project_alias <project_alias>}",
                                                "add file to local package"])
 
-createCommandPackageHelp(__command_deletefile__, ["package deletefile <file> {package <package> {project_alias <project_alias>}",
+createPackageSubCommandHelp(__command_deletefile__, ["package deletefile <file> {package <package> {project_alias <project_alias>}",
                                                   "delete file from local package"])
 
-createCommandPackageHelp(__command_refresh__, ["package refresh [oscStatus|obsstatus] {package <package> {project_alias <project_alias>}}",
+createPackageSubCommandHelp(__command_refresh__, ["package refresh [oscStatus|obsstatus] {package <package> {project_alias <project_alias>}}",
                                                "refresh osc,obs status",
                                                "if oscStatus and obsstatus ar not specify, the two status aure refresh"])
 
-createCommandPackageHelp(__command_testConflict__, ["package testconflict {package <package>} {project_alias <project_alias>}",
+createPackageSubCommandHelp(__command_testConflict__, ["package testconflict {package <package>} {project_alias <project_alias>}",
                                                      "test and print the status of conflict"])
 
-createCommandPackageHelp(__command_resolveConflict__, ["package resolveconflict {package <package>} {project_alias <project_alias>}",
+createPackageSubCommandHelp(__command_resolveConflict__, ["package resolveconflict {package <package>} {project_alias <project_alias>}",
                                                       "test and print the status of conflict"])
 #Define the package parameter help
 createParameterPackage(__command_list__, [__command_help__,
@@ -893,24 +895,24 @@ appendCommandFilesystem(__command_executescript__)
 appendCommandFilesystem(__command_repositories__)
 
 #Define the filesystem command help
-createCommandFilesystemHelp(__command_help__, __help_command_help__)
+createFileSystemSubCommandHelp(__command_help__, __help_command_help__)
 
-createCommandFilesystemHelp(__command_create__, ["projectfilesystem create {<project_alias>}",
+createFileSystemSubCommandHelp(__command_create__, ["projectfilesystem create {<project_alias>}",
                                                  "Create a new project filesystem"])
 
-createCommandFilesystemHelp(__command_del__, ["projectfilesystem delete <project_alias>",
+createFileSystemSubCommandHelp(__command_del__, ["projectfilesystem delete <project_alias>",
                                               "Remove the project filesystem"])
 
-createCommandFilesystemHelp(__command_query__, ["projectfilesystem query [path|status] {project_alias <project_alias>}",
+createFileSystemSubCommandHelp(__command_query__, ["projectfilesystem query [path|status] {project_alias <project_alias>}",
                                                 "print the path and the status of a filesystem"])
 
-createCommandFilesystemHelp(__command_enter__, ["projectfilesystem enter [package <package>] {project_alias <project_alias>}",
+createFileSystemSubCommandHelp(__command_enter__, ["projectfilesystem enter [package <package>] {project_alias <project_alias>}",
                                                 "chroot into the filesystem"])
 
-createCommandFilesystemHelp(__command_executescript__, ["projectfilesystem executescript <path> {project_alias <project_alias>}",
+createFileSystemSubCommandHelp(__command_executescript__, ["projectfilesystem executescript <path> {project_alias <project_alias>}",
                                                         ""])
 
-createCommandFilesystemHelp(__command_repositories__, ["the command for file system repositorie"])
+createFileSystemSubCommandHelp(__command_repositories__, ["the command for file system repositorie"])
 
 #Define the filesystem parameter help
 createParameterFilesystem(__command_create__, [__command_help__,
@@ -942,20 +944,20 @@ appendCommandRepositories(__command_query__)
 appendCommandRepositories(__command_modify__)
 
 #Define the Repositories command help
-createCommandRepositoryHelp(__command_help__, __help_command_help__)
+createRepositorySubCommandHelp(__command_help__, __help_command_help__)
 
-createCommandRepositoryHelp(__command_add__, ["projectfilesystem repositories add <repository_url> <repository_alias> {<project_alias>}",
+createRepositorySubCommandHelp(__command_add__, ["projectfilesystem repositories add <repository_url> <repository_alias> {<project_alias>}",
                                              "add a repository by url/alias to the project filesystem",
                                              "projectfilesystem repositories add from <project_alias> ",
                                              "add a repository of a local project to the project filesystem"])
 
-createCommandRepositoryHelp(__command_del__, ["projectfilesystem repositories delete <repository_alias> {<project_alias>} ",
+createRepositorySubCommandHelp(__command_del__, ["projectfilesystem repositories delete <repository_alias> {<project_alias>} ",
                                              "remove a repository from a project file system"])
 
-createCommandRepositoryHelp(__command_query__, ["projectfilesystem repositories query project_alias <project_alias>",
+createRepositorySubCommandHelp(__command_query__, ["projectfilesystem repositories query project_alias <project_alias>",
                                                "print the url/alias of the repositories of the project filesystem"])
 
-createCommandRepositoryHelp(__command_modify__, ["projectfilesystem repositories modify [newUrl <repository_url>] [newAlias <repository_alias>] repository_alias <repository_alias> {project_alias <project_alias>}",
+createRepositorySubCommandHelp(__command_modify__, ["projectfilesystem repositories modify [newUrl <repository_url>] [newAlias <repository_alias>] repository_alias <repository_alias> {project_alias <project_alias>}",
                                                 "modify the url/alias of a repository"])
 
 #Define the Repositories parameter help
@@ -992,26 +994,26 @@ appendCommandRpmbuild(__command_updatepatch__)
 
 
 #Define the rpmbuild command help
-createCommandRpmbuildHelp(__command_help__, __help_command_help__)
-createCommandRpmbuildHelp(__command_prepare__, ["rpmbuild prepare {package <package>} {project_alias <project_alias>}",
+createRpmBuildSubCommandHelp(__command_help__, __help_command_help__)
+createRpmBuildSubCommandHelp(__command_prepare__, ["rpmbuild prepare {package <package>} {project_alias <project_alias>}",
                                                 "create the the rpmbuild directorie, build one time the package and initialise git "])
 
-createCommandRpmbuildHelp(__command_build__, ["rpmbuild build {package <package>} {project_alias <project_alias>}",
+createRpmBuildSubCommandHelp(__command_build__, ["rpmbuild build {package <package>} {project_alias <project_alias>}",
                                               "build the package"])
 
-createCommandRpmbuildHelp(__command_install__, ["rpmbuild install {package <package>} {project_alias <project_alias>}",
+createRpmBuildSubCommandHelp(__command_install__, ["rpmbuild install {package <package>} {project_alias <project_alias>}",
                                                 "build and install the package"])
 
-createCommandRpmbuildHelp(__command_buildpackage__, ["rpmbuild buildpackage {package <package>} {project_alias <project_alias>}",
+createRpmBuildSubCommandHelp(__command_buildpackage__, ["rpmbuild buildpackage {package <package>} {project_alias <project_alias>}",
                                                      "build,install and create the rpm package"])
 
-createCommandRpmbuildHelp(__command_isInit__, ["rpmbuild isinit {package <package>} {project_alias <project_alias>}",
+createRpmBuildSubCommandHelp(__command_isInit__, ["rpmbuild isinit {package <package>} {project_alias <project_alias>}",
                                                "print if package prepare was doing"])
 
-createCommandRpmbuildHelp(__command_createPatch__, ["rpmbuild createpatch <patch> {package <package>} {project_alias <project_alias>}",
+createRpmBuildSubCommandHelp(__command_createPatch__, ["rpmbuild createpatch <patch> {package <package>} {project_alias <project_alias>}",
                                                     "create a current patch and add patch file into osc local package, and into yaml/specfile"])
 
-createCommandRpmbuildHelp(__command_updatepatch__, ["rpmbuild updatepatch {package <package> {project_alias <project_alias>}",
+createRpmBuildSubCommandHelp(__command_updatepatch__, ["rpmbuild updatepatch {package <package> {project_alias <project_alias>}",
                                                     "update the current patch"])
 
 
@@ -1053,7 +1055,7 @@ createParameterRpmbuild(__command_testConflict__, [__command_help__,
 ##Command micproject
 #appendCommandMicproject
 ##Define the micproject command help
-#createCommandMicprojectHelp
+#createMicProjectSubCommandHelp
 ##Define the micproject parameter help
 #createParameterMicproject
 
