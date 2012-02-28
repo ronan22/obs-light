@@ -180,96 +180,99 @@ def appendMicProjectSubCommand(command):
     __micproject_subcommand_list__.append(command[0])
 
 
-def createParameterServer(command, parameterList, completionBlacklist=None):
-    '''
-    Add parameter to the sub command of 'server'. The parameters are automatically added
-    to the completion list except if present in `completionBlacklist`.
-    '''
-    __DICO_parameter_server__[command[0]] = []
+def _createCommandParameter(command, parameterList, completionBlacklist,
+                            commandParameterDict, commandParameterCompletionDict):
+    commandParameterDict[command[0]] = []
     for parameter in parameterList:
-        __DICO_parameter_server__[command[0]].append(parameter[0])
-        if (completionBlacklist == None) or (not parameter in completionBlacklist):
-            if not command[0] in __DICO_parameter_server_completion__.keys():
-                __DICO_parameter_server_completion__[command[0]] = []
-            __DICO_parameter_server_completion__[command[0]].append(parameter[0])
+        commandParameterDict[command[0]].append(parameter[0])
+        if (completionBlacklist is None) or (not parameter in completionBlacklist):
+            if not command[0] in commandParameterCompletionDict:
+                commandParameterCompletionDict[command[0]] = []
+            commandParameterCompletionDict[command[0]].append(parameter[0])
 
-def createParameterObsproject(command, parameterList, completionBlacklist=None):
+def createServerParameter(command, parameterList, completionBlacklist=None):
     '''
-    Add parameter to the sub command of 'obsproject'. the parameter are automatically add
-    to the completion list except if present on the completionBlacklist.
+    Add parameter to the sub-command of 'server'.
+    The parameters are automatically added to the completion list
+    except if present in `completionBlacklist`.
     '''
-    __DICO_parameter_obsproject__[command[0]] = []
-    for parameter in parameterList:
-        __DICO_parameter_obsproject__[command[0]].append(parameter[0])
-        if (completionBlacklist == None) or (not parameter in  completionBlacklist):
-            if not command[0] in __DICO_parameter_obsproject_completion__.keys():
-                __DICO_parameter_obsproject_completion__[command[0]] = []
-            __DICO_parameter_obsproject_completion__[command[0]].append(parameter[0])
+    _createCommandParameter(command,
+                            parameterList,
+                            completionBlacklist,
+                            __server_parameter_dict__,
+                            __server_parameter_completion_dict__)
 
-def createParameterPackage(command, parameterList, completionBlacklist=None):
+def createObsProjectParameter(command, parameterList, completionBlacklist=None):
     '''
-    Add parameter to the sub command of Package, the parameter are automatically add
-    to the completion list except if present on the completionBlacklist.
+    Add parameter to the sub-command of 'obsproject'.
+    The parameters are automatically added to the completion list
+    except if present in `completionBlacklist`.
     '''
-    __DICO_parameter_package__[command[0]] = []
-    for parameter in parameterList:
-        __DICO_parameter_package__[command[0]].append(parameter[0])
-        if (completionBlacklist == None) or (not parameter in  completionBlacklist):
-            if not command[0] in __DICO_parameter_package_completion__.keys():
-                __DICO_parameter_package_completion__[command[0]] = []
-            __DICO_parameter_package_completion__[command[0]].append(parameter[0])
+    _createCommandParameter(command,
+                            parameterList,
+                            completionBlacklist,
+                            __obsproject_parameter_dict__,
+                            __obsproject_parameter_completion_dict__)
 
-def createParameterFilesystem(command, parameterList, completionBlacklist=None):
+def createPackageParameter(command, parameterList, completionBlacklist=None):
     '''
-    Add parameter to the sub command of Filesystem, the parameter are automatically add
-    to the completion list except if present on the completionBlacklist.
+    Add parameter to the sub-command of 'package'.
+    The parameters are automatically added to the completion list
+    except if present in `completionBlacklist`.
     '''
-    __DICO_parameter_filesystem__[command[0]] = []
-    for parameter in parameterList:
-        __DICO_parameter_filesystem__[command[0]].append(parameter[0])
-        if (completionBlacklist == None) or (not parameter in  completionBlacklist):
-            if not command[0] in __DICO_parameter_filesystem_completion__.keys():
-                __DICO_parameter_filesystem_completion__[command[0]] = []
-            __DICO_parameter_filesystem_completion__[command[0]].append(parameter[0])
+    _createCommandParameter(command,
+                            parameterList,
+                            completionBlacklist,
+                            __package_parameter_dict__,
+                            __package_parameter_completion_dict__)
 
-def createParameterRepositories(command, parameterList, completionBlacklist=None):
+def createFilesystemParameter(command, parameterList, completionBlacklist=None):
     '''
-    Add parameter to the sub command of repositories, the parameter are automatically add
-    to the completion list except if present on the completionBlacklist.
+    Add parameter to the sub-command of 'filesystem'.
+    The parameters are automatically added to the completion list
+    except if present in `completionBlacklist`.
     '''
-    __DICO_parameter_repositories__[command[0]] = []
-    for parameter in parameterList:
-        __DICO_parameter_repositories__[command[0]].append(parameter[0])
-        if (completionBlacklist == None) or (not parameter in  completionBlacklist):
-            if not command[0] in __DICO_parameter_repositories_completion__.keys():
-                __DICO_parameter_repositories_completion__[command[0]] = []
-            __DICO_parameter_repositories_completion__[command[0]].append(parameter[0])
+    _createCommandParameter(command,
+                            parameterList,
+                            completionBlacklist,
+                            __filesystem_parameter_dict__,
+                            __filesystem_parameter_completion_dict__)
 
-def createParameterRpmbuild(command, parameterList, completionBlacklist=None):
+def createRepositoriesParameter(command, parameterList, completionBlacklist=None):
     '''
-    Add parameter to the sub command of Rpmbuild, the parameter are automatically add
-    to the completion list except if present on the completionBlacklist.
+    Add parameter to the sub-command of 'repositories'.
+    The parameters are automatically added to the completion list
+    except if present in `completionBlacklist`.
     '''
-    __DICO_parameter_rpmbuild__[command[0]] = []
-    for parameter in parameterList:
-        __DICO_parameter_rpmbuild__[command[0]].append(parameter[0])
-        if (completionBlacklist == None) or (not parameter in  completionBlacklist):
-            if not command[0] in __DICO_parameter_rpmbuild_completion__.keys():
-                __DICO_parameter_rpmbuild_completion__[command[0]] = []
-            __DICO_parameter_rpmbuild_completion__[command[0]].append(parameter[0])
+    _createCommandParameter(command,
+                            parameterList,
+                            completionBlacklist,
+                            __repositories_parameter_dict__,
+                            __repositories_parameter_completion_dict__)
 
-def createParameterMicproject(command, parameterList, completionBlacklist=None):
+def createRpmBuildParameter(command, parameterList, completionBlacklist=None):
     '''
-    Add parameter to the sub command of Micproject, the parameter are automatically add
-    to the completion list except if present on the completionBlacklist.
+    Add parameter to the sub-command of 'rpmbuild'.
+    Rhe parameters are automatically added to the completion list
+    except if present in `completionBlacklist`.
     '''
-    __DICO_parameter_micproject__[command[0]] = []
-    for parameter in parameterList:
-        __DICO_parameter_micproject__[command[0]].append(parameter[0])
-        if (completionBlacklist != None) and (not parameter in  completionBlacklist):
-            if not command[0] in __DICO_parameter_micproject_completion__.keys():
-                __DICO_parameter_micproject_completion__[command[0]] = []
-            __DICO_parameter_micproject_completion__[command[0]].append(parameter[0])
+    _createCommandParameter(command,
+                            parameterList,
+                            completionBlacklist,
+                            __rpmbuild_parameter_dict__,
+                            __rpmbuild_parameter_completion_dict__)
+
+def createMicProjectParameter(command, parameterList, completionBlacklist=None):
+    '''
+    Add parameter to the sub-command of 'micproject'
+    The parameters are automatically added to the completion list
+    except if present in `completionBlacklist`.
+    '''
+    _createCommandParameter(command,
+                            parameterList,
+                            completionBlacklist,
+                            __micproject_parameter_dict__,
+                            __micproject_parameter_completion_dict__)
 
 __DESCRIPTION__ = __PRGNAME__ + ":" + "\n"
 __DESCRIPTION__ += firstBorder + "Provides a tool to manage an OBS project on your local machine in command line" + "\n"
@@ -320,26 +323,26 @@ __micproject_command_help_dict__ = {}
 #__DICO_command_qemuproject_help__ = {}
 
 #Command **** parameter 
-__DICO_parameter_server__ = {}
-__DICO_parameter_obsproject__ = {}
-__DICO_parameter_package__ = {}
-__DICO_parameter_filesystem__ = {}
-__DICO_parameter_repositories__ = {}
-__DICO_parameter_rpmbuild__ = {}
-__DICO_parameter_micproject__ = {}
+__server_parameter_dict__ = {}
+__obsproject_parameter_dict__ = {}
+__package_parameter_dict__ = {}
+__filesystem_parameter_dict__ = {}
+__repositories_parameter_dict__ = {}
+__rpmbuild_parameter_dict__ = {}
+__micproject_parameter_dict__ = {}
 #__DICO_parameter_qemuproject__ = {}
 
 #Define the parameter help
 __parameter_help_dict__ = {}
 
 #Define the parameter list for **** completion
-__DICO_parameter_server_completion__ = {}
-__DICO_parameter_obsproject_completion__ = {}
-__DICO_parameter_package_completion__ = {}
-__DICO_parameter_filesystem_completion__ = {}
-__DICO_parameter_repositories_completion__ = {}
-__DICO_parameter_rpmbuild_completion__ = {}
-__DICO_parameter_micproject_completion__ = {}
+__server_parameter_completion_dict__ = {}
+__obsproject_parameter_completion_dict__ = {}
+__package_parameter_completion_dict__ = {}
+__filesystem_parameter_completion_dict__ = {}
+__repositories_parameter_completion_dict__ = {}
+__rpmbuild_parameter_completion_dict__ = {}
+__micproject_parameter_completion_dict__ = {}
 __DICO_parameter_qemuproject_completion__ = {}
 
 #Command 
@@ -587,29 +590,29 @@ createServerSubCommandHelp(__command_current__, ["server current BLANK",
                                               "return the current OBS server"])
 
 #Define the parameter list for server command
-createParameterServer(__command_test__, [__command_help__,
+createServerParameter(__command_test__, [__command_help__,
                                          __parameter_server_alias__,
                                          __parameter_login__,
                                          __parameter_password__,
                                          __parameter_api_url__])
 
-createParameterServer(__command_list__, [__parameter_reachable__, __command_help__])
+createServerParameter(__command_list__, [__parameter_reachable__, __command_help__])
 
-createParameterServer(__command_query__, [__command_help__,
+createServerParameter(__command_query__, [__command_help__,
                                           __parameter_server_alias__,
                                           __parameter_login__,
                                           __parameter_api_url__,
                                           __parameter_repository_url__,
                                           __parameter_web_url__])
 
-createParameterServer(__command_set__, [__command_help__,
+createServerParameter(__command_set__, [__command_help__,
                                         __parameter_server_alias__,
                                         __parameter_login__,
                                         __parameter_api_url__,
                                         __parameter_repository_url__,
                                         __parameter_web_url__])
 
-createParameterServer(__command_add__, [__command_help__,
+createServerParameter(__command_add__, [__command_help__,
                                         __parameter_server_alias__,
                                         __parameter_login__,
                                         __parameter_password__,
@@ -617,10 +620,10 @@ createParameterServer(__command_add__, [__command_help__,
                                         __parameter_repository_url__,
                                         __parameter_web_url__])
 
-createParameterServer(__command_del__, [__command_help__,
+createServerParameter(__command_del__, [__command_help__,
                                         __parameter_server_alias__], [__parameter_server_alias__])
 
-createParameterServer(__command_current__, [__command_help__])
+createServerParameter(__command_current__, [__command_help__])
 
 #    obsproject    list    BLANK
 #    obsproject    list    server_alias <server_alias> raw|[arch <arch>|maintainer|bugowner|remoteurl]
@@ -681,7 +684,7 @@ createObsProjectSubCommandHelp(__command_export__, ["obsproject export <path> {<
                                                  "export a back up file"])
 
 #Define the obsproject parameter help
-createParameterObsproject(__command_list__, [__command_help__,
+createObsProjectParameter(__command_list__, [__command_help__,
                                              __parameter_server_alias__,
                                              __parameter_raw__,
                                              __parameter_arch__,
@@ -689,15 +692,15 @@ createParameterObsproject(__command_list__, [__command_help__,
                                              __parameter_bugowner__,
                                              __parameter_remoteurl__])
 
-createParameterObsproject(__command_current__, [__command_help__])
+createObsProjectParameter(__command_current__, [__command_help__])
 
-createParameterObsproject(__command_dependencyrepositories__, [__command_help__,
+createObsProjectParameter(__command_dependencyrepositories__, [__command_help__,
                                                                __parameter_project_alias__], [__parameter_project_alias__])
 
-createParameterObsproject(__command_del__, [__command_help__,
+createObsProjectParameter(__command_del__, [__command_help__,
                                             __parameter_project_alias__], [__parameter_project_alias__])
 
-createParameterObsproject(__command_add__, [__command_help__,
+createObsProjectParameter(__command_add__, [__command_help__,
                                             __parameter_project_alias__,
                                             __parameter_name_on_obs__,
                                             __parameter_target__,
@@ -708,7 +711,7 @@ createParameterObsproject(__command_add__, [__command_help__,
                                                                          __parameter_arch__,
                                                                          __parameter_server_alias__])
 
-createParameterObsproject(__command_query__, [__command_help__,
+createObsProjectParameter(__command_query__, [__command_help__,
                                               __parameter_project_title__,
                                               __parameter_project_description__,
                                               __parameter_server__,
@@ -723,15 +726,15 @@ createParameterObsproject(__command_query__, [__command_help__,
                                               __parameter_server_alias__,
                                               __parameter_project__], [])
 
-createParameterObsproject(__command_set__, [__command_help__,
+createObsProjectParameter(__command_set__, [__command_help__,
                                             __parameter_project_title__,
                                             __parameter_project_description__,
                                             __parameter_project_alias__])
 
-createParameterObsproject(__command_import__, [__command_help__,
+createObsProjectParameter(__command_import__, [__command_help__,
                                                __parameter_path__], [__parameter_path__])
 
-createParameterObsproject(__command_export__, [__command_help__,
+createObsProjectParameter(__command_export__, [__command_help__,
                                                __parameter_path__,
                                                __parameter_project_alias__], [__parameter_path__,
                                                                               __parameter_project_alias__])
@@ -801,22 +804,22 @@ createPackageSubCommandHelp(__command_testConflict__, ["package testconflict {pa
 createPackageSubCommandHelp(__command_resolveConflict__, ["package resolveconflict {package <package>} {project_alias <project_alias>}",
                                                       "test and print the status of conflict"])
 #Define the package parameter help
-createParameterPackage(__command_list__, [__command_help__,
+createPackageParameter(__command_list__, [__command_help__,
                                           __parameter_available__,
                                           __parameter_project_alias__])
 
-createParameterPackage(__command_current__, [__command_help__,
+createPackageParameter(__command_current__, [__command_help__,
                                              __parameter_project_alias__])
 
-createParameterPackage(__command_add__, [__command_help__,
+createPackageParameter(__command_add__, [__command_help__,
                                          __parameter_package__,
                                          __parameter_project_alias__])
 
-createParameterPackage(__command_del__, [__command_help__,
+createPackageParameter(__command_del__, [__command_help__,
                                          __parameter_package__,
                                          __parameter_project_alias__])
 
-createParameterPackage(__command_query__, [__command_help__,
+createPackageParameter(__command_query__, [__command_help__,
                                            __parameter_package_title__,
                                            __parameter_packge_description__,
                                            __parameter_url__,
@@ -837,46 +840,46 @@ createParameterPackage(__command_query__, [__command_help__,
                                            __parameter_currentPatch__,
                                            __parameter_project_alias__])
 
-createParameterPackage(__command_set__, [__command_help__,
+createPackageParameter(__command_set__, [__command_help__,
                                          __parameter_package_title__,
                                          __parameter_packge_description__,
                                          __parameter_package__,
                                            __parameter_project_alias__])
 
-createParameterPackage(__command_update__, [__command_help__,
+createPackageParameter(__command_update__, [__command_help__,
                                             __parameter_package__,
                                            __parameter_project_alias__])
 
-createParameterPackage(__command_commit__, [__command_help__,
+createPackageParameter(__command_commit__, [__command_help__,
                                             __parameter_message__,
                                             __parameter_package__,
                                            __parameter_project_alias__], [__parameter_message__])
 
-createParameterPackage(__command_repair__, [__command_help__,
+createPackageParameter(__command_repair__, [__command_help__,
                                             __parameter_package__,
                                            __parameter_project_alias__])
 
-createParameterPackage(__command_addfile__, [__command_help__,
+createPackageParameter(__command_addfile__, [__command_help__,
                                              __parameter_path__,
                                              __parameter_package__,
                                              __parameter_project_alias__], [__parameter_path__])
 
-createParameterPackage(__command_deletefile__, [__command_help__,
+createPackageParameter(__command_deletefile__, [__command_help__,
                                                 __parameter_file__,
                                              __parameter_package__,
                                              __parameter_project_alias__], [__parameter_file__])
 
-createParameterPackage(__command_refresh__, [__command_help__,
+createPackageParameter(__command_refresh__, [__command_help__,
                                              __parameter_obsstatus__,
                                              __parameter_oscstatus__,
                                              __parameter_package__,
                                              __parameter_project_alias__])
 
-createParameterPackage(__command_testConflict__, [__command_help__,
+createPackageParameter(__command_testConflict__, [__command_help__,
                                                    __parameter_package__,
                                                    __parameter_project_alias__])
 
-createParameterPackage(__command_resolveConflict__, [__command_help__,
+createPackageParameter(__command_resolveConflict__, [__command_help__,
                                                      __parameter_package__,
                                                      __parameter_project_alias__])
 
@@ -910,26 +913,26 @@ createFileSystemSubCommandHelp(__command_executescript__, ["projectfilesystem ex
 createFileSystemSubCommandHelp(__command_repositories__, ["the command for file system repositorie"])
 
 #Define the filesystem parameter help
-createParameterFilesystem(__command_create__, [__command_help__,
+createFilesystemParameter(__command_create__, [__command_help__,
                                                __parameter_project_alias__], [__parameter_project_alias__])
 
-createParameterFilesystem(__command_del__, [__command_help__,
+createFilesystemParameter(__command_del__, [__command_help__,
                                             __parameter_project_alias__], [__parameter_project_alias__])
 
-createParameterFilesystem(__command_query__, [__command_help__,
+createFilesystemParameter(__command_query__, [__command_help__,
                                               __parameter_path__,
                                               __parameter_filesystemstatus__,
                                               __parameter_project_alias__])
 
-createParameterFilesystem(__command_enter__, [__command_help__,
+createFilesystemParameter(__command_enter__, [__command_help__,
                                               __parameter_package__,
                                               __parameter_project_alias__])
 
-createParameterFilesystem(__command_executescript__, [__command_help__,
+createFilesystemParameter(__command_executescript__, [__command_help__,
                                                       __parameter_path__,
                                                       __parameter_project_alias__], [__parameter_path__])
 
-createParameterFilesystem(__command_repositories__, [__command_help__])
+createFilesystemParameter(__command_repositories__, [__command_help__])
 
 #Command Repositories
 appendRepositoriesSubCommand(__command_help__)
@@ -956,7 +959,7 @@ createRepositorySubCommandHelp(__command_modify__, ["projectfilesystem repositor
                                                 "modify the url/alias of a repository"])
 
 #Define the Repositories parameter help
-createParameterRepositories(__command_add__, [__command_help__,
+createRepositoriesParameter(__command_add__, [__command_help__,
                                               __parameter_repo_url__,
                                               __parameter_repo_alias__,
                                               __parameter_project_alias__,
@@ -964,14 +967,14 @@ createParameterRepositories(__command_add__, [__command_help__,
                                                                     __parameter_repo_alias__,
                                                                     __parameter_project_alias__])
 
-createParameterRepositories(__command_del__, [__command_help__,
+createRepositoriesParameter(__command_del__, [__command_help__,
                                               __parameter_repo_alias__,
                                               __parameter_project_alias__])
 
-createParameterRepositories(__command_query__, [__command_help__,
+createRepositoriesParameter(__command_query__, [__command_help__,
                                                 __parameter_project_alias__])
 
-createParameterRepositories(__command_modify__, [__command_help__,
+createRepositoriesParameter(__command_modify__, [__command_help__,
                                                  __parameter_newUrl__,
                                                  __parameter_newAlias__,
                                                  __parameter_repo_alias__,
@@ -1014,36 +1017,36 @@ createRpmBuildSubCommandHelp(__command_updatepatch__, ["rpmbuild updatepatch {pa
 
 
 #Define the rpmbuild parameter help
-createParameterRpmbuild(__command_prepare__, [__command_help__,
+createRpmBuildParameter(__command_prepare__, [__command_help__,
                                               __parameter_package__,
                                               __parameter_project_alias__])
 
-createParameterRpmbuild(__command_build__, [__command_help__,
+createRpmBuildParameter(__command_build__, [__command_help__,
                                             __parameter_package__,
                                               __parameter_project_alias__])
 
-createParameterRpmbuild(__command_install__, [__command_help__,
+createRpmBuildParameter(__command_install__, [__command_help__,
                                               __parameter_package__,
                                               __parameter_project_alias__])
 
-createParameterRpmbuild(__command_buildpackage__, [__command_help__,
+createRpmBuildParameter(__command_buildpackage__, [__command_help__,
                                                    __parameter_package__,
                                               __parameter_project_alias__])
 
-createParameterRpmbuild(__command_isInit__, [__command_help__,
+createRpmBuildParameter(__command_isInit__, [__command_help__,
                                              __parameter_package__,
                                              __parameter_project_alias__])
 
-createParameterRpmbuild(__command_createPatch__, [__command_help__,
+createRpmBuildParameter(__command_createPatch__, [__command_help__,
                                                   __parameter_path__,
                                                   __parameter_package__,
                                                   __parameter_project_alias__], [__parameter_path__])
 
-createParameterRpmbuild(__command_updatepatch__, [__command_help__,
+createRpmBuildParameter(__command_updatepatch__, [__command_help__,
                                                   __parameter_package__,
                                                   __parameter_project_alias__])
 
-createParameterRpmbuild(__command_testConflict__, [__command_help__,
+createRpmBuildParameter(__command_testConflict__, [__command_help__,
                                                    __parameter_package__,
                                                    __parameter_project_alias__])
 
@@ -1052,7 +1055,7 @@ createParameterRpmbuild(__command_testConflict__, [__command_help__,
 ##Define the micproject command help
 #createMicProjectSubCommandHelp
 ##Define the micproject parameter help
-#createParameterMicproject
+#createMicProjectParameter
 
 class ObsLightBase():
     '''
@@ -1384,9 +1387,9 @@ class ObsLightServer(ObsLightBase):
         self.currentCommand = __server__[0]
 
         self.listCommand = __server_subcommand_list__
-        self.dicoParameterCompletion = __DICO_parameter_server_completion__
+        self.dicoParameterCompletion = __server_parameter_completion_dict__
         self.dicoCommandHelp = __server_command_help_dict__
-        self.dicoParameter = __DICO_parameter_server__
+        self.dicoParameter = __server_parameter_dict__
 
     def execute(self, listArgv):
         '''
@@ -1757,9 +1760,9 @@ class ObsLightObsproject(ObsLightBase):
         self.currentCommand = __obsproject__[0]
 
         self.listCommand = __obsproject_subcommand_list__
-        self.dicoParameterCompletion = __DICO_parameter_obsproject_completion__
+        self.dicoParameterCompletion = __obsproject_parameter_completion_dict__
         self.dicoCommandHelp = __obsproject_command_help_dict__
-        self.dicoParameter = __DICO_parameter_obsproject__
+        self.dicoParameter = __obsproject_parameter_dict__
 
     def obsproject_list (self, listArgv):
         '''
@@ -2336,9 +2339,9 @@ class ObsLightObsPackage(ObsLightBase):
         self.currentCommand = __Package__[0]
 
         self.listCommand = __package_subcommand_list__
-        self.dicoParameterCompletion = __DICO_parameter_package_completion__
+        self.dicoParameterCompletion = __package_parameter_completion_dict__
         self.dicoCommandHelp = __package_command_help_dict__
-        self.dicoParameter = __DICO_parameter_package__
+        self.dicoParameter = __package_parameter_dict__
 
     def package_add(self, listArgv):
         '''
@@ -3308,9 +3311,9 @@ class ObsLightObsRepository(ObsLightBase):
         self.currentCommand = __command_repositories__[0]
 
         self.listCommand = __repositories_subcommand_list__
-        self.dicoParameterCompletion = __DICO_parameter_repositories_completion__
+        self.dicoParameterCompletion = __repositories_parameter_completion_dict__
         self.dicoCommandHelp = __repositories_command_help_dict__
-        self.dicoParameter = __DICO_parameter_repositories__
+        self.dicoParameter = __repositories_parameter_dict__
 
     def repository_add(self, listArgv):
         '''
@@ -3549,9 +3552,9 @@ class ObsLightObsProjectfilesystem(ObsLightBase):
         self.currentCommand = __projectfilesystem__[0]
 
         self.listCommand = __filesystem_subcommand_list__
-        self.dicoParameterCompletion = __DICO_parameter_filesystem_completion__
+        self.dicoParameterCompletion = __filesystem_parameter_completion_dict__
         self.dicoCommandHelp = __filesystem_command_help_dict__
-        self.dicoParameter = __DICO_parameter_filesystem__
+        self.dicoParameter = __filesystem_parameter_dict__
 
 
     def man(self):
@@ -3791,9 +3794,9 @@ class ObsLightRpmbuild(ObsLightBase):
         self.currentCommand = __rpmbuild__[0]
 
         self.listCommand = __rpmbuild_subcommand_list__
-        self.dicoParameterCompletion = __DICO_parameter_rpmbuild_completion__
+        self.dicoParameterCompletion = __rpmbuild_parameter_completion_dict__
         self.dicoCommandHelp = __rpmbuild_command_help_dict__
-        self.dicoParameter = __DICO_parameter_rpmbuild__
+        self.dicoParameter = __rpmbuild_parameter_dict__
 
     def rpmbuild_prepare(self, listArgv):
         '''
