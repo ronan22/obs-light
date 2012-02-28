@@ -1484,8 +1484,8 @@ in the source directory of the current package if it is installed.</string>
                 </layout>
                </widget>
                <widget class="QWidget" name="gridWidget_2" native="true">
-                <layout class="QGridLayout" name="gridLayout_18">
-                 <item row="0" column="0" colspan="2">
+                <layout class="QVBoxLayout" name="verticalLayout_4">
+                 <item>
                   <widget class="QPlainTextEdit" name="kickstartOptionTextEdit"/>
                  </item>
                 </layout>
@@ -1628,130 +1628,145 @@ in the source directory of the current package if it is installed.</string>
             <attribute name="title">
              <string>Scripts</string>
             </attribute>
-            <layout class="QGridLayout" name="gridLayout_5">
-             <item row="6" column="2">
-              <widget class="QRadioButton" name="postScriptRadioButton">
-               <property name="text">
-                <string>Post script</string>
-               </property>
-               <property name="checked">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item row="13" column="0" colspan="5">
-              <widget class="QPlainTextEdit" name="kickstartScriptTextEdit"/>
-             </item>
-             <item row="8" column="3" colspan="2">
-              <widget class="QLineEdit" name="interpreterLineEdit">
-               <property name="enabled">
-                <bool>false</bool>
-               </property>
-               <property name="placeholderText">
-                <string>/usr/bin/python</string>
-               </property>
-              </widget>
-             </item>
-             <item row="9" column="3" colspan="2">
-              <widget class="QLineEdit" name="logFileLineEdit">
-               <property name="enabled">
-                <bool>false</bool>
-               </property>
-               <property name="placeholderText">
-                <string>/root/ks-post.log</string>
-               </property>
-              </widget>
-             </item>
-             <item row="5" column="2">
-              <widget class="QRadioButton" name="preScriptRadioButton">
-               <property name="text">
-                <string>Pre script</string>
-               </property>
-              </widget>
-             </item>
-             <item row="8" column="2">
-              <widget class="QCheckBox" name="specifyInterpreterCheckBox">
-               <property name="text">
-                <string>Specify interpreter</string>
-               </property>
-              </widget>
-             </item>
-             <item row="9" column="2">
-              <widget class="QCheckBox" name="specifyLogFileCheckBox">
-               <property name="text">
-                <string>Specify log file</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="0" rowspan="12" colspan="2">
-              <widget class="QListView" name="kickstartScriptsListView"/>
-             </item>
-             <item row="7" column="2">
-              <widget class="QRadioButton" name="tracebackScriptRadioButton">
-               <property name="text">
-                <string>Traceback script</string>
-               </property>
-              </widget>
-             </item>
-             <item row="7" column="3">
-              <widget class="QCheckBox" name="errorOnFailCheckBox">
-               <property name="text">
-                <string>Error on fail</string>
-               </property>
-              </widget>
-             </item>
-             <item row="6" column="3">
-              <widget class="QCheckBox" name="noChrootCheckBox">
-               <property name="text">
-                <string>No chroot</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="2">
-              <widget class="QPushButton" name="addKickstartScriptButton">
-               <property name="text">
-                <string>Add</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="2">
-              <widget class="QPushButton" name="removeKickstartScriptButton">
-               <property name="text">
-                <string>Delete</string>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="2">
-              <widget class="QPushButton" name="saveKickstartScriptButton">
-               <property name="text">
-                <string>Save</string>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="2">
-              <spacer name="verticalSpacer_4">
+            <layout class="QGridLayout" name="gridLayout_20">
+             <item row="0" column="0">
+              <widget class="QSplitter" name="splitter_4">
                <property name="orientation">
                 <enum>Qt::Vertical</enum>
                </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>20</width>
-                 <height>40</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item row="3" column="2">
-              <widget class="QLabel" name="label_6">
-               <property name="text">
-                <string>Don't forget to save after editing a script</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignCenter</set>
-               </property>
-               <property name="wordWrap">
-                <bool>true</bool>
-               </property>
+               <widget class="QWidget" name="widget" native="true">
+                <layout class="QGridLayout" name="gridLayout_5">
+                 <item row="0" column="1">
+                  <widget class="QPushButton" name="addKickstartScriptButton">
+                   <property name="text">
+                    <string>Add</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="1">
+                  <widget class="QPushButton" name="removeKickstartScriptButton">
+                   <property name="text">
+                    <string>Delete</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="1">
+                  <widget class="QPushButton" name="saveKickstartScriptButton">
+                   <property name="text">
+                    <string>Save</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="1">
+                  <widget class="QLabel" name="label_6">
+                   <property name="text">
+                    <string>Don't forget to save after editing a script</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignCenter</set>
+                   </property>
+                   <property name="wordWrap">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="4" column="1">
+                  <spacer name="verticalSpacer_4">
+                   <property name="orientation">
+                    <enum>Qt::Vertical</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>20</width>
+                     <height>40</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item row="5" column="1">
+                  <widget class="QRadioButton" name="preScriptRadioButton">
+                   <property name="text">
+                    <string>Pre script</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="6" column="1">
+                  <widget class="QRadioButton" name="postScriptRadioButton">
+                   <property name="text">
+                    <string>Post script</string>
+                   </property>
+                   <property name="checked">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="6" column="2">
+                  <widget class="QCheckBox" name="noChrootCheckBox">
+                   <property name="text">
+                    <string>No chroot</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="7" column="1">
+                  <widget class="QRadioButton" name="tracebackScriptRadioButton">
+                   <property name="text">
+                    <string>Traceback script</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="7" column="2">
+                  <widget class="QCheckBox" name="errorOnFailCheckBox">
+                   <property name="text">
+                    <string>Error on fail</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="8" column="1">
+                  <widget class="QCheckBox" name="specifyInterpreterCheckBox">
+                   <property name="text">
+                    <string>Specify interpreter</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="8" column="2">
+                  <widget class="QLineEdit" name="interpreterLineEdit">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="placeholderText">
+                    <string>/usr/bin/python</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="9" column="1">
+                  <widget class="QCheckBox" name="specifyLogFileCheckBox">
+                   <property name="text">
+                    <string>Specify log file</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="9" column="2">
+                  <widget class="QLineEdit" name="logFileLineEdit">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="placeholderText">
+                    <string>/root/ks-post.log</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="0" rowspan="10">
+                  <widget class="QListView" name="kickstartScriptsListView"/>
+                 </item>
+                </layout>
+               </widget>
+               <widget class="QWidget" name="widget2" native="true">
+                <layout class="QVBoxLayout" name="verticalLayout">
+                 <item>
+                  <widget class="QPlainTextEdit" name="kickstartScriptTextEdit"/>
+                 </item>
+                </layout>
+               </widget>
               </widget>
              </item>
             </layout>
@@ -1971,54 +1986,6 @@ If destination does not exist on your host, select '/', validate, and edit desti
     <hint type="destinationlabel">
      <x>399</x>
      <y>219</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>postScriptRadioButton</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>noChrootCheckBox</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>586</x>
-     <y>130</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>794</x>
-     <y>141</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>specifyInterpreterCheckBox</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>interpreterLineEdit</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>608</x>
-     <y>159</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>800</x>
-     <y>159</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>specifyLogFileCheckBox</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>logFileLineEdit</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>608</x>
-     <y>185</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>800</x>
-     <y>185</y>
     </hint>
    </hints>
   </connection>
