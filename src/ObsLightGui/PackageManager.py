@@ -223,7 +223,7 @@ class PackageManager(QObject, ObsLightGuiObject):
         package = self.currentPackage()
         project = self.getCurrentProject()
         if package is not None:
-            self.mainWindow.packageNameLabel.setText(package)
+            self.mainWindow.packageNameLabelValue.setText(package)
             packageTitle = self.manager.getPackageParameter(project, package, "title")
             description = self.manager.getPackageParameter(project, package, "description")
 
@@ -233,7 +233,7 @@ class PackageManager(QObject, ObsLightGuiObject):
                                                       parameter="oscPackageDirectory")
             self.mainWindow.packagePathLineEdit.setText(pkgDir)
         else:
-            self.mainWindow.packageNameLabel.setText("No package selected")
+            self.mainWindow.packageNameLabelValue.setText("No package selected")
             self.mainWindow.packageTitleLabel.setText("")
             self.mainWindow.packageDescriptionLabel.setText("")
             self.mainWindow.packagePathLineEdit.setText("")
