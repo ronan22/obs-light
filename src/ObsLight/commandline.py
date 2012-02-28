@@ -132,58 +132,53 @@ def createCommand(command):
 
 def createParameterHelp(parameter, comment):
     '''
-    Format and store parameter/documentation.
+    Format and store parameter documentation.
     The parameter/documentation couple is unique.
     '''
     __parameter_help_dict__[parameter[0]] = createDoc(parameter, comment)
 
-def appendCommandServer(command):
+def appendServerSubCommand(command):
     """
-    Append sub command to command 'server'.
+    Append sub-command to command 'server'.
     """
-    __LIST_command_server__.append(command[0])
+    __server_subcommand_list__.append(command[0])
 
-def appendCommandObsproject(command):
+def appendObsProjectSubCommand(command):
     """
-    Append sub command to command 'obsproject'
+    Append sub-command to command 'obsproject'.
     """
-    __LIST_command_obsproject__.append(command[0])
+    __obsproject_subcommand_list__.append(command[0])
 
-def appendCommandPackage(command):
+def appendPackageSubCommand(command):
     """
-    Append sub command to command 'package'
+    Append sub-command to command 'package'.
     """
-    __LIST_package__.append(command[0])
+    __package_subcommand_list__.append(command[0])
 
-def appendCommandFilesystem(command):
+def appendFileSystemSubCommand(command):
     """
-    Append sub command to command 'filesystem'
+    Append sub-command to command 'filesystem'.
     """
-    __LIST_filesystem__.append(command[0])
+    __filesystem_subcommand_list__.append(command[0])
 
-def appendCommandRepositories(command):
+def appendRepositoriesSubCommand(command):
     """
-    Append sub command to command 'repositories'
+    Append sub-command to command 'repositories'.
     """
-    __LIST_repositories__.append(command[0])
+    __repositories_subcommand_list__.append(command[0])
 
-def appendCommandRpmbuild(command):
+def appendRpmBuildSubCommand(command):
     """
-    Append sub command to command 'rpmbuild'
+    Append sub-command to command 'rpmbuild'.
     """
-    __LIST_rpmbuild__.append(command[0])
+    __rpmbuild_subcommand_list__.append(command[0])
 
-def appendCommandMicproject(command):
+def appendMicProjectSubCommand(command):
     """
-    Append sub command to command 'micproject'
+    Append sub-command to command 'micproject'.
     """
-    __LIST_micproject__.append(command[0])
+    __micproject_subcommand_list__.append(command[0])
 
-#def appendCommandQemuproject(command):
-#    """
-#    Append sub command to command Qemuproject
-#    """
-#    __LIST_qemuproject__.append(command[0])
 
 def createParameterServer(command, parameterList, completionBlacklist=None):
     '''
@@ -305,13 +300,13 @@ __global_command_list__ = []
 __command_help_dict__ = {}
 
 #Command ****
-__LIST_command_server__ = []
-__LIST_command_obsproject__ = []
-__LIST_package__ = []
-__LIST_filesystem__ = []
-__LIST_repositories__ = []
-__LIST_rpmbuild__ = []
-__LIST_micproject__ = []
+__server_subcommand_list__ = []
+__obsproject_subcommand_list__ = []
+__package_subcommand_list__ = []
+__filesystem_subcommand_list__ = []
+__repositories_subcommand_list__ = []
+__rpmbuild_subcommand_list__ = []
+__micproject_subcommand_list__ = []
 #__LIST_qemuproject__ = []
 
 #Define the **** command help
@@ -555,14 +550,14 @@ createCommandHelp(__command_repositories__, ["the command for file system reposi
 #    server    current BLANK
 
 #Command server
-appendCommandServer(__command_help__)
-appendCommandServer(__command_test__)
-appendCommandServer(__command_list__)
-appendCommandServer(__command_query__)
-appendCommandServer(__command_set__)
-appendCommandServer(__command_add__)
-appendCommandServer(__command_del__)
-appendCommandServer(__command_current__)
+appendServerSubCommand(__command_help__)
+appendServerSubCommand(__command_test__)
+appendServerSubCommand(__command_list__)
+appendServerSubCommand(__command_query__)
+appendServerSubCommand(__command_set__)
+appendServerSubCommand(__command_add__)
+appendServerSubCommand(__command_del__)
+appendServerSubCommand(__command_current__)
 
 #Define the server command help
 createServerSubCommandHelp(__command_help__, __help_command_help__)
@@ -640,16 +635,16 @@ createParameterServer(__command_current__, [__command_help__])
 #    obsproject    export  <path> {<project_alias>}
 
 #Command obsproject 
-appendCommandObsproject(__command_help__)
-appendCommandObsproject(__command_list__)
-appendCommandObsproject(__command_add__)
-appendCommandObsproject(__command_del__)
-appendCommandObsproject(__command_query__)
-appendCommandObsproject(__command_set__)
-appendCommandObsproject(__command_current__)
-appendCommandObsproject(__command_import__)
-appendCommandObsproject(__command_export__)
-appendCommandObsproject(__command_dependencyrepositories__)
+appendObsProjectSubCommand(__command_help__)
+appendObsProjectSubCommand(__command_list__)
+appendObsProjectSubCommand(__command_add__)
+appendObsProjectSubCommand(__command_del__)
+appendObsProjectSubCommand(__command_query__)
+appendObsProjectSubCommand(__command_set__)
+appendObsProjectSubCommand(__command_current__)
+appendObsProjectSubCommand(__command_import__)
+appendObsProjectSubCommand(__command_export__)
+appendObsProjectSubCommand(__command_dependencyrepositories__)
 
 #Define the obsproject command help
 createObsProjectSubCommandHelp(__command_help__, __help_command_help__)
@@ -742,21 +737,21 @@ createParameterObsproject(__command_export__, [__command_help__,
                                                                               __parameter_project_alias__])
 
 #Command package
-appendCommandPackage(__command_help__)
-appendCommandPackage(__command_list__)
-appendCommandPackage(__command_current__)
-appendCommandPackage(__command_add__)
-appendCommandPackage(__command_del__)
-appendCommandPackage(__command_query__)
-appendCommandPackage(__command_set__)
-appendCommandPackage(__command_update__)
-appendCommandPackage(__command_commit__)
-appendCommandPackage(__command_repair__)
-appendCommandPackage(__command_addfile__)
-appendCommandPackage(__command_deletefile__)
-appendCommandPackage(__command_refresh__)
-appendCommandPackage(__command_testConflict__)
-appendCommandPackage(__command_resolveConflict__)
+appendPackageSubCommand(__command_help__)
+appendPackageSubCommand(__command_list__)
+appendPackageSubCommand(__command_current__)
+appendPackageSubCommand(__command_add__)
+appendPackageSubCommand(__command_del__)
+appendPackageSubCommand(__command_query__)
+appendPackageSubCommand(__command_set__)
+appendPackageSubCommand(__command_update__)
+appendPackageSubCommand(__command_commit__)
+appendPackageSubCommand(__command_repair__)
+appendPackageSubCommand(__command_addfile__)
+appendPackageSubCommand(__command_deletefile__)
+appendPackageSubCommand(__command_refresh__)
+appendPackageSubCommand(__command_testConflict__)
+appendPackageSubCommand(__command_resolveConflict__)
 #Define the package command help
 createPackageSubCommandHelp(__command_help__, __help_command_help__)
 createPackageSubCommandHelp(__command_list__, ["package list [available] {project_alias <project_alias>}",
@@ -886,13 +881,13 @@ createParameterPackage(__command_resolveConflict__, [__command_help__,
                                                      __parameter_project_alias__])
 
 #Command filesystem
-appendCommandFilesystem(__command_help__)
-appendCommandFilesystem(__command_create__)
-appendCommandFilesystem(__command_del__)
-appendCommandFilesystem(__command_query__)
-appendCommandFilesystem(__command_enter__)
-appendCommandFilesystem(__command_executescript__)
-appendCommandFilesystem(__command_repositories__)
+appendFileSystemSubCommand(__command_help__)
+appendFileSystemSubCommand(__command_create__)
+appendFileSystemSubCommand(__command_del__)
+appendFileSystemSubCommand(__command_query__)
+appendFileSystemSubCommand(__command_enter__)
+appendFileSystemSubCommand(__command_executescript__)
+appendFileSystemSubCommand(__command_repositories__)
 
 #Define the filesystem command help
 createFileSystemSubCommandHelp(__command_help__, __help_command_help__)
@@ -937,11 +932,11 @@ createParameterFilesystem(__command_executescript__, [__command_help__,
 createParameterFilesystem(__command_repositories__, [__command_help__])
 
 #Command Repositories
-appendCommandRepositories(__command_help__)
-appendCommandRepositories(__command_add__)
-appendCommandRepositories(__command_del__)
-appendCommandRepositories(__command_query__)
-appendCommandRepositories(__command_modify__)
+appendRepositoriesSubCommand(__command_help__)
+appendRepositoriesSubCommand(__command_add__)
+appendRepositoriesSubCommand(__command_del__)
+appendRepositoriesSubCommand(__command_query__)
+appendRepositoriesSubCommand(__command_modify__)
 
 #Define the Repositories command help
 createRepositorySubCommandHelp(__command_help__, __help_command_help__)
@@ -983,14 +978,14 @@ createParameterRepositories(__command_modify__, [__command_help__,
                                                  __parameter_project_alias__])
 
 #Command rpmbuild
-appendCommandRpmbuild(__command_help__)
-appendCommandRpmbuild(__command_prepare__)
-appendCommandRpmbuild(__command_build__)
-appendCommandRpmbuild(__command_install__)
-appendCommandRpmbuild(__command_buildpackage__)
-appendCommandRpmbuild(__command_isInit__)
-appendCommandRpmbuild(__command_createPatch__)
-appendCommandRpmbuild(__command_updatepatch__)
+appendRpmBuildSubCommand(__command_help__)
+appendRpmBuildSubCommand(__command_prepare__)
+appendRpmBuildSubCommand(__command_build__)
+appendRpmBuildSubCommand(__command_install__)
+appendRpmBuildSubCommand(__command_buildpackage__)
+appendRpmBuildSubCommand(__command_isInit__)
+appendRpmBuildSubCommand(__command_createPatch__)
+appendRpmBuildSubCommand(__command_updatepatch__)
 
 
 #Define the rpmbuild command help
@@ -1053,7 +1048,7 @@ createParameterRpmbuild(__command_testConflict__, [__command_help__,
                                                    __parameter_project_alias__])
 
 ##Command micproject
-#appendCommandMicproject
+#appendMicProjectSubCommand
 ##Define the micproject command help
 #createMicProjectSubCommandHelp
 ##Define the micproject parameter help
@@ -1388,7 +1383,7 @@ class ObsLightServer(ObsLightBase):
 
         self.currentCommand = __server__[0]
 
-        self.listCommand = __LIST_command_server__
+        self.listCommand = __server_subcommand_list__
         self.dicoParameterCompletion = __DICO_parameter_server_completion__
         self.dicoCommandHelp = __server_command_help_dict__
         self.dicoParameter = __DICO_parameter_server__
@@ -1761,7 +1756,7 @@ class ObsLightObsproject(ObsLightBase):
 
         self.currentCommand = __obsproject__[0]
 
-        self.listCommand = __LIST_command_obsproject__
+        self.listCommand = __obsproject_subcommand_list__
         self.dicoParameterCompletion = __DICO_parameter_obsproject_completion__
         self.dicoCommandHelp = __obsproject_command_help_dict__
         self.dicoParameter = __DICO_parameter_obsproject__
@@ -2340,7 +2335,7 @@ class ObsLightObsPackage(ObsLightBase):
 
         self.currentCommand = __Package__[0]
 
-        self.listCommand = __LIST_package__
+        self.listCommand = __package_subcommand_list__
         self.dicoParameterCompletion = __DICO_parameter_package_completion__
         self.dicoCommandHelp = __package_command_help_dict__
         self.dicoParameter = __DICO_parameter_package__
@@ -3312,7 +3307,7 @@ class ObsLightObsRepository(ObsLightBase):
 
         self.currentCommand = __command_repositories__[0]
 
-        self.listCommand = __LIST_repositories__
+        self.listCommand = __repositories_subcommand_list__
         self.dicoParameterCompletion = __DICO_parameter_repositories_completion__
         self.dicoCommandHelp = __repositories_command_help_dict__
         self.dicoParameter = __DICO_parameter_repositories__
@@ -3553,7 +3548,7 @@ class ObsLightObsProjectfilesystem(ObsLightBase):
 
         self.currentCommand = __projectfilesystem__[0]
 
-        self.listCommand = __LIST_filesystem__
+        self.listCommand = __filesystem_subcommand_list__
         self.dicoParameterCompletion = __DICO_parameter_filesystem_completion__
         self.dicoCommandHelp = __filesystem_command_help_dict__
         self.dicoParameter = __DICO_parameter_filesystem__
@@ -3795,7 +3790,7 @@ class ObsLightRpmbuild(ObsLightBase):
 
         self.currentCommand = __rpmbuild__[0]
 
-        self.listCommand = __LIST_rpmbuild__
+        self.listCommand = __rpmbuild_subcommand_list__
         self.dicoParameterCompletion = __DICO_parameter_rpmbuild_completion__
         self.dicoCommandHelp = __rpmbuild_command_help_dict__
         self.dicoParameter = __DICO_parameter_rpmbuild__
