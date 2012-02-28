@@ -73,69 +73,69 @@ def createCommandHelp(command, comment):
     '''
     Format and store documentation for `command`.
     '''
-    __DICO_command_help__[command[0]] = createDoc(command, comment)
+    __command_help_dict__[command[0]] = createDoc(command, comment)
 
 def createServerSubCommandHelp(command, comment):
     '''
     Format and store documentation for a sub-command of 'server' command.
     '''
-    __DICO_command_server_help__[command[0]] = createDoc(command, comment)
+    __server_command_help_dict__[command[0]] = createDoc(command, comment)
 
 def createObsProjectSubCommandHelp(command, comment):
     '''
     Format and store documentation for a sub-command of 'obsproject' command.
     '''
-    __DICO_command_obsproject_help__[command[0]] = createDoc(command, comment)
+    __obsproject_command_help_dict__[command[0]] = createDoc(command, comment)
 
 def createPackageSubCommandHelp(command, comment):
     '''
     Format and store documentation for a sub-command of 'package' command.
     '''
-    __DICO_command_package_help__[command[0]] = createDoc(command, comment)
+    __package_command_help_dict__[command[0]] = createDoc(command, comment)
 
 def createFileSystemSubCommandHelp(command, comment):
     '''
     Format and store documentation for a sub-command of 'filesystem' command.
     '''
-    __DICO_command_filesystem_help__[command[0]] = createDoc(command, comment)
+    __filesystem_command_help_dict__[command[0]] = createDoc(command, comment)
 
 def createMicProjectSubCommandHelp(command, comment):
     '''
     Format and store documentation for a sub-command of 'micproject' command.
     '''
-    __DICO_command_micproject_help__[command[0]] = createDoc(command, comment)
+    __micproject_command_help_dict__[command[0]] = createDoc(command, comment)
 
 def createRpmBuildSubCommandHelp(command, comment):
     '''
     Format and store documentation for a sub-command of 'rpmbuild' command.
     '''
-    __DICO_command_rpmbuild_help__[command[0]] = createDoc(command, comment)
+    __rpmbuild_command_help_dict__[command[0]] = createDoc(command, comment)
 
 def createRepositorySubCommandHelp(command, comment):
     '''
     Format and store documentation for a sub-command of 'repository' command.
     '''
-    __DICO_command_repositories_help__[command[0]] = createDoc(command, comment)
+    __repositories_command_help_dict__[command[0]] = createDoc(command, comment)
 
 
-def createCommandGlobal(command):
+def createGlobalOption(option):
     '''
-    Add command to the global command list (global)
+    Add `option` to the global option list.
     '''
-    __LIST_command_global__.append(command[0])
+    __global_option_list__.append(option[0])
 
 def createCommand(command):
     '''
-    Add command to the global command list (main command)
+    Add `command` to the global command list.
     '''
-    __LIST_command__.append(command[0])
+    __global_command_list__.append(command[0])
 
-def createParameterHelp(command, comment):
+def createParameterHelp(parameter, comment):
     '''
     Format and store parameter/documentation.
     The parameter/documentation couple is unique.
     '''
-    __DICO_parameter_help__[command[0]] = createDoc(command, comment)
+    __parameter_help_dict__[parameter[0]] = createDoc(parameter, comment)
 
 def appendCommandServer(command):
     """
@@ -299,10 +299,10 @@ __SYNTAX_HELP__ += firstBorder + '[<project>]  an optional project name\n'
 __SYNTAX_HELP__ += firstBorder + '{<project>}  an optional project name, if absent, the current used is taken\n'
 __SYNTAX_HELP__ += firstBorder + '   BLANK     no parameter\n'
 
-__LIST_command_global__ = []
-__LIST_command__ = []
+__global_option_list__ = []
+__global_command_list__ = []
 
-__DICO_command_help__ = {}
+__command_help_dict__ = {}
 
 #Command ****
 __LIST_command_server__ = []
@@ -315,13 +315,13 @@ __LIST_micproject__ = []
 #__LIST_qemuproject__ = []
 
 #Define the **** command help
-__DICO_command_server_help__ = {}
-__DICO_command_obsproject_help__ = {}
-__DICO_command_package_help__ = {}
-__DICO_command_filesystem_help__ = {}
-__DICO_command_repositories_help__ = {}
-__DICO_command_rpmbuild_help__ = {}
-__DICO_command_micproject_help__ = {}
+__server_command_help_dict__ = {}
+__obsproject_command_help_dict__ = {}
+__package_command_help_dict__ = {}
+__filesystem_command_help_dict__ = {}
+__repositories_command_help_dict__ = {}
+__rpmbuild_command_help_dict__ = {}
+__micproject_command_help_dict__ = {}
 #__DICO_command_qemuproject_help__ = {}
 
 #Command **** parameter 
@@ -335,7 +335,7 @@ __DICO_parameter_micproject__ = {}
 #__DICO_parameter_qemuproject__ = {}
 
 #Define the parameter help
-__DICO_parameter_help__ = {}
+__parameter_help_dict__ = {}
 
 #Define the parameter list for **** completion
 __DICO_parameter_server_completion__ = {}
@@ -357,11 +357,11 @@ __man__ = ["man"]
 
 __help_command_help__ = "show this help message and exit"
 
-createCommandGlobal(__info_quiet__)
-createCommandGlobal(__info_debug__)
-createCommandGlobal(__version__)
-createCommandGlobal(__command_help__)
-createCommandGlobal(__noaction__)
+createGlobalOption(__info_quiet__)
+createGlobalOption(__info_debug__)
+createGlobalOption(__version__)
+createGlobalOption(__command_help__)
+createGlobalOption(__noaction__)
 
 createCommandHelp(__info_quiet__,
                  "run obslight in quiet mode")
@@ -1082,7 +1082,7 @@ class ObsLightBase():
 
         self.currentCommand = None
 
-        self.dicoParameterHelp = __DICO_parameter_help__
+        self.dicoParameterHelp = __parameter_help_dict__
 
     def setListArgv(self, arg):
         """
@@ -1194,11 +1194,11 @@ class ObsLightBase():
         else:
             if cmd == None:
                 print "Command: " + self.currentCommand
-                if self.currentCommand in __DICO_command_help__.keys():
-                    print __DICO_command_help__[self.currentCommand]
+                if self.currentCommand in __command_help_dict__.keys():
+                    print __command_help_dict__[self.currentCommand]
                     print
                 else:
-                    print "ERROR '" + self.currentCommand + "' is not in __DICO_command_help__.keys() : " + ",".join(__DICO_command_help__.keys())
+                    print "ERROR '" + self.currentCommand + "' is not in __command_help_dict__.keys() : " + ",".join(__command_help_dict__.keys())
                     return 1
 
                 print "Sub command:"
@@ -1334,12 +1334,12 @@ class ObsLightBase():
         '''
         if not ObsLightBase.noaction:
             print __DESCRIPTION__
-            for h in __LIST_command__:
-                print __DICO_command_help__[h]
+            for h in __global_command_list__:
+                print __command_help_dict__[h]
             print
             print "global Options:\n"
-            for h in __LIST_command_global__:
-                print __DICO_command_help__[h]
+            for h in __global_option_list__:
+                print __command_help_dict__[h]
             print
         return 0
 
@@ -1348,8 +1348,8 @@ class ObsLightBase():
         print the global description or return the list for completion
         '''
         if ObsLightBase.noaction:
-            listArg = __LIST_command_global__
-            listArg.extend(__LIST_command__)
+            listArg = __global_option_list__
+            listArg.extend(__global_command_list__)
             print " ".join(listArg)
         else:
             self.globalDescription()
@@ -1390,7 +1390,7 @@ class ObsLightServer(ObsLightBase):
 
         self.listCommand = __LIST_command_server__
         self.dicoParameterCompletion = __DICO_parameter_server_completion__
-        self.dicoCommandHelp = __DICO_command_server_help__
+        self.dicoCommandHelp = __server_command_help_dict__
         self.dicoParameter = __DICO_parameter_server__
 
     def execute(self, listArgv):
@@ -1763,7 +1763,7 @@ class ObsLightObsproject(ObsLightBase):
 
         self.listCommand = __LIST_command_obsproject__
         self.dicoParameterCompletion = __DICO_parameter_obsproject_completion__
-        self.dicoCommandHelp = __DICO_command_obsproject_help__
+        self.dicoCommandHelp = __obsproject_command_help_dict__
         self.dicoParameter = __DICO_parameter_obsproject__
 
     def obsproject_list (self, listArgv):
@@ -2342,7 +2342,7 @@ class ObsLightObsPackage(ObsLightBase):
 
         self.listCommand = __LIST_package__
         self.dicoParameterCompletion = __DICO_parameter_package_completion__
-        self.dicoCommandHelp = __DICO_command_package_help__
+        self.dicoCommandHelp = __package_command_help_dict__
         self.dicoParameter = __DICO_parameter_package__
 
     def package_add(self, listArgv):
@@ -3314,7 +3314,7 @@ class ObsLightObsRepository(ObsLightBase):
 
         self.listCommand = __LIST_repositories__
         self.dicoParameterCompletion = __DICO_parameter_repositories_completion__
-        self.dicoCommandHelp = __DICO_command_repositories_help__
+        self.dicoCommandHelp = __repositories_command_help_dict__
         self.dicoParameter = __DICO_parameter_repositories__
 
     def repository_add(self, listArgv):
@@ -3555,7 +3555,7 @@ class ObsLightObsProjectfilesystem(ObsLightBase):
 
         self.listCommand = __LIST_filesystem__
         self.dicoParameterCompletion = __DICO_parameter_filesystem_completion__
-        self.dicoCommandHelp = __DICO_command_filesystem_help__
+        self.dicoCommandHelp = __filesystem_command_help_dict__
         self.dicoParameter = __DICO_parameter_filesystem__
 
 
@@ -3797,7 +3797,7 @@ class ObsLightRpmbuild(ObsLightBase):
 
         self.listCommand = __LIST_rpmbuild__
         self.dicoParameterCompletion = __DICO_parameter_rpmbuild_completion__
-        self.dicoCommandHelp = __DICO_command_rpmbuild_help__
+        self.dicoCommandHelp = __rpmbuild_command_help_dict__
         self.dicoParameter = __DICO_parameter_rpmbuild__
 
     def rpmbuild_prepare(self, listArgv):
@@ -4162,7 +4162,7 @@ class ObsLight(ObsLightBase):
         '''
         ObsLightBase.__init__(self)
 
-        self.listCommand = __LIST_command__
+        self.listCommand = __global_command_list__
 
 
     def execute(self, listArgv):
