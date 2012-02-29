@@ -429,7 +429,6 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
         self.mainWindow.kickstartOptionTextEdit.clear()
         self.mainWindow.kickstartScriptTextEdit.clear()
         self.mainWindow.micProjectsTabWidget.setEnabled(True)
-        # FIXME: replace isObsLightServerAvailable() by its final name
         try:
             serverAvailable = self.manager.isObsLightServerAvailable()
             self.mainWindow.publishMicProjectButton.setEnabled(serverAvailable)
