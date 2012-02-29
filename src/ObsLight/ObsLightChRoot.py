@@ -175,7 +175,7 @@ class ObsLightChRoot(object):
 
         self.initRepos()
 
-        self.prepareChroot(self.getDirectory())
+        self.prepareChroot(self.getDirectory(), obsProject)
 
     def __subprocess(self, command=None, waitMess=False):
         return self.__mySubprocessCrt.execSubprocess(command=command, waitMess=waitMess)
@@ -764,12 +764,13 @@ class ObsLightChRoot(object):
         package.save()
         return 0
 
-    def prepareChroot(self, chrootDir):
+    def prepareChroot(self, chrootDir, project):
         '''
         Prepare the chroot :
         - replaces some binaries by their ARM equivalent (in case chroot is ARM)
         - configures zypper and rpm for ARM
         - rebuilds rpm database
+        - customize .bashrc
         '''
         command = []
 
@@ -790,6 +791,8 @@ class ObsLightChRoot(object):
         command.append('echo "alias ll=\\"ls -lh\\"" >> ~/.bashrc')
         command.append('echo "alias la=\\"ls -Alh\\"" >> ~/.bashrc')
         command.append('echo "alias vi=\\"vim\\"" >> ~/.bashrc')
+        command.append('echo "PS1=\\"%s:\\w\\$ \\"" >> ~/.bashrc' % project)
+        command.append('echo "export PS1" >> ~/.bashrc')
         self.execCommand(command=command)
 
     def deleteRepo(self, repoAlias):
