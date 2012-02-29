@@ -21,6 +21,7 @@ Created on 2 févr. 2012
 @author: Florent Vennetier
 '''
 
+from PySide.QtCore import Qt
 from PySide.QtGui import QFileDialog, QInputDialog, QMessageBox, QTableView
 
 from ObsLightGuiObject import ObsLightGuiObject
@@ -53,6 +54,7 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
              # Packages
              mw.addPackageButton.clicked: self.on_addPackageButton_clicked,
              mw.removePackageButton.clicked: self.on_removePackageButton_clicked,
+             mw.packageFilterLineEdit.textChanged: self.applyPackageFilter,
              # Package groups
              mw.addPackageGroupButton.clicked: self.on_addPackageGroupButton_clicked,
              mw.removePackageGroupButton.clicked: self.on_removePackageGroupButton_clicked,
@@ -140,6 +142,27 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
                 signal.disconnect(slot)
             except RuntimeError as re:
                 print re
+
+    def applyPackageFilter(self, filterString=""):
+        """
+        Hide packages not matching `filterString`
+        from MIC Kickstart package tab.
+        """
+        model = self._currentProjectObj.packageModel
+        rowCount = model.rowCount()
+        if rowCount < 1:
+            return
+        # First hide all rows
+        for row in range(rowCount):
+            self.mainWindow.kickstartPackagesTableView.setRowHidden(row, True)
+        firstIndex = model.createIndex(0, 0)
+        # Find rows that will be shown
+        indices = model.match(firstIndex, Qt.DisplayRole, filterString,
+                              hits= -1,
+                              flags=Qt.MatchContains)
+        # Show only rows that deserve it
+        for index in indices:
+            self.mainWindow.kickstartPackagesTableView.setRowHidden(index.row(), False)
 
 # --- Button handlers --------------------------------------------------------
     @popupOnException
