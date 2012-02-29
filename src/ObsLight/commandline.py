@@ -275,7 +275,8 @@ def createMicProjectParameter(command, parameterList, completionBlacklist=None):
                             __micproject_parameter_completion_dict__)
 
 __DESCRIPTION__ = __PRGNAME__ + ":" + "\n"
-__DESCRIPTION__ += firstBorder + "Provides a tool to manage an OBS project on your local machine in command line\n"
+__DESCRIPTION__ += firstBorder + "Provides a tool to manage an OBS project on your"
+__DESCRIPTION__ += " local machine in command line\n"
 __DESCRIPTION__ += firstBorder + "For informations, see the Help section" + "\n"
 __DESCRIPTION__ += firstBorder * 2 + "obslight --help\n"
 __DESCRIPTION__ += firstBorder + "The GUI for %s is obslightgui\n" % __PRGNAME__
@@ -294,7 +295,8 @@ __SYNTAX_HELP__ += firstBorder + '  project    the string "project"\n'
 __SYNTAX_HELP__ += firstBorder + ' [project]   the optional string "project"\n'
 __SYNTAX_HELP__ += firstBorder + ' <project>   a project name\n'
 __SYNTAX_HELP__ += firstBorder + '[<project>]  an optional project name\n'
-__SYNTAX_HELP__ += firstBorder + '{<project>}  an optional project name, if absent, the current used is taken\n'
+__SYNTAX_HELP__ += firstBorder + '{<project>}  an optional project name, if absent, '
+__SYNTAX_HELP__ += 'the current used is taken\n'
 __SYNTAX_HELP__ += firstBorder + '   BLANK     no parameter\n'
 
 __global_option_list__ = []
@@ -1015,7 +1017,7 @@ createRepositorySubCommandHelp(__command_del__,
 
 createRepositorySubCommandHelp(__command_query__,
                                ["projectfilesystem repositories query project_alias <project_alias>",
-                                "  print the url/alias of the repositories of the project filesystem"])
+                                "  print the url/alias of repositories of the project filesystem"])
 
 createRepositorySubCommandHelp(__command_modify__,
                                ["projectfilesystem repositories modify [newUrl <repository_url>] " +
@@ -1519,13 +1521,14 @@ class ObsLightServer(ObsLightBase):
                 res = m.testApi(api=api_url, user=login, passwd=password)
                 if self.testResult(res, getLineno()) == 0 :
                     if res == 0:
-                        self.printBoolResult("'" + api_url + "' is reachable", 1)
+                        self.printBoolResult("'%s' is reachable" % api_url, 1)
                     elif res == 1:
-                        self.printBoolResult("'" + api_url + "' is not reachable, user and passwd  are wrong.", 0)
+                        message = "'%s' is not reachable, user and password are wrong." % api_url
+                        self.printBoolResult(message, 0)
                     elif res == 2:
-                        self.printBoolResult("'" + api_url + "' is not reachable, api is wrong..", 0)
+                        self.printBoolResult("'%s' is not reachable, API is wrong.." % api_url, 0)
                     else:
-                        self.printBoolResult("'" + api_url + "' is not reachable", 0)
+                        self.printBoolResult("'%s' is not reachable" % api_url, 0)
                     return 0
                 else:
                     return -1
@@ -1606,22 +1609,30 @@ class ObsLightServer(ObsLightBase):
                     repository_url = True
                     weburl = True
 
-                if login :
-                    res = m.getObsServerParameter(obsServerAlias=server_alias, parameter="user")
+                if login:
+                    res = m.getObsServerParameter(obsServerAlias=server_alias,
+                                                  parameter="user")
                     if self.testResult(res, getLineno()) == -1:return - 1
-                    self.printSimpleResult("alias '" + server_alias + "' user:\t\t" + str(res), str(res))
-                if api_url :
-                    res = m.getObsServerParameter(obsServerAlias=server_alias, parameter="serverAPI")
+                    message = "alias '%s'\tuser:\t%s" % (server_alias, str(res))
+                    self.printSimpleResult(message, str(res))
+                if api_url:
+                    res = m.getObsServerParameter(obsServerAlias=server_alias,
+                                                  parameter="serverAPI")
                     if self.testResult(res, getLineno()) == -1:return - 1
-                    self.printSimpleResult("alias '" + server_alias + "' serverAPI:\t" + str(res), str(res))
-                if repository_url :
-                    res = m.getObsServerParameter(obsServerAlias=server_alias, parameter="serverRepo")
+                    message = "alias '%s'\tserverAPI:\t%s" % (server_alias, str(res))
+                    self.printSimpleResult(message, str(res))
+                if repository_url:
+                    res = m.getObsServerParameter(obsServerAlias=server_alias,
+                                                  parameter="serverRepo")
                     if self.testResult(res, getLineno()) == -1:return - 1
-                    self.printSimpleResult("alias '" + server_alias + "' serverRepo:\t" + str(res), str(res))
-                if weburl :
-                    res = m.getObsServerParameter(obsServerAlias=server_alias, parameter="serverWeb")
+                    message = "alias '%s'\tserverRepo:\t%s" % (server_alias, str(res))
+                    self.printSimpleResult(message, str(res))
+                if weburl:
+                    res = m.getObsServerParameter(obsServerAlias=server_alias,
+                                                  parameter="serverWeb")
                     if self.testResult(res, getLineno()) == -1:return - 1
-                    self.printSimpleResult("alias '" + server_alias + "' serverWeb:\t" + str(res), str(res))
+                    message = "alias '%s'\tserverWeb:\t%s" % (server_alias, str(res))
+                    self.printSimpleResult(message, str(res))
             else:
                 return self.printHelp(__command_query__)
         return 0
@@ -1663,16 +1674,20 @@ class ObsLightServer(ObsLightBase):
                 if server_alias == None:
                     return 1
                 if login != None:
-                    res = m.setObsServerParameter(obsServerAlias=server_alias, parameter="user", value=login)
+                    res = m.setObsServerParameter(obsServerAlias=server_alias,
+                                                  parameter="user", value=login)
                     if self.testResult(res, getLineno()) == -1:return - 1
                 if api_url != None:
-                    res = m.setObsServerParameter(obsServerAlias=server_alias, parameter="serverAPI", value=api_url)
+                    res = m.setObsServerParameter(obsServerAlias=server_alias,
+                                                  parameter="serverAPI", value=api_url)
                     if self.testResult(res, getLineno()) == -1:return - 1
                 if repository_url != None:
-                    res = m.setObsServerParameter(obsServerAlias=server_alias, parameter="serverRepo", value=repository_url)
+                    res = m.setObsServerParameter(obsServerAlias=server_alias,
+                                                  parameter="serverRepo", value=repository_url)
                     if self.testResult(res, getLineno()) == -1:return - 1
                 if weburl != None:
-                    res = m.setObsServerParameter(obsServerAlias=server_alias, parameter="serverWeb", value=weburl)
+                    res = m.setObsServerParameter(obsServerAlias=server_alias,
+                                                  parameter="serverWeb", value=weburl)
                     if self.testResult(res, getLineno()) == -1:return - 1
                 return 0
             else:
@@ -2294,7 +2309,8 @@ class ObsLightObsproject(ObsLightBase):
 
                 if self.testResult(res, getLineno()) == -1:return - 1
                 for repo in res.keys():
-                    self.printSimpleResult("Repository Alias: " + str(repo) + " Url: " + res[repo], str(repo) + " , " + res[repo])
+                    message = "Repository alias: %s\tURL: %s" % (str(repo), res[repo])
+                    self.printSimpleResult(message, str(repo) + " , " + res[repo])
                 return 0
             else:
                 return self.printHelp(__command_dependencyrepositories__)
@@ -2901,7 +2917,10 @@ class ObsLightObsPackage(ObsLightBase):
                 if self.testResult(res, getLineno()) == -1:return - 1
                 res = m.testConflict(projectLocalName=project_alias, package=package)
                 if self.testResult(res, getLineno()) == -1:return - 1
-                if res : return self.printErrorMessage("Can't commit, package '" + package + "' is on conflict.")
+                if res:
+                    message = "Can't commit, package '%s' has files in conflict" % package
+                    self.printErrorMessage(message)
+                    return
 
                 res = m.addAndCommitChanges(project_alias,
                                             package,
@@ -3173,7 +3192,8 @@ class ObsLightObsPackage(ObsLightBase):
                 if self.testResult(res, getLineno()) == -1:return - 1
                 res = m.testConflict(projectLocalName=project_alias, package=package)
                 if self.testResult(res, getLineno()) == -1:return - 1
-                self.printSimpleResult("the '" + package + "' is on Conflict: " + str(res), str(res))
+                message = "the '%s' has a conflict: %s" % (package, str(res))
+                self.printSimpleResult(message, str(res))
                 return 0
             else:
                 return self.printHelp(__command_testConflict__)
@@ -3938,7 +3958,8 @@ class ObsLightRpmbuild(ObsLightBase):
                 print
                 res = m.patchIsInit(projectLocalName=project_alias, packageName=package)
                 if self.testResult(res, getLineno()) == -1:return - 1
-                self.printSimpleResult("for '" + package + "' a patch is init: " + str(res), str(res))
+                message = "for '%s' a patch is initialized: %s" % (package, str(res))
+                self.printSimpleResult(message, str(res))
                 return 0
             else:
                 return self.printHelp(__command_isInit__)
