@@ -29,8 +29,6 @@ class ObsLightGuiObject(object):
     Provides "callWithProgress" and "callWithInfiniteProgress" methods.
     """
 
-    _gui = None
-
     def __init__(self, gui):
         self._gui = gui
 

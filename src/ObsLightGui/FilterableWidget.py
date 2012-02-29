@@ -32,9 +32,6 @@ class FilterableWidget(object):
     state).
     """
 
-    filterLineEdit = None
-    filterableListWidget = None
-
     def __init__(self, filterLineEdit, filterableListWidget, multiSelection=False):
         """
         Initialize the FilterableWidget with `filterLineEdit`

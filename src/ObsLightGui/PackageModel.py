@@ -36,7 +36,6 @@ class PackageModel(QAbstractTableModel):
     OscRevColumn = 4
     FSStatusColumn = 5
 
-    colors = list(({}, {}, {}, {}, {}, {}))
     ColumnHeaders = ("Package", "OBS status", "Rev",
                      "Local status", "Rev", "Filesystem status")
 
@@ -48,6 +47,7 @@ class PackageModel(QAbstractTableModel):
         self.__project = projectName
         self.__pkgList = None
         self.__getPackageList()
+        self.colors = list(({}, {}, {}, {}, {}, {}))
         self._loadColors()
 
     #model

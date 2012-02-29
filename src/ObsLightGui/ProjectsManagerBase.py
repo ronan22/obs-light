@@ -31,9 +31,6 @@ class ProjectsManagerBase(QObject):
     """
     # pylint: disable-msg=E0202, E1101
 
-    __projectListFunc = None
-    __projectListWidget = None
-
     def __init__(self, projectListWidget, projectListFunc):
         """
         Initialize a ProjectsManagerBase with:
