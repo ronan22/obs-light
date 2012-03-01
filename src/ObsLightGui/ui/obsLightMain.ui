@@ -817,7 +817,7 @@ You can select several packages.</string>
                 <item row="8" column="2">
                  <widget class="QPushButton" name="generatePatchButton">
                   <property name="toolTip">
-                   <string>Generate a patch from the changes made into the chroot,
+                   <string>Generate a patch from the changes made into the project filesystem,
  and add this patch to the package and into the yaml/spec files.
     -You need to do the '%prep' first.
     -This new patch becomes the current patch of the package, until the next '%prep'.</string>
@@ -888,6 +888,9 @@ You can select several packages.</string>
              </item>
              <item row="2" column="0">
               <widget class="QTableView" name="fileTableView">
+               <property name="toolTip">
+                <string>Double-click to open a file with default application</string>
+               </property>
                <property name="sortingEnabled">
                 <bool>true</bool>
                </property>
@@ -913,7 +916,11 @@ You can select several packages.</string>
             </attribute>
             <layout class="QGridLayout" name="gridLayout_13">
              <item row="2" column="0">
-              <widget class="QTreeView" name="chrootTreeView"/>
+              <widget class="QTreeView" name="chrootTreeView">
+               <property name="toolTip">
+                <string>Double-click to open a file or directory with default application</string>
+               </property>
+              </widget>
              </item>
              <item row="3" column="0">
               <widget class="QWidget" name="widget_2" native="true">
@@ -933,7 +940,7 @@ You can select several packages.</string>
                    </size>
                   </property>
                   <property name="toolTip">
-                   <string>Make a package repository accessible from the chroot (using zypper).
+                   <string>Make a package repository accessible from the project filesystem (using zypper).
  Import repository from URL.</string>
                   </property>
                   <property name="text">
@@ -944,7 +951,7 @@ You can select several packages.</string>
                 <item row="5" column="0">
                  <widget class="QPushButton" name="deleteRepositoryButton">
                   <property name="toolTip">
-                   <string>Delete a repository from the chroot.</string>
+                   <string>Delete a repository from the project filesystem.</string>
                   </property>
                   <property name="text">
                    <string>Delete</string>
@@ -964,7 +971,7 @@ You can select several packages.</string>
                 <item row="1" column="2" colspan="3">
                  <widget class="QLineEdit" name="chrootPathLineEdit">
                   <property name="toolTip">
-                   <string>The path of the chroot on the local filesystem.</string>
+                   <string>The path of the project filesystem on the local filesystem.</string>
                   </property>
                   <property name="readOnly">
                    <bool>true</bool>
@@ -990,7 +997,7 @@ You can select several packages.</string>
                    </size>
                   </property>
                   <property name="toolTip">
-                   <string>Create the chroot of the project.</string>
+                   <string>Create the filesystem of the project.</string>
                   </property>
                   <property name="text">
                    <string>New</string>
@@ -1010,7 +1017,7 @@ You can select several packages.</string>
                 <item row="4" column="0">
                  <widget class="QPushButton" name="importRepoInChrootButton">
                   <property name="toolTip">
-                   <string>Make a package repository accessible from the chroot (using zypper).
+                   <string>Make a package repository accessible from the project filesystem (using zypper).
  Import repository from another project.</string>
                   </property>
                   <property name="text">
@@ -1021,7 +1028,7 @@ You can select several packages.</string>
                 <item row="5" column="2">
                  <widget class="QPushButton" name="deleteChrootButton">
                   <property name="toolTip">
-                   <string>Delete the chroot.</string>
+                   <string>Delete the project filesystem.</string>
                   </property>
                   <property name="text">
                    <string>Delete</string>
@@ -1045,7 +1052,7 @@ filesystem</string>
                    <bool>false</bool>
                   </property>
                   <property name="toolTip">
-                   <string>Import a chroot into the project. (not yet implemented)</string>
+                   <string>Import a filesystem into the project. (not yet implemented)</string>
                   </property>
                   <property name="text">
                    <string>Import</string>
@@ -1058,7 +1065,7 @@ filesystem</string>
                    <bool>false</bool>
                   </property>
                   <property name="toolTip">
-                   <string>Modify the path of the chroot. (not yet implemented)</string>
+                   <string>Modify the path of the project filesystem. (not yet implemented)</string>
                   </property>
                   <property name="text">
                    <string>Modify</string>
@@ -1108,7 +1115,7 @@ filesystem</string>
                   </property>
                   <property name="toolTip">
                    <string>Install the source of the selected package(s)
- into the chroot and execute %prep section,
+ into the project filesystem and execute %prep section,
  initialize the git repository and do the first build.</string>
                   </property>
                   <property name="text">
@@ -1151,7 +1158,7 @@ filesystem</string>
                 <item row="0" column="0" colspan="3">
                  <widget class="QPushButton" name="openChrootButton">
                   <property name="toolTip">
-                   <string>Open a terminal in the chroot,
+                   <string>Open a terminal in the project filesystem (using chroot),
 in the source directory of the current package if it is installed.</string>
                   </property>
                   <property name="text">
