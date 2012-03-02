@@ -153,6 +153,8 @@ def getObslightLoggerLevel():
     else:
         return u'INFO'
 
+def getObsLightLogFilePath():
+    return os.path.join(WORKINGDIRECTORY, "obslight.log")
 
 def configureConsole():
     if os.path.exists(u"/usr/bin/konsole"):

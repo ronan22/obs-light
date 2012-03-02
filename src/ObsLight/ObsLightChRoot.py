@@ -791,7 +791,7 @@ class ObsLightChRoot(object):
         command.append('echo "alias ll=\\"ls -lh\\"" >> ~/.bashrc')
         command.append('echo "alias la=\\"ls -Alh\\"" >> ~/.bashrc')
         command.append('echo "alias vi=\\"vim\\"" >> ~/.bashrc')
-        command.append('echo "PS1=\\"%s:\\w\\$ \\"" >> ~/.bashrc' % project)
+        command.append('echo "PS1=\\"%s:\\w\\\\$ \\"" >> ~/.bashrc' % project)
         command.append('echo "export PS1" >> ~/.bashrc')
         self.execCommand(command=command)
 
