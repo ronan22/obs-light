@@ -1,4 +1,11 @@
-obslight (0.4.17-1) stable; urgency=low
+obslight (0.4.18-1) stable; urgency=low
+
+  * Version 0.4.18
+    Fixed bugs 24910, 24911, 24958, 24972
+    Added log file (~/OBSLight/obslight.log)
+    Changed chroot jail prompt
+    Added package filter in MIC Kickstart package tab
+    Integrated HTTP, TFTP and NFS servers for MIC images
 
   * Version 0.4.16
     Added support for OBS aliases in obstag and obs2obscopy
@@ -58,4 +65,4 @@ obslight (0.4.17-1) stable; urgency=low
 
   * Initial Release
 
- -- Florent Vennetier (Intel OTC) <florent@fridu.net>  Thu, 16 Feb 2012 11:33:18 +0100
+ -- Florent Vennetier (Intel OTC) <florent@fridu.net>  Fri, 02 Mar 2012 18:22:10 +0100

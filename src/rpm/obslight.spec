@@ -8,7 +8,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 Name:       obslight
 Summary:    OBS Light
-Version:    0.4.17
+Version:    0.4.18
 Release:    1
 Group:      Development/Tools/Building
 License:    GPLv2
@@ -19,11 +19,10 @@ Source100:  obslight.yaml
 BuildRequires:  python >= 2.6.0
 BuildRequires:  python-devel >= 2.6.0
 BuildRequires:  fdupes
-BuildRequires:  desktop-file-utils
 BuildRequires:  xinetd
 BuildRequires:  rpcbind
 BuildRequires:  nfs-kernel-server
-
+BuildRequires:  desktop-file-utils
 BuildRoot:  %{_tmppath}/%{name}-%{version}-build
 
 
@@ -37,6 +36,10 @@ Group:      Development/Tools/Building
 Requires:   obslight-base = %{version}
 Requires:   tftp
 Requires:   nfs-kernel-server
+Requires(post): /sbin/service
+Requires(post): /sbin/chkconfig
+Requires(postun): /sbin/service
+Requires(postun): /sbin/chkconfig
 Provides:   obslightserver
 
 %description server
@@ -136,7 +139,25 @@ desktop-file-install --delete-original       \
 
 
 
+%preun server
+# >> preun server
+echo "Trying to remove OBS Light server..."
+%insserv_cleanup
+%verify_permissions
 
+# << preun server
+
+%post server
+# >> post server
+echo "Trying to add OBS Light server..."
+[ -d $RPM_BUILD_ROOT/srv/obslight ] || install -d -o nobody -g nobody $RPM_BUILD_ROOT/srv/obslight
+echo "/srv/obslight  *(rw,fsid=0,no_root_squash,insecure,no_subtree_check)" >> /etc/exports
+
+/sbin/insserv %{_sysconfdir}/init.d/xinetd
+/sbin/insserv %{_sysconfdir}/init.d/rpcbind
+/sbin/insserv %{_sysconfdir}/init.d/nfsserver
+/sbin/insserv %{_sysconfdir}/init.d/obslightserver
+# << post server
 
 
 
@@ -177,25 +198,8 @@ fi
 # << post base
 
 
-%preun server
-# >> preun server
-echo "Trying to remove OBS Light server..."
-%insserv_cleanup
-%verify_permissions
 
-# << preun server
 
-%post server
-# >> post server
-echo "Trying to add OBS Light server..."
-[ -d $RPM_BUILD_ROOT/srv/obslight ] || install -d -o nobody -g nobody $RPM_BUILD_ROOT/srv/obslight
-echo "/srv/obslight  *(rw,fsid=0,no_root_squash,insecure,no_subtree_check)" >> /etc/exports
-
-/sbin/insserv %{_sysconfdir}/init.d/xinetd
-/sbin/insserv %{_sysconfdir}/init.d/rpcbind
-/sbin/insserv %{_sysconfdir}/init.d/nfsserver
-/sbin/insserv %{_sysconfdir}/init.d/obslightserver
-# << post server
 
 
 
@@ -204,7 +208,7 @@ echo "/srv/obslight  *(rw,fsid=0,no_root_squash,insecure,no_subtree_check)" >> /
 # >> files server
 %config %{_sysconfdir}/xinetd.d/tftp
 %config %attr(0755, root, root) %{_sysconfdir}/init.d/obslightserver
-%dir %{_sysconfdir}/obslight 
+%dir %{_sysconfdir}/obslight
 %config(noreplace) %attr(0644,root,root) %{_sysconfdir}/obslight/obslight.conf
 %{_bindir}/ObsLightServer.py
 # << files server
