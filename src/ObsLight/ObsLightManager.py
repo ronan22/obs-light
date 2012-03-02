@@ -370,8 +370,8 @@ class ObsLightManagerBase(object):
         '''
         Return True if Url is reachable, false otherwise.
         '''
-        return ObsLightTools.testUrl(Url)
-
+        res = ObsLightTools.testUrl(Url)
+        return res
     def testHost(self, Url):
         '''
         Return True if the host of the Url is reachable, false otherwise.

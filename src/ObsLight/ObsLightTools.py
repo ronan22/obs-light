@@ -46,10 +46,10 @@ def testHost(host):
         host = netloc
         if scheme == "https":
             port = "443"
+            test = httplib.HTTPSConnection(host=host, port=port, timeout=SOCKETTIMEOUT)
         else:
             port = "80"
-
-    test = httplib.HTTPConnection(host=host, port=port, timeout=SOCKETTIMEOUT)
+            test = httplib.HTTPConnection(host=host, port=port, timeout=SOCKETTIMEOUT)
 
     try:
         test.connect()
@@ -71,9 +71,10 @@ def testUrl(url):
         host = netloc
         if scheme == "https":
             port = "443"
+            test = httplib.HTTPSConnection(host=host, port=port, timeout=SOCKETTIMEOUT)
         else:
             port = "80"
-    test = httplib.HTTPConnection(host=host, port=port, timeout=SOCKETTIMEOUT)
+            test = httplib.HTTPConnection(host=host, port=port, timeout=SOCKETTIMEOUT)
 
     try:
         test.request('HEAD', path)
