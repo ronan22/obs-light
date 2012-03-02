@@ -400,7 +400,8 @@ class ObsLightServer(object):
         '''
         
         '''
-        if raw == False:
+
+        if (raw == False) and not ("https://api.meego.com" in self.__serverAPI):
             aBugowner = None
             if bugowner == True:
                 aBugowner = self.__user
