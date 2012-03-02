@@ -1,3 +1,10 @@
+* Fri Mar 02 2012 Florent Vennetier (Intel OTC) <florent@fridu.net> 0.4.18
+- fixed bugs 24910, 24911, 24958, 24972
+- added log file (~/OBSLight/obslight.log)
+- changed chroot jail prompt
+- added package filter in MIC Kickstart package tab
+- integrated HTTP, TFTP and NFS servers for MIC images
+
 * Thu Feb 16 2012 Florent Vennetier (Intel OTC) <florent@fridu.net> 0.4.16
 - Added support for OBS aliases in obstag and obs2obscopy
 - Implemented MIC project management from OBS Light UI

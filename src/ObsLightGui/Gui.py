@@ -1,3 +1,4 @@
+# -*- coding: utf8 -*-
 #
 # Copyright 2011-2012, Intel Inc.
 #
@@ -29,6 +30,7 @@ from PySide.QtUiTools import QUiLoader
 
 from ObsLight.ObsLightErr import OBSLightBaseError
 
+from ObsLightGuiMainWindow import ObsLightGuiMainWindow
 from ObsProjectsManager import ObsProjectsManager
 from MicProjectsManager import MicProjectsManager
 from ActionManager import MainWindowActionManager
@@ -54,6 +56,7 @@ class Gui(QObject):
         self.uiLoader = QUiLoader()
         # Need to set working directory in order to load icons
         self.uiLoader.setWorkingDirectory(UI_PATH)
+        self.uiLoader.registerCustomWidget(ObsLightGuiMainWindow)
 
         # loaded in loadManager()
         self.splash = None
@@ -226,6 +229,7 @@ class Gui(QObject):
         self.__obsProjectManager = ObsProjectsManager(self)
         self.__micProjectsManager = MicProjectsManager(self)
         self.__logManager = LogManager(self)
+        self.__mainWindow.callBeforeCloseEvent.append(self.__logManager.close)
         self.splash.finish(self.mainWindow)
 
     def main(self):

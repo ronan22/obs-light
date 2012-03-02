@@ -67,7 +67,7 @@ class LogManager(QObject, ObsLightGuiObject):
         """
         QObject.__init__(self)
         ObsLightGuiObject.__init__(self, gui)
-        self.__logDialog = self.gui.loadWindow(u"obsLightLog.ui")
+        self.__logDialog = self.gui.loadWindow(u"obsLightLog.ui", mainWindowAsParent=False)
         self.__logTextEdit = self.__logDialog.logTextEdit
         self.__myHandler = None
         self.connectLogger()

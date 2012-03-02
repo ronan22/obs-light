@@ -19,15 +19,17 @@ Created on 24 oct. 2011
 
 @author: meego
 '''
+
 import logging
+import logging.handlers
 import ObsLightConfig
 QUIET = 0
 DEBUG = 0
 
 logger = logging.getLogger('obslight')
-handler = logging.StreamHandler()
-
-logger.addHandler(handler)
+streamHandler = logging.StreamHandler()
+fileHandler = logging.handlers.RotatingFileHandler(ObsLightConfig.getObsLightLogFilePath(),
+                                                   maxBytes=10 * 2 ** 20, backupCount=1)
 
 def obsLightPrint(text, isDebug=False, isVerbose=False):
     '''
@@ -42,16 +44,12 @@ def setLoggerLevel(level):
     '''
     Set the Level of the logger
     '''
-    if level == 'DEBUG':
-        logger.setLevel(logging.DEBUG)
-    elif level == 'INFO':
-        logger.setLevel(logging.INFO)
-    elif level == 'WARNING':
-        logger.setLevel(logging.WARNING)
-    elif level == 'ERROR':
-        logger.setLevel(logging.ERROR)
-    elif level == 'CRITICAL':
-        logger.setLevel(logging.CRITICAL)
+    try:
+        intLevel = getattr(logging, str(level))
+        logger.setLevel(intLevel)
+    except AttributeError:
+        # TODO: create custom exception
+        raise
 
 def addHandler(handler):
     '''
@@ -66,9 +64,12 @@ def removeHandler(handler):
     logger.removeHandler(handler)
 
 formatter = logging.Formatter(ObsLightConfig.getObslightFormatter())
-handler.setFormatter(formatter)
+streamHandler.setFormatter(formatter)
 setLoggerLevel(ObsLightConfig.getObslightLoggerLevel())
-addHandler(handler)
+addHandler(streamHandler)
+
+fileHandler.setFormatter(formatter)
+logger.addHandler(fileHandler)
 
 def getLogger():
     '''
