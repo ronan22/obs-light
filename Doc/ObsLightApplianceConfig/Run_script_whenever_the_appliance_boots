@@ -51,3 +51,9 @@ then
   sed -i -r s/"(^[ \t]*kernel.*)"/"\1 consoleblank=0"/ /boot/grub/menu.lst
 fi
 
+#to disable GPG checks for OBS Light repo
+if [ -f /etc/zypp/repos.d/Project_OBS_Light_openSUSE_12.1.repo ]
+then
+  sed -i -r s,"gpgcheck=1","gpgcheck=0", /etc/zypp/repos.d/Project_OBS_Light_openSUSE_12.1.repo
+fi
+
