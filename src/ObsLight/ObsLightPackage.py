@@ -220,13 +220,13 @@ class ObsLightPackage(object):
         '''
         
         '''
-        return self.__name + "/" + self.__rpmBuildDirectory
+        return  self.__rpmBuildDirectory
 
     def getTopDirRpmBuildTmpDirectory(self):
         '''
         
         '''
-        return self.__name + "/" + self.__rpmBuildTmpDirectory
+        return self.__rpmBuildTmpDirectory
 
     def setFirstCommit(self, tag):
         '''

@@ -21,7 +21,7 @@ import shlex
 import glob
 import atexit
 
-from mic import chroot
+#from mic import chroot
 from mic.utils import misc
 from mic.utils import fs_related
 

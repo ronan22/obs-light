@@ -24,6 +24,7 @@ import os
 import ObsLightOsc
 import ObsLightErr
 import ObsLightTools
+import ObsLightPrintManager
 
 class ObsLightServer(object):
     '''
@@ -400,6 +401,8 @@ class ObsLightServer(object):
         '''
         
         '''
+        if ("https://api.meego.com" in self.__serverAPI):
+            ObsLightPrintManager.getLogger().warning("MeeGo.com WARNING api.meego.com doesn't support search request, Bug 24979")
 
         if (raw == False) and not ("https://api.meego.com" in self.__serverAPI):
             aBugowner = None

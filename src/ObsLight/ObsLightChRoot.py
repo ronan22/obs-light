@@ -451,7 +451,7 @@ class ObsLightChRoot(object):
         '''
 
         command = []
-
+        command.append("HOME=$HOME/" + package.getName())
         command.append("rpmbuild -bp --define '_srcdefattr (-,root,root)' " +
                        "--define '%_topdir %{getenv:HOME}/" +
                        package.getTopDirRpmBuildDirectory() +
@@ -463,6 +463,7 @@ class ObsLightChRoot(object):
         Execute the %build section of an RPM spec file.
         '''
         command = []
+        command.append("HOME=$HOME/" + package.getName())
         command.append("rpmbuild -bc --short-circuit --define '_srcdefattr (-,root,root)'" +
                        " --define '%_topdir %{getenv:HOME}/" +
                        package.getTopDirRpmBuildDirectory() +
@@ -509,6 +510,7 @@ class ObsLightChRoot(object):
         package.saveTmpSpec(path=self.getDirectory() + pathToSaveSpec,
                             archive=tarFile)
         command = []
+        command.append("HOME=$HOME/" + package.getName())
         command.append("rpmbuild -bc --define '_srcdefattr (-,root,root)'" +
                        " --define '%_topdir %{getenv:HOME}/" +
                        package.getTopDirRpmBuildTmpDirectory() +
@@ -556,6 +558,7 @@ class ObsLightChRoot(object):
         package.saveTmpSpec(path=self.getDirectory() + pathToSaveSpec,
                             archive=tarFile)
         command = []
+        command.append("HOME=$HOME/" + package.getName())
         command.append("rpmbuild -bi --define '_srcdefattr (-,root,root)' " +
                        "--define '%_topdir %{getenv:HOME}/" +
                        package.getTopDirRpmBuildTmpDirectory() + "' " +
@@ -603,6 +606,7 @@ class ObsLightChRoot(object):
         package.saveTmpSpec(path=self.getDirectory() + pathToSaveSpec,
                             archive=tarFile)
         command = []
+        command.append("HOME=$HOME/" + package.getName())
         command.append("rpmbuild -ba --define '_srcdefattr (-,root,root)' " +
                        "--define '%_topdir %{getenv:HOME}/" +
                        package.getTopDirRpmBuildTmpDirectory() +
