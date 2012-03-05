@@ -153,7 +153,7 @@ class ObsLightChRoot(object):
                                                         )
         if isAclReady(self.getDirectory()):
             self.__subprocess(command="sudo chmod -R o+rwX " + self.getDirectory())
-            self.__subprocess(command="sudo setfacl -Rdm o::rwX -m g::rwX " + self.getDirectory())
+            self.__subprocess(command="sudo setfacl -Rdm o::rwX -m g::rwX -m u::rwX" + self.getDirectory())
         else:
             mountPoint = getmount(self.getDirectory())
             raise ObsLightErr.ObsLightChRootError("ACLs not enabled on mount point '" +

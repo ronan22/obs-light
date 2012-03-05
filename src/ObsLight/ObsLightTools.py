@@ -49,7 +49,7 @@ def testHost(host):
         else:
             port = "80"
 
-    if port == "443":
+    if scheme == "https":
         test = httplib.HTTPSConnection(host=host, port=port, timeout=SOCKETTIMEOUT)
     else:
         test = httplib.HTTPConnection(host=host, port=port, timeout=SOCKETTIMEOUT)
@@ -77,7 +77,7 @@ def testUrl(url):
         else:
             port = "80"
 
-    if port == "443":
+    if scheme == "https":
         test = httplib.HTTPSConnection(host=host, port=port, timeout=SOCKETTIMEOUT)
     else:
         test = httplib.HTTPConnection(host=host, port=port, timeout=SOCKETTIMEOUT)
