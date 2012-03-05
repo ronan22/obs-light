@@ -14,21 +14,26 @@ if "--version" in sys.argv:
     sys.exit(0)
 
 from PySide.QtGui import QApplication, QMessageBox
-from ObsLight.obslight_starter import alreadyRunning, userIsRoot, writePidFile, getpidFilePath
+from ObsLight.obslight_starter import alreadyRunning, userIsRoot, writePidFile
+from ObsLight.obslight_starter import getpidFilePath, getPidFromFile, wasStoppedCorrectly
+
+# a QApplication instance is required in order to display message boxes
+qApplication = QApplication(sys.argv)
 
 if userIsRoot():
-    qa = QApplication(sys.argv)
     QMessageBox.critical(u"Cannot run as root", u"OBS Light cannot run as root!")
     sys.exit(0)
 
 if alreadyRunning():
-    qa = QApplication(sys.argv)
-    pidFilePath = getpidFilePath()
-    message = u"OBS Light is already running.\n"
-    message += u"If it is not the case, please remove the file '%s' " % pidFilePath
-    message += u"and retry."
+    pid = getPidFromFile()
+    message = u"OBS Light is already running (PID: %d).\n" % pid
     QMessageBox.warning(None, u"Already running", message)
     sys.exit(1)
+
+if not wasStoppedCorrectly():
+    message = u"It seems that OBS Light has not been shut down correctly.\n"
+    message += u"Please close it and re-launch it so it can clean itself."
+    QMessageBox.warning(None, u"Shutdown problem", message)
 
 writePidFile()
 
@@ -37,7 +42,7 @@ from ObsLightGui.Gui import Gui
 
 try:
     # Now we can load the GUI
-    gui = Gui()
+    gui = Gui(qApplication)
     gui.loadManager(ObsLightManager.getManager)
     r = babysitter.run(gui.main)
     sys.exit(r)

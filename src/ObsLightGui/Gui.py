@@ -49,9 +49,9 @@ class Gui(QObject):
     # signal to display a message in the status bar of the main window
     __messageSignal = Signal((str, int))
 
-    def __init__(self):
+    def __init__(self, qApplication):
         QObject.__init__(self)
-        self.application = QApplication(sys.argv)
+        self.application = qApplication
         self.application.aboutToQuit.connect(self.__beforeQuitting)
         self.uiLoader = QUiLoader()
         # Need to set working directory in order to load icons
