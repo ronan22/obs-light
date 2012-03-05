@@ -64,20 +64,27 @@ class ConfigureServerUrlPage(ObsLightWizardPage):
         removeEffect(self.ui_WizardPage.repoUrlLineEdit)
         removeEffect(self.ui_WizardPage.webUrlLineEdit)
 
-    @uiFriendly()
-    def _friendlyTestUrl(self, url):
-        return self.manager.testUrl(url)
+    def _friendlyTestUrl(self, url, message="Testing %s"):
+        return self.callWithInfiniteProgress(self.manager.testUrl,
+                                             message % url,
+                                             url)
 
-    @uiFriendly()
-    def _friendlyTestHost(self, url):
-        return self.manager.testHost(url)
+    def _friendlyTestHost(self, url, message="Testing host of %s"):
+        return self.callWithInfiniteProgress(self.manager.testHost,
+                                             message % url,
+                                             url)
 
-    @uiFriendly()
-    def _friendlyTestApi(self, url, user, password):
-        return self.manager.testApi(url, user, password)
+    def _friendlyTestApi(self, url, user, password,
+                         message="Testing API %s with user/password"):
+        return self.callWithInfiniteProgress(self.manager.testApi,
+                                             message % url,
+                                             url, user, password)
 
     def doValidatePage(self):
         def testAndColorizeUrl(url, widget):
+            # Green -> OK
+            # Orange -> Host OK but wrong URL
+            # Red -> Wrong host
             color = u"red"
             isOk = False
             try:
