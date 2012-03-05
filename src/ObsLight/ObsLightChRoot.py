@@ -316,6 +316,12 @@ class ObsLightChRoot(object):
             if os.path.isdir(self.getDirectory() + "/" + package.getChrootRpmBuildDirectory() + "/SPECS/"):
                 aspecFile = package.getChrootRpmBuildDirectory() + "/SPECS/" + specFile
 
+                self.__subprocess(command="sudo chown root:users " + self.getDirectory())
+                self.__subprocess(command="sudo chmod g+rwX " + self.getDirectory())
+
+                self.__subprocess(command="sudo chown -R root:users " + self.getDirectory() + "/root")
+                self.__subprocess(command="sudo chmod -R g+rwX " + self.getDirectory() + "/root")
+
                 self.__subprocess(command="sudo chown -R root:users " + self.getDirectory() + "/" + package.getChrootRpmBuildDirectory())
                 self.__subprocess(command="sudo chmod -R g+rwX " + self.getDirectory() + "/" + package.getChrootRpmBuildDirectory())
                 package.saveSpec(self.getDirectory() + "/" + aspecFile)
