@@ -153,7 +153,7 @@ class ObsLightChRoot(object):
                                                         )
         if isAclReady(self.getDirectory()):
             self.__subprocess(command="sudo chmod -R o+rwX " + self.getDirectory())
-            self.__subprocess(command="sudo setfacl -Rdm o::rwX -m g::rwX " + self.getDirectory())
+            self.__subprocess(command="sudo setfacl -Rdm o::rwX -m g::rwX -m u::rwX" + self.getDirectory())
         else:
             mountPoint = getmount(self.getDirectory())
             raise ObsLightErr.ObsLightChRootError("ACLs not enabled on mount point '" +
@@ -316,6 +316,12 @@ class ObsLightChRoot(object):
             if os.path.isdir(self.getDirectory() + "/" + package.getChrootRpmBuildDirectory() + "/SPECS/"):
                 aspecFile = package.getChrootRpmBuildDirectory() + "/SPECS/" + specFile
 
+                self.__subprocess(command="sudo chown root:users " + self.getDirectory())
+                self.__subprocess(command="sudo chmod g+rwX " + self.getDirectory())
+
+                self.__subprocess(command="sudo chown -R root:users " + self.getDirectory() + "/root")
+                self.__subprocess(command="sudo chmod -R g+rwX " + self.getDirectory() + "/root")
+
                 self.__subprocess(command="sudo chown -R root:users " + self.getDirectory() + "/" + package.getChrootRpmBuildDirectory())
                 self.__subprocess(command="sudo chmod -R g+rwX " + self.getDirectory() + "/" + package.getChrootRpmBuildDirectory())
                 package.saveSpec(self.getDirectory() + "/" + aspecFile)
@@ -451,7 +457,7 @@ class ObsLightChRoot(object):
         '''
 
         command = []
-
+        command.append("HOME=$HOME/" + package.getName())
         command.append("rpmbuild -bp --define '_srcdefattr (-,root,root)' " +
                        "--define '%_topdir %{getenv:HOME}/" +
                        package.getTopDirRpmBuildDirectory() +
@@ -463,6 +469,7 @@ class ObsLightChRoot(object):
         Execute the %build section of an RPM spec file.
         '''
         command = []
+        command.append("HOME=$HOME/" + package.getName())
         command.append("rpmbuild -bc --short-circuit --define '_srcdefattr (-,root,root)'" +
                        " --define '%_topdir %{getenv:HOME}/" +
                        package.getTopDirRpmBuildDirectory() +
@@ -509,6 +516,7 @@ class ObsLightChRoot(object):
         package.saveTmpSpec(path=self.getDirectory() + pathToSaveSpec,
                             archive=tarFile)
         command = []
+        command.append("HOME=$HOME/" + package.getName())
         command.append("rpmbuild -bc --define '_srcdefattr (-,root,root)'" +
                        " --define '%_topdir %{getenv:HOME}/" +
                        package.getTopDirRpmBuildTmpDirectory() +
@@ -556,6 +564,7 @@ class ObsLightChRoot(object):
         package.saveTmpSpec(path=self.getDirectory() + pathToSaveSpec,
                             archive=tarFile)
         command = []
+        command.append("HOME=$HOME/" + package.getName())
         command.append("rpmbuild -bi --define '_srcdefattr (-,root,root)' " +
                        "--define '%_topdir %{getenv:HOME}/" +
                        package.getTopDirRpmBuildTmpDirectory() + "' " +
@@ -603,6 +612,7 @@ class ObsLightChRoot(object):
         package.saveTmpSpec(path=self.getDirectory() + pathToSaveSpec,
                             archive=tarFile)
         command = []
+        command.append("HOME=$HOME/" + package.getName())
         command.append("rpmbuild -ba --define '_srcdefattr (-,root,root)' " +
                        "--define '%_topdir %{getenv:HOME}/" +
                        package.getTopDirRpmBuildTmpDirectory() +

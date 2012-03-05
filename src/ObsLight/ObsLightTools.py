@@ -49,7 +49,10 @@ def testHost(host):
         else:
             port = "80"
 
-    test = httplib.HTTPConnection(host=host, port=port, timeout=SOCKETTIMEOUT)
+    if scheme == "https":
+        test = httplib.HTTPSConnection(host=host, port=port, timeout=SOCKETTIMEOUT)
+    else:
+        test = httplib.HTTPConnection(host=host, port=port, timeout=SOCKETTIMEOUT)
 
     try:
         test.connect()
@@ -73,7 +76,11 @@ def testUrl(url):
             port = "443"
         else:
             port = "80"
-    test = httplib.HTTPConnection(host=host, port=port, timeout=SOCKETTIMEOUT)
+
+    if scheme == "https":
+        test = httplib.HTTPSConnection(host=host, port=port, timeout=SOCKETTIMEOUT)
+    else:
+        test = httplib.HTTPConnection(host=host, port=port, timeout=SOCKETTIMEOUT)
 
     try:
         test.request('HEAD', path)
@@ -89,6 +96,8 @@ def testUrl(url):
         return False
     finally:
         test.close()
+    return True
+
 
 def testRepo(url, name):
     '''

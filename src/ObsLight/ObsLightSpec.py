@@ -432,6 +432,8 @@ class ObsLightSpec:
         '''
         
         '''
+        SETUP = False
+
         if path == None:
             return None
         toWrite = ""
@@ -440,9 +442,10 @@ class ObsLightSpec:
                 if (section == "%prep"):
                     if (line.startswith('%prep'))  :
                         toWrite += line
-                    elif (line.startswith('%setup')):
+                    elif (line.startswith('%setup') and (SETUP == False)):
                         line = line.replace("-c", "")
                         toWrite += line
+                        SETUP = True
                 elif (section == "introduction_section"):
                     if not line.startswith("Patch"):
                         toWrite += line
