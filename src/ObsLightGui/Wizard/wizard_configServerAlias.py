@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui/wizard_configServerAlias.ui'
 #
-# Created: Mon Jan 30 18:39:16 2012
+# Created: Mon Mar  5 15:48:25 2012
 #      by: pyside-uic 0.2.13 running on PySide 1.1.0
 #
 # WARNING! All changes made in this file will be lost!
@@ -45,6 +45,9 @@ class Ui_WizardPage(object):
         self.usernameLabel = QtGui.QLabel(WizardPage)
         self.usernameLabel.setObjectName("usernameLabel")
         self.formLayout.setWidget(3, QtGui.QFormLayout.FieldRole, self.usernameLabel)
+        self.label_3 = QtGui.QLabel(WizardPage)
+        self.label_3.setObjectName("label_3")
+        self.formLayout.setWidget(5, QtGui.QFormLayout.FieldRole, self.label_3)
 
         self.retranslateUi(WizardPage)
         QtCore.QMetaObject.connectSlotsByName(WizardPage)
@@ -62,4 +65,6 @@ class Ui_WizardPage(object):
         self.repoUrlLabel.setText(QtGui.QApplication.translate("WizardPage", "url", None, QtGui.QApplication.UnicodeUTF8))
         self.label_8.setText(QtGui.QApplication.translate("WizardPage", "Username:", None, QtGui.QApplication.UnicodeUTF8))
         self.usernameLabel.setText(QtGui.QApplication.translate("WizardPage", "toto", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_3.setText(QtGui.QApplication.translate("WizardPage", "Green --> OK\n"
+"Red --> Already in use", None, QtGui.QApplication.UnicodeUTF8))
 

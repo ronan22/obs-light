@@ -42,6 +42,7 @@ class ConfigWizard(QWizard, ObsLightGuiObject):
         ObsLightGuiObject.__init__(self, gui)
         QWizard.__init__(self, self.mainWindow)
         self.loadPages()
+        self.setButtonText(QWizard.CommitButton, u"Validate")
 
     def pageIndex(self, pageName):
         return self.Pages[pageName].index

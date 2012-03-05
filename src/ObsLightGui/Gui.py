@@ -21,11 +21,10 @@ Created on 27 sept. 2011
 @author: Florent Vennetier
 '''
 
-import sys
 from os.path import dirname, join
 
-from PySide.QtCore import QIODevice, QFile, QMetaObject, QObject, Qt, Signal
-from PySide.QtGui import QApplication, QColor, QPixmap, QProgressDialog, QSplashScreen, QStatusBar
+from PySide.QtCore import QIODevice, QFile, QMetaObject, QObject, QSettings, Qt, Signal
+from PySide.QtGui import QColor, QPixmap, QProgressDialog, QSplashScreen, QStatusBar
 from PySide.QtUiTools import QUiLoader
 
 from ObsLight.ObsLightErr import OBSLightBaseError
@@ -103,7 +102,28 @@ class Gui(QObject):
         self.__mainWindowActionManager = MainWindowActionManager(self)
         self.__statusBar = self.__mainWindow.findChild(QStatusBar, u"mainStatusBar")
         self.__messageSignal.connect(self.__statusBar.showMessage)
+        self.__loadGeometry()
         self.__mainWindow.show()
+
+    def __loadGeometry(self):
+        settings = QSettings("Intel_OTC", "obslightgui")
+        propMap = {"mainWindow/geometry": self.__mainWindow.restoreGeometry,
+                   "mainWindow/state": self.__mainWindow.restoreState,
+                   "mainWindow/splitterState": self.__mainWindow.splitter.restoreState,
+                   "mainWindow/splitter2State": self.__mainWindow.splitter_2.restoreState}
+        for propName, func in propMap.iteritems():
+            prop = settings.value(propName)
+            if prop is not None:
+                func(prop)
+
+    def __saveGeometry(self):
+        settings = QSettings("Intel_OTC", "obslightgui")
+        propMap = {"mainWindow/geometry": self.__mainWindow.saveGeometry,
+                   "mainWindow/state": self.__mainWindow.saveState,
+                   "mainWindow/splitterState": self.__mainWindow.splitter.saveState,
+                   "mainWindow/splitter2State": self.__mainWindow.splitter_2.saveState}
+        for propName, func in propMap.iteritems():
+            settings.setValue(propName, func())
 
     def __createInfiniteProgressDialog(self):
         self.__infiniteProgress = QProgressDialog(self.__mainWindow)
@@ -229,6 +249,7 @@ class Gui(QObject):
         self.__obsProjectManager = ObsProjectsManager(self)
         self.__micProjectsManager = MicProjectsManager(self)
         self.__logManager = LogManager(self)
+        self.__mainWindow.callBeforeCloseEvent.append(self.__saveGeometry)
         self.__mainWindow.callBeforeCloseEvent.append(self.__logManager.close)
         self.splash.finish(self.mainWindow)
 

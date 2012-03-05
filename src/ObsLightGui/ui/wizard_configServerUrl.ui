@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
+    <width>405</width>
     <height>300</height>
    </rect>
   </property>
@@ -20,7 +20,7 @@
    <string>Server configuration</string>
   </property>
   <property name="subTitle">
-   <string>Enter the 3 URL required to access this server.</string>
+   <string>Enter the 3 URL required to access this server, your user name and your password.</string>
   </property>
   <attribute name="pageId">
    <string notr="true">2</string>
@@ -56,27 +56,52 @@
      </property>
     </widget>
    </item>
-   <item row="6" column="0">
+   <item row="9" column="0">
     <widget class="QLabel" name="label_5">
      <property name="text">
       <string>Username:</string>
      </property>
     </widget>
    </item>
-   <item row="7" column="0">
+   <item row="10" column="0">
     <widget class="QLabel" name="label_4">
      <property name="text">
       <string>Password:</string>
      </property>
     </widget>
    </item>
-   <item row="6" column="1">
+   <item row="9" column="1">
     <widget class="QLineEdit" name="usernameLineEdit"/>
    </item>
-   <item row="7" column="1">
+   <item row="10" column="1">
     <widget class="QLineEdit" name="passwordLineEdit">
      <property name="echoMode">
       <enum>QLineEdit::Password</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="0" colspan="2">
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="11" column="1">
+    <widget class="QLabel" name="label_6">
+     <property name="text">
+      <string>Green  --&gt;  OK
+Red  --&gt;  Wrong username or password
+Orange  --&gt;  cannot test due to URL error</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="1">
+    <widget class="QLabel" name="label_7">
+     <property name="text">
+      <string>Green  --&gt;  OK
+Red  --&gt;  Error
+Orange  --&gt;  Host OK but wrong URL</string>
      </property>
     </widget>
    </item>
