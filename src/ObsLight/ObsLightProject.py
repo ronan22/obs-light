@@ -724,51 +724,37 @@ class ObsLightProject(object):
                                                repo=self.__projectObsName)
         return 0
 
-    def buildRpm(self, package):
-        path = self.__packages.getPackage(package=package).getPackageDirectory()
-        #rootPath = self.__chroot.getDirectory()
+    def __execRpmSection(self, packageName, section):
+        """
+        Execute `section` of the spec file of `packageName`
+        into the chroot jail.
+        """
+        sectionMap = {"build": self.__chroot.buildRpm,
+                      "install": self.__chroot.installRpm,
+                      "files": self.__chroot.packageRpm}
+        pkgObj = self.__packages.getPackage(packageName)
+        pkgPath = pkgObj.getPackageDirectory()
+        specFileName = pkgObj.getSpecFile()
+        specFilePath = os.path.join(pkgObj.getChrootRpmBuildDirectory(),
+                                    "SPECS", specFileName)
+        name = pkgObj.getMacroDirectoryPackageName()
+        if name is None:
+            return 0
+        tarFile = pkgObj.getArchiveName()
+        retVal = sectionMap[section](package=pkgObj,
+                                     specFile=specFilePath,
+                                     packagePath=pkgPath,
+                                     tarFile=tarFile)
+        return retVal
 
-        specFile = self.__packages.getSpecFile(name=package)
-        aspecFile = self.__packages.getChrootRpmBuildDirectory(name=package) + "/SPECS/" + specFile
-        name = self.__packages.getPackage(package=package).getMacroDirectoryPackageName()
-        if name != None:
-            if name != None:
-                tarFile = self.__packages.getPackage(package=package).getArchiveName()
-                self.__chroot.buildRpm(package=self.__packages.getPackage(package=package),
-                                       specFile=aspecFile,
-                                       packagePath=path,
-                                       tarFile=tarFile)
-        return 0
+    def buildRpm(self, package):
+        return self.__execRpmSection(package, "build")
 
     def installRpm(self, package):
-        path = self.__packages.getPackage(package=package).getPackageDirectory()
-        #rootPath = self.__chroot.getDirectory()
-
-        specFile = self.__packages.getSpecFile(name=package)
-        aspecFile = self.__packages.getChrootRpmBuildDirectory(name=package) + "/SPECS/" + specFile
-        name = self.__packages.getPackage(package=package).getMacroDirectoryPackageName()
-        if name != None:
-            tarFile = self.__packages.getPackage(package=package).getArchiveName()
-            self.__chroot.installRpm(package=self.__packages.getPackage(package=package),
-                                     specFile=aspecFile,
-                                     packagePath=path,
-                                     tarFile=tarFile)
-        return 0
+        return self.__execRpmSection(package, "install")
 
     def packageRpm(self, package):
-        path = self.__packages.getPackage(package=package).getPackageDirectory()
-        #rootPath = self.__chroot.getDirectory()
-
-        specFile = self.__packages.getSpecFile(name=package)
-        aspecFile = self.__packages.getChrootRpmBuildDirectory(name=package) + "/SPECS/" + specFile
-        name = self.__packages.getPackage(package=package).getMacroDirectoryPackageName()
-        if name != None:
-            tarFile = self.__packages.getPackage(package=package).getArchiveName()
-            self.__chroot.packageRpm(package=self.__packages.getPackage(package=package),
-                                     specFile=aspecFile,
-                                     packagePath=path,
-                                     tarFile=tarFile)
-        return 0
+        return self.__execRpmSection(package, "files")
 
     def createPatch(self, package, patch):
         '''
