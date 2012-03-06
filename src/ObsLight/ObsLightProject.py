@@ -681,9 +681,6 @@ class ObsLightProject(object):
                             self.__projectTarget)
 
     def goToChRoot(self, package=None, detach=False):
-        '''
-        
-        '''
         if package != None:
             packagePath = self.__packages.getPackage(package).getPackageDirectory()
             if packagePath != None:
@@ -694,14 +691,11 @@ class ObsLightProject(object):
             return self.__chroot.goToChRoot(detach=detach)
 
     def execScript(self, aPath):
-        '''
-        
-        '''
         return self.__chroot.execScript(aPath)
 
     def openTerminal(self, package):
         '''
-        Open a Bash in the chroot.
+        Open bash in `package`'s osc working directory.
         '''
         if package != None:
             packagePath = self.__packages.getOscDirectory(name=package)
@@ -717,12 +711,12 @@ class ObsLightProject(object):
                 command = ObsLightConfig.getConsole() + " " + pathScript
 
                 command = shlex.split(str(command))
-                subprocess.call(command)
+                # subprocess.call(command) would wait for the command to finish,
+                # which would cause problem with terminal emulators which don't
+                # fork themselves
+                subprocess.Popen(command)
 
     def addPackageSourceInChRoot(self, package):
-        '''
-         
-        '''
         specFile = self.__packages.getSpecFile(package)
 
         self.__chroot.addPackageSourceInChRoot(package=self.__packages.getPackage(package),
@@ -731,9 +725,6 @@ class ObsLightProject(object):
         return 0
 
     def buildRpm(self, package):
-        '''
-        
-        '''
         path = self.__packages.getPackage(package=package).getPackageDirectory()
         #rootPath = self.__chroot.getDirectory()
 
@@ -750,9 +741,6 @@ class ObsLightProject(object):
         return 0
 
     def installRpm(self, package):
-        '''
-        
-        '''
         path = self.__packages.getPackage(package=package).getPackageDirectory()
         #rootPath = self.__chroot.getDirectory()
 
@@ -768,9 +756,6 @@ class ObsLightProject(object):
         return 0
 
     def packageRpm(self, package):
-        '''
-        
-        '''
         path = self.__packages.getPackage(package=package).getPackageDirectory()
         #rootPath = self.__chroot.getDirectory()
 

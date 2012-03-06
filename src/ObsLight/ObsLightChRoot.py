@@ -656,7 +656,9 @@ class ObsLightChRoot(object):
             command = "linux32 " + command
 
         command = shlex.split(str(command))
-        return subprocess.call(command)
+        # subprocess.call(command) waits for command to finish, which causes
+        # problem with terminal emulators which don't fork themselves.
+        subprocess.Popen(command)
 
     def initGitWatch(self, path=None):
         '''
