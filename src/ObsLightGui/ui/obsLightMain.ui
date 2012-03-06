@@ -840,7 +840,8 @@ You can select several packages.</string>
                 <item row="0" column="1" colspan="2">
                  <widget class="QPushButton" name="openTermButton">
                   <property name="toolTip">
-                   <string>Open a terminal in the package's OSC directory.</string>
+                   <string>Open a terminal in the package's OSC directory.
+It may open in background on some desktop environments.</string>
                   </property>
                   <property name="text">
                    <string>Open terminal</string>
@@ -1159,7 +1160,8 @@ filesystem</string>
                  <widget class="QPushButton" name="openChrootButton">
                   <property name="toolTip">
                    <string>Open a terminal in the project filesystem (using chroot),
-in the source directory of the current package if it is installed.</string>
+in the source directory of the current package if it is installed.
+It may open in background on some desktop environments.</string>
                   </property>
                   <property name="text">
                    <string>Open terminal</string>
