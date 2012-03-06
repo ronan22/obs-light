@@ -731,13 +731,13 @@ class ObsLightProject(object):
         specFile = self.__packages.getSpecFile(name=package)
         aspecFile = self.__packages.getChrootRpmBuildDirectory(name=package) + "/SPECS/" + specFile
         name = self.__packages.getPackage(package=package).getMacroDirectoryPackageName()
+
         if name != None:
-            if name != None:
-                tarFile = self.__packages.getPackage(package=package).getArchiveName()
-                self.__chroot.buildRpm(package=self.__packages.getPackage(package=package),
-                                       specFile=aspecFile,
-                                       packagePath=path,
-                                       tarFile=tarFile)
+            tarFile = self.__packages.getPackage(package=package).getArchiveName()
+            self.__chroot.buildRpm(package=self.__packages.getPackage(package=package),
+                                   specFile=aspecFile,
+                                   packagePath=path,
+                                   tarFile=tarFile)
         return 0
 
     def installRpm(self, package):

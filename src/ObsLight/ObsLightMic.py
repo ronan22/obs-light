@@ -403,7 +403,7 @@ class BindChrootMount:
             #TODO:change to use SubprocessCrt
             rc = subprocess.call(["sudo", self.mountcmd, "--bind", "-o", "remount,%s" % self.option, self.dest])
             if rc != 0:
-                raise fs_related.MountError("Bind-remounting '%s' failed" % self.dest)
+                raise fs_related.MountError("Bind-remounting '" + self.dest + "' failed with code " + str(rc))
         self.mounted = True
 
     def unmount(self):
