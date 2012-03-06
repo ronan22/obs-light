@@ -54,7 +54,7 @@ class PackageManager(QObject, ObsLightGuiObject):
 
         mw = self.mainWindow
         mw.packageTableView.setSelectionBehavior(QTableView.SelectionBehavior.SelectRows)
-        mw.packageTableView.activated.connect(self.on_packageTableView_activated)
+        mw.packageTableView.clicked.connect(self.on_packageTableView_activated)
 
         self.__connectButtons()
         self.__connectPackageFilterSignals()
