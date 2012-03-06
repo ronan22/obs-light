@@ -300,6 +300,7 @@ class ObsLightChRoot(object):
             if packageMacroName == None:
                 raise ObsLightErr.ObsLightChRootError("Can't find the spec name (%{name}) of '" + packageName + "'.")
 
+            command.append("zypper --no-gpg-checks --gpg-auto-import-keys ref")
             command.append("zypper --non-interactive si --build-deps-only " + packageMacroName)
             #command.append("zypper --non-interactive si " + "--repo " + repo + " " + packageName)
             res = self.execCommand(command=command)
@@ -420,15 +421,11 @@ class ObsLightChRoot(object):
         '''
         Add a repository in the chroot's zypper configuration file.
         '''
-        print "tic self.__dicoRepos.keys()", self.__dicoRepos.keys()
-
         if alias in self.__dicoRepos.keys():
             msg = "Can't add %s, already configured in project file system" % alias
             raise ObsLightErr.ObsLightChRootError(msg)
         else:
             self.__dicoRepos[alias] = repos
-
-        print "toc self.__dicoRepos.keys()", self.__dicoRepos.keys()
 
         return self.__addRepo(repos=repos, alias=alias)
 
