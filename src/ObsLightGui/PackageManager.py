@@ -440,7 +440,7 @@ class PackageManager(QObject, ObsLightGuiObject):
                                      None,
                                      u"Importing %(arg)s source in file system " +
                                      "and executing %%prep",
-                                     None,
+                                     self.__refreshStatus,
                                      projectName)
 
     @popupOnException
@@ -451,7 +451,7 @@ class PackageManager(QObject, ObsLightGuiObject):
         self.__mapOnSelectedPackages(firstArgLast(self.manager.buildRpm),
                                      None,
                                      u"Executing %%build section of %(arg)s",
-                                     None,
+                                     self.__refreshStatus,
                                      projectName)
 
     @popupOnException
@@ -462,7 +462,7 @@ class PackageManager(QObject, ObsLightGuiObject):
         self.__mapOnSelectedPackages(firstArgLast(self.manager.installRpm),
                                      None,
                                      u"Executing %%install section of %(arg)s",
-                                     None,
+                                     self.__refreshStatus,
                                      projectName)
 
     @popupOnException
@@ -473,7 +473,7 @@ class PackageManager(QObject, ObsLightGuiObject):
         self.__mapOnSelectedPackages(firstArgLast(self.manager.packageRpm),
                                      None,
                                      u"Packaging %(arg)s",
-                                     None,
+                                     self.__refreshStatus,
                                      projectName)
 
     @popupOnException
