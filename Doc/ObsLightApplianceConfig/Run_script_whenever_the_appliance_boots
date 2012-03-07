@@ -25,9 +25,10 @@ then
   cp /usr/share/applications/obslightgui.desktop /etc/skel/Desktop/
   mkdir -p /home/tux/Desktop
   cp /usr/share/applications/obslightgui.desktop /home/tux/Desktop/
+  cp /usr/share/applications/YaST.desktop /home/tux/Desktop/
   chown -R tux:users /home/tux/Desktop
   chmod 744 /home/tux/Desktop/obslightgui.desktop
-
+  chmod 744 /home/tux/Desktop/YaST.desktop
   # fix rights of tux's KDE configuration directory
   chown -R tux:users /home/tux/.kde4
   chmod -R a-rwx,u+rwX /home/tux/.kde4
@@ -54,6 +55,5 @@ fi
 #to disable GPG checks for OBS Light repo
 if [ -f /etc/zypp/repos.d/Project_OBS_Light_openSUSE_12.1.repo ]
 then
-  sed -i -r s,"gpgcheck=1","gpgcheck=0", /etc/zypp/repos.d/Project_OBS_Light_openSUSE_12.1.repo
+   sed -i -r s,"gpgcheck=1","gpgcheck=0", /etc/zypp/repos.d/Project_OBS_Light_openSUSE_12.1.repo
 fi
-
