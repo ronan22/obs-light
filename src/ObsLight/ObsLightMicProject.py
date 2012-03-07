@@ -33,8 +33,6 @@ from ObsLightKickstartManager import ObsLightKickstartManager
 
 class ObsLightMicProject(object):
 
-    _ksManager = None
-
     def __init__(self, name, workingDirectory, fromSave=None):
         self.__mySubprocessCrt = SubprocessCrt()
 
@@ -43,6 +41,7 @@ class ObsLightMicProject(object):
         self.__imageType = None
         self.__name = name
         self.__workingDirectory = os.path.join(workingDirectory, self.__name)
+        self._ksManager = None
 
         if fromSave != None:
             if "architecture" in fromSave.keys():
@@ -55,7 +54,6 @@ class ObsLightMicProject(object):
                 self.__workingDirectory = fromSave["workingDirectory"]
             if "kickstartPath" in fromSave.keys():
                 self.__kickstartPath = fromSave["kickstartPath"]
-                self.__loadKsManager()
 
         pDir = self.getProjectDirectory()
         if not os.path.isdir(pDir):
@@ -75,6 +73,12 @@ class ObsLightMicProject(object):
 
     def __loadKsManager(self):
         self._ksManager = ObsLightKickstartManager(self.getKickstartFile())
+
+    @property
+    def kickstartManager(self):
+        if self._ksManager is None:
+            self.__loadKsManager()
+        return self._ksManager
 
     def getProjectDirectory(self):
         """
@@ -116,7 +120,7 @@ class ObsLightMicProject(object):
         Save the Kickstart of the project to `path`,
         or to the previous path if None.
         """
-        self._ksManager.saveKickstart(path)
+        self.kickstartManager.saveKickstart(path)
 
     def addKickstartRepository(self, baseurl, name, cost=None, **otherParams):
         """
@@ -140,13 +144,13 @@ class ObsLightMicProject(object):
         - disable (False): add the repository as disabled
         - ssl_verify ("yes"):
         """
-        self._ksManager.addRepository(baseurl, name, cost, **otherParams)
+        self.kickstartManager.addRepository(baseurl, name, cost, **otherParams)
 
     def removeKickstartRepository(self, name):
         """
         Remove the `name` package repository from the Kickstart file.
         """
-        self._ksManager.removeRepository(name)
+        self.kickstartManager.removeRepository(name)
 
     def getKickstartRepositoryDictionaries(self):
         """
@@ -171,8 +175,8 @@ class ObsLightMicProject(object):
          ssl_verify ("yes"):
         """
         repoList = []
-        for repoName in self._ksManager.getRepositoryList():
-            repoList.append(self._ksManager.getRepositoryDict(repoName))
+        for repoName in self.kickstartManager.getRepositoryList():
+            repoList.append(self.kickstartManager.getRepositoryDict(repoName))
         return repoList
 
     def addKickstartPackage(self, name, excluded=False):
@@ -182,9 +186,9 @@ class ObsLightMicProject(object):
         (defaults to False).
         """
         if excluded:
-            self._ksManager.addExcludedPackage(name)
+            self.kickstartManager.addExcludedPackage(name)
         else:
-            self._ksManager.addPackage(name)
+            self.kickstartManager.addPackage(name)
 
     def removeKickstartPackage(self, name):
         """
@@ -192,8 +196,8 @@ class ObsLightMicProject(object):
         """
         # We don't know if package was explicitly excluded or not
         # so we try to remove it from both lists.
-        self._ksManager.removePackage(name)
-        self._ksManager.removeExcludedPackage(name)
+        self.kickstartManager.removePackage(name)
+        self.kickstartManager.removeExcludedPackage(name)
 
     def getKickstartPackageDictionaries(self):
         """
@@ -206,9 +210,9 @@ class ObsLightMicProject(object):
         to `addKickstartPackage`.
         """
         pkgList = []
-        for pkgName in self._ksManager.getPackageList():
+        for pkgName in self.kickstartManager.getPackageList():
             pkgList.append({"name": pkgName, "excluded": False})
-        for pkgName in self._ksManager.getExcludedPackageList():
+        for pkgName in self.kickstartManager.getExcludedPackageList():
             pkgList.append({"name": pkgName, "excluded": True})
         return pkgList
 
@@ -216,13 +220,13 @@ class ObsLightMicProject(object):
         """
         Add the package group `name` in the Kickstart file.
         """
-        self._ksManager.addPackageGroup(name)
+        self.kickstartManager.addPackageGroup(name)
 
     def removeKickstartPackageGroup(self, name):
         """
         Remove the package group `name` from the Kickstart file.
         """
-        self._ksManager.removePackageGroup(name)
+        self.kickstartManager.removePackageGroup(name)
 
     def getKickstartPackageGroupDictionaries(self):
         """
@@ -232,7 +236,7 @@ class ObsLightMicProject(object):
         More keys will come...
         """
         pkgGrpList = []
-        for grpName in self._ksManager.getPackageGroupList():
+        for grpName in self.kickstartManager.getPackageGroupList():
             pkgGrpList.append({"name": grpName})
         return pkgGrpList
 
@@ -244,7 +248,7 @@ class ObsLightMicProject(object):
         name (or an alias) in `command` so that the old commandline can be
         erased first.
         """
-        self._ksManager.addOrChangeCommand(fullText, command)
+        self.kickstartManager.addOrChangeCommand(fullText, command)
 
     def removeKickstartCommand(self, command):
         """
@@ -252,7 +256,7 @@ class ObsLightMicProject(object):
         `command` must be a command name or an alias,
         but not the whole text generated by a command.
         """
-        self._ksManager.removeCommand(command)
+        self.kickstartManager.removeCommand(command)
 
     def getKickstartCommandDictionaries(self):
         """
@@ -262,7 +266,7 @@ class ObsLightMicProject(object):
           "generated_text": the text that is printed in the Kickstart file by this command
           "aliases": a list of command aliases
         """
-        return self._ksManager.getFilteredCommandDictList()
+        return self.kickstartManager.getFilteredCommandDictList()
 
     def addOrChangeKickstartScript(self, name=None, script="", **kwargs):
         """
@@ -272,13 +276,13 @@ class ObsLightMicProject(object):
         in `name`. `script` and other keyword args are those described
         in `getKickstartScriptDictionaries()`.
         """
-        self._ksManager.addOrChangeScript(name, script, **kwargs)
+        self.kickstartManager.addOrChangeScript(name, script, **kwargs)
 
     def removeKickstartScript(self, scriptName):
         """
         Remove script `scriptName` from the Kickstart file.
         """
-        self._ksManager.removeScript(scriptName)
+        self.kickstartManager.removeScript(scriptName)
 
     def getKickstartScriptDictionaries(self):
         """
@@ -292,7 +296,7 @@ class ObsLightMicProject(object):
           "logfile": the path where to log the output of the script (None)
           "script": all the lines of the script
         """
-        return self._ksManager.getScriptDictList()
+        return self.kickstartManager.getScriptDictList()
 
     def addKickstartOverlayFile(self, source, destination):
         """
@@ -301,14 +305,14 @@ class ObsLightMicProject(object):
         `destination` is the path where the file will be copied
         in the target file system.
         """
-        return self._ksManager.addOverlayFile(source, destination)
+        return self.kickstartManager.addOverlayFile(source, destination)
 
     def removeOverlayFile(self, source, destination):
         """
         Remove the overlay file which was to be copied
         from `source` to `destination` in the target file system.
         """
-        return self._ksManager.removeOverlayFile(source, destination)
+        return self.kickstartManager.removeOverlayFile(source, destination)
 
     def getKickstartOverlayFileDictionaries(self):
         """
@@ -317,7 +321,7 @@ class ObsLightMicProject(object):
           "destination": the path where the file will be copied
                          in target file system
         """
-        return self._ksManager.getOverlayFileDictList()
+        return self.kickstartManager.getOverlayFileDictList()
 # --- end Kickstart management -----------------------------------------------
 
     def deleteProjectDirectory(self):

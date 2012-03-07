@@ -114,8 +114,12 @@ class ObsLightKickstartManager(object):
         self._checkKsFile()
         try:
             self._ksParser = kickstart.read_kickstart(self.kickstartPath)
-        except (IOError, kserrors.KickstartError) as e:
-            raise ObsLightErr.ObsLightKickstartError(str(e))
+        except (IOError, ValueError, kserrors.KickstartError) as e:
+            # ValueError may happen for example if a quotation mark is missing
+            message = "Error while parsing '%s': %s: %s" % (self.kickstartPath,
+                                                            str(type(e).__name__),
+                                                            str(e))
+            raise ObsLightErr.ObsLightKickstartError(message)
 
     def saveKickstart(self, alternateFile=None):
         """
