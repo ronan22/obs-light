@@ -471,7 +471,7 @@ class ObsLightChRoot(object):
                        " --define '%_topdir %{getenv:HOME}/" +
                        package.getTopDirRpmBuildDirectory() +
                        "' " + specFile + " < /dev/null")
-        self.execCommand(command=command)
+        return self.execCommand(command=command)
 
 
     def buildRpm(self, package, specFile, packagePath, tarFile):
@@ -568,10 +568,12 @@ class ObsLightChRoot(object):
                        "--define '%_topdir %{getenv:HOME}/" +
                        package.getTopDirRpmBuildTmpDirectory() + "' " +
                        pathToSaveSpec + " < /dev/null")
+        command.append("RPMBUILD_RETURN_CODE=$?")
 
         command.append("cp -fpr  " + package.getChrootRpmBuildTmpDirectory() + "/BUILD/* " + package.getChrootRpmBuildDirectory() + "/BUILD/")
         command.append("rm -r " + package.getChrootRpmBuildTmpDirectory() + "/TMP")
-        self.execCommand(command=command)
+        command.append("exit $RPMBUILD_RETURN_CODE")
+        return self.execCommand(command=command)
 
     def packageRpm(self, package, specFile, packagePath, tarFile):
         '''
@@ -616,10 +618,12 @@ class ObsLightChRoot(object):
                        "--define '%_topdir %{getenv:HOME}/" +
                        package.getTopDirRpmBuildTmpDirectory() +
                        "' " + pathToSaveSpec + " < /dev/null")
+        command.append("RPMBUILD_RETURN_CODE=$?")
         command.append("cp -fpr  " + package.getChrootRpmBuildTmpDirectory() + "/BUILD/* " + package.getChrootRpmBuildDirectory() + "/BUILD/")
         command.append("rm -r " + package.getChrootRpmBuildTmpDirectory() + "/TMP")
+        command.append("exit $RPMBUILD_RETURN_CODE")
 
-        self.execCommand(command=command)
+        return self.execCommand(command=command)
 
     def goToChRoot(self, path=None, detach=False):
         '''
