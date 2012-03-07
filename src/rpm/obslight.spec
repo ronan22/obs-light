@@ -16,6 +16,21 @@ BuildArch:  noarch
 URL:        http://wiki.meego.com/OBS_Light
 Source0:    %{name}-%{version}.tar.gz
 Source100:  obslight.yaml
+Requires:   python-xml
+Requires:   mic >= 0.4
+Requires:   sudo
+Requires:   osc
+Requires:   build
+Requires:   qemu
+Requires:   spectacle
+Requires:   acl
+Requires:   tightvnc
+Requires:   tftp
+Requires:   nfs-kernel-server
+Requires(post): /sbin/service
+Requires(post): /sbin/chkconfig
+Requires(postun): /sbin/service
+Requires(postun): /sbin/chkconfig
 BuildRequires:  python >= 2.6.0
 BuildRequires:  python-devel >= 2.6.0
 BuildRequires:  fdupes
@@ -28,70 +43,22 @@ BuildRoot:  %{_tmppath}/%{name}-%{version}-build
 
 %description
 Utilities to work with OBS Light, a lighter version of OBS.
+This package contains the API, a commandline client,
+and some tools (obstag, obs2obscopy, obsextractgroups).
 
-
-%package server
-Summary:    Utilities to work with OBS Light - web/tftp/nfs server for OBS Light
-Group:      Development/Tools/Building
-Requires:   obslight-base = %{version}
-Requires:   tftp
-Requires:   nfs-kernel-server
-Requires(post): /sbin/service
-Requires(post): /sbin/chkconfig
-Requires(postun): /sbin/service
-Requires(postun): /sbin/chkconfig
-Provides:   obslightserver
-
-%description server
-Utilities to work with OBS Light, a lighter version of OBS.
-This package contains web/tftp/nfs server for OBS Light
 
 
 %package gui
 Summary:    Utilities to work with OBS Light - graphical interface
 Group:      Development/Tools/Building
-Requires:   obslight-base = %{version}
+Requires:   %{name} = %{version}-%{release}
+Requires:   obslight = %{version}
 Requires:   python-pyside
 Provides:   obslightgui
 
 %description gui
 Utilities to work with OBS Light, a lighter version of OBS.
 This package contains the graphical interface.
-
-
-%package base
-Summary:    Utilities to work with OBS Light - command-line client
-Group:      Development/Tools/Building
-Requires:   python >= 2.6.0
-Requires:   python-xml
-Requires:   mic >= 0.4
-Requires:   sudo
-Requires:   qemu
-Requires:   osc
-Requires:   build
-Requires:   spectacle
-Requires:   acl
-Requires:   tightvnc
-Provides:   obslight
-
-%description base
-Utilities to work with OBS Light, a lighter version of OBS.
-This package contains the command-line client.
-
-
-%package utils
-Summary:    Utilities to work with OBS Light - additional scripts
-Group:      Development/Tools/Building
-Requires:   python >= 2.6.0
-Requires:   python-xml
-Requires:   osc
-
-%description utils
-Utilities to work with OBS Light, a lighter version of OBS.
-This package contains additional scripts :
- - obstag:           Tag a project in an OBS
- - obs2obscopy:      Copy a project from an OBS to an OBS
- - obsextractgroups: Extracts the packages groups of an OBS repository
 
 
 
@@ -135,36 +102,12 @@ desktop-file-install --delete-original       \
    %{buildroot}%{_datadir}/applications/*.desktop
 
 
-
-
-
-
-%preun server
-# >> preun server
+%preun
+# >> preun
 echo "Trying to remove OBS Light server..."
 %insserv_cleanup
 %verify_permissions
 
-# << preun server
-
-%post server
-# >> post server
-echo "Trying to add OBS Light server..."
-[ -d $RPM_BUILD_ROOT/srv/obslight ] || install -d -o nobody -g nobody $RPM_BUILD_ROOT/srv/obslight
-echo "/srv/obslight  *(rw,fsid=0,no_root_squash,insecure,no_subtree_check)" >> /etc/exports
-
-/sbin/insserv %{_sysconfdir}/init.d/xinetd
-/sbin/insserv %{_sysconfdir}/init.d/rpcbind
-/sbin/insserv %{_sysconfdir}/init.d/nfsserver
-/sbin/insserv %{_sysconfdir}/init.d/obslightserver
-# << post server
-
-
-
-
-
-%preun base
-# >> preun base
 echo "Trying to remove OBS Light sudoers rule..."
 if [ $1 -eq "0" ]; then
 if [ ! -f "%{_sysconfdir}/sudoers.tmp" ]; then
@@ -178,10 +121,10 @@ fi
 else
 echo " just updating, sudoers rule not modified"
 fi
-# << preun base
+# << preun
 
-%post base
-# >> post base
+%post
+# >> post
 echo "Trying to add OBS Light sudoers rule..."
 if [ ! -f "%{_sysconfdir}/sudoers.tmp" ]; then
 touch %{_sysconfdir}/sudoers.tmp
@@ -195,23 +138,42 @@ rm %{_sysconfdir}/sudoers.tmp
 else
 echo "Cannot modify sudoers file";
 fi
-# << post base
+
+echo "Trying to add OBS Light server..."
+[ -d $RPM_BUILD_ROOT/srv/obslight ] || install -d -o nobody -g nobody $RPM_BUILD_ROOT/srv/obslight
+echo "/srv/obslight  *(rw,fsid=0,no_root_squash,insecure,no_subtree_check)" >> /etc/exports
+
+/sbin/insserv %{_sysconfdir}/init.d/xinetd
+/sbin/insserv %{_sysconfdir}/init.d/rpcbind
+/sbin/insserv %{_sysconfdir}/init.d/nfsserver
+/sbin/insserv %{_sysconfdir}/init.d/obslightserver
+# << post
 
 
 
 
 
 
-
-%files server
+%files
 %defattr(-,root,root,-)
-# >> files server
+# >> files
+%doc README VERSION
+%{_bindir}/obs2obscopy
+%{_bindir}/obstag
+%{_bindir}/obsextractgroups
+%{_bindir}/obslight
+%{_bindir}/obslight-wrapper.py
+%{python_sitelib}/ObsLight
+%{python_sitelib}/obslight*egg-info
+%config %attr(440, root, root) %{_sysconfdir}/sudoers.obslight
+%config %{_sysconfdir}/bash_completion.d/obslight.sh
 %config %{_sysconfdir}/xinetd.d/tftp
 %config %attr(0755, root, root) %{_sysconfdir}/init.d/obslightserver
 %dir %{_sysconfdir}/obslight
 %config(noreplace) %attr(0644,root,root) %{_sysconfdir}/obslight/obslight.conf
 %{_bindir}/ObsLightServer.py
-# << files server
+# << files
+
 
 %files gui
 %defattr(-,root,root,-)
@@ -222,24 +184,4 @@ fi
 %{_datadir}/applications/obslightgui.desktop
 %{_datadir}/pixmaps/obslight.png
 # << files gui
-
-%files base
-%defattr(-,root,root,-)
-# >> files base
-%doc README VERSION
-%{_bindir}/obslight
-%{_bindir}/obslight-wrapper.py
-%{python_sitelib}/ObsLight
-%{python_sitelib}/obslight*egg-info
-%config %attr(440, root, root) %{_sysconfdir}/sudoers.obslight
-%config %{_sysconfdir}/bash_completion.d/obslight.sh
-# << files base
-
-%files utils
-%defattr(-,root,root,-)
-# >> files utils
-%{_bindir}/obs2obscopy
-%{_bindir}/obstag
-%{_bindir}/obsextractgroups
-# << files utils
 
