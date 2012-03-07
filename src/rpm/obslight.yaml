@@ -7,7 +7,10 @@ License: GPLv2
 URL: http://wiki.meego.com/OBS_Light
 Sources:
     - "%{name}-%{version}.tar.gz"
-Description: Utilities to work with OBS Light, a lighter version of OBS.
+Description: |
+    Utilities to work with OBS Light, a lighter version of OBS.
+    This package contains the API, a commandline client,
+    and some tools (obstag, obs2obscopy, obsextractgroups).
 
 PkgBR:
     - python >= 2.6.0
@@ -16,27 +19,27 @@ PkgBR:
     - xinetd
     - rpcbind
     - nfs-kernel-server
+Requires:
+    - python-xml
+    - mic >= 0.4
+    - sudo
+    - osc
+    - build
+    - qemu
+    - spectacle
+    - acl
+    - tightvnc
+    - tftp
+    - nfs-kernel-server
+
 Configure: none
 Builder: python
 BuildArch: noarch
 SupportOtherDistros: yes
-NoFiles: yes
 Vendor:
     - Intel Open Source Technology Center (OTC)
-SubPackages:
-    - Name: server
-      Summary: Utilities to work with OBS Light - web/tftp/nfs server for OBS Light
-      Group: Development/Tools/Building
-      Description: |
-          Utilities to work with OBS Light, a lighter version of OBS.
-          This package contains web/tftp/nfs server for OBS Light
-      Requires:
-          - obslight-base = %{version}
-          - tftp
-          - nfs-kernel-server
-      Provides:
-          - obslightserver
 
+SubPackages:
     - Name: gui
       Summary: Utilities to work with OBS Light - graphical interface
       Group: Development/Tools/Building
@@ -44,42 +47,7 @@ SubPackages:
           Utilities to work with OBS Light, a lighter version of OBS.
           This package contains the graphical interface.
       Requires:
-          - obslight-base = %{version}
+          - obslight = %{version}
           - python-pyside
       Provides:
           - obslightgui
-
-    - Name: base
-      Summary: Utilities to work with OBS Light - command-line client
-      Group: Development/Tools/Building
-      Description: |
-          Utilities to work with OBS Light, a lighter version of OBS.
-          This package contains the command-line client.
-      Requires:
-          - python >= 2.6.0
-          - python-xml
-          - mic >= 0.4
-          - sudo
-          - qemu
-          - osc
-          - build
-          - spectacle
-          - acl
-          - tightvnc
-      Provides:
-          - obslight
-
-    - Name: utils
-      Summary: Utilities to work with OBS Light - additional scripts
-      Group: Development/Tools/Building
-      Description: |
-          Utilities to work with OBS Light, a lighter version of OBS.
-          This package contains additional scripts :
-           - obstag:           Tag a project in an OBS
-           - obs2obscopy:      Copy a project from an OBS to an OBS
-           - obsextractgroups: Extracts the packages groups of an OBS repository
-      Requires:
-          - python >= 2.6.0
-          - python-xml
-          - osc
-
