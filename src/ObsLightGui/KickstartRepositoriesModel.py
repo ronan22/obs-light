@@ -46,7 +46,7 @@ class KickstartRepositoriesModel(KickstartModelBase):
     ColumnKeys = ("name", "baseurl", "priority", "ssl_verify", "gpgkey", "disable",
                   "save", "includepkgs", "excludepkgs", "source", "debuginfo")
 
-    ColumnHeaders = ("Name", "URL", "Priority", "SSL verif", "GPG key", "Disable",
+    ColumnHeaders = ("Name", "URL", "Priority", "SSL verif", "GPG key", "Enabled",
                      "Save", "Included packages", "Excluded packages", "Source", "Debug info")
     ColumnToolTips = ("A name for the repository, must be unique",
                       "The URL of the repository",
@@ -55,7 +55,7 @@ class KickstartRepositoriesModel(KickstartModelBase):
                       "Do SSL verification for HTTPS repositories",
                       "The path (or URL) to the GPG key for this repository " +
                         "in the final filesystem",
-                      "Add the repository as disabled",
+                      "Uncheck to add the repository as disabled",
                       "Save the repository in the generated image",
                       "A comma-separated list of package names and globs" +
                         " that must be pulled from this repository",
@@ -128,13 +128,17 @@ class KickstartRepositoriesModel(KickstartModelBase):
             self.refresh()
             return True
         elif role == Qt.CheckStateRole:
+            # SslVerify parameter is stored as a string, not a boolean
             if column == self.SslVerifyColumn:
                 if value == Qt.CheckState.Checked:
                     self.dataDict(row)[self.ColumnKeys[column]] = "yes"
                 else:
                     self.dataDict(row)[self.ColumnKeys[column]] = "no"
-            elif column in (self.DisableColumn, self.SaveColumn,
-                            self.SourceColumn, self.DebugInfoColumn):
+            # The logic of these columns is inverted
+            elif column in (self.DisableColumn,):
+                self.dataDict(row)[self.ColumnKeys[column]] = (value != Qt.CheckState.Checked)
+            # Other columns
+            elif column in (self.SaveColumn, self.SourceColumn, self.DebugInfoColumn):
                 self.dataDict(row)[self.ColumnKeys[column]] = (value == Qt.CheckState.Checked)
             oldName = self.dataDict(row)[self.ColumnKeys[self.NameColumn]]
             self.__updateRepoInManager(row, oldName)
@@ -148,7 +152,8 @@ class KickstartRepositoriesModel(KickstartModelBase):
         Cells of column SslVerifyColumn are checkable.
         """
         superFlags = super(KickstartRepositoriesModel, self).flags(index)
-        if index.column() in (self.SslVerifyColumn, self.DisableColumn,
+        column = index.column()
+        if column in (self.SslVerifyColumn, self.DisableColumn,
                               self.SaveColumn, self.SourceColumn, self.DebugInfoColumn):
             superFlags = superFlags | Qt.ItemIsUserCheckable
         else:
@@ -176,13 +181,19 @@ class KickstartRepositoriesModel(KickstartModelBase):
           Qt.CheckState.Unchecked otherwise
         """
         column = index.column()
+        # SslVerify parameter is stored as a string, not a boolean
         if column == self.SslVerifyColumn:
             verify = self.dataDict(index.row())[self.ColumnKeys[self.SslVerifyColumn]]
             return Qt.CheckState.Checked if verify.lower() == "yes" else Qt.CheckState.Unchecked
-        elif column in (self.DisableColumn, self.SaveColumn,
-                        self.SourceColumn, self.DebugInfoColumn):
+        # The logic of these columns is inverted
+        elif column in (self.DisableColumn,):
+            retVal = bool(self.dataDict(index.row())[self.ColumnKeys[column]])
+            return Qt.CheckState.Unchecked if retVal else Qt.CheckState.Checked
+        # Other columns
+        elif column in (self.SaveColumn, self.SourceColumn, self.DebugInfoColumn):
             retVal = bool(self.dataDict(index.row())[self.ColumnKeys[column]])
             return Qt.CheckState.Checked if retVal else Qt.CheckState.Unchecked
+
         return None
 
     def __updateRepoInManager(self, row, oldName):
