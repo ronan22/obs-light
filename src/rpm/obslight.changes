@@ -1,4 +1,4 @@
-* Wed, 07 Mar 2012 Florent Vennetier (Intel OTC) <florent@fridu.net> 0.4.19
+* Wed Mar 07 2012 Florent Vennetier (Intel OTC) <florent@fridu.net> 0.4.19
 - Improved start procedure after bad exit
 - Now GUI main window remembers its size
 - Reduced package number to 2: obslight and obslight-gui
