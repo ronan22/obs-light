@@ -346,13 +346,17 @@ class ObsLightProject(object):
         '''
         return self.__obsServer
 
-    def getListPackage(self, local=0):
+    def getListPackage(self, onlyInstalled=True):
         '''
         
         '''
-        if local == 0:
+        if not onlyInstalled :
             if self.__obsServer in self.__obsServers.getObsServerList():
-                return self.__obsServers.getObsServer(self.__obsServer).getObsProjectPackageList(projectObsName=self.__projectObsName)
+                res1 = set(self.__obsServers.getObsServer(self.__obsServer).getObsProjectPackageList(projectObsName=self.__projectObsName))
+                res2 = set(self.__packages.getListPackages())
+                res = list(res1.difference(res2))
+                res.sort()
+                return res
             else:
                 return  None
         else:
@@ -435,7 +439,7 @@ class ObsLightProject(object):
         '''
         add a package to the projectLocalName.
         '''
-        if name in self.getListPackage(local=1):
+        if name in self.getListPackage():
             return None
 
         packagePath, specFile, yamlFile, listFile = self.checkoutPackage(package=name)
@@ -484,7 +488,7 @@ class ObsLightProject(object):
             self.__packages.getPackage(package).initPackageFileInfo()
             #self.checkOscPackageStatus(package)
         else:
-            for pk in self.getListPackage(local=1):
+            for pk in self.getListPackage():
                 self.updatePackage(name=pk, noOscUpdate=True)
                 #self.checkOscDirectoryStatus(pk)
                 self.__packages.getPackage(pk).initPackageFileInfo()
@@ -517,7 +521,7 @@ class ObsLightProject(object):
             return self.checkObsPackageStatus(package=package)
 
         else:
-            for pk in self.getListPackage(local=1):
+            for pk in self.getListPackage():
                 status = self.__obsServers.getObsServer(self.__obsServer).getPackageStatus(project=self.__projectObsName,
                                                                                             package=pk,
                                                                                             repo=self.__projectTarget,

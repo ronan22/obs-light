@@ -256,37 +256,37 @@ def checkProjectObsName(position1=None, position2=None):
         return checkAvailableProjectObsName2
     return checkAvailableProjectObsName1
 
-def checkAvailableProjectPackage(position1=None, position2=None, position3=None):
-    def checkAvailableProjectPackage1(f):
-        def checkAvailableProjectPackage2(*args, **kwargs):
-            mngr = getManager()
-            projectObsName = None
-            serverApi = None
-            package = None
-            if (position1 is not None) and (position1 < len(args)):
-                projectObsName = args[position1]
-            elif "projectObsName" in kwargs :
-                projectObsName = kwargs["projectObsName"]
-            else:
-                raise ObsLightProjectsError("checkAvailableProjectPackage Fails no serverApi")
-            if (position2 is not None) and (position2 < len(args)):
-                serverApi = args[position2]
-            elif "serverApi" in kwargs :
-                serverApi = kwargs["serverApi"]
-            else:
-                raise ObsLightProjectsError("checkAvailableProjectPackage Fails no serverApi")
-            if (position3 is not None) and (position3 < len(args)):
-                package = args[position3]
-            elif "package" in kwargs :
-                package = kwargs["package"]
-            else:
-                raise ObsLightProjectsError("checkAvailableProjectPackage Fails no package")
-            if not package in mngr.getObsProjectPackageList(serverApi, projectObsName):
-                raise ObsLightObsServers(" package '" + package + "' is not part of the '"
-                                         + projectObsName + "' project")
-            return f(*args, **kwargs)
-        return checkAvailableProjectPackage2
-    return checkAvailableProjectPackage1
+#def checkAvailableProjectPackage(position1=None, position2=None, position3=None):
+#    def checkAvailableProjectPackage1(f):
+#        def checkAvailableProjectPackage2(*args, **kwargs):
+#            mngr = getManager()
+#            projectObsName = None
+#            serverApi = None
+#            package = None
+#            if (position1 is not None) and (position1 < len(args)):
+#                projectObsName = args[position1]
+#            elif "projectObsName" in kwargs :
+#                projectObsName = kwargs["projectObsName"]
+#            else:
+#                raise ObsLightProjectsError("checkAvailableProjectPackage Fails no serverApi")
+#            if (position2 is not None) and (position2 < len(args)):
+#                serverApi = args[position2]
+#            elif "serverApi" in kwargs :
+#                serverApi = kwargs["serverApi"]
+#            else:
+#                raise ObsLightProjectsError("checkAvailableProjectPackage Fails no serverApi")
+#            if (position3 is not None) and (position3 < len(args)):
+#                package = args[position3]
+#            elif "package" in kwargs :
+#                package = kwargs["package"]
+#            else:
+#                raise ObsLightProjectsError("checkAvailableProjectPackage Fails no package")
+#            if not package in mngr.getObsProjectPackageList(serverApi, projectObsName):
+#                raise ObsLightObsServers(" package '" + package + "' is not part of the '"
+#                                         + projectObsName + "' project")
+#            return f(*args, **kwargs)
+#        return checkAvailableProjectPackage2
+#    return checkAvailableProjectPackage1
 
 def checkDirectory(position=None):
     def checkDirectory1(f):
@@ -735,21 +735,20 @@ class ObsLightManagerCore(ObsLightManagerBase):
 
     #///////////////////////////////////////////////////////////////////////////package
     @checkProjectLocalName(1)
-    def getLocalProjectPackageList(self, projectLocalName, local=0):
+    def getLocalProjectPackageList(self, projectLocalName, onlyInstalled=True):
         '''
         Return the list of packages of a local project.
-        If local=1, return the list of locally installed packages.
-        If local=0, return the list of packages provided by the OBS server for the project.
+        If onlyInstalled=1, return the list of locally installed packages.
+        If onlyInstalled=0, return the list of packages provided by the OBS server for the project.
         '''
-        return self._myObsLightProjects.getProject(projectLocalName).getListPackage(local=local)
+        return self._myObsLightProjects.getProject(projectLocalName).getListPackage(onlyInstalled=onlyInstalled)
 
     def checkPackage(self, projectLocalName, package):
         ''' 
         
         '''
         def test(package):
-            if not package in self.getLocalProjectPackageList(projectLocalName=projectLocalName,
-                                                              local=1):
+            if not package in self.getLocalProjectPackageList(projectLocalName=projectLocalName):
                 raise ObsLightObsServers("'%s' is not a local package of '%s'"
                                          % (package, projectLocalName))
 
@@ -766,8 +765,7 @@ class ObsLightManagerCore(ObsLightManagerBase):
         
         '''
         def test(package):
-            if package in self.getLocalProjectPackageList(projectLocalName=projectLocalName,
-                                                          local=1):
+            if package in self.getLocalProjectPackageList(projectLocalName=projectLocalName):
                 raise ObsLightObsServers("'%s' is already a local package of '%s'"
                                          % (package, projectLocalName))
 

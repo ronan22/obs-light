@@ -38,11 +38,11 @@ class ChoosePackagePage(ObsLightWizardPage, FilterableWidget):
 
     def initializePage(self):
         projectAlias = self.wizard().getSelectedProjectAlias()
-        server = self.manager.getProjectParameter(projectAlias,
-                                                  u"obsServer")
-        prjObsName = self.manager.getProjectParameter(projectAlias,
-                                                      u"projectObsName")
-        self.setBusyCursor(self._fillPackageList, server, prjObsName)
+#        server = self.manager.getProjectParameter(projectAlias,
+#                                                  u"obsServer")
+#        prjObsName = self.manager.getProjectParameter(projectAlias,
+#                                                      u"projectObsName")
+        self.setBusyCursor(self._fillPackageList, projectAlias)
 
     @popupOnException
     def validatePage(self):
@@ -54,17 +54,16 @@ class ChoosePackagePage(ObsLightWizardPage, FilterableWidget):
         self._addPackages(projectAlias, packages)
         return True
 
-    def _fillPackageList(self, serverAlias, project):
+    def _fillPackageList(self, projectAlias):
         self.ui_WizardPage.packageListWidget.clear()
 #        pkgList = self._getPackageList(serverAlias, project)
         pkgList = self.callWithInfiniteProgress(self._getPackageList,
                                                 u"Loading package list...",
-                                                serverAlias,
-                                                project)
+                                                projectAlias)
         self.ui_WizardPage.packageListWidget.addItems(pkgList)
 
-    def _getPackageList(self, serverAlias, project):
-        return self.manager.getObsProjectPackageList(serverAlias, project)
+    def _getPackageList(self, projectAlias):
+        return self.manager.getLocalProjectPackageList(projectAlias, onlyInstalled=False)
 
     def _addPackages(self, project, packages):
         swappedAddPackage = firstArgLast(self.manager.addPackage)

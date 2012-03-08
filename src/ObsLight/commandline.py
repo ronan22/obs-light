@@ -1219,10 +1219,10 @@ class ObsLightBase():
             print " ".join(res)
         return 0
 
-    def printPackageCompletionList(self, project_alias, local=1):
+    def printPackageCompletionList(self, project_alias, onlyInstalled=True):
         m = ObsLightManager.getCommandLineManager()
         if m.isALocalProject(project_alias):
-            res = m.getLocalProjectPackageList(projectLocalName=project_alias, local=local)
+            res = m.getLocalProjectPackageList(projectLocalName=project_alias, onlyInstalled=onlyInstalled)
             if res is not None:
                 print " ".join(res)
             return 0
@@ -2385,7 +2385,7 @@ class ObsLightObsPackage(ObsLightBase):
             elif currentCommand in __parameter_package__:
                 package, listArgv = self.getParameter(listArgv)
                 if (package == None) and (project_alias != None) and ObsLightBase.noaction:
-                    return self.printPackageCompletionList(project_alias, local=0)
+                    return self.printPackageCompletionList(project_alias, onlyInstalled=False)
             else:
                 self.printUnknownCommand(currentCommand, __command_add__)
 
@@ -2475,11 +2475,11 @@ class ObsLightObsPackage(ObsLightBase):
                         return self.printHelp(__command_list__)
 
                 if available:
-                    res = m.getLocalProjectPackageList(projectLocalName=project_alias, local=0)
+                    res = m.getLocalProjectPackageList(projectLocalName=project_alias, onlyInstalled=False)
                     if self.testResult(res, getLineno()) == -1:return - 1
                     self.printResultList(res)
                 else:
-                    res = m.getLocalProjectPackageList(projectLocalName=project_alias, local=1)
+                    res = m.getLocalProjectPackageList(projectLocalName=project_alias, onlyInstalled=True)
                     if self.testResult(res, getLineno()) == -1:return - 1
                     self.printResultList(res)
             else:
