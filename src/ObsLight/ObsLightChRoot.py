@@ -145,21 +145,22 @@ class ObsLightChRoot(object):
                             return True
             return False
 
+        if not isAclReady(self.getDirectory()):
+            mountPoint = getmount(self.getDirectory())
+            message = "ACLs not enabled on mount point '%s'. "
+            message += "Use the following command as root to enable them:\n\n"
+            message += "  mount -o remount,acl %s"
+            raise ObsLightErr.ObsLightChRootError(message % (mountPoint, mountPoint))
+
         res = ObsLightOsc.getObsLightOsc().createChRoot(chrootDir=self.getDirectory(),
                                                         repos=repos,
                                                         arch=arch,
                                                         apiurl=apiurl,
                                                         project=obsProject,
                                                         )
-        if isAclReady(self.getDirectory()):
-            self.__subprocess(command="sudo chmod -R o+rwX " + self.getDirectory())
-            self.__subprocess(command="sudo setfacl -Rdm o::rwX -m g::rwX -m u::rwX " + self.getDirectory())
-        else:
-            mountPoint = getmount(self.getDirectory())
-            raise ObsLightErr.ObsLightChRootError("ACLs not enabled on mount point '" +
-                                                  mountPoint + "'. " +
-                                                  "Use command 'mount -o remount,acl " +
-                                                  mountPoint + "' as root to enable them.")
+
+        self.__subprocess(command="sudo chmod -R o+rwX " + self.getDirectory())
+        self.__subprocess(command="sudo setfacl -Rdm o::rwX -m g::rwX -m u::rwX " + self.getDirectory())
 
         if res != 0:
             raise ObsLightErr.ObsLightChRootError("Can't create the project file system")
