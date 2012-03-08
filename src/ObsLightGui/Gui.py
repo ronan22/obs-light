@@ -24,12 +24,13 @@ Created on 27 sept. 2011
 from os.path import dirname, join
 
 from PySide.QtCore import QIODevice, QFile, QMetaObject, QObject, QSettings, Qt, Signal
-from PySide.QtGui import QColor, QPixmap, QProgressDialog, QSplashScreen, QStatusBar
+from PySide.QtGui import QColor, QPixmap, QSplashScreen, QStatusBar
 from PySide.QtUiTools import QUiLoader
 
 from ObsLight.ObsLightErr import OBSLightBaseError
 
 from ObsLightGuiMainWindow import ObsLightGuiMainWindow
+from ObsLightGuiProgressDialog import ObsLightGuiProgressDialog
 from ObsProjectsManager import ObsProjectsManager
 from MicProjectsManager import MicProjectsManager
 from ActionManager import MainWindowActionManager
@@ -38,6 +39,7 @@ from Utils import exceptionToMessageBox
 from Wizard.ConfigWizard import ConfigWizard
 
 UI_PATH = join(dirname(__file__), u"ui")
+
 
 class Gui(QObject):
     '''
@@ -56,6 +58,7 @@ class Gui(QObject):
         # Need to set working directory in order to load icons
         self.uiLoader.setWorkingDirectory(UI_PATH)
         self.uiLoader.registerCustomWidget(ObsLightGuiMainWindow)
+        self.uiLoader.registerCustomWidget(ObsLightGuiProgressDialog)
 
         # loaded in loadManager()
         self.splash = None
@@ -84,7 +87,7 @@ class Gui(QObject):
         """
         self.__logManager.disconnectLogger()
 
-    def loadWindow(self, uiFile, mainWindowAsParent=True):
+    def loadWindow(self, uiFile, mainWindowAsParent=True, connectSlots=True):
         '''
         Load a Window from UI file.
         '''
@@ -94,7 +97,8 @@ class Gui(QObject):
         # Make all loaded windows children of mainWindow, except mainWindow itself
         window = self.uiLoader.load(windowFile, self.__mainWindow if mainWindowAsParent else None)
         windowFile.close()
-        QMetaObject.connectSlotsByName(window)
+        if connectSlots:
+            QMetaObject.connectSlotsByName(window)
         return window
 
     def __loadMainWindow(self):
@@ -126,23 +130,25 @@ class Gui(QObject):
             settings.setValue(propName, func())
 
     def __createInfiniteProgressDialog(self):
-        self.__infiniteProgress = QProgressDialog(self.__mainWindow)
+        self.__infiniteProgress = self.loadWindow("obsLightProgress.ui", True)
+        self.__infiniteProgress.connectButtons()
         self.__infiniteProgress.setMinimumDuration(500)
         self.__infiniteProgress.setWindowModality(Qt.WindowModal)
-        self.__infiniteProgress.setCancelButton(None)
+        self.__infiniteProgress.showCancelButton(False)
         # make the progress "infinite"
         self.__infiniteProgress.setRange(0, 0)
-        # add "show log" to the right-click menu
-        self.__infiniteProgress.addAction(self.__mainWindowActionManager.actionLog)
-        self.__infiniteProgress.setContextMenuPolicy(Qt.ActionsContextMenu)
+        showLogSlot = self.__mainWindowActionManager.actionLog.trigger
+        self.__infiniteProgress.showLogButton.clicked.connect(showLogSlot)
 
     def __createProgressDialog(self):
-        self.__progress = QProgressDialog(self.__mainWindow)
+        self.__progress = self.loadWindow("obsLightProgress.ui", True)
+        self.__progress.connectButtons()
         self.__progress.setMinimumDuration(500)
         self.__progress.setWindowModality(Qt.WindowModal)
-        # add "show log" to the right-click menu
-        self.__progress.addAction(self.__mainWindowActionManager.actionLog)
-        self.__progress.setContextMenuPolicy(Qt.ActionsContextMenu)
+        # make the progress "finite"
+        self.__progress.setRange(0, 1)
+        showLogSlot = self.__mainWindowActionManager.actionLog.trigger
+        self.__progress.showLogButton.clicked.connect(showLogSlot)
 
     @property
     def mainWindow(self):
