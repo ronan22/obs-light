@@ -414,6 +414,25 @@ class PackageManager(QObject, ObsLightGuiObject):
                                      None)
         self.__fileManager.setCurrentPackage(None, None)
 
+    def __handleRpmOperationResult(self, retValList):
+        """
+        Analyze the return values contained in `retValList`
+        and display a message if one if different from 0.
+        """
+        message = None
+        if len(retValList) == 1 and retValList[0] != 0:
+            message = u"The last operation return code is %d.\n" % retValList[0]
+        elif len(retValList) > 1:
+            res = reduce(lambda x, y: abs(x) + abs(y), retValList)
+            if res > 0:
+                message = u"One of the last operations may have failed (return code != 0)\n"
+        if message is not None:
+            message += u"You should check the log to find any error."
+            QMessageBox.warning(self.mainWindow,
+                                u"Bad exit status",
+                                message)
+        self.__refreshStatus()
+
     @popupOnException
     def on_rpmPrepButton_clicked(self):
         projectName = self.getCurrentProject()
@@ -440,7 +459,7 @@ class PackageManager(QObject, ObsLightGuiObject):
                                      None,
                                      u"Importing %(arg)s source in file system " +
                                      "and executing %%prep",
-                                     self.__refreshStatus,
+                                     self.__handleRpmOperationResult,
                                      projectName)
 
     @popupOnException
@@ -451,7 +470,7 @@ class PackageManager(QObject, ObsLightGuiObject):
         self.__mapOnSelectedPackages(firstArgLast(self.manager.buildRpm),
                                      None,
                                      u"Executing %%build section of %(arg)s",
-                                     self.__refreshStatus,
+                                     self.__handleRpmOperationResult,
                                      projectName)
 
     @popupOnException
@@ -462,7 +481,7 @@ class PackageManager(QObject, ObsLightGuiObject):
         self.__mapOnSelectedPackages(firstArgLast(self.manager.installRpm),
                                      None,
                                      u"Executing %%install section of %(arg)s",
-                                     self.__refreshStatus,
+                                     self.__handleRpmOperationResult,
                                      projectName)
 
     @popupOnException
@@ -473,7 +492,7 @@ class PackageManager(QObject, ObsLightGuiObject):
         self.__mapOnSelectedPackages(firstArgLast(self.manager.packageRpm),
                                      None,
                                      u"Packaging %(arg)s",
-                                     self.__refreshStatus,
+                                     self.__handleRpmOperationResult,
                                      projectName)
 
     @popupOnException

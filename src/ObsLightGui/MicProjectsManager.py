@@ -21,12 +21,14 @@ Created on 2 févr. 2012
 @author: Florent Vennetier
 '''
 
+import sys
+
 from PySide.QtCore import Qt
 from PySide.QtGui import QFileDialog, QInputDialog, QMessageBox, QTableView
 
 from ObsLightGuiObject import ObsLightGuiObject
 from ProjectsManagerBase import ProjectsManagerBase
-from Utils import getSelectedRows, popupOnException
+from Utils import getSelectedRows, popupOnException, exceptionToMessageBox
 from MicProjectManager import MicProjectManager
 
 class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
@@ -457,7 +459,15 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
             self.mainWindow.publishMicProjectButton.setEnabled(serverAvailable)
         except BaseException as be:
             print "Failed to get OBS Light server availability: ", be
-        self._currentProjectObj.refresh()
+
+        # Kickstart parsing is done at first call of self._currentProjectObj
+        # and it may fail. In that case, display the error and disable the UI.
+        try:
+            self._currentProjectObj.refresh()
+        except BaseException as e:
+            traceback_ = sys.exc_info()[2]
+            exceptionToMessageBox(e, self.mainWindow, traceback_)
+            self.mainWindow.micProjectsTabWidget.setEnabled(False)
         self.__connectProjectEventsAndButtons()
 
     def on_imageTypeComboBox_currentIndexChanged(self, imageType):
