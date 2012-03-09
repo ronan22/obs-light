@@ -33,9 +33,10 @@ class KickstartOverlayFilesModel(KickstartModelBase):
 
     SourceColumn = 0
     DestinationColumn = 1
+    StatusColumn = 2
 
-    ColumnKeys = ("source", "destination")
-    ColumnHeaders = ("Source", "Destination")
+    ColumnKeys = ("source", "destination", "status")
+    ColumnHeaders = ("Source", "Destination", "Status")
 
     def __init__(self, obsLightManager, projectName):
         """
@@ -95,11 +96,12 @@ class KickstartOverlayFilesModel(KickstartModelBase):
     def flags(self, index):
         """
         Calls `QAbstractTableModel.flags()` and add `Qt.ItemIsEditable` flag.
-        In this model, all cells except column SslVerifyColumn are editable.
+        In this model, all cells except column StatusColumn are editable.
         Cells of column SslVerifyColumn are checkable.
         """
         superFlags = super(KickstartOverlayFilesModel, self).flags(index)
-        superFlags = superFlags | Qt.ItemFlag.ItemIsEditable
+        if index.column() in (self.SourceColumn, self.DestinationColumn):
+            superFlags = superFlags | Qt.ItemFlag.ItemIsEditable
         return superFlags
 
     def displayRoleData(self, index):

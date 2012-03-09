@@ -53,7 +53,7 @@ Summary:    Utilities to work with OBS Light - graphical interface
 Group:      Development/Tools/Building
 Requires:   %{name} = %{version}-%{release}
 Requires:   obslight = %{version}
-Requires:   python-pyside
+Requires:   python-pyside >= 1.0.6
 Provides:   obslightgui
 
 %description gui

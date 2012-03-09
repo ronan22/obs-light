@@ -48,6 +48,6 @@ SubPackages:
           This package contains the graphical interface.
       Requires:
           - obslight = %{version}
-          - python-pyside
+          - python-pyside >= 1.0.6
       Provides:
           - obslightgui
