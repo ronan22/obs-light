@@ -723,10 +723,10 @@ class ObsLightProject(object):
     def addPackageSourceInChRoot(self, package):
         specFile = self.__packages.getSpecFile(package)
 
-        self.__chroot.addPackageSourceInChRoot(package=self.__packages.getPackage(package),
-                                               specFile=specFile,
-                                               repo=self.__projectObsName)
-        return 0
+        res = self.__chroot.addPackageSourceInChRoot(package=self.__packages.getPackage(package),
+                                                     specFile=specFile,
+                                                     repo=self.__projectObsName)
+        return res
 
     def __execRpmSection(self, packageName, section):
         """

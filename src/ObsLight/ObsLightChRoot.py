@@ -163,7 +163,9 @@ class ObsLightChRoot(object):
         self.__subprocess(command="sudo setfacl -Rdm o::rwX -m g::rwX -m u::rwX " + self.getDirectory())
 
         if res != 0:
-            raise ObsLightErr.ObsLightChRootError("Can't create the project file system")
+            message = "Can't create the project file system. "
+            message += "See the log for details about the error."
+            raise ObsLightErr.ObsLightChRootError(message)
 
         self.__subprocess(command="sudo chown root:users " + self.getDirectory())
         self.__subprocess(command="sudo chown root:users " + self.getDirectory() + "/root")
@@ -176,7 +178,7 @@ class ObsLightChRoot(object):
 
         self.initRepos()
 
-        self.prepareChroot(self.getDirectory(), obsProject)
+        return self.prepareChroot(self.getDirectory(), obsProject)
 
     def __subprocess(self, command=None, waitMess=False):
         return self.__mySubprocessCrt.execSubprocess(command=command, waitMess=waitMess)
@@ -280,26 +282,26 @@ class ObsLightChRoot(object):
                                        specFile,
                                        repo):
         if package.getStatus() == "excluded":
-            raise ObsLightErr.ObsLightChRootError(package.getName() + " has a excluded status, it can't be install")
-        elif specFile == None:
-            raise ObsLightErr.ObsLightChRootError(package.getName() + " has no spec file")
+            message = "%s has a excluded status, it can't be installed"
+            raise ObsLightErr.ObsLightChRootError(message % package.getName())
+        elif specFile is None:
+            raise ObsLightErr.ObsLightChRootError("%s has no spec file" % package.getName())
         else:
             packageName = package.getName()
 
             command = []
-            command.append("mkdir -p " + package.getChrootRpmBuildDirectory() + "/BUILD")
-            command.append("mkdir -p " + package.getChrootRpmBuildDirectory() + "/SPECS")
-            command.append("mkdir -p " + package.getChrootRpmBuildDirectory() + "/BUILDROOT")
-            command.append("mkdir -p " + package.getChrootRpmBuildDirectory() + "/RPMS")
-            command.append("mkdir -p " + package.getChrootRpmBuildDirectory() + "/SOURCES")
-            command.append("mkdir -p " + package.getChrootRpmBuildDirectory() + "/SRPMS")
+            mkdirCommand = "mkdir -p %s"
+            chrootRpmBuildDirectory = package.getChrootRpmBuildDirectory()
+            for directory in ["BUILD", "SPECS", "BUILDROOT", "RPMS", "SOURCES", "SRPMS"]:
+                command.append(mkdirCommand % os.path.join(chrootRpmBuildDirectory, directory))
 
-            command.append("chown -R root:users " + package.getChrootRpmBuildDirectory())
-            command.append("chmod -R g+rwX " + package.getChrootRpmBuildDirectory())
+            command.append("chown -R root:users " + chrootRpmBuildDirectory)
+            command.append("chmod -R g+rwX " + chrootRpmBuildDirectory)
 
             packageMacroName = package.getMacroPackageName()
-            if packageMacroName == None:
-                raise ObsLightErr.ObsLightChRootError("Can't find the spec name (%{name}) of '" + packageName + "'.")
+            if packageMacroName is None:
+                message = "Can't find the spec name (%%{name}) of '%s'." % packageName
+                raise ObsLightErr.ObsLightChRootError(message)
 
             command.append("zypper --no-gpg-checks --gpg-auto-import-keys ref")
             command.append("zypper --non-interactive si --build-deps-only " + packageMacroName)
@@ -307,51 +309,64 @@ class ObsLightChRoot(object):
             res = self.execCommand(command=command)
 
             if res != 0:
-                #ObsLightPrintManager.getLogger().error(packageName + " the zypper Script fail to install '" + packageName + "' dependency.")
-                #return None
                 msg = "The installation of some dependencies of '%s' failed\n" % packageName
-                msg += "Please test the following command line inside the project file system:\n"
+                msg += "Please test the following command line inside the project filesystem:\n"
                 msg += "  zypper si --build-deps-only %s\n" % packageMacroName
                 msg += "Maybe a repository is missing."
                 raise ObsLightErr.ObsLightChRootError(msg)
 
-            if os.path.isdir(self.getDirectory() + "/" + package.getChrootRpmBuildDirectory() + "/SPECS/"):
-                aspecFile = package.getChrootRpmBuildDirectory() + "/SPECS/" + specFile
-
-                self.__subprocess(command="sudo chown root:users " + self.getDirectory())
-                self.__subprocess(command="sudo chmod g+rwX " + self.getDirectory())
-
-                self.__subprocess(command="sudo chown -R root:users " + self.getDirectory() + "/root")
-                self.__subprocess(command="sudo chmod -R g+rwX " + self.getDirectory() + "/root")
-
-                self.__subprocess(command="sudo chown -R root:users " + self.getDirectory() + "/" + package.getChrootRpmBuildDirectory())
-                self.__subprocess(command="sudo chmod -R g+rwX " + self.getDirectory() + "/" + package.getChrootRpmBuildDirectory())
+            specDirPath = self.getDirectory() + "/" + chrootRpmBuildDirectory + "/SPECS/"
+            if os.path.isdir(specDirPath):
+                aspecFile = chrootRpmBuildDirectory + "/SPECS/" + specFile
+                command = "sudo chown root:users %s" % self.getDirectory()
+                self.__subprocess(command)
+                command = "sudo chmod g+rwX %s" % self.getDirectory()
+                self.__subprocess(command)
+                command = "sudo chown -R root:users " + self.getDirectory() + "/root"
+                self.__subprocess(command)
+                command = "sudo chmod -R g+rwX " + self.getDirectory() + "/root"
+                self.__subprocess(command)
+                command = "sudo chown -R root:users %s/%s" % (self.getDirectory(),
+                                                            chrootRpmBuildDirectory)
+                self.__subprocess(command)
+                command = "sudo chmod -R g+rwX %s/%s" % (self.getDirectory(),
+                                                         chrootRpmBuildDirectory)
+                self.__subprocess(command)
                 package.saveSpec(self.getDirectory() + "/" + aspecFile)
                 #find the directory to watch
                 for aFile in package.getListFile():
-                    path = self.getDirectory() + "/" + package.getChrootRpmBuildDirectory() + "/SOURCES/" + str(aFile)
+                    path = "%s/%s/SOURCES/%s" % (self.getDirectory(),
+                                                 chrootRpmBuildDirectory,
+                                                 str(aFile))
                     if os.path.isfile(path):
                         os.unlink(path)
-                    shutil.copy2(package.getOscDirectory() + "/" + str(aFile),
-                                 path)
+                    shutil.copy2(package.getOscDirectory() + "/" + str(aFile), path)
                     self.__subprocess(command="sudo chown -R root:users " + path)
 
-                self.prepRpm(specFile=aspecFile, package=package)
+                res = self.prepRpm(specFile=aspecFile, package=package)
+                if res != 0:
+                    message = "Execution of %%prep section of '%s' returned %d"
+                    message = message % (packageName, res)
+                    raise ObsLightErr.ObsLightChRootError(message)
                 package.initCurrentPatch()
                 packageDirectory = self.__findPackageDirectory(package=package)
-                ObsLightPrintManager.getLogger().debug("for the package " + packageName + " the packageDirectory is used : " + str(packageDirectory))
+                message = "Package directory used by '%s': %s" % (packageName,
+                                                                  str(packageDirectory))
+                ObsLightPrintManager.getLogger().debug(message)
                 package.setDirectoryBuild(packageDirectory)
                 if packageDirectory != None:
                     self.__subprocess(command="sudo chmod -R og+rwX %s"
                                       % (self.getDirectory() + "/" + packageDirectory))
                     self.initGitWatch(path=packageDirectory)
-                    self.__buildRpm(specFile=aspecFile, package=package)
+                    res = self.__buildRpm(specFile=aspecFile, package=package)
                     self.ignoreGitWatch(path=packageDirectory)
                     package.setFirstCommit(tag=self.getCommitTag(path=packageDirectory))
                     package.setChRootStatus("Installed")
                 # TODO: write an "else" or check if the "if" is necessary
             else:
-                raise ObsLightErr.ObsLightChRootError(packageName + " source is not installed in " + self.getDirectory())
+                message = packageName + " source is not installed in " + self.getDirectory()
+                raise ObsLightErr.ObsLightChRootError(message)
+            return res
 
     def execCommand(self, command=None):
         '''
@@ -809,7 +824,7 @@ class ObsLightChRoot(object):
         command.append('echo "alias vi=\\"vim\\"" >> ~/.bashrc')
         command.append('echo "PS1=\\"%s:\\w\\\\$ \\"" >> ~/.bashrc' % project)
         command.append('echo "export PS1" >> ~/.bashrc')
-        self.execCommand(command=command)
+        return self.execCommand(command=command)
 
     def deleteRepo(self, repoAlias):
         if repoAlias in self.__dicoRepos.keys():
@@ -834,8 +849,3 @@ class ObsLightChRoot(object):
         self.__addRepo(newUrl, newAlias)
 
         return self.addRepo(repos=newUrl, alias=newAlias)
-
-
-
-
-
