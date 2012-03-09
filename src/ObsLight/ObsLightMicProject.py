@@ -33,6 +33,8 @@ from ObsLightKickstartManager import ObsLightKickstartManager
 
 class ObsLightMicProject(object):
 
+    LocalPackagesDirectoryName = "localPackages"
+
     def __init__(self, name, workingDirectory, fromSave=None):
         self.__mySubprocessCrt = SubprocessCrt()
 
@@ -55,9 +57,12 @@ class ObsLightMicProject(object):
             if "kickstartPath" in fromSave.keys():
                 self.__kickstartPath = fromSave["kickstartPath"]
 
-        pDir = self.getProjectDirectory()
+        pDir = self.projectDirectory
         if not os.path.isdir(pDir):
             os.makedirs(pDir)
+        if not os.path.exists(self.localPackagesDirectory):
+            os.makedirs(self.localPackagesDirectory)
+
         # If project has no Kickstart file, create an empty one
         if self.getKickstartFile() is None:
             # same name as the project
@@ -80,11 +85,17 @@ class ObsLightMicProject(object):
             self.__loadKsManager()
         return self._ksManager
 
-    def getProjectDirectory(self):
+    @property
+    def projectDirectory(self):
         """
         Get the project working directory.
         """
         return self.__workingDirectory
+
+    @property
+    def localPackagesDirectory(self):
+        """Get the directory where local RPMs are stored"""
+        return os.path.join(self.projectDirectory, self.LocalPackagesDirectoryName)
 
     def getDic(self):
         aDic = {}
@@ -102,7 +113,7 @@ class ObsLightMicProject(object):
         """
         if not os.path.isfile(filePath):
             raise ObsLightErr.ObsLightMicProjectErr("'%s' is not a file." % filePath)
-        wantedPath = os.path.join(self.getProjectDirectory(), self.__name + ".ks")
+        wantedPath = os.path.join(self.projectDirectory, self.__name + ".ks")
         if os.path.abspath(filePath) != wantedPath:
             tmpKsMngr = ObsLightKickstartManager(filePath)
             tmpKsMngr.saveKickstart(wantedPath)
@@ -328,7 +339,7 @@ class ObsLightMicProject(object):
         """
         Recursively delete the project working directory.
         """
-        shutil.rmtree(self.getProjectDirectory())
+        shutil.rmtree(self.projectDirectory)
 
     def setArchitecture(self, arch):
         """
@@ -359,15 +370,16 @@ class ObsLightMicProject(object):
         Launch the build of an image.
         """
         timeString = time.strftime("%Y-%m-%d_%Hh%Mm") + str(time.time() % 1).split(".")[1]
-        logFilePath = os.path.join(self.getProjectDirectory(), "buildLog")
-        cacheDirPath = os.path.join(self.getProjectDirectory(), "cache")
+        logFilePath = os.path.join(self.projectDirectory, "buildLog")
+        cacheDirPath = os.path.join(self.projectDirectory, "cache")
         cmd = "sudo mic create " + self.getImageType()
         cmd += " " + self.getKickstartFile()
         cmd += " --logfile=" + logFilePath
         cmd += " --cachedir=" + cacheDirPath
-        cmd += " --outdir=" + self.getProjectDirectory()
+        cmd += " --outdir=" + self.projectDirectory
         cmd += " --arch=" + self.__architecture
         cmd += " --release=build_" + timeString
+        cmd += " --local-pkgs-path=" + self.localPackagesDirectory
         print cmd
         self.__subprocess(cmd)
 
