@@ -297,7 +297,7 @@ class ObsLightMic(object):
                     qemu_emulator = misc.setup_qemu_emulator(rootdir=self.__chrootDirectory, arch="arm")
                     architecture_found = True
                     break
-                if fileOutput[i].find("Intel") > 0:
+                if fileOutput[i].find("Intel") > 0 or fileOutput[i].find("x86-64") > 0:
                     architecture_found = True
                     break
 
