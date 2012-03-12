@@ -159,13 +159,13 @@ class ObsLightChRoot(object):
                                                         project=obsProject,
                                                         )
 
-        self.__subprocess(command="sudo chmod -R o+rwX " + self.getDirectory())
-        self.__subprocess(command="sudo setfacl -Rdm o::rwX -m g::rwX -m u::rwX " + self.getDirectory())
-
         if res != 0:
             message = "Can't create the project file system. "
             message += "See the log for details about the error."
             raise ObsLightErr.ObsLightChRootError(message)
+
+        self.__subprocess(command="sudo chmod -R o+rwX " + self.getDirectory())
+        self.__subprocess(command="sudo setfacl -Rdm o::rwX -m g::rwX -m u::rwX " + self.getDirectory())
 
         self.__subprocess(command="sudo chown root:users " + self.getDirectory())
         self.__subprocess(command="sudo chown root:users " + self.getDirectory() + "/root")
