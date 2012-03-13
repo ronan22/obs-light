@@ -706,14 +706,16 @@ class ObsLightProject(object):
             packagePath = self.__packages.getOscDirectory(name=package)
             if packagePath != None:
                 pathScript = self.__chroot.getChrootDirTransfert() + "/runMe.sh"
+                title = "%s project directory" % package
                 f = open(pathScript, 'w')
                 f.write("#!/bin/sh\n")
                 f.write("# Created by obslight\n")
                 f.write("cd " + packagePath + "\n")
+                # control code to change window title
+                f.write('echo -en "\e]2;%s\a"\n' % title)
                 f.write("exec bash\n")
                 f.close()
                 os.chmod(pathScript, 0755)
-                title = "%s project directory" % package
                 command = ObsLightConfig.getConsole(title) + " " + pathScript
 
                 command = shlex.split(str(command))

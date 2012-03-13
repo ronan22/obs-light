@@ -6,7 +6,7 @@
 # Command to use to start another command in a terminal emulator.
 # "%(title)s" will be replaced by an appropriate title for the window.
 # "xterm -T %(title)s -e" by default, but we suggest:
-#   "/usr/bin/konsole --title %(title)s -e" if running KDE
+#   "/usr/bin/konsole -p LocalTabTitleFormat=%%w --title %(title)s -e" if running KDE
 #   "/usr/bin/gnome-terminal -t %(title)s -x" if running Gnome
 console=xterm -T %(title)s -e
 

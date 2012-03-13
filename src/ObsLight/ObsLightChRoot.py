@@ -656,13 +656,20 @@ class ObsLightChRoot(object):
             ObsLightMic.getObsLightMic(name=self.getDirectory()).initChroot(chrootDirectory=self.getDirectory(),
                                                                                chrootTransfertDirectory=self.__chrootDirTransfert,
                                                                                transfertDirectory=self.__dirTransfert)
-
+        # FIXME: project should be accessible by self.project
+        # instead of method parameter
+        if project is not None:
+            title = "%s chroot jail" % project
+        else:
+            title = "chroot jail"
         pathScript = self.__chrootDirTransfert + "/runMe.sh"
         f = open(pathScript, 'w')
         f.write("#!/bin/sh\n")
         f.write("# Created by obslight\n")
         if path != None:
             f.write("cd " + path + "\n")
+        # control code to change window title
+        f.write('echo -en "\e]2;%s\a"\n' % title)
         f.write("exec bash\n")
         f.close()
 
@@ -670,17 +677,13 @@ class ObsLightChRoot(object):
 
         command = "sudo -H chroot " + self.getDirectory() + " " + self.__dirTransfert + "/runMe.sh"
         if detach is True:
-            # FIXME: project should be accessible by self.project
-            # instead of method parameter
-            if project is not None:
-                title = "%s chroot jail" % project
-            else:
-                title = "chroot jail"
             command = ObsLightConfig.getConsole(title) + " " + command
         if platform.machine() == 'x86_64':
             command = "linux32 " + command
 
         command = shlex.split(str(command))
+        message = "Opening console in chroot jail"
+        ObsLightPrintManager.getLogger().info(message)
         # subprocess.call(command) waits for command to finish, which causes
         # problem with terminal emulators which don't fork themselves.
         subprocess.Popen(command)
