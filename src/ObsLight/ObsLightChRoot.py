@@ -641,7 +641,7 @@ class ObsLightChRoot(object):
 
         return self.execCommand(command=command)
 
-    def goToChRoot(self, path=None, detach=False):
+    def goToChRoot(self, path=None, detach=False, project=None):
         '''
         Go to the chroot.
         Open a Bash in the chroot.
@@ -670,7 +670,13 @@ class ObsLightChRoot(object):
 
         command = "sudo -H chroot " + self.getDirectory() + " " + self.__dirTransfert + "/runMe.sh"
         if detach is True:
-            command = ObsLightConfig.getConsole() + " " + command
+            # FIXME: project should be accessible by self.project
+            # instead of method parameter
+            if project is not None:
+                title = "%s chroot jail" % project
+            else:
+                title = "chroot jail"
+            command = ObsLightConfig.getConsole(title) + " " + command
         if platform.machine() == 'x86_64':
             command = "linux32 " + command
 

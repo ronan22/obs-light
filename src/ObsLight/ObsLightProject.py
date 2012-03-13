@@ -688,11 +688,12 @@ class ObsLightProject(object):
         if package != None:
             packagePath = self.__packages.getPackage(package).getPackageDirectory()
             if packagePath != None:
-                return self.__chroot.goToChRoot(path=packagePath, detach=detach)
+                return self.__chroot.goToChRoot(path=packagePath, detach=detach,
+                                                project=self.__projectLocalName)
             else:
-                return self.__chroot.goToChRoot(detach=detach)
+                return self.__chroot.goToChRoot(detach=detach, project=self.__projectLocalName)
         else:
-            return self.__chroot.goToChRoot(detach=detach)
+            return self.__chroot.goToChRoot(detach=detach, project=self.__projectLocalName)
 
     def execScript(self, aPath):
         return self.__chroot.execScript(aPath)
@@ -712,7 +713,8 @@ class ObsLightProject(object):
                 f.write("exec bash\n")
                 f.close()
                 os.chmod(pathScript, 0755)
-                command = ObsLightConfig.getConsole() + " " + pathScript
+                title = "%s project directory" % package
+                command = ObsLightConfig.getConsole(title) + " " + pathScript
 
                 command = shlex.split(str(command))
                 # subprocess.call(command) would wait for the command to finish,
