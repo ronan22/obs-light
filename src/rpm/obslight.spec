@@ -17,7 +17,6 @@ BuildArch:  noarch
 URL:        http://wiki.meego.com/OBS_Light
 Source0:    %{name}-%{version}.tar.gz
 Source100:  obslight.yaml
-Requires:   python-xml
 Requires:   mic >= 0.4
 Requires:   sudo
 Requires:   osc
@@ -31,6 +30,7 @@ Requires:   tftp
 Requires:   nfs-utils
 %else
 Requires:   nfs-kernel-server
+Requires:   python-xml
 %endif
 Requires(post): /sbin/service
 Requires(post): /sbin/chkconfig
