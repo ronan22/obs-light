@@ -80,44 +80,45 @@ class SubprocessCrt(object):
         outputs = {f_stdout: {"EOF": False, "logcmd": ObsLightPrintManager.getLogger().info},
                    f_stderr: {"EOF": False, "logcmd": ObsLightPrintManager.getLogger().warning}}
 
-        count_select_timeout = 0
+        idleTime = 0
         while (not outputs[f_stdout]["EOF"] and not outputs[f_stderr]["EOF"]):
             try:
-                # FIXME: add a timeout ?
-                TIMEOUT = True
-                select_timeout = 10
-                for fd in select.select([f_stdout, f_stderr], [], [], select_timeout)[0]:
-                    TIMEOUT = False
+                timedOut = True
+                selectTimeout = 60
+                for fd in select.select([f_stdout, f_stderr], [], [], selectTimeout)[0]:
+                    timedOut = False
                     output = fd.read()
                     for line in output.split("\n"):
                         if line == b"" and not output.endswith("\n"):
                             outputs[fd]["EOF"] = True
-                        else:
-                            if not line == "":
-                                outputs[fd]["logcmd"](line.decode("utf8", errors="replace").rstrip())
-                if TIMEOUT:
-                    count_select_timeout += select_timeout
-                    ObsLightPrintManager.getLogger().debug("NO print since: " + time.strftime("%H H %M M %S S", time.gmtime(count_select_timeout)))
+                        elif line != "":
+                            outputs[fd]["logcmd"](line.decode("utf8", errors="replace").rstrip())
+                if timedOut:
+                    idleTime += selectTimeout
+                    message = "Subprocess still working for %s"
+                    message = message % time.strftime("%Hh%Mm%Ss",
+                                                      time.gmtime(idleTime))
+                    ObsLightPrintManager.getLogger().debug(message)
                 else:
-                    count_select_timeout = 0
+                    idleTime = 0
 
             except select.error as error:
                 # see http://bugs.python.org/issue9867
                 if error.args[0] == errno.EINTR:
-                    ObsLightPrintManager.getLogger().warning(u"Got select.error: %s", unicode(error))
+                    ObsLightPrintManager.getLogger().warning("Got select.error: %s",
+                                                             unicode(error))
                     continue
                 else:
                     raise
 
         # maybe p.wait() is better ?
         res = p.poll()
-        ObsLightPrintManager.getLogger().debug(u"command finished: '%s', return code: %s"
+        ObsLightPrintManager.getLogger().debug("command finished: '%s', return code: %s"
                                                % (command, unicode(res)))
 
-        if res == None:
+        if res is None:
             res = 0
         return res
-
 
     def execPipeSubprocess(self, command, command2):
         ObsLightPrintManager.getLogger().debug("command: " + command + " | " + command2)
