@@ -129,6 +129,36 @@ class ObsLightChRoot(object):
         saveconfigPackages["dicoRepos"] = self.__dicoRepos
         return saveconfigPackages
 
+    def fixFsRights(self):
+        errorMessage = "Failed to configure project filesystem access rights. "
+        errorMessage += "Commandline was:\n %s"
+
+        def raiseErrorIfNonZero(command):
+            """
+            Run `command` in subprocess and raise an error if return code
+            differs from zero.
+            """
+            retCode = self.__subprocess(command)
+            if retCode != 0:
+                raise ObsLightErr.ObsLightChRootError(errorMessage % command)
+
+        # The path of the root of the project filesystem
+        fsPath = self.getDirectory()
+
+        raiseErrorIfNonZero("sudo chmod -R o+rwX %s" % fsPath)
+        # This command often returns 1 for broken symlinks, but we don't care
+        self.__subprocess("sudo setfacl -Rdm o::rwX -m g::rwX -m u::rwX %s" % fsPath)
+
+        cmdList = ["sudo chown root:users %s" % fsPath,
+                   "sudo chown root:users %s" % os.path.join(fsPath, "root"),
+                   "sudo chown root:users %s" % os.path.join(fsPath, "etc"),
+                   "sudo chmod g+rwX %s" % fsPath,
+                   "sudo chmod g+rwX %s" % os.path.join(fsPath, "root"),
+                   "sudo chmod g+rwX %s" % os.path.join(fsPath, "etc"),
+                   "sudo chown -R root:users %s" % os.path.join(fsPath, "usr", "lib", "rpm"),
+                   "sudo chmod -R g+rwX %s" % os.path.join(fsPath, "usr", "lib", "rpm")]
+        for command in cmdList:
+            raiseErrorIfNonZero(command)
 
     def createChRoot(self, repos,
                            arch,
@@ -162,7 +192,8 @@ class ObsLightChRoot(object):
             message += "  mount -o remount,acl %s"
             raise ObsLightErr.ObsLightChRootError(message % (mountPoint, mountPoint))
 
-        res = ObsLightOsc.getObsLightOsc().createChRoot(chrootDir=self.getDirectory(),
+        fsPath = self.getDirectory()
+        res = ObsLightOsc.getObsLightOsc().createChRoot(chrootDir=fsPath,
                                                         repos=repos,
                                                         arch=arch,
                                                         apiurl=apiurl,
@@ -174,24 +205,26 @@ class ObsLightChRoot(object):
             message += "See the log for details about the error."
             raise ObsLightErr.ObsLightChRootError(message)
 
-        self.__subprocess(command="sudo chmod -R o+rwX " + self.getDirectory())
-        self.__subprocess(command="sudo setfacl -Rdm o::rwX -m g::rwX -m u::rwX " + self.getDirectory())
-
-        self.__subprocess(command="sudo chown root:users " + self.getDirectory())
-        self.__subprocess(command="sudo chown root:users " + self.getDirectory() + "/root")
-        self.__subprocess(command="sudo chown root:users " + self.getDirectory() + "/etc")
-        self.__subprocess(command="sudo chmod g+rwX " + self.getDirectory())
-        self.__subprocess(command="sudo chmod g+rwX " + self.getDirectory() + "/root")
-        self.__subprocess(command="sudo chmod g+rwX " + self.getDirectory() + "/etc")
-        self.__subprocess(command="sudo chown -R root:users " + self.getDirectory() + "/usr/lib/rpm")
-        self.__subprocess(command="sudo chmod -R g+rwX " + self.getDirectory() + "/usr/lib/rpm")
-
+#        self.__subprocess(command="sudo chmod -R o+rwX %s" % fsPath)
+#        self.__subprocess(command="sudo setfacl -Rdm o::rwX -m g::rwX -m u::rwX %s" % fsPath)
+#
+#        self.__subprocess(command="sudo chown root:users %s" % fsPath)
+#        self.__subprocess(command="sudo chown root:users %s" % os.path.join(fsPath, "root"))
+#        self.__subprocess(command="sudo chown root:users %s" % os.path.join(fsPath, "etc"))
+#        self.__subprocess(command="sudo chmod g+rwX %s" % fsPath)
+#        self.__subprocess(command="sudo chmod g+rwX %s" % os.path.join(fsPath, "root"))
+#        self.__subprocess(command="sudo chmod g+rwX %s" % os.path.join(fsPath, "etc"))
+#        self.__subprocess(command="sudo chown -R root:users %s" % os.path.join(fsPath, "usr",
+#                                                                               "lib", "rpm"))
+#        self.__subprocess(command="sudo chmod -R g+rwX %s" % os.path.join(fsPath, "usr",
+#                                                                          "lib", "rpm"))
+        self.fixFsRights()
         self.initRepos()
 
         return self.prepareChroot(self.getDirectory(), obsProject)
 
-    def __subprocess(self, command=None, waitMess=False):
-        return self.__mySubprocessCrt.execSubprocess(command=command, waitMess=waitMess)
+    def __subprocess(self, command=None):
+        return self.__mySubprocessCrt.execSubprocess(command)
 
     def __resolveMacro(self, name):
         if not os.path.isdir(self.getDirectory()):
@@ -416,7 +449,7 @@ class ObsLightChRoot(object):
         if platform.machine() == 'x86_64':
             aCommand = "linux32 " + aCommand
 
-        return self.__subprocess(command=aCommand, waitMess=True)
+        return self.__subprocess(command=aCommand)
 
     def execScript(self, aPath):
         '''
@@ -443,7 +476,7 @@ class ObsLightChRoot(object):
         if platform.machine() == 'x86_64':
             aCommand = "linux32 " + aCommand
 
-        return self.__subprocess(command=aCommand, waitMess=True)
+        return self.__subprocess(command=aCommand)
 
 
     def testOwnerChRoot(self):
