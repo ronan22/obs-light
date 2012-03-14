@@ -32,6 +32,8 @@ from os.path import expanduser, exists
 from os import makedirs
 
 import threading
+import grp
+import os
 
 SOCKETTIMEOUT = 20
 
@@ -262,6 +264,12 @@ def mapProcedureWithThreads(parameterList, procedure, progress=None):
     for th in res:
         th.join()
     return  errList
+
+def isUserInUsersGroup():
+    """Check if user running this program is member of the "users" group"""
+    userGroups = [grp.getgrgid(gid).gr_name for gid in os.getgroups()]
+    return "users" in userGroups
+
 
 if __name__ == '__main__':
 

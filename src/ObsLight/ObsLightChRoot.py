@@ -33,6 +33,7 @@ import ObsLightMic
 import ObsLightErr
 import ObsLightConfig
 from ObsLightSubprocess import SubprocessCrt
+from ObsLightTools import isUserInUsersGroup
 
 import ObsLightPrintManager
 import copy
@@ -41,6 +42,8 @@ class ObsLightChRoot(object):
     '''
     classdocs
     '''
+
+    ObsLightUserGroup = "users"
 
     def __init__(self,
                  projectDirectory,
@@ -144,6 +147,13 @@ class ObsLightChRoot(object):
             # chacl will fail with return code 1 if it can't get ACLs
             retCode = self.__subprocess("chacl -l %s" % path)
             return retCode == 0
+
+        if not isUserInUsersGroup():
+            message = "You are not in the '%s' group. " % self.ObsLightUserGroup
+            message += "Please add yourself in this group:\n"
+            message += "  sudo usermod -a -G %s `whoami`\n" % self.ObsLightUserGroup
+            message += "then logout and login again."
+            raise ObsLightErr.ObsLightChRootError(message)
 
         if not areAclsReady(self.projectDirectory):
             mountPoint = getmount(self.projectDirectory)
