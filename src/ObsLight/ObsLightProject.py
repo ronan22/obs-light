@@ -688,11 +688,12 @@ class ObsLightProject(object):
         if package != None:
             packagePath = self.__packages.getPackage(package).getPackageDirectory()
             if packagePath != None:
-                return self.__chroot.goToChRoot(path=packagePath, detach=detach)
+                return self.__chroot.goToChRoot(path=packagePath, detach=detach,
+                                                project=self.__projectLocalName)
             else:
-                return self.__chroot.goToChRoot(detach=detach)
+                return self.__chroot.goToChRoot(detach=detach, project=self.__projectLocalName)
         else:
-            return self.__chroot.goToChRoot(detach=detach)
+            return self.__chroot.goToChRoot(detach=detach, project=self.__projectLocalName)
 
     def execScript(self, aPath):
         return self.__chroot.execScript(aPath)
@@ -705,14 +706,17 @@ class ObsLightProject(object):
             packagePath = self.__packages.getOscDirectory(name=package)
             if packagePath != None:
                 pathScript = self.__chroot.getChrootDirTransfert() + "/runMe.sh"
+                title = "%s project directory" % package
                 f = open(pathScript, 'w')
                 f.write("#!/bin/sh\n")
                 f.write("# Created by obslight\n")
                 f.write("cd " + packagePath + "\n")
+                # control code to change window title
+                f.write('echo -en "\e]2;%s\a"\n' % title)
                 f.write("exec bash\n")
                 f.close()
                 os.chmod(pathScript, 0755)
-                command = ObsLightConfig.getConsole() + " " + pathScript
+                command = ObsLightConfig.getConsole(title) + " " + pathScript
 
                 command = shlex.split(str(command))
                 # subprocess.call(command) would wait for the command to finish,
@@ -728,11 +732,12 @@ class ObsLightProject(object):
                                                                                                             self.__projectTarget ,
                                                                                                             self.__projectArchitecture)
 
-        self.__chroot.addPackageSourceInChRoot(package=self.__packages.getPackage(package),
+        res = self.__chroot.addPackageSourceInChRoot(package=self.__packages.getPackage(package),
                                                specFile=specFile,
                                                repo=self.__projectObsName,
                                                listPackageBuildRequires=listPackageBuildRequires)
-        return 0
+        return res
+
 
     def __execRpmSection(self, packageName, section):
         """

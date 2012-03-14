@@ -43,7 +43,7 @@ class ObsLightKickstartManager(object):
     ArchiveFileExtensions = (".tar", ".tar.gz", ".tar.bz2", ".tgz", ".tbz", ".tz2", ".tar.xz")
     UntarCommand = 'tar -xf "%(source)s" -C "%(destination)s"'
 
-
+    OverlayFilesDirectoryName = "overlays"
     # The tag used to identify OBS Light overlay file script
     OverlayFileScriptTag = "#- OBS Light overlay file script -#"
     OverlayFileSourceTag = "#- Source:"
@@ -81,6 +81,14 @@ class ObsLightKickstartManager(object):
         calling `parseKickstart`.
         """
         return self._ksParser
+
+    @property
+    def overlayFilesDirectory(self):
+        """
+        Get the path where overlay files of this project are stored.
+        """
+        return os.path.join(os.path.dirname(self.kickstartPath),
+                            self.OverlayFilesDirectoryName)
 
     def _checkKsFile(self):
         """
@@ -542,93 +550,140 @@ class ObsLightKickstartManager(object):
           "source": the path of the file to be copied
           "destination": the path where the file will be copied
                          in target file system
+          "status": "OK" if source file is present,
+                    "missing" if it is missing
         """
         self._checkKsParser()
         overlayDictList = []
         for scriptObj in self.kickstartParser.handler.scripts:
             scriptText = scriptObj.script.strip()
-            # do not add regular scripts
+            # Do not add regular scripts
             if not scriptText.startswith(self.OverlayFileScriptTag):
                 continue
+
             overlayDict = {}
+            isAbsolute = False
+
             for scriptLine in scriptText.splitlines():
                 scriptLine = scriptLine.lstrip()
+
+                # This line contains the name of the source file
                 if scriptLine.startswith(self.OverlayFileSourceTag):
                     src = scriptLine[len(self.OverlayFileSourceTag):].strip()
-                    overlayDict["source"] = src
+                    # If src is an absolute path, it may be located outside
+                    # of the project directory. If possible, fix it.
+                    isAbsolute = os.path.isabs(src)
+                    if isAbsolute:
+                        src = self._copySourceFileIfNecessary(src)
+                    # Build the full path where source file is (or should be)
+                    overlayDict["source"] = os.path.join(self.overlayFilesDirectory, src)
+                    isOk = os.path.exists(overlayDict["source"])
+                    overlayDict["status"] = "OK" if isOk else "missing"
+
+                # This line contains the path of the destination file
                 elif scriptLine.startswith(self.OverlayFileDestinationTag):
                     dst = scriptLine[len(self.OverlayFileDestinationTag):].strip()
                     overlayDict["destination"] = dst
+
+                # We already got our paths, no need to continue
                 if "source" in overlayDict and "destination" in overlayDict:
                     break
 
-            scriptName = overlayDict["source"] + " " + overlayDict["destination"]
+            # Rewrite script with relative source path if source is not missing
+            if isAbsolute and overlayDict["status"] != "missing":
+                scriptObj.script = self._generateCopyScript(overlayDict["source"],
+                                                            overlayDict["destination"])
+                self.saveKickstart()
+
             # save the name of the script
+            scriptName = overlayDict["source"] + " " + overlayDict["destination"]
             self._scriptNameMap[scriptName] = scriptObj
             self._scriptNameMap[scriptObj] = scriptName
 
             overlayDictList.append(overlayDict)
+
         return overlayDictList
+
+    def _createOverlayDirectory(self):
+        """
+        Create an "overlays" sub-directory of project directory
+        (if it does not exist already).
+        """
+        if not os.path.isdir(self.overlayFilesDirectory):
+            os.mkdir(self.overlayFilesDirectory)
 
     def _copySourceFileIfNecessary(self, source):
         """
-        Copy `source` to the same directory as the kickstart file
-        if it is not already there, and return the new path.
+        Copy `source` to the overlay files directory if it is not
+        already there, and return the basename of the file.
         """
         fileName = os.path.basename(source)
-        wantedPath = os.path.join(os.path.dirname(self.kickstartPath), fileName)
-        if os.path.abspath(source) != wantedPath:
+        self._createOverlayDirectory()
+        wantedPath = os.path.join(self.overlayFilesDirectory,
+                                  fileName)
+        if os.path.abspath(source) != wantedPath and os.path.exists(source):
             shutil.copy(os.path.abspath(source), wantedPath)
-        return wantedPath
+        return fileName
 
     def _generateCopyScript(self, source, destination):
         """
         Generate the shell script that will make the copy from `source`
-        to `destination` (or extract `source` in `destination`)
+        to `destination` (or extract `source` into `destination`)
         in the file system created by MIC.
         """
-        # prepare script header
+        # We need only the name of the file since all overlays
+        # are supposed to be in the same directory.
+        source = os.path.basename(source)
+
+        # Prepare script header.
         copyScript = self.OverlayFileScriptTag + "\n"
         copyScript += self.OverlayFileSourceTag + source + "\n"
         copyScript += self.OverlayFileDestinationTag + destination + "\n"
 
-        # test if source is an archive or not
+        # Re-construct the full path of the source file.
+        fullSourcePath = os.path.join(self.overlayFilesDirectory, source)
+
+        # Test if source is an archive or not.
         sourceIsArchive = False
         for ext in self.ArchiveFileExtensions:
-            if source.endswith(ext):
+            if fullSourcePath.endswith(ext):
                 sourceIsArchive = True
                 break
-        # split destination file and destination directory
+
+        # Split destination file and destination directory.
         if destination.endswith("/") or sourceIsArchive:
             destFileName = ""
             chrootDestDir = '$INSTALL_ROOT%s' % destination
         else:
             destFileName = destination[destination.rfind("/") + 1:]
             chrootDestDir = '$INSTALL_ROOT%s' % destination[:destination.rfind("/") + 1]
-        # create destination directory if it does not exist
+
+        # Create destination directory if it does not exist.
         copyScript += '[ -d "%s" ] || mkdir -p "%s"\n' % (chrootDestDir, chrootDestDir)
         if sourceIsArchive:
-            # do the extraction
-            copyScript += self.UntarCommand % {"source": source, "destination": chrootDestDir}
+            # Do the extraction.
+            copyScript += self.UntarCommand % {"source": fullSourcePath,
+                                               "destination": chrootDestDir}
         else:
-            # do the copy
-            copyScript += 'cp "%s" "%s"\n' % (source, chrootDestDir + destFileName)
+            # Do the copy.
+            copyScript += 'cp "%s" "%s"\n' % (fullSourcePath, chrootDestDir + destFileName)
+
         return copyScript
 
     def addOverlayFile(self, source, destination):
         """
         Add a new overlay file. `source` is the path where the file
         is currently located, `destination` is the path where the file
-        will be copied in the target file system.
+        will be copied in the target filesystem.
         """
         self._checkKsParser()
-        source = self._copySourceFileIfNecessary(str(source))
+        sourceFileName = self._copySourceFileIfNecessary(str(source))
         destination = str(destination)
         if not destination.startswith("/"):
             destination = "/" + destination
 
-        copyScript = self._generateCopyScript(source, destination)
-        scriptName = source + " " + destination
+        copyScript = self._generateCopyScript(sourceFileName, destination)
+        scriptName = sourceFileName + " " + destination
         scriptObj = kickstart.ksparser.Script(script=copyScript,
                                               inChroot=False,
                                               type=1)

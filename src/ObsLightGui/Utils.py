@@ -26,7 +26,7 @@ from time import sleep
 
 from PySide.QtCore import QObject, QRegExp, QRunnable, QThreadPool, Signal
 from PySide.QtGui import QApplication, QColor, QGraphicsColorizeEffect
-from PySide.QtGui import QMessageBox, QProgressDialog
+from PySide.QtGui import QMessageBox, QDialog
 
 from ObsLight import ObsLightErr
 from ObsLight.ObsLightUtils import isNonEmptyString
@@ -105,7 +105,7 @@ class ProgressRunnable2(QObject, QRunnable):
         pass
 
     def __connectProgress(self):
-        if isinstance(self.__progressDialog, QProgressDialog):
+        if isinstance(self.__progressDialog, QDialog):
             # Disconnect its canceled signal from its cancel method
             # so it won't close before cancellation is effective.
             try:
@@ -125,7 +125,7 @@ class ProgressRunnable2(QObject, QRunnable):
         self.__sentMessage.connect(self.__progressDialog.setLabelText)
 
     def __disconnectProgress(self):
-        if isinstance(self.__progressDialog, QProgressDialog):
+        if isinstance(self.__progressDialog, QDialog):
             try:
                 self.__progressDialog.canceled.disconnect(self.__progressDialog.cancel)
             except BaseException as e:
@@ -212,7 +212,7 @@ class ProgressRunnable2(QObject, QRunnable):
         self.result = result
         self.__finishedCalled = True
         if self.__progressDialog is not None:
-            if isinstance(self.__progressDialog, QProgressDialog):
+            if isinstance(self.__progressDialog, QDialog):
                 try:
                     self.__progressDialog.canceled.disconnect(self.cancel)
                 except BaseException:

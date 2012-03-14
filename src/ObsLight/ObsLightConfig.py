@@ -51,16 +51,21 @@ class ObsLightConfig(object):
 def getTemplateConfigPath():
     return os.path.join(os.path.dirname(__file__), "config", OBSLIGHTCONFIG)
 
-def getConsole():
+def getConsole(title=None):
     '''
     Return the name of the term
     '''
     aConfigParser = ConfigParser.ConfigParser()
     aConfigFile = open(CONFIGPATH, 'rw')
 
+    replacements = {}
+    if isNonEmptyString(title):
+        replacements["title"] = "'%s'" % title
+    else:
+        replacements["title"] = "OBS Light console"
     aConfigParser.readfp(aConfigFile)
     if ('editor' in aConfigParser.sections()) and ('console' in aConfigParser.options('editor')):
-        return aConfigParser.get('editor', 'console')
+        return aConfigParser.get('editor', 'console', vars=replacements)
     else:
         return 'xterm -e'
 
@@ -158,10 +163,10 @@ def getObsLightLogFilePath():
 
 def configureConsole():
     if os.path.exists(u"/usr/bin/konsole"):
-        setConsole2(u"/usr/bin/konsole -e")
+        setConsole2(u"/usr/bin/konsole -p LocalTabTitleFormat=%%w --title %(title)s -e")
     elif os.path.exists(u"/usr/bin/gnome-terminal"):
-        setConsole2(u"/usr/bin/gnome-terminal -x")
-    #else keep default ("xterm -e")
+        setConsole2(u"/usr/bin/gnome-terminal -t %(title)s -x")
+    #else keep default ("xterm -T %(title)s -e")
 
 def configureOpenFile():
     # "xdg-open" should be tried first, because it is more generic,
