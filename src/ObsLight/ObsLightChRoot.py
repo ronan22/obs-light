@@ -339,8 +339,8 @@ class ObsLightChRoot(object):
             for directory in ["BUILD", "SPECS", "BUILDROOT", "RPMS", "SOURCES", "SRPMS"]:
                 command.append(mkdirCommand % os.path.join(chrootRpmBuildDirectory, directory))
 
-            command.append("chown -R root:users " + chrootRpmBuildDirectory)
-            command.append("chmod -R g+rwX " + chrootRpmBuildDirectory)
+            command.append("chown  root:users " + chrootRpmBuildDirectory)
+            command.append("chmod  g+rwX " + chrootRpmBuildDirectory)
 
             command.append("zypper --no-gpg-checks --gpg-auto-import-keys ref")
             command.append("zypper --non-interactive in --force-resolution " + " ".join(listPackageBuildRequires))
@@ -359,9 +359,9 @@ class ObsLightChRoot(object):
                 self.__subprocess(command)
                 command = "sudo chmod g+rwX %s" % self.getDirectory()
                 self.__subprocess(command)
-                command = "sudo chown -R root:users " + self.getDirectory() + "/root"
+                command = "sudo chown  root:users " + self.getDirectory() + "/root"
                 self.__subprocess(command)
-                command = "sudo chmod -R g+rwX " + self.getDirectory() + "/root"
+                command = "sudo chmod  g+rwX " + self.getDirectory() + "/root"
                 self.__subprocess(command)
                 command = "sudo chown -R root:users %s/%s" % (self.getDirectory(),
                                                             chrootRpmBuildDirectory)
