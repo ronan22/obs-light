@@ -723,9 +723,15 @@ class ObsLightProject(object):
     def addPackageSourceInChRoot(self, package):
         specFile = self.__packages.getSpecFile(package)
 
+        listPackageBuildRequires = self.__obsServers.getObsServer(self.__obsServer).getPackageBuildRequires(self.__projectObsName,
+                                                                                                            package,
+                                                                                                            self.__projectTarget ,
+                                                                                                            self.__projectArchitecture)
+
         self.__chroot.addPackageSourceInChRoot(package=self.__packages.getPackage(package),
                                                specFile=specFile,
-                                               repo=self.__projectObsName)
+                                               repo=self.__projectObsName,
+                                               listPackageBuildRequires=listPackageBuildRequires)
         return 0
 
     def __execRpmSection(self, packageName, section):

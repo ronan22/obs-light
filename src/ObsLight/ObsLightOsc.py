@@ -26,8 +26,10 @@ from xml.etree import ElementTree
 import urlparse
 import urllib
 
-from ObsLight import ObsLightTools
-
+try:
+    from ObsLight import ObsLightTools
+except:
+    pass
 from osc import conf
 from osc import core
 from osc import oscerr
@@ -225,6 +227,35 @@ class ObsLightOsc(object):
         aOscConfigParser.write(aFile, True)
         if aFile: aFile.close()
         return
+
+
+    def getPackageBuildRequires(self,
+                                api,
+                                projectObsName,
+                                package,
+                                projectTarget,
+                                arch):
+        '''
+    
+        '''
+        self.get_config()
+        aUrl = str(api + "/build/" + projectObsName + "/" + projectTarget + "/" + arch + "/" + package + "/_buildinfo")
+        self.cleanBuffer(aUrl)
+        res = self.getHttp_request(aUrl)
+
+        aElement = ElementTree.fromstring(res)
+
+        result = []
+        for package in aElement:
+            if (package.tag == "bdep") :
+                if (not "preinstall" in package.keys()) and (not "vminstall" in package.keys()):
+                    version = "-"
+                    if "epoch" in package.keys():
+                        version += package.get("epoch") + ":"
+                    version += package.get("version") + "-" + package.get("release")
+                    result.append(package.get("name") + version)
+        return result
+
 
     def getDepProject(self,
                       apiurl=None,
@@ -1080,7 +1111,6 @@ class ObsLightOsc(object):
                 from M2Crypto import m2urllib2
 
             except ImportError, e:
-                print e
                 raise oscsslexcp.NoSecureSSLError('M2Crypto is needed to access %s in a secure way.\nPlease install python-m2crypto.' % apiurl)
 
             cafile = options.get('cafile', None)
@@ -1120,45 +1150,25 @@ def getObsLightOsc():
 
 
 if __name__ == '__main__':
-#    val = '''<project name="home:obsuser:testRemoteLink">
-#                <title>Remote OBS instance</title>
-#                <description>This project is representing a remote build service instance.</description>
-#                <person role="maintainer" userid="obsuser"/>
-#                <person role="bugowner" userid="obsuser"/>
-#            </project>'''
-#
-#    url = "http://128.224.218.244:81/source/testNewProjet/_meta"
-#    res = getObsLightOsc().http_request('PUT', url, data=val)
+#    package = "intel-Lakemore"
+#    projectObsName = "WindRiver:tools"
+    api = "http://128.224.219.16:81"
+    projectObsName = "meegotv:mutter"
+    package = "xbmc"
+    projectTarget = "MeeGoTV_1.2"
+    arch = "i586"
 
-#    url = "http://128.224.218.244:81/source/testNewProjet/zlib/_link"
-#
-#    val = '''<link project="MeeGo:1.2.0:oss" package="zlib"  >
-#<patches>
-#  <!-- <apply name="patch" /> apply a patch on the source directory  -->
-#  <!-- <topadd>%define build_with_feature_x 1</topadd> add a line on the top (spec file only) -->
-#  <!-- <add>file.patch</add> add a patch to be applied after %setup (spec file only) -->
-#  <!-- <delete>filename</delete> delete a file -->
-#</patches>
-#</link>'''
-#
-#    res = getObsLightOsc().http_request('PUT', url, data=val)
-#    print "------------------------------------------------------"
-#    print res.read()
+#    obsuser:opensuse
+    result = ObsLightOsc().getPackageBuildRequires(api,
+                                                   projectObsName,
+                                                   package,
+                                                   projectTarget,
+                                                   arch)
+
+    print " ".join(result)
 
 
-#    try:
-#        url = "http://128.224.218.244:81/source/testNewProjet/zlib/_meta"
-#        res = getObsLightOsc().http_request('GET', url)
-#    finally:
-#        print "toto"
-#    print "------------------------------------------------------"
-#    print res.read()
 
-#    <remoteurl>https://api.meego.com/public</remoteurl>   
-
-
-#    url = "http://128.224.218.251:81"
-    pass
 
 
 

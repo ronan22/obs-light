@@ -90,6 +90,9 @@ class ObsLightSpec:
                 res = self.__testLine(expression, valueToFind)
                 if res != None:
                     return res
+        l = []
+        l.append(line)
+        l.append(valueToFind)
 
         if line.startswith(valueToFind):
             result = line[len(valueToFind):].strip().strip(":").strip().rstrip()
@@ -135,6 +138,7 @@ class ObsLightSpec:
         '''
         
         '''
+
         if value == "%{}":
             return ""
         elif value.strip("%").strip("{").rstrip("}") == "version":
@@ -422,10 +426,14 @@ class ObsLightSpec:
         if path == None:
             path = self.__path
         f = open(path, 'w')
+        f.write("#File Write by OBSLight don't modify it\n")
 
         for section in self.__orderList:
             for line in self.__spectDico[section]:
-                f.write(line)
+                if line.startswith("Release:") and (line.strip("Release:").strip(" ").rstrip("\n") == ""):
+                    f.write("Release:1\n")
+                else:
+                    f.write(line)
         f.close()
 
     def saveTmpSpec(self, path, excludePatch, archive):
@@ -436,10 +444,12 @@ class ObsLightSpec:
 
         if path == None:
             return None
-        toWrite = ""
+        toWrite = "#File Write by OBSLight don't modify it\n"
         for section in self.__orderList:
             for line in self.__spectDico[section]:
-                if (section == "%prep"):
+                if line.startswith("Release:") and (line.strip("Release:").strip(" ").rstrip("\n") == ""):
+                    toWrite += "Release:1\n"
+                elif (section == "%prep"):
                     if (line.startswith('%prep'))  :
                         toWrite += line
                     elif (line.startswith('%setup') and (SETUP == False)):
@@ -462,46 +472,29 @@ class ObsLightSpec:
         '''
         return self.__orderList
 
+    def specFileHaveAnEmptyPrepAndBuild(self):
+        '''
+        
+        '''
+        PrepAndBuild = True
+
+#        if "%prep" in self.__spectDico.keys():
+#            for line in self.__spectDico["%prep"]:
+#                if not (line.startswith("#") or line.startswith("rm") or line == "\n" or line == "%prep\n"):
+#                    return False
+
+        if "%build" in self.__spectDico.keys():
+            for line in self.__spectDico["%build"]:
+                if not (line.startswith("#")or line == "\n" or line == "%build\n"):
+                    return False
+
+        return PrepAndBuild
+
 if __name__ == '__main__':
-    file1 = sys.argv[1]
-    import subprocess
-    import shlex
-    s = ObsLightSpec(packagePath='', file=file1)
-
-    #try:
-    name = s.getMacroDirectoryPackageName()
-    #except:
-    #    print "ERROR ", file1
-
-
-    if name != None:
-        if "%" in name:
-            #try:
-            name = s.getResolveMacroName(name)
-            #except:
-            #    print "ERROR 2", file1
-
-            f = open("/home/meego/OBSLight/meego1.2.0/chrootTransfert/runMe.sh", 'w')
-            command = "rpm --eval " + name + " > /chrootTransfert/resultRpmQ.log"
-            f.write(command + "\n")
-            f.close()
-            command = "sudo chroot /home/meego/OBSLight/meego1.2.0/aChroot /chrootTransfert/runMe.sh"
-            p = subprocess.Popen(shlex.split(str(command)), stdout=None, stderr=None)
-            p.wait()
-
-            f = open("/home/meego/OBSLight/meego1.2.0/chrootTransfert/resultRpmQ.log", 'r')
-            name = f.read().replace("\n", "")
-            f.close()
-
-            #if ("%" in name):
-            print os.path.basename(file1).ljust(50) + name.replace("\n", "")
-        else:
-            if "%" in name:
-                print os.path.basename(file1).ljust(50) + name.replace("\n", "")
-
-
-
-
+    arg = sys.argv[1]
+    print arg
+    cli = ObsLightSpec("/home/meego/Documents/specTest", arg)
+    print cli.specFileHaveAnEmptyPrepAndBuild()
 
 
 

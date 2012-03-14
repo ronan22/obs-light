@@ -411,6 +411,18 @@ class ObsLightPackage(object):
             msg = "Parameter '%s' is not valid for getProjectParameter" % parameter
             raise ObsLightPackageErr(msg)
 
+    def specFileHaveAnEmptyPrepAndBuild(self):
+        '''
+        
+        '''
+        if self.__mySpecFile == None:
+            self.__initSpecFile()
+
+        if self.__mySpecFile == None:
+            return None
+
+        return self.__mySpecFile.specFileHaveAnEmptyPrepAndBuild()
+
 
     def setPrepDirName(self, prepDirName):
         '''

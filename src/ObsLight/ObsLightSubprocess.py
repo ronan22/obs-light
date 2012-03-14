@@ -23,10 +23,15 @@ Created on 24 oct. 2011
 
 import subprocess
 import shlex
+import fcntl
+import os
+import time
 
 import ObsLightPrintManager
 import select
 import errno
+
+
 
 BREAKPROCESS = False
 
@@ -51,21 +56,51 @@ class SubprocessCrt(object):
         #need Python 2.7.3 to do shlex.split(command) 
         splittedCommand = shlex.split(str(command))
 
+#        f_stdout = open("/dev/shm/tmp_stdout", 'w+')
+#        f_stderr = open("/dev/shm/tmp_stderr", 'w+')
+#        p = subprocess.Popen(splittedCommand,
+#                             stdout=f_stdout,
+#                             stderr=f_stderr)
+
+
         p = subprocess.Popen(splittedCommand,
                              stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
-        outputs = {p.stdout: {"EOF": False, "logcmd": ObsLightPrintManager.getLogger().info},
-                   p.stderr: {"EOF": False, "logcmd": ObsLightPrintManager.getLogger().warning}}
-        while (not outputs[p.stdout]["EOF"] and
-               not outputs[p.stderr]["EOF"]):
+        f_stdout = p.stdout
+        f_stderr = p.stderr
+
+        flags = fcntl.fcntl(f_stdout, fcntl.F_GETFL)
+        if not f_stdout.closed:
+            fcntl.fcntl(f_stdout, fcntl.F_SETFL, flags | os.O_NONBLOCK)
+
+        flags = fcntl.fcntl(f_stderr, fcntl.F_GETFL)
+        if not f_stderr.closed:
+            fcntl.fcntl(f_stderr, fcntl.F_SETFL, flags | os.O_NONBLOCK)
+
+        outputs = {f_stdout: {"EOF": False, "logcmd": ObsLightPrintManager.getLogger().info},
+                   f_stderr: {"EOF": False, "logcmd": ObsLightPrintManager.getLogger().warning}}
+
+        count_select_timeout = 0
+        while (not outputs[f_stdout]["EOF"] and not outputs[f_stderr]["EOF"]):
             try:
                 # FIXME: add a timeout ?
-                for fd in select.select([p.stdout, p.stderr], [], [])[0]:
-                    output = fd.readline()
-                    if output == b"":
-                        outputs[fd]["EOF"] = True
-                    else:
-                        outputs[fd]["logcmd"](output.decode("utf8", errors="replace").rstrip())
+                TIMEOUT = True
+                select_timeout = 10
+                for fd in select.select([f_stdout, f_stderr], [], [], select_timeout)[0]:
+                    TIMEOUT = False
+                    output = fd.read()
+                    for line in output.split("\n"):
+                        if line == b"" and not output.endswith("\n"):
+                            outputs[fd]["EOF"] = True
+                        else:
+                            if not line == "":
+                                outputs[fd]["logcmd"](line.decode("utf8", errors="replace").rstrip())
+                if TIMEOUT:
+                    count_select_timeout += select_timeout
+                    ObsLightPrintManager.getLogger().debug("NO print since: " + time.strftime("%H H %M M %S S", time.gmtime(count_select_timeout)))
+                else:
+                    count_select_timeout = 0
+
             except select.error as error:
                 # see http://bugs.python.org/issue9867
                 if error.args[0] == errno.EINTR:
@@ -74,11 +109,11 @@ class SubprocessCrt(object):
                 else:
                     raise
 
-
         # maybe p.wait() is better ?
         res = p.poll()
         ObsLightPrintManager.getLogger().debug(u"command finished: '%s', return code: %s"
                                                % (command, unicode(res)))
+
         if res == None:
             res = 0
         return res

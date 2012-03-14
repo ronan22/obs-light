@@ -277,7 +277,8 @@ class ObsLightChRoot(object):
 
     def addPackageSourceInChRoot(self, package,
                                        specFile,
-                                       repo):
+                                       repo,
+                                       listPackageBuildRequires):
         if package.getStatus() == "excluded":
             raise ObsLightErr.ObsLightChRootError(package.getName() + " has a excluded status, it can't be install")
         elif specFile == None:
@@ -296,12 +297,9 @@ class ObsLightChRoot(object):
             command.append("chown -R root:users " + package.getChrootRpmBuildDirectory())
             command.append("chmod -R g+rwX " + package.getChrootRpmBuildDirectory())
 
-            packageMacroName = package.getMacroPackageName()
-            if packageMacroName == None:
-                raise ObsLightErr.ObsLightChRootError("Can't find the spec name (%{name}) of '" + packageName + "'.")
 
             command.append("zypper --no-gpg-checks --gpg-auto-import-keys ref")
-            command.append("zypper --non-interactive si --build-deps-only " + packageMacroName)
+            command.append("zypper --non-interactive in --force-resolution " + " ".join(listPackageBuildRequires))
             #command.append("zypper --non-interactive si " + "--repo " + repo + " " + packageName)
             res = self.execCommand(command=command)
 
@@ -309,8 +307,6 @@ class ObsLightChRoot(object):
                 #ObsLightPrintManager.getLogger().error(packageName + " the zypper Script fail to install '" + packageName + "' dependency.")
                 #return None
                 msg = "The installation of some dependencies of '%s' failed\n" % packageName
-                msg += "Please test the following command line inside the project file system:\n"
-                msg += "  zypper si --build-deps-only %s\n" % packageMacroName
                 msg += "Maybe a repository is missing."
                 raise ObsLightErr.ObsLightChRootError(msg)
 
@@ -320,12 +316,18 @@ class ObsLightChRoot(object):
                 self.__subprocess(command="sudo chown root:users " + self.getDirectory())
                 self.__subprocess(command="sudo chmod g+rwX " + self.getDirectory())
 
-                self.__subprocess(command="sudo chown -R root:users " + self.getDirectory() + "/root")
-                self.__subprocess(command="sudo chmod -R g+rwX " + self.getDirectory() + "/root")
+                self.__subprocess(command="sudo chown  root:users " + self.getDirectory() + "/root")
+                self.__subprocess(command="sudo chmod  g+rwX " + self.getDirectory() + "/root")
 
                 self.__subprocess(command="sudo chown -R root:users " + self.getDirectory() + "/" + package.getChrootRpmBuildDirectory())
                 self.__subprocess(command="sudo chmod -R g+rwX " + self.getDirectory() + "/" + package.getChrootRpmBuildDirectory())
+
                 package.saveSpec(self.getDirectory() + "/" + aspecFile)
+
+                if package.specFileHaveAnEmptyPrepAndBuild():
+                    package.setChRootStatus("No build directory")
+                    return 0
+
                 #find the directory to watch
                 for aFile in package.getListFile():
                     path = self.getDirectory() + "/" + package.getChrootRpmBuildDirectory() + "/SOURCES/" + str(aFile)
@@ -335,7 +337,11 @@ class ObsLightChRoot(object):
                                  path)
                     self.__subprocess(command="sudo chown -R root:users " + path)
 
-                self.prepRpm(specFile=aspecFile, package=package)
+                res = self.prepRpm(specFile=aspecFile, package=package)
+                if res != 0:
+                    msg = "The first %prep of package  '" + packageName + "' failed\n"
+                    msg += "With error exit error " + str(res)
+                    raise ObsLightErr.ObsLightChRootError(msg)
                 package.initCurrentPatch()
                 packageDirectory = self.__findPackageDirectory(package=package)
                 ObsLightPrintManager.getLogger().debug("for the package " + packageName + " the packageDirectory is used : " + str(packageDirectory))
@@ -344,11 +350,15 @@ class ObsLightChRoot(object):
                     self.__subprocess(command="sudo chmod -R og+rwX %s"
                                       % (self.getDirectory() + "/" + packageDirectory))
                     self.initGitWatch(path=packageDirectory)
-                    self.__buildRpm(specFile=aspecFile, package=package)
-                    self.ignoreGitWatch(path=packageDirectory)
-                    package.setFirstCommit(tag=self.getCommitTag(path=packageDirectory))
-                    package.setChRootStatus("Installed")
-                # TODO: write an "else" or check if the "if" is necessary
+                    res = self.__buildRpm(specFile=aspecFile, package=package)
+                    if res == 0:
+                        self.ignoreGitWatch(path=packageDirectory)
+                        package.setFirstCommit(tag=self.getCommitTag(path=packageDirectory))
+                        package.setChRootStatus("Installed")
+                    else:
+                        msg = "The first %build of package  '" + packageName + "' failed\n"
+                        msg += "With error exit error " + str(res)
+                        raise ObsLightErr.ObsLightChRootError(msg)
             else:
                 raise ObsLightErr.ObsLightChRootError(packageName + " source is not installed in " + self.getDirectory())
 
@@ -365,13 +375,14 @@ class ObsLightChRoot(object):
         self.testOwnerChRoot()
         #Need more then second %S
         timeString = time.strftime("%Y-%m-%d_%Hh%Mm") + str(time.time() % 1).split(".")[1]
+
         scriptName = "runMe_" + timeString + ".sh"
         scriptPath = self.__chrootDirTransfert + "/" + scriptName
 
         f = open(scriptPath, 'w')
-        f.write("#!/bin/sh\n")
+        f.write("#!/bin/sh -x\n")
         f.write("# Created by obslight\n\n")
-        f.write("set -x\n")
+#        f.write("set -x\n")
         for c in command:
             f.write(c + "\n")
         f.close()
@@ -454,11 +465,13 @@ class ObsLightChRoot(object):
         '''
 
         command = []
-        command.append("HOME=$HOME/" + package.getName())
+        command.append("HOME=/root/" + package.getName())
         command.append("rpmbuild -bp --define '_srcdefattr (-,root,root)' " +
                        "--define '%_topdir %{getenv:HOME}/" +
                        package.getTopDirRpmBuildDirectory() +
                        "' " + specFile + " < /dev/null")
+        command.append("RPMBUILD_RETURN_CODE=$?")
+        command.append("exit $RPMBUILD_RETURN_CODE")
         return self.execCommand(command=command)
 
     def __buildRpm(self, specFile, package):
@@ -466,11 +479,13 @@ class ObsLightChRoot(object):
         Execute the %build section of an RPM spec file.
         '''
         command = []
-        command.append("HOME=$HOME/" + package.getName())
+        command.append("HOME=/root/" + package.getName())
         command.append("rpmbuild -bc --short-circuit --define '_srcdefattr (-,root,root)'" +
                        " --define '%_topdir %{getenv:HOME}/" +
                        package.getTopDirRpmBuildDirectory() +
                        "' " + specFile + " < /dev/null")
+        command.append("RPMBUILD_RETURN_CODE=$?")
+        command.append("exit $RPMBUILD_RETURN_CODE")
         return self.execCommand(command=command)
 
 
@@ -513,7 +528,7 @@ class ObsLightChRoot(object):
         package.saveTmpSpec(path=self.getDirectory() + pathToSaveSpec,
                             archive=tarFile)
         command = []
-        command.append("HOME=$HOME/" + package.getName())
+        command.append("HOME=/root/" + package.getName())
         command.append("rpmbuild -bc --define '_srcdefattr (-,root,root)'" +
                        " --define '%_topdir %{getenv:HOME}/" +
                        package.getTopDirRpmBuildTmpDirectory() +
@@ -563,7 +578,7 @@ class ObsLightChRoot(object):
         package.saveTmpSpec(path=self.getDirectory() + pathToSaveSpec,
                             archive=tarFile)
         command = []
-        command.append("HOME=$HOME/" + package.getName())
+        command.append("HOME=/root/" + package.getName())
         command.append("rpmbuild -bi --define '_srcdefattr (-,root,root)' " +
                        "--define '%_topdir %{getenv:HOME}/" +
                        package.getTopDirRpmBuildTmpDirectory() + "' " +
@@ -613,7 +628,7 @@ class ObsLightChRoot(object):
         package.saveTmpSpec(path=self.getDirectory() + pathToSaveSpec,
                             archive=tarFile)
         command = []
-        command.append("HOME=$HOME/" + package.getName())
+        command.append("HOME=/root/" + package.getName())
         command.append("rpmbuild -ba --define '_srcdefattr (-,root,root)' " +
                        "--define '%_topdir %{getenv:HOME}/" +
                        package.getTopDirRpmBuildTmpDirectory() +

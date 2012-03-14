@@ -134,6 +134,19 @@ class ObsLightServer(object):
                                                                 projectObsName=projectObsName,
                                                                 package=package)
 
+
+    def getPackageBuildRequires(self,
+                                projectObsName,
+                                package,
+                                projectTarget,
+                                arch):
+
+        return ObsLightOsc.getObsLightOsc().getPackageBuildRequires(self.__serverAPI,
+                                                                    projectObsName,
+                                                                    package,
+                                                                    projectTarget,
+                                                                    arch)
+
     def getObsServerParameter(self, parameter=None):
         '''
         return the value of the parameter "parameter"
