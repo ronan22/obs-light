@@ -884,7 +884,7 @@ class ObsLightOsc(object):
                                   user=user,
                                   passwd=passwd)
 
-        opener = urllib2.build_opener(auth_handler)
+        opener = urllib2.build_opener(auth_handler, urllib2.ProxyHandler({}))
         # ...and install it globally so it can be used with urlopen.
         urllib2.install_opener(opener)
         try:
@@ -1125,11 +1125,11 @@ class ObsLightOsc(object):
                         break
             ctx = oscssl.mySSLContext()
             if ctx.load_verify_locations(capath=capath, cafile=cafile) != 1: raise Exception('No CA certificates found')
-            opener = m2urllib2.build_opener(ctx, oscssl.myHTTPSHandler(ssl_context=ctx, appname='osc'), urllib2.HTTPCookieProcessor(conf.cookiejar), authhandler)
+            opener = m2urllib2.build_opener(ctx, oscssl.myHTTPSHandler(ssl_context=ctx, appname='osc'), urllib2.HTTPCookieProcessor(conf.cookiejar), authhandler, urllib2.ProxyHandler({}))
         else:
 #            import sys
             #print >> sys.stderr, "WARNING: SSL certificate checks disabled. Connection is insecure!\n"
-            opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(conf.cookiejar), authhandler)
+            opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(conf.cookiejar), authhandler, urllib2.ProxyHandler({}))
         opener.addheaders = [('User-agent', 'osc/%s' % __version__)]
         self.last_opener = (apiurl, opener, threading.currentThread().getName())
         return opener
