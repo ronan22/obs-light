@@ -49,6 +49,7 @@ class ObsLightChRoot(object):
         '''
         Constructor
         '''
+        self.__projectDirectory = projectDirectory
         self.__chrootDirectory = os.path.join(projectDirectory, "aChroot")
         self.__chrootDirTransfert = os.path.join(projectDirectory, "chrootTransfert")
         self.__dirTransfert = "/chrootTransfert"
@@ -61,6 +62,10 @@ class ObsLightChRoot(object):
             if "dicoRepos" in fromSave.keys():
                 self.__dicoRepos = copy.copy(fromSave["dicoRepos"])
         self.initChRoot()
+
+    @property
+    def projectDirectory(self):
+        return self.__projectDirectory
 
     @staticmethod
     def prepareGitCommand(workTree, subcommand):
@@ -134,20 +139,15 @@ class ObsLightChRoot(object):
                 path = os.path.abspath(os.path.join(path, os.pardir))
             return path
 
-        def isAclReady(path):
-            montOn = getmount(path)
-            with open("/etc/mtab", 'r') as f:
-                for line in f:
-                    listLine = line.split()
-                    if montOn in listLine:
-                        listOption = listLine[3].split(",")
-                        if "acl" in listOption:
-                            return True
-            return False
+        def areAclsReady(path):
+            """Check if ACLs are enabled on filesystem where `path` is located."""
+            # chacl will fail with return code 1 if it can't get ACLs
+            retCode = self.__subprocess("chacl -l %s" % path)
+            return retCode == 0
 
-        if not isAclReady(self.getDirectory()):
-            mountPoint = getmount(self.getDirectory())
-            message = "ACLs not enabled on mount point '%s'. "
+        if not areAclsReady(self.projectDirectory):
+            mountPoint = getmount(self.projectDirectory)
+            message = "ACLs are not enabled on mount point '%s'. "
             message += "Use the following command as root to enable them:\n\n"
             message += "  mount -o remount,acl %s"
             raise ObsLightErr.ObsLightChRootError(message % (mountPoint, mountPoint))
