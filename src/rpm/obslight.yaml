@@ -1,6 +1,6 @@
 Name: obslight
 Summary: OBS Light
-Version: 0.4.19
+Version: 0.4.20
 Release: 1
 Group: Development/Tools/Building
 License: GPLv2
@@ -51,3 +51,9 @@ SubPackages:
           - python-pyside >= 1.0.6
       Provides:
           - obslightgui
+      Conflicts: 
+          - obslight-base
+          - obslight-server
+          - obslight-utils
+
+
