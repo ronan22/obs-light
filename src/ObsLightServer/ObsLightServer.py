@@ -268,13 +268,13 @@ def server():
     configFile = open("/etc/obslight/obslight.conf", 'rw')
     configParser.readfp(configFile)
 
-    if ('websever' in configParser.sections()):
-        if ('port' in configParser.options('websever')):
-            port = int(configParser.get('websever', 'port', raw=True))
+    if ('webserver' in configParser.sections()):
+        if ('port' in configParser.options('webserver')):
+            port = int(configParser.get('webserver', 'port', raw=True))
         else:
             port = 8000
-        if ('port' in configParser.options('websever')):
-            currentDir = configParser.get('websever', 'directory', raw=True)
+        if ('port' in configParser.options('webserver')):
+            currentDir = configParser.get('webserver', 'directory', raw=True)
         else:
             currentDir = "/home"
 
