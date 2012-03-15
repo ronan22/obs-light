@@ -38,7 +38,7 @@ echo "---"
 grep --color "Version: $NEWVERSION" src/rpm/obslight.yaml
 echo "----------------"
 
-specify src/rpm/obslight.yaml
+#specify src/rpm/obslight.yaml
 #grep --color "version $OLDVERSION" rpm/obslight.spec
 #sed -i s/"version $OLDVERSION"/"version $NEWVERSION"/ rpm/obslight.spec
 #echo "---"
