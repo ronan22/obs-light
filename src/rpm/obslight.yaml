@@ -49,8 +49,6 @@ SubPackages:
       Requires:
           - obslight = %{version}
           - python-pyside >= 1.0.6
-      Provides:
-          - obslightgui
       Conflicts: 
           - obslight-base
           - obslight-server

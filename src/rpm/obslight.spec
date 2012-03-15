@@ -17,7 +17,6 @@ BuildArch:  noarch
 URL:        http://wiki.meego.com/OBS_Light
 Source0:    %{name}-%{version}.tar.gz
 Source100:  obslight.yaml
-Requires:   python-xml
 Requires:   mic >= 0.4
 Requires:   sudo
 Requires:   osc
@@ -27,7 +26,12 @@ Requires:   spectacle
 Requires:   acl
 Requires:   tightvnc
 Requires:   tftp
+%if 0%{?fedora}
+Requires:   nfs-utils
+%else
 Requires:   nfs-kernel-server
+Requires:   python-xml
+%endif
 Requires(post): /sbin/service
 Requires(post): /sbin/chkconfig
 Requires(postun): /sbin/service
@@ -37,7 +41,11 @@ BuildRequires:  python-devel >= 2.6.0
 BuildRequires:  fdupes
 BuildRequires:  xinetd
 BuildRequires:  rpcbind
+%if 0%{?fedora}
+BuildRequires:  nfs-utils
+%else
 BuildRequires:  nfs-kernel-server
+%endif
 BuildRequires:  desktop-file-utils
 BuildRoot:  %{_tmppath}/%{name}-%{version}-build
 
@@ -55,10 +63,9 @@ Group:      Development/Tools/Building
 Requires:   %{name} = %{version}-%{release}
 Requires:   obslight = %{version}
 Requires:   python-pyside >= 1.0.6
-Provides:   obslightgui
-Conflicts:   obslight-base
-Conflicts:   obslight-server
-Conflicts:   obslight-utils
+Conflicts:  obslight-base
+Conflicts:  obslight-server
+Conflicts:  obslight-utils
 
 %description gui
 Utilities to work with OBS Light, a lighter version of OBS.
