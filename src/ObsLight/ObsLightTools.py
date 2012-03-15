@@ -23,6 +23,8 @@ Created on 17 nov. 2011
 
 from urlparse import urlparse
 import httplib
+import urllib
+
 from subprocess import call
 import ObsLightConfig
 import ObsLightErr
@@ -37,10 +39,41 @@ import os
 
 SOCKETTIMEOUT = 20
 
+def createConn(host, port, scheme):
+    if scheme == "https":
+        if 'https' in urllib.getproxies_environment():
+            valProxy = urllib.getproxies_environment()['https']
+            (schemeProxy, netlocProxy, pathProxy, paramsProxy, queryProxy, fragmentProxy) = urlparse(valProxy)
+            [__PROXYHOST__, __PROXYPORT__] = netlocProxy.split(":")
+            return httplib.HTTPConnection(host=host, port=port, timeout=SOCKETTIMEOUT)
+        else:
+            return httplib.HTTPSConnection(host=host, port=port, timeout=SOCKETTIMEOUT)
+    else:
+        if 'http' in urllib.getproxies_environment():
+            valProxy = urllib.getproxies_environment()['http']
+            (schemeProxy, netlocProxy, pathProxy, paramsProxy, queryProxy, fragmentProxy) = urlparse(valProxy)
+            [__PROXYHOST__, __PROXYPORT__] = netlocProxy.split(":")
+            return httplib.HTTPConnection(host=host, port=port, timeout=SOCKETTIMEOUT)
+        else:
+            return httplib.HTTPConnection(host=host, port=port, timeout=SOCKETTIMEOUT)
+
+def getUrl(scheme, netloc, path):
+
+    if len(urllib.getproxies_environment()) > 0:
+        if path == "":
+            return scheme + "://" + netloc + "/"
+        else:
+            return scheme + "://" + netloc + path
+    else:
+        return path
+
 def testHost(host):
     '''
     
     '''
+    if len(urllib.getproxies_environment()) > 0:
+        return testUrl(host)
+
     (scheme, netloc, _path, _params, _query, _fragment) = urlparse(str(host))
     if ":" in netloc:
         (host, port) = netloc.split(":")
@@ -51,18 +84,15 @@ def testHost(host):
         else:
             port = "80"
 
-    if scheme == "https":
-        test = httplib.HTTPSConnection(host=host, port=port, timeout=SOCKETTIMEOUT)
-    else:
-        test = httplib.HTTPConnection(host=host, port=port, timeout=SOCKETTIMEOUT)
+    conn = createConn(host, port, scheme)
 
     try:
-        test.connect()
+        conn.connect()
     except BaseException, e:
-        print "Test Host Fail on ", host, " ", e
+        ObsLightPrintManager.getLogger().debug("Test Host Fail on " + str(host) + " " + str(e))
         return False
     finally:
-        test.close()
+        conn.close()
     return True
 
 def testUrl(url):
@@ -79,25 +109,29 @@ def testUrl(url):
         else:
             port = "80"
 
-    if scheme == "https":
-        test = httplib.HTTPSConnection(host=host, port=port, timeout=SOCKETTIMEOUT)
-    else:
-        test = httplib.HTTPConnection(host=host, port=port, timeout=SOCKETTIMEOUT)
+    conn = createConn(host, port, scheme)
 
-    try:
-        test.request('HEAD', path)
-        response = test.getresponse()
-        if response.status == 301 and not path.endswith("/"):
-            test.close()
-            test = httplib.HTTPConnection(host=host, port=port, timeout=SOCKETTIMEOUT)
-            path = path + "/"
-            test.request('HEAD', path)
-            response = test.getresponse()
-        return response.status == 200
-    except BaseException:
-        return False
-    finally:
-        test.close()
+#    try:
+
+    aUrl = getUrl(scheme, netloc, path)
+
+    conn.request('HEAD', aUrl)
+
+    response = conn.getresponse()
+    if response.status == 301 and not aUrl.endswith("/"):
+        conn.close()
+        conn = createConn(host, port, scheme)
+        aUrl = aUrl + "/"
+        conn.request('HEAD', aUrl)
+        response = conn.getresponse()
+
+    return response.status == 200
+
+#    except BaseException, e:
+#        print "BaseException"
+#        return False
+#    finally:
+#        conn.close()
     return True
 
 
@@ -119,10 +153,15 @@ def testRepo(url, name):
                 port = "443"
             else:
                 port = "80"
-        test = httplib.HTTPConnection(host=host, port=port, timeout=SOCKETTIMEOUT)
+
+        conn = createConn(host, port, scheme)
+
         try:
-            test.request('GET', path)
-            response = test.getresponse()
+            aUrl = getUrl(scheme, netloc, path)
+
+            conn.request('HEAD', aUrl)
+
+            response = conn.getresponse()
             afile = response.read()
             tmpName = None
             tmpBaseUrl = None
@@ -149,18 +188,18 @@ def testUrlRepo(url):
             port = "443"
         else:
             port = "80"
-    test = httplib.HTTPConnection(host=host, port=port, timeout=SOCKETTIMEOUT)
+    conn = createConn(host, port, scheme)
     try:
         if not path.endswith("/"):
-            test.request('HEAD', path + "/repodata/repomd.xml")
+            conn.request('HEAD', netloc + path + "/repodata/repomd.xml")
         else:
-            test.request('HEAD', path + "repodata/repomd.xml")
-        response = test.getresponse()
+            conn.request('HEAD', netloc + path + "repodata/repomd.xml")
+        response = conn.getresponse()
         return response.status == 200
     except BaseException:
         return False
     finally:
-        test.close()
+        conn.close()
 
 def importCert(url):
     '''
