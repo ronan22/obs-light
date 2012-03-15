@@ -23,7 +23,7 @@ Requires:
     - python-xml
     - mic >= 0.4
     - sudo
-    - osc
+    - osc >= 0.132
     - build
     - qemu
     - spectacle

@@ -19,7 +19,7 @@ Source0:    %{name}-%{version}.tar.gz
 Source100:  obslight.yaml
 Requires:   mic >= 0.4
 Requires:   sudo
-Requires:   osc
+Requires:   osc >= 0.132
 Requires:   build
 Requires:   qemu
 Requires:   spectacle
