@@ -45,8 +45,7 @@ class ProjectConfigManager(QObject, ObsLightGuiObject):
         self.__projectObsNameEdited = False
 
         # obslight do not like whitespace characters
-        noSpaceValidator = QRegExpValidator()
-        noSpaceValidator.setRegExp(PROJECT_ALIAS_REGEXP)
+        noSpaceValidator = QRegExpValidator(PROJECT_ALIAS_REGEXP, self)
         self.__configDialog.projectLocalNameLineEdit.setValidator(noSpaceValidator)
 
         self.__obsNameCompleter = None

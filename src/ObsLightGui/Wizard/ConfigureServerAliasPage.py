@@ -32,8 +32,7 @@ class ConfigureServerAliasPage(ObsLightWizardPage):
 
     def __init__(self, gui, index):
         ObsLightWizardPage.__init__(self, gui, index, u"wizard_configServerAlias.ui")
-        noSpaceValidator = QRegExpValidator()
-        noSpaceValidator.setRegExp(SERVER_ALIAS_REGEXP)
+        noSpaceValidator = QRegExpValidator(SERVER_ALIAS_REGEXP, self)
         self.ui_WizardPage.aliasLineEdit.setValidator(noSpaceValidator)
         self.registerField(u"serverAlias*", self.ui_WizardPage.aliasLineEdit)
         self.setCommitPage(True)

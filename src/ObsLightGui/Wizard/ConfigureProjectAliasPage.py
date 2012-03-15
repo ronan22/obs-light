@@ -30,8 +30,7 @@ from WizardPageWrapper import ObsLightWizardPage
 class ConfigureProjectAliasPage(ObsLightWizardPage):
     def __init__(self, gui, index):
         ObsLightWizardPage.__init__(self, gui, index, u"wizard_configProjectAlias.ui")
-        noSpaceValidator = QRegExpValidator()
-        noSpaceValidator.setRegExp(PROJECT_ALIAS_REGEXP)
+        noSpaceValidator = QRegExpValidator(PROJECT_ALIAS_REGEXP, self)
         self.ui_WizardPage.aliasLineEdit.setValidator(noSpaceValidator)
         self.registerField(u"projectAlias*", self.ui_WizardPage.aliasLineEdit)
         self.registerField(u"CreateChroot", self.ui_WizardPage.createChrootCheckBox)
