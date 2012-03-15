@@ -53,8 +53,7 @@ class ServerConfigManager(QObject, ObsLightGuiObject):
 
     def __loadWidgets(self):
         self.disableOkButton()
-        httpValidator = QRegExpValidator()
-        httpValidator.setRegExp(URL_REGEXP)
+        httpValidator = QRegExpValidator(URL_REGEXP, self)
         self.__srvConfDialog.serverWebUrlLineEdit.setValidator(httpValidator)
         self.__srvConfDialog.serverWebUrlLineEdit.setPlaceholderText(u"http://myObs")
         self.__srvConfDialog.serverWebUrlLineEdit.textEdited.connect(self.disableOkButton)
@@ -67,8 +66,7 @@ class ServerConfigManager(QObject, ObsLightGuiObject):
         self.__srvConfDialog.serverRepoLineEdit.setPlaceholderText(u"http://myObs:82")
         self.__srvConfDialog.serverRepoLineEdit.textEdited.connect(self.disableOkButton)
 
-        noSpaceValidator = QRegExpValidator()
-        noSpaceValidator.setRegExp(SERVER_ALIAS_REGEXP)
+        noSpaceValidator = QRegExpValidator(SERVER_ALIAS_REGEXP, self)
         self.__srvConfDialog.serverAliasLineEdit.setValidator(noSpaceValidator)
 
         self.__srvConfDialog.checkConnectionButton.clicked.connect(self.on_checkConnectionButton_clicked)

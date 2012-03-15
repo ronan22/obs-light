@@ -581,8 +581,7 @@ class PackageManager(QObject, ObsLightGuiObject):
         dialog.setWindowTitle(u"Choose patch name...")
         le = dialog.findChildren(QLineEdit)
         if len(le) > 0:
-            validator = QRegExpValidator(le[0])
-            validator.setRegExp(PATCH_NAME_REGEXP)
+            validator = QRegExpValidator(PATCH_NAME_REGEXP, le[0])
             le[0].setText(u".patch")
             le[0].setValidator(validator)
         dialog.textValueSelected.connect(self.__createPatch)

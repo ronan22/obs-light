@@ -23,7 +23,7 @@ Created on 19 déc. 2011
 
 from PySide.QtGui import QRegExpValidator
 
-from ObsLightGui.Utils import colorizeWidget, removeEffect, uiFriendly, URL_REGEXP
+from ObsLightGui.Utils import colorizeWidget, removeEffect, URL_REGEXP
 from ObsLight.ObsLightUtils import isNonEmptyString
 
 from WizardPageWrapper import ObsLightWizardPage
@@ -35,8 +35,7 @@ class ConfigureServerUrlPage(ObsLightWizardPage):
     def __init__(self, gui, index):
         ObsLightWizardPage.__init__(self, gui, index, u"wizard_configServerUrl.ui")
 
-        httpValidator = QRegExpValidator()
-        httpValidator.setRegExp(URL_REGEXP)
+        httpValidator = QRegExpValidator(URL_REGEXP, self)
         self.ui_WizardPage.webUrlLineEdit.setValidator(httpValidator)
         self.ui_WizardPage.apiUrlLineEdit.setValidator(httpValidator)
         self.ui_WizardPage.repoUrlLineEdit.setValidator(httpValidator)
