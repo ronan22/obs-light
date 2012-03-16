@@ -77,7 +77,9 @@ class FileManager(QObject, ObsLightGuiObject):
                                                                 self.__package,
                                                                 parameter="fsPackageDirectory")
                 chrootPath = self.manager.getChRootPath(self.__project)
-                self.__projectFileSystemModel.directoryLoaded.connect(self.on_chrootPath_loaded)
+                # Qt 4.6 do not know "directoryLoaded"
+                if hasattr(self.__projectFileSystemModel, "directoryLoaded"):
+                    self.__projectFileSystemModel.directoryLoaded.connect(self.on_chrootPath_loaded)
                 self.__packageInChrootDir = chrootPath
                 if pathInChRoot is not None:
                     self.__packageInChrootDir += pathInChRoot
@@ -85,12 +87,18 @@ class FileManager(QObject, ObsLightGuiObject):
                 self.__projectFileSystemModel.setRootPath(self.__projectFileSystemPath)
                 if self.__projectFileSystemPath != self.__packageInChrootDir:
                     self.__projectFileSystemModel.setRootPath(self.__packageInChrootDir)
+
             else:
                 self.mainWindow.chrootTreeView.setEnabled(False)
             self.mainWindow.packageTabWidget.setEnabled(True)
         else:
             self.mainWindow.packageTabWidget.setEnabled(False)
         self.mainWindow.chrootTreeView.setModel(self.__projectFileSystemModel)
+
+        # Qt 4.6 do not know "directoryLoaded"
+        if not hasattr(self.__projectFileSystemModel, "directoryLoaded"):
+            self.on_chrootPath_loaded(self.__projectFileSystemPath)
+            self.on_chrootPath_loaded(self.__packageInChrootDir)
 
         # --- working copy view ---
         if self.__project is not None and self.__package is not None:
