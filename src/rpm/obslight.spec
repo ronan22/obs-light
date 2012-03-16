@@ -28,6 +28,7 @@ Requires:   tightvnc
 Requires:   tftp
 %if 0%{?fedora}
 Requires:   nfs-utils
+Requires:   redhat-lsb
 %else
 Requires:   nfs-kernel-server
 Requires:   python-xml
@@ -154,10 +155,10 @@ echo "Trying to add OBS Light server..."
 [ -d $RPM_BUILD_ROOT/srv/obslight ] || install -d -o nobody -g nobody $RPM_BUILD_ROOT/srv/obslight
 echo "/srv/obslight  *(rw,fsid=0,no_root_squash,insecure,no_subtree_check)" >> /etc/exports
 
-/sbin/insserv %{_sysconfdir}/init.d/xinetd
-/sbin/insserv %{_sysconfdir}/init.d/rpcbind
-/sbin/insserv %{_sysconfdir}/init.d/nfsserver
-/sbin/insserv %{_sysconfdir}/init.d/obslightserver
+/sbin/chkconfig --add %{_sysconfdir}/init.d/xinetd
+/sbin/chkconfig --add %{_sysconfdir}/init.d/rpcbind
+/sbin/chkconfig --add %{_sysconfdir}/init.d/nfsserver
+/sbin/chkconfig --add %{_sysconfdir}/init.d/obslightserver
 # << post
 
 
