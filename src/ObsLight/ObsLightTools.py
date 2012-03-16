@@ -24,6 +24,7 @@ Created on 17 nov. 2011
 from urlparse import urlparse
 import httplib
 import urllib
+import urllib2
 
 from subprocess import call
 import ObsLightConfig
@@ -45,7 +46,9 @@ def createConn(host, port, scheme):
             valProxy = urllib.getproxies_environment()['https']
             (schemeProxy, netlocProxy, pathProxy, paramsProxy, queryProxy, fragmentProxy) = urlparse(valProxy)
             [__PROXYHOST__, __PROXYPORT__] = netlocProxy.split(":")
-            return httplib.HTTPConnection(host=host, port=port, timeout=SOCKETTIMEOUT)
+            conn = httplib.HTTPConnection(host=__PROXYHOST__, port=__PROXYPORT__, timeout=SOCKETTIMEOUT)
+            conn.set_tunnel(host=host, port=int(port))
+            return conn
         else:
             return httplib.HTTPSConnection(host=host, port=port, timeout=SOCKETTIMEOUT)
     else:
@@ -53,7 +56,7 @@ def createConn(host, port, scheme):
             valProxy = urllib.getproxies_environment()['http']
             (schemeProxy, netlocProxy, pathProxy, paramsProxy, queryProxy, fragmentProxy) = urlparse(valProxy)
             [__PROXYHOST__, __PROXYPORT__] = netlocProxy.split(":")
-            return httplib.HTTPConnection(host=host, port=port, timeout=SOCKETTIMEOUT)
+            return httplib.HTTPConnection(host=__PROXYHOST__, port=__PROXYPORT__, timeout=SOCKETTIMEOUT)
         else:
             return httplib.HTTPConnection(host=host, port=port, timeout=SOCKETTIMEOUT)
 
@@ -71,10 +74,11 @@ def testHost(host):
     '''
     
     '''
-    if len(urllib.getproxies_environment()) > 0:
-        return testUrl(host)
-
     (scheme, netloc, _path, _params, _query, _fragment) = urlparse(str(host))
+
+    if len(urllib.getproxies_environment()) > 0:
+        return testUrl(scheme + "://" + netloc)
+
     if ":" in netloc:
         (host, port) = netloc.split(":")
     else:
@@ -99,39 +103,14 @@ def testUrl(url):
     '''
     
     '''
-    (scheme, netloc, path, _params, _query, _fragment) = urlparse(str(url))
-    if ":" in netloc:
-        (host, port) = netloc.split(":")
-    else:
-        host = netloc
-        if scheme == "https":
-            port = "443"
-        else:
-            port = "80"
-
-    conn = createConn(host, port, scheme)
-
-#    try:
-
-    aUrl = getUrl(scheme, netloc, path)
-
-    conn.request('HEAD', aUrl)
-
-    response = conn.getresponse()
-    if response.status == 301 and not aUrl.endswith("/"):
-        conn.close()
-        conn = createConn(host, port, scheme)
-        aUrl = aUrl + "/"
-        conn.request('HEAD', aUrl)
-        response = conn.getresponse()
-
-    return response.status == 200
-
-#    except BaseException, e:
-#        print "BaseException"
-#        return False
-#    finally:
-#        conn.close()
+    opener = urllib2.build_opener(urllib2.ProxyHandler(urllib.getproxies_environment()))
+    urllib2.install_opener(opener)
+    try:
+        test = urllib2.urlopen(url, timeout=SOCKETTIMEOUT)
+        return True
+    except urllib2.URLError, e:
+        ObsLightPrintManager.getLogger().debug("Test url Fail on " + str(url) + " " + str(e))
+        return False
     return True
 
 

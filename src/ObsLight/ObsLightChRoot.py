@@ -26,6 +26,7 @@ import platform
 import shlex
 import shutil
 import subprocess
+import urllib
 
 import ObsLightOsc
 import ObsLightMic
@@ -323,6 +324,19 @@ class ObsLightChRoot(object):
     def getChRootRepositories(self):
         return self.__dicoRepos
 
+    def __getProxyconfig(self):
+        command = []
+        proxies = urllib.getproxies_environment()
+        for scheme in proxies.keys():
+            if scheme == 'http':
+                command.append('export HTTP_PROXY=' + proxies[scheme] + "'")
+                command.append('export http_proxy=' + proxies[scheme] + "'")
+
+            if scheme == 'https':
+                command.append('export HTTPS_PROXY=' + proxies[scheme] + "'")
+                command.append('export https_proxy=' + proxies[scheme] + "'")
+
+
     def addPackageSourceInChRoot(self, package,
                                        specFile,
                                        repo,
@@ -343,6 +357,9 @@ class ObsLightChRoot(object):
 
             command.append("chown  root:users " + chrootRpmBuildDirectory)
             command.append("chmod  g+rwX " + chrootRpmBuildDirectory)
+
+            for c in self.__getProxyconfig():
+                command.append(c)
 
             command.append("zypper --no-gpg-checks --gpg-auto-import-keys ref")
             command.append("zypper --non-interactive in --force-resolution " + " ".join(listPackageBuildRequires))
@@ -513,6 +530,9 @@ class ObsLightChRoot(object):
 
     def __addRepo(self, repos=None, alias=None):
         command = []
+        for c in self.__getProxyconfig():
+            command.append(c)
+
         command.append("zypper ar " + repos + " '" + alias + "'")
         command.append("zypper --no-gpg-checks --gpg-auto-import-keys ref")
         return self.execCommand(command=command)
@@ -885,8 +905,12 @@ class ObsLightChRoot(object):
 
         command.append("rpm --initdb")
         command.append("rpm --rebuilddb")
-        command.append('echo "alias ll=\\"ls -lh\\"" >> ~/.bashrc')
-        command.append('echo "alias la=\\"ls -Alh\\"" >> ~/.bashrc')
+
+        for c in self.__getProxyconfig():
+            command.append('echo "' + c + '" >> ~/.bashrc')
+
+        command.append('echo "alias ll=\\"ls -lh --color\\"" >> ~/.bashrc')
+        command.append('echo "alias la=\\"ls -Alh --color\\"" >> ~/.bashrc')
         command.append('echo "alias vi=\\"vim\\"" >> ~/.bashrc')
         prompt = {"blue": "\\[\\e[34;1m\\]",
                   "green": "\\[\\e[32;1m\\]",
@@ -902,6 +926,8 @@ class ObsLightChRoot(object):
     def deleteRepo(self, repoAlias):
         if repoAlias in self.__dicoRepos.keys():
             command = []
+            for c in self.__getProxyconfig():
+                command.append(c)
             command.append("zypper rr " + repoAlias)
             command.append("zypper --no-gpg-checks --gpg-auto-import-keys ref")
             self.execCommand(command=command)
