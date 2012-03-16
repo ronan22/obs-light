@@ -24,3 +24,4 @@
 %users ALL=(ALL)NOPASSWD:/bin/mount --bind * /srv/obslight/*
 %users ALL=(ALL)NOPASSWD:/usr/bin/tee -a /etc/exports
 %users ALL=(ALL)NOPASSWD:/usr/sbin/exportfs -ra
+%users ALL=(ALL)NOPASSWD:/bin/sed -r -i * /etc/mic/mic.conf

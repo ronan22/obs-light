@@ -329,13 +329,13 @@ class ObsLightChRoot(object):
         proxies = urllib.getproxies_environment()
         for scheme in proxies.keys():
             if scheme == 'http':
-                command.append('export HTTP_PROXY=' + proxies[scheme] + "'")
-                command.append('export http_proxy=' + proxies[scheme] + "'")
+                command.append('export HTTP_PROXY=' + proxies[scheme])
+                command.append('export http_proxy=' + proxies[scheme])
 
             if scheme == 'https':
-                command.append('export HTTPS_PROXY=' + proxies[scheme] + "'")
-                command.append('export https_proxy=' + proxies[scheme] + "'")
-
+                command.append('export HTTPS_PROXY=' + proxies[scheme])
+                command.append('export https_proxy=' + proxies[scheme])
+        return command
 
     def addPackageSourceInChRoot(self, package,
                                        specFile,
