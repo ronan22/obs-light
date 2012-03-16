@@ -25,7 +25,7 @@ import os.path
 import stat
 import ObsLightErr
 import shutil
-
+import urllib
 import time
 
 from ObsLightSubprocess import SubprocessCrt
@@ -371,16 +371,21 @@ class ObsLightMicProject(object):
         """
         timeString = time.strftime("%Y-%m-%d_%Hh%Mm") + str(time.time() % 1).split(".")[1]
         logFilePath = os.path.join(self.projectDirectory, "buildLog")
-        cacheDirPath = os.path.join(self.projectDirectory, "cache")
+#        cacheDirPath = os.path.join(self.projectDirectory, "cache")
+        proxies = urllib.getproxies_environment()
+        for scheme in proxies.keys():
+            if scheme == 'http':
+                cmd = "sudo sed -r -i 's,(; *)*proxy =.*,proxy = " + proxies[scheme] + ",' /etc/mic/mic.conf"
+                self.__subprocess(cmd)
+
         cmd = "sudo mic create " + self.getImageType()
         cmd += " " + self.getKickstartFile()
         cmd += " --logfile=" + logFilePath
-        cmd += " --cachedir=" + cacheDirPath
+#        cmd += " --cachedir=" + cacheDirPath
         cmd += " --outdir=" + self.projectDirectory
         cmd += " --arch=" + self.__architecture
         cmd += " --release=build_" + timeString
         cmd += " --local-pkgs-path=" + self.localPackagesDirectory
-        print cmd
         self.__subprocess(cmd)
 
     def getAvailableArchitectures(self):
