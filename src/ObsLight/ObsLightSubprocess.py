@@ -92,7 +92,7 @@ class SubprocessCrt(object):
                         if line == b"" and not output.endswith("\n"):
                             outputs[fd]["EOF"] = True
                         elif line != "":
-                            outputs[fd]["logcmd"](line.decode("utf8", errors="replace").rstrip())
+                            outputs[fd]["logcmd"](line.decode("utf8", "replace").rstrip())
                 if timedOut:
                     idleTime += selectTimeout
                     message = "Subprocess still working for %s"

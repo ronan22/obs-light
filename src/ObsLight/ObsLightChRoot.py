@@ -59,6 +59,7 @@ class ObsLightChRoot(object):
         self.__dirTransfert = "/chrootTransfert"
 
         self.__mySubprocessCrt = SubprocessCrt()
+        self.hostArch = platform.machine()
 
         if fromSave == None:
             self.__dicoRepos = {}
@@ -66,6 +67,7 @@ class ObsLightChRoot(object):
             if "dicoRepos" in fromSave.keys():
                 self.__dicoRepos = copy.copy(fromSave["dicoRepos"])
         self.initChRoot()
+
 
     @property
     def projectDirectory(self):
@@ -252,7 +254,7 @@ class ObsLightChRoot(object):
 
         command = "sudo -H chroot " + self.getDirectory() + " " + self.__dirTransfert + "/runMe.sh"
 
-        if platform.machine() == 'x86_64':
+        if self.hostArch == 'x86_64':
             command = "linux32 " + command
 
         command = shlex.split(str(command))
@@ -463,7 +465,7 @@ class ObsLightChRoot(object):
         os.chmod(scriptPath, 0654)
 
         aCommand = "sudo -H chroot " + self.getDirectory() + " " + self.__dirTransfert + "/" + scriptName
-        if platform.machine() == 'x86_64':
+        if self.hostArch == 'x86_64':
             aCommand = "linux32 " + aCommand
 
         return self.__subprocess(command=aCommand)
@@ -490,7 +492,7 @@ class ObsLightChRoot(object):
         os.chmod(scriptPath, 0654)
 
         aCommand = "sudo -H chroot " + self.getDirectory() + " " + self.__dirTransfert + "/" + scriptName
-        if platform.machine() == 'x86_64':
+        if self.hostArch == 'x86_64':
             aCommand = "linux32 " + aCommand
 
         return self.__subprocess(command=aCommand)
@@ -734,7 +736,7 @@ class ObsLightChRoot(object):
         # FIXME: project should be accessible by self.project
         # instead of method parameter
         if project is not None:
-            title = "%s chroot jail" % project
+            title = "chroot jail %s" % project
         else:
             title = "chroot jail"
         pathScript = self.__chrootDirTransfert + "/runMe.sh"
@@ -753,7 +755,7 @@ class ObsLightChRoot(object):
         command = "sudo -H chroot " + self.getDirectory() + " " + self.__dirTransfert + "/runMe.sh"
         if detach is True:
             command = ObsLightConfig.getConsole(title) + " " + command
-        if platform.machine() == 'x86_64':
+        if self.hostArch == 'x86_64':
             command = "linux32 " + command
 
         command = shlex.split(str(command))
@@ -772,8 +774,8 @@ class ObsLightChRoot(object):
 
         command = []
         command.append("git init " + path)
-        command.append(self.prepareGitCommand(path, u"add " + path + "/\*"))
-        command.append(self.prepareGitCommand(path, u"commit -a -m \"first commit\""))
+        command.append(self.prepareGitCommand(path, "add " + path + "/\*"))
+        command.append(self.prepareGitCommand(path, "commit -a -m \"first commit\""))
         self.execCommand(command=command)
 
     def ignoreGitWatch(self, path=None):
@@ -910,7 +912,14 @@ class ObsLightChRoot(object):
         command.append('echo "alias ll=\\"ls -lh --color\\"" >> ~/.bashrc')
         command.append('echo "alias la=\\"ls -Alh --color\\"" >> ~/.bashrc')
         command.append('echo "alias vi=\\"vim\\"" >> ~/.bashrc')
-        command.append('echo "PS1=\\"%s:\\w\\\\$ \\"" >> ~/.bashrc' % project)
+        prompt = {"blue": "\\[\\e[34;1m\\]",
+                  "green": "\\[\\e[32;1m\\]",
+                  "default": "\\[\\e[0m\\]",
+                  "path": "\\w",
+                  "delimiter": "\\\\$ ",
+                  "project": project}
+        PS1 = "%(blue)s%(project)s:%(green)s%(path)s%(default)s%(delimiter)s" % prompt
+        command.append('echo "PS1=\\"%s\\"" >> ~/.bashrc' % PS1)
         command.append('echo "export PS1" >> ~/.bashrc')
         return self.execCommand(command=command)
 
