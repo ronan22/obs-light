@@ -33,8 +33,10 @@ Requires:   redhat-lsb
 Requires:   nfs-kernel-server
 Requires:   python-xml
 %endif
+Requires(post): sudo
 Requires(post): /sbin/service
 Requires(post): /sbin/chkconfig
+Requires(postun): sudo
 Requires(postun): /sbin/service
 Requires(postun): /sbin/chkconfig
 BuildRequires:  python >= 2.6.0
@@ -116,49 +118,56 @@ desktop-file-install --delete-original       \
 
 %preun
 # >> preun
-echo "Trying to remove OBS Light server..."
-%insserv_cleanup
-%verify_permissions
+if [ $1 -eq "0" ]
+then
+  # We are uninstalling OBS Light (not upgrading)
+  echo "Trying to remove OBS Light sudoers rule..."
+  if [ ! -f "%{_sysconfdir}/sudoers.tmp" ]
+  then
+    touch %{_sysconfdir}/sudoers.tmp
+    sed -i s/"#include .*sudoers\.obslight"// %{_sysconfdir}/sudoers
+    rm %{_sysconfdir}/sudoers.tmp
+    echo " DONE"
+  else
+    echo "Cannot modify sudoers file !"
+  fi
 
-echo "Trying to remove OBS Light sudoers rule..."
-if [ $1 -eq "0" ]; then
-if [ ! -f "%{_sysconfdir}/sudoers.tmp" ]; then
-touch %{_sysconfdir}/sudoers.tmp
-sed -i s/"#include .*sudoers\.obslight"// %{_sysconfdir}/sudoers
-rm %{_sysconfdir}/sudoers.tmp
-echo " DONE"
-else
-echo "Cannot modify sudoers file"
-fi
-else
-echo " just updating, sudoers rule not modified"
+  echo "Removing obslightserver service..."
+%if 0%{?suse_version}
+  %insserv_cleanup
+  %verify_permissions
+%else
+  /sbin/chkconfig --del obslightserver
+%endif
 fi
 # << preun
 
 %post
 # >> post
 echo "Trying to add OBS Light sudoers rule..."
-if [ ! -f "%{_sysconfdir}/sudoers.tmp" ]; then
-touch %{_sysconfdir}/sudoers.tmp
-if [ -z "$(grep sudoers.obslight %{_sysconfdir}/sudoers)" ]; then
-echo "#include %{_sysconfdir}/sudoers.obslight" >> %{_sysconfdir}/sudoers
-echo " DONE"
+if [ ! -f "%{_sysconfdir}/sudoers.tmp" ]
+then
+  touch %{_sysconfdir}/sudoers.tmp
+  if [ -z "$(grep sudoers.obslight %{_sysconfdir}/sudoers)" ]
+  then
+    echo "#include %{_sysconfdir}/sudoers.obslight" >> %{_sysconfdir}/sudoers
+    echo " DONE"
+  else
+    echo " sudoers rule already configured"
+  fi
+  rm %{_sysconfdir}/sudoers.tmp
 else
-echo " sudoers rule already configured"
-fi
-rm %{_sysconfdir}/sudoers.tmp
-else
-echo "Cannot modify sudoers file";
+  echo "Cannot modify sudoers file !";
 fi
 
 echo "Trying to add OBS Light server..."
 [ -d $RPM_BUILD_ROOT/srv/obslight ] || install -d -o nobody -g nobody $RPM_BUILD_ROOT/srv/obslight
 echo "/srv/obslight  *(rw,fsid=0,no_root_squash,insecure,no_subtree_check)" >> /etc/exports
 
-/sbin/chkconfig --add %{_sysconfdir}/init.d/xinetd
-/sbin/chkconfig --add %{_sysconfdir}/init.d/rpcbind
-/sbin/chkconfig --add %{_sysconfdir}/init.d/nfsserver
-/sbin/chkconfig --add %{_sysconfdir}/init.d/obslightserver
+/sbin/chkconfig --add xinetd
+/sbin/chkconfig --add rpcbind
+/sbin/chkconfig --add nfsserver
+/sbin/chkconfig --add obslightserver
 # << post
 
 
