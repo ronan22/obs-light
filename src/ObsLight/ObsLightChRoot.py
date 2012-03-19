@@ -751,7 +751,7 @@ class ObsLightChRoot(object):
         # FIXME: project should be accessible by self.project
         # instead of method parameter
         if project is not None:
-            title = "chroot jail %s" % project
+            title = "chroot jail of %s" % project
         else:
             title = "chroot jail"
         pathScript = self.__chrootDirTransfert + "/runMe.sh"
