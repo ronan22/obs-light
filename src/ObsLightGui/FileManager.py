@@ -50,6 +50,7 @@ class FileManager(QObject, ObsLightGuiObject):
 
         self.mainWindow.fileTableView.doubleClicked.connect(self.on_fileTableView_activated)
         self.mainWindow.chrootTreeView.doubleClicked.connect(self.on_chrootTreeView_activated)
+        self.mainWindow.chrootTreeView.clicked.connect(self.on_chrootTreeView_clicked)
         self.mainWindow.addFileButton.clicked.connect(self.on_addFileButton_clicked)
         self.mainWindow.deleteFileButton.clicked.connect(self.on_deleteFileButton_clicked)
 
@@ -119,16 +120,17 @@ class FileManager(QObject, ObsLightGuiObject):
         """
         Called when the QFileSystem model loads paths.
         """
+        ctv = self.mainWindow.chrootTreeView
         if path == self.__projectFileSystemPath:
             # Set the root index of the QTreeView to the root directory of
             # the project file system, so user does not see outside
-            self.mainWindow.chrootTreeView.setRootIndex(self.__projectFileSystemModel.index(path))
-            self.mainWindow.chrootTreeView.resizeColumnToContents(0)
+            ctv.setRootIndex(self.__projectFileSystemModel.index(path))
+            ctv.resizeColumnToContents(0)
         elif path == self.__packageInChrootDir:
             # Set the current index of the QTreeView to the package directory
             # so it appears unfolded
-            self.mainWindow.chrootTreeView.setCurrentIndex(self.__projectFileSystemModel.index(path))
-            self.mainWindow.chrootTreeView.resizeColumnToContents(0)
+            ctv.setCurrentIndex(self.__projectFileSystemModel.index(path))
+            ctv.resizeColumnToContents(0)
 
     @popupOnException
     def on_addFileButton_clicked(self):
@@ -154,8 +156,20 @@ class FileManager(QObject, ObsLightGuiObject):
 
     @popupOnException
     def on_chrootTreeView_activated(self, index):
+        """
+        When user double-clicks on an item, open it with default application.
+        """
         filePath = index.model().filePath(index)
         self.manager.openFile(filePath)
+
+    @popupOnException
+    def on_chrootTreeView_clicked(self, index):
+        """
+        When user clicks on an item, display the complete path
+        of this item under the widget.
+        """
+        filePath = index.model().filePath(index)
+        self.mainWindow.chrootPathLineEdit.setText(filePath)
 
     @popupOnException
     def on_fileTableView_activated(self, index):

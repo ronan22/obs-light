@@ -416,8 +416,8 @@ class ObsLightChRoot(object):
 
                 res = self.prepRpm(specFile=aspecFile, package=package)
                 if res != 0:
-                    msg = "The first %prep of package  '" + packageName + "' failed "
-                    msg += "with return code " + str(res)
+                    msg = "The first %%prep of package '%s' failed." % packageName
+                    msg += "Return code was: %s" % str(res)
                     raise ObsLightErr.ObsLightChRootError(msg)
 
 
@@ -438,8 +438,8 @@ class ObsLightChRoot(object):
                         package.setFirstCommit(tag=self.getCommitTag(path=packageDirectory))
                         package.setChRootStatus("Installed")
                     else:
-                        msg = "The first %build of package  '" + packageName + "' failed\n"
-                        msg += "With error exit error " + str(res)
+                        msg = "The first build of package '%s' failed." % packageName
+                        msg += " Return code was: %s" % str(res)
                         raise ObsLightErr.ObsLightChRootError(msg)
             else:
                 message = packageName + " source is not installed in " + self.getDirectory()
