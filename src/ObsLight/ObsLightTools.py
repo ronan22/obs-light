@@ -1,5 +1,5 @@
 #
-# Copyright 2011, Intel Inc.
+# Copyright 2011-2012, Intel Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -283,10 +283,10 @@ def mapProcedureWithThreads(parameterList, procedure, progress=None):
         th.join()
     return  errList
 
-def isUserInUsersGroup():
-    """Check if user running this program is member of the "users" group"""
+def isUserInGroup(group):
+    """Check if user running this program is member of `group`"""
     userGroups = [grp.getgrgid(gid).gr_name for gid in os.getgroups()]
-    return "users" in userGroups
+    return group in userGroups
 
 
 if __name__ == '__main__':

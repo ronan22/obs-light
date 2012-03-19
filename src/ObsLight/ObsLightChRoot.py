@@ -1,5 +1,5 @@
 #
-# Copyright 2011, Intel Inc.
+# Copyright 2011-2012, Intel Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 Created on 30 sept. 2011
 
 @author: Ronan Le Martret
+@author: Florent Vennetier
 '''
 
 import os
@@ -34,14 +35,14 @@ import ObsLightMic
 import ObsLightErr
 import ObsLightConfig
 from ObsLightSubprocess import SubprocessCrt
-from ObsLightTools import isUserInUsersGroup
+from ObsLightTools import isUserInGroup
 
 import ObsLightPrintManager
 import copy
 
 class ObsLightChRoot(object):
     '''
-    classdocs
+    chroot-related operations of an OBS project.
     '''
 
     ObsLightUserGroup = "users"
@@ -75,23 +76,23 @@ class ObsLightChRoot(object):
 
     @staticmethod
     def prepareGitCommand(workTree, subcommand):
-        u"""
+        """
         Construct a Git command-line, setting its working tree to `workTree`,
         and then appends `subcommand`.
         Output example:
           git --git-dir=<workTree>/.git --work-tree=<workTree> <subcommand>
         """
-        command = u"git --git-dir=%s/.git --work-tree=%s " % (workTree, workTree)
+        command = "git --git-dir=%s/.git --work-tree=%s " % (workTree, workTree)
         command += subcommand
         return command
 
     @staticmethod
     def makeArchiveGitSubcommand(outputFilePath, prefix, revision=u"HEAD"):
-        u"""
+        """
         Construct a Git 'archive' subcommand with tar format,
         piped on gzip to produce a .tar.gz file.
         """
-        command = u"archive --format=tar --prefix=%s/ %s | gzip > %s"
+        command = "archive --format=tar --prefix=%s/ %s | gzip > %s"
         command = command % (prefix, revision, outputFilePath)
         return command
 
@@ -104,9 +105,51 @@ class ObsLightChRoot(object):
         '''
         return self.__chrootDirectory
 
+    def failIfAclsNotReady(self):
+        """
+        Raise an exception if ACLs are not enabled on the filesystem
+        where the current project is located.
+        """
+        def getmount(path):
+            """Get the mount point of the filesystem where `path` is located."""
+            path = os.path.abspath(path)
+            while path != os.path.sep:
+                if os.path.ismount(path):
+                    return path
+                path = os.path.abspath(os.path.join(path, os.pardir))
+            return path
+
+        def areAclsReady(path):
+            """Check if ACLs are enabled on filesystem where `path` is located."""
+            # chacl will fail with return code 1 if it can't get ACLs
+            retCode = self.__subprocess("chacl -l %s" % path)
+            return retCode == 0
+
+        if not areAclsReady(self.projectDirectory):
+            mountPoint = getmount(self.projectDirectory)
+            message = "ACLs are not enabled on mount point '%s'. "
+            message += "Use the following command as root to enable them:\n\n"
+            message += "  mount -o remount,acl %s"
+            raise ObsLightErr.ObsLightChRootError(message % (mountPoint, mountPoint))
+
+    def failIfUserNotInUserGroup(self):
+        """
+        Raise an exception if the user running this program is not member
+        of the user group defined by OBS Light (self.ObsLightUserGroup).
+        This is required for the custom sudo rules to apply.
+        """
+        if not isUserInGroup(self.ObsLightUserGroup):
+            message = "You are not in the '%s' group. " % self.ObsLightUserGroup
+            message += "Please add yourself in this group:\n"
+            message += "  sudo usermod -a -G %s `whoami`\n" % self.ObsLightUserGroup
+            message += "then logout and login again."
+            raise ObsLightErr.ObsLightChRootError(message)
+
     def removeChRoot(self):
         if  ObsLightMic.getObsLightMic(name=self.getDirectory()).isInit():
             ObsLightMic.destroy(name=self.getDirectory())
+
+        self.failIfUserNotInUserGroup()
 
         if os.path.isdir(self.getDirectory()):
             return self.__subprocess(command="sudo rm -r  " + self.getDirectory())
@@ -167,33 +210,9 @@ class ObsLightChRoot(object):
                            arch,
                            apiurl,
                            obsProject):
-        def getmount(path):
-            path = os.path.abspath(path)
-            while path != os.path.sep:
-                if os.path.ismount(path):
-                    return path
-                path = os.path.abspath(os.path.join(path, os.pardir))
-            return path
 
-        def areAclsReady(path):
-            """Check if ACLs are enabled on filesystem where `path` is located."""
-            # chacl will fail with return code 1 if it can't get ACLs
-            retCode = self.__subprocess("chacl -l %s" % path)
-            return retCode == 0
-
-        if not isUserInUsersGroup():
-            message = "You are not in the '%s' group. " % self.ObsLightUserGroup
-            message += "Please add yourself in this group:\n"
-            message += "  sudo usermod -a -G %s `whoami`\n" % self.ObsLightUserGroup
-            message += "then logout and login again."
-            raise ObsLightErr.ObsLightChRootError(message)
-
-        if not areAclsReady(self.projectDirectory):
-            mountPoint = getmount(self.projectDirectory)
-            message = "ACLs are not enabled on mount point '%s'. "
-            message += "Use the following command as root to enable them:\n\n"
-            message += "  mount -o remount,acl %s"
-            raise ObsLightErr.ObsLightChRootError(message % (mountPoint, mountPoint))
+        self.failIfUserNotInUserGroup()
+        self.failIfAclsNotReady()
 
         fsPath = self.getDirectory()
         res = ObsLightOsc.getObsLightOsc().createChRoot(chrootDir=fsPath,
@@ -208,19 +227,6 @@ class ObsLightChRoot(object):
             message += "See the log for details about the error."
             raise ObsLightErr.ObsLightChRootError(message)
 
-#        self.__subprocess(command="sudo chmod -R o+rwX %s" % fsPath)
-#        self.__subprocess(command="sudo setfacl -Rdm o::rwX -m g::rwX -m u::rwX %s" % fsPath)
-#
-#        self.__subprocess(command="sudo chown root:users %s" % fsPath)
-#        self.__subprocess(command="sudo chown root:users %s" % os.path.join(fsPath, "root"))
-#        self.__subprocess(command="sudo chown root:users %s" % os.path.join(fsPath, "etc"))
-#        self.__subprocess(command="sudo chmod g+rwX %s" % fsPath)
-#        self.__subprocess(command="sudo chmod g+rwX %s" % os.path.join(fsPath, "root"))
-#        self.__subprocess(command="sudo chmod g+rwX %s" % os.path.join(fsPath, "etc"))
-#        self.__subprocess(command="sudo chown -R root:users %s" % os.path.join(fsPath, "usr",
-#                                                                               "lib", "rpm"))
-#        self.__subprocess(command="sudo chmod -R g+rwX %s" % os.path.join(fsPath, "usr",
-#                                                                          "lib", "rpm"))
         self.fixFsRights()
         self.initRepos()
 
@@ -240,6 +246,8 @@ class ObsLightChRoot(object):
             ObsLightMic.getObsLightMic(name=self.getDirectory()).initChroot(chrootDirectory=self.getDirectory(),
                                                                                chrootTransfertDirectory=self.__chrootDirTransfert,
                                                                                transfertDirectory=self.__dirTransfert)
+
+        self.failIfUserNotInUserGroup()
 
         command = "rpm --eval " + name + " > /chrootTransfert/resultRpmQ.log"
 
@@ -347,6 +355,7 @@ class ObsLightChRoot(object):
         elif specFile is None:
             raise ObsLightErr.ObsLightChRootError("%s has no spec file" % package.getName())
         else:
+            self.failIfUserNotInUserGroup()
             packageName = package.getName()
 
             command = []
@@ -443,6 +452,9 @@ class ObsLightChRoot(object):
         '''
         if command == None:
             return
+
+        self.failIfUserNotInUserGroup()
+
         if not ObsLightMic.getObsLightMic(name=self.getDirectory()).isInit():
             ObsLightMic.getObsLightMic(name=self.getDirectory()).initChroot(chrootDirectory=self.getDirectory(),
                                                                             chrootTransfertDirectory=self.__chrootDirTransfert,
@@ -474,6 +486,7 @@ class ObsLightChRoot(object):
         '''
         Execute a list of commands in the chroot.
         '''
+        self.failIfUserNotInUserGroup()
 
         if not ObsLightMic.getObsLightMic(name=self.getDirectory()).isInit():
             ObsLightMic.getObsLightMic(name=self.getDirectory()).initChroot(chrootDirectory=self.getDirectory(),
@@ -728,6 +741,8 @@ class ObsLightChRoot(object):
             raise ObsLightErr.ObsLightChRootError(msg)
         elif not os.path.isdir(self.getDirectory()):
             raise ObsLightErr.ObsLightChRootError("'%s' is not a directory" % self.getDirectory())
+
+        self.failIfUserNotInUserGroup()
 
         if  not ObsLightMic.getObsLightMic(name=self.getDirectory()).isInit():
             ObsLightMic.getObsLightMic(name=self.getDirectory()).initChroot(chrootDirectory=self.getDirectory(),

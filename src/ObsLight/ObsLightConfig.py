@@ -1,5 +1,5 @@
 #
-# Copyright 2011, Intel Inc.
+# Copyright 2011-2012, Intel Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,7 +17,8 @@
 '''
 Created on 21 nov. 2011
 
-@author: meego
+@author: Ronan Le Martret
+@author: Florent Vennetier
 '''
 import ConfigParser
 import os
