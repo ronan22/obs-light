@@ -57,14 +57,17 @@ class ServerListManager(QObject, ObsLightGuiObject):
         self.__listWidget.clear()
         self.__listWidget.addItems(self.manager.getObsServerList())
 
+    @popupOnException
     def on_addExistingServerButton_clicked(self):
         self.__serverConfigManager = ServerConfigManager(self.gui)
         self.__serverConfigManager.finished.connect(self.on_serverConfigManager_finished)
 
+    @popupOnException
     def on_createVirtualServerButton_clicked(self):
         self.__serverConfigManager = ServerConfigManager(self.gui)
         self.__serverConfigManager.finished.connect(self.on_serverConfigManager_finished)
 
+    @popupOnException
     def on_modifyServerButton_clicked(self):
         currentItem = self.__listWidget.currentItem()
         if currentItem is not None:
