@@ -138,6 +138,7 @@ class FileManager(QObject, ObsLightGuiObject):
                                                                   u"Select file to add")
         for fileName in fileNames:
             self.manager.addFileToPackage(self.__project, self.__package, fileName)
+        self.refresh()
 
     @popupOnException
     def on_deleteFileButton_clicked(self):
@@ -153,6 +154,7 @@ class FileManager(QObject, ObsLightGuiObject):
             if result == QMessageBox.No:
                 return
             self.manager.deleteFileFromPackage(self.__project, self.__package, fileName)
+        self.refresh()
 
     @popupOnException
     def on_chrootTreeView_activated(self, index):

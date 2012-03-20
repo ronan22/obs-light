@@ -38,10 +38,6 @@ class ChoosePackagePage(ObsLightWizardPage, FilterableWidget):
 
     def initializePage(self):
         projectAlias = self.wizard().getSelectedProjectAlias()
-#        server = self.manager.getProjectParameter(projectAlias,
-#                                                  u"obsServer")
-#        prjObsName = self.manager.getProjectParameter(projectAlias,
-#                                                      u"projectObsName")
         self.setBusyCursor(self._fillPackageList, projectAlias)
 
     @popupOnException
@@ -56,7 +52,6 @@ class ChoosePackagePage(ObsLightWizardPage, FilterableWidget):
 
     def _fillPackageList(self, projectAlias):
         self.ui_WizardPage.packageListWidget.clear()
-#        pkgList = self._getPackageList(serverAlias, project)
         pkgList = self.callWithInfiniteProgress(self._getPackageList,
                                                 u"Loading package list...",
                                                 projectAlias)

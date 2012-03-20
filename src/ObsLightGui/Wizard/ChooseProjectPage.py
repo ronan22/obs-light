@@ -22,6 +22,7 @@ Created on 21 déc. 2011
 '''
 
 from ObsLightGui.FilterableWidget import FilterableWidget
+from ObsLightGui.Utils import popupOnException
 
 # See below
 #from ObsLightGui.Utils import uiFriendly
@@ -50,6 +51,7 @@ class ChooseProjectPage(ObsLightWizardPage, FilterableWidget):
         self.setBusyCursor(self._fillProjectList, serverAlias, restrainMaintainer,
                            restrainBugowner, restrainRemoteLinks)
 
+    @popupOnException
     def _checkBoxStateChanged(self, _state):
         self.initializePage()
 
