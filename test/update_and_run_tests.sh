@@ -3,23 +3,16 @@
 APT_ARGS="--allow-unauthenticated --assume-yes"
 OBSLIGHT_OPTIONS=""
 
-function print()
-{
-	echo -e "\e[32;1m$1\e[0m"
-}
-
 # Force user to set DRY_RUN to false
 if [ -z "$DRY_RUN" ]
 then
 	DRY_RUN=true
-	print "Doing a dry run (DRY_RUN = true)"
 fi
 
 # Setting DEBUG to something different from false activates bash's "-x" option
 if [ -n "$DEBUG" -a "$DEBUG" != false ]
 then
 	set -x
-	print "Debug mode activated (DEBUG = true)"
 fi
 
 if [ $DRY_RUN != false ]
@@ -28,9 +21,10 @@ then
 	OBSLIGHT_OPTIONS="noaction"
 fi
 
-API_URL=http://obslightserver:81/
-REPOSITORY_URL=http://obslightserver:82/
-WEB_URL=http://obslightserver:80/
+OBS_HOST="128.224.219.10"
+API_URL="http://$OBS_HOST:81/"
+REPOSITORY_URL="http://$OBS_HOST:82/"
+WEB_URL="http://$OBS_HOST:80/"
 SERVER_ALIAS=testServer
 LOGIN=obsuser
 PASSWORD=opensuse
@@ -40,9 +34,21 @@ PROJECT_ALIAS='my_test_project'
 PROJECT_TARGET='standard'
 PROJECT_ARCH='i586'
 
+A_FEW_PACKAGES="tzdata fastinit nano"
+
 #####################################################################
 ###  Utility functions  #############################################
 #####################################################################
+
+function print()
+{
+	echo -e "\e[32;1m$*\e[0m"
+}
+
+function print_error()
+{
+	echo -e "\e[31;1m$*\e[0m"
+}
 
 function usage()
 {
@@ -54,7 +60,7 @@ function usage()
 
 function handle_error()
 {
-	print "An error occured (return code $?)"
+	print_error "An error occured (return code $?)"
 	exit 2
 }
 
@@ -85,7 +91,7 @@ function update()
 		sudo yum --assumeyes update obslight obslight-gui
 		;;
 	*)
-		print "Unknown distribution: $DISTRO"
+		print_error "Unknown distribution: $DISTRO"
 		return 1
 		;;
 	esac
@@ -97,8 +103,8 @@ function reset_conf()
 	if [ $DRY_RUN = "false" ]
        	then
 		print "Removing ~/OBSLight and ~/.oscrc"
-		rm -rf ~/OBSLight || return $?
-		rm ~/.oscrc
+		sudo rm -rf ~/OBSLight || return $?
+		rm -f ~/.oscrc
 	else
 		print "Keeping ~/OBSLight and ~/.oscrc (DRY_RUN = true)"
 	fi
@@ -119,10 +125,12 @@ function create_new_project()
 		$SOURCE_PROJECT $PROJECT_TARGET $PROJECT_ARCH $SERVER_ALIAS
 }
 
+# Calls 'obslight package add <package>' with its first parameter as package
 function add_package()
 {
 	if [ $# -lt "1" ]
 	then
+		print "Missing argument: package name"
 		return 1
 	fi
 	print "Importing package '$1'"
@@ -130,19 +138,51 @@ function add_package()
 		project_alias $PROJECT_ALIAS
 }
 
+# Calls add_packages with each of its parameters
 function add_packages()
 {
 	for package in $@
 	do
-		add_package $package
+		add_package $package || return $?
 	done
 }
 
 function add_a_few_packages()
 {
-	PACKAGES="tzdata fastinit nano"
-	print "Importing packages: $PACKAGES"
-	add_packages $PACKAGES
+	print "Importing packages: $A_FEW_PACKAGES"
+	add_packages $A_FEW_PACKAGES
+}
+
+function create_project_filesystem()
+{
+	print "Creating project filesystem (chroot jail)"
+	obslight $OBSLIGHT_OPTIONS filesystem create $PROJECT_ALIAS
+}
+
+function prep_package()
+{
+	if [ $# -lt "1" ]
+	then
+		print_error "Missing argument: package name"
+		return 1
+	fi
+	print "Importing '$0' source code in project filesystem and executing %prep"
+	obslight $OBSLIGHT_OPTIONS rpmbuild prepare package $1 \
+		project_alias $PROJECT_ALIAS
+}
+
+function prep_packages()
+{
+	for package in $@
+	do
+		prep_package $package || return $?
+	done
+}
+
+function prep_a_few_packages()
+{
+	print "Preparing packages: $A_FEW_PACKAGES"
+	prep_packages $A_FEW_PACKAGES
 }
 
 #####################################################################
@@ -151,7 +191,7 @@ function add_a_few_packages()
 
 if [ $# -lt "1" ]
 then    
-	echo "Bad number of arguments"
+	print_error "Bad number of arguments"
 	usage
         exit 1
 fi
@@ -159,9 +199,10 @@ fi
 update $1 || handle_error
 
 ACTIONS="reset_conf configure_server create_new_project add_a_few_packages"
+ACTIONS="$ACTIONS create_project_filesystem prep_a_few_packages"
 for action in $ACTIONS
 do
 	$action || handle_error
 done
 
-
+print "Finished without errors"
