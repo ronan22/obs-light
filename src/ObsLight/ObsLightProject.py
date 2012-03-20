@@ -401,14 +401,24 @@ class ObsLightProject(object):
                not (aFile.endswith("~")):
                 listFile.append(aFile)
 
-        specFile = None
+        listSpecFile = []
         yamlFile = None
 
         for f in listFile:
             if self.__isASpecfile(f):
-                specFile = f
+                listSpecFile.append(f)
             elif self.__isAyamlfile(f):
                 yamlFile = f
+
+        if len(listSpecFile) > 1:
+            specFile = None
+            packageName = os.path.basename(packagePath)
+            for spec in listSpecFile:
+                if spec.startswith(packageName):
+                    specFile = spec
+
+        elif len(listSpecFile) == 1:
+            specFile = listSpecFile[0]
 
         return packagePath, specFile, yamlFile, listFile
 
