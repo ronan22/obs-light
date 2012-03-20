@@ -65,6 +65,13 @@ class ObsLightOsc(object):
     '''
     ObsLightOsc interact with osc, when possible, do it directly by python API
     '''
+
+    WorkingCopyInconsistentMessage = ("The following working copy is inconsistent:\n\n%s\n\n" +
+                                      "Maybe last update failed. " +
+                                      "This often happens when there are many files in package." +
+                                      " Try repairing or updating the package directory until " +
+                                      "it is OK.")
+
     def __init__(self):
         '''
         init 
@@ -351,13 +358,12 @@ class ObsLightOsc(object):
         return aElement.get("rev")
 
     def getOscPackageRev(self, workingdir):
-        '''
-        
-        '''
         #Add a Lock
         self.__aLock.acquire()
         try:
             pk = core.Package(workingdir=workingdir)
+        except oscerr.WorkingCopyInconsistent:
+            raise ObsLightErr.ObsLightOscErr(self.WorkingCopyInconsistentMessage % workingdir)
         finally:
             self.__aLock.release()
         try:
@@ -922,19 +928,13 @@ class ObsLightOsc(object):
         self.__subprocess(command=command)
 
     def getPackageFileInfo(self, workingdir):
-        '''
-        
-        '''
         try:
             pk = core.Package(workingdir=workingdir)
-        except oscerr.WorkingCopyInconsistent, e:
-            raise ObsLightErr.ObsLightOscErr("'" + workingdir + "' is a inconsistent working copy")
+        except oscerr.WorkingCopyInconsistent:
+            raise ObsLightErr.ObsLightOscErr(self.WorkingCopyInconsistentMessage % workingdir)
         return pk.get_status()
 
     def autoResolvedConflict(self, packagePath, aFile):
-        '''
-        
-        '''
         os.chdir(packagePath)
         command = "osc resolved " + aFile
         self.__subprocess(command=command)

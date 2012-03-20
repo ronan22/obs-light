@@ -1,5 +1,5 @@
 #
-# Copyright 2011, Intel Inc.
+# Copyright 2011-2012, Intel Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,7 +17,8 @@
 '''
 Created on 21 nov. 2011
 
-@author: meego
+@author: Ronan Le Martret
+@author: Florent Vennetier
 '''
 import ConfigParser
 import os
@@ -165,7 +166,7 @@ def configureConsole():
     if os.path.exists(u"/usr/bin/konsole"):
         setConsole2(u"/usr/bin/konsole -p LocalTabTitleFormat=%%w --title %(title)s -e")
     elif os.path.exists(u"/usr/bin/gnome-terminal"):
-        setConsole2(u"/usr/bin/gnome-terminal -t %(title)s -x")
+        setConsole2(u"/usr/bin/gnome-terminal --title=%(title)s -x")
     #else keep default ("xterm -T %(title)s -e")
 
 def configureOpenFile():
@@ -189,9 +190,9 @@ def getMaxNbThread():
         try:
             res = int(aConfigParser.get('Thread', 'max', raw=True))
         except :
-            return 10
-        if res < 1:
-            return 10
+            return 0
+        if res < 0:
+            return 0
         return res
     else:
         return 10

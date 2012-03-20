@@ -24,6 +24,7 @@ from PySide.QtGui import QLabel
 
 from ServerListManager import ServerListManager
 from ObsLightGuiObject import ObsLightGuiObject
+from Utils import popupOnException
 
 class MainWindowActionManager(ObsLightGuiObject):
     '''
@@ -45,14 +46,18 @@ class MainWindowActionManager(ObsLightGuiObject):
         self.actionLog = self.mainWindow.actionShow_log
         self.actionLog.triggered.connect(self.on_actionLog_triggered)
 
+    @popupOnException
     def on_actionOBS_servers_triggered(self):
         self.__serverListManager = ServerListManager(self.gui)
 
+    @popupOnException
     def on_actionAbout_triggered(self):
         self.__aboutDialog.show()
 
+    @popupOnException
     def on_actionLog_triggered(self):
         self.gui.getLogManager().show()
 
+    @popupOnException
     def on_actionWizard_triggered(self):
         self.gui.runWizard()

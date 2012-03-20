@@ -816,7 +816,7 @@ createPackageSubCommandHelp(__command_commit__,
 
 createPackageSubCommandHelp(__command_repair__,
                             ["package repair {package <package> {project_alias <project_alias>}",
-                             "  repair conflict between OBS project and local project"])
+                             "  repair an inconsistent package working copy"])
 
 createPackageSubCommandHelp(__command_addfile__,
                             ["package addfile <path> {package <package> " +

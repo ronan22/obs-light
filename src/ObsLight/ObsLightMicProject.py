@@ -30,10 +30,12 @@ import time
 
 from ObsLightSubprocess import SubprocessCrt
 from ObsLightKickstartManager import ObsLightKickstartManager
+from ObsLightTools import isUserInGroup
 
 class ObsLightMicProject(object):
 
     LocalPackagesDirectoryName = "localPackages"
+    ObsLightUserGroup = "users"
 
     def __init__(self, name, workingDirectory, fromSave=None):
         self.__mySubprocessCrt = SubprocessCrt()
@@ -105,6 +107,19 @@ class ObsLightMicProject(object):
         aDic["name"] = self.__name
         aDic["workingDirectory"] = self.__workingDirectory
         return aDic
+
+    def failIsUserNotInUserGroup(self):
+        """
+        Raise an exception if the user running this program is not member
+        of the user group defined by OBS Light (self.ObsLightUserGroup).
+        This is required for the custom sudo rules to apply.
+        """
+        if not isUserInGroup(self.ObsLightUserGroup):
+            message = "You are not in the '%s' group. " % self.ObsLightUserGroup
+            message += "Please add yourself in this group:\n"
+            message += "  sudo usermod -a -G %s `whoami`\n" % self.ObsLightUserGroup
+            message += "then logout and login again."
+            raise ObsLightErr.ObsLightMicProjectErr(message)
 
 # --- Kickstart management ---------------------------------------------------
     def setKickstartFile(self, filePath):
@@ -369,6 +384,7 @@ class ObsLightMicProject(object):
         """
         Launch the build of an image.
         """
+        self.failIsUserNotInUserGroup()
         timeString = time.strftime("%Y-%m-%d_%Hh%Mm") + str(time.time() % 1).split(".")[1]
         logFilePath = os.path.join(self.projectDirectory, "buildLog")
 #        cacheDirPath = os.path.join(self.projectDirectory, "cache")

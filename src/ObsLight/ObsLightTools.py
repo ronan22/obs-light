@@ -1,5 +1,5 @@
 #
-# Copyright 2011, Intel Inc.
+# Copyright 2011-2012, Intel Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -300,25 +300,34 @@ class procedureWithThreads(threading.Thread):
 def mapProcedureWithThreads(parameterList, procedure, progress=None):
     errList = []
     res = []
-    sem = threading.BoundedSemaphore(value=ObsLightConfig.getMaxNbThread())
-    aLock = threading.Lock()
-    for p in parameterList:
-        athread = procedureWithThreads(packagePath=p,
-                                 procedure=procedure,
-                                 sem=sem,
-                                 lock=aLock,
-                                 errList=errList,
-                                 progress=progress)
-        athread.start()
-        res.append(athread)
-    for th in res:
-        th.join()
-    return  errList
+    maxThreads = ObsLightConfig.getMaxNbThread()
+    if maxThreads > 0:
+        sem = threading.BoundedSemaphore(value=maxThreads)
+        aLock = threading.Lock()
+        for p in parameterList:
+            athread = procedureWithThreads(packagePath=p,
+                                     procedure=procedure,
+                                     sem=sem,
+                                     lock=aLock,
+                                     errList=errList,
+                                     progress=progress)
+            athread.start()
+            res.append(athread)
+        for th in res:
+            th.join()
+    else:
+        for parameter in parameterList:
+            retVal = procedure(parameter)
+            if  retVal != 0:
+                errList.append(parameter)
+            if progress != None:
+                progress()
+    return errList
 
-def isUserInUsersGroup():
-    """Check if user running this program is member of the "users" group"""
+def isUserInGroup(group):
+    """Check if user running this program is member of `group`"""
     userGroups = [grp.getgrgid(gid).gr_name for gid in os.getgroups()]
-    return "users" in userGroups
+    return group in userGroups
 
 
 if __name__ == '__main__':

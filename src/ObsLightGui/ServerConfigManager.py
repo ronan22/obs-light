@@ -21,7 +21,7 @@ Created on 17 nov. 2011
 '''
 
 from PySide.QtCore import QObject, Signal
-from PySide.QtGui import QDialog, QDialogButtonBox, QRegExpValidator
+from PySide.QtGui import QDialog, QDialogButtonBox, QLineEdit, QRegExpValidator
 
 from ObsLight.ObsLightUtils import isNonEmptyString
 
@@ -55,16 +55,19 @@ class ServerConfigManager(QObject, ObsLightGuiObject):
         self.disableOkButton()
         httpValidator = QRegExpValidator(URL_REGEXP, self)
         self.__srvConfDialog.serverWebUrlLineEdit.setValidator(httpValidator)
-        self.__srvConfDialog.serverWebUrlLineEdit.setPlaceholderText(u"http://myObs")
         self.__srvConfDialog.serverWebUrlLineEdit.textEdited.connect(self.disableOkButton)
 
         self.__srvConfDialog.serverApiLineEdit.setValidator(httpValidator)
-        self.__srvConfDialog.serverApiLineEdit.setPlaceholderText(u"http://myObs:81")
         self.__srvConfDialog.serverApiLineEdit.textEdited.connect(self.disableOkButton)
 
         self.__srvConfDialog.serverRepoLineEdit.setValidator(httpValidator)
-        self.__srvConfDialog.serverRepoLineEdit.setPlaceholderText(u"http://myObs:82")
         self.__srvConfDialog.serverRepoLineEdit.textEdited.connect(self.disableOkButton)
+
+        # Qt 4.6 do not know "setPlaceholderText"
+        if hasattr(QLineEdit, "setPlaceholderText"):
+            self.__srvConfDialog.serverWebUrlLineEdit.setPlaceholderText(u"http://myObs")
+            self.__srvConfDialog.serverApiLineEdit.setPlaceholderText(u"http://myObs:81")
+            self.__srvConfDialog.serverRepoLineEdit.setPlaceholderText(u"http://myObs:82")
 
         noSpaceValidator = QRegExpValidator(SERVER_ALIAS_REGEXP, self)
         self.__srvConfDialog.serverAliasLineEdit.setValidator(noSpaceValidator)
