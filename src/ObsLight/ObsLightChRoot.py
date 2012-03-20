@@ -400,6 +400,11 @@ class ObsLightChRoot(object):
 
                 package.saveSpec(self.getDirectory() + "/" + aspecFile)
 
+                macroDirectory = os.path.join(self.getDirectory(), "root")
+                macroDest = os.path.join(self.getDirectory(), "root", package.getName())
+                shutil.copy2(os.path.join(macroDirectory, ".rpmmacros"), macroDest)
+                shutil.copy2(os.path.join(macroDirectory, ".rpmrc"), macroDest)
+
                 if package.specFileHaveAnEmptyPrepAndBuild():
                     package.setChRootStatus("No build directory")
                     return 0

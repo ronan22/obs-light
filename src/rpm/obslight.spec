@@ -26,7 +26,7 @@ Requires:   spectacle
 Requires:   acl
 Requires:   tightvnc
 Requires:   tftp
-%if 0%{?suse}
+%if 0%{?suse_version} > 1120
 Requires:   imagewriter
 %endif
 %if 0%{?fedora}
