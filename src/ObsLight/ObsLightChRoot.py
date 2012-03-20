@@ -148,7 +148,7 @@ class ObsLightChRoot(object):
         # The path of the root of the project filesystem
         fsPath = self.getDirectory()
 
-        raiseErrorIfNonZero("sudo chmod -R o+rwX %s" % fsPath)
+        self.__subprocess("sudo chmod -R o+rwX %s" % fsPath)
         # This command often returns 1 for broken symlinks, but we don't care
         self.__subprocess("sudo setfacl -Rdm o::rwX -m g::rwX -m u::rwX %s" % fsPath)
 

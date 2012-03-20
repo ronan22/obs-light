@@ -30,6 +30,7 @@ from subprocess import call
 import ObsLightConfig
 import ObsLightErr
 import ObsLightPrintManager
+import M2Crypto
 from M2Crypto import SSL
 from os.path import expanduser, exists
 from os import makedirs
@@ -43,11 +44,22 @@ SOCKETTIMEOUT = 20
 def createConn(host, port, scheme):
     if scheme == "https":
         if 'https' in urllib.getproxies_environment():
-            valProxy = urllib.getproxies_environment()['https']
+            proxies_env = urllib.getproxies_environment()
+            if 'https' in proxies_env.keys():
+                valProxy = ['https']
+            else:
+                valProxy = ['http']
             (schemeProxy, netlocProxy, pathProxy, paramsProxy, queryProxy, fragmentProxy) = urlparse(valProxy)
             [__PROXYHOST__, __PROXYPORT__] = netlocProxy.split(":")
             conn = httplib.HTTPConnection(host=__PROXYHOST__, port=__PROXYPORT__, timeout=SOCKETTIMEOUT)
             conn.set_tunnel(host=host, port=int(port))
+
+            ctx = SSL.Context()
+            ctx.set_allow_unknown_ca(True)
+            ctx.set_verify(SSL.verify_none, 1)
+            conn = M2Crypto.httpslib.ProxyHTTPSConnection(host=__PROXYHOST__, port=__PROXYPORT__)
+            conn.ssl_ctx = ctx
+            conn.putrequest('HEAD', ":".join(host, port))
             return conn
         else:
             return httplib.HTTPSConnection(host=host, port=port, timeout=SOCKETTIMEOUT)
@@ -197,16 +209,36 @@ def importCert(url):
     ctx = SSL.Context()
     ctx.set_allow_unknown_ca(True)
     ctx.set_verify(SSL.verify_none, 1)
-    conn = SSL.Connection(ctx)
-    conn.postConnectionCheck = None
-    timeout = SSL.timeout(15)
-    conn.set_socket_read_timeout(timeout)
-    conn.set_socket_write_timeout(timeout)
-    try:
-        conn.connect((host, port))
-    except:
-        raise
-    cert = conn.get_peer_cert()
+
+    if len(urllib.getproxies_environment()) > 0:
+        valProxy = urllib.getproxies_environment()['https']
+        (schemeProxy, netlocProxy, pathProxy, paramsProxy, queryProxy, fragmentProxy) = urlparse(valProxy)
+        [__PROXYHOST__, __PROXYPORT__] = netlocProxy.split(":")
+        conn = M2Crypto.httpslib.ProxyHTTPSConnection(host=__PROXYHOST__, port=__PROXYPORT__)
+        conn.ssl_ctx = ctx
+        conn.putrequest('HEAD', url)
+        try:
+            conn.connect()
+        except:
+            raise
+
+    else:
+        conn = SSL.Connection(ctx)
+
+        conn.postConnectionCheck = None
+        timeout = SSL.timeout(SOCKETTIMEOUT)
+        conn.set_socket_read_timeout(timeout)
+        conn.set_socket_write_timeout(timeout)
+        try:
+            conn.connect((host, port))
+        except:
+            raise
+
+    if len(urllib.getproxies_environment()) > 0:
+        cert = conn.sock.get_peer_cert()
+    else:
+        cert = conn.get_peer_cert()
+
     # if the peer did not provide a certificate chain, cert is None.
     if cert is not None:
         dirpath = expanduser('~/.config/osc/trusted-certs')
@@ -297,4 +329,4 @@ if __name__ == '__main__':
     Url = "https://api.meego.com"
     print "testUrl", testUrl(Url)
     print "testHost", testHost(Url)
-    print "importCert", importCert(Url)
+#    print "importCert", importCert(Url)
