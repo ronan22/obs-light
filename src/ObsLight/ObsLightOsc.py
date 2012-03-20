@@ -294,14 +294,15 @@ class ObsLightOsc(object):
     def getListPackage(self,
                        apiurl=None,
                        projectLocalName=None):
-        '''
-            return the list of a projectLocalName
-        '''
+        """
+        Get the package list of project `projectLocalName` from `apiurl`.
+        """
         url = str(apiurl + "/source/" + projectLocalName)
 
         res = self.getHttp_request(url)
-        if res == None:
-            return None
+        if res is None:
+            message = "Failed to retrieve package list from server."
+            raise ObsLightErr.ObsLightOscErr(message)
 
         aElement = ElementTree.fromstring(res)
 
@@ -944,9 +945,6 @@ class ObsLightOsc(object):
             del self.__httpBuffer[url]
 
     def getHttp_request(self, url, headers={}, data=None, file=None):
-        '''
-        
-        '''
         url = self.__cleanUrl(url)
 
         if (HTTPBUFFER == 1) and (headers == {}) and (data == None) and (file == None) and (url in self.__httpBuffer.keys()):

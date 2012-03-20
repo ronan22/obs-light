@@ -43,6 +43,7 @@ class ChooseProjectPage(ObsLightWizardPage, FilterableWidget):
         uwp.restrainBugownerCheckBox.stateChanged.connect(self._checkBoxStateChanged)
         uwp.restrainRemoteLinksCheckBox.stateChanged.connect(self._checkBoxStateChanged)
 
+    @popupOnException
     def initializePage(self):
         serverAlias = self.field(u"serverAlias")
         restrainMaintainer = self.field(u"restrainMaintainer")
