@@ -9,7 +9,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 Name:       obslight
 Summary:    OBS Light
-Version:    0.4.20
+Version:    0.4.21
 Release:    1
 Group:      Development/Tools/Building
 License:    GPLv2
@@ -26,6 +26,9 @@ Requires:   spectacle
 Requires:   acl
 Requires:   tightvnc
 Requires:   tftp
+%if 0%{?suse}
+Requires:   imagewriter
+%endif
 %if 0%{?fedora}
 Requires:   nfs-utils
 Requires:   redhat-lsb
