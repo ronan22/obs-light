@@ -81,7 +81,9 @@ class SubprocessCrt(object):
                    f_stderr: {"EOF": False, "logcmd": ObsLightPrintManager.getLogger().warning}}
 
         idleTime = 0
-        while (not outputs[f_stdout]["EOF"] and not outputs[f_stderr]["EOF"]):
+        while ((not outputs[f_stdout]["EOF"] and
+               not outputs[f_stderr]["EOF"]) or
+               (p.poll() == None)):
             try:
                 timedOut = True
                 selectTimeout = 60
