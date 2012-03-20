@@ -55,7 +55,10 @@ class ChoosePackagePage(ObsLightWizardPage, FilterableWidget):
         pkgList = self.callWithInfiniteProgress(self._getPackageList,
                                                 u"Loading package list...",
                                                 projectAlias)
-        self.ui_WizardPage.packageListWidget.addItems(pkgList)
+        # if _getPackageList gets an exception, it is caught by
+        # callWithInfiniteProgress, and None is returned.
+        if pkgList is not None:
+            self.ui_WizardPage.packageListWidget.addItems(pkgList)
 
     def _getPackageList(self, projectAlias):
         return self.manager.getLocalProjectPackageList(projectAlias, onlyInstalled=False)

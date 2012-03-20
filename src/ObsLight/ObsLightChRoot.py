@@ -416,7 +416,7 @@ class ObsLightChRoot(object):
 
                 res = self.prepRpm(specFile=aspecFile, package=package)
                 if res != 0:
-                    msg = "The first %%prep of package '%s' failed." % packageName
+                    msg = "The first %%prep of package '%s' failed. " % packageName
                     msg += "Return code was: %s" % str(res)
                     raise ObsLightErr.ObsLightChRootError(msg)
 
