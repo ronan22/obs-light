@@ -26,6 +26,7 @@ Requires:   spectacle
 Requires:   acl
 Requires:   tightvnc
 Requires:   tftp
+Requires:   createrepo
 %if 0%{?suse_version} > 1120
 Requires:   imagewriter
 %endif
