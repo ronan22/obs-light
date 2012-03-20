@@ -16,7 +16,7 @@ class build_obslight(distutils.command.build.build, object):
 
 
 setup(name='obslight',
-      version="0.4.20",
+      version="0.4.21",
       description='OBS Light',
       long_description='Command-line client , UI and tools for the OBS.',
       author='Ronan Le Martret',
