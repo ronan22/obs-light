@@ -59,7 +59,7 @@ def createConn(host, port, scheme):
             ctx.set_verify(SSL.verify_none, 1)
             conn = M2Crypto.httpslib.ProxyHTTPSConnection(host=__PROXYHOST__, port=__PROXYPORT__)
             conn.ssl_ctx = ctx
-            conn.putrequest('HEAD', ":".join(host, port))
+            conn.putrequest('HEAD', scheme + "://" + ":".join(host, port))
             return conn
         else:
             return httplib.HTTPSConnection(host=host, port=port, timeout=SOCKETTIMEOUT)
