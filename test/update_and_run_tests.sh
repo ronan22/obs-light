@@ -1,6 +1,7 @@
 #!/bin/bash
 
 APT_ARGS="--allow-unauthenticated --assume-yes"
+OBSLIGHT_OPTIONS=""
 
 function print()
 {
@@ -24,15 +25,24 @@ fi
 if [ $DRY_RUN != false ]
 then
 	APT_ARGS="$APT_ARGS --dry-run"
+	OBSLIGHT_OPTIONS="noaction"
 fi
 
 API_URL=http://obslightserver:81/
 REPOSITORY_URL=http://obslightserver:82/
 WEB_URL=http://obslightserver:80/
 SERVER_ALIAS=testServer
-
 LOGIN=obsuser
 PASSWORD=opensuse
+
+SOURCE_PROJECT='MeeGo:1.2.0:oss'
+PROJECT_ALIAS='my_test_project'
+PROJECT_TARGET='standard'
+PROJECT_ARCH='i586'
+
+#####################################################################
+###  Utility functions  #############################################
+#####################################################################
 
 function usage()
 {
@@ -48,6 +58,12 @@ function handle_error()
 	exit 2
 }
 
+
+#####################################################################
+###  Test actions  ##################################################
+#####################################################################
+
+# Update OBS Light using appropriate command for each distro
 function update()
 {
 	DISTRO=$1
@@ -75,6 +91,7 @@ function update()
 	esac
 }
 
+# Delete OBS Light and OSC configurations
 function reset_conf()
 {
 	if [ $DRY_RUN = "false" ]
@@ -90,9 +107,47 @@ function reset_conf()
 function configure_server()
 {
 	print "Configuring new '$SERVER_ALIAS' OBS server (URL: $API_URL)"
-	obslight server add server_alias $SERVER_ALIAS login $LOGIN password $PASSWORD \
+	obslight $OBSLIGHT_OPTIONS server add server_alias $SERVER_ALIAS \
+		login $LOGIN password $PASSWORD \
 		api_url $API_URL repository_url $REPOSITORY_URL web_url $WEB_URL
 }
+
+function create_new_project()
+{
+	print "Creating project '$PROJECT_ALIAS' from '$SOURCE_PROJECT'"
+	obslight $OBSLIGHT_OPTIONS obsproject add $PROJECT_ALIAS \
+		$SOURCE_PROJECT $PROJECT_TARGET $PROJECT_ARCH $SERVER_ALIAS
+}
+
+function add_package()
+{
+	if [ $# -lt "1" ]
+	then
+		return 1
+	fi
+	print "Importing package '$1'"
+	obslight $OBSLIGHT_OPTIONS package add package $1 \
+		project_alias $PROJECT_ALIAS
+}
+
+function add_packages()
+{
+	for package in $@
+	do
+		add_package $package
+	done
+}
+
+function add_a_few_packages()
+{
+	PACKAGES="tzdata fastinit nano"
+	print "Importing packages: $PACKAGES"
+	add_packages $PACKAGES
+}
+
+#####################################################################
+###  Main loop  #####################################################
+#####################################################################
 
 if [ $# -lt "1" ]
 then    
@@ -102,6 +157,11 @@ then
 fi
 
 update $1 || handle_error
-reset_conf || handle_error
-configure_server || handle_error
+
+ACTIONS="reset_conf configure_server create_new_project add_a_few_packages"
+for action in $ACTIONS
+do
+	$action || handle_error
+done
+
 
