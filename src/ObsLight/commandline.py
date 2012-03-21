@@ -3962,8 +3962,7 @@ class ObsLightRpmbuild(ObsLightBase):
                     message = "'%s' is initialized" % (package,)
                 else:
                     message = "'%s' is not initialized" % (package,)
-                # XXX: why isn't that printBoolResult ?
-                self.printSimpleResult(message, str(res))
+                self.printBoolResult(message, res)
                 return 0
             else:
                 return self.printHelp(__command_isInit__)
