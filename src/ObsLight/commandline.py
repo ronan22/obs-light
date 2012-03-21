@@ -3955,7 +3955,6 @@ class ObsLightRpmbuild(ObsLightBase):
                     if package == None:
                         return self.printHelp()
 
-                print
                 res = m.isInstalledInChRoot(project_alias, package)
                 if self.testResult(res, getLineno()) == -1:
                     return -1
