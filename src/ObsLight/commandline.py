@@ -3956,9 +3956,14 @@ class ObsLightRpmbuild(ObsLightBase):
                         return self.printHelp()
 
                 print
-                res = m.patchIsInit(projectLocalName=project_alias, packageName=package)
-                if self.testResult(res, getLineno()) == -1:return - 1
-                message = "for '%s' a patch is initialized: %s" % (package, str(res))
+                res = m.isInstalledInChRoot(project_alias, package)
+                if self.testResult(res, getLineno()) == -1:
+                    return -1
+                if res:
+                    message = "'%s' is initialized" % (package,)
+                else:
+                    message = "'%s' is not initialized" % (package,)
+                # XXX: why isn't that printBoolResult ?
                 self.printSimpleResult(message, str(res))
                 return 0
             else:
