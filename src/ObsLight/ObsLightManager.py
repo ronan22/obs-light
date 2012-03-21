@@ -1097,6 +1097,16 @@ class ObsLightManagerCore(ObsLightManagerBase):
         return res
 
     @checkProjectLocalName(1)
+    @checkNonEmptyStringPackage(2)
+    def isInstalledInChRoot(self, projectLocalName, package):
+        '''
+        Return True if the package is installed into the chroot of the project.
+        '''
+        self.checkPackage(projectLocalName=projectLocalName, package=package)
+        project = self._myObsLightProjects.getProject(projectLocalName)
+        return project.getPackage(package).isInstallInChroot()
+
+    @checkProjectLocalName(1)
     def buildRpm(self, projectLocalName, package):
         '''
         Execute the %build section of an RPM spec file.
@@ -1239,16 +1249,6 @@ class ObsLightManager(ObsLightManagerCore):
                                                                                      val=val)
         self._myObsLightProjects.save()
         return res
-
-    @checkProjectLocalName(1)
-    @checkNonEmptyStringPackage(2)
-    def isInstalledInChRoot(self, projectLocalName, package):
-        '''
-        Return True if the package is installed into the chroot of the project.
-        '''
-        self.checkPackage(projectLocalName=projectLocalName, package=package)
-        project = self._myObsLightProjects.getProject(projectLocalName)
-        return project.getPackage(package).isInstallInChroot()
 
 #---------------------------------------------------------------------------
     @checkProjectLocalName(1)
