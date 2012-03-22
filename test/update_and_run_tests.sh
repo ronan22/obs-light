@@ -7,7 +7,7 @@
 # Default arguments for sub-commands
 APT_ARGS="$APT_ARGS --allow-unauthenticated --assume-yes"
 ZYPPER_ARGS="$ZYPPER_ARGS --non-interactive"
-YUM_ARGS="$YUM_ARGS --assumeyes"
+YUM_ARGS="$YUM_ARGS -y"
 OBSLIGHT_OPTIONS="quiet"
 
 # Force user to set DRY_RUN to false
@@ -71,7 +71,7 @@ function print_error()
 function usage()
 {
 	echo "Usage:"
-	echo "	$0 DISTRO_NAME"
+	echo "	$0 [DISTRO_NAME]"
 	echo
 	echo "DISTRO_NAME:	ubuntu, debian, opensuse, fedora"
 }
@@ -81,6 +81,16 @@ function handle_error()
 {
 	print_error "An error occured (return code $?)"
 	exit 2
+}
+
+function guess_distro()
+{
+	for distro in "ubuntu" "opensuse" "fedora" "debian"
+	do
+		[ -n "`grep -i $distro /etc/*release 2>/dev/null`" ] && echo $distro && return 0
+	done
+	echo "unknown"
+	return 1
 }
 
 
@@ -356,19 +366,23 @@ function construct_all_packages()
 ###  Main loop  #####################################################
 #####################################################################
 
-if [ $# -lt "1" ]
-then    
-	print_error "Bad number of arguments"
-	usage
-        exit 1
-fi
-
+declare DISTRO
 declare ERRORS=""
-
-update $1 || handle_error
-
 declare ACTIONS="reset_conf configure_server create_new_project create_project_filesystem"
 ACTIONS="$ACTIONS add_all_packages prep_all_packages construct_all_packages"
+
+if [ $# -lt "1" ]
+then
+	print "Trying to guess distribution"
+	DISTRO=`guess_distro`
+	[ $? -ne 0 ] && print_error "Could not guess the distribution" && usage && exit 1
+	print " --> $DISTRO"
+else
+	DISTRO=$1
+fi
+
+update $DISTRO || handle_error
+
 for action in $ACTIONS
 do
 	$action || handle_error
