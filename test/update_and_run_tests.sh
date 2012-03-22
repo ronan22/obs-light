@@ -45,6 +45,8 @@ then
 	declare -r PACKAGES="tzdata fastinit vim"
 fi
 
+[ -z "$MAX_RETRIES" ] && declare -r -i MAX_RETRIES=5
+
 #####################################################################
 ###  Utility functions  #############################################
 #####################################################################
@@ -153,6 +155,19 @@ function create_new_project()
 		$SOURCE_PROJECT $PROJECT_TARGET $PROJECT_ARCH $SERVER_ALIAS
 }
 
+
+function repair_package()
+{
+	if [ $# -lt "1" ]
+	then
+		print "Missing argument: package name"
+		return 1
+	fi
+	print "Repairing package '$1'"
+	obslight $OBSLIGHT_OPTIONS package repair package $1 \
+		project_alias $PROJECT_ALIAS
+}
+
 # Calls 'obslight package add <package>' with its first parameter as package
 function add_package()
 {
@@ -162,8 +177,18 @@ function add_package()
 		return 1
 	fi
 	print "Importing package '$1'"
+	local -i return_code=1
+	local -i retries=0
 	obslight $OBSLIGHT_OPTIONS package add package $1 \
 		project_alias $PROJECT_ALIAS
+	return_code=$?
+	while [ $return_code -ne 0 -a $retries -lt $MAX_RETRIES ]
+	do
+		repair_package $1
+		return_code=$?
+		((retries++))
+	done
+	return $return_code
 }
 
 # Calls add_packages with each of its parameters
@@ -249,7 +274,7 @@ function prep_all_packages()
 	prep_packages $all_packages
 }
 
-# Execute %files package $1
+# Execute %files of package $1
 function construct_package()
 {
 	if [ $# -lt "1" ]
@@ -284,11 +309,33 @@ function construct_packages()
 	fi
 }
 
-function construct_all_packages()
+function get_all_initialized_packages()
 {
 	local all_packages=`get_all_local_packages`
-	print "Constructing packages: $all_packages"
-	construct_packages $all_packages
+	local initialized_packages=""
+	for package in $all_packages
+	do
+		local -l is_init
+		is_init=`obslight $OBSLIGHT_OPTIONS package isinit package $package \
+				project_alias $PROJECT_ALIAS`
+		if [ "$is_init" = "true" ]
+		then
+			initialized_packages="$initialized_packages $package"
+		fi
+	done
+	echo $initialized_packages
+}
+
+function construct_all_packages()
+{
+	local packages_to_construct=`get_all_initialized_packages`
+	if [ -z "$packages_to_construct" ]
+	then
+		print_error "No packages report to be initialized! There might be a problem..."
+		return 2
+	fi
+	print "Constructing packages: $packages_to_construct"
+	construct_packages $packages_to_construct
 }
 
 
@@ -307,7 +354,7 @@ declare ERRORS=""
 
 update $1 || handle_error
 
-ACTIONS="reset_conf configure_server create_new_project create_project_filesystem"
+declare ACTIONS="reset_conf configure_server create_new_project create_project_filesystem"
 ACTIONS="$ACTIONS add_all_packages prep_all_packages construct_all_packages"
 for action in $ACTIONS
 do
