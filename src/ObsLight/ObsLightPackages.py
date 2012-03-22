@@ -235,7 +235,12 @@ class ObsLightPackages(object):
         '''
         
         '''
-        return ["Not installed", "No build directory", "Installed"]
+        return ["Not installed",
+                "No build directory",
+                "Prepared",
+                "Built",
+                "Build Installed",
+                "Build Packaged"]
 
     def __isFilterInfo(self, info):
         '''

@@ -372,7 +372,6 @@ class ObsLightChRoot(object):
 
             command.append("zypper --no-gpg-checks --gpg-auto-import-keys ref")
             command.append("zypper --non-interactive in --force-resolution " + " ".join(listPackageBuildRequires))
-            #command.append("zypper --non-interactive si " + "--repo " + repo + " " + packageName)
             res = self.execCommand(command=command)
 
             if res != 0:
@@ -382,7 +381,7 @@ class ObsLightChRoot(object):
 
             specDirPath = self.getDirectory() + "/" + chrootRpmBuildDirectory + "/SPECS/"
             if os.path.isdir(specDirPath):
-                aspecFile = chrootRpmBuildDirectory + "/SPECS/" + specFile
+
                 command = "sudo chown root:users %s" % self.getDirectory()
                 self.__subprocess(command)
                 command = "sudo chmod g+rwX %s" % self.getDirectory()
@@ -391,19 +390,21 @@ class ObsLightChRoot(object):
                 self.__subprocess(command)
                 command = "sudo chmod  g+rwX " + self.getDirectory() + "/root"
                 self.__subprocess(command)
-                command = "sudo chown -R root:users %s/%s" % (self.getDirectory(),
-                                                            chrootRpmBuildDirectory)
+                command = "sudo chown -R root:users %s/root/%s" % (self.getDirectory(), packageName)
                 self.__subprocess(command)
-                command = "sudo chmod -R g+rwX %s/%s" % (self.getDirectory(),
-                                                         chrootRpmBuildDirectory)
+                command = "sudo chmod -R g+rwX %s/root/%s" % (self.getDirectory(), packageName)
                 self.__subprocess(command)
 
+                aspecFile = chrootRpmBuildDirectory + "/SPECS/" + specFile
                 package.saveSpec(self.getDirectory() + "/" + aspecFile)
 
                 macroDirectory = os.path.join(self.getDirectory(), "root")
                 macroDest = os.path.join(self.getDirectory(), "root", package.getName())
-                shutil.copy2(os.path.join(macroDirectory, ".rpmmacros"), macroDest)
-                shutil.copy2(os.path.join(macroDirectory, ".rpmrc"), macroDest)
+
+                if not os.path.isfile(os.path.join(macroDest, ".rpmmacros")):
+                    shutil.copy2(os.path.join(macroDirectory, ".rpmmacros"), macroDest)
+                if not os.path.isfile(os.path.join(macroDest, ".rpmrc")):
+                    shutil.copy2(os.path.join(macroDirectory, ".rpmrc"), macroDest)
 
                 if package.specFileHaveAnEmptyPrepAndBuild():
                     package.setChRootStatus("No build directory")
@@ -441,7 +442,7 @@ class ObsLightChRoot(object):
                     if res == 0:
                         self.ignoreGitWatch(path=packageDirectory)
                         package.setFirstCommit(tag=self.getCommitTag(path=packageDirectory))
-                        package.setChRootStatus("Installed")
+                        package.setChRootStatus("Prepared")
                     else:
                         msg = "The first build of package '%s' failed." % packageName
                         msg += " Return code was: %s" % str(res)
@@ -559,14 +560,20 @@ class ObsLightChRoot(object):
         '''
         Execute the %prep section of an RPM spec file.
         '''
+        buildDir = "/root/" + package.getName() + "/" + package.getTopDirRpmBuildDirectory()
+        buildLink = "/root/" + package.getName() + "/" + package.getTopDirRpmBuildLinkDirectory()
+        srcdefattr = "--define '_srcdefattr (-,root,root)'"
+        topdir = "--define '%_topdir %{getenv:HOME}/" + package.getTopDirRpmBuildLinkDirectory() + "'"
+
+        rpmbuilCmd = "rpmbuild -bp %s %s %s < /dev/null" % (srcdefattr, topdir, specFile)
 
         command = []
         command.append("HOME=/root/" + package.getName())
-        command.append("rpmbuild -bp --define '_srcdefattr (-,root,root)' " +
-                       "--define '%_topdir %{getenv:HOME}/" +
-                       package.getTopDirRpmBuildDirectory() +
-                       "' " + specFile + " < /dev/null")
+        command.append("rm  " + buildLink)
+        command.append("ln -s %s %s" % (buildDir, buildLink))
+        command.append(rpmbuilCmd)
         command.append("RPMBUILD_RETURN_CODE=$?")
+        command.append("find %s -type f -name .gitignore -exec rm {} \;" % os.path.join(buildDir, "BUILD"))
         command.append("exit $RPMBUILD_RETURN_CODE")
         return self.execCommand(command=command)
 
@@ -574,167 +581,127 @@ class ObsLightChRoot(object):
         '''
         Execute the %build section of an RPM spec file.
         '''
+        buildDir = "/root/" + package.getName() + "/" + package.getTopDirRpmBuildDirectory()
+        buildLink = "/root/" + package.getName() + "/" + package.getTopDirRpmBuildLinkDirectory()
+
+        srcdefattr = "--define '_srcdefattr (-,root,root)'"
+        topdir = "--define '%_topdir %{getenv:HOME}/" + package.getTopDirRpmBuildLinkDirectory() + "'"
+
+        rpmbuilCmd = "rpmbuild -bc --short-circuit %s %s %s < /dev/null" % (srcdefattr, topdir, specFile)
+
         command = []
+
         command.append("HOME=/root/" + package.getName())
-        command.append("rpmbuild -bc --short-circuit --define '_srcdefattr (-,root,root)'" +
-                       " --define '%_topdir %{getenv:HOME}/" +
-                       package.getTopDirRpmBuildDirectory() +
-                       "' " + specFile + " < /dev/null")
+        command.append("rm  " + buildLink)
+        command.append("ln -s %s %s" % (buildDir, buildLink))
+        command.append(rpmbuilCmd)
         command.append("RPMBUILD_RETURN_CODE=$?")
         command.append("exit $RPMBUILD_RETURN_CODE")
         return self.execCommand(command=command)
 
+    def __prepGhostRpmbuild(self, package, specFile, packagePath, tarFile):
+        buildDirTmp = "/root/" + package.getName() + "/" + package.getTopDirRpmBuildTmpDirectory()
+        buildDir = "/root/" + package.getName() + "/" + package.getTopDirRpmBuildDirectory()
+        buildLink = "/root/" + package.getName() + "/" + package.getTopDirRpmBuildLinkDirectory()
+
+        command = []
+        command.append("rm -r %s/*" % buildDirTmp)
+        command.append("mkdir -p %s/BUILD" % buildDirTmp)
+        command.append("mkdir -p %s/SPECS" % buildDirTmp)
+        command.append("mkdir -p %s/TMP" % buildDirTmp)
+
+        command.append("ln -sf %s/BUILDROOT %s" % (buildDir, buildDirTmp))
+        command.append("ln -sf %s/RPMS %s" % (buildDir, buildDirTmp))
+        command.append("ln -sf %s/SOURCES %s" % (buildDir, buildDirTmp))
+        command.append("ln -sf %s/SRPMS %s" % (buildDir, buildDirTmp))
+
+        command.append("chown -R root:users %s" % buildDirTmp)
+        command.append("chmod -R g+rwX %s" % buildDirTmp)
+
+        outputFilePath = os.path.join(buildDirTmp, "SOURCES", tarFile)
+
+        tmpPath = packagePath.replace(buildDir + "/BUILD", "").strip("/")
+        tmpPath = tmpPath.strip("/")
+        command.append(self.prepareGitCommand(packagePath,
+                                              self.makeArchiveGitSubcommand(outputFilePath,
+                                                                            prefix=tmpPath)))
+
+        self.execCommand(command=command)
+
+        pathToSaveSpec = specFile.replace(buildDir, buildDirTmp)
+        package.saveTmpSpec(path=self.getDirectory() + pathToSaveSpec, archive=tarFile)
+
+        return pathToSaveSpec
+
+    def __createGhostRpmbuildCommand(self, command, package, pathToSaveSpec):
+        buildDirTmp = "/root/" + package.getName() + "/" + package.getTopDirRpmBuildTmpDirectory()
+        buildDir = "/root/" + package.getName() + "/" + package.getTopDirRpmBuildDirectory()
+        buildLink = "/root/" + package.getName() + "/" + package.getTopDirRpmBuildLinkDirectory()
+
+        srcdefattr = "--define '_srcdefattr (-,root,root)'"
+        topdir = "--define '%_topdir %{getenv:HOME}/" + package.getTopDirRpmBuildLinkDirectory() + "'"
+        rpmbuilCmd = "rpmbuild -%s %s %s %s < /dev/null" % (command,
+                                                            srcdefattr,
+                                                            topdir,
+                                                            pathToSaveSpec.replace(buildDirTmp, buildLink))
+
+        command = []
+        command.append("HOME=/root/" + package.getName())
+        command.append("rm  " + buildLink)
+        command.append("ln -s %s %s" % (buildDirTmp, buildLink))
+        command.append(rpmbuilCmd)
+        command.append("RPMBUILD_RETURN_CODE=$?")
+        command.append("cp -fpr  %s/BUILD/* %s/BUILD/" % (buildDirTmp, buildDir))
+        command.append("rm -r %s/TMP" % buildDirTmp)
+        command.append("rm  " + buildLink)
+        command.append("ln -s %s %s" % (buildDir, buildLink))
+        command.append("exit $RPMBUILD_RETURN_CODE")
+        return self.execCommand(command=command)
 
     def buildRpm(self, package, specFile, packagePath, tarFile):
         '''
         Execute the %build section of an RPM spec file.
         '''
         if package.getStatus() == "excluded":
-            msg = u"Package '%s' has a excluded status, it can't be installed" % package.getName()
+            msg = u"Package '%s' has a excluded status, it can't be build" % package.getName()
             raise ObsLightErr.ObsLightChRootError(msg)
 
         self.commitGit(mess="build", package=package)
-
-        tmpPath = packagePath.replace(package.getChrootRpmBuildDirectory() + "/BUILD", "").strip("/")
-        tmpPath = tmpPath.strip("/")
-        command = []
-
-        command.append("mkdir -p " + package.getChrootRpmBuildTmpDirectory() + "/BUILD")
-        command.append("mkdir -p " + package.getChrootRpmBuildTmpDirectory() + "/SPECS")
-        command.append("mkdir -p " + package.getChrootRpmBuildTmpDirectory() + "/TMP")
-
-        command.append("ln -sf " + package.getChrootRpmBuildDirectory() + "/BUILDROOT " + package.getChrootRpmBuildTmpDirectory())
-        command.append("ln -sf " + package.getChrootRpmBuildDirectory() + "/RPMS " + package.getChrootRpmBuildTmpDirectory())
-        command.append("ln -sf " + package.getChrootRpmBuildDirectory() + "/SOURCES " + package.getChrootRpmBuildTmpDirectory())
-        command.append("ln -sf " + package.getChrootRpmBuildDirectory() + "/SRPMS " + package.getChrootRpmBuildTmpDirectory())
-
-        command.append("chown -R root:users " + package.getChrootRpmBuildTmpDirectory())
-        command.append("chmod -R g+rwX " + package.getChrootRpmBuildTmpDirectory())
-
-        outputFilePath = os.path.join(package.getChrootRpmBuildTmpDirectory(),
-                                      "SOURCES", tarFile)
-        command.append(self.prepareGitCommand(packagePath,
-                                              self.makeArchiveGitSubcommand(outputFilePath,
-                                                                            prefix=tmpPath)))
-
-        self.execCommand(command=command)
-        pathToSaveSpec = specFile.replace(package.getChrootRpmBuildDirectory(),
-                                          package.getChrootRpmBuildTmpDirectory())
-
-        package.saveTmpSpec(path=self.getDirectory() + pathToSaveSpec,
-                            archive=tarFile)
-        command = []
-        command.append("HOME=/root/" + package.getName())
-        command.append("rpmbuild -bc --define '_srcdefattr (-,root,root)'" +
-                       " --define '%_topdir %{getenv:HOME}/" +
-                       package.getTopDirRpmBuildTmpDirectory() +
-                       "' " + pathToSaveSpec + " < /dev/null")
-        command.append("RPMBUILD_RETURN_CODE=$?")
-        command.append("cp -fpr  " + package.getChrootRpmBuildTmpDirectory() + "/BUILD/* " + package.getChrootRpmBuildDirectory() + "/BUILD/")
-        command.append("rm -r " + package.getChrootRpmBuildTmpDirectory() + "/TMP")
-        command.append("exit $RPMBUILD_RETURN_CODE")
-        return self.execCommand(command=command)
-        #self.__changeTopDir(package.getTopDirRpmBuildDirectory())
+        pathToSaveSpec = self.__prepGhostRpmbuild(package, specFile, packagePath, tarFile)
+        res = self.__createGhostRpmbuildCommand("bc", package, pathToSaveSpec)
+        if res == 0:
+            package.setChRootStatus("Built")
+        return res
 
     def installRpm(self, package, specFile, packagePath, tarFile):
         '''
         Execute the %install section of an RPM spec file.
         '''
         if package.getStatus() == "excluded":
-            raise ObsLightErr.ObsLightChRootError(package.getName() + " has a excluded status, it can't be install")
+            msg = u"Package '%s' has a excluded status, it can't be install" % package.getName()
+            raise ObsLightErr.ObsLightChRootError(msg)
 
         self.commitGit(mess="install", package=package)
-
-        #self.__changeTopDir(package.getTopDirRpmBuildTmpDirectory())
-        tmpPath = packagePath.replace(package.getChrootRpmBuildDirectory() + "/BUILD", "").strip("/")
-        tmpPath = tmpPath.strip("/")
-        command = []
-
-        command.append("mkdir -p " + package.getChrootRpmBuildTmpDirectory() + "/BUILD")
-        command.append("mkdir -p " + package.getChrootRpmBuildTmpDirectory() + "/SPECS")
-        command.append("mkdir -p " + package.getChrootRpmBuildTmpDirectory() + "/TMP")
-
-        command.append("ln -sf " + package.getChrootRpmBuildDirectory() + "/BUILDROOT " + package.getChrootRpmBuildTmpDirectory())
-        command.append("ln -sf " + package.getChrootRpmBuildDirectory() + "/RPMS " + package.getChrootRpmBuildTmpDirectory())
-        command.append("ln -sf " + package.getChrootRpmBuildDirectory() + "/SOURCES " + package.getChrootRpmBuildTmpDirectory())
-        command.append("ln -sf " + package.getChrootRpmBuildDirectory() + "/SRPMS " + package.getChrootRpmBuildTmpDirectory())
-
-        command.append("chown -R root:users " + package.getChrootRpmBuildTmpDirectory())
-        command.append("chmod -R g+rwX " + package.getChrootRpmBuildTmpDirectory())
-
-        outputFilePath = os.path.join(package.getChrootRpmBuildTmpDirectory(),
-                                      "SOURCES", tarFile)
-        command.append(self.prepareGitCommand(packagePath,
-                                              self.makeArchiveGitSubcommand(outputFilePath,
-                                                                            prefix=tmpPath)))
-        self.execCommand(command=command)
-        pathToSaveSpec = specFile.replace(package.getChrootRpmBuildDirectory(),
-                                          package.getChrootRpmBuildTmpDirectory())
-
-        package.saveTmpSpec(path=self.getDirectory() + pathToSaveSpec,
-                            archive=tarFile)
-        command = []
-        command.append("HOME=/root/" + package.getName())
-        command.append("rpmbuild -bi --define '_srcdefattr (-,root,root)' " +
-                       "--define '%_topdir %{getenv:HOME}/" +
-                       package.getTopDirRpmBuildTmpDirectory() + "' " +
-                       pathToSaveSpec + " < /dev/null")
-        command.append("RPMBUILD_RETURN_CODE=$?")
-
-        command.append("cp -fpr  " + package.getChrootRpmBuildTmpDirectory() + "/BUILD/* " + package.getChrootRpmBuildDirectory() + "/BUILD/")
-        command.append("rm -r " + package.getChrootRpmBuildTmpDirectory() + "/TMP")
-        command.append("exit $RPMBUILD_RETURN_CODE")
-        return self.execCommand(command=command)
+        pathToSaveSpec = self.__prepGhostRpmbuild(package, specFile, packagePath, tarFile)
+        res = self.__createGhostRpmbuildCommand("bi", package, pathToSaveSpec)
+        if res == 0:
+            package.setChRootStatus("Build Installed")
+        return res
 
     def packageRpm(self, package, specFile, packagePath, tarFile):
         '''
         Execute the package section of an RPM spec file.
         '''
         if package.getStatus() == "excluded":
-            raise ObsLightErr.ObsLightChRootError(package.getName() + " has a excluded status, it can't be install")
+            msg = u"Package '%s' has a excluded status, it can't be package" % package.getName()
+            raise ObsLightErr.ObsLightChRootError(msg)
 
         self.commitGit(mess="packageRpm", package=package)
-
-        #self.__changeTopDir(package.getTopDirRpmBuildTmpDirectory())
-        tmpPath = packagePath.replace(package.getChrootRpmBuildDirectory() + "/BUILD", "").strip("/")
-        tmpPath = tmpPath.strip("/")
-        command = []
-
-        command.append("mkdir -p " + package.getChrootRpmBuildTmpDirectory() + "/BUILD")
-        command.append("mkdir -p " + package.getChrootRpmBuildTmpDirectory() + "/TMP")
-        command.append("mkdir -p " + package.getChrootRpmBuildTmpDirectory() + "/SPECS")
-
-        command.append("ln -sf " + package.getChrootRpmBuildDirectory() + "/BUILDROOT " + package.getChrootRpmBuildTmpDirectory())
-        command.append("ln -sf " + package.getChrootRpmBuildDirectory() + "/RPMS " + package.getChrootRpmBuildTmpDirectory())
-        command.append("ln -sf " + package.getChrootRpmBuildDirectory() + "/SOURCES " + package.getChrootRpmBuildTmpDirectory())
-        command.append("ln -sf " + package.getChrootRpmBuildDirectory() + "/SRPMS " + package.getChrootRpmBuildTmpDirectory())
-
-        command.append("chown -R root:users " + package.getChrootRpmBuildTmpDirectory())
-        command.append("chmod -R g+rwX " + package.getChrootRpmBuildTmpDirectory())
-
-        outputFilePath = os.path.join(package.getChrootRpmBuildTmpDirectory(),
-                                      "SOURCES", tarFile)
-        command.append(self.prepareGitCommand(packagePath,
-                                              self.makeArchiveGitSubcommand(outputFilePath,
-                                                                            prefix=tmpPath)))
-        self.execCommand(command=command)
-        pathToSaveSpec = specFile.replace(package.getChrootRpmBuildDirectory(),
-                                          package.getChrootRpmBuildTmpDirectory())
-
-        package.saveTmpSpec(path=self.getDirectory() + pathToSaveSpec,
-                            archive=tarFile)
-        command = []
-        command.append("HOME=/root/" + package.getName())
-        command.append("rpmbuild -ba --define '_srcdefattr (-,root,root)' " +
-                       "--define '%_topdir %{getenv:HOME}/" +
-                       package.getTopDirRpmBuildTmpDirectory() +
-                       "' " + pathToSaveSpec + " < /dev/null")
-        command.append("RPMBUILD_RETURN_CODE=$?")
-        command.append("cp -fpr  " + package.getChrootRpmBuildTmpDirectory() + "/BUILD/* " + package.getChrootRpmBuildDirectory() + "/BUILD/")
-        command.append("rm -r " + package.getChrootRpmBuildTmpDirectory() + "/TMP")
-        command.append("exit $RPMBUILD_RETURN_CODE")
-
-        return self.execCommand(command=command)
+        pathToSaveSpec = self.__prepGhostRpmbuild(package, specFile, packagePath, tarFile)
+        res = self.__createGhostRpmbuildCommand("ba", package, pathToSaveSpec)
+        if res == 0:
+            package.setChRootStatus("Build Packaged")
+        return res
 
     def goToChRoot(self, path=None, detach=False, project=None):
         '''

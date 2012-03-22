@@ -124,8 +124,9 @@ class ObsLightPackage(object):
             if "prepDirName" in fromSave.keys():
                 self.__prepDirName = fromSave["prepDirName"]
 
-        self.__rpmBuildDirectory = "rpmbuild"
-        self.__rpmBuildTmpDirectory = "obslightbuild"
+        self.__rpmBuildDirectoryLink = "rpmbuild"
+        self.__rpmBuildDirectory = "obslightbuild"
+        self.__rpmBuildTmpDirectory = "obslightbuild_TMP"
 
         self.__chrootRpmBuildDirectory = "/root/" + self.__name + "/" + self.__rpmBuildDirectory
         self.__chrootRpmBuildTmpDirectory = "/root/" + self.__name + "/" + self.__rpmBuildTmpDirectory
@@ -221,6 +222,12 @@ class ObsLightPackage(object):
         
         '''
         return  self.__rpmBuildDirectory
+
+    def getTopDirRpmBuildLinkDirectory(self):
+        '''
+        
+        '''
+        return self.__rpmBuildDirectoryLink
 
     def getTopDirRpmBuildTmpDirectory(self):
         '''

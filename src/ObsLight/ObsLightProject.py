@@ -119,12 +119,12 @@ class ObsLightProject(object):
                     if self.__chroot.isInit():
                         self.__chrootIsInit = True
 
-            if self.__chrootIsInit:
-                for packageName in self.__packages.getListPackages():
-                    absPackagePath = self.getAbsPackagePath(name=packageName)
-                    if absPackagePath != None:
-                        if not os.path.isdir(absPackagePath) :
-                            self.addPackageSourceInChRoot(package=packageName)
+#            if self.__chrootIsInit:
+#                for packageName in self.__packages.getListPackages():
+#                    absPackagePath = self.getAbsPackagePath(name=packageName)
+#                    if absPackagePath != None:
+#                        if not os.path.isdir(absPackagePath) :
+#                            self.addPackageSourceInChRoot(package=packageName)
 
         if not os.path.isdir(self.getDirectory()):
             os.makedirs(self.getDirectory())
@@ -403,6 +403,7 @@ class ObsLightProject(object):
 
         listSpecFile = []
         yamlFile = None
+        specFile = None
 
         for f in listFile:
             if self.__isASpecfile(f):
