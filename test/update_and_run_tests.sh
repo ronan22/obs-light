@@ -14,13 +14,12 @@ OBSLIGHT_OPTIONS="quiet"
 [ -z "$DRY_RUN" ] && declare -r DRY_RUN=true
 
 # Setting DEBUG to something different from false activates bash's "-x" option
-[ -n "$DEBUG" -a "$DEBUG" != false ] set -x
+[ -n "$DEBUG" -a "$DEBUG" != false ] && set -x
 
 # If we are doing a dry run, tell it to sub-commands
 if [ $DRY_RUN != false ]
 then
 	APT_ARGS="$APT_ARGS --dry-run"
-	ZYPPER_ARGS="$ZYPPER_ARGS --dry-run"
 	OBSLIGHT_OPTIONS="$OBSLIGHT_OPTIONS noaction"
 fi
 
@@ -55,6 +54,12 @@ fi
 function print()
 {
 	echo -e "\e[32;1m$*\e[0m"
+}
+
+# Print a warning message, in yellow
+function print_warning()
+{
+	echo -e "\e[33;1m$*\e[0m"
 }
 
 # Print an error message, in red
@@ -96,7 +101,12 @@ function update()
 	"opensuse")
 		print "Updating OBS Light using zypper..."
 		sudo zypper $ZYPPER_ARGS refresh || return $?
-		sudo zypper $ZYPPER_ARGS install obslight obslight-gui
+		if [ $DRY_RUN != false ]
+		then
+			sudo zypper $ZYPPER_ARGS install --dry-run obslight obslight-gui
+		else
+			sudo zypper $ZYPPER_ARGS install obslight obslight-gui
+		fi
 		;;
 	"fedora")
 		print "Updating OBS Light using yum..."
@@ -184,7 +194,10 @@ function add_package()
 	return_code=$?
 	while [ $return_code -ne 0 -a $retries -lt $MAX_RETRIES ]
 	do
-		repair_package $1
+		print_warning "  Package import failed ($return_code), "\
+			"retrying... ($retries)"
+		obslight $OBSLIGHT_OPTIONS package add package $1 \
+			project_alias $PROJECT_ALIAS
 		return_code=$?
 		((retries++))
 	done
@@ -316,7 +329,7 @@ function get_all_initialized_packages()
 	for package in $all_packages
 	do
 		local -l is_init
-		is_init=`obslight $OBSLIGHT_OPTIONS package isinit package $package \
+		is_init=`obslight $OBSLIGHT_OPTIONS rpmbuild isinit package $package \
 				project_alias $PROJECT_ALIAS`
 		if [ "$is_init" = "true" ]
 		then
