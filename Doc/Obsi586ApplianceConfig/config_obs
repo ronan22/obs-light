@@ -17,12 +17,12 @@ sed -i "s,\`hostname -f\`,$theHostName," /etc/init.d/obsapisetup
 echo "127.0.0.1 $theHostName" >> /etc/hosts
 
 #Configure build architecture
-sed -i "s,^OBS_SCHEDULER_ARCHITECTURES=\"i586 x86_64\",OBS_SCHEDULER_ARCHITECTURES=\"i586 armv8el\"," /etc/sysconfig/obs-server
-sed -i "s,^OBS_SCHEDULER_ARCHITECTURES=\"i586 x86_64\",OBS_SCHEDULER_ARCHITECTURES=\"i586 armv8el\"," /etc/sysconfig/obs-server
+sed -i "s,^OBS_SCHEDULER_ARCHITECTURES=\"i586 x86_64\",OBS_SCHEDULER_ARCHITECTURES=\"i586\"," /etc/sysconfig/obs-server
+sed -i "s,^OBS_SCHEDULER_ARCHITECTURES=\"i586 x86_64\",OBS_SCHEDULER_ARCHITECTURES=\"i586\"," /etc/sysconfig/obs-server
 
 #Configure build architecture in web interface
-sed -i "s,^visible_architectures:.*$,visible_architectures: [ \"i586\"\, \"armv8el\" ]," /srv/www/obs/webui/config/options.yml
-sed -i "s,^default_enabled_architectures:.*$,default_enabled_architectures: [ \"i586\"\, \"armv8el\" ]," /srv/www/obs/webui/config/options.yml
+sed -i "s,^visible_architectures:.*$,visible_architectures: [ \"i586\"\ ]," /srv/www/obs/webui/config/options.yml
+sed -i "s,^default_enabled_architectures:.*$,default_enabled_architectures: [ \"i586\" ]," /srv/www/obs/webui/config/options.yml
 
 
 #For the VM no VM.

@@ -565,7 +565,9 @@ class ObsLightChRoot(object):
         srcdefattr = "--define '_srcdefattr (-,root,root)'"
         topdir = "--define '%_topdir %{getenv:HOME}/" + package.getTopDirRpmBuildLinkDirectory() + "'"
 
-        rpmbuilCmd = "rpmbuild -bp %s %s %s < /dev/null" % (srcdefattr, topdir, specFile)
+        rpmbuilCmd = "rpmbuild -bp %s %s %s < /dev/null" % (srcdefattr,
+                                                            topdir,
+                                                            specFile.replace(buildDir, buildLink))
 
         command = []
         command.append("HOME=/root/" + package.getName())
