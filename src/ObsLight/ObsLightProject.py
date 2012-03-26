@@ -409,7 +409,9 @@ class ObsLightProject(object):
             if self.__isASpecfile(f):
                 listSpecFile.append(f)
             elif self.__isAyamlfile(f):
-                yamlFile = f
+                pass
+            #disable the yaml file management.
+#                yamlFile = f
 
         if len(listSpecFile) > 1:
             specFile = None
