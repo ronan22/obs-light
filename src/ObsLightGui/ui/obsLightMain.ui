@@ -21,6 +21,14 @@
    <locale language="English" country="UnitedStates"/>
   </property>
   <widget class="QWidget" name="centralwidget">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>938</width>
+     <height>562</height>
+    </rect>
+   </property>
    <property name="sizePolicy">
     <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
      <horstretch>0</horstretch>
@@ -134,7 +142,7 @@
                  <property name="minimumSize">
                   <size>
                    <width>0</width>
-                   <height>140</height>
+                   <height>100</height>
                   </size>
                  </property>
                  <property name="autoFillBackground">
@@ -148,8 +156,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>187</width>
-                    <height>134</height>
+                    <width>239</width>
+                    <height>105</height>
                    </rect>
                   </property>
                   <layout class="QGridLayout" name="gridLayout_2" columnstretch="0,1">
@@ -504,7 +512,7 @@
                  <property name="minimumSize">
                   <size>
                    <width>0</width>
-                   <height>140</height>
+                   <height>100</height>
                   </size>
                  </property>
                  <property name="autoFillBackground">
@@ -518,8 +526,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>331</width>
-                    <height>134</height>
+                    <width>350</width>
+                    <height>97</height>
                    </rect>
                   </property>
                   <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -1947,7 +1955,16 @@ If destination does not exist on your host, select '/', validate, and edit desti
    <addaction name="menuWindow"/>
    <addaction name="menuHelp"/>
   </widget>
-  <widget class="QStatusBar" name="mainStatusBar"/>
+  <widget class="QStatusBar" name="mainStatusBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>3</width>
+     <height>19</height>
+    </rect>
+   </property>
+  </widget>
   <action name="actionExit">
    <property name="text">
     <string>Exit</string>
@@ -2030,6 +2047,14 @@ If destination does not exist on your host, select '/', validate, and edit desti
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ObsLightGuiMainWindow</class>
+   <extends>QWidget</extends>
+   <header>obslightguimainwindow.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>
