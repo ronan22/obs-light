@@ -1,0 +1,12 @@
+#!/bin/bash -e
+# Authors Ronan Le Martret (Intel OTC)
+# ronan@fridu.net
+# Date 03 january 2012
+# License GLPv2
+
+echo "Appliance from http://susegallery.com/a/e0uuBG/meego-obs"
+echo "http://wiki.meego.com/OBS_Light"
+echo "Login/PW:root/opensuse"
+echo "Login/PW:tux/opensuse"
+echo Server OBS ready http://`/sbin/ifconfig  | grep 'inet '| grep -v '127.0.0.1' | cut -d: -f2 | awk '{ print $1}'`/
+echo "To login to the webinterface, please use the username 'Admin' with password 'opensuse'."

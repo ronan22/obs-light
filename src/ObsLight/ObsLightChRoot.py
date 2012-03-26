@@ -565,7 +565,9 @@ class ObsLightChRoot(object):
         srcdefattr = "--define '_srcdefattr (-,root,root)'"
         topdir = "--define '%_topdir %{getenv:HOME}/" + package.getTopDirRpmBuildLinkDirectory() + "'"
 
-        rpmbuilCmd = "rpmbuild -bp %s %s %s < /dev/null" % (srcdefattr, topdir, specFile)
+        rpmbuilCmd = "rpmbuild -bp %s %s %s < /dev/null" % (srcdefattr,
+                                                            topdir,
+                                                            specFile.replace(buildDir, buildLink))
 
         command = []
         command.append("HOME=/root/" + package.getName())
@@ -667,8 +669,13 @@ class ObsLightChRoot(object):
             raise ObsLightErr.ObsLightChRootError(msg)
 
         self.commitGit(mess="build", package=package)
+
         pathToSaveSpec = self.__prepGhostRpmbuild(package, specFile, packagePath, tarFile)
         res = self.__createGhostRpmbuildCommand("bc", package, pathToSaveSpec)
+
+        self.ignoreGitWatch(path=package.getPackageDirectory(),
+                            commitComment="build commit",
+                            firstBuildCommit=False)
         if res == 0:
             package.setChRootStatus("Built")
         return res
@@ -682,8 +689,13 @@ class ObsLightChRoot(object):
             raise ObsLightErr.ObsLightChRootError(msg)
 
         self.commitGit(mess="install", package=package)
+
         pathToSaveSpec = self.__prepGhostRpmbuild(package, specFile, packagePath, tarFile)
         res = self.__createGhostRpmbuildCommand("bi", package, pathToSaveSpec)
+
+        self.ignoreGitWatch(path=package.getPackageDirectory(),
+                            commitComment="build install commit",
+                            firstBuildCommit=False)
         if res == 0:
             package.setChRootStatus("Build Installed")
         return res
@@ -697,8 +709,13 @@ class ObsLightChRoot(object):
             raise ObsLightErr.ObsLightChRootError(msg)
 
         self.commitGit(mess="packageRpm", package=package)
+
         pathToSaveSpec = self.__prepGhostRpmbuild(package, specFile, packagePath, tarFile)
         res = self.__createGhostRpmbuildCommand("ba", package, pathToSaveSpec)
+
+        self.ignoreGitWatch(path=package.getPackageDirectory(),
+                            commitComment="build package commit",
+                            firstBuildCommit=False)
         if res == 0:
             package.setChRootStatus("Build Packaged")
         return res
@@ -759,30 +776,37 @@ class ObsLightChRoot(object):
         if path == None:
             raise ObsLightErr.ObsLightChRootError("Path is not defined in initGitWatch.")
 
+        timeString = time.strftime("%Y-%m-%d_%Hh%Mm%Ss")
+        comment = '\"auto commit first commit %s\"' % timeString
+
         command = []
         command.append("git init " + path)
         command.append(self.prepareGitCommand(path, "add " + path + "/\*"))
-        command.append(self.prepareGitCommand(path, "commit -a -m \"first commit\""))
+        command.append(self.prepareGitCommand(path, "commit -a -m %s" % comment))
         self.execCommand(command=command)
 
-    def ignoreGitWatch(self, path=None):
-        u'''
+    def ignoreGitWatch(self, path=None, commitComment="first build commit", firstBuildCommit=True):
+        '''
         Add all Git untracked files of `path` to .gitignore
         and commit.
         '''
         if path == None:
             raise ObsLightErr.ObsLightChRootError("path is not defined in initGitWatch.")
 
+        timeString = time.strftime("%Y-%m-%d_%Hh%Mm%Ss")
+        comment = '\"auto commit %s %s\"' % (commitComment, timeString)
+
         command = []
         command.append(self.prepareGitCommand(path,
                                               u"status -u -s | sed -e 's/^[ \t]*//' " +
                                               u"| cut -d' ' -f2 >> %s/.gitignore" % path))
-        command.append("echo debugfiles.list >> " + path + "/.gitignore")
-        command.append("echo debuglinks.list >> " + path + "/.gitignore")
-        command.append("echo debugsources.list >> " + path + "/.gitignore")
-        command.append("echo *.in >> " + path + "/.gitignore")
-        command.append(self.prepareGitCommand(path, u"add " + path + "/.gitignore"))
-        command.append(self.prepareGitCommand(path, u"commit -a -m \"first build commit\""))
+        if firstBuildCommit:
+            command.append("echo debugfiles.list >> " + path + "/.gitignore")
+            command.append("echo debuglinks.list >> " + path + "/.gitignore")
+            command.append("echo debugsources.list >> " + path + "/.gitignore")
+            command.append("echo *.in >> " + path + "/.gitignore")
+            command.append(self.prepareGitCommand(path, u"add " + path + "/.gitignore"))
+        command.append(self.prepareGitCommand(path, u"commit -a -m %s" % comment))
         self.execCommand(command=command)
 
     def getCommitTag(self, path):
@@ -811,8 +835,12 @@ class ObsLightChRoot(object):
         command = []
         if path == None:
             raise ObsLightErr.ObsLightChRootError("path is not defined in commitGit for .")
-        command.append(self.prepareGitCommand(path, " add " + path + "/\*"))
-        command.append(self.prepareGitCommand(path, " commit -a -m \"" + mess + "\""))
+
+        timeString = time.strftime("%Y-%m-%d_%Hh%Mm%Ss")
+        comment = '\"auto commit %s %s\"' % (mess, timeString)
+
+        command.append(self.prepareGitCommand(path, " add %s/\*" % path))
+        command.append(self.prepareGitCommand(path, " commit -a -m %s" % comment))
         self.execCommand(command=command)
 
     def createPatch(self, package=None, patch=None):

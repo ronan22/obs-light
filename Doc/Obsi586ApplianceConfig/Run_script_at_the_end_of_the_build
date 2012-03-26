@@ -1,0 +1,41 @@
+#!/bin/bash
+#
+# This script is executed at the end of appliance creation.  Here you can do
+# one-time actions to modify your appliance before it is ever used, like
+# removing files and directories to make it smaller, creating symlinks,
+# generating indexes, etc.
+#
+# The 'kiwi_type' variable will contain the format of the appliance (oem =
+# disk image, vmx = VMware, iso = CD/DVD, xen = Xen).
+#
+
+# read in some variables
+. /studio/profile
+
+#init services
+insserv mysql
+insserv memcached
+
+insserv obsrepserver
+insserv obssrcserver
+insserv obsscheduler
+insserv obsdispatcher
+insserv obspublisher
+insserv obsworker
+insserv obsapisetup
+insserv obsstoragesetup
+
+# enable autosetup
+sed -i 's,OBS_API_AUTOSETUP=.*,OBS_API_AUTOSETUP="yes",' /etc/sysconfig/obs-server
+sed -i 's,OBS_STORAGE_AUTOSETUP=.*,OBS_STORAGE_AUTOSETUP="yes",' /etc/sysconfig/obs-server
+
+sed -i 's,.*our $serviceserve.*,our $serviceserver = "http://127.0.0.1:5152";,' /usr/lib/obs/server/BSConfig.pm
+sed -i 's,^our $repodownload.*,our $repodownload = "http://127.0.0.1:82/";,' /usr/lib/obs/server/BSConfig.pm
+
+sed -i 's,^datadir.=.*,datadir = /srv/obs/MySQL,' /etc/my.cnf
+
+#this is my main script
+bash /var/config_obs
+
+# read in KIWI utility functions
+. /.kconfig

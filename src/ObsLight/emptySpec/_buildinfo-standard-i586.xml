@@ -1,0 +1,161 @@
+<buildinfo project="MeeGo:1.2:oss" repository="standard" downloadurl="http://download.meego.com/live">
+  <arch>i586</arch>
+  <debuginfo>0</debuginfo>
+  <subpack>emptySpec</subpack>
+  <bdep name="rpm" preinstall="1" version="4.8.1" release="6.6" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="rpm-libs" preinstall="1" notmeta="1" version="4.8.1" release="6.6" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="bash" preinstall="1" notmeta="1" epoch="1" version="3.2.51" release="1.10" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="bzip2" preinstall="1" notmeta="1" version="1.0.6" release="2.29" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="coreutils" preinstall="1" notmeta="1" epoch="1" version="6.9" release="10.11" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="diffutils" preinstall="1" notmeta="1" version="2.8.1" release="28.35" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="liblua" preinstall="1" notmeta="1" version="5.1.4" release="14.35" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="db4" preinstall="1" notmeta="1" version="4.8.30" release="1.138" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="filesystem" preinstall="1" notmeta="1" version="2.4.31" release="6.5" arch="noarch" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="glibc" preinstall="1" version="2.11.90" release="24.7" arch="i686" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="glibc-common" preinstall="1" notmeta="1" version="2.11.90" release="24.7" arch="i686" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="libacl" preinstall="1" notmeta="1" version="2.2.49" release="11.14" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="libattr" preinstall="1" notmeta="1" version="2.4.43" release="6.18" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="libgcc" preinstall="1" notmeta="1" version="4.5.1" release="3.103" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="pam" preinstall="1" notmeta="1" version="1.1.1" release="6.11" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="nss" preinstall="1" notmeta="1" version="3.12.9" release="3.54" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="nspr" preinstall="1" notmeta="1" version="4.8.7" release="1.161" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="libcap" preinstall="1" notmeta="1" version="2.19" release="1.25" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="popt" preinstall="1" notmeta="1" version="1.16" release="1.19" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="readline" preinstall="1" notmeta="1" version="5.2" release="20.20" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="sed" preinstall="1" notmeta="1" epoch="1" version="4.1.5" release="19.9" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="tar" preinstall="1" notmeta="1" epoch="1" version="1.17" release="2.9" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="zlib" preinstall="1" notmeta="1" version="1.2.5" release="2.90" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="sqlite" preinstall="1" notmeta="1" version="3.7.2" release="3.7" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="ncurses-libs" preinstall="1" notmeta="1" version="5.7" release="8.30" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="elfutils-libelf" preinstall="1" notmeta="1" version="0.148" release="1.113" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="bzip2-libs" preinstall="1" notmeta="1" version="1.0.6" release="2.29" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="libstdc++" preinstall="1" notmeta="1" version="4.5.1" release="3.103" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="setup" preinstall="1" notmeta="1" version="2.8.15" release="9.85" arch="noarch" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="file-libs" preinstall="1" notmeta="1" version="5.04" release="3.38" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="nss-softokn-freebl" preinstall="1" notmeta="1" version="3.12.9" release="3.54" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="xz-libs" preinstall="1" notmeta="1" version="4.999.9_git20100201" release="2.28" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="util-linux-ng" vminstall="1" notmeta="1" epoch="1" version="2.16" release="9.10" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="perl" vminstall="1" notmeta="1" version="5.12.1" release="63.259" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="libblkid" vminstall="1" notmeta="1" epoch="1" version="2.16" release="9.10" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="e2fsprogs-libs" vminstall="1" notmeta="1" version="1.41.9" release="7.138" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="libuuid" vminstall="1" notmeta="1" epoch="1" version="2.16" release="9.10" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="perl-libs" vminstall="1" notmeta="1" version="5.12.1" release="63.259" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="grep" vminstall="1" notmeta="1" epoch="1" version="2.5.1a" release="61.14" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="pcre" vminstall="1" version="8.11" release="1.6" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="btrfs-progs" vminstall="1" notmeta="1" version="0.19" release="13.6" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="binutils" version="2.20.51.0.2" release="15.74" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="gcc" version="4.5.1" release="3.103" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="rpm-build" version="4.8.1" release="6.6" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="libtool" version="2.2.6b" release="5.4" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="db4-utils" version="4.8.30" release="1.138" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="gmp" version="4.3.1" release="7.22" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="glibc-devel" version="2.11.90" release="24.7" arch="i686" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="mpfr" version="2.4.1" release="4.23" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="ppl" version="0.10.2" release="10.177" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="cloog-ppl" version="0.15.7" release="3.30" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="mpc" version="0.8.1" release="3.3" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="cpp" version="4.5.1" release="3.103" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="basesystem" version="8.1" release="7.12" arch="noarch" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="xz" version="4.999.9_git20100201" release="2.28" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="elfutils" version="0.148" release="1.113" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="cloog" version="0.15.7" release="3.30" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="gdbm" version="1.8.3" release="376.31" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="perl-Pod-Simple" version="3.07" release="63.259" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="perl-Module-Pluggable" version="3.60" release="63.259" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="perl-IO-Compress-Base" version="2.008" release="63.259" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="perl-IO-Compress-Zlib" version="2.008" release="63.259" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="elfutils-libs" version="0.148" release="1.113" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="nss-sysinit" version="3.12.9" release="3.54" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="perl-Pod-Escapes" version="1.04" release="63.259" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="perl-Compress-Raw-Zlib" version="2.008" release="63.259" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="ncurses" version="5.7" release="8.30" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="ncurses-base" version="5.7" release="8.30" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="git" notmeta="1" version="1.7.2.2" release="2.122" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="zypper" notmeta="1" version="1.5.3" release="1.160" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="gzip" notmeta="1" version="1.3.14" release="8.57" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="strace" notmeta="1" version="4.5.19" release="4.25" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="iputils" notmeta="1" version="20071127" release="19.57" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="ncurses-devel" notmeta="1" version="5.7" release="8.30" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="build" notmeta="1" version="2011.01.10a" release="1.6" arch="noarch" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="build-compare" notmeta="1" version="2009.10.14" release="26.134" arch="noarch" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="rpmlint-MeeGo" notmeta="1" version="1.0" release="47.3" arch="noarch" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="cpio" notmeta="1" version="2.8" release="1.1" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="gcc-c++" notmeta="1" version="4.5.1" release="3.103" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="net-tools" notmeta="1" version="1.60" release="101.22" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="findutils" notmeta="1" epoch="1" version="4.2.31" release="2.9" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="file" notmeta="1" version="5.04" release="3.38" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="info" notmeta="1" version="4.13a" release="10.40" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="xz-lzma-compat" notmeta="1" version="4.999.9_git20100201" release="2.28" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="make" notmeta="1" version="3.81" release="21.39" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="patch" notmeta="1" version="2.6.1" release="36.38" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="gawk" notmeta="1" epoch="1" version="3.1.5" release="1.55" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="pkgconfig" notmeta="1" version="0.23" release="10.7" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="autoconf" notmeta="1" version="2.68" release="1.14" arch="noarch" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="automake" notmeta="1" version="1.11.1" release="5.14" arch="noarch" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="unzip" notmeta="1" version="6.0" release="10.186" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="groff" notmeta="1" version="1.18.1.4" release="23.71" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="shadow-utils" notmeta="1" version="4.1.4.2" release="4.20" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="m4" notmeta="1" version="1.4.13" release="10.48" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="tzdata" notmeta="1" version="2011e" release="1.1" arch="noarch" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="meego-rpm-config" notmeta="1" version="0.9" release="2.6" arch="noarch" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="meego-release" notmeta="1" version="1.2.0.90" release="1.1" arch="noarch" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="kernel-headers" notmeta="1" version="2.6.37" release="1.12" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="glibc-headers" notmeta="1" version="2.11.90" release="24.7" arch="i686" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="vim-enhanced" notmeta="1" version="7.2.403" release="2.328" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="openssl" notmeta="1" version="1.0.0c" release="2.45" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="expat" notmeta="1" version="2.0.1" release="16.38" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="libcurl" notmeta="1" version="7.21.2" release="2.4" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="rsync" notmeta="1" version="3.0.8" release="1.19" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="openssh-clients" notmeta="1" version="5.6p1" release="3.16" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="less" notmeta="1" version="436" release="7.35" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="perl-Error" notmeta="1" version="0.17015" release="6.11" arch="noarch" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="perl-Git" notmeta="1" version="1.7.2.2" release="2.122" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="libzypp" notmeta="1" version="8.12.1" release="3.32" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="augeas-libs" notmeta="1" version="0.7.2" release="2.22" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="procps" notmeta="1" version="3.2.8" release="4.38" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="libidn" notmeta="1" version="1.19" release="1.7" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="chkconfig" notmeta="1" version="1.3.48" release="1.11" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="perl-TimeDate" notmeta="1" version="1.20" release="5.13" arch="noarch" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="rpmlint-mini" notmeta="1" version="1.1" release="223.48" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="libstdc++-devel" notmeta="1" version="4.5.1" release="3.103" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="python-libs" notmeta="1" version="2.6.4" release="8.95" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="vim-common" notmeta="1" version="7.2.403" release="2.328" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="krb5-libs" notmeta="1" version="1.7.1" release="10.14" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="openssh" notmeta="1" version="5.6p1" release="3.16" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="libxml2" notmeta="1" version="2.7.8" release="8.24" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="libudev" notmeta="1" version="161" release="11.3" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="pacrunner" notmeta="1" version="0.2" release="4.5" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="gnupg2" notmeta="1" epoch="1" version="2.0.4" release="1.22" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="satsolver-tools" notmeta="1" version="0.16.1" release="2.18" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="python" notmeta="1" version="2.6.4" release="8.95" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="libcom_err" notmeta="1" version="1.41.9" release="7.138" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="keyutils-libs" notmeta="1" version="1.2" release="5.113" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="fastinit" notmeta="1" version="1.28" release="8.4" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="udev" notmeta="1" version="161" release="11.3" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="glib2" notmeta="1" version="2.28.6" release="2.5" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="dbus-libs" notmeta="1" version="1.4.1" release="3.4" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="v8" notmeta="1" version="2.4.8" release="2.8" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="libusb" notmeta="1" version="0.1.12" release="26.33" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="libgcrypt" notmeta="1" version="1.4.5" release="2.33" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="libgpg-error" notmeta="1" version="1.9" release="1.27" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="libksba" notmeta="1" version="1.0.1" release="1.21" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="pth" notmeta="1" version="2.0.7" release="13.39" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="libffi" notmeta="1" version="3.0.9" release="8.12" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="sysklogd" notmeta="1" version="1.5" release="14.12" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="sysvinit" notmeta="1" version="2.86" release="55.6" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="e2fsprogs" notmeta="1" version="1.41.9" release="7.138" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="hwdata" notmeta="1" version="0.225" release="4.8" arch="noarch" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="MAKEDEV" notmeta="1" version="3.24" release="3.35" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="mkdevnodes" notmeta="1" version="0.2" release="1.13" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="ConsoleKit" notmeta="1" version="0.4.2" release="4.20" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="gamin" notmeta="1" version="0.1.10" release="6.34" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="dbus" notmeta="1" version="1.4.1" release="3.4" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="logrotate" notmeta="1" version="3.7.8" release="7.18" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="sysvinit-tools" notmeta="1" version="2.86" release="55.6" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="libss" notmeta="1" version="1.41.9" release="7.138" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="dbus-glib" notmeta="1" version="0.92" release="1.5" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="polkit" notmeta="1" version="0.96" release="3.14" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="ConsoleKit-libs" notmeta="1" version="0.4.2" release="4.20" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <bdep name="eggdbus" notmeta="1" version="0.6" release="2.55" arch="i586" project="MeeGo:1.2:oss" repository="standard" />
+  <path project="MeeGo:1.2:oss" repository="standard" />
+</buildinfo>
