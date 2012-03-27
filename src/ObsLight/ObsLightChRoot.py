@@ -80,9 +80,9 @@ class ObsLightChRoot(object):
         Construct a Git command-line, setting its working tree to `workTree`,
         and then appends `subcommand`.
         Output example:
-          git --git-dir=<workTree>/.git --work-tree=<workTree> <subcommand>
+          git --git-dir=<workTree>/../.git_obslight --work-tree=<workTree> <subcommand>
         """
-        command = "git --git-dir=%s/.git --work-tree=%s " % (workTree, workTree)
+        command = "git --git-dir=%s/../.git_obslight --work-tree=%s " % (workTree, workTree)
         command += subcommand
         return command
 
@@ -346,10 +346,24 @@ class ObsLightChRoot(object):
                 command.append('export https_proxy=' + proxies[scheme])
         return command
 
+
+    def installBuildRequires(self, package, listPackageBuildRequires):
+        command = []
+        command.append("zypper --no-gpg-checks --gpg-auto-import-keys ref")
+        command.append("zypper --non-interactive in --force-resolution " + " ".join(listPackageBuildRequires))
+        res = self.execCommand(command=command)
+
+        if res != 0:
+            msg = "The installation of some dependencies of '%s' failed\n" % package.getName()
+            msg += "Maybe a repository is missing."
+            raise ObsLightErr.ObsLightChRootError(msg)
+
+        return res
+
     def addPackageSourceInChRoot(self, package,
                                        specFile,
-                                       repo,
-                                       listPackageBuildRequires):
+                                       repo):
+
         if package.getStatus() == "excluded":
             message = "%s has a excluded status, it can't be installed"
             raise ObsLightErr.ObsLightChRootError(message % package.getName())
@@ -371,14 +385,7 @@ class ObsLightChRoot(object):
             for c in self.__getProxyconfig():
                 command.append(c)
 
-            command.append("zypper --no-gpg-checks --gpg-auto-import-keys ref")
-            command.append("zypper --non-interactive in --force-resolution " + " ".join(listPackageBuildRequires))
             res = self.execCommand(command=command)
-
-            if res != 0:
-                msg = "The installation of some dependencies of '%s' failed\n" % packageName
-                msg += "Maybe a repository is missing."
-                raise ObsLightErr.ObsLightChRootError(msg)
 
             specDirPath = self.getDirectory() + "/" + chrootRpmBuildDirectory + "/SPECS/"
             if os.path.isdir(specDirPath):
@@ -576,7 +583,7 @@ class ObsLightChRoot(object):
         command.append("ln -s %s %s" % (buildDir, buildLink))
         command.append(rpmbuilCmd)
         command.append("RPMBUILD_RETURN_CODE=$?")
-        command.append("find %s -type f -name .gitignore -exec rm {} \;" % os.path.join(buildDir, "BUILD"))
+        command.append("find %s -type f -name .gitignore -exec rm -v {} \; -print" % os.path.join(buildDir, "BUILD"))
         command.append("exit $RPMBUILD_RETURN_CODE")
         return self.execCommand(command=command)
 
@@ -781,7 +788,7 @@ class ObsLightChRoot(object):
         comment = '\"auto commit first commit %s\"' % timeString
 
         command = []
-        command.append("git init " + path)
+        command.append(self.prepareGitCommand(path, "init "))
         command.append(self.prepareGitCommand(path, "add " + path + "/\*"))
         command.append(self.prepareGitCommand(path, "commit -a -m %s" % comment))
         self.execCommand(command=command)

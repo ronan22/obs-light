@@ -744,11 +744,12 @@ class ObsLightProject(object):
                                                                                                             package,
                                                                                                             self.__projectTarget ,
                                                                                                             self.__projectArchitecture)
+        res = self.__chroot.installBuildRequires(self.__packages.getPackage(package),
+                                                listPackageBuildRequires)
 
         res = self.__chroot.addPackageSourceInChRoot(package=self.__packages.getPackage(package),
                                                specFile=specFile,
-                                               repo=self.__projectObsName,
-                                               listPackageBuildRequires=listPackageBuildRequires)
+                                               repo=self.__projectObsName)
         return res
 
 
@@ -760,6 +761,7 @@ class ObsLightProject(object):
         sectionMap = {"build": self.__chroot.buildRpm,
                       "install": self.__chroot.installRpm,
                       "files": self.__chroot.packageRpm}
+
         pkgObj = self.__packages.getPackage(packageName)
         pkgPath = pkgObj.getPackageDirectory()
         specFileName = pkgObj.getSpecFile()
@@ -768,6 +770,15 @@ class ObsLightProject(object):
         name = pkgObj.getMacroDirectoryPackageName()
         if name is None:
             return 0
+
+        listPackageBuildRequires = self.__obsServers.getObsServer(self.__obsServer).getPackageBuildRequires(self.__projectObsName,
+                                                                                                            packageName,
+                                                                                                            self.__projectTarget ,
+                                                                                                            self.__projectArchitecture)
+
+        res = self.__chroot.installBuildRequires(pkgObj,
+                                                listPackageBuildRequires)
+
         tarFile = pkgObj.getArchiveName()
         retVal = sectionMap[section](package=pkgObj,
                                      specFile=specFilePath,
