@@ -23,6 +23,12 @@ then
 	OBSLIGHT_OPTIONS="$OBSLIGHT_OPTIONS noaction"
 fi
 
+# Mailing parameters
+[ -z "$FROM_ADDR" ] && declare -r FROM_ADDR="florent@fridu.net"
+[ -z "$TO_ADDR" ] && declare -r TO_ADDR="florent@fridu.net"
+[ -z "$SMTP_SERVER" ] && declare -r SMTP_SERVER="smtp.googlemail.com:465"
+[ -z "$SMTP_PASSWORD" ] && declare -r SMTP_PASSWORD=""
+
 # Check if user provided us with the address of an OBS appliance
 [ -z "$OBS_HOST" ] && declare -r OBS_HOST="128.224.219.10"
 declare -r API_URL="http://$OBS_HOST:81/"
@@ -45,6 +51,11 @@ then
 fi
 
 [ -z "$MAX_RETRIES" ] && declare -r -i MAX_RETRIES=5
+
+declare DATE=`date "+%Y-%m-%d %T"`
+declare ARCH=`uname -m`
+declare DISTRO
+declare ERRORS=""
 
 #####################################################################
 ###  Utility functions  #############################################
@@ -80,7 +91,7 @@ function usage()
 function handle_error()
 {
 	print_error "An error occured (return code $?)"
-	exit 2
+	return 2
 }
 
 function guess_distro()
@@ -91,6 +102,54 @@ function guess_distro()
 	done
 	echo "unknown"
 	return 1
+}
+
+function compress_file()
+{
+	gzip -c $1 > $1.gz
+	echo $1.gz
+}
+
+function get_emailer()
+{
+	local DISTRO=$1
+	case $DISTRO in
+	"ubuntu"|"debian")
+		sudo apt-get $APT_ARGS install libio-socket-ssl-perl \
+			libdigest-hmac-perl libterm-readkey-perl \
+			libmime-lite-perl libfile-type-perl libio-socket-inet6-perl
+		;;
+	"opensuse")
+		sudo zypper $ZYPPER_ARGS install perl-IO-Socket-SSL \
+			perl-Digest-HMAC perl-TermReadKey perl-MIME-Lite \
+			perl-File-Type perl-IO-Socket-INET6
+		;;
+	"fedora")
+		sudo yum $YUM_ARGS install perl-IO-Socket-SSL \
+			perl-Digest-HMAC perl-TermReadKey \
+			perl-MIME-Lite perl-File-Type perl-IO-Socket-INET6
+		;;
+	*)
+		print_error "Unknown distribution: '$DISTRO'"
+		return 1
+		;;
+	esac
+	print "Getting mail sending script"
+	wget http://www.logix.cz/michal/devel/smtp-cli/smtp-cli -O /tmp/smtp-cli
+	chmod +x /tmp/smtp-cli
+}
+
+function send_report_by_email()
+{
+	local body="$DATE\n$1"
+	local version=`get_obslight_version`
+	local subject="Test result: $version on $DISTRO $ARCH"
+	local attachment=`compress_file ~/OBSLight/obslight.log`
+	/tmp/smtp-cli --user "$FROM_ADDR" --pass "$SMTP_PASSWORD" \
+		--server "$SMTP_SERVER" --ssl \
+		--from "$FROM_ADDR" --to "$TO_ADDR" \
+		--attach "$attachment" \
+		--subject "$subject" --body-plain "`echo -e \"$body\"`"
 }
 
 
@@ -106,6 +165,9 @@ function update()
 	"ubuntu"|"debian")
 		print "Updating OBS Light using apt-get..."
 		sudo apt-get update || return $?
+		sudo apt-get $APT_ARGS install libio-socket-ssl-perl \
+			libdigest-hmac-perl libterm-readkey-perl \
+			libmime-lite-perl libfile-type-perl libio-socket-inet6-perl
 		sudo apt-get $APT_ARGS install obslight
 		;;
 	"opensuse")
@@ -128,6 +190,11 @@ function update()
 		return 1
 		;;
 	esac
+}
+
+function get_obslight_version()
+{
+	obslight $OBSLIGHT_OPTIONS --version
 }
 
 # Print the list of local packages of project $PROJECT_ALIAS
@@ -355,6 +422,7 @@ function construct_all_packages()
 	if [ -z "$packages_to_construct" ]
 	then
 		print_error "No packages report to be initialized! There might be a problem..."
+		ERRORS="$ERRORS\nNo packages report to be initialized! There might be a problem..."
 		return 2
 	fi
 	print "Constructing packages: $packages_to_construct"
@@ -366,8 +434,6 @@ function construct_all_packages()
 ###  Main loop  #####################################################
 #####################################################################
 
-declare DISTRO
-declare ERRORS=""
 declare ACTIONS="reset_conf configure_server create_new_project create_project_filesystem"
 ACTIONS="$ACTIONS add_all_packages prep_all_packages construct_all_packages"
 
@@ -381,17 +447,21 @@ else
 	DISTRO=$1
 fi
 
+get_emailer $DISTRO || print_error "Cannot retrieve email sending program!"
 update $DISTRO || handle_error
 
 for action in $ACTIONS
 do
 	$action || handle_error
+	[ $? -eq "0" ] || break
 done
 
 if [ -z "$ERRORS" ]
 then
+	send_report_by_email "Finished without errors"
 	print "Finished without errors"
 else
+	send_report_by_email "Some errors occured:\n$ERRORS"
 	print_error "Some errors occured:\n$ERRORS"
 	exit 2
 fi
