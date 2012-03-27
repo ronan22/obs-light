@@ -237,6 +237,7 @@ class ObsLightPackages(object):
         '''
         return ["Not installed",
                 "No build directory",
+                "many BUILD directories",
                 "Prepared",
                 "Built",
                 "Build Installed",

@@ -327,6 +327,7 @@ class ObsLightChRoot(object):
             else:
                 return resultPath
         else:
+            package.setChRootStatus("many BUILD directories")
             raise ObsLightErr.ObsLightChRootError("Too many sub-directories in '%s'" % pathBuild)
 
     def getChRootRepositories(self):
