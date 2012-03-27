@@ -9,6 +9,8 @@ src/MANIFEST
 .pydevproject
 .kate-swp
 *~
+_buildconfig-MeeGo_1.2_OSS-i586
+_buildinfo-MeeGo_1.2_OSS-i586.xml
 _buildconfig-DOD_MeeGo_1.2-i586
 _buildconfig-MeeGoTV_1.2-i586
 _buildconfig-meegotv_oss_DOD_MeeGo_1.2-i586
