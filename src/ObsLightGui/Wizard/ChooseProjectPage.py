@@ -24,9 +24,6 @@ Created on 21 déc. 2011
 from ObsLightGui.FilterableWidget import FilterableWidget
 from ObsLightGui.Utils import popupOnException
 
-# See below
-#from ObsLightGui.Utils import uiFriendly
-
 from WizardPageWrapper import ObsLightWizardPage
 
 class ChooseProjectPage(ObsLightWizardPage, FilterableWidget):
@@ -49,8 +46,10 @@ class ChooseProjectPage(ObsLightWizardPage, FilterableWidget):
         restrainMaintainer = self.field(u"restrainMaintainer")
         restrainBugowner = self.field(u"restrainBugowner")
         restrainRemoteLinks = self.field(u"restrainRemoteLinks")
-        self.setBusyCursor(self._fillProjectList, serverAlias, restrainMaintainer,
-                           restrainBugowner, restrainRemoteLinks)
+        self._fillProjectList(serverAlias,
+                              restrainMaintainer,
+                              restrainBugowner,
+                              restrainRemoteLinks)
 
     @popupOnException
     def _checkBoxStateChanged(self, _state):
@@ -59,13 +58,14 @@ class ChooseProjectPage(ObsLightWizardPage, FilterableWidget):
     def _fillProjectList(self, serverAlias, restrainMaintainer,
                          restrainBugowner, restrainRemoteLinks):
         self.ui_WizardPage.projectListWidget.clear()
-        prjList = self._getProjectList(serverAlias, restrainMaintainer,
-                                       restrainBugowner, restrainRemoteLinks)
+        prjList = self.callWithInfiniteProgress(self._getProjectList,
+                                                "Loading project list",
+                                                serverAlias,
+                                                restrainMaintainer,
+                                                restrainBugowner,
+                                                restrainRemoteLinks)
         self.ui_WizardPage.projectListWidget.addItems(prjList)
 
-    # I don't know why, but here uiFriendly prevents the wizard page
-    # to refresh when getProjectList returns quickly.
-    #@uiFriendly()
     def _getProjectList(self, serverAlias, restrainMaintainer,
                         restrainBugowner, restrainRemoteLinks):
         return self.manager.getObsServerProjectList(serverAlias,

@@ -70,7 +70,14 @@ class LogManager(QObject, ObsLightGuiObject):
         self.__logDialog = self.gui.loadWindow(u"obsLightLog.ui", mainWindowAsParent=False)
         self.__logTextEdit = self.__logDialog.logTextEdit
         self.__myHandler = None
+        self.customizeFont()
         self.connectLogger()
+
+    def customizeFont(self):
+        font = self.__logTextEdit.font()
+        font.setFixedPitch(True)
+        font.setKerning(False)
+        self.__logTextEdit.setFont(font)
 
     def connectLogger(self):
         """
