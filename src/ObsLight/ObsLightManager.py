@@ -1250,6 +1250,36 @@ class ObsLightManager(ObsLightManagerCore):
         self._myObsLightProjects.save()
         return res
 
+#---------------------------------------------------------------------------Package devel
+    def getFirstCommit(self, projectLocalName, package):
+        pass
+    def getSecondCommit(self, projectLocalName, package):
+        pass
+    def setFirstCommit(self, projectLocalName, package):
+        pass
+    def setSecondCommit(self, projectLocalName, package):
+        pass
+
+    def getListCommitTag(self, projectLocalName, package):
+        pass
+
+    def isCurrentGitIsPackageGit(self, projectLocalName, package):
+        pass
+
+    def setCurrentGitIsPackageGit(self, projectLocalName, package, val=False):
+        pass
+
+    def runGitUI(self, projectLocalName, package):
+        pass
+
+    def archiveCurrentGit(self, projectLocalName, package):
+        pass
+
+    def initCloneGit(self, projectLocalName, package, gitCommand):
+        pass
+
+
+
 #---------------------------------------------------------------------------
     @checkProjectLocalName(1)
     def openTerminal(self, projectLocalName, package):

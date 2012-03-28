@@ -64,6 +64,7 @@ class ObsLightPackage(object):
         self.__myYamlFile = None
         self.__mySpecFile = None
         self.__firstCommitTag = None
+        self.__secondCommitTag = None
         self.__currentPatch = None
         self.__listInfoFile = listInfoFile
         self.__description = description
@@ -74,6 +75,10 @@ class ObsLightPackage(object):
         self.__obsRev = obsRev
         self.__listFileToDel = []
         self.__prepDirName = None
+
+        self.__obslightGit = "../.git_obslight"
+        self.__packageGit = None
+        self.__currentGitIsPackageGit = False
 
         if fromSave == None:
             self.__name = name
@@ -87,6 +92,10 @@ class ObsLightPackage(object):
             self.__yamlFile = yamlFile
             self.__packageDirectory = None
         else:
+            if "packageGit" in fromSave.keys():
+                self.__packageGit = fromSave["packageGit"]
+            if "currentGitIsPackageGit" in fromSave.keys():
+                self.__currentGitIsPackageGit = fromSave["currentGitIsPackageGit"]
             if "name" in fromSave.keys():
                 self.__name = fromSave["name"]
             if "listFile" in fromSave.keys():
@@ -111,6 +120,8 @@ class ObsLightPackage(object):
                 self.__oscStatus = fromSave["oscStatus"]
             if "firstCommitTag" in fromSave.keys():
                 self.__firstCommitTag = fromSave["firstCommitTag"]
+            if "secondCommitTag" in fromSave.keys():
+                self.__secondCommitTag = fromSave["secondCommitTag"]
             if "oscRev" in fromSave.keys():
                 self.__oscRev = str(fromSave["oscRev"])
             if "obsRev" in fromSave.keys():
@@ -150,6 +161,16 @@ class ObsLightPackage(object):
         # FIXME: 
         except BaseException:
             ObsLightPrintManager.getLogger().error(u"Error reading SPEC or YAML file", exc_info=1)
+
+    def getCurrentGitDirectory(self):
+        if self.__currentGitIsPackageGit:
+            return self.__packageGit
+        else:
+            return self.__obslightGit
+
+
+    def setPackageGit(self, directory):
+        self.__packageGit = directory
 
 
 
@@ -235,11 +256,7 @@ class ObsLightPackage(object):
         '''
         return self.__rpmBuildTmpDirectory
 
-    def setFirstCommit(self, tag):
-        '''
-        
-        '''
-        self.__firstCommitTag = tag
+
 
     def getPackageFileList(self):
         '''
@@ -262,11 +279,26 @@ class ObsLightPackage(object):
         '''
         self.__obsRev = rev
 
+    def setFirstCommit(self, tag):
+        '''
+        
+        '''
+        self.__firstCommitTag = tag
+
     def getFirstCommit(self):
         '''
         
         '''
         return self.__firstCommitTag
+
+    def setSecondCommit(self, tag):
+        '''
+        
+        '''
+        self.__secondCommitTag = tag
+
+    def getSecondCommit(self):
+        return self.__secondCommitTag
 
     def getPackagePath(self):
         '''
@@ -353,12 +385,15 @@ class ObsLightPackage(object):
         aDic["chRootStatus"] = self.__chRootStatus
         aDic["oscStatus"] = self.__oscStatus
         aDic["firstCommitTag"] = self.__firstCommitTag
+        aDic["secondCommitTag"] = self.__secondCommitTag
         aDic["oscRev"] = self.__oscRev
         aDic["currentPatch"] = self.__currentPatch
         aDic["obsRev"] = self.__obsRev
         aDic["listInfoFile"] = copy(self.__listInfoFile)
         aDic["listFileToDel"] = copy(self.__listFileToDel)
         aDic["prepDirName"] = self.__prepDirName
+        aDic["packageGit"] = self.__packageGit
+        aDic["currentGitIsPackageGit"] = self.__currentGitIsPackageGit
         return aDic
 
     def getPackageParameter(self, parameter=None):
