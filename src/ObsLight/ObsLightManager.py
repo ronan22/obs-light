@@ -387,6 +387,12 @@ class ObsLightManagerBase(object):
         '''
         return ObsLightTools.testRepo(url=url, name=name)
 
+    def testRepositoryUrl(self, url):
+        """
+        Return True if `url` is a package repository.
+        """
+        return ObsLightTools.testRepositoryUrl(url)
+
     def testUrlRepo(self, url):
         '''
         return True if the url is a repo.

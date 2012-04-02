@@ -143,7 +143,7 @@ class RepoConfigManager(QObject, ObsLightGuiObject):
             if alias != None:
                 scd.repoAliasLineEdit.setText(alias)
             if (url is not None) and (not len(url) < 1):
-                resultUrl = self.manager.testUrlRepo(url)
+                resultUrl = self.manager.testRepositoryUrl(url)
                 if not resultUrl:
                     urlColor = "orange"
             else:

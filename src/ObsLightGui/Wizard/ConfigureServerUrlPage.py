@@ -31,6 +31,11 @@ from WizardPageWrapper import ObsLightWizardPage
 class ConfigureServerUrlPage(ObsLightWizardPage):
 
     isOk = True
+    fieldTranslation = {u"webUrl": "serverWeb",
+                        u"apiUrl": "serverAPI",
+                        u"repoUrl": "serverRepo",
+                        u"username": "user",
+                        u"password": "passw"}
 
     def __init__(self, gui, index):
         ObsLightWizardPage.__init__(self, gui, index, u"wizard_configServerUrl.ui")
@@ -48,7 +53,17 @@ class ConfigureServerUrlPage(ObsLightWizardPage):
 
     def initializePage(self):
         super(ConfigureServerUrlPage, self).initializePage()
+        self.loadKnownFields()
         self._clearEffects()
+
+    def loadKnownFields(self):
+        serverAlias = self.field(u"serverAlias")
+        if isNonEmptyString(serverAlias):
+            for fieldName in self.fieldTranslation.keys():
+                if not isNonEmptyString(self.field(fieldName)):
+                    value = self.manager.getObsServerParameter(serverAlias,
+                                                               self.fieldTranslation[fieldName])
+                    self.setField(fieldName, value)
 
     def cleanupPage(self):
         pass
@@ -138,3 +153,5 @@ class ConfigureServerUrlPage(ObsLightWizardPage):
                 colorizeWidget(self.ui_WizardPage.passwordLineEdit, u"green")
 
         self.isOk = allOk
+        if not allOk:
+            self.gui.showLogWindow()

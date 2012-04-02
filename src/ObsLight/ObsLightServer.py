@@ -91,22 +91,13 @@ class ObsLightServer(object):
         return self.__isReachable
 
     def testServerAPI(self):
-        '''
-        
-        '''
-        return ObsLightTools.testHost(host=self.__serverAPI)
+        return ObsLightTools.testHost(self.__serverAPI)
 
     def testServerRepo(self):
-        '''
-        
-        '''
-        return ObsLightTools.testHost(host=self.__serverRepo)
+        return ObsLightTools.testHost(self.__serverRepo)
 
     def testServerWeb(self):
-        '''
-        
-        '''
-        return ObsLightTools.testHost(host=self.__serverWeb)
+        return ObsLightTools.testHost(self.__serverWeb)
 
     def isReachable(self):
         '''

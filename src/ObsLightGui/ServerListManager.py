@@ -23,7 +23,6 @@ Created on 27 oct. 2011
 from PySide.QtCore import QObject
 from PySide.QtGui import QMessageBox
 
-from ServerConfigManager import ServerConfigManager
 from Utils import popupOnException
 from ObsLightGuiObject import ObsLightGuiObject
 
@@ -55,24 +54,30 @@ class ServerListManager(QObject, ObsLightGuiObject):
         Clear and reload the list of OBS servers into the list widget.
         '''
         self.__listWidget.clear()
-        self.__listWidget.addItems(self.manager.getObsServerList())
+        serverList = self.manager.getObsServerList()
+        serverList.sort()
+        self.__listWidget.addItems(serverList)
+
+    def refresh(self):
+        self.loadServerList()
 
     @popupOnException
     def on_addExistingServerButton_clicked(self):
-        self.__serverConfigManager = ServerConfigManager(self.gui)
-        self.__serverConfigManager.finished.connect(self.on_serverConfigManager_finished)
+        wizard = self.gui.runWizardToConfigureServer(self.__srvListDialog)
+        wizard.accepted.connect(self.refresh)
 
     @popupOnException
     def on_createVirtualServerButton_clicked(self):
-        self.__serverConfigManager = ServerConfigManager(self.gui)
-        self.__serverConfigManager.finished.connect(self.on_serverConfigManager_finished)
+        wizard = self.gui.runWizardToConfigureServer(self.__srvListDialog)
+        wizard.accepted.connect(self.refresh)
 
     @popupOnException
     def on_modifyServerButton_clicked(self):
         currentItem = self.__listWidget.currentItem()
         if currentItem is not None:
-            self.__serverConfigManager = ServerConfigManager(self.gui,
-                                                             currentItem.text())
+            wizard = self.gui.runWizardToConfigureServer(self.__srvListDialog,
+                                                         serverAlias=currentItem.text())
+            wizard.accepted.connect(self.refresh)
 
     @popupOnException
     def on_deleteServerButton_clicked(self):

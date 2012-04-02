@@ -30,7 +30,9 @@ from ObsLightGuiObject import ObsLightGuiObject
 
 class ServerConfigManager(QObject, ObsLightGuiObject):
     '''
+    DEPRECATED
     Manage an OBS server configuration window.
+    To be deleted when server configuration wizard works correctly.
     '''
 
     finished = Signal(bool)
@@ -213,3 +215,5 @@ class ServerConfigManager(QObject, ObsLightGuiObject):
             colorizeWidget(scd.serverAliasLineEdit, "red")
 
         scd.obsServerConfigButtonBox.button(QDialogButtonBox.Ok).setEnabled(allOk)
+        if not allOk:
+            self.gui.showLogWindow()
