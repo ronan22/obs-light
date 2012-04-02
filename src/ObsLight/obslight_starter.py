@@ -1,5 +1,8 @@
 import sys
 import os
+from distutils.version import LooseVersion
+
+from mic.__version__ import VERSION as MIC_VERSION
 
 from ObsLight.ObsLightManager import getpidFilePath
 
@@ -64,3 +67,40 @@ def warnIfNotShutDownCorrectly():
 def writePidFile():
     with open(getpidFilePath(), "w") as pidFile:
         pidFile.write(str(os.getpid()))
+
+def getMicVersionString():
+    return MIC_VERSION
+
+def compareVersion(v1, v2):
+    """
+    Compare `v1` and `v2` as version strings.
+      compareVersion("0.8", "0.8.4") ->  <0
+      compareVersion("0.8", "0.8")   ->   0
+      compareVersion("0.8.4", "0.8") ->  >0
+    """
+    v1_obj = LooseVersion(v1)
+    v2_obj = LooseVersion(v2)
+    return cmp(v1_obj, v2_obj)
+
+def messageIfMicVersionLessThan_0_8_1():
+    """
+    Since Monday, 02 April 2012, MIC is not maintained in OBS Light
+    repositories anymore. Latest maintained version is 0.8. This
+    function returns a message if MIC version on the system is prior
+    to 0.8.1. Returns None otherwise.
+    """
+    micVersion = getMicVersionString()
+    if compareVersion(micVersion, "0.8.1") < 0:
+        message = "WARNING: You have an old version of MIC (%s). " % micVersion
+        message += "Consider upgrading to a newer version.\n"
+        message += "See http://wiki.meego.com/ObsLightDeliverable#Migration_from_old_versions"
+        message += " for more information."
+        return message
+
+def shouldUpgradeMessage():
+    """
+    Return a message if user should upgrade OBS Light
+    or one of its dependencies. Return None otherwise.
+    """
+    msg = messageIfMicVersionLessThan_0_8_1()
+    return msg

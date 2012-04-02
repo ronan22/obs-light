@@ -16,6 +16,7 @@ if "--version" in sys.argv:
 from PySide.QtGui import QApplication, QMessageBox
 from ObsLight.obslight_starter import alreadyRunning, userIsRoot, writePidFile
 from ObsLight.obslight_starter import getpidFilePath, getPidFromFile, wasStoppedCorrectly
+from ObsLight.obslight_starter import shouldUpgradeMessage
 
 # a QApplication instance is required in order to display message boxes
 qApplication = QApplication(sys.argv)
@@ -34,6 +35,10 @@ if not wasStoppedCorrectly():
     message = u"It seems that OBS Light has not been shut down correctly.\n"
     message += u"Please close it and re-launch it so it can clean itself."
     QMessageBox.warning(None, u"Shutdown problem", message)
+
+shouldUpgradeMsg = shouldUpgradeMessage()
+if shouldUpgradeMsg is not None:
+    QMessageBox.information(None, u"Upgrade recommended", shouldUpgradeMsg)
 
 writePidFile()
 

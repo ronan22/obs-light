@@ -56,6 +56,7 @@ declare DATE=`date "+%Y-%m-%d %T"`
 declare ARCH=`uname -m`
 declare DISTRO
 declare ERRORS=""
+declare LOG_FILE="test.log"
 
 #####################################################################
 ###  Utility functions  #############################################
@@ -145,10 +146,12 @@ function send_report_by_email()
 	local version=`get_obslight_version`
 	local subject="Test result: $version on $DISTRO $ARCH"
 	local attachment=`compress_file ~/OBSLight/obslight.log`
+	local attachment2="$LOG_FILE"
 	/tmp/smtp-cli --user "$FROM_ADDR" --pass "$SMTP_PASSWORD" \
 		--server "$SMTP_SERVER" --ssl \
 		--from "$FROM_ADDR" --to "$TO_ADDR" \
 		--attach "$attachment" \
+		--attach "$attachment2" \
 		--subject "$subject" --body-plain "`echo -e \"$body\"`"
 }
 
@@ -183,7 +186,7 @@ function update()
 	"fedora")
 		print "Updating OBS Light using yum..."
 		sudo yum $YUM_ARGS makecache || return $?
-		sudo yum $YUM_ARGS update obslight obslight-gui
+		sudo yum $YUM_ARGS install obslight obslight-gui
 		;;
 	*)
 		print_error "Unknown distribution: '$DISTRO'"
@@ -436,6 +439,11 @@ function construct_all_packages()
 
 declare ACTIONS="reset_conf configure_server create_new_project create_project_filesystem"
 ACTIONS="$ACTIONS add_all_packages prep_all_packages construct_all_packages"
+
+# Remove old log file
+rm -f $LOG_FILE
+# Redirect stdout and stderr to a file while keeping them on screen
+exec > >(tee -a $LOG_FILE) 2>&1
 
 if [ $# -lt "1" ]
 then

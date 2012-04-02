@@ -18,11 +18,15 @@ def signal_handler(signal, frame):
     sys.exit(0)
 
 from ObsLight.obslight_starter import exitIfRoot, exitIfAlreadyRunning, writePidFile
-from ObsLight.obslight_starter import warnIfNotShutDownCorrectly
+from ObsLight.obslight_starter import warnIfNotShutDownCorrectly, shouldUpgradeMessage
 
 exitIfRoot()
 exitIfAlreadyRunning()
 warnIfNotShutDownCorrectly()
+shouldUpgradeMsg = shouldUpgradeMessage()
+if shouldUpgradeMsg is not None:
+    print shouldUpgradeMsg
+    print
 writePidFile()
 
 try:
