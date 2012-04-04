@@ -93,9 +93,9 @@ class KickstartPackagesModel(KickstartModelBase):
          `Qt.ItemIsEnabled` for other columns
         """
         if index.column() == self.ExcludedColumn:
-            superFlags = Qt.ItemIsEnabled | Qt.ItemIsUserCheckable
+            superFlags = Qt.ItemIsEnabled | Qt.ItemIsUserCheckable | Qt.ItemIsSelectable
         else:
-            superFlags = Qt.ItemIsEnabled
+            superFlags = Qt.ItemIsEnabled | Qt.ItemIsSelectable
         return superFlags
 
     # from QAbstractTableModel
