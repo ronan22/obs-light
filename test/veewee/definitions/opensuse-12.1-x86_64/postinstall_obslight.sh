@@ -18,6 +18,6 @@ echo "gpgcheck=0" | tee -a "/etc/zypp/repos.d/tizen_tools.repo" > /dev/null
 # Refresh package database
 zypper --non-interactive --gpg-auto-import-keys ref
 
-# Install OBS Light (without GUI)
-zypper --non-interactive in obslight-gui
+# Download OBS Light and its dependencies, without installing them
+zypper --non-interactive install --download-only obslight
 
