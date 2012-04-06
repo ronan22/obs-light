@@ -8,10 +8,10 @@
 APT_ARGS="$APT_ARGS --allow-unauthenticated --assume-yes"
 ZYPPER_ARGS="$ZYPPER_ARGS --non-interactive"
 YUM_ARGS="$YUM_ARGS -y"
-OBSLIGHT_OPTIONS="quiet"
+OBSLIGHT_OPTIONS="debug"
 
-# Force user to set DRY_RUN to false
-[ -z "$DRY_RUN" ] && declare -r DRY_RUN=true
+# Set DRY_RUN to false if user did not declare it
+[ -z "$DRY_RUN" ] && declare -r DRY_RUN="false"
 
 # Setting DEBUG to something different from false activates bash's "-x" option
 [ -n "$DEBUG" -a "$DEBUG" != false ] && set -x
@@ -22,12 +22,6 @@ then
 	APT_ARGS="$APT_ARGS --dry-run"
 	OBSLIGHT_OPTIONS="$OBSLIGHT_OPTIONS noaction"
 fi
-
-# Mailing parameters
-[ -z "$FROM_ADDR" ] && declare -r FROM_ADDR="florent@fridu.net"
-[ -z "$TO_ADDR" ] && declare -r TO_ADDR="florent@fridu.net"
-[ -z "$SMTP_SERVER" ] && declare -r SMTP_SERVER="smtp.googlemail.com:465"
-[ -z "$SMTP_PASSWORD" ] && declare -r SMTP_PASSWORD=""
 
 # Check if user provided us with the address of an OBS appliance
 [ -z "$OBS_HOST" ] && declare -r OBS_HOST="128.224.219.10"
@@ -55,8 +49,9 @@ fi
 declare DATE=`date "+%Y-%m-%d %T"`
 declare ARCH=`uname -m`
 declare DISTRO
+declare GOT_ERROR=false
 declare ERRORS=""
-declare LOG_FILE="test.log"
+[ -z "$LOG_FILE" ] && declare LOG_FILE="test.log"
 
 #####################################################################
 ###  Utility functions  #############################################
@@ -92,6 +87,7 @@ function usage()
 function handle_error()
 {
 	print_error "An error occured (return code $?)"
+	GOT_ERROR=true
 	return 2
 }
 
@@ -111,49 +107,55 @@ function compress_file()
 	echo $1.gz
 }
 
-function get_emailer()
-{
-	local DISTRO=$1
-	case $DISTRO in
-	"ubuntu"|"debian")
-		sudo apt-get $APT_ARGS install libio-socket-ssl-perl \
-			libdigest-hmac-perl libterm-readkey-perl \
-			libmime-lite-perl libfile-type-perl libio-socket-inet6-perl
-		;;
-	"opensuse")
-		sudo zypper $ZYPPER_ARGS install perl-IO-Socket-SSL \
-			perl-Digest-HMAC perl-TermReadKey perl-MIME-Lite \
-			perl-File-Type perl-IO-Socket-INET6
-		;;
-	"fedora")
-		sudo yum $YUM_ARGS install perl-IO-Socket-SSL \
-			perl-Digest-HMAC perl-TermReadKey \
-			perl-MIME-Lite perl-File-Type perl-IO-Socket-INET6
-		;;
-	*)
-		print_error "Unknown distribution: '$DISTRO'"
-		return 1
-		;;
-	esac
-	print "Getting mail sending script"
-	wget http://www.logix.cz/michal/devel/smtp-cli/smtp-cli -O /tmp/smtp-cli
-	chmod +x /tmp/smtp-cli
-}
+## Mailing parameters
+#[ -z "$FROM_ADDR" ] && declare -r FROM_ADDR="florent@fridu.net"
+#[ -z "$TO_ADDR" ] && declare -r TO_ADDR="florent@fridu.net"
+#[ -z "$SMTP_SERVER" ] && declare -r SMTP_SERVER="smtp.googlemail.com:465"
+#[ -z "$SMTP_PASSWORD" ] && declare -r SMTP_PASSWORD=""
 
-function send_report_by_email()
-{
-	local body="$DATE\n$1"
-	local version=`get_obslight_version`
-	local subject="Test result: $version on $DISTRO $ARCH"
-	local attachment=`compress_file ~/OBSLight/obslight.log`
-	local attachment2="$LOG_FILE"
-	/tmp/smtp-cli --user "$FROM_ADDR" --pass "$SMTP_PASSWORD" \
-		--server "$SMTP_SERVER" --ssl \
-		--from "$FROM_ADDR" --to "$TO_ADDR" \
-		--attach "$attachment" \
-		--attach "$attachment2" \
-		--subject "$subject" --body-plain "`echo -e \"$body\"`"
-}
+# function get_emailer()
+# {
+# 	local DISTRO=$1
+# 	case $DISTRO in
+# 	"ubuntu"|"debian")
+# 		sudo apt-get $APT_ARGS install libio-socket-ssl-perl \
+# 			libdigest-hmac-perl libterm-readkey-perl \
+# 			libmime-lite-perl libfile-type-perl libio-socket-inet6-perl
+# 		;;
+# 	"opensuse")
+# 		sudo zypper $ZYPPER_ARGS install perl-IO-Socket-SSL \
+# 			perl-Digest-HMAC perl-TermReadKey perl-MIME-Lite \
+# 			perl-File-Type perl-IO-Socket-INET6
+# 		;;
+# 	"fedora")
+# 		sudo yum $YUM_ARGS install perl-IO-Socket-SSL \
+# 			perl-Digest-HMAC perl-TermReadKey \
+# 			perl-MIME-Lite perl-File-Type perl-IO-Socket-INET6
+# 		;;
+# 	*)
+# 		print_error "Unknown distribution: '$DISTRO'"
+# 		return 1
+# 		;;
+# 	esac
+# 	print "Getting mail sending script"
+# 	wget http://www.logix.cz/michal/devel/smtp-cli/smtp-cli -O /tmp/smtp-cli
+# 	chmod +x /tmp/smtp-cli
+# }
+
+# function send_report_by_email()
+# {
+# 	local body="$DATE\n$1"
+# 	local version=`get_obslight_version`
+# 	local subject="Test result: $version on $DISTRO $ARCH"
+# 	local attachment=`compress_file ~/OBSLight/obslight.log`
+# 	local attachment2="$LOG_FILE"
+# 	/tmp/smtp-cli --user "$FROM_ADDR" --pass "$SMTP_PASSWORD" \
+# 		--server "$SMTP_SERVER" --ssl \
+# 		--from "$FROM_ADDR" --to "$TO_ADDR" \
+# 		--attach "$attachment" \
+# 		--attach "$attachment2" \
+# 		--subject "$subject" --body-plain "`echo -e \"$body\"`"
+# }
 
 
 #####################################################################
@@ -168,9 +170,6 @@ function update()
 	"ubuntu"|"debian")
 		print "Updating OBS Light using apt-get..."
 		sudo apt-get update || return $?
-		sudo apt-get $APT_ARGS install libio-socket-ssl-perl \
-			libdigest-hmac-perl libterm-readkey-perl \
-			libmime-lite-perl libfile-type-perl libio-socket-inet6-perl
 		sudo apt-get $APT_ARGS install obslight
 		;;
 	"opensuse")
@@ -178,15 +177,15 @@ function update()
 		sudo zypper $ZYPPER_ARGS refresh || return $?
 		if [ $DRY_RUN != false ]
 		then
-			sudo zypper $ZYPPER_ARGS install --dry-run obslight obslight-gui
+			sudo zypper $ZYPPER_ARGS install --dry-run obslight
 		else
-			sudo zypper $ZYPPER_ARGS install obslight obslight-gui
+			sudo zypper $ZYPPER_ARGS install obslight
 		fi
 		;;
 	"fedora")
 		print "Updating OBS Light using yum..."
 		sudo yum $YUM_ARGS makecache || return $?
-		sudo yum $YUM_ARGS install obslight obslight-gui
+		sudo yum $YUM_ARGS install obslight
 		;;
 	*)
 		print_error "Unknown distribution: '$DISTRO'"
@@ -411,6 +410,7 @@ function get_all_initialized_packages()
 		local -l is_init
 		is_init=`obslight $OBSLIGHT_OPTIONS rpmbuild isinit package $package \
 				project_alias $PROJECT_ALIAS`
+		[ -n "$DEBUG" -a "$DEBUG" != "false" ] && echo "  $package is initialized: $is_init"
 		if [ "$is_init" = "true" ]
 		then
 			initialized_packages="$initialized_packages $package"
@@ -437,7 +437,12 @@ function construct_all_packages()
 ###  Main loop  #####################################################
 #####################################################################
 
-declare ACTIONS="reset_conf configure_server create_new_project create_project_filesystem"
+declare ACTIONS
+
+# reset_conf is only useful if you want to run this script several times
+# but this script is currently intended to run in fresh virtual machines
+#ACTIONS="$ACTIONS reset_conf"
+ACTIONS="$ACTIONS configure_server create_new_project create_project_filesystem"
 ACTIONS="$ACTIONS add_all_packages prep_all_packages construct_all_packages"
 
 # Remove old log file
@@ -455,21 +460,24 @@ else
 	DISTRO=$1
 fi
 
-get_emailer $DISTRO || print_error "Cannot retrieve email sending program!"
+#get_emailer $DISTRO || print_error "Cannot retrieve email sending program!"
 update $DISTRO || handle_error
 
 for action in $ACTIONS
 do
 	$action || handle_error
-	[ $? -eq "0" ] || break
+	if [ $? -ne "0" ]
+	then
+		break
+	fi
 done
 
-if [ -z "$ERRORS" ]
+if [ "$GOT_ERROR" = "false" ]
 then
-	send_report_by_email "Finished without errors"
+#	send_report_by_email "Finished without errors"
 	print "Finished without errors"
 else
-	send_report_by_email "Some errors occured:\n$ERRORS"
+#	send_report_by_email "Some errors occured:\n$ERRORS"
 	print_error "Some errors occured:\n$ERRORS"
 	exit 2
 fi
