@@ -2,7 +2,7 @@
 #
 # Run a script in a virtual machine, using Vagrant.
 #
-# Usage: run_vm_test.sh <script_path> <vagrant_box>
+# Usage: run_vm_test.sh <vagrant_box> <script_path>
 #   script_path: the path to the script you want to run
 #   vagrant_box: the name of a preconfigured vagrant box
 #
@@ -18,12 +18,12 @@
 if [ $# -lt "2" ]
 then
 	echo "Missing arguments !"
-	echo "usage: $0 <test_script> <distro>"
+	echo "usage: $0 <distro> <test_script>"
 	exit 1
 fi
 
-declare SCRIPT=$1
-declare DISTRO=$2
+declare SCRIPT=$2
+declare DISTRO=$1
 
 function make_name()
 {
@@ -49,4 +49,6 @@ vagrant up
 vagrant ssh -c "bash /vagrant/`basename $SCRIPT` 2>&1 | tee /vagrant/test.log"
 # Shutdown VM
 vagrant halt
+
+echo "Test directory was: $TESTDIR"
 

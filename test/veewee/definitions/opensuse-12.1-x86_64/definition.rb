@@ -5,6 +5,7 @@ Veewee::Session.declare({
   :disk_size   => '20480',
   :disk_format => 'VDI',
   :hostiocache => 'off',
+  :hwvirtext => 'on',
   #:iso_file => "openSUSE-12.1-DVD-x86_64.iso",
   #:iso_src  => "http://download.opensuse.org/distribution/12.1/iso/openSUSE-12.1-DVD-x86_64.iso",
   #:iso_md5  => "4cfe8229111ef723ae7aa541fd2c87b7",

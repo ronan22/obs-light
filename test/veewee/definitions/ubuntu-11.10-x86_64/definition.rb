@@ -4,6 +4,7 @@ Veewee::Session.declare({
   :disk_size => '20140',
   :disk_format => 'VDI',
   :hostiocache => 'off',
+  :hwvirtext => 'on',
   :os_type_id => 'Ubuntu_64',
   :iso_file => "ubuntu-11.10-server-amd64.iso",
   :iso_src => "http://releases.ubuntu.com/11.10/ubuntu-11.10-server-amd64.iso",
