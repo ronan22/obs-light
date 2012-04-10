@@ -21,5 +21,5 @@ apt-add-repository ppa:pyside/ppa
 apt-get -y update
 
 # Download OBS Light and its dependencies, without installing them
-apt-get -y -d install obslight
+apt-get -y --allow-unauthenticated -d install obslight
 

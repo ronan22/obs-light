@@ -39,7 +39,7 @@ Veewee::Session.declare({
   :ssh_host_port     => "7222",
   :ssh_guest_port    => "22",
   :sudo_cmd     => "echo '%p'|sudo -S sh '%f'",
-  :shutdown_cmd => "shutdown -P now",
+  :shutdown_cmd => "/sbin/shutdown -P now",
   :postinstall_files   => ["postinstall.sh", "postinstall_obslight.sh"],
   :postinstall_timeout => "10000"
 })

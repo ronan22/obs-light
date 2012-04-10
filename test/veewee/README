@@ -20,7 +20,7 @@ test suites on them.
 Open a shell in the same directory as this readme.
 - Build base boxes:
     $ vagrant basebox build <distribution>
-  Available distributions: fedora-16-x86_64, opensuse-12.1-x86_64, ubuntu-11.10-x86_64
+  Available distributions: fedora-16-x86_64, opensuse-12.1-x86_64, ubuntu-oneiric-x64
   This will take a while (download distribution ISO and perform a full installation).
 
 - Test base boxes:

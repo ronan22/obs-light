@@ -41,7 +41,7 @@ declare -r PROJECT_ALIAS='my_test_project'
 # Check if user provided us with a list of packages to test
 if [ -z "$PACKAGES" ]
 then
-	declare -r PACKAGES="tzdata fastinit vim"
+	declare -r PACKAGES="tzdata vim fastinit"
 fi
 
 [ -z "$MAX_RETRIES" ] && declare -r -i MAX_RETRIES=5
@@ -60,19 +60,20 @@ declare ERRORS=""
 # Print a normal message, in green
 function print()
 {
-	echo -e "\e[32;1m$*\e[0m"
+	echo -e "\e[32;1m""$*""\e[0m"
 }
 
 # Print a warning message, in yellow
 function print_warning()
 {
-	echo -e "\e[33;1m$*\e[0m"
+	echo -e "\e[33;1m""$*""\e[0m"
 }
 
 # Print an error message, in red
 function print_error()
 {
-	echo -e "\e[31;1m$*\e[0m"
+	echo -e "\e[31;1m""$*""\e[0m"
+	#echo "$*"
 }
 
 function usage()
@@ -87,6 +88,11 @@ function usage()
 function handle_error()
 {
 	print_error "An error occured (return code $?)"
+	if [ -n "$1" ]
+	then
+		ERRORS="$ERRORS
+$1"
+	fi
 	GOT_ERROR=true
 	return 2
 }
@@ -105,6 +111,12 @@ function compress_file()
 {
 	gzip -c $1 > $1.gz
 	echo $1.gz
+}
+
+# Set $1 as the IP address of "obslightserver" in /etc/hosts
+function set_obslightserver_ip()
+{
+	echo "$1 obslightserver" | sudo tee -a /etc/hosts
 }
 
 ## Mailing parameters
@@ -202,13 +214,13 @@ function get_obslight_version()
 # Print the list of local packages of project $PROJECT_ALIAS
 function get_all_local_packages()
 {
-	obslight $OBSLIGHT_OPTIONS package list project_alias $PROJECT_ALIAS
+	obslight quiet package list project_alias $PROJECT_ALIAS
 }
 
 # Print the list of available packages of project $PROJECT_ALIAS
 function get_all_available_packages()
 {
-	obslight $OBSLIGHT_OPTIONS package list available \
+	obslight quiet package list available \
 		project_alias $PROJECT_ALIAS
 }
 
@@ -299,7 +311,8 @@ function add_packages()
 	then
 		MESSAGE="Failed to add some packages: $FAILED_PACKAGES"
 		print_error $MESSAGE
-		ERRORS="$ERRORS\n$MESSAGE"
+		ERRORS="$ERRORS
+$MESSAGE"
 		return 0
 	fi
 }
@@ -339,11 +352,10 @@ function prep_package()
 # Execute %prep of all packages in parameter
 function prep_packages()
 {
-	local failed_packages=""
 	for package in $@
 	do
 		prep_package $package
-		local return_code=$?
+		return_code=$?
 		if [ $return_code -ne "0" ]
 		then
 			failed_packages="$failed_packages $package"
@@ -351,9 +363,10 @@ function prep_packages()
 	done
 	if [ -n "$failed_packages" ]
 	then
-		local message="Preparation failed for packages: $failed_packages"
-		print_error $message
-		ERRORS="$ERRORS\n$message"
+		MESSAGE="Preparation failed for packages: $failed_packages"
+		ERRORS="$ERRORS
+$MESSAGE"
+		print_error "$MESSAGE"
 	       	return 0
 	fi
 }
@@ -396,7 +409,8 @@ function construct_packages()
 	then
 		local message="Construction failed for packages: $failed_packages"
 		print_error $message
-		ERRORS="$ERRORS\n$message"
+		ERRORS="$ERRORS
+$message"
 		return 0
 	fi
 }
@@ -408,7 +422,7 @@ function get_all_initialized_packages()
 	for package in $all_packages
 	do
 		local -l is_init
-		is_init=`obslight $OBSLIGHT_OPTIONS rpmbuild isinit package $package \
+		is_init=`obslight quiet rpmbuild isinit package $package \
 				project_alias $PROJECT_ALIAS`
 		[ -n "$DEBUG" -a "$DEBUG" != "false" ] && echo "  $package is initialized: $is_init"
 		if [ "$is_init" = "true" ]
@@ -425,7 +439,8 @@ function construct_all_packages()
 	if [ -z "$packages_to_construct" ]
 	then
 		print_error "No packages report to be initialized! There might be a problem..."
-		ERRORS="$ERRORS\nNo packages report to be initialized! There might be a problem..."
+		ERRORS="$ERRORS
+No packages report to be initialized! There might be a problem..."
 		return 2
 	fi
 	print "Constructing packages: $packages_to_construct"
@@ -449,6 +464,7 @@ ACTIONS="$ACTIONS add_all_packages prep_all_packages construct_all_packages"
 rm -f $LOG_FILE
 # Redirect stdout and stderr to a file while keeping them on screen
 exec > >(tee -a $LOG_FILE) 2>&1
+# exec 2> >(tee -a "$LOG_FILE.stderr")
 
 if [ $# -lt "1" ]
 then
@@ -460,8 +476,9 @@ else
 	DISTRO=$1
 fi
 
+set_obslightserver_ip $OBS_HOST
 #get_emailer $DISTRO || print_error "Cannot retrieve email sending program!"
-update $DISTRO || handle_error
+update $DISTRO || handle_error "OBS Light update failed"
 
 for action in $ACTIONS
 do
@@ -478,7 +495,8 @@ then
 	print "Finished without errors"
 else
 #	send_report_by_email "Some errors occured:\n$ERRORS"
-	print_error "Some errors occured:\n$ERRORS"
+	print_error "Some errors occured:"
+	print_error "$ERRORS"
 	exit 2
 fi
 
