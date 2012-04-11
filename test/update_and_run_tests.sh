@@ -269,6 +269,18 @@ function repair_package()
 		project_alias $PROJECT_ALIAS
 }
 
+function update_package()
+{
+	if [ $# -lt "1" ]
+	then
+		print "Missing argument: package name"
+		return 1
+	fi
+	print "Updating package '$1'"
+	obslight $OBSLIGHT_OPTIONS package update package $1 \
+		project_alias $PROJECT_ALIAS
+}
+
 # Calls 'obslight package add <package>' with its first parameter as package
 function add_package()
 {
@@ -313,6 +325,7 @@ function add_packages()
 		print_error $MESSAGE
 		ERRORS="$ERRORS
 $MESSAGE"
+		GOT_ERROR=true
 		return 0
 	fi
 }
@@ -366,6 +379,7 @@ function prep_packages()
 		MESSAGE="Preparation failed for packages: $failed_packages"
 		ERRORS="$ERRORS
 $MESSAGE"
+		GOT_ERROR=true
 		print_error "$MESSAGE"
 	       	return 0
 	fi
@@ -411,6 +425,7 @@ function construct_packages()
 		print_error $message
 		ERRORS="$ERRORS
 $message"
+		GOT_ERROR=true
 		return 0
 	fi
 }
@@ -441,6 +456,7 @@ function construct_all_packages()
 		print_error "No packages report to be initialized! There might be a problem..."
 		ERRORS="$ERRORS
 No packages report to be initialized! There might be a problem..."
+		GOT_ERROR=true
 		return 2
 	fi
 	print "Constructing packages: $packages_to_construct"

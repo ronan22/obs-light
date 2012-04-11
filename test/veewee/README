@@ -5,34 +5,54 @@ This directory contains configuration files for Veewee.
 Veewee is a tool to build Vagrant base boxes.
 https://github.com/jedi4ever/veewee
 
+
  What is Vagrant ?
 -------------------
-Vagrant is a tool for building and distributing virtualized development environments.
+Vagrant is a tool for building and distributing virtualized
+development environments.
 http://vagrantup.com/
+
 
  Why using Vagrant and Veewee ?
 --------------------------------
-We chose to use Vagrant to quickly deploy pre-configured virtual machines and run
-test suites on them.
+We chose to use Vagrant to quickly deploy pre-configured virtual machines
+and run test suites on them.
+
 
  Configure your environment
 ----------------------------
 Open a shell in the same directory as this readme.
-- Build base boxes:
+Skip to step 3 if you already have ".box" files.
+1. Build base boxes:
     $ vagrant basebox build <distribution>
-  Available distributions: fedora-16-x86_64, opensuse-12.1-x86_64, ubuntu-oneiric-x64
-  This will take a while (download distribution ISO and perform a full installation).
+  Available distributions:
+    fedora-16-x86_64, opensuse-12.1-x86_64, ubuntu-oneiric-x64
+  This will take a while (download distribution ISO and perform a
+  full installation).
 
-- Test base boxes:
+2. Test base boxes:
     $ vagrant basebox validate <distribution>
 
-- Add base boxes in your environment:
+3. Add base boxes in your environment:
     $ vagrant box add <distribution> "<distribution>.box"
+
 
  Run tests in virtual machines
 -------------------------------
-The script "run_vm_test.sh" can be used to run another script in a virtual machine.
-    run_vm_test.sh <distribution> <script>
-It will create a new virtual machine based on <distribution> and run <script> as
-user "vagrant".
+The script "run_vm_test.sh" can be used to run another script in a
+virtual machine.
+    run_vm_test.sh -d <distribution> -s <script>
+It will create a new virtual machine based on <distribution> and run <script>
+as user "vagrant".
+
+
+ How does it work ?
+--------------------
+1. Vagrant makes a copy of your pre-configured virtual machine
+   (aka "base box"), and puts its configuration in "~/OBSLight_tests/<foo>".
+2. The test script is copied in the same directory as the Vagrant files,
+   which is accessible from "/vagrant/" inside the virtual machine.
+3. The virtual machine is started.
+4. The script is run in the virtual machine using SSH.
+5. The virtual machine is stopped (but not destroyed).
 
