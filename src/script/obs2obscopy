@@ -17,6 +17,8 @@ import tempfile
 
 from osc import conf, core
 
+DEBUG_MODE = False
+
 def help_(progName="obs2obscopy"):
     print """HELP
 Function : Copy a project from an OBS to an OBS, using as input a package list
@@ -45,6 +47,10 @@ Return code:
           3 problem reading MD5 file or writing log file
           4 network error
           5 interrupted by user
+
+Environment:
+       If the DEBUG environment variable is non-empty, all URLs will
+       be printed to stderr before being called.
 
 Version 3.4  License GPLv2""" % (progName, progName, progName, progName, progName)
 
@@ -91,6 +97,10 @@ def printmessage(message, newline=True):
     else:
         print >> sys.stdout, message,
 
+def printdebug(message):
+    if DEBUG_MODE:
+        print >> sys.stderr, "DEBUG:", message
+
 
 def makeurl(baseurl, l, query=[]):
     """
@@ -110,8 +120,8 @@ def makeurl(baseurl, l, query=[]):
     if len(path) > 0:
         l.insert(0, path)
     finalurl = urlparse.urlunsplit((scheme, netloc, '/'.join(l), query, ''))
-    if conf.config['verbose'] > 1:
-        print "->", finalurl
+    if conf.config['verbose'] > 1 or DEBUG_MODE:
+        printdebug("-> %s" % finalurl)
     return finalurl
 
 def copy_pac(src_apiurl, src_project, src_package,
@@ -193,11 +203,18 @@ def getApiUrlFromAlias(alias):
             message = "Wrong API URL or alias: '%s'" % alias
             printerror(message)
             sys.exit(2)
+        printdebug("%s is an alias for %s" % (alias, apiUrl))
         return apiUrl
     else:
         return alias
 
 def copyproject(apiUrl, srcProjectName, dstApiUrl, dstProjectName, tagFilePath):
+    printdebug("Source API URL or alias:      %s" % apiUrl)
+    printdebug("Destination API URL or alias: %s" % dstApiUrl)
+    printdebug("Source project:               %s" % srcProjectName)
+    printdebug("Destination project:          %s" % dstProjectName)
+    printdebug("Tag file path:                %s" % tagFilePath)
+
     totalPkg = 0
     existPkg = 0
     copiedPkg = 0
@@ -296,6 +313,7 @@ def copyproject(apiUrl, srcProjectName, dstApiUrl, dstProjectName, tagFilePath):
             raise
         except urllib2.HTTPError as e:
             if e.code == 404 or e.code == 400:
+                printdebug("Got status %d: package does not exist on destination" % e.code)
                 packagePresent = False
             else:
                 message = "Error: Cannot list files of package '%s': %s"\
@@ -382,6 +400,8 @@ def copyproject(apiUrl, srcProjectName, dstApiUrl, dstProjectName, tagFilePath):
 
 
 if __name__ == '__main__':
+    if os.environ.has_key("DEBUG") and os.environ["DEBUG"] is not None:
+        DEBUG_MODE = True
     try:
         if len(sys.argv) == 5:
             # Use same OBS URL as source and destination
@@ -391,6 +411,7 @@ if __name__ == '__main__':
             copyproject(sys.argv[1], sys.argv[2], sys.argv[3],
                  sys.argv[4], sys.argv[5])
         else:
+            print >> sys.stderr, "Wrong number of arguments !\n"
             help_(sys.argv[0])
             sys.exit(2)
     except KeyboardInterrupt:
