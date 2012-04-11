@@ -899,9 +899,12 @@ class ObsLightOsc(object):
                                   user=user,
                                   passwd=passwd)
 
-        opener = urllib2.build_opener(auth_handler, urllib2.ProxyHandler(urllib.getproxies_environment()))
-        # ...and install it globally so it can be used with urlopen.
+        opener = urllib2.build_opener(auth_handler,
+                                      urllib2.ProxyHandler(urllib.getproxies_environment()))
         urllib2.install_opener(opener)
+
+        logger = ObsLightPrintManager.getLogger()
+        logger.info("Trying to log to '%s' with user '%s'", api, user)
         try:
             res = urllib2.urlopen(api + url).read()
             if isinstance(res, basestring):
@@ -909,8 +912,12 @@ class ObsLightOsc(object):
             else:
                 return -1
         except urllib2.HTTPError:
+            msg = "Could not open %s: wrong user or password"
+            logger.warning(msg, api)
             return 1
         except urllib2.URLError:
+            msg = "Could not open %s: wrong URL"
+            logger.warning(msg, api)
             return 2
 
     def repairOscPackageDirectory(self, path):

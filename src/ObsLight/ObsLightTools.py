@@ -49,9 +49,11 @@ def createConn(host, port, scheme):
                 valProxy = ['https']
             else:
                 valProxy = ['http']
-            (schemeProxy, netlocProxy, pathProxy, paramsProxy, queryProxy, fragmentProxy) = urlparse(valProxy)
+            netlocProxy = urlparse(valProxy)[2]
             [__PROXYHOST__, __PROXYPORT__] = netlocProxy.split(":")
-            conn = httplib.HTTPConnection(host=__PROXYHOST__, port=__PROXYPORT__, timeout=SOCKETTIMEOUT)
+            conn = httplib.HTTPConnection(host=__PROXYHOST__,
+                                          port=__PROXYPORT__,
+                                          timeout=SOCKETTIMEOUT)
             conn.set_tunnel(host=host, port=int(port))
 
             ctx = SSL.Context()
@@ -66,9 +68,11 @@ def createConn(host, port, scheme):
     else:
         if 'http' in urllib.getproxies_environment():
             valProxy = urllib.getproxies_environment()['http']
-            (schemeProxy, netlocProxy, pathProxy, paramsProxy, queryProxy, fragmentProxy) = urlparse(valProxy)
+            netlocProxy = urlparse(valProxy)[2]
             [__PROXYHOST__, __PROXYPORT__] = netlocProxy.split(":")
-            return httplib.HTTPConnection(host=__PROXYHOST__, port=__PROXYPORT__, timeout=SOCKETTIMEOUT)
+            return httplib.HTTPConnection(host=__PROXYHOST__,
+                                          port=__PROXYPORT__,
+                                          timeout=SOCKETTIMEOUT)
         else:
             return httplib.HTTPConnection(host=host, port=port, timeout=SOCKETTIMEOUT)
 
@@ -82,11 +86,11 @@ def getUrl(scheme, netloc, path):
     else:
         return path
 
-def testHost(host):
+def testHost(url):
     '''
-    
+    Test if we can connect to the host of `url` (not to the complete URL).
     '''
-    (scheme, netloc, _path, _params, _query, _fragment) = urlparse(str(host))
+    (scheme, netloc, _path, _params, _query, _fragment) = urlparse(str(url))
 
     if len(urllib.getproxies_environment()) > 0:
         return testUrl(scheme + "://" + netloc)
@@ -100,12 +104,15 @@ def testHost(host):
         else:
             port = "80"
 
+    logger = ObsLightPrintManager.getLogger()
+    logger.info("Testing connection to '%s:%s'", host, port)
     conn = createConn(host, port, scheme)
 
     try:
         conn.connect()
     except BaseException, e:
-        ObsLightPrintManager.getLogger().debug("Test Host Fail on " + str(host) + " " + str(e))
+        message = "Could not connect to %s: %s" % (str(host), str(e))
+        logger.warning(message)
         return False
     finally:
         conn.close()
@@ -113,15 +120,18 @@ def testHost(host):
 
 def testUrl(url):
     '''
-    
+    Test if we can reach `url`.
     '''
+    logger = ObsLightPrintManager.getLogger()
+    logger.info("Testing URL '%s'", url)
     opener = urllib2.build_opener(urllib2.ProxyHandler(urllib.getproxies_environment()))
     urllib2.install_opener(opener)
     try:
-        test = urllib2.urlopen(url, timeout=SOCKETTIMEOUT)
+        _test = urllib2.urlopen(url, timeout=SOCKETTIMEOUT)
         return True
     except urllib2.URLError, e:
-        ObsLightPrintManager.getLogger().debug("Test url Fail on " + str(url) + " " + str(e))
+        message = "Could not reach %s: %s" % (str(url), str(e))
+        logger.warning(message)
         return False
     return True
 
@@ -167,9 +177,14 @@ def testRepo(url, name):
     return url, name
 
 def testUrlRepo(url):
+    return testRepositoryUrl(url)
+
+def testRepositoryUrl(url):
     '''
-    return True if the url is a repo.
+    Return True if `url` is a package repository.
     '''
+    logger = ObsLightPrintManager.getLogger()
+    logger.info("Testing if '%s' is a package repository")
     (scheme, netloc, path, _params, _query, _fragment) = urlparse(str(url))
     if ":" in netloc:
         (host, port) = netloc.split(":")
@@ -188,6 +203,7 @@ def testUrlRepo(url):
         response = conn.getresponse()
         return response.status == 200
     except BaseException:
+        logger.warning("Error while connecting to '%s'", url)
         return False
     finally:
         conn.close()
@@ -212,7 +228,7 @@ def importCert(url):
 
     if len(urllib.getproxies_environment()) > 0:
         valProxy = urllib.getproxies_environment()['https']
-        (schemeProxy, netlocProxy, pathProxy, paramsProxy, queryProxy, fragmentProxy) = urlparse(valProxy)
+        netlocProxy = urlparse(valProxy)[1]
         [__PROXYHOST__, __PROXYPORT__] = netlocProxy.split(":")
         conn = M2Crypto.httpslib.ProxyHTTPSConnection(host=__PROXYHOST__, port=__PROXYPORT__)
         conn.ssl_ctx = ctx

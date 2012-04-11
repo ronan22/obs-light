@@ -38,11 +38,14 @@ class ConfigWizard(QWizard, ObsLightGuiObject):
 
     Pages = {}
 
-    def __init__(self, gui):
+    def __init__(self, gui, parent=None):
         ObsLightGuiObject.__init__(self, gui)
-        QWizard.__init__(self, self.mainWindow)
+        if parent is None:
+            QWizard.__init__(self, self.mainWindow)
+        else:
+            QWizard.__init__(self, parent)
+        self.setButtonText(QWizard.CommitButton, u"Validate >")
         self.loadPages()
-        self.setButtonText(QWizard.CommitButton, u"Validate")
 
     def pageIndex(self, pageName):
         return self.Pages[pageName].index
@@ -96,3 +99,14 @@ class ConfigWizard(QWizard, ObsLightGuiObject):
     def skipToPackageSelection(self, projectAlias):
         self.setField(u"projectAlias", projectAlias)
         self.setStartId(self.Pages[u'ChoosePackage'].index)
+
+    def skipToServerCreation(self, **prefilledValues):
+        """
+        Skip to server creation page. `prefilledValues` allow to specify
+        already known server configuration values. Possible keys
+        for `prefilledValues`: "webUrl", "apiUrl", "repoUrl", "username",
+        "password", "serverAlias".
+        """
+        self.setStartId(self.Pages[u'ConfigureServerUrl'].index)
+        for key, value in prefilledValues.iteritems():
+            self.setField(key, value)

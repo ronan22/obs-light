@@ -1,0 +1,38 @@
+This directory contains configuration files for Veewee.
+
+ What is Veewee ?
+------------------
+Veewee is a tool to build Vagrant base boxes.
+https://github.com/jedi4ever/veewee
+
+ What is Vagrant ?
+-------------------
+Vagrant is a tool for building and distributing virtualized development environments.
+http://vagrantup.com/
+
+ Why using Vagrant and Veewee ?
+--------------------------------
+We chose to use Vagrant to quickly deploy pre-configured virtual machines and run
+test suites on them.
+
+ Configure your environment
+----------------------------
+Open a shell in the same directory as this readme.
+- Build base boxes:
+    $ vagrant basebox build <distribution>
+  Available distributions: fedora-16-x86_64, opensuse-12.1-x86_64, ubuntu-oneiric-x64
+  This will take a while (download distribution ISO and perform a full installation).
+
+- Test base boxes:
+    $ vagrant basebox validate <distribution>
+
+- Add base boxes in your environment:
+    $ vagrant basebox add <distribution> "<distribution>.box"
+
+ Run tests in virtual machines
+-------------------------------
+The script "run_vm_test.sh" can be used to run another script in a virtual machine.
+    run_vm_test.sh <distribution> <script>
+It will create a new virtual machine based on <distribution> and run <script> as
+user "vagrant".
+

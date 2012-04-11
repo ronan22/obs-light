@@ -8,10 +8,10 @@
 APT_ARGS="$APT_ARGS --allow-unauthenticated --assume-yes"
 ZYPPER_ARGS="$ZYPPER_ARGS --non-interactive"
 YUM_ARGS="$YUM_ARGS -y"
-OBSLIGHT_OPTIONS="quiet"
+OBSLIGHT_OPTIONS="debug"
 
-# Force user to set DRY_RUN to false
-[ -z "$DRY_RUN" ] && declare -r DRY_RUN=true
+# Set DRY_RUN to false if user did not declare it
+[ -z "$DRY_RUN" ] && declare -r DRY_RUN="false"
 
 # Setting DEBUG to something different from false activates bash's "-x" option
 [ -n "$DEBUG" -a "$DEBUG" != false ] && set -x
@@ -22,12 +22,6 @@ then
 	APT_ARGS="$APT_ARGS --dry-run"
 	OBSLIGHT_OPTIONS="$OBSLIGHT_OPTIONS noaction"
 fi
-
-# Mailing parameters
-[ -z "$FROM_ADDR" ] && declare -r FROM_ADDR="florent@fridu.net"
-[ -z "$TO_ADDR" ] && declare -r TO_ADDR="florent@fridu.net"
-[ -z "$SMTP_SERVER" ] && declare -r SMTP_SERVER="smtp.googlemail.com:465"
-[ -z "$SMTP_PASSWORD" ] && declare -r SMTP_PASSWORD=""
 
 # Check if user provided us with the address of an OBS appliance
 [ -z "$OBS_HOST" ] && declare -r OBS_HOST="128.224.219.10"
@@ -47,7 +41,7 @@ declare -r PROJECT_ALIAS='my_test_project'
 # Check if user provided us with a list of packages to test
 if [ -z "$PACKAGES" ]
 then
-	declare -r PACKAGES="tzdata fastinit vim"
+	declare -r PACKAGES="tzdata vim fastinit"
 fi
 
 [ -z "$MAX_RETRIES" ] && declare -r -i MAX_RETRIES=5
@@ -55,8 +49,9 @@ fi
 declare DATE=`date "+%Y-%m-%d %T"`
 declare ARCH=`uname -m`
 declare DISTRO
+declare GOT_ERROR=false
 declare ERRORS=""
-declare LOG_FILE="test.log"
+[ -z "$LOG_FILE" ] && declare LOG_FILE="test.log"
 
 #####################################################################
 ###  Utility functions  #############################################
@@ -65,19 +60,20 @@ declare LOG_FILE="test.log"
 # Print a normal message, in green
 function print()
 {
-	echo -e "\e[32;1m$*\e[0m"
+	echo -e "\e[32;1m""$*""\e[0m"
 }
 
 # Print a warning message, in yellow
 function print_warning()
 {
-	echo -e "\e[33;1m$*\e[0m"
+	echo -e "\e[33;1m""$*""\e[0m"
 }
 
 # Print an error message, in red
 function print_error()
 {
-	echo -e "\e[31;1m$*\e[0m"
+	echo -e "\e[31;1m""$*""\e[0m"
+	#echo "$*"
 }
 
 function usage()
@@ -92,6 +88,12 @@ function usage()
 function handle_error()
 {
 	print_error "An error occured (return code $?)"
+	if [ -n "$1" ]
+	then
+		ERRORS="$ERRORS
+$1"
+	fi
+	GOT_ERROR=true
 	return 2
 }
 
@@ -111,49 +113,61 @@ function compress_file()
 	echo $1.gz
 }
 
-function get_emailer()
+# Set $1 as the IP address of "obslightserver" in /etc/hosts
+function set_obslightserver_ip()
 {
-	local DISTRO=$1
-	case $DISTRO in
-	"ubuntu"|"debian")
-		sudo apt-get $APT_ARGS install libio-socket-ssl-perl \
-			libdigest-hmac-perl libterm-readkey-perl \
-			libmime-lite-perl libfile-type-perl libio-socket-inet6-perl
-		;;
-	"opensuse")
-		sudo zypper $ZYPPER_ARGS install perl-IO-Socket-SSL \
-			perl-Digest-HMAC perl-TermReadKey perl-MIME-Lite \
-			perl-File-Type perl-IO-Socket-INET6
-		;;
-	"fedora")
-		sudo yum $YUM_ARGS install perl-IO-Socket-SSL \
-			perl-Digest-HMAC perl-TermReadKey \
-			perl-MIME-Lite perl-File-Type perl-IO-Socket-INET6
-		;;
-	*)
-		print_error "Unknown distribution: '$DISTRO'"
-		return 1
-		;;
-	esac
-	print "Getting mail sending script"
-	wget http://www.logix.cz/michal/devel/smtp-cli/smtp-cli -O /tmp/smtp-cli
-	chmod +x /tmp/smtp-cli
+	echo "$1 obslightserver" | sudo tee -a /etc/hosts
 }
 
-function send_report_by_email()
-{
-	local body="$DATE\n$1"
-	local version=`get_obslight_version`
-	local subject="Test result: $version on $DISTRO $ARCH"
-	local attachment=`compress_file ~/OBSLight/obslight.log`
-	local attachment2="$LOG_FILE"
-	/tmp/smtp-cli --user "$FROM_ADDR" --pass "$SMTP_PASSWORD" \
-		--server "$SMTP_SERVER" --ssl \
-		--from "$FROM_ADDR" --to "$TO_ADDR" \
-		--attach "$attachment" \
-		--attach "$attachment2" \
-		--subject "$subject" --body-plain "`echo -e \"$body\"`"
-}
+## Mailing parameters
+#[ -z "$FROM_ADDR" ] && declare -r FROM_ADDR="florent@fridu.net"
+#[ -z "$TO_ADDR" ] && declare -r TO_ADDR="florent@fridu.net"
+#[ -z "$SMTP_SERVER" ] && declare -r SMTP_SERVER="smtp.googlemail.com:465"
+#[ -z "$SMTP_PASSWORD" ] && declare -r SMTP_PASSWORD=""
+
+# function get_emailer()
+# {
+# 	local DISTRO=$1
+# 	case $DISTRO in
+# 	"ubuntu"|"debian")
+# 		sudo apt-get $APT_ARGS install libio-socket-ssl-perl \
+# 			libdigest-hmac-perl libterm-readkey-perl \
+# 			libmime-lite-perl libfile-type-perl libio-socket-inet6-perl
+# 		;;
+# 	"opensuse")
+# 		sudo zypper $ZYPPER_ARGS install perl-IO-Socket-SSL \
+# 			perl-Digest-HMAC perl-TermReadKey perl-MIME-Lite \
+# 			perl-File-Type perl-IO-Socket-INET6
+# 		;;
+# 	"fedora")
+# 		sudo yum $YUM_ARGS install perl-IO-Socket-SSL \
+# 			perl-Digest-HMAC perl-TermReadKey \
+# 			perl-MIME-Lite perl-File-Type perl-IO-Socket-INET6
+# 		;;
+# 	*)
+# 		print_error "Unknown distribution: '$DISTRO'"
+# 		return 1
+# 		;;
+# 	esac
+# 	print "Getting mail sending script"
+# 	wget http://www.logix.cz/michal/devel/smtp-cli/smtp-cli -O /tmp/smtp-cli
+# 	chmod +x /tmp/smtp-cli
+# }
+
+# function send_report_by_email()
+# {
+# 	local body="$DATE\n$1"
+# 	local version=`get_obslight_version`
+# 	local subject="Test result: $version on $DISTRO $ARCH"
+# 	local attachment=`compress_file ~/OBSLight/obslight.log`
+# 	local attachment2="$LOG_FILE"
+# 	/tmp/smtp-cli --user "$FROM_ADDR" --pass "$SMTP_PASSWORD" \
+# 		--server "$SMTP_SERVER" --ssl \
+# 		--from "$FROM_ADDR" --to "$TO_ADDR" \
+# 		--attach "$attachment" \
+# 		--attach "$attachment2" \
+# 		--subject "$subject" --body-plain "`echo -e \"$body\"`"
+# }
 
 
 #####################################################################
@@ -168,9 +182,6 @@ function update()
 	"ubuntu"|"debian")
 		print "Updating OBS Light using apt-get..."
 		sudo apt-get update || return $?
-		sudo apt-get $APT_ARGS install libio-socket-ssl-perl \
-			libdigest-hmac-perl libterm-readkey-perl \
-			libmime-lite-perl libfile-type-perl libio-socket-inet6-perl
 		sudo apt-get $APT_ARGS install obslight
 		;;
 	"opensuse")
@@ -178,15 +189,15 @@ function update()
 		sudo zypper $ZYPPER_ARGS refresh || return $?
 		if [ $DRY_RUN != false ]
 		then
-			sudo zypper $ZYPPER_ARGS install --dry-run obslight obslight-gui
+			sudo zypper $ZYPPER_ARGS install --dry-run obslight
 		else
-			sudo zypper $ZYPPER_ARGS install obslight obslight-gui
+			sudo zypper $ZYPPER_ARGS install obslight
 		fi
 		;;
 	"fedora")
 		print "Updating OBS Light using yum..."
 		sudo yum $YUM_ARGS makecache || return $?
-		sudo yum $YUM_ARGS install obslight obslight-gui
+		sudo yum $YUM_ARGS install obslight
 		;;
 	*)
 		print_error "Unknown distribution: '$DISTRO'"
@@ -203,13 +214,13 @@ function get_obslight_version()
 # Print the list of local packages of project $PROJECT_ALIAS
 function get_all_local_packages()
 {
-	obslight $OBSLIGHT_OPTIONS package list project_alias $PROJECT_ALIAS
+	obslight quiet package list project_alias $PROJECT_ALIAS
 }
 
 # Print the list of available packages of project $PROJECT_ALIAS
 function get_all_available_packages()
 {
-	obslight $OBSLIGHT_OPTIONS package list available \
+	obslight quiet package list available \
 		project_alias $PROJECT_ALIAS
 }
 
@@ -300,7 +311,8 @@ function add_packages()
 	then
 		MESSAGE="Failed to add some packages: $FAILED_PACKAGES"
 		print_error $MESSAGE
-		ERRORS="$ERRORS\n$MESSAGE"
+		ERRORS="$ERRORS
+$MESSAGE"
 		return 0
 	fi
 }
@@ -340,11 +352,10 @@ function prep_package()
 # Execute %prep of all packages in parameter
 function prep_packages()
 {
-	local failed_packages=""
 	for package in $@
 	do
 		prep_package $package
-		local return_code=$?
+		return_code=$?
 		if [ $return_code -ne "0" ]
 		then
 			failed_packages="$failed_packages $package"
@@ -352,9 +363,10 @@ function prep_packages()
 	done
 	if [ -n "$failed_packages" ]
 	then
-		local message="Preparation failed for packages: $failed_packages"
-		print_error $message
-		ERRORS="$ERRORS\n$message"
+		MESSAGE="Preparation failed for packages: $failed_packages"
+		ERRORS="$ERRORS
+$MESSAGE"
+		print_error "$MESSAGE"
 	       	return 0
 	fi
 }
@@ -397,7 +409,8 @@ function construct_packages()
 	then
 		local message="Construction failed for packages: $failed_packages"
 		print_error $message
-		ERRORS="$ERRORS\n$message"
+		ERRORS="$ERRORS
+$message"
 		return 0
 	fi
 }
@@ -409,8 +422,9 @@ function get_all_initialized_packages()
 	for package in $all_packages
 	do
 		local -l is_init
-		is_init=`obslight $OBSLIGHT_OPTIONS rpmbuild isinit package $package \
+		is_init=`obslight quiet rpmbuild isinit package $package \
 				project_alias $PROJECT_ALIAS`
+		[ -n "$DEBUG" -a "$DEBUG" != "false" ] && echo "  $package is initialized: $is_init"
 		if [ "$is_init" = "true" ]
 		then
 			initialized_packages="$initialized_packages $package"
@@ -425,7 +439,8 @@ function construct_all_packages()
 	if [ -z "$packages_to_construct" ]
 	then
 		print_error "No packages report to be initialized! There might be a problem..."
-		ERRORS="$ERRORS\nNo packages report to be initialized! There might be a problem..."
+		ERRORS="$ERRORS
+No packages report to be initialized! There might be a problem..."
 		return 2
 	fi
 	print "Constructing packages: $packages_to_construct"
@@ -437,13 +452,19 @@ function construct_all_packages()
 ###  Main loop  #####################################################
 #####################################################################
 
-declare ACTIONS="reset_conf configure_server create_new_project create_project_filesystem"
+declare ACTIONS
+
+# reset_conf is only useful if you want to run this script several times
+# but this script is currently intended to run in fresh virtual machines
+#ACTIONS="$ACTIONS reset_conf"
+ACTIONS="$ACTIONS configure_server create_new_project create_project_filesystem"
 ACTIONS="$ACTIONS add_all_packages prep_all_packages construct_all_packages"
 
 # Remove old log file
 rm -f $LOG_FILE
 # Redirect stdout and stderr to a file while keeping them on screen
 exec > >(tee -a $LOG_FILE) 2>&1
+# exec 2> >(tee -a "$LOG_FILE.stderr")
 
 if [ $# -lt "1" ]
 then
@@ -455,22 +476,27 @@ else
 	DISTRO=$1
 fi
 
-get_emailer $DISTRO || print_error "Cannot retrieve email sending program!"
-update $DISTRO || handle_error
+set_obslightserver_ip $OBS_HOST
+#get_emailer $DISTRO || print_error "Cannot retrieve email sending program!"
+update $DISTRO || handle_error "OBS Light update failed"
 
 for action in $ACTIONS
 do
 	$action || handle_error
-	[ $? -eq "0" ] || break
+	if [ $? -ne "0" ]
+	then
+		break
+	fi
 done
 
-if [ -z "$ERRORS" ]
+if [ "$GOT_ERROR" = "false" ]
 then
-	send_report_by_email "Finished without errors"
+#	send_report_by_email "Finished without errors"
 	print "Finished without errors"
 else
-	send_report_by_email "Some errors occured:\n$ERRORS"
-	print_error "Some errors occured:\n$ERRORS"
+#	send_report_by_email "Some errors occured:\n$ERRORS"
+	print_error "Some errors occured:"
+	print_error "$ERRORS"
 	exit 2
 fi
 

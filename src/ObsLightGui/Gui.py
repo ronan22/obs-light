@@ -211,6 +211,13 @@ class Gui(QObject):
         '''
         self.__messageSignal.emit(message, timeout)
 
+    def showLogWindow(self):
+        """
+        Show the log window. If it is already opened, try to get it
+        at foreground.
+        """
+        self.__mainWindowActionManager.actionLog.trigger()
+
     def processEvents(self):
         """
         Call QApplication.processEvents().
@@ -230,12 +237,29 @@ class Gui(QObject):
         Run the OBS project creation wizard.
         If `autoSelectProject` is the name of an existing OBS Light
         project, go directly to the package selection page of the wizard.
+        Returns the QWizard instance.
         """
         self.__wizard = ConfigWizard(self)
         self.__wizard.accepted.connect(self.refresh)
         if autoSelectProject is not None:
             self.__wizard.skipToPackageSelection(autoSelectProject)
         self.__wizard.show()
+        return self.__wizard
+
+    def runWizardToConfigureServer(self, parent=None, **prefilledValues):
+        """
+        Run wizard and skip to server creation page. `parent` is the widget
+        to use as parent for the wizard (None -> main window).
+        `prefilledValues` allows to specify
+        already known server configuration values. Possible keys
+        for `prefilledValues`: "webUrl", "apiUrl", "repoUrl", "username",
+        "password", "serverAlias".
+        Returns the QWizard instance.
+        """
+        self.__wizard = ConfigWizard(self, parent)
+        self.__wizard.skipToServerCreation(**prefilledValues)
+        self.__wizard.show()
+        return self.__wizard
 
     def loadManager(self, methodToGetManager, *args, **kwargs):
         """

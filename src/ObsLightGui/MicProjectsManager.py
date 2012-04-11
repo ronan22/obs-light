@@ -44,6 +44,7 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
                                      self.manager.getMicProjectList)
         self.__micProjects = {}
         self.__repoConfigDialog = None
+        self.__lastPackageFilter = ""
         mw = self.mainWindow
         # Build a mapping between signals and associated slots,
         # to be used by self.__connectProjectEventsAndButtons()
@@ -165,6 +166,22 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
         # Show only rows that deserve it
         for index in indices:
             self.mainWindow.kickstartPackagesTableView.setRowHidden(index.row(), False)
+        self.__lastPackageFilter = filterString
+
+    def applyLastPackageFilter(self):
+        """
+        Apply or re-apply the last package filter.
+        See `applyPackageFilter`.
+        """
+        self.applyPackageFilter(self.__lastPackageFilter)
+
+    def removePackageFilter(self):
+        """
+        Show all packages. Do not reset the package filter string.
+        """
+        rowCount = self._currentProjectObj.packageModel.rowCount()
+        for row in range(rowCount):
+            self.mainWindow.kickstartPackagesTableView.setRowHidden(row, False)
 
 # --- Button handlers --------------------------------------------------------
     @popupOnException
@@ -344,8 +361,12 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
                                       defaultButton=QMessageBox.Yes)
         if result == QMessageBox.No:
             return
+
+        self.removePackageFilter()
         # removePackage supports lists
         self._currentProjectObj.removePackage(packages)
+        self.mainWindow.kickstartPackagesTableView.clearSelection()
+        self.applyLastPackageFilter()
 
     @popupOnException
     def on_addPackageGroupButton_clicked(self):
