@@ -2,7 +2,7 @@
 # Authors Dominig ar Foll (Intel OTC) (first versions in Bash)
 #         Florent Vennetier (Intel OTC) (third version in Python)
 # Date 16 February 2012
-# Version 3.3
+# Version 3.4
 # License GPLv2
 #
 # Credit Thanks to Yan Yin for providing the initial version used as a base
@@ -13,6 +13,7 @@ import os
 import urllib
 import urllib2
 import urlparse
+import tempfile
 
 from osc import conf, core
 
@@ -45,37 +46,51 @@ Return code:
           4 network error
           5 interrupted by user
 
-Version 3.3  License GPLv2""" % (progName, progName, progName, progName, progName)
+Version 3.4  License GPLv2""" % (progName, progName, progName, progName, progName)
 
 logFilePath = "/tmp/obs2obscopy.log"
 logFile = None
 
-def openlogfile():
-    global logFilePath
-    global logFile
-    try:
-        logFile = open(logFilePath, "wu")
-    except IOError as e:
-        print >> sys.stderr, "Cannot open", logFilePath, ":", e.strerror
-        sys.exit(3)
+old_stderr = sys.stderr
+old_stdout = sys.stdout
+
+class PrintHandler(object):
+    """
+    Wrapper for sys.stderr and sys.stdout that writes to a log file.
+    """
+
+    def __init__(self, stream, log_file):
+        self.stream = stream
+        self.log_file = log_file
+        self.skipline = False
+
+    def write(self, buf):
+        # osc has the bad habit to print a warning when we do not use HTTPS.
+        # And worse, it also prints a newline...
+        if buf.startswith("WARNING: SSL certificate checks disabled"):
+            self.skipline = True
+        elif self.skipline:
+            self.skipline = False
+        else:
+            self.stream.write(buf)
+            self.log_file.write(buf)
+
+    def flush(self):
+        self.stream.flush()
+        self.log_file.flush()
+
+    def close(self):
+        self.stream.close()
 
 def printerror(message):
-    global logFile
-    if logFile is None or logFile.closed:
-        openlogfile()
     print >> sys.stderr, message
-    print >> logFile, message
 
 def printmessage(message, newline=True):
-    global logFile
-    if logFile is None or logFile.closed:
-        openlogfile()
     if newline:
-        print message
-        print >> logFile, message
+        print >> sys.stdout, message
     else:
-        print message,
-        print >> logFile, message,
+        print >> sys.stdout, message,
+
 
 def makeurl(baseurl, l, query=[]):
     """
@@ -144,7 +159,6 @@ def copy_pac(src_apiurl, src_project, src_package,
 
     else:
         # copy one file after the other
-        import tempfile
         query = {'rev': 'upload'}
         revision = core.show_upstream_srcmd5(src_apiurl, src_project, src_package, expand=expand, revision=revision)
         for n in core.meta_get_filelist(src_apiurl, src_project, src_package, expand=expand, revision=revision):
@@ -169,6 +183,10 @@ def copy_pac(src_apiurl, src_project, src_package,
         return 'Done.'
 
 def getApiUrlFromAlias(alias):
+    """
+    Return the full API URL corresponding to `alias`.
+    Return `alias` if it is an URL.
+    """
     if not alias.startswith("http"):
         apiUrl = conf.config["apiurl_aliases"].get(alias, None)
         if apiUrl is None:
@@ -193,7 +211,9 @@ def copyproject(apiUrl, srcProjectName, dstApiUrl, dstProjectName, tagFilePath):
 
     global logFilePath
     logFilePath = tagFilePath + ".log"
-    openlogfile()
+    logFile = open(logFilePath, "wau")
+    sys.stdout = PrintHandler(sys.stdout, logFile)
+    sys.stderr = PrintHandler(sys.stderr, logFile)
 
     apiUrl = getApiUrlFromAlias(apiUrl)
     dstApiUrl = getApiUrlFromAlias(dstApiUrl)
@@ -208,7 +228,7 @@ def copyproject(apiUrl, srcProjectName, dstApiUrl, dstProjectName, tagFilePath):
     message += tagFilePath
     printmessage(message)
 
-    print "info : Checking connectivity with target project...",
+    print "info: Checking connectivity with target project...",
     sys.stdout.flush()
     try:
         core.meta_get_packagelist(dstApiUrl, dstProjectName)
@@ -226,7 +246,7 @@ def copyproject(apiUrl, srcProjectName, dstApiUrl, dstProjectName, tagFilePath):
         sys.exit(4)
     print "OK"
 
-    print "info : Checking connectivity with source project...",
+    print "info: Checking connectivity with source project...",
     sys.stdout.flush()
     try:
         core.meta_get_packagelist(apiUrl, srcProjectName)
@@ -245,6 +265,9 @@ def copyproject(apiUrl, srcProjectName, dstApiUrl, dstProjectName, tagFilePath):
         sys.exit(4)
     print "OK"
 
+    # Parse the tag file. Make a list of tuples containing
+    # package name and md5.
+    packageList = []
     for line in tagFile:
         parts = line.split("|", 4) # only first 4 fields are relevant
 
@@ -256,7 +279,13 @@ def copyproject(apiUrl, srcProjectName, dstApiUrl, dstProjectName, tagFilePath):
 
         totalPkg += 1
         pkgName = parts[3].strip()
+        packageList.append((pkgName, md5))
+    tagFile.close()
 
+    packageCounter = 0
+    failedPackageList = []
+    for (pkgName, md5) in packageList:
+        packageCounter += 1
         packagePresent = False
         try:
             fileList = core.meta_get_filelist(dstApiUrl, dstProjectName,
@@ -273,17 +302,20 @@ def copyproject(apiUrl, srcProjectName, dstApiUrl, dstProjectName, tagFilePath):
                     % (pkgName, str(e))
                 printerror(message)
                 failPkg += 1
+                failedPackageList.append(pkgName)
                 continue
         except Exception as e:
             message = "Error: Cannot list files of package '%s': %s: %s\n"\
                 % (pkgName, str(type(e)), str(e))
             printerror(message)
             failPkg += 1
+            failedPackageList.append(pkgName)
             continue
 
         if not packagePresent:
             copiedPkg += 1
-            message = "info : Copying %s from %s" % (pkgName, srcProjectName)
+            message = "info (%d/%d): Copying %s from %s" % (packageCounter, totalPkg,
+                                                            pkgName, srcProjectName)
             printmessage(message, False)
 
             packageIsLink = False
@@ -319,7 +351,8 @@ def copyproject(apiUrl, srcProjectName, dstApiUrl, dstProjectName, tagFilePath):
                     failLink += 1
                 else:
                     failPkg += 1
-                message = "FAILED: %s" % (str(e))
+                failedPackageList.append(pkgName)
+                message = "FAILED: %s: %s" % (str(type(e)), str(e))
                 if type(e) == urllib2.HTTPError:
                     if e.code == 400 and md5 != "latest":
                         message += "\nMaybe revision '%s' is not available" % md5
@@ -328,10 +361,11 @@ def copyproject(apiUrl, srcProjectName, dstApiUrl, dstProjectName, tagFilePath):
 
         else:
             existPkg += 1
-            message = "info : %s is already present on %s" % (pkgName, dstProjectName)
+            message = "info (%d/%d): %s is already present on %s" % (packageCounter, totalPkg,
+                                                                     pkgName, dstProjectName)
             printmessage(message)
 
-    tagFile.close()
+    printmessage("\nPackages in error: %s\n" % (", ".join(failedPackageList)))
 
     printmessage("Final reports")
     printmessage("   Total packages requested     = %s" % totalPkg)

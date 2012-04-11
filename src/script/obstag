@@ -82,7 +82,7 @@ class ObsProject(object):
         if not apiUrl.startswith("http"):
             realApiUrl = conf.config["apiurl_aliases"].get(apiUrl, None)
             if realApiUrl is None:
-                print >> sys.stderr, "Unknow API URL or alias: %s" % apiUrl
+                print >> sys.stderr, "Unknown API URL or alias: %s" % apiUrl
                 sys.exit(1)
             apiUrl = realApiUrl
         self.apiUrl = apiUrl
