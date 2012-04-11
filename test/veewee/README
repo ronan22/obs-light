@@ -27,7 +27,7 @@ Open a shell in the same directory as this readme.
     $ vagrant basebox validate <distribution>
 
 - Add base boxes in your environment:
-    $ vagrant basebox add <distribution> "<distribution>.box"
+    $ vagrant box add <distribution> "<distribution>.box"
 
  Run tests in virtual machines
 -------------------------------
