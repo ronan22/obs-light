@@ -16,6 +16,7 @@ Depends: ${shlibs:Depends},
  qemu,
  spectacle,
  sudo,
+ xdg-utils,
  xtightvncviewer
 Recommends:
  usb-imagewriter
