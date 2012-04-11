@@ -51,18 +51,18 @@ def wasStoppedCorrectly():
 
 def exitIfRoot():
     if userIsRoot():
-        print "Sorry, Can't run OBS Light as root."
-        sys.exit(0)
+        print >> sys.stderr, "Sorry, Can't run OBS Light as root."
+        sys.exit(1)
 
 def exitIfAlreadyRunning():
     if alreadyRunning():
         pid = getPidFromFile()
-        print "Already running... PID is %d" % pid
+        print >> sys.stderr, "Already running... PID is %d" % pid
         sys.exit(1)
 
 def warnIfNotShutDownCorrectly():
     if not wasStoppedCorrectly():
-        print "WARNING: OBS Light has not been shut down correctly."
+        print >> sys.stderr, "WARNING: OBS Light has not been shut down correctly."
 
 def writePidFile():
     with open(getpidFilePath(), "w") as pidFile:

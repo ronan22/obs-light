@@ -25,8 +25,8 @@ exitIfAlreadyRunning()
 warnIfNotShutDownCorrectly()
 shouldUpgradeMsg = shouldUpgradeMessage()
 if shouldUpgradeMsg is not None:
-    print shouldUpgradeMsg
-    print
+    print >> sys.stderr, shouldUpgradeMsg
+    print >> sys.stderr
 writePidFile()
 
 try:
