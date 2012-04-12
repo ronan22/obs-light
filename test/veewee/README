@@ -43,7 +43,8 @@ The script "run_vm_test.sh" can be used to run another script in a
 virtual machine.
     run_vm_test.sh -d <distribution> -s <script>
 It will create a new virtual machine based on <distribution> and run <script>
-as user "vagrant".
+as user "vagrant". The virtual machine configuration files, and the output of
+the script will be written in "~/OBSLight_tests/<date>-<distribution>/".
 
 
  How does it work ?
