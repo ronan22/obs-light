@@ -22,7 +22,7 @@ and run test suites on them.
  Configure your environment
 ----------------------------
 Open a shell in the same directory as this readme.
-Skip to step 3 if you already have ".box" files.
+Skip to step 4 if you already have ".box" files.
 1. Build base boxes:
     $ vagrant basebox build <distribution>
   Available distributions:
@@ -33,7 +33,10 @@ Skip to step 3 if you already have ".box" files.
 2. Test base boxes:
     $ vagrant basebox validate <distribution>
 
-3. Add base boxes in your environment:
+3. Export base box:
+    $ vagrant basebox export <distribution>
+
+4. Add base boxes in your environment:
     $ vagrant box add <distribution> "<distribution>.box"
 
 
