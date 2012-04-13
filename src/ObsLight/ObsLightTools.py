@@ -184,7 +184,7 @@ def testRepositoryUrl(url):
     Return True if `url` is a package repository.
     '''
     logger = ObsLightPrintManager.getLogger()
-    logger.info("Testing if '%s' is a package repository")
+    logger.info("Testing if '%s' is a package repository", url)
     (scheme, netloc, path, _params, _query, _fragment) = urlparse(str(url))
     if ":" in netloc:
         (host, port) = netloc.split(":")
@@ -197,10 +197,13 @@ def testRepositoryUrl(url):
     conn = createConn(host, port, scheme)
     try:
         if not path.endswith("/"):
-            conn.request('HEAD', netloc + path + "/repodata/repomd.xml")
+            repomdUrl = path + "/repodata/repomd.xml"
         else:
-            conn.request('HEAD', netloc + path + "repodata/repomd.xml")
+            repomdUrl = path + "repodata/repomd.xml"
+        logger.debug("Calling %s" % repomdUrl)
+        conn.request('HEAD', repomdUrl)
         response = conn.getresponse()
+        logger.debug("Response status: %d" % response.status)
         return response.status == 200
     except BaseException:
         logger.warning("Error while connecting to '%s'", url)
