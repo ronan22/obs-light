@@ -213,9 +213,6 @@ class ObsLightOsc(object):
     def trustRepos(self,
                    api=None,
                    listDepProject=None):
-        '''
-        
-        '''
         ObsLightPrintManager.getLogger().debug("api" + api)
         self.get_config()
         aOscConfigParser = conf.get_configParser(self.__confFile, force_read=True)
@@ -247,13 +244,21 @@ class ObsLightOsc(object):
                                 package,
                                 projectTarget,
                                 arch):
-        '''
-    
-        '''
+        """
+        Get the list of BuildRequires of `package`, from the OBS server at `api`.
+        The list contains packages names with version and release appended.
+        """
+        logger = ObsLightPrintManager.getLogger()
         self.get_config()
-        aUrl = str(api + "/build/" + projectObsName + "/" + projectTarget + "/" + arch + "/" + package + "/_buildinfo")
-        self.cleanBuffer(aUrl)
-        res = self.getHttp_request(aUrl)
+        buildinfoUrl = ("%(api)s/build/%(project)s/%(target)s/%(arch)s/%(package)s/_buildinfo" %
+                        {"api": api,
+                         "project": projectObsName,
+                         "package": package,
+                         "target": projectTarget,
+                         "arch": arch})
+        logger.debug("Getting buildrequires of %s from %s" % (package, buildinfoUrl))
+        self.cleanBuffer(buildinfoUrl)
+        res = self.getHttp_request(buildinfoUrl)
 
         aElement = ElementTree.fromstring(res)
 
@@ -266,6 +271,7 @@ class ObsLightOsc(object):
                         version += package.get("epoch") + ":"
                     version += package.get("version") + "-" + package.get("release")
                     result.append(package.get("name") + version)
+        logger.debug("  %s" % str(result))
         return result
 
 
@@ -273,9 +279,6 @@ class ObsLightOsc(object):
                       apiurl=None,
                       projet=None,
                       repos=None):
-        '''
-        
-        '''
         self.get_config()
         url = str(apiurl + "/source/" + projet + "/_meta")
         res = self.getHttp_request(url)
@@ -1030,7 +1033,8 @@ class ObsLightOsc(object):
                     filefd = open(file, 'rb')
                     try:
                         if sys.platform[:3] != 'win':
-                            data = mmap.mmap(filefd.fileno(), os.path.getsize(file), mmap.MAP_SHARED, mmap.PROT_READ)
+                            data = mmap.mmap(filefd.fileno(), os.path.getsize(file),
+                                             mmap.MAP_SHARED, mmap.PROT_READ)
                         else:
                             data = mmap.mmap(filefd.fileno(), os.path.getsize(file))
                         data = buffer(data)
@@ -1135,7 +1139,8 @@ class ObsLightOsc(object):
                 from M2Crypto import m2urllib2
 
             except ImportError, e:
-                raise oscsslexcp.NoSecureSSLError('M2Crypto is needed to access %s in a secure way.\nPlease install python-m2crypto.' % apiurl)
+                msg = 'M2Crypto is needed to access %s in a secure way.\nPlease install python-m2crypto.'
+                raise oscsslexcp.NoSecureSSLError(msg % apiurl)
 
             cafile = options.get('cafile', None)
             capath = options.get('capath', None)
@@ -1148,8 +1153,13 @@ class ObsLightOsc(object):
                         capath = i
                         break
             ctx = oscssl.mySSLContext()
-            if ctx.load_verify_locations(capath=capath, cafile=cafile) != 1: raise Exception('No CA certificates found')
-            opener = m2urllib2.build_opener(ctx, oscssl.myHTTPSHandler(ssl_context=ctx, appname='osc'), urllib2.HTTPCookieProcessor(conf.cookiejar), authhandler, urllib2.ProxyHandler(urllib.getproxies_environment()))
+            if ctx.load_verify_locations(capath=capath, cafile=cafile) != 1:
+                raise Exception('No CA certificates found')
+            opener = m2urllib2.build_opener(ctx,
+                                            oscssl.myHTTPSHandler(ssl_context=ctx, appname='osc'),
+                                            urllib2.HTTPCookieProcessor(conf.cookiejar),
+                                            authhandler,
+                                            urllib2.ProxyHandler(urllib.getproxies_environment()))
         else:
 #            import sys
             #print >> sys.stderr, "WARNING: SSL certificate checks disabled. Connection is insecure!\n"
@@ -1500,12 +1510,6 @@ class ObsLightOsc(object):
 ##                print cert.as_text()
 
 
-
-
-
-
-
-
 __myObsLightOsc = ObsLightOsc()
 
 def getObsLightOsc():
@@ -1515,7 +1519,6 @@ def getObsLightOsc():
     #if __myObsLightOsc == None:
     #    __myObsLightOsc = ObsLightOsc()
     return __myObsLightOsc
-
 
 
 if __name__ == '__main__':
@@ -1535,12 +1538,3 @@ if __name__ == '__main__':
                                                    arch)
 
     print " ".join(result)
-
-
-
-
-
-
-
-
-
