@@ -17,7 +17,8 @@ echo -e "vagrant ALL=(ALL) NOPASSWD: ALL\n" >> /etc/sudoers
 
 VBOX_VERSION=$(cat /home/vagrant/.vbox_version)
 
-yum -y --exclude=kernel* update
+#yum -y --exclude=kernel* update
+yum -y update
 
 yum -y install \
   ruby \
@@ -34,15 +35,20 @@ yum -y install \
   rubygem-treetop \
   rubygem-uuidtools
 
-cd /tmp
-wget http://download.virtualbox.org/virtualbox/$VBOX_VERSION/VBoxGuestAdditions_$VBOX_VERSION.iso
-mount -o loop,ro VBoxGuestAdditions_$VBOX_VERSION.iso /mnt
-sh /mnt/VBoxLinuxAdditions.run
-umount /mnt
-rm VBoxGuestAdditions_$VBOX_VERSION.iso
+#   VirtualBox guest additions installation should be done after reboot,
+#   with the new kernel.
+# cd /tmp
+# wget http://download.virtualbox.org/virtualbox/$VBOX_VERSION/VBoxGuestAdditions_$VBOX_VERSION.iso
+# mount -o loop,ro VBoxGuestAdditions_$VBOX_VERSION.iso /mnt
+# sh /mnt/VBoxLinuxAdditions.run
+# umount /mnt
+# rm VBoxGuestAdditions_$VBOX_VERSION.iso
 
 gem install chef --no-rdoc --no-ri
 
+reboot
+
+sleep 10
 exit
 
 # EOF
