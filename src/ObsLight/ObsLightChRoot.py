@@ -312,7 +312,8 @@ class ObsLightChRoot(object):
         if not os.path.isdir(pathBuild):
             raise ObsLightErr.ObsLightChRootError("The path '" + pathBuild + "' is not a directory")
 
-        listDir = [item for item in os.listdir(pathBuild) if os.path.isdir(pathBuild + "/" + item)]
+        listDir = [item for item in os.listdir(pathBuild) if (os.path.isdir(pathBuild + "/" + item) and
+                                                              (not item.startswith(".git")))]
 
         if len(listDir) == 0:
             raise ObsLightErr.ObsLightChRootError("No sub-directory in '" + pathBuild + "'." +
@@ -378,6 +379,8 @@ class ObsLightChRoot(object):
             command = []
             mkdirCommand = "mkdir -p %s"
             chrootRpmBuildDirectory = package.getChrootRpmBuildDirectory()
+
+            command.append("rm -fr %s" % chrootRpmBuildDirectory)
             for directory in ["BUILD", "SPECS", "BUILDROOT", "RPMS", "SOURCES", "SRPMS"]:
                 command.append(mkdirCommand % os.path.join(chrootRpmBuildDirectory, directory))
 
