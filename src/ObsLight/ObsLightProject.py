@@ -292,7 +292,16 @@ class ObsLightProject(object):
         res = self.removeChRoot()
 
         if res == 0:
-            return shutil.rmtree(self.getDirectory())
+            drctr = self.getDirectory()
+            if os.path.isdir(drctr):
+                try:
+                    return shutil.rmtree(drctr)
+                except:
+                    message = "Error in removeProject, can't remove directory, '" + drctr + "'"
+                    raise ObsLightErr.ObsLightProjectsError(message)
+            else:
+                ObsLightPrintManager.obsLightPrint("WARNING: '" + drctr + "' is not a directory.")
+                return 0
         else:
             message = "Error in removeProject, can't remove project file system"
             raise ObsLightErr.ObsLightProjectsError(message)
