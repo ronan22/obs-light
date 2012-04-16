@@ -172,7 +172,8 @@ class ObsLightPackage(object):
     def setPackageGit(self, directory):
         self.__packageGit = directory
 
-
+    def isCurrentGitIsPackageGit(self):
+        return self.__currentGitIsPackageGit
 
     def getPackageInfo(self, info):
         '''
@@ -464,6 +465,11 @@ class ObsLightPackage(object):
             return None
 
         return self.__mySpecFile.specFileHaveAnEmptyPrepAndBuild()
+
+    def getSpecFileObj(self):
+
+        return self.__mySpecFile
+
 
 
     def setPrepDirName(self, prepDirName):

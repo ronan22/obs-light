@@ -738,16 +738,18 @@ class ObsLightProject(object):
                 subprocess.Popen(command)
 
     def addPackageSourceInChRoot(self, package):
-        specFile = self.__packages.getSpecFile(package)
+        pkgObj = self.__packages.getPackage(package)
+        pkgObj.getSpecFileObj().parseFile()
+        specFile = pkgObj.getSpecFile()
 
         listPackageBuildRequires = self.__obsServers.getObsServer(self.__obsServer).getPackageBuildRequires(self.__projectObsName,
                                                                                                             package,
                                                                                                             self.__projectTarget ,
                                                                                                             self.__projectArchitecture)
-        res = self.__chroot.installBuildRequires(self.__packages.getPackage(package),
+        res = self.__chroot.installBuildRequires(pkgObj,
                                                 listPackageBuildRequires)
 
-        res = self.__chroot.addPackageSourceInChRoot(package=self.__packages.getPackage(package),
+        res = self.__chroot.addPackageSourceInChRoot(package=pkgObj,
                                                specFile=specFile,
                                                repo=self.__projectObsName)
         return res
@@ -764,6 +766,7 @@ class ObsLightProject(object):
 
         pkgObj = self.__packages.getPackage(packageName)
         pkgPath = pkgObj.getPackageDirectory()
+        pkgObj.getSpecFileObj().parseFile()
         specFileName = pkgObj.getSpecFile()
         specFilePath = os.path.join(pkgObj.getChrootRpmBuildDirectory(),
                                     "SPECS", specFileName)

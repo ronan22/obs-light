@@ -58,12 +58,12 @@ class ObsLightSpec:
                               self.__preunFlag,
                               self.__postunFlag,
                               self.__verifyscriptFlag]
-        #deprecated if you use order dico
+
         self.__orderList = []
         self.__spectDico = {}
 
         if self.__path != None:
-            self.parseFile(self.__path)
+            self.parseFile()
 
     def __cleanline(self, line):
         '''
@@ -287,10 +287,14 @@ class ObsLightSpec:
             return None
 
 
-    def parseFile(self, path=None):
+    def parseFile(self):
         '''
         
         '''
+        self.__orderList = []
+        self.__spectDico = {}
+
+        path = self.__path
         if path != None:
             tmpLineList = []
 
