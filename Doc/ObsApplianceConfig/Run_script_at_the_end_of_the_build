@@ -13,6 +13,11 @@
 . /studio/profile
 
 #init services
+
+insserv apache2
+
+insserv obsapidelayed
+
 insserv mysql
 insserv memcached
 

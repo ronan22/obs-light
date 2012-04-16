@@ -3,7 +3,6 @@
 # ronan@fridu.net
 # Date 27 September 2011
 # License GLPv2
-
 #
 echo 'alias ll="ls -alh"'>> /etc/bash.bashrc
 
@@ -12,21 +11,16 @@ theHostName=obslightserver
 #Configure OBS to work without DNS.
 sed -i "s,^my \$hostname =.*$,my \$hostname = \"$theHostName\";," /usr/lib/obs/server/BSConfig.pm
 sed -i "s,^our \$repodownload =.*$,our \$repodownload = \"http://\$hostname:82/\";," /usr/lib/obs/server/BSConfig.pm
-sed -i "s,\`hostname -f\`,$theHostName," /etc/init.d/obsapisetup
+sed -i "s,\`hostname -f: \`,$theHostName," /etc/init.d/obsapisetup
+sed -i "s,OBS_SETUP_WORKER_PARTITIONS=\"use_obs_vg\",OBS_SETUP_WORKER_PARTITIONS=\"none\"", /etc/sysconfig/obs-server
 
 echo "127.0.0.1 $theHostName" >> /etc/hosts
 
 #Configure build architecture
-sed -i "s,^OBS_SCHEDULER_ARCHITECTURES=\"i586 x86_64\",OBS_SCHEDULER_ARCHITECTURES=\"i586 armv8el\"," /etc/sysconfig/obs-server
-sed -i "s,^OBS_SCHEDULER_ARCHITECTURES=\"i586 x86_64\",OBS_SCHEDULER_ARCHITECTURES=\"i586 armv8el\"," /etc/sysconfig/obs-server
-
-#Configure build architecture in web interface
-sed -i "s,^visible_architectures:.*$,visible_architectures: [ \"i586\"\, \"armv8el\" ]," /srv/www/obs/webui/config/options.yml
-sed -i "s,^default_enabled_architectures:.*$,default_enabled_architectures: [ \"i586\"\, \"armv8el\" ]," /srv/www/obs/webui/config/options.yml
-
+sed -i "s,^OBS_SCHEDULER_ARCHITECTURES=\"i586 x86_64 armv7l\",OBS_SCHEDULER_ARCHITECTURES=\"i586 armv8el\"," /etc/sysconfig/obs-server
 
 #For the VM no VM.
-sed -i "s,^OBS_VM_TYPE=.*$,OBS_VM_TYPE=\"none\"," /etc/sysconfig/obs-worker
+#sed -i "s,^OBS_VM_TYPE=.*$,OBS_VM_TYPE=\"none\"," /etc/sysconfig/obs-worker
 
 #My service, little trick to add the hostname to the hosts file (through run level 3), the host name can change by dhcp.
 chkconfig --add hostnameMgr
@@ -36,7 +30,6 @@ ln -sf /srv/obs /obs
 
 #print the IP whenever the appliance boot
 sed -i 's,^\ \*\ Connect.*,\ \*\ \$FQHOSTNAME = `/sbin/ifconfig|grep 'inet'|grep -v '127.0.0.1'| cut -d: -f2| cut -d\" \" \-f1`,' /etc/init.d/obsapisetup
-
 
 #Change the owner and group 
 if [ -d /srv/obs ]; then

@@ -4,9 +4,15 @@
 # Date 03 january 2012
 # License GLPv2
 
+IP=`/sbin/ifconfig  | grep 'inet '| grep -v '127.0.0.1' | cut -d: -f2 | awk '{ print $1}'`
+echo "<p>Because the OBS server appliance have not DNS you must add \"$IP obslightserver\" to /etc/hosts</p>" > /srv/www/obs/overview/index.html
+echo "<p><a href="https://obslightserver">The OBS webui</a> can be used to setup OBS, browse the content and to build packages.</p>" >> /srv/www/obs/overview/index.html
+echo "<p><a href="https://obslightserver:444">The OBS api URL(https://obslightserver:444)</a> can be used in clients like osc and to manage user accounts via a browser.</p>" >> /srv/www/obs/overview/index.html
+echo "<p><a href="http://obslightserver:82">The OBS repositories</a> contain the build results, the repositories can be added to package managers like zypper or apt.</p>" >> /srv/www/obs/overview/index.html
+
 echo "Appliance from http://susegallery.com/a/e0uuBG/meego-obs"
 echo "http://wiki.meego.com/OBS_Light"
 echo "Login/PW:root/opensuse"
 echo "Login/PW:tux/opensuse"
-echo Server OBS ready http://`/sbin/ifconfig  | grep 'inet '| grep -v '127.0.0.1' | cut -d: -f2 | awk '{ print $1}'`/
+echo Server OBS ready http://$IP/
 echo "To login to the webinterface, please use the username 'Admin' with password 'opensuse'."

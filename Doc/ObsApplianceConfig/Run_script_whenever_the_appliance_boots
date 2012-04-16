@@ -27,8 +27,15 @@ then
   # fix hostname in testdrive: 
   sed -i 's,^webui_host: .*,webui_host: "'"127.0.0.1"'",' /srv/www/obs/api/config/options.yml
 
-  insserv lighttpd
-  rclighttpd restart
+  #insserv lighttpd
+  #rclighttpd restart
   #echo appliance info 
   sed -i "/^exit 0/ i\. /var/config_obs_boot_info" /etc/init.d/rc
 fi
+
+#to disable GPG checks for OBS Light repo
+if [ -f /etc/zypp/repos.d/OBS_Light.repo ]
+then
+   sed -i -r s,"gpgcheck=1","gpgcheck=0", /etc/zypp/repos.d/OBS_Light.repo
+fi
+

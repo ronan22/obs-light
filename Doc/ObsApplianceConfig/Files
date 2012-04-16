@@ -1,6 +1,5 @@
-saveOBS.tar.gz 	/				nobody / nobody 	rw-r--r-- 	
-config_obs 	/var/				nobody / nobody 	rw-r--r-- 	
-database.yml 	/srv/www/obs/api/config/	nobody / nobody 	rw-r--r-- 	
-hostnameMgr 	/etc/init.d/			nobody / nobody 	rwxrwxrwx 	
-lighttpd.conf 	/etc/lighttpd/			nobody / nobody 	rw-r--r-- 	
-modules.conf 	/etc/lighttpd/			nobody / nobody 	rw-r--r-- 
+saveOBS.tar.gz 		nobody / nobody 	rw-r--r-- 	
+config_obs		nobody / nobody 	rw-r--r-- 	
+config_obs_boot_info	nobody / nobody 	rw-r--r-- 	
+database.yml		nobody / nobody 	rw-r--r-- 	
+hostnameMgr 		nobody / nobody 	rwxrwxrwx 	
