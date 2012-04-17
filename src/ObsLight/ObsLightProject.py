@@ -779,9 +779,13 @@ class ObsLightProject(object):
         specFileName = pkgObj.getSpecFile()
         specFilePath = os.path.join(pkgObj.getChrootRpmBuildDirectory(),
                                     "SPECS", specFileName)
-        name = pkgObj.getMacroDirectoryPackageName()
-        if name is None:
-            return 0
+
+#        name = pkgObj.getMacroDirectoryPackageName()
+#
+#        print "name ", name
+#
+#        if name is None:
+#            return 0
 
         listPackageBuildRequires = self.__obsServers.getObsServer(self.__obsServer).getPackageBuildRequires(self.__projectObsName,
                                                                                                             packageName,
