@@ -21,7 +21,7 @@ Created on 19 déc. 2011
 @author: Florent Vennetier
 '''
 
-from PySide.QtGui import QWizard
+from PySide.QtGui import QPlainTextEdit, QWizard
 
 from ObsLightGui.ObsLightGuiObject import ObsLightGuiObject
 
@@ -32,6 +32,8 @@ from ChooseProjectPage import ChooseProjectPage
 from ChooseProjectTargetPage import ChooseProjectTargetPage
 from ChooseProjectArchPage import ChooseProjectArchPage
 from ConfigureProjectAliasPage import ConfigureProjectAliasPage
+from ChooseNewOrExistingPackage import ChooseNewOrExistingPackage
+from ConfigureNewPackagePage import ConfigureNewPackagePage
 from ChoosePackagePage import ChoosePackagePage
 
 class ConfigWizard(QWizard, ObsLightGuiObject):
@@ -45,6 +47,8 @@ class ConfigWizard(QWizard, ObsLightGuiObject):
         else:
             QWizard.__init__(self, parent)
         self.setButtonText(QWizard.CommitButton, u"Validate >")
+        # QPlainTextEdit is not a known field type so we have to register it
+        self.setDefaultProperty(QPlainTextEdit.__name__, "plainText", "textChanged")
         self.loadPages()
 
     def pageIndex(self, pageName):
@@ -73,6 +77,13 @@ class ConfigWizard(QWizard, ObsLightGuiObject):
         self.Pages[u'ConfigureProjectAlias'] = ConfigureProjectAliasPage(self.gui, pageCounter)
 
         pageCounter += 1
+        self.Pages[u'ChooseNewOrExistingPackage'] = ChooseNewOrExistingPackage(self.gui,
+                                                                               pageCounter)
+
+        pageCounter += 1
+        self.Pages[u'ConfigureNewPackage'] = ConfigureNewPackagePage(self.gui, pageCounter)
+
+        pageCounter += 1
         self.Pages[u'ChoosePackage'] = ChoosePackagePage(self.gui, pageCounter)
 
         for page in self.Pages.values():
@@ -99,6 +110,10 @@ class ConfigWizard(QWizard, ObsLightGuiObject):
     def skipToPackageSelection(self, projectAlias):
         self.setField(u"projectAlias", projectAlias)
         self.setStartId(self.Pages[u'ChoosePackage'].index)
+
+    def skipToPackageCreation(self, projectAlias):
+        self.setField(u"projectAlias", projectAlias)
+        self.setStartId(self.Pages[u'ConfigureNewPackage'].index)
 
     def skipToServerCreation(self, **prefilledValues):
         """
