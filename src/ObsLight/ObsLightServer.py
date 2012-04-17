@@ -353,7 +353,7 @@ class ObsLightServer(object):
                                                            repo=repo,
                                                            arch=arch)
 
-    def getDependencyRepositories(self, projectObsName, target):
+    def getDependencyRepositories(self, projectObsName, target, arch):
         '''
         Return the list of the dependency repositories.
         '''
@@ -376,13 +376,18 @@ class ObsLightServer(object):
 
         result2 = {}
         for prj in result1.keys():
-            url = os.path.join(self.__serverRepo,
-                             prj.replace(":", ":/"),
-                             result1[prj])
+            url = os.path.join(self.__serverRepo, prj.replace(":", ":/"), result1[prj])
 
             alias = ObsLightOsc.getObsLightOsc().getAliasOfRepo(url + "/" + prj + ".repo")
             if alias != None:
                 result2[alias] = url
+
+            listUrl = ObsLightOsc.getObsLightOsc().getDODUrl(self.__serverAPI, prj, arch)
+            if listUrl != None:
+                for url in listUrl:
+                    alias = ObsLightOsc.getObsLightOsc().getAliasOfRepo(url)
+                    if alias != None:
+                        result2[alias] = url
 
         return result2
 

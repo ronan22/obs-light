@@ -353,7 +353,17 @@ class ObsLightChRoot(object):
     def installBuildRequires(self, package, listPackageBuildRequires):
         command = []
         command.append("zypper --no-gpg-checks --gpg-auto-import-keys ref")
-        command.append("zypper --non-interactive in --force-resolution " + " ".join(listPackageBuildRequires))
+        cmd = "zypper --non-interactive in --force-resolution "
+        for pk in listPackageBuildRequires:
+            if pk.count("-") >= 2:
+                lastMinus = pk.rfind("-")
+                cutMinus = pk.rfind("-", 0, lastMinus)
+
+                pkCmd = '"' + pk[:cutMinus] + ">=" + pk[cutMinus + 1:] + '"'
+            else:
+                pkCmd = pk
+            cmd += " " + pkCmd
+        command.append(cmd)
         res = self.execCommand(command=command)
 
         if res != 0:

@@ -485,10 +485,39 @@ class ObsLightOsc(object):
                         result[target] = repo
         return result
 
+    def getDODUrl(self, apiurl, projet, arch):
+        result = []
+        self.get_config()
+        url = str(apiurl + "/source/" + projet + "/_meta")
+        res = self.getHttp_request(url)
+        if res == None:
+            return None
+        aElement = ElementTree.fromstring(res)
+
+        for project in aElement:
+            if (project.tag == "download") :
+                if arch == project.get("arch"):
+                    result.append(project.get("baseurl"))
+
+        return result
+
     def getAliasOfRepo(self, repo):
         """
         
         """
+        if not repo.endswith(".repo"):
+            filehandle = urllib.urlopen(repo)
+            aFile = filehandle.read()
+            filehandle.close()
+            for line in aFile.split("\n"):
+                if ".repo" in line:
+                    if '<a href="./' in line:
+                        line = line.split('<a href="./')[1]
+                        if '">' in line:
+                            line = line.split('">')[0]
+                            if line.endswith(".repo"):
+                                repo += line
+
         if ObsLightTools.testUrl(repo):
             filehandle = urllib.urlopen(repo)
             aFile = filehandle.read()
@@ -902,6 +931,7 @@ class ObsLightOsc(object):
 
         try:
             self.http_request("PUT", url, data=ElementTree.tostring(aElement), timeout=TIMEOUT)
+            return 0
         except urllib2.URLError, e:
             ObsLightPrintManager.getLogger().error(str(e))
             ObsLightPrintManager.getLogger().error("apiurl " + str(apiurl) + " is not reachable")
@@ -924,6 +954,7 @@ class ObsLightOsc(object):
 
         try:
             self.http_request("PUT", url, data=ElementTree.tostring(aElement), timeout=TIMEOUT)
+            return 0
         except urllib2.URLError, e:
             ObsLightPrintManager.getLogger().error(str(e))
             ObsLightPrintManager.getLogger().error("apiurl " + str(apiurl) + " is not reachable")

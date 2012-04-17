@@ -906,7 +906,7 @@ class ObsLightProject(object):
 
 
     def getDependencyRepositories(self):
-        return self.__obsServers.getObsServer(self.__obsServer).getDependencyRepositories(self.__projectObsName, self.__projectTarget)
+        return self.__obsServers.getObsServer(self.__obsServer).getDependencyRepositories(self.__projectObsName, self.__projectTarget, self.__projectArchitecture)
 
 
 
