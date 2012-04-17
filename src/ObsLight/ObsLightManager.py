@@ -576,6 +576,14 @@ class ObsLightManagerCore(ObsLightManagerBase):
                                           arch=arch,
                                           raw=raw)
 
+
+
+    def createObsProject(self, serverApi, projectObsName, title="", description=""):
+        checkNonEmptyStringServerApi(serverApi=serverApi)
+        self.checkObsServerAlias(serverApi=serverApi)
+        server = self._myObsServers.getObsServer(serverApi)
+        return server.createObsProject(projectObsName, title, description)
+
     def checkAvailableProjectObsName(self, projectObsName, serverApi):
         '''
         
@@ -748,6 +756,13 @@ class ObsLightManagerCore(ObsLightManagerBase):
         If onlyInstalled=0, return the list of packages provided by the OBS server for the project.
         '''
         return self._myObsLightProjects.getProject(projectLocalName).getListPackage(onlyInstalled=onlyInstalled)
+
+    def createObsPackage(self, serverApi, projectObsName, package , title="", description=""):
+        checkNonEmptyStringServerApi(serverApi=serverApi)
+        self.checkObsServerAlias(serverApi=serverApi)
+        server = self._myObsServers.getObsServer(serverApi)
+        return server.createObsPackage(projectObsName, package, title, description)
+
 
     def checkPackage(self, projectLocalName, package):
         ''' 

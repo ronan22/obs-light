@@ -402,9 +402,7 @@ class ObsLightServer(object):
                             arch=None,
                             remoteurl=False,
                             raw=False):
-        '''
-        
-        '''
+
         if ("https://api.meego.com" in self.__serverAPI):
             ObsLightPrintManager.getLogger().warning("MeeGo.com WARNING api.meego.com doesn't support search request, Bug 24979")
 
@@ -426,18 +424,14 @@ class ObsLightServer(object):
             return  ObsLightOsc.getObsLightOsc().getLocalProjectList(obsServer=self.__serverAPI)
 
     def getTargetList(self, projectObsName=None):
-        '''
-        
-        '''
+
         return ObsLightOsc.getObsLightOsc().getTargetList(obsServer=self.__serverAPI,
                                                        projectObsName=projectObsName)
 
     def getArchitectureList(self,
                             projectObsName=None,
                             projectTarget=None):
-        '''
-        
-        '''
+
         return ObsLightOsc.getObsLightOsc().getArchitectureList(obsServer=self.__serverAPI ,
                                                              projectObsName=projectObsName,
                                                              projectTarget=projectTarget)
@@ -445,26 +439,37 @@ class ObsLightServer(object):
 
 
     def getUrlServerWeb(self):
-        '''
-        
-        '''
+
         return self.__serverWeb
 
     def getProjectTitle(self, projectObsName):
-        '''
-        
-        '''
+
         return ObsLightOsc.getObsLightOsc().getProjectParameter(projectObsName=projectObsName,
                                                                 apiurl=self.__serverAPI,
                                                                 parameter="title")
 
     def getProjectDescription(self, projectObsName):
-        '''
-        
-        '''
+
         return ObsLightOsc.getObsLightOsc().getProjectParameter(projectObsName=projectObsName,
                                                                 apiurl=self.__serverAPI,
                                                                 parameter="description")
+
+
+    def createObsProject(self, projectObsName, title="", description=""):
+        return ObsLightOsc.getObsLightOsc().createObsProject(self.__serverAPI,
+                                                              projectObsName,
+                                                              self.__user,
+                                                              title,
+                                                              description)
+
+
+    def createObsPackage(self, projectObsName, package, title="", description=""):
+        return ObsLightOsc.getObsLightOsc().createObsPackage(self.__serverAPI,
+                                                              projectObsName,
+                                                              package,
+                                                              title,
+                                                              description)
+
 
 
 

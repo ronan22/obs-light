@@ -591,6 +591,8 @@ createServerSubCommandHelp(__command_current__,
                             "  return the current OBS server"])
 
 #Define the parameter list for server command
+
+
 createServerParameter(__command_test__, [__command_help__,
                                          __parameter_server_alias__,
                                          __parameter_login__,
@@ -629,6 +631,7 @@ createServerParameter(__command_current__, [__command_help__])
 
 #Command obsproject 
 appendObsProjectSubCommand(__command_help__)
+appendObsProjectSubCommand(__command_create__)
 appendObsProjectSubCommand(__command_list__)
 appendObsProjectSubCommand(__command_add__)
 appendObsProjectSubCommand(__command_del__)
@@ -641,6 +644,10 @@ appendObsProjectSubCommand(__command_dependencyrepositories__)
 
 #Define the obsproject command help
 createObsProjectSubCommandHelp(__command_help__, __help_command_help__)
+
+createObsProjectSubCommandHelp(__command_create__,
+                               ["obsproject create server_alias <server_alias> name_on_obs <name_on_obs> [title <title>] [description <description>]",
+                                "  Create a new project on the OBS server"])
 
 createObsProjectSubCommandHelp(__command_list__,
                                ["obsproject list BLANK",
@@ -690,6 +697,13 @@ createObsProjectSubCommandHelp(__command_export__,
                                 "  export a backup file"])
 
 #Define the obsproject parameter help
+createObsProjectParameter(__command_create__, [__command_help__,
+                                               __parameter_server_alias__,
+                                               __parameter_name_on_obs__,
+                                               __parameter_project_title__,
+                                               __parameter_project_description__])
+
+
 createObsProjectParameter(__command_list__, [__command_help__,
                                              __parameter_server_alias__,
                                              __parameter_raw__,
@@ -745,7 +759,7 @@ createObsProjectParameter(__command_set__, [__command_help__,
 
 createObsProjectParameter(__command_import__, [__command_help__,
                                                __parameter_path__],
-                          [__parameter_path__])
+                                               [__parameter_path__])
 
 createObsProjectParameter(__command_export__,
                           [__command_help__,
@@ -756,6 +770,7 @@ createObsProjectParameter(__command_export__,
 
 #Command package
 appendPackageSubCommand(__command_help__)
+appendPackageSubCommand(__command_create__)
 appendPackageSubCommand(__command_list__)
 appendPackageSubCommand(__command_current__)
 appendPackageSubCommand(__command_add__)
@@ -770,8 +785,17 @@ appendPackageSubCommand(__command_deletefile__)
 appendPackageSubCommand(__command_refresh__)
 appendPackageSubCommand(__command_testConflict__)
 appendPackageSubCommand(__command_resolveConflict__)
+
 #Define the package command help
 createPackageSubCommandHelp(__command_help__, __help_command_help__)
+
+
+
+createPackageSubCommandHelp(__command_create__,
+                            ["obsproject create server_alias <server_alias> package <package>\
+                             name_on_obs <name_on_obs> [title <title>] [description <description>]",
+                            " Create a new package on the OBS server"])
+
 createPackageSubCommandHelp(__command_list__,
                             ["package list [available] {project_alias <project_alias>}",
                              "print the package list of the project",
@@ -848,6 +872,13 @@ createPackageSubCommandHelp(__command_resolveConflict__,
 createPackageParameter(__command_list__, [__command_help__,
                                           __parameter_available__,
                                           __parameter_project_alias__])
+
+createPackageParameter(__command_create__, [__command_help__,
+                                               __parameter_server_alias__,
+                                               __parameter_name_on_obs__,
+                                               __parameter_package__,
+                                               __parameter_project_title__,
+                                               __parameter_project_description__])
 
 createPackageParameter(__command_current__, [__command_help__,
                                              __parameter_project_alias__])
@@ -1815,6 +1846,46 @@ class ObsLightObsproject(ObsLightBase):
         self.commandHelpDict = __obsproject_command_help_dict__
         self.parameterDict = __obsproject_parameter_dict__
 
+
+    def obsproject_create(self, listArgv):
+        Help = False
+        server_alias = None
+        name_on_obs = None
+        title = ""
+        description = ""
+
+        while self.testArgv(listArgv):
+            currentCommand, listArgv = self.getParameter(listArgv)
+
+            if (currentCommand in __command_help__) or (listArgv == None):
+                Help = True
+                break
+            elif currentCommand in __parameter_server_alias__:
+                server_alias , listArgv = self.getParameter(listArgv)
+                if (server_alias == None) and ObsLightBase.noaction:
+                    return self.printServerCompletionList()
+            elif currentCommand in __parameter_name_on_obs__:
+                name_on_obs , listArgv = self.getParameter(listArgv)
+            elif currentCommand in __parameter_project_title__:
+                title , listArgv = self.getParameter(listArgv)
+            elif currentCommand in __parameter_project_description__:
+                description , listArgv = self.getParameter(listArgv)
+            else:
+                return self.printUnknownCommand(currentCommand, __command_create__)
+
+        if Help == True:
+            return self.printHelp(__command_create__)
+        else:
+            if not ObsLightBase.noaction:
+                m = ObsLightManager.getCommandLineManager()
+                if (server_alias != None) and (name_on_obs != None):
+                    return m.createObsProject(server_alias, name_on_obs, title, description)
+                else:
+                    return self.printHelp()
+
+            else:
+                return self.printHelp(__command_create__)
+
     def obsproject_list (self, listArgv):
         Help = False
         server_alias = None
@@ -2327,6 +2398,8 @@ class ObsLightObsproject(ObsLightBase):
 
             if currentCommand in __command_help__ :
                 return self.printHelp()
+            elif currentCommand in __command_create__:
+                return self.obsproject_create(listArgv)
             elif currentCommand in __command_list__ :
                 return self.obsproject_list(listArgv)
             elif currentCommand in __command_add__:
@@ -2367,6 +2440,49 @@ class ObsLightObsPackage(ObsLightBase):
         self.parameterCompletionDict = __package_parameter_completion_dict__
         self.commandHelpDict = __package_command_help_dict__
         self.parameterDict = __package_parameter_dict__
+
+
+    def package_create(self, listArgv):
+        Help = False
+        server_alias = None
+        name_on_obs = None
+        package = None
+        title = ""
+        description = ""
+
+        while self.testArgv(listArgv):
+            currentCommand, listArgv = self.getParameter(listArgv)
+
+            if (currentCommand in __command_help__) or (listArgv == None):
+                Help = True
+                break
+            elif currentCommand in __parameter_server_alias__:
+                server_alias , listArgv = self.getParameter(listArgv)
+                if (server_alias == None) and ObsLightBase.noaction:
+                    return self.printServerCompletionList()
+            elif currentCommand in __parameter_name_on_obs__:
+                name_on_obs , listArgv = self.getParameter(listArgv)
+            elif currentCommand in __parameter_package__:
+                package , listArgv = self.getParameter(listArgv)
+            elif currentCommand in __parameter_project_title__:
+                title , listArgv = self.getParameter(listArgv)
+            elif currentCommand in __parameter_project_description__:
+                description , listArgv = self.getParameter(listArgv)
+            else:
+                return self.printUnknownCommand(currentCommand, __command_create__)
+
+        if Help == True:
+            return self.printHelp(__command_create__)
+        else:
+            if not ObsLightBase.noaction:
+                m = ObsLightManager.getCommandLineManager()
+                if (server_alias != None) and (name_on_obs != None) and (package != None):
+                    return m.createObsPackage(server_alias, name_on_obs, package, title, description)
+                else:
+                    return self.printHelp()
+
+            else:
+                return self.printHelp(__command_create__)
 
     def package_add(self, listArgv):
         Help = False
@@ -3198,6 +3314,9 @@ class ObsLightObsPackage(ObsLightBase):
             else:
                 return self.printHelp(__command_testConflict__)
 
+
+
+
     def package_resolveConflict(self, listArgv):
         Help = False
         project_alias = None
@@ -3241,6 +3360,7 @@ class ObsLightObsPackage(ObsLightBase):
             else:
                 return self.printHelp(__command_resolveConflict__)
 
+
     def execute(self, listArgv):
         if len(listArgv) == 0:
             self.printHelp()
@@ -3251,6 +3371,8 @@ class ObsLightObsPackage(ObsLightBase):
 
             if currentCommand in __command_help__ :
                 return self.printHelp()
+            elif currentCommand in __command_create__ :
+                return self.package_create(listArgv)
             elif currentCommand in __command_add__ :
                 return self.package_add(listArgv)
             elif currentCommand in __command_del__:
