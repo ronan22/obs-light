@@ -32,6 +32,9 @@ gem install puppet --no-ri --no-rdoc
 echo -e "\nremove zypper package locks ..."
 rm -f /etc/zypp/locks
 
+zypper --non-interactive --gpg-auto-import-keys refresh
+zypper --non-interactive update
+
 # install the virtualbox guest additions
 echo -e "\ninstall the virtualbox guest additions ..."
 zypper --non-interactive remove `rpm -qa virtualbox-guest-*`
