@@ -297,8 +297,8 @@ function add_package()
 	return_code=$?
 	while [ $return_code -ne 0 -a $retries -lt $MAX_RETRIES ]
 	do
-		print_warning "  Package import failed ($return_code), "\
-			"retrying... ($retries)"
+		print_warning "  Package import failed (returned $return_code), "\
+			"retrying... (retry $retries)"
 		obslight $OBSLIGHT_OPTIONS package add package $1 \
 			project_alias $PROJECT_ALIAS
 		return_code=$?

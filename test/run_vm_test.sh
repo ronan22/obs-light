@@ -113,8 +113,10 @@ sed -i -r "s,[ \t]*#( config.vm.network :bridged), \1," Vagrantfile
 vagrant up
 # Run script
 vagrant ssh -c "cd /vagrant; ./`basename $SCRIPT` 2>&1 | tee /vagrant/test.log"
+SCRIPT_RETURN_VALUE=$?
 # Shutdown VM
 vagrant halt
 
 echo "Test directory was: $TESTDIR"
+exit $SCRIPT_RETURN_VALUE
 
