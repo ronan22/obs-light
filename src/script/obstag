@@ -117,10 +117,11 @@ class PackageRevision(object):
 
 class ObsProject(object):
 
-    def __init__(self, apiUrl, projectName):
+    def __init__(self, apiUrlOrAlias, projectName):
         self.name = projectName
         conf.get_config()
-        self.apiUrl = getApiUrlFromAlias(apiUrl)
+        tmpApiUrl = getApiUrlFromAlias(apiUrlOrAlias)
+        self.apiUrl = tmpApiUrl if not tmpApiUrl.endswith("/") else tmpApiUrl[:-1]
 
     def getPackageList(self):
         """
