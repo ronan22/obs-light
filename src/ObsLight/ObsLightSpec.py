@@ -453,21 +453,31 @@ class ObsLightSpec:
             for line in self.__spectDico[section]:
                 if line.startswith("Release:") and (line.strip("Release:").strip(" ").rstrip("\n") == ""):
                     toWrite += "Release:1\n"
+                elif (section == "introduction_section"):
+                    if not line.startswith("Patch"):
+                        toWrite += line
                 elif (section == "%prep"):
-                    if (line.startswith('%prep'))  :
+                    if (line.startswith('%prep')) :
                         toWrite += line
                     elif (line.startswith('%setup') and (SETUP == False)):
                         line = line.replace("-c", "")
                         toWrite += line
                         SETUP = True
-                elif (section == "introduction_section"):
-                    if not line.startswith("Patch"):
-                        toWrite += line
                 else:
                     toWrite += line
 
+            if (section == "%prep") and (not SETUP):
+                toWrite += '%setup -q -c\n'
+
+        pattern = r'(^Source[0]?\s*:).*'
+
         aFile = open(path, 'w')
-        aFile.write(re.sub(r'(Source[0]?\s*:).*', r'\1%s' % archive, toWrite))
+
+        if  len(re.findall(pattern, toWrite)) > 0:
+            aFile.write(re.sub(pattern, r'\1%s' % archive, toWrite))
+        else:
+            aFile.write('Source:%s\n' % archive)
+            aFile.write(toWrite)
         aFile.close()
 
     def getsection(self):
