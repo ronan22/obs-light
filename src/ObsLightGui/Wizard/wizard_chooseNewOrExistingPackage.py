@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui/wizard_chooseNewOrExistingPackage.ui'
 #
-# Created: Tue Apr 17 17:40:08 2012
+# Created: Thu Apr 19 09:00:09 2012
 #      by: pyside-uic 0.2.13 running on PySide 1.1.0
 #
 # WARNING! All changes made in this file will be lost!
@@ -33,6 +33,8 @@ class Ui_WizardPage(object):
 
     def retranslateUi(self, WizardPage):
         WizardPage.setWindowTitle(QtGui.QApplication.translate("WizardPage", "WizardPage", None, QtGui.QApplication.UnicodeUTF8))
+        WizardPage.setTitle(QtGui.QApplication.translate("WizardPage", "Import packages", None, QtGui.QApplication.UnicodeUTF8))
+        WizardPage.setSubTitle(QtGui.QApplication.translate("WizardPage", "Do you want to import an existing package from server, create a new one from scratch, or branch an existing package on server ?", None, QtGui.QApplication.UnicodeUTF8))
         self.importExistingPackageButton.setText(QtGui.QApplication.translate("WizardPage", "Import existing package", None, QtGui.QApplication.UnicodeUTF8))
         self.createNewPackageButton.setText(QtGui.QApplication.translate("WizardPage", "Create new package", None, QtGui.QApplication.UnicodeUTF8))
         self.branchPackageButton.setToolTip(QtGui.QApplication.translate("WizardPage", "Not implemented", None, QtGui.QApplication.UnicodeUTF8))

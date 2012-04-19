@@ -16,6 +16,12 @@
   <property name="locale">
    <locale language="English" country="UnitedStates"/>
   </property>
+  <property name="title">
+   <string>Import packages</string>
+  </property>
+  <property name="subTitle">
+   <string>Do you want to import an existing package from server, create a new one from scratch, or branch an existing package on server ?</string>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QRadioButton" name="importExistingPackageButton">

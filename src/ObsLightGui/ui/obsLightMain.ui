@@ -584,8 +584,7 @@
                   </size>
                  </property>
                  <property name="toolTip">
-                  <string>Create a package from scratch.
-(not yet implemented)</string>
+                  <string>Create a package from scratch.</string>
                  </property>
                  <property name="text">
                   <string>New</string>
