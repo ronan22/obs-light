@@ -114,7 +114,8 @@ class Gui(QObject):
         propMap = {"mainWindow/geometry": self.__mainWindow.restoreGeometry,
                    "mainWindow/state": self.__mainWindow.restoreState,
                    "mainWindow/splitterState": self.__mainWindow.splitter.restoreState,
-                   "mainWindow/splitter2State": self.__mainWindow.splitter_2.restoreState}
+                   "mainWindow/splitter2State": self.__mainWindow.splitter_2.restoreState,
+                   "logWindow/geometry": self.__logManager.restoreGeometry}
         for propName, func in propMap.iteritems():
             prop = settings.value(propName)
             if prop is not None:
@@ -125,7 +126,8 @@ class Gui(QObject):
         propMap = {"mainWindow/geometry": self.__mainWindow.saveGeometry,
                    "mainWindow/state": self.__mainWindow.saveState,
                    "mainWindow/splitterState": self.__mainWindow.splitter.saveState,
-                   "mainWindow/splitter2State": self.__mainWindow.splitter_2.saveState}
+                   "mainWindow/splitter2State": self.__mainWindow.splitter_2.saveState,
+                   "logWindow/geometry": self.__logManager.saveGeometry}
         for propName, func in propMap.iteritems():
             settings.setValue(propName, func())
 
@@ -283,10 +285,10 @@ class Gui(QObject):
                                 QColor(u"white"))
         self.processEvents()
         self.__obsLightManager = methodToGetManager(*args, **kwargs)
+        self.__logManager = LogManager(self)
         self.__loadMainWindow()
         self.__obsProjectManager = ObsProjectsManager(self)
         self.__micProjectsManager = MicProjectsManager(self)
-        self.__logManager = LogManager(self)
         self.__mainWindow.callBeforeCloseEvent.append(self.__saveGeometry)
         self.__mainWindow.callBeforeCloseEvent.append(self.__logManager.close)
         self.splash.finish(self.mainWindow)
