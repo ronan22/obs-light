@@ -232,7 +232,7 @@ class Gui(QObject):
     def setCurrentProject(self, projectName):
         self.__obsProjectManager.currentProject = projectName
 
-    def runWizard(self, autoSelectProject=None):
+    def runWizard(self):
         """
         Run the OBS project creation wizard.
         If `autoSelectProject` is the name of an existing OBS Light
@@ -241,8 +241,16 @@ class Gui(QObject):
         """
         self.__wizard = ConfigWizard(self)
         self.__wizard.accepted.connect(self.refresh)
-        if autoSelectProject is not None:
-            self.__wizard.skipToPackageSelection(autoSelectProject)
+        self.__wizard.show()
+        return self.__wizard
+
+    def runWizardToAddPackage(self, project, newPackage=False):
+        self.__wizard = ConfigWizard(self)
+        self.__wizard.accepted.connect(self.refresh)
+        if newPackage:
+            self.__wizard.skipToPackageCreation(project)
+        else:
+            self.__wizard.skipToPackageSelection(project)
         self.__wizard.show()
         return self.__wizard
 

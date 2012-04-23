@@ -36,6 +36,8 @@ class ChooseServerPage(ObsLightWizardPage):
         serverList = self.manager.getObsServerList()
         self.ui_WizardPage.serverListWidget.clear()
         self.ui_WizardPage.serverListWidget.addItems(serverList)
+        if len(serverList) > 0:
+            self.ui_WizardPage.chooseServerButton.setChecked(True)
 
     def isAddingNewServer(self):
         return self.field(u"addNewServer")

@@ -757,7 +757,19 @@ class ObsLightManagerCore(ObsLightManagerBase):
         '''
         return self._myObsLightProjects.getProject(projectLocalName).getListPackage(onlyInstalled=onlyInstalled)
 
-    def createObsPackage(self, serverApi, projectObsName, package , title="", description=""):
+    @checkProjectLocalName(1)
+    def createLocalProjectObsPackage(self, projectLocalName, name, title="", description=""):
+        """
+        Create an empty package `name` on server in project associated
+        with `projectLocalName`, with `title` and `description`.
+        Package is not imported automatically,
+        you have to call `addPackage(projectLocalName, name)`.
+        """
+        server = self.getProjectParameter(projectLocalName, "obsServer")
+        projectObsName = self.getProjectParameter(projectLocalName, "projectObsName")
+        return self.createObsPackage(server, projectObsName, name, title, description)
+
+    def createObsPackage(self, serverApi, projectObsName, package, title="", description=""):
         checkNonEmptyStringServerApi(serverApi=serverApi)
         self.checkObsServerAlias(serverApi=serverApi)
         server = self._myObsServers.getObsServer(serverApi)

@@ -577,9 +577,6 @@
                </item>
                <item row="5" column="0">
                 <widget class="QPushButton" name="newPackageButton">
-                 <property name="enabled">
-                  <bool>false</bool>
-                 </property>
                  <property name="minimumSize">
                   <size>
                    <width>80</width>
@@ -587,8 +584,7 @@
                   </size>
                  </property>
                  <property name="toolTip">
-                  <string>Create a package from scratch.
-(not yet implemented)</string>
+                  <string>Create a package from scratch.</string>
                  </property>
                  <property name="text">
                   <string>New</string>
