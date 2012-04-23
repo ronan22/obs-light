@@ -259,11 +259,15 @@ class ObsLightOsc(object):
         logger.debug("Getting buildrequires of %s from %s" % (package, buildinfoUrl))
         self.cleanBuffer(buildinfoUrl)
         res = self.getHttp_request(buildinfoUrl)
-
-        aElement = ElementTree.fromstring(res)
-
+        if res != None:
+            aElement = ElementTree.fromstring(res)
+        else:
+            return None
         result = []
         for package in aElement:
+            if (package.tag == "error") :
+                msg = package.text
+                raise ObsLightErr.ObsLightOscErr(msg)
             if (package.tag == "bdep") :
                 if (not "preinstall" in package.keys()) and (not "vminstall" in package.keys()):
                     version = "-"
