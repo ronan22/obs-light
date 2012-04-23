@@ -358,8 +358,9 @@ class ObsLightChRoot(object):
             if pk.count("-") >= 2:
                 lastMinus = pk.rfind("-")
                 cutMinus = pk.rfind("-", 0, lastMinus)
-
-                pkCmd = '"' + pk[:cutMinus] + ">=" + pk[cutMinus + 1:] + '"'
+                # OBS sometimes returns "future" build numbers, and dependency
+                # resolution fails. So with forget build number.
+                pkCmd = '"' + pk[:cutMinus] + ">=" + pk[cutMinus + 1:lastMinus] + '"'
             else:
                 pkCmd = pk
             cmd += " " + pkCmd
