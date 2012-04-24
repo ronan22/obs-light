@@ -755,8 +755,9 @@ class ObsLightProject(object):
                                                                                                             package,
                                                                                                             self.__projectTarget ,
                                                                                                             self.__projectArchitecture)
-        res = self.__chroot.installBuildRequires(pkgObj,
-                                                listPackageBuildRequires)
+        if listPackageBuildRequires != None:
+            res = self.__chroot.installBuildRequires(pkgObj,
+                                                    listPackageBuildRequires)
 
         res = self.__chroot.addPackageSourceInChRoot(package=pkgObj,
                                                specFile=specFile,
