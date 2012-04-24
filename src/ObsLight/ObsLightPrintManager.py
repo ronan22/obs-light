@@ -48,7 +48,6 @@ def setLoggerLevel(level):
         intLevel = getattr(logging, str(level))
         logger.setLevel(intLevel)
     except AttributeError:
-        # TODO: create custom exception
         raise
 
 def addHandler(handler):

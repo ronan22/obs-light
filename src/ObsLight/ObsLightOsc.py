@@ -319,14 +319,11 @@ class ObsLightOsc(object):
                 aList.append(path.get("name"))
         return aList
 
-    def getFilesListPackage(self,
-                            apiurl=None,
-                            projectObsName=None,
-                            package=None):
-        '''
-        
-        '''
-        url = str(apiurl + "/source/" + projectObsName + "/" + package)
+    def getPackageFileList(self, apiurl, projectObsName, packageName):
+        """
+        Get the list of files of package `packageName`
+        """
+        url = str(apiurl + "/source/" + projectObsName + "/" + packageName)
         self.cleanBuffer(url)
         res = self.getHttp_request(url)
         if res == None:
@@ -337,31 +334,30 @@ class ObsLightOsc(object):
         result = {}
         for path in aElement:
             if (path.tag == "entry"):
-                file = {}
-                file["name"] = path.get("name")
-                file["md5"] = path.get("md5")
-                file["size"] = path.get("size")
-                file["mtime"] = path.get("mtime")
-                result[file["name"]] = file
+                fileEntry = {}
+                fileEntry["name"] = path.get("name")
+                fileEntry["md5"] = path.get("md5")
+                fileEntry["size"] = path.get("size")
+                fileEntry["mtime"] = path.get("mtime")
+                result[fileEntry["name"]] = fileEntry
         return result
+
+    def getFilesListPackage(self,
+                            apiurl=None,
+                            projectObsName=None,
+                            package=None):
+        return self.getPackageFileList(apiurl, projectObsName, package)
 
     def getObsPackageRev(self,
                          apiurl,
                          projectObsName,
                          package):
-        '''
-        
-        '''
         url = str(apiurl + "/source/" + projectObsName + "/" + package)
         self.cleanBuffer(url)
         res = self.getHttp_request(url)
         if res == None:
             return res
         aElement = ElementTree.fromstring(res)
-
-        #print "rev" , aElement.get("rev")
-        #print "vrev" , aElement.get("vrev")
-        #print "srcmd5" , aElement.get("srcmd5")
 
         return aElement.get("rev")
 
@@ -376,12 +372,9 @@ class ObsLightOsc(object):
             self.__aLock.release()
         try:
             aElement = ElementTree.fromstring(pk.get_files_meta())
-        except :
+        except BaseException:
             return None
 
-        #print "rev" , aElement.get("rev")
-        #print "vrev" , aElement.get("vrev")
-        #print "srcmd5" , aElement.get("srcmd5")
         return aElement.get("rev")
 
 
@@ -398,18 +391,12 @@ class ObsLightOsc(object):
         self.__subprocess(command=command)
 
     def updatePackage(self, packagePath):
-        '''
-        
-        '''
         os.chdir(packagePath)
         command = "osc up"
         return self.__subprocess(command=command)
 
 
     def __subprocess(self, command=None, waitMess=False):
-        '''
-        
-        '''
         res = None
         count = 0
         while(res == None and count < 4):
@@ -417,7 +404,7 @@ class ObsLightOsc(object):
             try:
                 res = self.__mySubprocessCrt.execSubprocess(command=command, waitMess=waitMess)
                 break
-            except :
+            except BaseException:
                 logger = ObsLightPrintManager.getLogger()
                 logger.error("__subprocess ERROR.")
         if res == None:
@@ -506,9 +493,6 @@ class ObsLightOsc(object):
         return result
 
     def getAliasOfRepo(self, repo):
-        """
-        
-        """
         if not repo.endswith(".repo"):
             filehandle = urllib.urlopen(repo)
             aFile = filehandle.read()
@@ -568,16 +552,16 @@ class ObsLightOsc(object):
         return self.__subprocess(command=command, waitMess=True)
 
 
-    def getLocalProjectList(self, obsServer):
+    def getProjectListFromServer(self, obsApi):
         '''
-        return a list of the project of a OBS Server.
+        Return the list of projects hosted on the server
+        pointed to by `obsApi`.
         '''
-
         self.get_config()
-        url = str(obsServer + "/source")
+        url = str(obsApi + "/source")
         xmlRes = self.getHttp_request(url)
-        if xmlRes == None:
-            raise ObsLightErr.ObsLightOscErr("The request on '" + url + "' return None.")
+        if xmlRes is None:
+            raise ObsLightErr.ObsLightOscErr("The request on '%s' returned None." % url)
 
         aElement = ElementTree.fromstring(xmlRes)
         res = []
@@ -587,54 +571,72 @@ class ObsLightOsc(object):
         res.sort()
         return res
 
+    def getLocalProjectList(self, obsServer):
+        return self.getProjectListFromServer(obsServer)
+
+    def getFilteredProjectListFromServer(self,
+                                         obsApi,
+                                         maintainer=None,
+                                         bugowner=None,
+                                         arch=None,
+                                         onlyRemoteUrls=False):
+        """
+        Return the list of projects hosted on the server
+        pointed to by `obsApi`. `maintainer`, `bugowner` and `arch` allow
+        to restrict the project list to project matching them.
+        `onlyRemoteUrls` make the function return only the list of projects
+        which are remote URLs.
+        """
+        self.get_config()
+        url = str(obsApi + "/search/project")
+        xmlRes = self.getHttp_request(url)
+        if xmlRes is None:
+            raise ObsLightErr.ObsLightOscErr("The request on '%s' returned None." % url)
+
+        projects = ElementTree.fromstring(xmlRes)
+        filteredProjectList = []
+        for project in projects:
+            maintainers = []
+            bugowners = []
+            architectures = []
+            remoteUrl = None
+            for val in project:
+                if val.tag == "remoteurl":
+                    remoteUrl = val.text
+                if val.tag == "repository":
+                    for repo in val:
+                        if repo.tag == "arch":
+                            architectures.append(repo.text)
+                if val.tag == "person":
+                    if val.get("role") == "maintainer":
+                        maintainers.append(val.get("userid"))
+                    if val.get("role") == "bugowner":
+                        bugowners.append(val.get("userid"))
+            if maintainer is not None and maintainer not in maintainers:
+                continue
+            elif bugowner is not None and bugowner not in bugowners:
+                continue
+            elif arch is not None and arch not in architectures:
+                continue
+            elif ((onlyRemoteUrls and remoteUrl is None) or
+                  (not onlyRemoteUrls and remoteUrl is not None)):
+                continue
+            else:
+                filteredProjectList.append(project.get("name"))
+        filteredProjectList.sort()
+        return filteredProjectList
+
     def getLocalProjectListFilter(self,
                                   obsServer,
                                   maintainer=False,
                                   bugowner=False,
                                   arch=None,
                                   remoteurl=False):
-        '''
-        return a list of the project of a OBS Server.
-        '''
-
-        self.get_config()
-        url = str(obsServer + "/search/project")
-        xmlRes = self.getHttp_request(url)
-        if xmlRes == None:
-            raise ObsLightErr.ObsLightOscErr("The request on '" + url + "' return None.")
-
-        aElement = ElementTree.fromstring(xmlRes)
-        res = []
-        for project in aElement:
-            aName = project.get("name")
-            aMaintainer = []
-            aBugowner = []
-            aArch = []
-            aRemoteurl = None
-            for val in project:
-                if val.tag == "remoteurl":
-                    aRemoteurl = val.text
-
-                if val.tag == "repository":
-                    for repo in val:
-                        if repo.tag == "arch":
-                            aArch.append(repo.text)
-                if val.tag == "person":
-                    if val.get("role") == "maintainer":
-                        aMaintainer.append(val.get("userid"))
-                    if val.get("role") == "bugowner":
-                        aBugowner.append(val.get("userid"))
-            # FIXME: this is completely unreadable
-            if (((maintainer != None and (maintainer in aMaintainer)) or (maintainer == None)) and
-               ((bugowner != None and (bugowner in aBugowner)) or (bugowner == None)) and
-               ((arch != None and (arch in aArch)) or (arch == None)) and
-               ((remoteurl != None and ((remoteurl == True and aRemoteurl != None) or
-                                        (remoteurl == False and aRemoteurl == None))) or
-                                        (remoteurl == None))):
-                res.append(aName)
-        res.sort()
-        return res
-
+        return self.getFilteredProjectListFromServer(obsServer,
+                                                     maintainer,
+                                                     bugowner,
+                                                     arch,
+                                                     remoteurl)
 
     def getListRepos(self, apiurl):
         '''
@@ -664,9 +666,6 @@ class ObsLightOsc(object):
         return result
 
     def __cleanUrl(self, url):
-        '''
-        
-        '''
         res = urlparse.urlparse(url)
 
         return urlparse.urlunsplit((res[0], res[1], res[2].replace("//", "/"), '', ''))
@@ -887,8 +886,6 @@ class ObsLightOsc(object):
 
         self.http_request("PUT", url, data=ElementTree.tostring(aElement), timeout=TIMEOUT)
 
-
-
     def setPackageParameter(self,
                             projectObsName,
                             package,
@@ -1048,7 +1045,8 @@ class ObsLightOsc(object):
     def getHttp_request(self, url, headers={}, data=None, file=None):
         url = self.__cleanUrl(url)
 
-        if (HTTPBUFFER == 1) and (headers == {}) and (data == None) and (file == None) and (url in self.__httpBuffer.keys()):
+        if (HTTPBUFFER == 1 and headers == {} and data is None and
+            file is None and url in self.__httpBuffer.keys()):
             return self.__httpBuffer[url]
         try:
             fileXML = ""
@@ -1060,6 +1058,8 @@ class ObsLightOsc(object):
 
             if fileXML == None:
                 ObsLightErr.ObsLightOscErr("Error the request on '" + url + "' return None.")
+            if (HTTPBUFFER == 1) and (headers == {}) and (data == None) and (file == None):
+                self.__httpBuffer[url] = fileXML
 
             if (HTTPBUFFER == 1) and (headers == {}) and (data == None) and (file == None):
                 self.__httpBuffer[url] = fileXML
@@ -1132,7 +1132,8 @@ class ObsLightOsc(object):
                     except EnvironmentError, e:
                         if e.errno == 19:
                             sys.exit('\n\n%s\nThe file \'%s\' could not be memory mapped. It is ' \
-                                     '\non a filesystem which does not support this.' % (e, file))
+                                     '\non a filesystem which does not support this.' % (e,
+                                                                                         file))
                         elif hasattr(e, 'winerror') and e.winerror == 5:
                             # falling back to the default io
                             data = open(file, 'rb').read()
@@ -1229,8 +1230,9 @@ class ObsLightOsc(object):
                 from osc import oscssl
                 from M2Crypto import m2urllib2
 
-            except ImportError, e:
-                msg = 'M2Crypto is needed to access %s in a secure way.\nPlease install python-m2crypto.'
+            except ImportError:
+                msg = 'M2Crypto is needed to access %s in a secure way. '
+                msg += 'Please install python-m2crypto.'
                 raise oscsslexcp.NoSecureSSLError(msg % apiurl)
 
             cafile = options.get('cafile', None)
@@ -1254,7 +1256,9 @@ class ObsLightOsc(object):
         else:
 #            import sys
             #print >> sys.stderr, "WARNING: SSL certificate checks disabled. Connection is insecure!\n"
-            opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(conf.cookiejar), authhandler, urllib2.ProxyHandler(urllib.getproxies_environment()))
+            opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(conf.cookiejar),
+                                          authhandler,
+                                          urllib2.ProxyHandler(urllib.getproxies_environment()))
         opener.addheaders = [('User-agent', 'osc/%s' % __version__)]
         self.last_opener = (apiurl, opener, threading.currentThread().getName())
         return opener
@@ -1615,17 +1619,17 @@ def getObsLightOsc():
 if __name__ == '__main__':
 #    package = "intel-Lakemore"
 #    projectObsName = "WindRiver:tools"
-    api = "http://128.224.219.16:81"
-    projectObsName = "meegotv:mutter"
-    package = "xbmc"
-    projectTarget = "MeeGoTV_1.2"
-    arch = "i586"
+    testApi = "http://128.224.219.16:81"
+    testProjectObsName = "meegotv:mutter"
+    testPackage = "xbmc"
+    testProjectTarget = "MeeGoTV_1.2"
+    testArch = "i586"
 
 #    obsuser:opensuse
-    result = ObsLightOsc().getPackageBuildRequires(api,
-                                                   projectObsName,
-                                                   package,
-                                                   projectTarget,
-                                                   arch)
+    testResult = ObsLightOsc().getPackageBuildRequires(testApi,
+                                                       testProjectObsName,
+                                                       testPackage,
+                                                       testProjectTarget,
+                                                       testArch)
 
-    print " ".join(result)
+    print " ".join(testResult)
