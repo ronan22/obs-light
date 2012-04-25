@@ -35,6 +35,7 @@ URL_REGEXP = QRegExp(u"http[s]?://.+")
 SERVER_ALIAS_REGEXP = QRegExp(u"[^\\s:;,/]+")
 PROJECT_ALIAS_REGEXP = QRegExp(u"[^\\s:;,/]+")
 PATCH_NAME_REGEXP = QRegExp(u"\\S+\.patch")
+PACKAGE_NAME_REGEXP = QRegExp(u"[^\\s:;,/]+")
 
 class ProgressRunnable2(QObject, QRunnable):
     """

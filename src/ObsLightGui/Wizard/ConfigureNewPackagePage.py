@@ -20,14 +20,17 @@ Created on 17 avr. 2012
 
 @author: Florent Vennetier
 '''
+from PySide.QtGui import QRegExpValidator
 
 from WizardPageWrapper import ObsLightWizardPage
+from ObsLightGui.Utils import PACKAGE_NAME_REGEXP
 
 class ConfigureNewPackagePage(ObsLightWizardPage):
 
     def __init__(self, gui, index):
         ObsLightWizardPage.__init__(self, gui, index, u"wizard_newPackage.ui")
-
+        packageNameValidator = QRegExpValidator(PACKAGE_NAME_REGEXP, self)
+        self.ui_WizardPage.packageNameLineEdit.setValidator(packageNameValidator)
         self.registerField(u"newPackageName*",
                            self.ui_WizardPage.packageNameLineEdit)
         self.registerField(u"newPackageTitle",
