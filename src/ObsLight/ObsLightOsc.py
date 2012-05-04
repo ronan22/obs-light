@@ -1048,6 +1048,7 @@ class ObsLightOsc(object):
     def getHttp_request(self, url, headers={}, data=None, file=None):
         url = self.__cleanUrl(url)
 
+        HTTPBUFFER = 0
         if (HTTPBUFFER == 1) and (headers == {}) and (data == None) and (file == None) and (url in self.__httpBuffer.keys()):
             return self.__httpBuffer[url]
         try:
