@@ -34,6 +34,7 @@ class ChooseServerPage(ObsLightWizardPage):
 
     def initializePage(self):
         serverList = self.manager.getObsServerList()
+        serverList.sort()
         self.ui_WizardPage.serverListWidget.clear()
         self.ui_WizardPage.serverListWidget.addItems(serverList)
         if len(serverList) > 0:

@@ -37,9 +37,12 @@ class ConfigureProjectAliasPage(ObsLightWizardPage):
         self.setCommitPage(True)
 
     def initializePage(self):
-        self.ui_WizardPage.projectLabel.setText(self.wizard().getSelectedProject())
+        prj = self.wizard().getSelectedProject()
+        self.ui_WizardPage.projectLabel.setText(prj)
         self.ui_WizardPage.targetLabel.setText(self.wizard().getSelectedTarget())
         self.ui_WizardPage.architectureLabel.setText(self.wizard().getSelectedArch())
+        # suggest an alias to the user (last part of the project name)
+        self.ui_WizardPage.aliasLineEdit.setText(prj.rpartition(":")[2])
 
     def validatePage(self):
         if not self.isComplete():

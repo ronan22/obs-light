@@ -232,7 +232,10 @@ class ObsLightChRoot(object):
         self.fixFsRights()
         self.initRepos()
 
-        return self.prepareChroot(self.getDirectory(), obsProject)
+        retVal = self.prepareChroot(self.getDirectory(), obsProject)
+        if retVal != 0:
+            return retVal
+        return self.setTimezoneInBashrc()
 
     def __subprocess(self, command=None):
         return self.__mySubprocessCrt.execSubprocess(command)
@@ -485,7 +488,7 @@ class ObsLightChRoot(object):
         '''
         Execute a list of commands in the chroot.
         '''
-        if command == None:
+        if command is None:
             return
 
         self.failIfUserNotInUserGroup()
@@ -979,6 +982,23 @@ class ObsLightChRoot(object):
         package.save()
         return 0
 
+    def setTimezoneInBashrc(self):
+        """
+        Get the time zone of the current user and sets the TZ variable
+        in chroot jail's .bashrc file. Executing it several times may
+        result in duplicated lines.
+        Returns 0 on success.
+        """
+        # These commands have not been appended to prepareChroot() so
+        # we can call them separately.
+        command = []
+        tzname = time.tzname[0]
+        msg = "Setting chroot jail's time zone to '%s'" % tzname
+        ObsLightPrintManager.getLogger().info(msg)
+        command.append('echo "TZ=\\"%s\\"" >> ~/.bashrc' % tzname)
+        command.append('echo "export TZ" >> ~/.bashrc')
+        return self.execCommand(command)
+
     def prepareChroot(self, chrootDir, project):
         '''
         Prepare the chroot :
@@ -993,8 +1013,10 @@ class ObsLightChRoot(object):
             # If rpm and rpmbuild binaries are not ARM, replace them by ARM versions
             command.append('[ -z "$(file /bin/rpm | grep ARM)" -a -f /bin/rpm.orig-arm ]'
                 + ' && cp /bin/rpm /bin/rpm.x86 && cp /bin/rpm.orig-arm /bin/rpm')
-            command.append('[ -z "$(file /usr/bin/rpmbuild | grep ARM)" -a -f /usr/bin/rpmbuild.orig-arm ]'
-                + ' && cp /usr/bin/rpmbuild /usr/bin/rpmbuild.x86 && cp /usr/bin/rpmbuild.orig-arm /usr/bin/rpmbuild')
+            command.append('[ -z "$(file /usr/bin/rpmbuild ' +
+                           '| grep ARM)" -a -f /usr/bin/rpmbuild.orig-arm ]' +
+                           ' && cp /usr/bin/rpmbuild /usr/bin/rpmbuild.x86 ' +
+                           '&& cp /usr/bin/rpmbuild.orig-arm /usr/bin/rpmbuild')
             # Remove the old (broken ?) RPM database
             command.append('rm -f /var/lib/rpm/__db*')
             # Force zypper and rpm to use armv7hl architecture
