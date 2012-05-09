@@ -81,8 +81,9 @@ class ChooseProjectPage(ObsLightWizardPage, FilterableWidget):
         Asynchronously call `_getProjectList()` and send the results
         to `_fillProjectList()`.
         """
-        runnable = ProgressRunnable2(self.gui.getInfiniteProgressDialog())
-        runnable.setDialogMessage(u"Loading project list")
+        progress = self.gui.getInfiniteProgressDialog()
+        runnable = ProgressRunnable2(progress)
+        runnable.setDialogMessage(u"Loading project list (may be long)")
         runnable.setRunMethod(self._getProjectList,
                               serverAlias,
                               restrainMaintainer,
@@ -90,6 +91,7 @@ class ChooseProjectPage(ObsLightWizardPage, FilterableWidget):
                               restrainRemoteLinks)
         runnable.caughtException.connect(self.gui.popupErrorCallback)
         runnable.finished[object].connect(self._fillProjectList)
+        progress.forceShow()
         runnable.runOnGlobalInstance()
 
     def getSelectedProject(self):
