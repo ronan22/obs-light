@@ -1,3 +1,13 @@
+* Wed May 09 2012 Florent Vennetier (Intel OTC) <florent@fridu.net> 0.4.22
+- image writer and createrepo as dependency
+- added restrictions on the font of the log window
+- added a warning if mic is not up-to-date
+- redirected user to wizard when adding or modifying server
+- improved logging of obstag and obs2obscopy
+- added possibility to create new empty packages from wizard
+- made OBS Light GUI remember its geometry
+- several small improvement and bug fixes
+
 * Wed Mar 07 2012 Florent Vennetier (Intel OTC) <florent@fridu.net> 0.4.19
 - Improved start procedure after bad exit
 - Now GUI main window remembers its size

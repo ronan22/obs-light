@@ -1,4 +1,15 @@
-obslight (0.4.21-1) stable; urgency=low
+obslight (0.4.22-1) stable; urgency=low
+
+  * Version 0.4.22
+    - image writer and createrepo as dependency
+    - added restrictions on the font of the log window
+    - added a warning if mic is not up-to-date
+    - redirected user to wizard when adding or modifying server
+    - improved logging of obstag and obs2obscopy
+    - added possibility to create new empty packages from wizard
+    - made OBS Light GUI remember its geometry
+    - several small improvement and bug fixes
+
 
   * Version 0.4.19
     Fixed bugs 24973, 24974, 24976, 24985, 24990
@@ -70,4 +81,4 @@ obslight (0.4.21-1) stable; urgency=low
 
   * Initial Release
 
- -- Florent Vennetier (Intel OTC) <florent@fridu.net>  Wed, 07 Mar 2012 15:18:50 +0100
+ -- Florent Vennetier (Intel OTC) <florent@fridu.net>  Wed, 09 May 2012 18:33:27 +0200
