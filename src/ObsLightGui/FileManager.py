@@ -51,6 +51,8 @@ class FileManager(QObject, ObsLightGuiObject):
         self.mainWindow.fileTableView.doubleClicked.connect(self.on_fileTableView_activated)
         self.mainWindow.chrootTreeView.doubleClicked.connect(self.on_chrootTreeView_activated)
         self.mainWindow.chrootTreeView.clicked.connect(self.on_chrootTreeView_clicked)
+        self.mainWindow.chrootTreeView.expanded.connect(self.on_chrootTreeView_expanded)
+        self.mainWindow.chrootTreeView.collapsed.connect(self.on_chrootTreeView_expanded)
         self.mainWindow.addFileButton.clicked.connect(self.on_addFileButton_clicked)
         self.mainWindow.deleteFileButton.clicked.connect(self.on_deleteFileButton_clicked)
 
@@ -172,6 +174,10 @@ class FileManager(QObject, ObsLightGuiObject):
         """
         filePath = index.model().filePath(index)
         self.mainWindow.chrootPathLineEdit.setText(filePath)
+
+    @popupOnException
+    def on_chrootTreeView_expanded(self, _index):
+        self.mainWindow.chrootTreeView.resizeColumnToContents(0)
 
     @popupOnException
     def on_fileTableView_activated(self, index):

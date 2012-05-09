@@ -104,7 +104,7 @@ class MicProjectManager(QObject, ObsLightGuiObject):
         self.mainWindow.kickstartOptionsListView.setModel(self.commandModel)
         aliasColumn = KickstartCommandsModel.AliasesColumn
         self.mainWindow.kickstartOptionsListView.setModelColumn(aliasColumn)
-        # FIXME: modify ObsLightKickstartManager so it does not send unused commands
+        # Hide unused commands
         for row in range(self.commandModel.rowCount()):
             index = self.commandModel.createIndex(row, KickstartCommandsModel.InUseColumn)
             inUse = self.commandModel.data(index, Qt.DisplayRole)

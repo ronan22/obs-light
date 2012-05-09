@@ -73,6 +73,12 @@ class LogManager(QObject, ObsLightGuiObject):
         self.customizeFont()
         self.connectLogger()
 
+    def saveGeometry(self):
+        return self.__logDialog.saveGeometry()
+
+    def restoreGeometry(self, geometry):
+        return self.__logDialog.restoreGeometry(geometry)
+
     def customizeFont(self):
         font = self.__logTextEdit.font()
         font.setFixedPitch(True)
