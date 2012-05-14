@@ -48,20 +48,18 @@ class ObsLightServers(object):
 
 
     def __initServersFromOsc(self):
-        '''
-        
-        '''
         self.__blackList = ObsLightOsc.getObsLightOsc().getServersFromOsc()
 
     def __load(self):
-        '''
-        
-        '''
         if (len(self.__dicOBSLightServers.keys()) == 0) and (len(self.__dicOBSLightServers_unLoad.keys()) == 0):
             if os.path.isfile(self.__pathFile):
-                aFile = open(self.__pathFile, 'r')
-                self.__saveconfigServers = pickle.load(aFile)
-                aFile.close()
+                with open(self.__pathFile, 'r') as aFile:
+                    try:
+                        self.__saveconfigServers = pickle.load(aFile)
+                    except IndexError as ie:
+                        msg = "Got IndexError (%s), the server configuration "
+                        msg += " file (%s) is probably corrupted..."
+                        raise ObsLightObsServers(msg % (str(ie), self.__pathFile))
                 saveServers = self.__saveconfigServers["saveServers"]
                 for projetName in saveServers.keys():
                     aServer = saveServers[projetName]
@@ -69,9 +67,6 @@ class ObsLightServers(object):
                 self.__currentServer = self.__saveconfigServers["currentObsServer"]
 
     def __addOBSServerFromSave(self, fromSave=None):
-        '''
-        
-        '''
         if "alias" in fromSave.keys():
             self.__dicOBSLightServers_unLoad[fromSave["alias"]] = fromSave
             #aOBSServer = ObsLightServer(fromSave=fromSave)
