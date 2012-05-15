@@ -84,14 +84,15 @@ class ConfigureServerAliasPage(ObsLightWizardPage):
         pass
 
     def _doAddServer(self):
-        self.manager.addObsServer(self.field(u"apiUrl"),
-                                  self.field(u"username"),
-                                  self.field(u"password"),
-                                  serverRepo=self.field(u"repoUrl"),
-                                  alias=self.field(u"serverAlias"),
-                                  serverWeb=self.field(u"webUrl"))
+        # Some functions may no appreciate unicode so we cast fields to str
+        self.manager.addObsServer(str(self.field(u"apiUrl")),
+                                  str(self.field(u"username")),
+                                  str(self.field(u"password")),
+                                  serverRepo=str(self.field(u"repoUrl")),
+                                  alias=str(self.field(u"serverAlias")),
+                                  serverWeb=str(self.field(u"webUrl")))
     def _doModifyServer(self):
         for fieldName in self.fieldTranslation.keys():
-            self.manager.setObsServerParameter(self.field(u"serverAlias"),
+            self.manager.setObsServerParameter(str(self.field(u"serverAlias")),
                                                self.fieldTranslation[fieldName],
-                                               self.field(fieldName))
+                                               str(self.field(fieldName)))
