@@ -26,7 +26,8 @@ Skip to step 4 if you already have ".box" files.
 1. Build base boxes:
     $ vagrant basebox build <distribution>
   Available distributions:
-    fedora-16-x86_64, opensuse-12.1-x86_64, ubuntu-oneiric-x64
+    fedora-16-x86_64, opensuse-12.1-x86_64,
+    ubuntu-oneiric-x64, ubuntu-precise-x64*
   This will take a while (download distribution ISO and perform a
   full installation).
 
@@ -38,6 +39,10 @@ Skip to step 4 if you already have ".box" files.
 
 4. Add base boxes in your environment:
     $ vagrant box add <distribution> "<distribution>.box"
+
+*When the basebox build seems stale after phase0, shutdown the VM,
+ change the network adapter to PCnet-FastIII, and start it again.
+ This is to workaround https://bugs.launchpad.net/ubuntu/+source/linux/+bug/975445
 
 
  Run tests in virtual machines

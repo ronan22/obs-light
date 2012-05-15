@@ -24,7 +24,7 @@ then
 fi
 
 # Check if user provided us with the address of an OBS appliance
-[ -z "$OBS_HOST" ] && declare -r OBS_HOST="128.224.219.10"
+[ -z "$OBS_HOST" ] && declare -r OBS_HOST="128.224.219.16"
 declare -r API_URL="http://$OBS_HOST:81/"
 declare -r REPOSITORY_URL="http://$OBS_HOST:82/"
 declare -r WEB_URL="http://$OBS_HOST:80/"
@@ -33,8 +33,8 @@ declare -r LOGIN=obsuser
 declare -r PASSWORD=opensuse
 
 # Check if user provided us with the name of a source project, target and arch
-[ -z "$SOURCE_PROJECT" ] && declare -r SOURCE_PROJECT='MeeGo:1.2.0:oss'
-[ -z "$PROJECT_TARGET" ] && declare -r PROJECT_TARGET='standard'
+[ -z "$SOURCE_PROJECT" ] && declare -r SOURCE_PROJECT='meegotv:oss'
+[ -z "$PROJECT_TARGET" ] && declare -r PROJECT_TARGET='DOD_MeeGo_1.2'
 [ -z "$PROJECT_ARCH" ] && declare -r PROJECT_ARCH='i586'
 declare -r PROJECT_ALIAS='my_test_project'
 
