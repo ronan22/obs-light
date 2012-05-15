@@ -77,8 +77,9 @@ class SubprocessCrt(object):
         if not f_stderr.closed:
             fcntl.fcntl(f_stderr, fcntl.F_SETFL, flags | os.O_NONBLOCK)
 
-        outputs = {f_stdout: {"EOF": False, "logcmd": ObsLightPrintManager.getLogger().info},
-                   f_stderr: {"EOF": False, "logcmd": ObsLightPrintManager.getLogger().warning}}
+        logger = ObsLightPrintManager.getSubprocessLogger()
+        outputs = {f_stdout: {"EOF": False, "logcmd": logger.info},
+                   f_stderr: {"EOF": False, "logcmd": logger.warning}}
 
         idleTime = 0
         while ((not outputs[f_stdout]["EOF"] and
