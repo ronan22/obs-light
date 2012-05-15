@@ -27,6 +27,7 @@ QUIET = 0
 DEBUG = 0
 
 logger = logging.getLogger('obslight')
+spLogger = logging.getLogger('subprocess')
 streamHandler = logging.StreamHandler()
 fileHandler = logging.handlers.RotatingFileHandler(ObsLightConfig.getObsLightLogFilePath(),
                                                    maxBytes=10 * 2 ** 20, backupCount=1)
@@ -47,6 +48,7 @@ def setLoggerLevel(level):
     try:
         intLevel = getattr(logging, str(level))
         logger.setLevel(intLevel)
+        spLogger.setLevel(intLevel)
     except AttributeError:
         raise
 
@@ -55,12 +57,14 @@ def addHandler(handler):
     Add a Handler to the logger
     '''
     logger.addHandler(handler)
+    spLogger.addHandler(handler)
 
 def removeHandler(handler):
     '''
     Remove a Handler to the logger
     '''
     logger.removeHandler(handler)
+    spLogger.removeHandler(handler)
 
 formatter = logging.Formatter(ObsLightConfig.getObslightFormatter())
 streamHandler.setFormatter(formatter)
@@ -69,9 +73,10 @@ addHandler(streamHandler)
 
 fileHandler.setFormatter(formatter)
 logger.addHandler(fileHandler)
+spLogger.addHandler(fileHandler)
 
 def getLogger():
-    '''
-        
-    '''
     return logger
+
+def getSubprocessLogger():
+    return spLogger

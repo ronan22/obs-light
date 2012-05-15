@@ -22,6 +22,7 @@ Created on 3 oct. 2011
 
 import os
 import sys
+import time
 from xml.etree import ElementTree
 import urlparse
 import urllib
@@ -589,6 +590,7 @@ class ObsLightOsc(object):
         """
         self.get_config()
         url = str(obsApi + "/search/project")
+
         xmlRes = self.getHttp_request(url)
         if xmlRes is None:
             raise ObsLightErr.ObsLightOscErr("The request on '%s' returned None." % url)
@@ -1044,6 +1046,7 @@ class ObsLightOsc(object):
 
     def getHttp_request(self, url, headers={}, data=None, file=None):
         url = self.__cleanUrl(url)
+        start = time.time()
 
 
         HTTPBUFFER = 0
@@ -1070,7 +1073,9 @@ class ObsLightOsc(object):
 
             if (HTTPBUFFER == 1) and (headers == {}) and (data == None) and (file == None):
                 self.__httpBuffer[url] = fileXML
-
+            logger = ObsLightPrintManager.getLogger()
+            end = time.time()
+            logger.debug("The request took %f seconds", end - start)
             return fileXML
 
         except urllib2.URLError, e:
