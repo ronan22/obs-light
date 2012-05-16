@@ -13,26 +13,22 @@
   <property name="windowTitle">
    <string>WizardPage</string>
   </property>
+  <property name="locale">
+   <locale language="English" country="UnitedStates"/>
+  </property>
   <property name="title">
    <string>Server configuration</string>
   </property>
   <property name="subTitle">
-   <string>Check your settings and enter an alias for this server.</string>
+   <string>Recap of your settings. Username, password and URLs have been checked.</string>
   </property>
   <attribute name="pageId">
    <string notr="true">4</string>
   </attribute>
   <layout class="QFormLayout" name="formLayout">
-   <item row="4" column="0">
-    <widget class="QLabel" name="label_2">
-     <property name="text">
-      <string>Server alias:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="1">
-    <widget class="QLineEdit" name="aliasLineEdit"/>
-   </item>
+   <property name="fieldGrowthPolicy">
+    <enum>QFormLayout::ExpandingFieldsGrow</enum>
+   </property>
    <item row="0" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
@@ -89,11 +85,35 @@
      </property>
     </widget>
    </item>
-   <item row="5" column="1">
-    <widget class="QLabel" name="label_3">
+   <item row="4" column="0" colspan="2">
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Server alias:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="1">
+    <widget class="QLineEdit" name="aliasLineEdit"/>
+   </item>
+   <item row="7" column="1">
+    <widget class="QLabel" name="aliasColorsLabel">
      <property name="text">
       <string>Green --&gt; OK
-Red --&gt; Already in use</string>
+Red --&gt; Alias already in use</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0" colspan="2">
+    <widget class="QLabel" name="pleaseEnterAliasLabel">
+     <property name="text">
+      <string>Please enter an alias for this server:</string>
      </property>
     </widget>
    </item>

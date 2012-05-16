@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui/wizard_configServerUrl.ui'
 #
-# Created: Tue Apr 17 17:40:08 2012
+# Created: Wed May 16 09:56:48 2012
 #      by: pyside-uic 0.2.13 running on PySide 1.1.0
 #
 # WARNING! All changes made in this file will be lost!
@@ -65,7 +65,7 @@ class Ui_WizardPage(object):
     def retranslateUi(self, WizardPage):
         WizardPage.setWindowTitle(QtGui.QApplication.translate("WizardPage", "WizardPage", None, QtGui.QApplication.UnicodeUTF8))
         WizardPage.setTitle(QtGui.QApplication.translate("WizardPage", "Server configuration", None, QtGui.QApplication.UnicodeUTF8))
-        WizardPage.setSubTitle(QtGui.QApplication.translate("WizardPage", "Enter the 3 URL required to access this server, your user name and your password.", None, QtGui.QApplication.UnicodeUTF8))
+        WizardPage.setSubTitle(QtGui.QApplication.translate("WizardPage", "Enter the 3 URL required to access this server, your user name and your password. These will be checked before going to the next page.", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("WizardPage", "Web interface URL:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_2.setText(QtGui.QApplication.translate("WizardPage", "API URL:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_3.setText(QtGui.QApplication.translate("WizardPage", "Repository URL:", None, QtGui.QApplication.UnicodeUTF8))

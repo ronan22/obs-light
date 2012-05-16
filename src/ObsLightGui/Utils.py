@@ -92,6 +92,7 @@ class ProgressRunnable2(QObject, QRunnable):
         self.__progressDialog = None
         self.__isFinite = False
         self.__askedToCancel = False
+        self.__hasCaughtException = False
 
         self.destroyed.connect(self.__onDestroy)
 
@@ -219,13 +220,17 @@ class ProgressRunnable2(QObject, QRunnable):
                 except BaseException:
                     pass
             self.__finished.emit()
-        self.finished[object].emit(result)
+        # We got some crashes after catching exception,
+        # especially in wizard when loading project list.
+        if not self.__hasCaughtException:
+            self.finished[object].emit(result)
         self.finished.emit()
 
     def setHasCaughtException(self, exception):
         """
         Emits the caughtException signal with exception as parameter.
         """
+        self.__hasCaughtException = True
         self.caughtException.emit(exception)
 
     def setDialogMessage(self, message):
