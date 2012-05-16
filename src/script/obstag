@@ -149,7 +149,15 @@ class ObsProject(object):
         url = self.apiUrl + "/source/" + self.name + "/"
         url += packageName + "/_history"
         printdebug("Calling %s" % url)
-        xmlResult = core.http_request("GET", url).read()
+        try:
+            xmlResult = core.http_request("GET", url).read()
+        except HTTPError as e:
+            if e.code == 404:
+                # TODO: call self.apiUrl + "/source/" + self.name + "/"
+                # and grep srcmd5
+                return [PackageRevision(packageName, "", "")]
+            else:
+                raise
 
         xmlRevisionLists = ElementTree.fromstring(xmlResult)
         for xmlRevisionList in xmlRevisionLists.iter("revisionlist"):
