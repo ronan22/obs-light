@@ -20,7 +20,7 @@
    <string>Server configuration</string>
   </property>
   <property name="subTitle">
-   <string>Enter the 3 URL required to access this server, your user name and your password.</string>
+   <string>Enter the 3 URL required to access this server, your user name and your password. These will be checked before going to the next page.</string>
   </property>
   <attribute name="pageId">
    <string notr="true">2</string>

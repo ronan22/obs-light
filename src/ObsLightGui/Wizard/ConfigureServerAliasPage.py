@@ -55,21 +55,25 @@ class ConfigureServerAliasPage(ObsLightWizardPage):
         self.ui_WizardPage.repoUrlLabel.setText(linkString % (repoUrl, repoUrl))
         username = self.field(u"username")
         self.ui_WizardPage.usernameLabel.setText(username)
+        # If we are modifying an existing server, do not allow to change alias
         self.ui_WizardPage.aliasLineEdit.setEnabled(not self.serverAlreadyExists)
+        # and hide tips about aliases
+        self.ui_WizardPage.aliasColorsLabel.setVisible(not self.serverAlreadyExists)
+        self.ui_WizardPage.pleaseEnterAliasLabel.setVisible(not self.serverAlreadyExists)
+
+    @popupOnException
+    def isComplete(self):
+        return super(ConfigureServerAliasPage, self).isComplete() and self.checkAlias()
 
     @popupOnException
     def validatePage(self):
-        alias = self.field(u"serverAlias")
-        srvList = self.manager.getObsServerList()
-        if (isNonEmptyString(alias) and (self.serverAlreadyExists or alias not in srvList)):
-            colorizeWidget(self.ui_WizardPage.aliasLineEdit, u"green")
+        if self.checkAlias():
             if self.serverAlreadyExists:
                 self.callWithInfiniteProgress(self._doModifyServer, "Modifying server")
             else:
                 self.callWithInfiniteProgress(self._doAddServer, "Adding server")
             return True
         else:
-            colorizeWidget(self.ui_WizardPage.aliasLineEdit, u"red")
             return False
 
     def nextId(self):
@@ -83,8 +87,24 @@ class ConfigureServerAliasPage(ObsLightWizardPage):
     def cleanupPage(self):
         pass
 
+    def checkAlias(self):
+        """
+        Check if alias is non-empty, and in case user is adding a new server,
+        that the alias does not already exist. Colorizes widget in green and
+        returns True in case of success, colorizes widget in red and returns
+        False otherwise.
+        """
+        alias = self.field(u"serverAlias")
+        srvList = self.manager.getObsServerList()
+        if isNonEmptyString(alias) and (self.serverAlreadyExists or alias not in srvList):
+            colorizeWidget(self.ui_WizardPage.aliasLineEdit, u"green")
+            return True
+        else:
+            colorizeWidget(self.ui_WizardPage.aliasLineEdit, u"red")
+            return False
+
     def _doAddServer(self):
-        # Some functions may no appreciate unicode so we cast fields to str
+        # Some functions may not appreciate unicode so we cast fields to str
         self.manager.addObsServer(str(self.field(u"apiUrl")),
                                   str(self.field(u"username")),
                                   str(self.field(u"password")),
