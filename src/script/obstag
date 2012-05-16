@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # Authors Dominig ar Foll (Intel OTC) (first versions in Bash)
 #         Florent Vennetier (Intel OTC) (third version in Python)
-# Date 16 April 2012
-# Version 3.2
+# Date 16 May 2012
+# Version 3.3
 # License GPLv2
 
 import os
@@ -47,7 +47,7 @@ Environment:
        If the DEBUG environment variable is non-empty, all URLs will
        be printed to stderr before being called.
 
-Version 3.2   License GPLv2"""
+Version 3.3   License GPLv2"""
 
 def printerror(message):
     print >> sys.stderr, message
@@ -153,9 +153,9 @@ class ObsProject(object):
             xmlResult = core.http_request("GET", url).read()
         except HTTPError as e:
             if e.code == 404:
-                # TODO: call self.apiUrl + "/source/" + self.name + "/"
-                # and grep srcmd5
-                return [PackageRevision(packageName, "", "")]
+                printdebug("History not available for %s, trying to get undated last revision"
+                           % packageName)
+                return self.getPackageLastRevisions(packageName)
             else:
                 raise
 
@@ -173,6 +173,26 @@ class ObsProject(object):
         revisionsList.sort(reverse=True)
         return revisionsList
 
+    def getPackageLastRevisions(self, packageName):
+        """
+        Returns a list of `PackageRevision` of packageName (probably
+        only one).
+        Can raise `urllib2.HTTPError`, `urllib2.URLError` or `ElementTree.ParseError`.
+        """
+        revisionsList = list()
+        url = "%s/source/%s/%s" % (self.apiUrl, self.name, packageName)
+        printdebug("Calling %s" % url)
+        xmlResult = core.http_request("GET", url).read()
+        directoryList = ElementTree.fromstring(xmlResult)
+        for directory in directoryList.iter("directory"):
+            revision = PackageRevision(packageName,
+                                       directory.get("rev", 1),
+                                       directory.get("vrev", 1))
+            srcmd5 = directory.get("srcmd5")
+            if srcmd5 is not None:
+                revision.srcmd5 = srcmd5
+                revisionsList.append(revision)
+        return revisionsList
 
 def main(apiUrl, projectName, outFilePath):
     try:
