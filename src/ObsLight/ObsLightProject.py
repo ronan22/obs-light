@@ -64,6 +64,8 @@ class ObsLightProject(object):
         self.__chrootIsInit = False
         self.__WorkingDirectory = workingDirectory
         self.__projectTitle = projectTitle
+
+
         if fromSave == None:
             self.__projectLocalName = projectLocalName
             self.__projectObsName = projectObsName
@@ -96,6 +98,7 @@ class ObsLightProject(object):
             if "description" in fromSave.keys():
                 self.__description = fromSave["description"]
                 if self.__description == None:self.__description = ""
+
             if "aChroot" in fromSave.keys():
                 self.__chroot = ObsLightChRoot(projectDirectory=self.getDirectory(),
                                                fromSave=fromSave["aChroot"])
@@ -746,23 +749,23 @@ class ObsLightProject(object):
                 # fork themselves
                 subprocess.Popen(command)
 
-    def addPackageSourceInChRoot(self, package):
-        pkgObj = self.__packages.getPackage(package)
-        pkgObj.getSpecFileObj().parseFile()
-        specFile = pkgObj.getSpecFile()
+    def __prepareChroot(self, section, packageName):
+        #First install the BuildRequires of the spec file.
+        #The BuildRequires come from OBS.
+        #We need a spec file parser to be OBS free.
 
         listPackageBuildRequires = self.__obsServers.getObsServer(self.__obsServer).getPackageBuildRequires(self.__projectObsName,
-                                                                                                            package,
+                                                                                                            packageName,
                                                                                                             self.__projectTarget ,
                                                                                                             self.__projectArchitecture)
+        pkgObj = self.__packages.getPackage(packageName)
         if listPackageBuildRequires != None:
             res = self.__chroot.installBuildRequires(pkgObj,
-                                                    listPackageBuildRequires)
+                                                     listPackageBuildRequires)
 
-        res = self.__chroot.addPackageSourceInChRoot(package=pkgObj,
-                                               specFile=specFile,
-                                               repo=self.__projectObsName)
-        return res
+        if section == "prep":
+            res = self.__chroot.addPackageSourceInChRoot(package=pkgObj,
+                                                         repo=self.__projectObsName)
 
 
     def __execRpmSection(self, packageName, section):
@@ -770,38 +773,27 @@ class ObsLightProject(object):
         Execute `section` of the spec file of `packageName`
         into the chroot jail.
         """
-        sectionMap = {"build": self.__chroot.buildRpm,
+        sectionMap = {"prep":  self.__chroot.prepRpm,
+                      "build": self.__chroot.buildRpm,
                       "install": self.__chroot.installRpm,
                       "files": self.__chroot.packageRpm}
 
         pkgObj = self.__packages.getPackage(packageName)
-        pkgPath = pkgObj.getPackageDirectory()
+
+        self.__prepareChroot(section, packageName)
+
+
         pkgObj.getSpecFileObj().parseFile()
         specFileName = pkgObj.getSpecFile()
-        specFilePath = os.path.join(pkgObj.getChrootRpmBuildDirectory(),
-                                    "SPECS", specFileName)
 
-#        name = pkgObj.getMacroDirectoryPackageName()
-#
-#        print "name ", name
-#
-#        if name is None:
-#            return 0
+        specFilePath = self.__chroot.addPackageSpecInChRoot(pkgObj, specFileName, section)
 
-        listPackageBuildRequires = self.__obsServers.getObsServer(self.__obsServer).getPackageBuildRequires(self.__projectObsName,
-                                                                                                            packageName,
-                                                                                                            self.__projectTarget ,
-                                                                                                            self.__projectArchitecture)
-
-        res = self.__chroot.installBuildRequires(pkgObj,
-                                                listPackageBuildRequires)
-
-        tarFile = pkgObj.getArchiveName()
         retVal = sectionMap[section](package=pkgObj,
-                                     specFile=specFilePath,
-                                     packagePath=pkgPath,
-                                     tarFile=tarFile)
+                                     specFile=specFilePath)
         return retVal
+
+    def buildPrep(self, package):
+        return self.__execRpmSection(package, "prep")
 
     def buildRpm(self, package):
         return self.__execRpmSection(package, "build")
@@ -817,7 +809,7 @@ class ObsLightProject(object):
         Create a patch
         '''
         return self.__chroot.createPatch(package=self.__packages.getPackage(package),
-                                patch=patch)
+                                         patch=patch)
 
     def updatePatch(self, package):
         '''

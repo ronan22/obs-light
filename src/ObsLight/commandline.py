@@ -416,6 +416,7 @@ __parameter_repository_url__ = ["repository_url"]
 __parameter_web_url__ = ["web_url"]
 __parameter_raw__ = ["raw"]
 __parameter_project_alias__ = ["project_alias"]
+__parameter_patch_mode__ = ["patch_modes", "pm"]
 __parameter_name_on_obs__ = ["name_on_obs"]
 __parameter_project_title__ = ["title"]
 __parameter_project_description__ = ["description"]
@@ -468,6 +469,11 @@ createParameterHelp(__parameter_web_url__, "the URL of an OBS server web interfa
 createParameterHelp(__parameter_raw__, "no filter on the project list")
 createParameterHelp(__parameter_project_alias__ ,
                     "the name of the obslight project on the local drive.")
+createParameterHelp(__parameter_patch_mode__,
+                    "The Patch Mode allows the user to automatically generate patches from his local work.\n\
+                    The Patch Mode requires the user to perform a % prep and a first % build.\n\
+                    If the user disables the Patch Mode, it definitely will be disabled.\n\
+                    To reactivate the Patch Mode re-install the package.")
 createParameterHelp(__parameter_name_on_obs__ , "the name of the project on the OBS server")
 createParameterHelp(__parameter_project_title__ , "the title of a project")
 createParameterHelp(__parameter_project_description__ , "the description of a project")
@@ -910,13 +916,15 @@ createPackageParameter(__command_query__, [__command_help__,
                                            __parameter_oscPackageDirectory__,
                                            __parameter_filesystemstatus__,
                                            __parameter_currentPatch__,
-                                           __parameter_project_alias__])
+                                           __parameter_project_alias__,
+                                           __parameter_patch_mode__])
 
 createPackageParameter(__command_set__, [__command_help__,
                                          __parameter_package_title__,
                                          __parameter_packge_description__,
                                          __parameter_package__,
-                                           __parameter_project_alias__])
+                                           __parameter_project_alias__,
+                                           __parameter_patch_mode__])
 
 createPackageParameter(__command_update__, [__command_help__,
                                             __parameter_package__,
@@ -2622,6 +2630,7 @@ class ObsLightObsPackage(ObsLightBase):
         yamlFile = False
         fsPackageDirectory = False
         oscPackageDirectory = False
+        patch_mode = False
 
         chRootStatus = False
         currentPatch = False
@@ -2630,6 +2639,7 @@ class ObsLightObsPackage(ObsLightBase):
         server_alias = None
         obsproject = None
         package = None
+
 
         while self.testArgv(listArgv):
             currentCommand, listArgv = self.getParameter(listArgv)
@@ -2666,6 +2676,8 @@ class ObsLightObsPackage(ObsLightBase):
                 chRootStatus = True
             elif currentCommand in __parameter_currentPatch__:
                 currentPatch = True
+            elif currentCommand in __parameter_patch_mode__:
+                patch_mode = True
             elif currentCommand in __parameter_url__:
                 url = True
             elif currentCommand in __parameter_project_alias__:
@@ -2716,7 +2728,8 @@ class ObsLightObsPackage(ObsLightBase):
                    (not fsPackageDirectory)and \
                    (not oscPackageDirectory)and \
                    (not chRootStatus)and \
-                   (not currentPatch):
+                   (not currentPatch)and \
+                   (not patch_mode):
 
                     title = True
                     description = True
@@ -2735,6 +2748,7 @@ class ObsLightObsPackage(ObsLightBase):
                     oscPackageDirectory = True
                     chRootStatus = True
                     currentPatch = True
+                    patch_mode = True
 
                 if title :
                     if (server_alias == None) and (obsproject == None):
@@ -2803,8 +2817,6 @@ class ObsLightObsPackage(ObsLightBase):
                         res = m.getPackageParameter(projectLocalName=project_alias,
                                                     package=package,
                                                     parameter="listFile")
-                        print "project_alias", project_alias
-                        print "package", package
 
                         res2 = []
                         for aFile in res:
@@ -2872,6 +2884,13 @@ class ObsLightObsPackage(ObsLightBase):
                                                     parameter="currentPatch")
                     if self.testResult(res, getLineno()) == -1:return - 1
                     self.printSimpleResult("currentPatch: " + res, str(res))
+
+                if patch_mode and (project_alias != None):
+                    res = m.getPackageParameter(projectLocalName=project_alias,
+                                                package=package,
+                                                parameter="patchMode")
+                    if self.testResult(res, getLineno()) == -1:return - 1
+                    self.printSimpleResult("patchMode: " + res, str(res))
             else:
                 return self.printHelp(__command_query__)
 
@@ -2883,6 +2902,8 @@ class ObsLightObsPackage(ObsLightBase):
 
         project_alias = None
         package = None
+
+        patch_mode = None
 
         while self.testArgv(listArgv):
             currentCommand, listArgv = self.getParameter(listArgv)
@@ -2897,6 +2918,12 @@ class ObsLightObsPackage(ObsLightBase):
                 project_alias , listArgv = self.getParameter(listArgv)
                 if (project_alias == None) and ObsLightBase.noaction:
                     return self.printProjectCompletionList()
+
+            elif patch_mode in __parameter_patch_mode__:
+                patch_mode , listArgv = self.getParameter(listArgv)
+                if (patch_mode == None) and ObsLightBase.noaction:
+                    return self.printProjectCompletionList()
+
             elif currentCommand in __parameter_package__:
                 package, listArgv = self.getParameter(listArgv)
                 if (package == None) and (project_alias != None) and ObsLightBase.noaction:
@@ -2925,6 +2952,13 @@ class ObsLightObsPackage(ObsLightBase):
                                                   package=package,
                                                   parameter="title",
                                                   value=title)
+                    if self.testResult(res, getLineno()) == -1:return - 1
+
+                if patch_mode != None :
+                    res = m.setPackageParameter(projectLocalName=project_alias,
+                                                package=package,
+                                                parameter="patchMode",
+                                                value=patch_mode)
                     if self.testResult(res, getLineno()) == -1:return - 1
 
                 if description != None :
@@ -3913,7 +3947,7 @@ class ObsLightRpmbuild(ObsLightBase):
                 if (package == None):
                     package = m.getCurrentPackage(project_alias)
 
-                res = m.addPackageSourceInChRoot(projectLocalName=project_alias, package=package)
+                res = m.buildPrep(projectLocalName=project_alias, package=package)
                 if self.testResult(res, getLineno()) == -1:return - 1
                 return 0
             else:

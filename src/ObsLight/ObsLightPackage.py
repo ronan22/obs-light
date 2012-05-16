@@ -80,6 +80,8 @@ class ObsLightPackage(object):
         self.__packageGit = None
         self.__currentGitIsPackageGit = False
 
+        self.__patchMode = True
+
         if fromSave == None:
             self.__name = name
             if listFile == None:
@@ -134,6 +136,10 @@ class ObsLightPackage(object):
                 self.__listFileToDel = copy(fromSave["listFileToDel"])
             if "prepDirName" in fromSave.keys():
                 self.__prepDirName = fromSave["prepDirName"]
+
+            if "patchMode" in fromSave.keys():
+                self.__patchMode = fromSave["patchMode"]
+
 
         self.__rpmBuildDirectoryLink = "rpmbuild"
         self.__rpmBuildDirectory = "obslightbuild"
@@ -190,7 +196,7 @@ class ObsLightPackage(object):
             elif i == "oscStatus":
                 res["oscStatus"] = self.getOscStatus()
             elif i == "chRootStatus":
-                res["chRootStatus"] = self.getGetChRootStatus()
+                res["chRootStatus"] = self.getChRootStatus()
             else:
                 raise ObsLightPackageErr("Error in getPackageInfo '" + str(i) + "' is not valide")
         return res
@@ -207,7 +213,7 @@ class ObsLightPackage(object):
         '''
         return self.__status
 
-    def getGetChRootStatus(self):
+    def getChRootStatus(self):
         '''
         
         '''
@@ -395,6 +401,7 @@ class ObsLightPackage(object):
         aDic["prepDirName"] = self.__prepDirName
         aDic["packageGit"] = self.__packageGit
         aDic["currentGitIsPackageGit"] = self.__currentGitIsPackageGit
+        aDic["patchMode"] = self.__patchMode
         return aDic
 
     def getPackageParameter(self, parameter=None):
@@ -413,7 +420,11 @@ class ObsLightPackage(object):
             chRootStatus
             oscStatus
             oscRev
+            patchMode
+            buildSortCutMode
+            installSortCutMode
         '''
+
         if parameter == "name":
             return self.__name if self.__name != None else ""
         elif parameter == "listFile":
@@ -450,11 +461,13 @@ class ObsLightPackage(object):
             return self.__listFileToDel if self.__listFileToDel != None else ""
         elif parameter == "prepDirName":
             return self.__prepDirName if self.__prepDirName != None else ""
+        elif parameter == "patchMode":
+            return self.__patchMode
         else:
             msg = "Parameter '%s' is not valid for getProjectParameter" % parameter
             raise ObsLightPackageErr(msg)
 
-    def specFileHaveAnEmptyPrepAndBuild(self):
+    def specFileHaveAnEmptyBuild(self):
         '''
         
         '''
@@ -464,7 +477,7 @@ class ObsLightPackage(object):
         if self.__mySpecFile == None:
             return None
 
-        return self.__mySpecFile.specFileHaveAnEmptyPrepAndBuild()
+        return self.__mySpecFile.specFileHaveAnEmptyBuild()
 
     def getSpecFileObj(self):
 
@@ -529,6 +542,7 @@ class ObsLightPackage(object):
             title
             status
             oscStatus
+            patchMode
         '''
         if parameter == "specFile":
             self.__specFile = value
@@ -560,6 +574,8 @@ class ObsLightPackage(object):
             self.__listFileToDel = value
         elif parameter == "prepDirName":
             self.__prepDirName = value
+        elif parameter == "patchMode":
+            self.__patchMode = value
         else:
             raise ObsLightPackageErr("The parameter '" + parameter + "' value is not valid for setPackageParameter")
         return 0
@@ -747,6 +763,16 @@ class ObsLightPackage(object):
             self.initPackageFileInfo()
         else:
             raise ObsLightPackageErr("No Spec or Yaml in the package")
+
+    def saveSpecShortCut(self, path, section):
+        '''
+        Save the Spec file.
+        '''
+        if self.__mySpecFile != None:
+            self.__mySpecFile.saveSpecShortCut(path, section, self.getChRootStatus(), self.getPackageDirectory())
+        else:
+            raise ObsLightPackageErr("No Spec or Yaml in the package")
+
 
     def saveSpec(self, path):
         '''

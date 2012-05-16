@@ -43,7 +43,8 @@ class ObsLightSpec:
         self.__buildFlag = "%build"
         self.__installFlag = "%install"
         self.__cleanFlag = "%clean"
-        self.__filesFlag = "%files "
+        self.__filesFlag = "%files"
+        self.__checkFlag = "%check"
         self.__postFlag = "%post"
         self.__preunFlag = "%preun"
         self.__postunFlag = "%postun"
@@ -54,6 +55,7 @@ class ObsLightSpec:
                               self.__installFlag,
                               self.__cleanFlag,
                               self.__filesFlag,
+                              self.__checkFlag,
                               self.__postFlag,
                               self.__preunFlag,
                               self.__postunFlag,
@@ -440,6 +442,69 @@ class ObsLightSpec:
                     f.write(line)
         f.close()
 
+    def saveSpecShortCut(self, path, sectionTarget, packageStatus, packagedir):
+        if path == None:
+            path = self.__path
+        f = open(path, 'w')
+        f.write("#File Write by OBSLight don't modify it\n")
+        NoPrep = False
+
+        for section in self.__orderList:
+            for line in self.__spectDico[section]:
+                if (section == "introduction_section"):
+                    if line.startswith("Release:") and (line.strip("Release:").strip(" ").rstrip("\n") == ""):
+                        f.write("Release:1\n")
+                    else:
+                        f.write(line)
+
+                elif (section == "%prep") :
+                    if not packageStatus in ["Not installed"]:
+                        f.write("%prep\n\n")
+                        NoPrep = True
+                        break
+                    else:
+                        f.write(line)
+
+                elif (section == "%build"):
+                    print "sectionTarget", sectionTarget, "packageStatus", packageStatus, not packageStatus in [ "Built",
+                                                                                                                  "Build Installed",
+                                                                                                                  "Build Packaged"]
+                    print "sectionTarget == install", sectionTarget == "install"
+
+                    if sectionTarget == "install" and \
+                       packageStatus in [ "Built",
+                                          "Build Installed",
+                                          "Build Packaged"]:
+
+                        f.write("%build\n\n")
+                        break
+                    else:
+                        if (line.startswith('%build')) and NoPrep :
+                            f.write(line)
+                            f.write("cd " + packagedir + "\n")
+                        else:
+                            f.write(line)
+
+                elif (section == "%install"):
+                    if (line.startswith('%install')) and NoPrep :
+                        f.write(line)
+                        f.write("cd " + packagedir + "\n")
+                    else:
+                        f.write(line)
+
+                elif (section == "%check"):
+                    if (line.startswith('%check')) and NoPrep :
+                        f.write(line)
+                        f.write("cd " + packagedir + "\n")
+                    else:
+                        f.write(line)
+
+                else:
+                    f.write(line)
+
+
+        f.close()
+
     def saveTmpSpec(self, path, excludePatch, archive):
         '''
         
@@ -486,17 +551,11 @@ class ObsLightSpec:
         '''
         return self.__orderList
 
-    def specFileHaveAnEmptyPrepAndBuild(self):
+    def specFileHaveAnEmptyBuild(self):
         '''
         
         '''
         PrepAndBuild = True
-
-#        if "%prep" in self.__spectDico.keys():
-#            for line in self.__spectDico["%prep"]:
-#                if not (line.startswith("#") or line.startswith("rm") or line == "\n" or line == "%prep\n"):
-#                    return False
-
         if "%build" in self.__spectDico.keys():
             for line in self.__spectDico["%build"]:
                 if not (line.startswith("#")or line == "\n" or line == "%build\n"):
@@ -508,7 +567,7 @@ if __name__ == '__main__':
     arg = sys.argv[1]
     print arg
     cli = ObsLightSpec("/home/meego/Documents/specTest", arg)
-    print cli.specFileHaveAnEmptyPrepAndBuild()
+    print cli.specFileHaveAnEmptyBuild()
 
 
 

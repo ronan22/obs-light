@@ -1120,17 +1120,6 @@ class ObsLightManagerCore(ObsLightManagerBase):
     #///////////////////////////////////////////////////////////////////////////rpmbuild
     @checkProjectLocalName(1)
     @checkNonEmptyStringPackage(2)
-    def addPackageSourceInChRoot(self, projectLocalName, package):
-        '''
-        Add a source RPM from the OBS repository into the chroot.
-        '''
-        project = self._myObsLightProjects.getProject(projectLocalName)
-        res = project.addPackageSourceInChRoot(package=package)
-        self._myObsLightProjects.save()
-        return res
-
-    @checkProjectLocalName(1)
-    @checkNonEmptyStringPackage(2)
     def isInstalledInChRoot(self, projectLocalName, package):
         '''
         Return True if the package is installed into the chroot of the project.
@@ -1138,6 +1127,15 @@ class ObsLightManagerCore(ObsLightManagerBase):
         self.checkPackage(projectLocalName=projectLocalName, package=package)
         project = self._myObsLightProjects.getProject(projectLocalName)
         return project.getPackage(package).isInstallInChroot()
+
+    @checkProjectLocalName(1)
+    def buildPrep(self, projectLocalName, package):
+        '''
+        Add a source RPM from the OBS repository into the chroot.
+        '''
+        res = self._myObsLightProjects.getProject(projectLocalName).buildPrep(package=package)
+        self._myObsLightProjects.save()
+        return res
 
     @checkProjectLocalName(1)
     def buildRpm(self, projectLocalName, package):
