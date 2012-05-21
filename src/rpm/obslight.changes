@@ -1,3 +1,6 @@
+* Mon May 21 2012 Ronan Le Martret (Intel OTC) <ronan@fridu.net> 0.4.23
+- add obsdodupdate script.
+
 * Wed May 09 2012 Florent Vennetier (Intel OTC) <florent@fridu.net> 0.4.22
 - image writer and createrepo as dependency
 - added restrictions on the font of the log window

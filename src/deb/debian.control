@@ -17,7 +17,9 @@ Depends: ${shlibs:Depends},
  spectacle,
  sudo,
  xdg-utils,
- xtightvncviewer
+ xtightvncviewer,
+ wget,
+ curl
 Recommends:
  usb-imagewriter
 Description: Utilities to work with OBS Light, a lighter version of OBS.

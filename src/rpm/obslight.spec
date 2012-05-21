@@ -9,7 +9,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 Name:       obslight
 Summary:    OBS Light
-Version:    0.4.22
+Version:    0.4.23
 Release:    1
 Group:      Development/Tools/Building
 License:    GPLv2
@@ -27,6 +27,8 @@ Requires:   acl
 Requires:   tightvnc
 Requires:   tftp
 Requires:   createrepo
+Requires:   wget
+Requires:   curl
 %if 0%{?suse_version} > 1120
 Requires:   imagewriter
 %endif
@@ -60,7 +62,7 @@ BuildRoot:  %{_tmppath}/%{name}-%{version}-build
 %description
 Utilities to work with OBS Light, a lighter version of OBS.
 This package contains the API, a commandline client,
-and some tools (obstag, obs2obscopy, obsextractgroups).
+and some tools (obstag, obs2obscopy, obsextractgroups, obsdodupdate).
 
 
 
@@ -186,6 +188,7 @@ echo "/srv/obslight  *(rw,fsid=0,no_root_squash,insecure,no_subtree_check)" >> /
 %{_bindir}/obs2obscopy
 %{_bindir}/obstag
 %{_bindir}/obsextractgroups
+%{_bindir}/obsdodupdate
 %{_bindir}/obslight
 %{_bindir}/obslight-wrapper.py
 %{python_sitelib}/ObsLight

@@ -16,7 +16,7 @@ class build_obslight(distutils.command.build.build, object):
 
 
 setup(name='obslight',
-      version="0.4.22",
+      version="0.4.23",
       description='OBS Light',
       long_description='Command-line client , UI and tools for the OBS.',
       author='Ronan Le Martret',
@@ -36,7 +36,8 @@ setup(name='obslight',
                'ObsLightServer/ObsLightServer.py',
                'script/obstag',
                'script/obs2obscopy',
-               'script/obsextractgroups'],
+               'script/obsextractgroups',
+	       'script/obsdodupdate'],
       provides=['ObsLight', 'ObsLightGui'],
       requires=['osc (>=0.132.5)', 'xml.etree.ElementTree'],
       data_files=[('/etc', ['sudoers.obslight']),
