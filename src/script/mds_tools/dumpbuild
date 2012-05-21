@@ -1,0 +1,24 @@
+#!/bin/sh
+ORIG=$PWD
+API=$1
+OBSPROJECT=$2
+OUTDIR=$3
+REPONAME=$4
+SCHEDULERS="$5"
+
+WGETOPTIONS="--no-check-certificate -N -c -r -nd -nH"
+
+mkdir -p obs-repos/$OUTDIR/$REPONAME
+cd obs-repos/$OUTDIR/$REPONAME
+for scheduler in $SCHEDULERS; do
+	mkdir -p $scheduler
+	cd $scheduler
+	wget $WGETOPTIONS $API/build/$OBSPROJECT/$REPONAME/$scheduler/_repository?view=cache
+	wget $WGETOPTIONS $API/build/$OBSPROJECT/$REPONAME/$scheduler/_repository?view=names
+	wget $WGETOPTIONS $API/build/$OBSPROJECT/$REPONAME/$scheduler/_repository?view=binaryversions
+	wget $WGETOPTIONS $API/build/$OBSPROJECT/$REPONAME/$scheduler/_repository?view=solvstate
+	# Grab 
+	python $ORIG/tools/printbinaries.py "_repository?view=names" \
+		| xargs -L1 -Ixxx $ORIG/tools/curlunpack "$API/build/$OBSPROJECT/$REPONAME/$scheduler/_repository?xxx"
+	cd ..
+done

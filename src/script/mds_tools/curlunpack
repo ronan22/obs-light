@@ -1,0 +1,2 @@
+#!/bin/sh
+curl -k "$1" | cpio -idvm

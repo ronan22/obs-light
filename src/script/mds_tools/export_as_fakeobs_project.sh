@@ -13,7 +13,7 @@ tools/createrelease.sh "$RELEASE" "$API" "$RSYNC" "$PROJECT" "$TARGET" "$ARCHS"
 echo "Gitifying packages..."
 # Build the list of OBS packages to prepare
 PKGLISTFILE=`mktemp pkglist-XXXX`
-curl "$API/source/$PROJECT" > $PKGLISTFILE
+curl -k "$API/source/$PROJECT" > $PKGLISTFILE
 
 # Create local git repositories for these OBS packages
 for pkg in `python tools/printnames.py $PKGLISTFILE`
@@ -22,7 +22,7 @@ do
 done
 
 # Move them to the right place
-SANITIZEDNAME=`echo $PROJECT | sed s,:,_,`
+SANITIZEDNAME=`echo $PROJECT | sed y,:,_,`
 mkdir -p packages-git/$SANITIZEDNAME
 mv gitrepos/* packages-git/$SANITIZEDNAME/
 
@@ -41,16 +41,24 @@ done
 echo -e "</project>" >> $TMPPACKAGESXML
 
 # Copy package list at the right place
-EXTENDEDPROJECTDIR=`echo $PROJECT | sed s,:,/,`
+EXTENDEDPROJECTDIR=`echo $PROJECT | sed y,:,/,`
 mkdir -p obs-projects/$EXTENDEDPROJECTDIR
 bash tools/mergetwo $TMPPACKAGESXML > obs-projects/$EXTENDEDPROJECTDIR/packages.xml
 
 echo "Getting project _meta..."
-curl "$API/source/$PROJECT/_meta" > obs-projects/$EXTENDEDPROJECTDIR/_meta
+curl -k "$API/source/$PROJECT/_meta" > obs-projects/$EXTENDEDPROJECTDIR/_meta
 
-# TODO: Get correct meta
-# TODO: Get project config (_config)
-# TODO: Update mappings.xml
+echo "Getting project _config..."
+curl -k "$API/source/$PROJECT/_config" > obs-projects/$EXTENDEDPROJECTDIR/_config
+
+echo "Updating fakeobs project mappings..."
+if [ -f mappings.xml ]
+then
+  cp -f mappings.xml mappings.xml.`date +%Y%m%d%H%M%S`
+else
+  touch mappings.xml
+fi
+bash tools/updatemappings.sh $PROJECT $TARGET > mappings.xml
 
 # Remove temporary files
 echo "Removing temporary files ($PKGLISTFILE $TMPPACKAGESXML)"
