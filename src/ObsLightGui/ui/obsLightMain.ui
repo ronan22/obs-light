@@ -25,7 +25,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1037</width>
+     <width>990</width>
      <height>562</height>
     </rect>
    </property>
@@ -156,7 +156,7 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>251</width>
+                    <width>239</width>
                     <height>105</height>
                    </rect>
                   </property>
@@ -526,7 +526,7 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>366</width>
+                    <width>351</width>
                     <height>97</height>
                    </rect>
                   </property>
@@ -716,7 +716,7 @@ If the user activates modes &quot;short circuit&quot; mode &quot;Patch Mode&quot
 To reactivate the &quot;Patch Mode&quot;, the user will have reinstalled the package.</string>
            </property>
            <property name="currentIndex">
-            <number>1</number>
+            <number>0</number>
            </property>
            <widget class="QWidget" name="localDirectoryTab">
             <attribute name="title">
@@ -955,7 +955,7 @@ It may open in background on some desktop environments.</string>
                  </widget>
                 </item>
                 <item row="5" column="0">
-                 <widget class="QPushButton" name="deleteRepositoryButton">
+                 <widget class="QPushButton" name="removeRepoFromChrootButton">
                   <property name="toolTip">
                    <string>Delete a repository from the project filesystem.</string>
                   </property>
@@ -965,7 +965,7 @@ It may open in background on some desktop environments.</string>
                  </widget>
                 </item>
                 <item row="7" column="0">
-                 <widget class="QPushButton" name="modifyRepositoryButton">
+                 <widget class="QPushButton" name="modifyRepoInChrootButton">
                   <property name="toolTip">
                    <string>Modify the URL or alias of a repository.</string>
                   </property>
@@ -1162,7 +1162,7 @@ It may open in background on some desktop environments.</string>
                  </widget>
                 </item>
                 <item row="3" column="4">
-                 <widget class="QCheckBox" name="PatchMode_checkBox">
+                 <widget class="QCheckBox" name="patchModeCheckBox">
                   <property name="toolTip">
                    <string>The &quot;Patch Mode&quot; allows the user to automatically generate patches from his local work.
 The &quot;Patch Mode&quot; requires the user to perform a &quot;% prep&quot; and a first &quot;% build&quot;.
@@ -2100,138 +2100,84 @@ If destination does not exist on your host, select '/', validate, and edit desti
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="tab_3">
+      <widget class="QWidget" name="repositoriesTab">
        <attribute name="title">
-        <string>Projects repository</string>
+        <string>Project repositories</string>
        </attribute>
-       <widget class="QListWidget" name="listWidget">
-        <property name="geometry">
-         <rect>
-          <x>0</x>
-          <y>0</y>
-          <width>271</width>
-          <height>431</height>
-         </rect>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label_12">
-        <property name="geometry">
-         <rect>
-          <x>280</x>
-          <y>10</y>
-          <width>52</width>
-          <height>14</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Name:</string>
-        </property>
-       </widget>
-       <widget class="QLineEdit" name="lineEdit">
-        <property name="geometry">
-         <rect>
-          <x>330</x>
-          <y>10</y>
-          <width>591</width>
-          <height>22</height>
-         </rect>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label_13">
-        <property name="geometry">
-         <rect>
-          <x>280</x>
-          <y>30</y>
-          <width>52</width>
-          <height>14</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>URL</string>
-        </property>
-       </widget>
-       <widget class="QLineEdit" name="lineEdit_2">
-        <property name="geometry">
-         <rect>
-          <x>330</x>
-          <y>30</y>
-          <width>591</width>
-          <height>22</height>
-         </rect>
-        </property>
-       </widget>
-       <widget class="QTableView" name="tableView">
-        <property name="geometry">
-         <rect>
-          <x>280</x>
-          <y>70</y>
-          <width>641</width>
-          <height>461</height>
-         </rect>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label_14">
-        <property name="geometry">
-         <rect>
-          <x>280</x>
-          <y>50</y>
-          <width>52</width>
-          <height>14</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Path</string>
-        </property>
-       </widget>
-       <widget class="QLineEdit" name="lineEdit_3">
-        <property name="geometry">
-         <rect>
-          <x>330</x>
-          <y>50</y>
-          <width>591</width>
-          <height>22</height>
-         </rect>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="pushButton_3">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>440</y>
-          <width>261</width>
-          <height>23</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>New</string>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="pushButton_4">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>470</y>
-          <width>261</width>
-          <height>23</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Delete</string>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="pushButton_5">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>500</y>
-          <width>261</width>
-          <height>23</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Modify</string>
-        </property>
-       </widget>
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <item>
+         <widget class="QSplitter" name="splitter_5">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <widget class="QWidget" name="">
+           <layout class="QGridLayout" name="gridLayout_18">
+            <item row="0" column="0">
+             <widget class="QListWidget" name="repositoryListWidget"/>
+            </item>
+            <item row="1" column="0">
+             <widget class="QPushButton" name="newRepositoryButton">
+              <property name="text">
+               <string>New</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QPushButton" name="deleteRepositoryButton">
+              <property name="text">
+               <string>Delete</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <widget class="QPushButton" name="modifyRepositoryButton">
+              <property name="text">
+               <string>Modify</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="">
+           <layout class="QGridLayout" name="gridLayout_22">
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_12">
+              <property name="text">
+               <string>Name:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QLineEdit" name="repositoryNameLineEdit"/>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_13">
+              <property name="text">
+               <string>URL</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QLineEdit" name="repositoryUrlLineEdit"/>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_14">
+              <property name="text">
+               <string>Path</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QLineEdit" name="repositoryPathLineEdit"/>
+            </item>
+            <item row="3" column="0" colspan="2">
+             <widget class="QTableView" name="publishedPackagesTableView"/>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+       </layout>
       </widget>
      </widget>
     </item>

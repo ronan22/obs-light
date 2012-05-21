@@ -67,8 +67,8 @@ class ObsProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
         mw.openChrootButton.clicked.connect(self.on_openChrootButton_clicked)
         mw.deleteChrootButton.clicked.connect(self.on_deleteChrootButton_clicked)
         mw.addRepoInChrootButton.clicked.connect(self.on_addRepoInChrootButton_clicked)
-        mw.deleteRepositoryButton.clicked.connect(self.on_deleteRepoButton_clicked)
-        mw.modifyRepositoryButton.clicked.connect(self.on_modifyRepoButton_clicked)
+        mw.removeRepoFromChrootButton.clicked.connect(self.on_deleteRepoButton_clicked)
+        mw.modifyRepoInChrootButton.clicked.connect(self.on_modifyRepoButton_clicked)
         mw.importRepoInChrootButton.clicked.connect(self.on_importRepoInChrootButton_clicked)
 
     @popupOnException
@@ -276,7 +276,7 @@ class ObsProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
 
             self.mainWindow.addRepoInChrootButton.setEnabled(isChrootInit)
             self.mainWindow.importRepoInChrootButton.setEnabled(isChrootInit)
-            self.mainWindow.deleteRepositoryButton.setEnabled(isChrootInit)
-            self.mainWindow.modifyRepositoryButton.setEnabled(isChrootInit)
+            self.mainWindow.removeRepoFromChrootButton.setEnabled(isChrootInit)
+            self.mainWindow.modifyRepoInChrootButton.setEnabled(isChrootInit)
 
             self.mainWindow.deleteChrootButton.setEnabled(isChrootInit)

@@ -23,9 +23,7 @@ Created on 2 nov. 2011
 
 import inspect
 
-import PySide
-
-from PySide.QtCore import QObject
+from PySide.QtCore import QObject, Qt
 from PySide.QtGui import QInputDialog, QTableView
 from PySide.QtGui import QLineEdit, QMessageBox, QRegExpValidator
 
@@ -82,9 +80,9 @@ class PackageManager(QObject, ObsLightGuiObject):
         mw.rpmInstallButton.clicked.connect(self.on_rpmInstallButton_clicked)
         mw.rpmBuildRpmButton.clicked.connect(self.on_rpmBuildRpmButton_clicked)
 
-        mw.PatchMode_checkBox.clicked.connect(self.on_PatchMode_checkBox_clicked)
+        mw.patchModeCheckBox.clicked.connect(self.on_patchModeCheckBox_clicked)
 
-    def on_PatchMode_checkBox_clicked(self):
+    def on_patchModeCheckBox_clicked(self):
         """
         The "Patch Mode" allows the user to automatically generate patches from his local work.
         The "Patch Mode" requires the user to perform a "% prep" and a first "% build".
@@ -93,22 +91,22 @@ class PackageManager(QObject, ObsLightGuiObject):
         """
         mw = self.mainWindow
 
-        if not mw.PatchMode_checkBox.isChecked():
-            questionString = u"If the user disables the Patch Mode, it definitely will be disabled. \
-                              To reactivate the Patch Mode re-install the package."
+        if not mw.patchModeCheckBox.isChecked():
+            questionString = u"If the user disables the Patch Mode, it definitely will be disabled."
+            questionString += u"\nTo reactivate the Patch Mode re-install the package."
             result = QMessageBox.question(self.mainWindow,
-                                          u"Overwrite ?",
+                                          u"Disable patch mode ?",
                                           questionString,
                                           buttons=QMessageBox.Yes | QMessageBox.Cancel,
                                           defaultButton=QMessageBox.Yes)
             if result == QMessageBox.Yes:
-                self.__disable_PatchMode()
+                self.__disablePatchMode()
             else:
-                mw.PatchMode_checkBox.setCheckState(PySide.QtCore.Qt.CheckState(PySide.QtCore.Qt.Checked))
+                mw.patchModeCheckBox.setCheckState(Qt.CheckState.Checked)
 
-    def __disable_PatchMode(self):
+    def __disablePatchMode(self):
         """
-        Disable the patch Mode of the Package.
+        Disable the patch mode of the package.
         """
         mw = self.mainWindow
         currentProject = self.getCurrentProject()
@@ -116,9 +114,9 @@ class PackageManager(QObject, ObsLightGuiObject):
         for package in self.selectedPackages():
             self.manager.setPackageParameter(currentProject, package, "patchMode", False)
 
-        if mw.PatchMode_checkBox.isChecked():
-            mw.PatchMode_checkBox.setCheckState(PySide.QtCore.Qt.CheckState(PySide.QtCore.Qt.Unchecked))
-        mw.PatchMode_checkBox.setEnabled(0)
+        if mw.patchModeCheckBox.isChecked():
+            mw.patchModeCheckBox.setCheckState(Qt.CheckState.Unchecked)
+        mw.patchModeCheckBox.setEnabled(False)
 
         self.updateButtons()
 
@@ -316,11 +314,11 @@ class PackageManager(QObject, ObsLightGuiObject):
 
         if package is not None and project is not None:
             if patchMode:
-                mw.PatchMode_checkBox.setCheckState(PySide.QtCore.Qt.CheckState(PySide.QtCore.Qt.Checked))
-                mw.PatchMode_checkBox.setEnabled(1)
+                mw.patchModeCheckBox.setCheckState(Qt.CheckState.Checked)
+                mw.patchModeCheckBox.setEnabled(True)
             else:
-                mw.PatchMode_checkBox.setCheckState(PySide.QtCore.Qt.CheckState(PySide.QtCore.Qt.Unchecked))
-                mw.PatchMode_checkBox.setEnabled(0)
+                mw.patchModeCheckBox.setCheckState(Qt.CheckState.Unchecked)
+                mw.patchModeCheckBox.setEnabled(False)
 
     def currentPackage(self):
         '''
