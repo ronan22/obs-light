@@ -1636,7 +1636,6 @@ if __name__ == '__main__':
     testPackage = "xbmc"
     testProjectTarget = "MeeGoTV_1.2"
     testArch = "i586"
-
 #    obsuser:opensuse
     testResult = ObsLightOsc().getPackageBuildRequires(testApi,
                                                        testProjectObsName,

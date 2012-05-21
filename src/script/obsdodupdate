@@ -1,0 +1,47 @@
+#!/bin/bash
+# Authors Ronan Le Martret (Intel OTC)
+# Date 21 May 2012
+# License GLPv2
+
+if [ $# -ne 4 ]; then
+    echo "HELP"
+    echo "Function : Update the primary.xml file of a DOD project, in the :full directory."
+    echo ""
+    echo "Usage:     $0 OBS_API PROJECT REPO ARCH"
+    echo ""
+    echo "Example1: Local copy"
+    echo "         $0 http://myObs.mynetwork:81 MyMeeGo:1.2:oss standard i586 "
+    echo "Version 2.3a  Licence GLPv2"
+    exit
+fi
+
+set -x
+
+API=$1
+PROJECT=$2
+REPO=$3
+ARCH=$4
+
+BUILD_PATH="/srv/obs/build"
+
+REPO_URL_TMP=`curl -s $API/public/source/$PROJECT/_meta | grep "download baseurl" | grep $ARCH`
+REPO_URL=`python -c 'import sys;print sys.argv[1].split("baseurl=\"")[1].split("/\"")[0]' "$REPO_URL_TMP"`
+PRIMARY_URL_TMP=`curl -s $REPO_URL/repodata/ | grep primary.xml`
+PRIMARY_URL=`python -c 'import sys;print sys.argv[1].split("<a href=\"")[1].split("\">")[0]' "$PRIMARY_URL_TMP"`
+
+CUR_DIR=`pwd`
+mkdir -p $BUILD_PATH/$PROJECT/$REPO/$ARCH/\:full
+cd $BUILD_PATH/$PROJECT/$REPO/$ARCH/\:full
+
+if [ -f primary.xml  ]; then rm primary.xml; fi
+if [ -f primary.xml.gz  ]; then rm primary.xml.gz; fi
+
+wget $REPO_URL/repodata/$PRIMARY_URL
+mv  *-primary.xml.gz primary.xml.gz
+gunzip primary.xml.gz
+
+if [ -f "$BUILD_PATH/$PROJECT/$REPO/$ARCH/\:full.solv"  ]; then rm "$BUILD_PATH/$PROJECT/$REPO/$ARCH/\:full.solv"; fi
+
+chown -R obsrun:obsrun $BUILD_PATH/$PROJECT
+obs_admin --rescan-repository  $PROJECT $REPO $ARCH
+cd $CUR_DIR
