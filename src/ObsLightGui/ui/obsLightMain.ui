@@ -974,7 +974,7 @@ It may open in background on some desktop environments.</string>
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="2" colspan="4">
+                <item row="1" column="2" colspan="3">
                  <widget class="QLineEdit" name="chrootPathLineEdit">
                   <property name="toolTip">
                    <string>The path of the project filesystem on the local filesystem.</string>
@@ -1072,7 +1072,7 @@ filesystem</string>
                   </property>
                  </widget>
                 </item>
-                <item row="5" column="5">
+                <item row="5" column="4">
                  <spacer name="horizontalSpacer_4">
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
@@ -1158,25 +1158,6 @@ It may open in background on some desktop environments.</string>
                   </property>
                   <property name="text">
                    <string>Open terminal</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="4">
-                 <widget class="QCheckBox" name="patchModeCheckBox">
-                  <property name="toolTip">
-                   <string>The &quot;Patch Mode&quot; allows the user to automatically generate patches from his local work.
-The &quot;Patch Mode&quot; requires the user to perform a &quot;% prep&quot; and a first &quot;% build&quot;.
-If the user disables the &quot;Patch Mode&quot;, it definitely will be disabled.
-To reactivate the &quot;Patch Mode&quot; re-install the package.</string>
-                  </property>
-                  <property name="text">
-                   <string>Patch Mode</string>
-                  </property>
-                  <property name="checked">
-                   <bool>true</bool>
-                  </property>
-                  <property name="tristate">
-                   <bool>false</bool>
                   </property>
                  </widget>
                 </item>
@@ -2110,7 +2091,7 @@ If destination does not exist on your host, select '/', validate, and edit desti
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
-          <widget class="QWidget" name="">
+          <widget class="QWidget" name="layoutWidget">
            <layout class="QGridLayout" name="gridLayout_18">
             <item row="0" column="0">
              <widget class="QListWidget" name="repositoryListWidget"/>
@@ -2138,7 +2119,7 @@ If destination does not exist on your host, select '/', validate, and edit desti
             </item>
            </layout>
           </widget>
-          <widget class="QWidget" name="">
+          <widget class="QWidget" name="layoutWidget">
            <layout class="QGridLayout" name="gridLayout_22">
             <item row="0" column="0">
              <widget class="QLabel" name="label_12">
