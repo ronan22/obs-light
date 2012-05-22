@@ -66,6 +66,10 @@ ln -sf %{_sysconfdir}/init.d/fakeobs %{buildroot}%{_sbindir}/rcfakeobs
 # << install pre
 
 # >> install post
+mkdir -p %{buildroot}%{_sysconfdir}/apache2/vhosts.d
+mkdir -p %{buildroot}%{_sysconfdir}/lighttpd/vhosts.d
+cp -f fakeobs-repos.apache2conf %{buildroot}%{_sysconfdir}/apache2/vhosts.d/fakeobs-repos.conf
+cp -f fakeobs-repos.lighttpdconf %{buildroot}%{_sysconfdir}/lighttpd/vhosts.d/fakeobs-repos.conf
 # << install post
 
 
@@ -107,6 +111,8 @@ fi
 %dir /srv/fakeobs/tools
 /srv/fakeobs/tools/*
 %config %{_sysconfdir}/init.d/fakeobs
+%config %{_sysconfdir}/apache2/vhosts.d/fakeobs-repos.conf
+%config %{_sysconfdir}/lighttpd/vhosts.d/fakeobs-repos.conf
 %{_sbindir}/fakeobs
 %{_sbindir}/rcfakeobs
 # << files

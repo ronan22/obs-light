@@ -1,0 +1,5 @@
+$SERVER["socket"] == ":8002" {
+  server.document-root = "/srv/fakeobs/releases/"
+
+  dir-listing.activate = "enable"
+}
