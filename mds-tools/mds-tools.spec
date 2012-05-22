@@ -62,7 +62,6 @@ cp -f init_fakeobs %{buildroot}%{_sysconfdir}/init.d/fakeobs
 
 ln -sf /srv/fakeobs/tools/fakeobs.py %{buildroot}%{_sbindir}/fakeobs
 ln -sf %{_sysconfdir}/init.d/fakeobs %{buildroot}%{_sbindir}/rcfakeobs
-touch %{buildroot}/srv/fakeobs/lastevents
 
 # << install pre
 
@@ -78,7 +77,7 @@ touch %{buildroot}/srv/fakeobs/lastevents
 %post
 # >> post
 cd /srv/fakeobs/
-if [ ! -f lastevents]
+if [ ! -f lastevents ]
 then
 touch lastevents
 sh tools/addevent initial na na
