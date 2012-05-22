@@ -12,6 +12,7 @@ Release:    1
 Group:      Development/Tools/Building
 License:    GPLv2
 BuildArch:  noarch
+URL:        https://meego.gitorious.org/meego-developer-tools/obs-light/trees/master
 Source0:    %{name}-%{version}.tar.gz
 Source100:  mds-tools.yaml
 Requires:   git
@@ -58,9 +59,11 @@ mkdir -p %{buildroot}%{_sysconfdir}/init.d
 mkdir -p %{buildroot}%{_sbindir}
 cp -rf tools %{buildroot}/srv/fakeobs/tools
 cp -f init_fakeobs %{buildroot}%{_sysconfdir}/init.d/fakeobs
-cp -f fakeobs %{buildroot}%{_sbindir}/
 
+ln -sf /srv/fakeobs/tools/fakeobs.py %{buildroot}%{_sbindir}/fakeobs
 ln -sf %{_sysconfdir}/init.d/fakeobs %{buildroot}%{_sbindir}/rcfakeobs
+touch %{buildroot}/srv/fakeobs/lastevents
+
 # << install pre
 
 # >> install post
@@ -72,6 +75,20 @@ ln -sf %{_sysconfdir}/init.d/fakeobs %{buildroot}%{_sbindir}/rcfakeobs
 %stop_on_removal fakeobs
 # << preun
 
+%post
+# >> post
+cd /srv/fakeobs/
+if [ ! -f lastevents]
+then
+touch lastevents
+sh tools/addevent initial na na
+fi
+
+if [ ! -f mappings.xml ]
+then
+echo -e "<mappings>\n</mappings>" > mappings.xml
+fi
+# << post
 
 %postun
 # >> postun
@@ -84,7 +101,11 @@ ln -sf %{_sysconfdir}/init.d/fakeobs %{buildroot}%{_sbindir}/rcfakeobs
 %defattr(-,root,root,-)
 # >> files
 %dir /srv/fakeobs
-%dir /srv/fakeobs/*
+%dir /srv/fakeobs/obs-projects
+%dir /srv/fakeobs/obs-repos
+%dir /srv/fakeobs/packages-git
+%dir /srv/fakeobs/releases
+%dir /srv/fakeobs/tools
 /srv/fakeobs/tools/*
 %config %{_sysconfdir}/init.d/fakeobs
 %{_sbindir}/fakeobs

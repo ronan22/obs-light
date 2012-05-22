@@ -6,6 +6,7 @@ Description: |
 Version: 0.1
 Group: Development/Tools/Building
 License: GPLv2
+URL: https://meego.gitorious.org/meego-developer-tools/obs-light/trees/master
 BuildArch: noarch
 Sources:
     - "%{name}-%{version}.tar.gz"

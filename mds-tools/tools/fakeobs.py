@@ -1,3 +1,4 @@
+#!/usr/bin/python
 """Simple HTTP Server.
 
 This module builds on BaseHTTPServer by implementing the standard GET
@@ -9,6 +10,9 @@ and HEAD requests in a fairly straightforward manner.
 __version__ = "0.6"
 
 __all__ = ["SimpleHTTPRequestHandler"]
+
+MAPPINGS_FILE = "mappings.xml"
+DEFAULT_DIR = "/srv/fakeobs"
 
 import os, sys
 import posixpath
@@ -40,7 +44,7 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         f = None
         try:
             f = self.send_head()
-        except: 
+        except:
             self.send_response(500)
             print "500: " + self.path
             traceback.print_exc(file=sys.stdout)
@@ -62,18 +66,18 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         if f:
           self.copyfile(f, self.wfile)
           if hasattr(f, "close"):
-            f.close()             
+            f.close()
 
     # Always returns a stream
     def send_head(self):
         def lookup_path(projectname):
-            doc = xml.dom.minidom.parse("mappings.xml")            
+            doc = xml.dom.minidom.parse(MAPPINGS_FILE)
             for x in doc.getElementsByTagName("mapping"):
                 if x.attributes["project"].value == projectname:
                     return x.attributes["path"].value
             return None
         def lookup_binariespath(projectname):
-            doc = xml.dom.minidom.parse("mappings.xml")            
+            doc = xml.dom.minidom.parse(MAPPINGS_FILE)
             for x in doc.getElementsByTagName("mapping"):
                 if x.attributes["project"].value == projectname:
                     return x.attributes["binaries"].value
@@ -89,14 +93,14 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             f = open(path, 'rb')
             fs = os.fstat(f.fileno())
             return fs[6], fs.st_mtime, f
-                    
+
         content = None
         contentsize = 0
         contentmtime = 0
         contenttype = None
-                
+
         pathparsed = urlparse.urlparse(self.path)
-        path = pathparsed[2] 
+        path = pathparsed[2]
 
         if self.headers.getheader('Content-Length') is not None:
             data = self.rfile.read(int(self.headers.getheader('Content-Length')))
@@ -114,9 +118,9 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                         self.send_response(503)
                         self.end_headers()
                         return None
-                
+
                 filters = []
-                
+
                 if query.has_key("filter"):
                     for x in query["filter"]:
                         spl = x.split('/')
@@ -129,11 +133,11 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 contentmtime = time.time()
             else:
                 output = '<events next="' + str(gitmer.get_next_event()) + '" sync="lost" />\n'
-                
+
                 contentsize, content = string2stream(output)
                 contenttype = "text/html"
                 contentmtime = time.time()
-            
+
         elif path.startswith("/public/source/"):
             pathparts = path.split("/")
             pathparts = pathparts[1:]
@@ -143,10 +147,10 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             if len(pathparts) >= 3:
                realproject = pathparts[2]
                pathparts[2] = lookup_path(pathparts[2])
-               
+
                if pathparts[2] is None:
                     pathparts[2] = "--UNKNOWNPROJECT"
-            
+
             # /source/project/
             if len(pathparts) == 3:
                 if os.path.isfile(pathparts[2] + "/packages.xml"):
@@ -173,7 +177,7 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                         expand = int(query["expand"][0])
                     if query.has_key("rev"):
                         rev = query["rev"][0]
-                    
+
                     contentsize, content = string2stream(gitmer.get_package_index_supportlink(pathparts[2], pathparts[3], rev, expand))
                     contenttype = "text/xml"
                     contentmtime = time.time()
@@ -221,7 +225,7 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                         if os.path.isfile(pathparts[2] + "/" + pathparts[3] + "/" + pathparts[4] + "/" + os.path.basename(x) + ".rpm"):
                             assert "" + pathparts[2] + "/" + pathparts[3] + "/" + pathparts[4] + "/" + os.path.basename(x) + ".rpm was not found"
                         binaries = binaries + os.path.basename(x) + ".rpm\n"
-                    
+
                     print binaries
 
                     cpiooutput = subprocess.Popen(["tools/createcpio", pathparts[2] + "/" + pathparts[3] + "/" + pathparts[4]], stdin=subprocess.PIPE, stdout=subprocess.PIPE).communicate(binaries)[0]
@@ -242,13 +246,13 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                             doc.childNodes[0].removeChild(x)
                         contentsize, content = string2stream(doc.childNodes[0].toxml())
                         contentmtime = time.time()
-                        contenttype = "text/html"                    
+                        contenttype = "text/html"
                     else:
                         contentsize, content = string2stream("<binarylist />")
                         contenttype = "text/html"
                         contentmtime = time.time()
                     ##
-                elif query.has_key("view") and query["view"][0] == "binaryversions":                   
+                elif query.has_key("view") and query["view"][0] == "binaryversions":
                     if os.path.isfile(pathparts[2] + "/" + pathparts[3] + "/" + pathparts[4] + "/_repository?view=cache"):
                         doc = xml.dom.minidom.parse(pathparts[2] + "/" + pathparts[3] + "/" + pathparts[4] + "/_repository?view=binaryversions")
                         removables = []
@@ -259,17 +263,17 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                             doc.childNodes[0].removeChild(x)
                         contentsize, content = string2stream(doc.childNodes[0].toxml())
                         contentmtime = time.time()
-                        contenttype = "text/html"                    
+                        contenttype = "text/html"
                     else:
                         contentsize, content = string2stream("<binaryversionlist />")
                         contenttype = "text/html"
                         contentmtime = time.time()
-                
+
         if content is None:
               print "404: path"
               self.send_error(404, "File not found")
               return None
-              
+
         self.send_response(200)
         self.send_header("Content-type", contenttype)
         self.send_header("Content-Length", contentsize)
@@ -296,8 +300,19 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 class XFSPWebServer(SocketServer.ThreadingMixIn, BaseHTTPServer.HTTPServer):
         pass
 
-PORT = int(sys.argv[1])
+if len(sys.argv) > 1:
+    PORT = int(sys.argv[1])
+else:
+    PORT = 8001
+    print "No port specified, using %d" % PORT
+
+# Search mappings file in current directory and in DEFAULT_DIR
+if not os.path.exists(MAPPINGS_FILE):
+    os.chdir(DEFAULT_DIR)
+if not os.path.exists(MAPPINGS_FILE):
+    msg = "Error: %s not found neither in current directory nor in %s"
+    print >> sys.stderr, msg % (MAPPINGS_FILE, DEFAULT_DIR)
+    exit(1)
 
 httpd = XFSPWebServer(("0.0.0.0", PORT), SimpleHTTPRequestHandler)
 httpd.serve_forever()
-

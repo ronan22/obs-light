@@ -1,5 +1,0 @@
-#!/bin/sh
-
-cd /srv/fakeobs
-/usr/bin/python tools/fakeobs.py 8001
-
