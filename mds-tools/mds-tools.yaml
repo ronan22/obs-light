@@ -1,0 +1,20 @@
+Name: mds-tools
+Summary: Mer Delivery System tools (fakeobs)
+Description: |
+    Mer Delivery System tools, including fakeobs,
+    modified for the needs of OBS Light project
+Version: 0.1
+Group: Development/Tools/Building
+License: GPLv2
+BuildArch: noarch
+Sources:
+    - "%{name}-%{version}.tar.gz"
+Requires:
+    - git
+    - python
+    - python-async
+    - python-gitdb
+    - python-gitpython
+    - python-smmap
+Configure: none
+Builder: none
