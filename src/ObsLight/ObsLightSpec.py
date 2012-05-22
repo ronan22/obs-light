@@ -527,6 +527,7 @@ class ObsLightSpec:
                     elif (line.startswith('%setup') and (SETUP == False)):
                         line = line.replace("-c", "")
                         toWrite += line
+                        toWrite += "if [ -e .emptyDirectory  ]; then for i in `cat .emptyDirectory` ; do mkdir -p $i;echo $i ; done;fi\n"
                         SETUP = True
                 else:
                     toWrite += line
@@ -534,7 +535,7 @@ class ObsLightSpec:
             if (section == "%prep") and (not SETUP):
                 toWrite += '%setup -q -c\n'
 
-        pattern = r'(^Source[0]?\s*:).*'
+        pattern = r'(Source[0]?\s*:).*'
 
         aFile = open(path, 'w')
 
