@@ -11,6 +11,7 @@ BuildArch: noarch
 Sources:
     - "%{name}-%{version}.tar.gz"
 Requires:
+    - apache2
     - git
     - python
     - python-async

@@ -15,6 +15,7 @@ BuildArch:  noarch
 URL:        https://meego.gitorious.org/meego-developer-tools/obs-light/trees/master
 Source0:    %{name}-%{version}.tar.gz
 Source100:  mds-tools.yaml
+Requires:   apache2
 Requires:   git
 Requires:   python
 Requires:   python-async
@@ -55,10 +56,13 @@ mkdir -p %{buildroot}/srv/fakeobs/obs-projects
 mkdir -p %{buildroot}/srv/fakeobs/obs-repos
 mkdir -p %{buildroot}/srv/fakeobs/packages-git
 mkdir -p %{buildroot}/srv/fakeobs/releases
+mkdir -p %{buildroot}/srv/fakeobs/webconf
 mkdir -p %{buildroot}%{_sysconfdir}/init.d
 mkdir -p %{buildroot}%{_sbindir}
 cp -rf tools %{buildroot}/srv/fakeobs/tools
 cp -f init_fakeobs %{buildroot}%{_sysconfdir}/init.d/fakeobs
+cp -f fakeobs-repos.apache2conf %{buildroot}/srv/fakeobs/webconf/
+cp -f fakeobs-repos.lighttpdconf %{buildroot}/srv/fakeobs/webconf/
 
 ln -sf /srv/fakeobs/tools/fakeobs.py %{buildroot}%{_sbindir}/fakeobs
 ln -sf %{_sysconfdir}/init.d/fakeobs %{buildroot}%{_sbindir}/rcfakeobs
@@ -66,10 +70,6 @@ ln -sf %{_sysconfdir}/init.d/fakeobs %{buildroot}%{_sbindir}/rcfakeobs
 # << install pre
 
 # >> install post
-mkdir -p %{buildroot}%{_sysconfdir}/apache2/vhosts.d
-mkdir -p %{buildroot}%{_sysconfdir}/lighttpd/vhosts.d
-cp -f fakeobs-repos.apache2conf %{buildroot}%{_sysconfdir}/apache2/vhosts.d/fakeobs-repos.conf
-cp -f fakeobs-repos.lighttpdconf %{buildroot}%{_sysconfdir}/lighttpd/vhosts.d/fakeobs-repos.conf
 # << install post
 
 
@@ -91,6 +91,15 @@ if [ ! -f mappings.xml ]
 then
 echo -e "<mappings>\n</mappings>" > mappings.xml
 fi
+
+if [ -d %{_sysconfdir}/apache2/vhosts.d ]
+then
+ln -sf /srv/fakeobs/webconf/fakeobs-repos.apache2conf %{_sysconfdir}/apache2/vhosts.d/fakeobs-repos.conf
+fi
+if [ -d %{_sysconfdir}/lighttpd/vhosts.d ]
+then
+ln -sf /srv/fakeobs/webconf/fakeobs-repos.lighttpdconf %{_sysconfdir}/lighttpd/vhosts.d/fakeobs-repos.conf
+fi
 # << post
 
 %postun
@@ -109,10 +118,10 @@ fi
 %dir /srv/fakeobs/packages-git
 %dir /srv/fakeobs/releases
 %dir /srv/fakeobs/tools
+%dir /srv/fakeobs/webconf
 /srv/fakeobs/tools/*
+/srv/fakeobs/webconf/*
 %config %{_sysconfdir}/init.d/fakeobs
-%config %{_sysconfdir}/apache2/vhosts.d/fakeobs-repos.conf
-%config %{_sysconfdir}/lighttpd/vhosts.d/fakeobs-repos.conf
 %{_sbindir}/fakeobs
 %{_sbindir}/rcfakeobs
 # << files
