@@ -26,15 +26,16 @@ SANITIZEDNAME=`echo $PROJECT | sed y,:,_,`
 mkdir -p packages-git/$SANITIZEDNAME
 mv gitrepos/* packages-git/$SANITIZEDNAME/
 
-# Dress the list of packages and create mappings cache
-find packages-git/$SANITIZEDNAME -mindepth 1 -maxdepth 1 -type d -printf "%p\n" | sort > packages-git/repos.lst
+# Dress the list of packages and create/update mappings cache
+find packages-git/ -mindepth 2 -maxdepth 2 -type d -printf "%p\n" | sort > packages-git/repos.lst
 python tools/makemappings.py packages-git/repos.lst packages-git/mappingscache.xml
 
 echo "Generating final package list..."
 # Generate package list with last commit hash for each
 TMPPACKAGESXML=`mktemp pkgxml-XXXX`
-echo -e "<project>\n" >> $TMPPACKAGESXML
-for gitrepo in `cat packages-git/repos.lst`
+echo -e "<project>" >> $TMPPACKAGESXML
+# We need to grep project name in case there are other projects listed in the file
+for gitrepo in `cat packages-git/repos.lst | grep $SANITIZEDNAME`
 do
   bash tools/generate-package $gitrepo >> $TMPPACKAGESXML
 done
