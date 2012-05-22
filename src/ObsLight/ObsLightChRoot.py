@@ -552,7 +552,7 @@ class ObsLightChRoot(object):
         res = self.execCommand(command=command)
 
         packageName = package.getName()
-        packageDirectory = package.getDirectoryBuild()
+        packageDirectory = package.getPackageDirectory()
 
         if res == 0:
             self.ignoreGitWatch(package=package,
@@ -570,44 +570,30 @@ class ObsLightChRoot(object):
         '''
         Execute the %build section of an RPM spec file.
         '''
-        packagePath = package.getPackageDirectory()
-
         if package.getStatus() == "excluded":
             msg = u"Package '%s' has a excluded status, it can't be build" % package.getName()
             raise ObsLightErr.ObsLightChRootError(msg)
-
         if package.specFileHaveAnEmptyBuild():
             package.setChRootStatus("No build directory")
             return 0
-
         if package.getPackageParameter("patchMode"):
             self.commitGit(mess="build", package=package)
-
-            res = self.__prepGhostRpmbuild(package, packagePath)
             res = self.__createGhostRpmbuildCommand("bc", package, specFile)
-
             self.ignoreGitWatch(package=package,
                                 path=package.getPackageDirectory(),
                                 commitComment="build commit",
                                 firstBuildCommit=False)
         else:
             res = self.__createRpmbuildCommand("bc", package, specFile)
-
         if res == 0:
             if package.getChRootStatus() in ["Not installed",
                                             "No build directory",
                                             "many BUILD directories"]:
-
                 packageDirectory = self.__findPackageDirectory(package=package)
                 message = "Package directory used by '%s': %s" % (package.getName(),
                                                           str(packageDirectory))
                 ObsLightPrintManager.getLogger().debug(message)
-                print "---------------------------------------"
-                print "packageDirectory", packageDirectory
-                print "---------------------------------------"
-
                 package.setDirectoryBuild(packageDirectory)
-
             package.setChRootStatus("Built")
         return res
 
@@ -615,7 +601,6 @@ class ObsLightChRoot(object):
         '''
         Execute the %install section of an RPM spec file.
         '''
-        packagePath = package.getPackageDirectory()
 
         if package.getStatus() == "excluded":
             msg = u"Package '%s' has a excluded status, it can't be install" % package.getName()
@@ -624,7 +609,6 @@ class ObsLightChRoot(object):
         if package.getPackageParameter("patchMode"):
             self.commitGit(mess="install", package=package)
 
-            res = self.__prepGhostRpmbuild(package, packagePath)
             res = self.__createGhostRpmbuildCommand("bi", package, specFile)
 
             self.ignoreGitWatch(package=package,
@@ -651,7 +635,6 @@ class ObsLightChRoot(object):
         '''
         Execute the package section of an RPM spec file.
         '''
-        packagePath = package.getPackageDirectory()
 
         if package.getStatus() == "excluded":
             msg = u"Package '%s' has a excluded status, it can't be package" % package.getName()
@@ -660,7 +643,6 @@ class ObsLightChRoot(object):
         if package.getPackageParameter("patchMode"):
             self.commitGit(mess="packageRpm", package=package)
 
-            res = self.__prepGhostRpmbuild(package, packagePath)
             res = self.__createGhostRpmbuildCommand("ba", package, specFile)
 
             self.ignoreGitWatch(package=package,
@@ -683,7 +665,8 @@ class ObsLightChRoot(object):
             package.setChRootStatus("Build Packaged")
         return res
 
-    def __prepGhostRpmbuild(self, package, packagePath):
+    def prepGhostRpmbuild(self, package):
+        packagePath = package.getPackageDirectory()
         tarFile = package.getArchiveName()
 
         buildDirTmp = "/root/" + package.getName() + "/" + package.getTopDirRpmBuildTmpDirectory()
@@ -923,6 +906,20 @@ class ObsLightChRoot(object):
         if path == None:
             raise ObsLightErr.ObsLightChRootError("Path is not defined in initGitWatch.")
 
+        #git ignore the empty directory so we must save them into a file.
+        projectPath = self.getDirectory() + package.getPackageDirectory()
+        res = []
+        for root, dirs, files in os.walk(projectPath):
+            if len(dirs) == 0 and len(files) == 0:
+                res.append(root.replace(projectPath + "/", ""))
+
+        f = open(projectPath + "/.emptyDirectory", 'w')
+
+
+        for d in res:
+            f.write(d + "\n")
+        f.close()
+
         timeString = time.strftime("%Y-%m-%d_%Hh%Mm%Ss")
         comment = '\"auto commit first commit %s\"' % timeString
 
@@ -936,7 +933,10 @@ class ObsLightChRoot(object):
         command.append(self.prepareGitCommand(path,
                                               "commit -a -m %s" % comment,
                                               package.getCurrentGitDirectory()))
-        self.execCommand(command=command)
+        res = self.execCommand(command=command)
+
+
+
 
     def ignoreGitWatch(self, package, path=None, commitComment="first build commit", firstBuildCommit=True):
         '''

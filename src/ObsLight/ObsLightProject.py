@@ -786,6 +786,9 @@ class ObsLightProject(object):
         pkgObj.getSpecFileObj().parseFile()
         specFileName = pkgObj.getSpecFile()
 
+        if pkgObj.getPackageParameter("patchMode") and section != "prep":
+            res = self.__chroot.prepGhostRpmbuild(pkgObj)
+
         specFilePath = self.__chroot.addPackageSpecInChRoot(pkgObj, specFileName, section)
 
         retVal = sectionMap[section](package=pkgObj,

@@ -80,7 +80,7 @@ class PackageManager(QObject, ObsLightGuiObject):
         mw.rpmInstallButton.clicked.connect(self.on_rpmInstallButton_clicked)
         mw.rpmBuildRpmButton.clicked.connect(self.on_rpmBuildRpmButton_clicked)
 
-        mw.patchModeCheckBox.clicked.connect(self.on_patchModeCheckBox_clicked)
+#        mw.patchModeCheckBox.clicked.connect(self.on_patchModeCheckBox_clicked)
 
     def on_patchModeCheckBox_clicked(self):
         """
@@ -312,13 +312,13 @@ class PackageManager(QObject, ObsLightGuiObject):
         mw.generatePatchButton.setEnabled(installed and not patchIsInitialized and patchMode)
         mw.modifyPatchButton.setEnabled(installed and patchIsInitialized and patchMode)
 
-        if package is not None and project is not None:
-            if patchMode:
-                mw.patchModeCheckBox.setCheckState(Qt.CheckState.Checked)
-                mw.patchModeCheckBox.setEnabled(True)
-            else:
-                mw.patchModeCheckBox.setCheckState(Qt.CheckState.Unchecked)
-                mw.patchModeCheckBox.setEnabled(False)
+#        if package is not None and project is not None:
+#            if patchMode:
+#                mw.patchModeCheckBox.setCheckState(Qt.CheckState.Checked)
+#                mw.patchModeCheckBox.setEnabled(True)
+#            else:
+#                mw.patchModeCheckBox.setCheckState(Qt.CheckState.Unchecked)
+#                mw.patchModeCheckBox.setEnabled(False)
 
     def currentPackage(self):
         '''
