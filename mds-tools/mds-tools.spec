@@ -59,14 +59,25 @@ mkdir -p %{buildroot}%{_sbindir}
 cp -rf tools %{buildroot}/srv/fakeobs/tools
 cp -f init_fakeobs %{buildroot}%{_sysconfdir}/init.d/fakeobs
 cp -f fakeobs %{buildroot}%{_sbindir}/
+
+ln -sf %{_sysconfdir}/init.d/fakeobs %{buildroot}%{_sbindir}/rcfakeobs
 # << install pre
 
 # >> install post
 # << install post
 
 
+%preun
+# >> preun
+%stop_on_removal fakeobs
+# << preun
 
 
+%postun
+# >> postun
+%restart_on_update fakeobs
+%insserv_cleanup
+# << postun
 
 
 %files
@@ -77,6 +88,7 @@ cp -f fakeobs %{buildroot}%{_sbindir}/
 /srv/fakeobs/tools/*
 %config %{_sysconfdir}/init.d/fakeobs
 %{_sbindir}/fakeobs
+%{_sbindir}/rcfakeobs
 # << files
 
 

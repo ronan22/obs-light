@@ -34,11 +34,11 @@
 # 
 ### BEGIN INIT INFO
 # Provides:          fakeobs
-# Required-Start:    $time $network
+# Required-Start:    $time $network $remote_fs
 # Should-Start:      $time
 # Required-Stop:     $null
 # Should-Stop:       $null
-# Default-Start:     3 4 5
+# Default-Start:     3 5
 # Default-Stop:      0 1 2 6
 # Short-Description: fakeobs daemon
 # Description:       Start fakeobs daemon
