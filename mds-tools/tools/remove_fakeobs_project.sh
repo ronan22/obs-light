@@ -26,11 +26,10 @@ cd ..
 
 echo "Updating 'latest' links in releases..."
 cd releases
+rm -f latest
 RELEASE=`find . -maxdepth 1 -type d -printf "%f\n" | sort | tail -n 1`
-if [ -z $RELEASE ]
+if [ -n $RELEASE ]
 then
-  rm -f latest
-else
   ln -sf $RELEASE latest
 fi
 cd ..
