@@ -11,5 +11,5 @@ REPODIR="releases/$RELEASE/builds/`echo $PROJECT | cut -d ':' -f 1- --output-del
 ARCHIVENAME="`echo $PROJECT | sed y,:,_,`-$RELEASE.tar.gz"
 
 # Create archive and save list of files
-tar -cvzf $ARCHIVENAME $CONFDIR $FULLDIR $GITDIR $REPODIR | tee $ARCHIVENAME.manifest
+tar -cvzf $ARCHIVENAME $CONFDIR $FULLDIR $GITDIR $REPODIR
 

@@ -4,9 +4,11 @@
 PROJECT=$1
 # name of the archive file
 ARCHIVE=$2
+# name of the manifest file
+MANIFEST="`echo $PROJECT | sed y,:,_,`.manifest"
 
 # extract archive and keep file list (for later removal)
-tar -xvf $ARCHIVE | tee $ARCHIVE.manifest
+tar -xvf $ARCHIVE | tee $MANIFEST
 
 echo
 echo "Updating packages-git/repos.lst..."

@@ -1,7 +1,7 @@
 #!/bin/sh
 
 PROJECT=$1
-MANIFEST=$PROJECT.manifest
+MANIFEST="`echo $PROJECT | sed y,:,_,`.manifest"
 
 echo "Removing files of project $PROJECT"
 cat $MANIFEST | sort -r | xargs rm -vrf
