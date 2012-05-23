@@ -1,7 +1,8 @@
 #!/bin/sh
 
 PROJECT=$1
-TARGET=$2
+# TODO: check the following line
+TARGET=`/bin/ls obs-repos/$PROJECT:latest/`
 EXTENDEDPROJECTDIR=`echo $PROJECT | sed y,:,/,`
 
 echo "<mappings>"

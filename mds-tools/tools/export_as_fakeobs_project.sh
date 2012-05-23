@@ -62,7 +62,7 @@ then
 else
   touch mappings.xml
 fi
-bash tools/updatemappings.sh $PROJECT $TARGET > mappings.xml
+bash tools/updatemappings.sh $PROJECT > mappings.xml
 
 # Remove temporary files
 echo "Removing temporary files ($PKGLISTFILE $TMPPACKAGESXML)"
