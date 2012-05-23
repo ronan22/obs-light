@@ -1,6 +1,9 @@
 Mer Delivery System tools
 http://wiki.merproject.org/index.php?title=Mer_Delivery_System
 
-Author: Carsten Munk <carsten.munk@gmail.com>
-Modified for the needs of OBS Light by Florent Vennetier <florent@fridu.net>
+modified for the needs of OBS Light project
+http://wiki.meego.com/OBS_Light
+
+RPM packages for openSUSE 11.4 and 12.1:
+http://repo.pub.meego.com/home:/fvennetier:/mds
 
