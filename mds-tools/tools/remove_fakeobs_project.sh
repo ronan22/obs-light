@@ -1,12 +1,10 @@
 #!/bin/sh
 
-# original name of the project
 PROJECT=$1
-# name of the archive file
-ARCHIVE=$2
+MANIFEST=$PROJECT.manifest
 
-# extract archive and keep file list (for later removal)
-tar -xvf $ARCHIVE | tee $ARCHIVE.manifest
+echo "Removing files of project $PROJECT"
+cat $MANIFEST | sort -r | xargs rm -vrf
 
 echo
 echo "Updating packages-git/repos.lst..."
@@ -18,19 +16,30 @@ python tools/makemappings.py packages-git/repos.lst packages-git/mappingscache.x
 echo "Updating 'latest' links in obs-repos..."
 cd obs-repos
 LATEST=`find . -maxdepth 1 -name "$PROJECT*" -printf "%f\n" | grep -v "$PROJECT:latest" | sort | tail -n 1`
-ln -sf $LATEST "$PROJECT:latest"
+if [ -z $LATEST ]
+then
+  rm -f "$PROJECT:latest"
+else
+  ln -sf $LATEST "$PROJECT:latest"
+fi
 cd ..
 
 echo "Updating 'latest' links in releases..."
 cd releases
 RELEASE=`find . -maxdepth 1 -type d -printf "%f\n" | sort | tail -n 1`
-ln -sf $RELEASE latest
+if [ -z $RELEASE ]
+then
+  rm -f latest
+else
+  ln -sf $RELEASE latest
+fi
 cd ..
 
 echo "Updating mappings.xml..."
+MAPPINGSBACKUP="mappings.xml.`date +%Y%m%d%H%M%S`"
 if [ -f mappings.xml ]
 then
-  cp -f mappings.xml mappings.xml.`date +%Y%m%d%H%M%S`
+  cp -f mappings.xml $MAPPINGSBACKUP
+  cat $MAPPINGSBACKUP | grep -v "project=\"$PROJECT\"" > mappings.xml
 fi
-tools/updatemappings.sh $PROJECT > mappings.xml
 
