@@ -34,5 +34,6 @@ if [ -f mappings.xml ]
 then
   cp -f mappings.xml mappings.xml.`date +%Y%m%d%H%M%S`
 fi
-tools/updatemappings.sh $PROJECT > mappings.xml
+tools/updatemappings.sh $PROJECT > mappings_new.xml
+mv mappings_new.xml mappings.xml
 
