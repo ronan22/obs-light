@@ -66,6 +66,7 @@ cp -f obslight-fakeobs %{buildroot}%{_bindir}
 cp -f init_fakeobs %{buildroot}%{_sysconfdir}/init.d/fakeobs
 cp -f fakeobs-repos.apache2conf %{buildroot}/srv/fakeobs/webconf/
 cp -f fakeobs-repos.lighttpdconf %{buildroot}/srv/fakeobs/webconf/
+cp -f fakeobs.png %{buildroot}/srv/fakeobs/webconf/
 cp -f README %{buildroot}%{_docdir}%{name}
 
 ln -sf /srv/fakeobs/tools/fakeobs.py %{buildroot}%{_sbindir}/fakeobs
