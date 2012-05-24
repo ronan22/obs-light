@@ -51,17 +51,21 @@ class SubprocessCrt(object):
         the "command" must be a valid bash command.
         _args and _kwargs are for compatibility.
         '''
+        if "stdout" in _kwargs.keys():
+            stdout = _kwargs["stdout"]
+        else:
+            stdout = False
+
+        if "noOutPut" in _kwargs.keys():
+            noOutPut = _kwargs["noOutPut"]
+        else:
+            noOutPut = False
+
+        outPutRes = ""
 
         ObsLightPrintManager.getLogger().debug("command: " + command)
         #need Python 2.7.3 to do shlex.split(command) 
         splittedCommand = shlex.split(str(command))
-
-#        f_stdout = open("/dev/shm/tmp_stdout", 'w+')
-#        f_stderr = open("/dev/shm/tmp_stderr", 'w+')
-#        p = subprocess.Popen(splittedCommand,
-#                             stdout=f_stdout,
-#                             stderr=f_stderr)
-
 
         p = subprocess.Popen(splittedCommand,
                              stdout=subprocess.PIPE,
@@ -91,11 +95,15 @@ class SubprocessCrt(object):
                 for fd in select.select([f_stdout, f_stderr], [], [], selectTimeout)[0]:
                     timedOut = False
                     output = fd.read()
+                    if stdout:
+                        outPutRes += output
                     for line in output.split("\n"):
                         if line == b"" and not output.endswith("\n"):
                             outputs[fd]["EOF"] = True
-                        elif line != "":
-                            outputs[fd]["logcmd"](line.decode("utf8", "replace").rstrip())
+                        elif line != "" and not noOutPut:
+                            res = line.decode("utf8", "replace").rstrip()
+                            outputs[fd]["logcmd"](res)
+
                 if timedOut:
                     idleTime += selectTimeout
                     message = "Subprocess still working for %s"
@@ -119,12 +127,17 @@ class SubprocessCrt(object):
         ObsLightPrintManager.getLogger().debug("command finished: '%s', return code: %s"
                                                % (command, unicode(res)))
 
-        if res is None:
-            res = 0
-        return res
+        if stdout:
+            return outPutRes
+        else:
+            if res is None:
+                res = 0
+            return res
+
+
 
     def execPipeSubprocess(self, command, command2):
-        ObsLightPrintManager.getLogger().debug("command: " + command + " | " + command2)
+        ObsLightPrintManager.getLogger().info("command: " + command + " | " + command2)
         splittedCommand1 = shlex.split(str(command))
         splittedCommand2 = shlex.split(str(command2))
         p1 = subprocess.Popen(splittedCommand1, stdout=subprocess.PIPE)

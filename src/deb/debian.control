@@ -19,7 +19,8 @@ Depends: ${shlibs:Depends},
  xdg-utils,
  xtightvncviewer,
  wget,
- curl
+ curl,
+ git
 Recommends:
  usb-imagewriter
 Description: Utilities to work with OBS Light, a lighter version of OBS.

@@ -251,15 +251,18 @@ class ObsLightOsc(object):
         """
         logger = ObsLightPrintManager.getLogger()
         self.get_config()
+        #
         buildinfoUrl = ("%(api)s/build/%(project)s/%(target)s/%(arch)s/%(package)s/_buildinfo" %
                         {"api": api,
                          "project": projectObsName,
                          "package": package,
                          "target": projectTarget,
                          "arch": arch})
+
         logger.debug("Getting buildrequires of %s from %s" % (package, buildinfoUrl))
         self.cleanBuffer(buildinfoUrl)
-        res = self.getHttp_request(buildinfoUrl)
+        res = self.getHttp_request(str(buildinfoUrl))
+
         if res != None:
             aElement = ElementTree.fromstring(res)
         else:
@@ -528,11 +531,9 @@ class ObsLightOsc(object):
                      apiurl,
                      project,
                      listExtraPkgs=["vim",
-                                    "git",
                                     "zypper",
                                     "gzip",
                                     "strace",
-                                    "iputils",
                                     "ncurses-devel",
                                     "rpm",
                                     "sed"

@@ -1,4 +1,7 @@
-obslight (0.4.23-1) stable; urgency=low
+obslight (0.4.24-1) stable; urgency=low
+  * Version 0.4.24
+    - add git require.
+
   * Version 0.4.23
     - added obsdodupdate script.
 
@@ -83,4 +86,4 @@ obslight (0.4.23-1) stable; urgency=low
 
   * Initial Release
 
- -- Ronan Le Martret (Intel OTC) <ronan@fridu.net>  Mon, 21 May 2012 17:20:00 +0200
+ -- Ronan Le Martret (Intel OTC) <ronan@fridu.net>  Wed, 23 May 2012 16:46:58 +0200

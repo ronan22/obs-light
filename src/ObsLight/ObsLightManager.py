@@ -41,7 +41,7 @@ from ObsLightErr import ObsLightObsServers
 from ObsLightErr import ObsLightProjectsError
 from ObsLightErr import ArgError
 
-VERSION = "0.4.23-1"
+VERSION = "0.4.24-1"
 
 def getVersion():
     '''
