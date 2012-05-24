@@ -502,9 +502,9 @@ class ObsLightPackage(object):
         
         '''
         if self.__prepDirName != None:
-            return self.__name + ".tar.gz"
+            return self.__name + ".zip"
         else:
-            return self.__prepDirName + ".tar.gz"
+            return self.__prepDirName + ".zip"
 
     def initCurrentPatch(self):
         '''

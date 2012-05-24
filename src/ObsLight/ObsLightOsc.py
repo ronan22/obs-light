@@ -531,7 +531,6 @@ class ObsLightOsc(object):
                      apiurl,
                      project,
                      listExtraPkgs=["vim",
-                                    "git",
                                     "zypper",
                                     "gzip",
                                     "strace",

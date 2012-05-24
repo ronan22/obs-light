@@ -1,3 +1,6 @@
+* Wed May 23 2012 Ronan Le Martret (Intel OTC) <ronan@fridu.net> 0.4.24
+- add git require.
+
 * Mon May 21 2012 Ronan Le Martret (Intel OTC) <ronan@fridu.net> 0.4.23
 - add obsdodupdate script.
 

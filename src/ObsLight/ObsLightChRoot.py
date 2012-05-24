@@ -40,6 +40,8 @@ from ObsLightTools import isUserInGroup
 import ObsLightPrintManager
 import copy
 
+from ObsLightGitManager import ObsLightGitManager
+
 class ObsLightChRoot(object):
     '''
     chroot-related operations of an OBS project.
@@ -59,6 +61,8 @@ class ObsLightChRoot(object):
         self.__chrootDirTransfert = os.path.join(projectDirectory, "chrootTransfert")
         self.__dirTransfert = "/chrootTransfert"
 
+        self.__ObsLightGitManager = ObsLightGitManager(self)
+
         self.__mySubprocessCrt = SubprocessCrt()
         self.hostArch = platform.machine()
 
@@ -74,36 +78,12 @@ class ObsLightChRoot(object):
     def projectDirectory(self):
         return self.__projectDirectory
 
-    @staticmethod
-    def prepareGitCommand(workTree, subcommand, gitDir="../.git_obslight"):
-        """
-        Construct a Git command-line, setting its working tree to `workTree`,
-        and then appends `subcommand`.
-        Output example:
-          git --git-dir=<workTree>/[gitDir] --work-tree=<workTree> <subcommand>
-        """
-        command = "git --git-dir=%s/%s --work-tree=%s " % (workTree,
-                                                           gitDir,
-                                                           workTree)
-        command += subcommand
-        return command
-
-    @staticmethod
-    def makeArchiveGitSubcommand(outputFilePath, prefix, revision=u"HEAD"):
-        """
-        Construct a Git 'archive' subcommand with tar format,
-        piped on gzip to produce a .tar.gz file.
-        """
-        command = "archive --format=tar --prefix=%s/ %s | gzip > %s"
-        command = command % (prefix, revision, outputFilePath)
-        return command
-
     def getChrootDirTransfert(self):
         return self.__chrootDirTransfert
 
     def getDirectory(self):
         ''' 
-        Return the path of aChRoot of a project
+        Return the path of aChRoot of a project 
         '''
         return self.__chrootDirectory
 
@@ -515,7 +495,7 @@ class ObsLightChRoot(object):
                 self.__subprocess(command="sudo chmod -R og+rwX %s"
                                   % (self.getDirectory() + "/" + packageDirectory))
 
-                self.initGitWatch(packageDirectory, package)
+                self.__ObsLightGitManager.initGitWatch(packageDirectory, package)
 
                 if package.specFileHaveAnEmptyBuild():
                     package.setChRootStatus("No build directory")
@@ -555,10 +535,10 @@ class ObsLightChRoot(object):
         packageDirectory = package.getPackageDirectory()
 
         if res == 0:
-            self.ignoreGitWatch(package=package,
+            self.__ObsLightGitManager.ignoreGitWatch(package=package,
                                 path=packageDirectory)
-            package.setFirstCommit(tag=self.getCommitTag(packageDirectory,
-                                                         package))
+            package.setFirstCommit(tag=self.__ObsLightGitManager.getCommitTag(packageDirectory,
+                                                                              package))
             package.setChRootStatus("Prepared")
         else:
             msg = "The first build of package '%s' failed." % packageName
@@ -577,12 +557,15 @@ class ObsLightChRoot(object):
             package.setChRootStatus("No build directory")
             return 0
         if package.getPackageParameter("patchMode"):
-            self.commitGit(mess="build", package=package)
+
+            self.__ObsLightGitManager.commitGit(mess="build", package=package)
+
             res = self.__createGhostRpmbuildCommand("bc", package, specFile)
-            self.ignoreGitWatch(package=package,
-                                path=package.getPackageDirectory(),
-                                commitComment="build commit",
-                                firstBuildCommit=False)
+
+            self.__ObsLightGitManager.ignoreGitWatch(package=package,
+                                                    path=package.getPackageDirectory(),
+                                                    commitComment="build commit",
+                                                    firstBuildCommit=False)
         else:
             res = self.__createRpmbuildCommand("bc", package, specFile)
         if res == 0:
@@ -607,14 +590,14 @@ class ObsLightChRoot(object):
             raise ObsLightErr.ObsLightChRootError(msg)
 
         if package.getPackageParameter("patchMode"):
-            self.commitGit(mess="install", package=package)
+            self.__ObsLightGitManager.commitGit(mess="install", package=package)
 
             res = self.__createGhostRpmbuildCommand("bi", package, specFile)
 
-            self.ignoreGitWatch(package=package,
-                                path=package.getPackageDirectory(),
-                                commitComment="build install commit",
-                                firstBuildCommit=False)
+            self.__ObsLightGitManager.ignoreGitWatch(package=package,
+                                                    path=package.getPackageDirectory(),
+                                                    commitComment="build install commit",
+                                                    firstBuildCommit=False)
         else:
             res = self.__createRpmbuildCommand("bi", package, specFile)
 
@@ -641,14 +624,14 @@ class ObsLightChRoot(object):
             raise ObsLightErr.ObsLightChRootError(msg)
 
         if package.getPackageParameter("patchMode"):
-            self.commitGit(mess="packageRpm", package=package)
+            self.__ObsLightGitManager.commitGit(mess="packageRpm", package=package)
 
             res = self.__createGhostRpmbuildCommand("ba", package, specFile)
 
-            self.ignoreGitWatch(package=package,
-                                path=package.getPackageDirectory(),
-                                commitComment="build package commit",
-                                firstBuildCommit=False)
+            self.__ObsLightGitManager.ignoreGitWatch(package=package,
+                                                    path=package.getPackageDirectory(),
+                                                    commitComment="build package commit",
+                                                    firstBuildCommit=False)
         else:
             res = self.__createRpmbuildCommand("ba", package, specFile)
 
@@ -670,7 +653,8 @@ class ObsLightChRoot(object):
         tarFile = package.getArchiveName()
 
         buildDirTmp = "/root/" + package.getName() + "/" + package.getTopDirRpmBuildTmpDirectory()
-        buildDir = "/root/" + package.getName() + "/" + package.getTopDirRpmBuildDirectory()
+        buildDir = package.getTopDirRpmBuildDirectory()
+        buildDirPath = "/root/" + package.getName() + "/" + buildDir
         buildLink = "/root/" + package.getName() + "/" + package.getTopDirRpmBuildLinkDirectory()
 
         command = []
@@ -679,30 +663,29 @@ class ObsLightChRoot(object):
         command.append("mkdir -p %s/SPECS" % buildDirTmp)
         command.append("mkdir -p %s/TMP" % buildDirTmp)
 
-        command.append("ln -sf %s/BUILDROOT %s" % (buildDir, buildDirTmp))
-        command.append("ln -sf %s/RPMS %s" % (buildDir, buildDirTmp))
-        command.append("ln -sf %s/SOURCES %s" % (buildDir, buildDirTmp))
-        command.append("ln -sf %s/SRPMS %s" % (buildDir, buildDirTmp))
+        command.append("ln -sf ../%s/BUILDROOT %s" % (buildDir, buildDirTmp))
+        command.append("ln -sf ../%s/RPMS %s" % (buildDir, buildDirTmp))
+        command.append("ln -sf ../%s/SOURCES %s" % (buildDir, buildDirTmp))
+        command.append("ln -sf ../%s/SRPMS %s" % (buildDir, buildDirTmp))
 
         command.append("chown -R root:users %s" % buildDirTmp)
         command.append("chmod -R g+rwX %s" % buildDirTmp)
 
         outputFilePath = os.path.join(buildDirTmp, "SOURCES", tarFile)
 
-        tmpPath = packagePath.replace(buildDir + "/BUILD", "").strip("/")
+        tmpPath = packagePath.replace(buildDirPath + "/BUILD", "").strip("/")
         tmpPath = tmpPath.strip("/")
-        command.append(self.prepareGitCommand(packagePath,
-                                              self.makeArchiveGitSubcommand(outputFilePath,
-                                                                            prefix=tmpPath),
-                                              package.getCurrentGitDirectory()))
-
         res = self.execCommand(command=command)
 
+        res = self.__ObsLightGitManager.execMakeArchiveGitSubcommand(packagePath,
+                                                                    outputFilePath,
+                                                                    tmpPath,
+                                                                    package.getCurrentGitDirectory())
 
         return res
 
     def __createRpmbuildCommand(self, command, package, pathToSpec):
-        buildDir = "/root/" + package.getName() + "/" + package.getTopDirRpmBuildDirectory()
+        buildDir = package.getTopDirRpmBuildDirectory()
         buildLink = "/root/" + package.getName() + "/" + package.getTopDirRpmBuildLinkDirectory()
 
         srcdefattr = "--define '_srcdefattr (-,root,root)'"
@@ -716,14 +699,18 @@ class ObsLightChRoot(object):
         command.append("HOME=/root/" + package.getName())
         command.append("rm  " + buildLink)
         command.append("ln -s %s %s" % (buildDir, buildLink))
+        command.append("chown -R root:users %s" % (buildLink + "/SOURCES/"))
+        command.append("chown -R root:users %s" % (buildLink + "/SPECS/"))
         command.append(rpmbuilCmd)
         command.append("RPMBUILD_RETURN_CODE=$?")
         command.append("exit $RPMBUILD_RETURN_CODE")
         return self.execCommand(command=command)
 
     def __createGhostRpmbuildCommand(self, command, package, pathToSpec):
-        buildDirTmp = "/root/" + package.getName() + "/" + package.getTopDirRpmBuildTmpDirectory()
-        buildDir = "/root/" + package.getName() + "/" + package.getTopDirRpmBuildDirectory()
+        buildDirTmp = package.getTopDirRpmBuildTmpDirectory()
+        buildDirTmpPath = "/root/" + package.getName() + "/" + buildDirTmp
+        buildDir = package.getTopDirRpmBuildDirectory()
+        buildDirPath = "/root/" + package.getName() + "/" + buildDir
         buildLink = "/root/" + package.getName() + "/" + package.getTopDirRpmBuildLinkDirectory()
 
         srcdefattr = "--define '_srcdefattr (-,root,root)'"
@@ -732,15 +719,19 @@ class ObsLightChRoot(object):
                                                             srcdefattr,
                                                             topdir,
                                                             pathToSpec)
-
         command = []
         command.append("HOME=/root/" + package.getName())
         command.append("rm  " + buildLink)
         command.append("ln -s %s %s" % (buildDirTmp, buildLink))
+        command.append("chown -R root:users %s" % (buildLink + "/SOURCES/"))
+        command.append("chown -R root:users %s" % (buildLink + "/SPECS/"))
+        command.append("cat /root/.bashrc")
+        command.append("echo TZ $TZ")
+        command.append("date")
         command.append(rpmbuilCmd)
         command.append("RPMBUILD_RETURN_CODE=$?")
-        command.append("cp -fpr  %s/BUILD/* %s/BUILD/" % (buildDirTmp, buildDir))
-        command.append("rm -r %s/TMP" % buildDirTmp)
+        command.append("cp -fpr  %s/BUILD/* %s/BUILD/" % (buildDirTmpPath, buildDir))
+        command.append("rm -r %s/TMP" % buildDirTmpPath)
         command.append("rm  " + buildLink)
         command.append("ln -s %s %s" % (buildDir, buildLink))
         command.append("exit $RPMBUILD_RETURN_CODE")
@@ -769,6 +760,8 @@ class ObsLightChRoot(object):
         f = open(scriptPath, 'w')
         f.write("#!/bin/sh -x\n")
         f.write("# Created by obslight\n\n")
+        #Warning
+        f.write(". /root/.bashrc\n")
 #        f.write("set -x\n")
         for c in command:
             f.write(c + "\n")
@@ -899,139 +892,7 @@ class ObsLightChRoot(object):
         # problem with terminal emulators which don't fork themselves.
         subprocess.Popen(command)
 
-    def initGitWatch(self, path, package):
-        '''
-        Initialize a Git repository in the specified path, and 'git add' everything.
-        '''
-        if path == None:
-            raise ObsLightErr.ObsLightChRootError("Path is not defined in initGitWatch.")
 
-        #git ignore the empty directory so we must save them into a file.
-        projectPath = self.getDirectory() + package.getPackageDirectory()
-        res = []
-        for root, dirs, files in os.walk(projectPath):
-            if len(dirs) == 0 and len(files) == 0:
-                res.append(root.replace(projectPath + "/", ""))
-
-        f = open(projectPath + "/.emptyDirectory", 'w')
-
-
-        for d in res:
-            f.write(d + "\n")
-        f.close()
-
-        timeString = time.strftime("%Y-%m-%d_%Hh%Mm%Ss")
-        comment = '\"auto commit first commit %s\"' % timeString
-
-        command = []
-        command.append(self.prepareGitCommand(path,
-                                              "init ",
-                                              package.getCurrentGitDirectory()))
-        command.append(self.prepareGitCommand(path,
-                                              "add " + path + "/\*",
-                                              package.getCurrentGitDirectory()))
-        command.append(self.prepareGitCommand(path,
-                                              "commit -a -m %s" % comment,
-                                              package.getCurrentGitDirectory()))
-        res = self.execCommand(command=command)
-
-
-
-
-    def ignoreGitWatch(self, package, path=None, commitComment="first build commit", firstBuildCommit=True):
-        '''
-        Add all Git untracked files of `path` to .gitignore
-        and commit.
-        '''
-        if path == None:
-            raise ObsLightErr.ObsLightChRootError("path is not defined in initGitWatch.")
-
-        timeString = time.strftime("%Y-%m-%d_%Hh%Mm%Ss")
-        comment = '\"auto commit %s %s\"' % (commitComment, timeString)
-
-        command = []
-        command.append(self.prepareGitCommand(path,
-                                              u"status -u -s | sed -e 's/^[ \t]*//' " +
-                                              u"| cut -d' ' -f2 >> %s/.gitignore" % path,
-                                              package.getCurrentGitDirectory()))
-        if firstBuildCommit:
-            command.append("echo debugfiles.list >> " + path + "/.gitignore")
-            command.append("echo debuglinks.list >> " + path + "/.gitignore")
-            command.append("echo debugsources.list >> " + path + "/.gitignore")
-            command.append("echo *.in >> " + path + "/.gitignore")
-            command.append(self.prepareGitCommand(path,
-                                                  u"add " + path + "/.gitignore",
-                                                  package.getCurrentGitDirectory()))
-        command.append(self.prepareGitCommand(path,
-                                              u"commit -a -m %s" % comment,
-                                              package.getCurrentGitDirectory()))
-        self.execCommand(command=command)
-
-    def getCommitTag(self, path, package):
-        '''
-        Get the last Git commit hash.
-        '''
-        command = []
-        resultFile = "commitTag.log"
-        command.append(self.prepareGitCommand(path,
-                                              " log HEAD --pretty=short -n 1 > " +
-                                              self.__dirTransfert + "/" + resultFile,
-                                              package.getCurrentGitDirectory()))
-        self.execCommand(command=command)
-
-        result = []
-        with open(self.__chrootDirTransfert + "/" + resultFile, 'r') as f:
-            for line in f:
-                result.append(line)
-
-        for line in result:
-            if line.startswith("commit "):
-                res = line.strip("commit ").rstrip("\n")
-                return res
-
-    def getListCommitTag(self, path, package):
-        '''
-        Get the last Git commit hash.
-        '''
-        command = []
-        resultFile = "commitTag.log"
-        command.append(self.prepareGitCommand(path,
-                                              " log HEAD --pretty=short -n 20 > " +
-                                              self.__dirTransfert + "/" + resultFile,
-                                              package.getCurrentGitDirectory()))
-        self.execCommand(command=command)
-
-        result_tmp = []
-        with open(self.__chrootDirTransfert + "/" + resultFile, 'r') as f:
-            for line in f:
-                result_tmp.append(line)
-
-        result = []
-        for line in result_tmp:
-            if line.startswith("commit "):
-                res = line.strip("commit ").rstrip("\n")
-                result.append((res, "Comment"))
-        return result
-
-    def commitGit(self, mess, package):
-        packagePath = package.getPackageDirectory()
-        command = []
-        if packagePath == None:
-            raise ObsLightErr.ObsLightChRootError("path is not defined in commitGit for .")
-
-        timeString = time.strftime("%Y-%m-%d_%Hh%Mm%Ss")
-        comment = '\"auto commit %s %s\"' % (mess, timeString)
-
-        command.append(self.prepareGitCommand(packagePath,
-                                              " add %s/\*" % packagePath,
-                                              package.getCurrentGitDirectory()))
-        command.append(self.prepareGitCommand(packagePath,
-                                              " commit -a -m %s" % comment,
-                                              package.getCurrentGitDirectory()))
-        self.execCommand(command=command)
-
-        tag2 = self.getCommitTag(packagePath, package)
-        package.setSecondCommit(tag2)
 
     def createPatch(self, package=None, patch=None):
         '''
@@ -1040,28 +901,19 @@ class ObsLightChRoot(object):
         if not patch.endswith(".patch"):
             patch += ".patch"
         packagePath = package.getPackageDirectory()
-        pathOscPackage = package.getOscDirectory()
 
-        self.commitGit(mess="createPatch", package=package)
+        self.__ObsLightGitManager.commitGit(mess="createPatch", package=package)
 
         tag1 = package.getFirstCommit()
         if tag1 == None:
             raise ObsLightErr.ObsLightChRootError("package: '" + package.getName() +
                                                   "' has no git first tag.")
         tag2 = package.getSecondCommit()
-
-        command = []
-        command.append(self.prepareGitCommand(packagePath,
-                                              "diff -p -a --binary %s %s > %s/%s" % (tag1,
-                                                                                     tag2,
-                                                                                     self.__dirTransfert,
-                                                                                     patch),
-                                              package.getCurrentGitDirectory()))
-        self.execCommand(command=command)
-        shutil.copy(self.__chrootDirTransfert + "/" + patch, pathOscPackage + "/" + patch)
+        self.__ObsLightGitManager.createPatch(package, packagePath, tag1, tag2, patch)
 
         package.addPatch(aFile=patch)
-        ObsLightOsc.getObsLightOsc().add(path=pathOscPackage, afile=patch)
+
+        ObsLightOsc.getObsLightOsc().add(path=package.getOscDirectory(), afile=patch)
         package.save()
         return 0
 
@@ -1071,9 +923,8 @@ class ObsLightChRoot(object):
         '''
         patch = package.getCurrentPatch()
         packagePath = package.getPackageDirectory()
-        pathOscPackage = package.getOscDirectory()
 
-        self.commitGit(mess="updatePatch", package=package)
+        self.__ObsLightGitManager.commitGit(mess="updatePatch", package=package)
 
         tag1 = package.getFirstCommit()
         if tag1 == None:
@@ -1081,15 +932,8 @@ class ObsLightChRoot(object):
                                                   "' has no git first tag.")
         tag2 = package.getSecondCommit()
 
-        command = []
-        command.append(self.prepareGitCommand(packagePath,
-                                              "diff -p -a --binary %s %s > %s/%s" % (tag1,
-                                                                                     tag2,
-                                                                                     self.__dirTransfert,
-                                                                                     patch),
-                                              package.getCurrentGitDirectory()))
-        self.execCommand(command=command)
-        shutil.copy(self.__chrootDirTransfert + "/" + patch, pathOscPackage + "/" + patch)
+        self.__ObsLightGitManager.createPatch(package, packagePath, tag1, tag2, patch)
+
         package.save()
         return 0
 
