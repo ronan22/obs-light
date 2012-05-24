@@ -1,14 +1,14 @@
 #!/bin/bash
 
+# Example:
+#   tools/grab_fakeobs_project.sh "1.0" "https://api.tizen.org/public" "rsync://download.tizen.org/live" "Tizen:1.0:Base" "standard" "i586 armv7el"
+
 RELEASE=$1
 API=$2
 RSYNC=$3
 PROJECT="$4"
 TARGET=$5
 ARCHS="$6"
-
-# Example:
-#   tools/export_as_fakeobs_project.sh "1.0" "https://api.tizen.org/public" "rsync://download.tizen.org/live" "Tizen:1.0:Base" "standard" "i586 armv7el"
 
 echo "Creating release, getting binary RPMs..."
 tools/createrelease.sh "$RELEASE" "$API" "$RSYNC" "$PROJECT" "$TARGET" "$ARCHS"

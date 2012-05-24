@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Example:
+#   tools/import_fakeobs_project.sh "Tizen:1.0:Base" Tizen_1.0_Base-1.0.tar.gz
+
 # original name of the project
 PROJECT=$1
 # name of the archive file
