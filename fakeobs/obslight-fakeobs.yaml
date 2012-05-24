@@ -1,8 +1,8 @@
-Name: mds-tools
-Summary: Mer Delivery System tools (fakeobs)
+Name: obslight-fakeobs
+Summary: Python script that acts as an OBS API
 Description: |
-    Mer Delivery System tools, including fakeobs,
-    modified for the needs of OBS Light project
+    Python script that partially implement an OBS API.
+    It is based on Mer Delivery System.
 Version: 0.1
 Group: Development/Tools/Building
 License: GPLv2

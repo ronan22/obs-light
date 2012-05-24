@@ -5,8 +5,8 @@
 # >> macros
 # << macros
 
-Name:       mds-tools
-Summary:    Mer Delivery System tools (fakeobs)
+Name:       obslight-fakeobs
+Summary:    Python script that acts as an OBS API
 Version:    0.1
 Release:    1
 Group:      Development/Tools/Building
@@ -14,7 +14,7 @@ License:    GPLv2
 BuildArch:  noarch
 URL:        https://meego.gitorious.org/meego-developer-tools/obs-light/trees/master
 Source0:    %{name}-%{version}.tar.gz
-Source100:  mds-tools.yaml
+Source100:  obslight-fakeobs.yaml
 Requires:   apache2
 Requires:   git
 Requires:   python
@@ -29,8 +29,8 @@ Requires(postun): /sbin/chkconfig
 
 
 %description
-Mer Delivery System tools, including fakeobs,
-modified for the needs of OBS Light project
+Python script that partially implement an OBS API.
+It is based on Mer Delivery System.
 
 
 
