@@ -3,6 +3,12 @@
 PROJECT=$1
 MANIFEST="`echo $PROJECT | sed y,:,_,`.manifest"
 
+if [ ! -f "$MANIFEST" ]
+then
+	echo "Error: could not find manifest file '$MANIFEST'"
+	exit 1
+fi
+
 echo "Removing files of project $PROJECT"
 cat $MANIFEST | sort -r | xargs rm -vrf
 

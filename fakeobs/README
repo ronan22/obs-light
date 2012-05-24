@@ -5,5 +5,31 @@ modified for the needs of OBS Light project
 http://wiki.meego.com/OBS_Light
 
 RPM packages for openSUSE 11.4 and 12.1:
-http://repo.pub.meego.com/home:/fvennetier:/mds
+http://repo.pub.meego.com/Project:/OBS_Light/
+
+
+All commands should be run as root.
+
+Where are fakeobs data stored ?
+-------------------------------
+fakeobs data are stored in /srv/fakeobs and its subdirectories.
+
+
+How to import a fakeobs project from an archive ?
+-------------------------------------------------
+Run "obslight-fakeobs import" with the archive path as parameter,
+and optionally the name of the project as second parameter
+('_' in archive name will be replaced by ':' when guessing project name).
+A "<project>.manifest" file will be created ; do not remove it.
+
+Example:
+$ obslight-fakeobs import Tizen_1.0_Base-1.0.tar.gz "Tizen:1.0:Base"
+
+
+How to remove a fakeobs project ?
+---------------------------------
+Run "obslight-fakeobs remove" with the project name as parameter.
+
+Example:
+$ obslight-fakeobs remove "Tizen:1.0:Base"
 
