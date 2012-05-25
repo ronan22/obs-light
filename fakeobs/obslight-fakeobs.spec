@@ -81,6 +81,7 @@ ln -sf %{_sysconfdir}/init.d/fakeobs %{buildroot}%{_sbindir}/rcfakeobs
 %preun
 # >> preun
 %stop_on_removal fakeobs
+/sbin/chkconfig --del fakeobs
 # << preun
 
 %post
@@ -90,6 +91,7 @@ if [ ! -f lastevents ]
 then
 touch lastevents
 sh tools/addevent initial na na
+/sbin/chkconfig --add fakeobs
 fi
 
 if [ ! -f mappings.xml ]
