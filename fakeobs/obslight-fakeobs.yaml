@@ -13,6 +13,7 @@ Sources:
 Requires:
     - apache2
     - git
+    - osc
     - python
     - python-async
     - python-gitdb

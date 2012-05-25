@@ -10,6 +10,9 @@ function usage()
 	echo ""
 	echo "	remove <project_name>"
 	echo "		remove a project from fakeobs"
+	echo ""
+	echo "	createlink [osc_config_file]"
+	echo "		create the link to the fakeobs API on the OBS running on localhost"
 }
 
 function get_abs_path()
@@ -47,6 +50,16 @@ function remove_project()
 	tools/remove_fakeobs_project.sh $1
 }
 
+function create_link()
+{
+	if [ "$#" -gt 0 ]
+	then
+		OSCCONFIG="`get_abs_path $1`"
+	fi
+	cd /srv/fakeobs
+	tools/create_fakeobs_link.sh $OSCCONFIG
+}
+
 if [ "$#" -lt 1 ]
 then
 	usage
@@ -65,6 +78,9 @@ case $1 in
 		;;
 	remove)
 		remove_project $2
+		;;
+	createlink)
+		create_link $2
 		;;
 	*)
 		echo "Unknown command: $1"

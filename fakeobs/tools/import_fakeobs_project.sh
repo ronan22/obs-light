@@ -29,8 +29,17 @@ echo
 echo "Updating packages-git/repos.lst..."
 find packages-git/ -mindepth 2 -maxdepth 2 -type d -printf "%p\n" | sort > packages-git/repos.lst
 
-echo "Updating packages-git/mappingscache.xml..."
+echo "Updating packages-git/mappingscache.xml (may be long)..."
 python tools/makemappings.py packages-git/repos.lst packages-git/mappingscache.xml
+if [ "$?" -ne "0" ]
+then
+  echo -e "\e[33;1m"
+  echo " Updating mappingscache failed!"
+  echo " This may append if the project contains big files and there is not enough free memory."
+  echo " Please cd to '/srv/fakeobs' and run"
+  echo "   python tools/makemappings.py packages-git/repos.lst packages-git/mappingscache.xml"
+  echo -e "\e[0m"
+fi
 
 echo "Updating 'latest' links in obs-repos..."
 cd obs-repos
@@ -56,7 +65,7 @@ DISTRUBUTIONSPATH="/srv/www/obs/api/files/distributions.xml"
 echo "Updating OBS' 'distributions.xml' file..."
 if [ -f "$DISTRUBUTIONSPATH" ]
 then
-	cp -f webconf/fakeobs.png /srv/www/obs/webui/public/images/distributions/
+	cp -f config/fakeobs.png /srv/www/obs/webui/public/images/distributions/
 	# here we assume there is only one target
 	TARGET=`/bin/ls obs-repos/$PROJECT:latest/`
 	tools/addfakeobsdistrib.py "$DISTRUBUTIONSPATH" "$PROJECT" "$TARGET"
