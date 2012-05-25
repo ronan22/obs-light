@@ -176,6 +176,9 @@ class ObsLightServer(object):
                                                                 apiurl=self.__serverAPI,
                                                                 parameter=parameter)
 
+    def getAPI(self):
+        return self.__serverAPI
+
     def getPackageParameter(self, project, package, parameter):
         '''
         Get the value of a package parameter.
@@ -328,22 +331,9 @@ class ObsLightServer(object):
         '''
         Return the list of the dependency repositories.
         '''
-        def getDependencyProject(projectObsName, target, result={}):
-            '''
-            Return the list of the dependency repositories.
-            '''
-            listProject = ObsLightOsc.getObsLightOsc().getLocalProjectList(obsServer=self.__serverAPI)
-            res = ObsLightOsc.getObsLightOsc().getDependencyProject(self.__serverAPI,
-                                                                    projectObsName,
-                                                                    target)
-            for prj in res.keys():
-                if (prj in listProject) and not (prj in result.keys()):
-                    result[prj] = res[prj]
-                    result = getDependencyProject(prj, res[prj], result)
 
-            return result
 
-        result1 = getDependencyProject(projectObsName, target)
+        result1 = ObsLightOsc.getObsLightOsc().getDependencyProjects(self.__serverAPI, projectObsName, target)
 
         result2 = {}
         for prj in result1.keys():

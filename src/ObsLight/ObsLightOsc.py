@@ -27,6 +27,8 @@ from xml.etree import ElementTree
 import urlparse
 import urllib
 
+import re
+
 from M2Crypto import m2, SSL
 import httplib
 
@@ -462,23 +464,80 @@ class ObsLightOsc(object):
 
         return aElement.attrib["code"]
 
-    def getDependencyProject(self, apiurl, projet, target):
+    def getDependencyProject(self, apiurl, project, target):
         self.get_config()
-        url = str(apiurl + "/source/" + projet + "/_meta")
+        url = str(apiurl + "/source/" + project + "/_meta")
         res = self.getHttp_request(url)
         if res == None:
             return None
         aElement = ElementTree.fromstring(res)
 
         result = {}
+
         for project in aElement:
             if (project.tag == "repository") and (project.get("name") == target):
                 for path in project.getiterator():
                     if path.tag == "path":
-                        repo = path.get("repository")
-                        target = path.get("project")
-                        result[target] = repo
+                        aTarget = path.get("repository")
+                        aProject = path.get("project")
+                        result[aProject] = aTarget
         return result
+
+    def getDependencyProjects(self, api, projectObsName, target, result={}):
+        '''
+        Return the list of the dependency repositories.
+        '''
+        listProject = self.getLocalProjectList(obsServer=api)
+        res = self.getDependencyProject(api, projectObsName, target)
+        res[projectObsName] = target
+        for prj in res.keys():
+            if (prj in listProject) and not (prj in result.keys()):
+                result[prj] = res[prj]
+                result = self.getDependencyProjects(api, prj, res[prj], result)
+
+        return result
+
+    def getRpmListFromObsFull(self, apiurl, projet, repo , arch):
+        self.get_config()
+        url = str(apiurl + "/build/" + projet + "/" + repo + "/" + arch + "/_repository")
+        self.cleanBuffer(url)
+        res = self.getHttp_request(url)
+        if res == None:
+            return None
+        aElement = ElementTree.fromstring(res)
+
+        result = []
+        for bin in aElement:
+            if bin.tag == "binary":
+                rpm = bin.get("filename")
+
+                if rpm.endswith(".rpm"):
+                    rpm = rpm[:-len(".rpm")]
+
+                for arch in [arch, "noarch", "i686", "i586", "i486"]:
+                    if rpm.startswith(arch + "/"):
+                        rpm = rpm[len(arch + "/"):]
+
+                    if rpm.endswith(arch):
+                        rpm = rpm[:-len(".rpm")]
+
+
+#                print rpm.ljust(50)
+
+                if rpm.count("-") > 1:
+                    rpmSplit = rpm.split("-")
+
+                    tpmRpm = rpmSplit[:-2]
+                    tpmRelease = rpmSplit[-1]
+                    tpmVersion = rpmSplit[-2]
+#                    print "/", tpmRpm, "/"
+
+                    if re.match(r'^[0-9]*\.[0-9]*\.', tpmRelease) != None:
+                        rpm = "-".join(tpmRpm)
+
+                result.append(rpm)
+        return result
+
 
     def getDODUrl(self, apiurl, projet, arch):
         result = []
@@ -523,21 +582,22 @@ class ObsLightOsc(object):
         else:
             return None
 
-
     def createChRoot(self,
                      chrootDir,
                      repos,
                      arch,
                      apiurl,
                      project,
-                     listExtraPkgs=["vim",
-                                    "zypper",
-                                    "gzip",
-                                    "strace",
-                                    "ncurses-devel",
-                                    "rpm",
-                                    "sed"
+                     listExtraPkgs=["ncurses-devel",
+                                    "rpm"
                                     ],
+                     listOptExtraPkgs=["gzip",
+                                       "strace",
+                                       "vim",
+                                       "zypper",
+                                       "iptools",
+                                       "sed",
+                                      ],
                      ):
         '''
         create a chroot
@@ -547,6 +607,19 @@ class ObsLightOsc(object):
         extraPkgs = ""
         for pkg in listExtraPkgs:
             extraPkgs += "-x " + pkg + " "
+
+        dependencyProjects = self.getDependencyProjects(apiurl, project, repos)
+
+        resolve = []
+
+        for prj in dependencyProjects.keys():
+            res = self.getRpmListFromObsFull(apiurl, prj, dependencyProjects[prj], arch)
+            resolve.extend(res)
+        resolve = set(resolve)
+
+        for pkg in listOptExtraPkgs:
+            if pkg in resolve:
+                extraPkgs += "-x " + pkg + " "
 
         command = "osc -A " + apiurl + " build --root=" + chrootDir + " " + extraPkgs
         command += " --noservice --no-verify --alternative-project " + project + " "
@@ -1633,15 +1706,21 @@ if __name__ == '__main__':
 #    package = "intel-Lakemore"
 #    projectObsName = "WindRiver:tools"
     testApi = "http://128.224.219.16:81"
-    testProjectObsName = "meegotv:mutter"
-    testPackage = "xbmc"
-    testProjectTarget = "MeeGoTV_1.2"
+    testProjectObsName = "Tizen:FromObsTizen:1.0:Base"
+    testProjectTarget = "standard"
     testArch = "i586"
 #    obsuser:opensuse
-    testResult = ObsLightOsc().getPackageBuildRequires(testApi,
-                                                       testProjectObsName,
-                                                       testPackage,
-                                                       testProjectTarget,
-                                                       testArch)
 
-    print " ".join(testResult)
+    testResult = ObsLightOsc().getDependencyProjects(testApi, testProjectObsName, testProjectTarget)
+
+    resolve = []
+    if testResult != None:
+        for prj in testResult.keys():
+            res = ObsLightOsc().getRpmListFromObsFull(testApi, prj, testResult[prj], testArch)
+            resolve.extend(res)
+        resolve = set(resolve)
+        print len(resolve)
+        print "zypper" in resolve
+
+
+

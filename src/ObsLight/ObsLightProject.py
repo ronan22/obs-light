@@ -653,10 +653,10 @@ class ObsLightProject(object):
         '''
         Init a chroot and add the project repository. 
         '''
+        repos = self.getDependencyRepositories()
+
         self.__initChRoot()
         res = self.addRepo()
-
-        repos = self.getDependencyRepositories()
 
         for alias in repos.keys():
             res = self.addRepo(repos=repos[alias], alias=alias)
@@ -667,9 +667,10 @@ class ObsLightProject(object):
         '''
         Init a chroot.
         '''
+        apiurl = self.__obsServers.getObsServer(self.__obsServer).getAPI()
         self.__chroot.createChRoot(repos=self.__projectTarget,
                                    arch=self.__projectArchitecture,
-                                   apiurl=self.__obsServer,
+                                   apiurl=apiurl,
                                    obsProject=self.__projectObsName)
         self.__chrootIsInit = True
 

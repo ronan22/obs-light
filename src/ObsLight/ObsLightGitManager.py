@@ -180,7 +180,6 @@ class ObsLightGitManager(object):
         for line in result.split("\n"):
             if line.startswith("commit "):
                 res = line.strip("commit").strip().rstrip("\n")
-                print "res", res
                 return res
 
     def getListCommitTag(self, path, package):
