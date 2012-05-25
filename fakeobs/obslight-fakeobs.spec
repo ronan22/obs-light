@@ -17,6 +17,7 @@ Source0:    %{name}-%{version}.tar.gz
 Source100:  obslight-fakeobs.yaml
 Requires:   apache2
 Requires:   git
+Requires:   osc
 Requires:   python
 Requires:   python-async
 Requires:   python-gitdb
@@ -56,17 +57,14 @@ mkdir -p %{buildroot}/srv/fakeobs/obs-projects
 mkdir -p %{buildroot}/srv/fakeobs/obs-repos
 mkdir -p %{buildroot}/srv/fakeobs/packages-git
 mkdir -p %{buildroot}/srv/fakeobs/releases
-mkdir -p %{buildroot}/srv/fakeobs/webconf
 mkdir -p %{buildroot}%{_sysconfdir}/init.d
 mkdir -p %{buildroot}%{_sbindir}
 mkdir -p %{buildroot}%{_bindir}
 mkdir -p %{buildroot}%{_docdir}%{name}
 cp -rf tools %{buildroot}/srv/fakeobs/tools
+cp -rf config %{buildroot}/srv/fakeobs/config
 cp -f obslight-fakeobs %{buildroot}%{_bindir}
 cp -f init_fakeobs %{buildroot}%{_sysconfdir}/init.d/fakeobs
-cp -f fakeobs-repos.apache2conf %{buildroot}/srv/fakeobs/webconf/
-cp -f fakeobs-repos.lighttpdconf %{buildroot}/srv/fakeobs/webconf/
-cp -f fakeobs.png %{buildroot}/srv/fakeobs/webconf/
 cp -f README %{buildroot}%{_docdir}%{name}
 
 ln -sf /srv/fakeobs/tools/fakeobs.py %{buildroot}%{_sbindir}/fakeobs
@@ -81,6 +79,9 @@ ln -sf %{_sysconfdir}/init.d/fakeobs %{buildroot}%{_sbindir}/rcfakeobs
 %preun
 # >> preun
 %stop_on_removal fakeobs
+if [ $1 -eq 0 ] ; then
+  /sbin/chkconfig --del fakeobs
+fi
 # << preun
 
 %post
@@ -99,12 +100,13 @@ fi
 
 if [ -d %{_sysconfdir}/apache2/vhosts.d ]
 then
-ln -sf /srv/fakeobs/webconf/fakeobs-repos.apache2conf %{_sysconfdir}/apache2/vhosts.d/fakeobs-repos.conf
+ln -sf /srv/fakeobs/config/fakeobs-repos.apache2conf %{_sysconfdir}/apache2/vhosts.d/fakeobs-repos.conf
 fi
 if [ -d %{_sysconfdir}/lighttpd/vhosts.d ]
 then
-ln -sf /srv/fakeobs/webconf/fakeobs-repos.lighttpdconf %{_sysconfdir}/lighttpd/vhosts.d/fakeobs-repos.conf
+ln -sf /srv/fakeobs/config/fakeobs-repos.lighttpdconf %{_sysconfdir}/lighttpd/vhosts.d/fakeobs-repos.conf
 fi
+#/sbin/chkconfig --add fakeobs
 # << post
 
 %postun
@@ -123,9 +125,9 @@ fi
 %dir /srv/fakeobs/packages-git
 %dir /srv/fakeobs/releases
 %dir /srv/fakeobs/tools
-%dir /srv/fakeobs/webconf
+%dir /srv/fakeobs/config
 /srv/fakeobs/tools/*
-/srv/fakeobs/webconf/*
+/srv/fakeobs/config/*
 %config %{_sysconfdir}/init.d/fakeobs
 %{_sbindir}/fakeobs
 %{_sbindir}/rcfakeobs

@@ -1,0 +1,13 @@
+[general]
+# URL to access API server, e.g. https://build.api.meego.com
+# you also need a section [https://build.api.meego.com] with the credentials
+apiurl = __PROTOCOL__://__HOST__:__PORT__
+verbose = 0
+# use KDE/Gnome/MacOS/Windows keyring for credentials if available
+use_keyring=0
+su-wrapper=sudo
+
+[__PROTOCOL__://__HOST__:__PORT__]
+user=Admin
+pass=opensuse
+

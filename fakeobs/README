@@ -1,4 +1,13 @@
-Mer Delivery System tools
+obslight-fakeobs
+--------------------
+Python script that partially implements an OBS API.
+It does not build anything, but can be used as an OBS remote link.
+
+You can use it for example to build your own project against a fixed
+release of a public project (Tizen, MeeGo...), without the drawbacks
+of a slow/unreliable internet connection.
+
+It is based on Mer Delivery System tools
 http://wiki.merproject.org/index.php?title=Mer_Delivery_System
 
 modified for the needs of OBS Light project
@@ -13,6 +22,36 @@ All commands should be run as root.
 Where are fakeobs data stored ?
 -------------------------------
 fakeobs data are stored in /srv/fakeobs and its subdirectories.
+
+
+On which port does fakeobs API listen ?
+---------------------------------------
+fakeobs API listens on port 8001.
+You can test if it is running by calling
+  http://<your_host>:8001/public/source/
+in your web browser. You should see a 404 error, which
+proves the daemon is listening.
+If you see "Unable to connect", the daemon is probably stopped.
+Try "rcfakeobs start".
+
+
+On which port are published the package repositories ?
+------------------------------------------------------
+The package repositories are published on port 8002.
+
+
+How to create a link to the fake OBS on the real OBS ?
+------------------------------------------------------
+- If they run on the same host (we hope so), you can run
+  "obslight-fakeobs createlink", optionally with the path to your
+  ".oscrc" file (without it, the script will try the default port, user
+  and password of an OBS appliance http://susestudio.com/a/e0uuBG/meego-obs).
+- If they don't, we suggest you to follow this guide
+http://en.opensuse.org/openSUSE:Build_Service_private_instance_boot_strapping#Use_OBS_Remote_Link
+  and replace
+     "https://api.meego.com/public"
+  by
+     "http://<your_host>:8001/public"
 
 
 How to import a fakeobs project from an archive ?
@@ -32,4 +71,15 @@ Run "obslight-fakeobs remove" with the project name as parameter.
 
 Example:
 $ obslight-fakeobs remove "Tizen:1.0:Base"
+
+
+Where can I find fakeobs projects archives ?
+--------------------------------------------
+Some archives for Tizen are available at http://tizen.fridu.net/.
+
+
+Can I create fakeobs project archive myself ?
+---------------------------------------------
+Yes you can, but it's not documented at the moment.
+You can take a look at "/srv/fakeobs/tools/grab_fakeobs_project.sh".
 
