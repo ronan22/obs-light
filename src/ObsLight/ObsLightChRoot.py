@@ -338,8 +338,8 @@ class ObsLightChRoot(object):
             return 0
 
         command = []
-        command.append("zypper --no-gpg-checks --gpg-auto-import-keys ref")
-        cmd = "zypper --non-interactive in --force-resolution "
+        command.append("rpm --quiet -q zypper && zypper --no-gpg-checks --gpg-auto-import-keys ref")
+        cmd = "rpm --quiet -q zypper && zypper --non-interactive in --force-resolution "
         for pk in listPackageBuildRequires:
             if pk.count("-") >= 2:
                 lastMinus = pk.rfind("-")
@@ -725,9 +725,6 @@ class ObsLightChRoot(object):
         command.append("ln -s %s %s" % (buildDirTmp, buildLink))
         command.append("chown -R root:users %s" % (buildLink + "/SOURCES/"))
         command.append("chown -R root:users %s" % (buildLink + "/SPECS/"))
-        command.append("cat /root/.bashrc")
-        command.append("echo TZ $TZ")
-        command.append("date")
         command.append(rpmbuilCmd)
         command.append("RPMBUILD_RETURN_CODE=$?")
         command.append("cp -fpr  %s/BUILD/* %s/BUILD/" % (buildDirTmpPath, buildDir))
@@ -761,7 +758,7 @@ class ObsLightChRoot(object):
         f.write("#!/bin/sh -x\n")
         f.write("# Created by obslight\n\n")
         #Warning
-        f.write(". /root/.bashrc\n")
+        f.write("if [ -e /root/.bashrc ];then . /root/.bashrc;fi\n")
 #        f.write("set -x\n")
         for c in command:
             f.write(c + "\n")
@@ -839,8 +836,8 @@ class ObsLightChRoot(object):
         for c in self.__getProxyconfig():
             command.append(c)
 
-        command.append("zypper ar " + repos + " '" + alias + "'")
-        command.append("zypper --no-gpg-checks --gpg-auto-import-keys ref")
+        command.append("rpm --quiet -q zypper && zypper ar " + repos + " '" + alias + "'")
+        command.append("rpm --quiet -q zypper && zypper --no-gpg-checks --gpg-auto-import-keys ref")
         return self.execCommand(command=command)
 
     def goToChRoot(self, path=None, detach=False, project=None):
@@ -1003,8 +1000,8 @@ class ObsLightChRoot(object):
             command = []
             for c in self.__getProxyconfig():
                 command.append(c)
-            command.append("zypper rr " + repoAlias)
-            command.append("zypper --no-gpg-checks --gpg-auto-import-keys ref")
+            command.append("rpm --quiet -q zypper && zypper rr " + repoAlias)
+            command.append("rpm --quiet -q zypper && zypper --no-gpg-checks --gpg-auto-import-keys ref")
             self.execCommand(command=command)
             del self.__dicoRepos[repoAlias]
             return 0
