@@ -14,10 +14,10 @@ python setup.py sdist
 cp -vf dist/obslight*.tar.gz $INITIALDIR/src/dist/
 cd ..
 
-MDSVERSION=`sed -rn s,"Version:\s*(.*)$","\1",p mds-tools/mds-tools.spec`
-mv mds-tools mds-tools-$MDSVERSION
-tar -czf mds-tools-$MDSVERSION.tar.gz mds-tools-$MDSVERSION
-cp -vf mds-tools-$MDSVERSION.tar.gz $INITIALDIR/src/dist/mds-tools-$MDSVERSION.tar.gz
+FAKEOBSVERSION=`sed -rn s,"Version:\s*(.*)$","\1",p fakeobs/obslight-fakeobs.spec`
+mv fakeobs obslight-fakeobs-$FAKEOBSVERSION
+tar -czf obslight-fakeobs-$FAKEOBSVERSION.tar.gz obslight-fakeobs-$FAKEOBSVERSION
+cp -vf obslight-fakeobs-$FAKEOBSVERSION.tar.gz $INITIALDIR/src/dist/obslight-fakeobs-$FAKEOBSVERSION.tar.gz
 
 cd $INITIALDIR
 echo "Compressed tar in src/dist/"

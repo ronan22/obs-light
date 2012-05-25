@@ -1,0 +1,75 @@
+#!/bin/sh
+
+function usage()
+{
+	echo "Usage: $0 <command> [parameters]"
+	echo ""
+	echo "Commands:"
+	echo "	import <archive.tar.gz> [project_name]"
+	echo "		import a project from an archive"
+	echo ""
+	echo "	remove <project_name>"
+	echo "		remove a project from fakeobs"
+}
+
+function get_abs_path()
+{
+	BASENAME="`basename $1`"
+	DIRPATH="`dirname $1`"
+	ABSPATH="`cd $DIRPATH; pwd`/$BASENAME"
+	echo $ABSPATH
+}
+
+function import_project()
+{
+	if [ "$#" -lt 1 ]
+	then
+		echo "Too few arguments for 'import'!"
+		usage
+		exit 1
+	fi
+	ARCHIVE="`get_abs_path $1`"
+	cd /srv/fakeobs
+#	echo "tools/import_fakeobs_project.sh $ARCHIVE $2"
+	tools/import_fakeobs_project.sh "$ARCHIVE" $2
+}
+
+function remove_project()
+{
+	if [ "$#" -lt 1 ]
+	then
+		echo "Too few arguments for 'remove'!"
+                usage
+                exit 1
+	fi
+	cd /srv/fakeobs
+#	echo tools/remove_fakeobs_project.sh $1
+	tools/remove_fakeobs_project.sh $1
+}
+
+if [ "$#" -lt 1 ]
+then
+	usage
+	exit 1
+fi
+
+if [ "`whoami`" != "root" ]
+then
+	echo "Please run this program as root"
+	exit 1
+fi
+
+case $1 in
+	import)
+		import_project $2 $3
+		;;
+	remove)
+		remove_project $2
+		;;
+	*)
+		echo "Unknown command: $1"
+		usage
+		exit 1
+		;;
+esac
+
