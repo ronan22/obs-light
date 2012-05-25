@@ -1,6 +1,13 @@
 obslight-fakeobs
 --------------------
-Mer Delivery System tools
+Python script that partially implements an OBS API.
+It does not build anything, but can be used as an OBS remote link.
+
+You can use it for example to build your own project against a fixed
+release of a public project (Tizen, MeeGo...), without the drawbacks
+of a slow/unreliable internet connection.
+
+It is based on Mer Delivery System tools
 http://wiki.merproject.org/index.php?title=Mer_Delivery_System
 
 modified for the needs of OBS Light project
@@ -15,6 +22,22 @@ All commands should be run as root.
 Where are fakeobs data stored ?
 -------------------------------
 fakeobs data are stored in /srv/fakeobs and its subdirectories.
+
+
+On which port does fakeobs API listen ?
+---------------------------------------
+fakeobs API listens on port 8001.
+You can test if it is running by calling
+  http://<your_host>:8001/public/source/
+in your web browser. You should see a 404 error, which
+proves the daemon is listening.
+If you see "Unable to connect", the daemon is probably stopped.
+Try "rcfakeobs start".
+
+
+On which port are published the package repositories ?
+------------------------------------------------------
+The package repositories are published on port 8002.
 
 
 How to create a link to the fake OBS on the real OBS ?

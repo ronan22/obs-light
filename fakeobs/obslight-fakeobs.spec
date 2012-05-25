@@ -89,7 +89,6 @@ if [ ! -f lastevents ]
 then
 touch lastevents
 sh tools/addevent initial na na
-/sbin/chkconfig --add fakeobs
 fi
 
 if [ ! -f mappings.xml ]
@@ -105,6 +104,7 @@ if [ -d %{_sysconfdir}/lighttpd/vhosts.d ]
 then
 ln -sf /srv/fakeobs/config/fakeobs-repos.lighttpdconf %{_sysconfdir}/lighttpd/vhosts.d/fakeobs-repos.conf
 fi
+/sbin/chkconfig --add fakeobs
 # << post
 
 %postun

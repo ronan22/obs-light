@@ -12,27 +12,30 @@ else
   TMPOSCRC=`mktemp /tmp/localhost.oscrc-XXXX`
   sed -e s,"__PROTOCOL__","$PROTOCOL", \
 	  -e s,"__PORT__","$PORT", \
-	  -e s,"__HOST__","$HOST" \
+	  -e s,"__HOST__","$HOST", \
 	  config/localhost.oscrc > $TMPOSCRC
   OSCCONFIG=$TMPOSCRC
 fi
 
-osc -c $OSCCONFIG ls > /dev/null
+echo "Listing OBS projects to see if we can connect to..."
+osc -c $OSCCONFIG ls
 if [ "$?" -ne "0" ]
 then
   echo "Cannot contact OBS API running on localhost"
   exit 1
 fi
 
+echo "Checking if 'fakeobs' project exists"
 osc -c $OSCCONFIG meta prj fakeobs > /dev/null
 if [ "$?" -eq "0" ]
 then
-  echo "fakeobs remote link already exists"
+  echo "fakeobs remote link already exists!"
 else
+  echo "Creating remote link project 'fakeobs'..."
   osc -c $OSCCONFIG meta  prj -F config/fakeobs_meta "fakeobs"
   if [ "$?" -ne "0" ]
   then
-    echo "Creation of the link failed"
+    echo "Creation of the link failed!"
     exit 1
   else
     echo "Link created"
