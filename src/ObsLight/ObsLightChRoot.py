@@ -338,8 +338,17 @@ class ObsLightChRoot(object):
             return 0
 
         command = []
-        command.append("rpm --quiet -q zypper && zypper --no-gpg-checks --gpg-auto-import-keys ref")
-        cmd = "rpm --quiet -q zypper && zypper --non-interactive in --force-resolution "
+        command.append("rpm --quiet -q zypper")
+        res = self.execCommand(command=command)
+
+        if res != 0:
+            msg = "No Zypper into the chroot jail can't install dependencies of '%s' failed\n" % package.getName()
+            raise ObsLightErr.ObsLightChRootError(msg)
+
+        command = []
+        command.append("zypper --no-gpg-checks --gpg-auto-import-keys ref")
+        cmd = "zypper --non-interactive in --force-resolution "
+
         for pk in listPackageBuildRequires:
             if pk.count("-") >= 2:
                 lastMinus = pk.rfind("-")
@@ -470,6 +479,7 @@ class ObsLightChRoot(object):
         command.append("HOME=/root/" + package.getName())
         command.append("rm  " + buildLink)
         command.append("ln -s %s %s" % (buildDir, buildLink))
+        command.append("chown -R root:users %s" % buildDir)
         command.append(rpmbuilCmd)
         command.append("RPMBUILD_RETURN_CODE=$?")
         #command.append("find %s -type f -name .gitignore -exec rm -v {} \; -print" % os.path.join(buildDir, "BUILD"))
@@ -835,6 +845,14 @@ class ObsLightChRoot(object):
         command = []
         for c in self.__getProxyconfig():
             command.append(c)
+
+        command = []
+        command.append("rpm --quiet -q zypper")
+        res = self.execCommand(command=command)
+
+        if res != 0:
+            msg = "No Zypper into the chroot jail can't install dependencies of '%s' failed\n" % package.getName()
+
 
         command.append("rpm --quiet -q zypper && zypper ar " + repos + " '" + alias + "'")
         command.append("rpm --quiet -q zypper && zypper --no-gpg-checks --gpg-auto-import-keys ref")
