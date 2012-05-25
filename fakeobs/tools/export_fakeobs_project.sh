@@ -1,5 +1,10 @@
 #!/bin/sh
 
+# Example:
+#   tools/export_fakeobs_project.sh "Tizen:1.0:Base" "1.0"
+# will generate an archive "Tizen_1.0_Base-1.0.tar.gz"
+# which can be imported by tools/import_fakeobs_project.sh
+
 PROJECT=$1
 RELEASE=$2
 
