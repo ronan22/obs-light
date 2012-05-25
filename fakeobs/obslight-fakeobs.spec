@@ -79,7 +79,9 @@ ln -sf %{_sysconfdir}/init.d/fakeobs %{buildroot}%{_sbindir}/rcfakeobs
 %preun
 # >> preun
 %stop_on_removal fakeobs
-/sbin/chkconfig --del fakeobs
+if [ $1 -eq 0 ] ; then
+  /sbin/chkconfig --del fakeobs
+fi
 # << preun
 
 %post
@@ -104,7 +106,7 @@ if [ -d %{_sysconfdir}/lighttpd/vhosts.d ]
 then
 ln -sf /srv/fakeobs/config/fakeobs-repos.lighttpdconf %{_sysconfdir}/lighttpd/vhosts.d/fakeobs-repos.conf
 fi
-/sbin/chkconfig --add fakeobs
+#/sbin/chkconfig --add fakeobs
 # << post
 
 %postun
