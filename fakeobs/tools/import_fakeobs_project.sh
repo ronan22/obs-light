@@ -52,15 +52,16 @@ fi
 tools/updatemappings.sh $PROJECT > mappings_new.xml
 mv mappings_new.xml mappings.xml
 
-DISTRUBUTIONS_PATH="/srv/www/obs/api/files/distributions.xml"
+DISTRUBUTIONSPATH="/srv/www/obs/api/files/distributions.xml"
 echo "Updating OBS' 'distributions.xml' file..."
-if [ -f "$DISTRUBUTIONS_PATH" ]
+if [ -f "$DISTRUBUTIONSPATH" ]
 then
+	cp -f webconf/fakeobs.png /srv/www/obs/webui/public/images/distributions/
 	# here we assume there is only one target
 	TARGET=`/bin/ls obs-repos/$PROJECT:latest/`
-	tools/addfakeobsdistrib.py "$DISTRUBUTIONS_PATH" "$PROJECT" "$TARGET"
+	tools/addfakeobsdistrib.py "$DISTRUBUTIONSPATH" "$PROJECT" "$TARGET"
 else
-	echo "$DISTRUBUTIONS_PATH not found. You will have to manually update"
-	echo "this file on your OBS server."
+	echo "$DISTRUBUTIONSPATH not found."
+	echo "You will have to manually update this file on your OBS server."
 	echo "See http://en.opensuse.org/openSUSE:Build_Service_private_installation#Add_Repositories_targets"
 fi
