@@ -35,7 +35,7 @@ def get_mappingscache():
      if get_mappingscache.mcachetime != stat.st_mtime:
          print "mappings cache was updated, reloading.."
          get_mappingscache.mcache = xml.dom.minidom.parse("packages-git/mappingscache.xml")
-         get_mappingscache.mcachetime = os.stat("packages-git/mappingscache.xml").st_mtime   
+         get_mappingscache.mcachetime = os.stat("packages-git/mappingscache.xml").st_mtime
      return get_mappingscache.mcache
 
 #def get_mappingscache(filename):
@@ -58,7 +58,7 @@ def build_project_index(projectpath):
         impl = getDOMImplementation()
         indexdoc = impl.createDocument(None, "directory", None)
 
-        packagesdoc = xml.dom.minidom.parse(projectpath + "/packages.xml")            
+        packagesdoc = xml.dom.minidom.parse(projectpath + "/packages.xml")
         for x in packagesdoc.getElementsByTagName("package"):
             entryelm = indexdoc.createElement("entry")
             entryelm.setAttribute("name", x.attributes["name"].value)
@@ -74,7 +74,7 @@ def build_project_index(projectpath):
 
 # Returns commit, rev, md5sum, tree
 def get_package_tree_from_commit_or_rev(projectpath, packagename, commit):
-        packagesdoc = xml.dom.minidom.parse(projectpath + "/packages.xml")       
+        packagesdoc = xml.dom.minidom.parse(projectpath + "/packages.xml")
         for x in packagesdoc.getElementsByTagName("package"):
             if x.attributes["name"].value == packagename:
                 followbranch = x.attributes["followbranch"].value
@@ -89,11 +89,11 @@ def get_package_tree_from_commit_or_rev(projectpath, packagename, commit):
         for x in packagesdoc.getElementsByTagName("link"):
             if x.attributes["to"].value == packagename:
                 return get_package_tree_from_commit_or_rev(projectpath, x.attributes["from"].value, commit)
-        
-        return None                    
+
+        return None
 
 def get_package_tree_and_commit(projectpath, packagename):
-        packagesdoc = xml.dom.minidom.parse(projectpath + "/packages.xml")            
+        packagesdoc = xml.dom.minidom.parse(projectpath + "/packages.xml")
         for x in packagesdoc.getElementsByTagName("package"):
             if x.attributes["name"].value == packagename:
                 repo = git.Repo(x.attributes["git"].value, odbt=git.GitDB)
@@ -104,7 +104,7 @@ def get_package_tree_and_commit(projectpath, packagename):
         return None
 
 def get_package_tree_for_commit_or_rev(projectpath, packagename, revorcommit):
-        packagesdoc = xml.dom.minidom.parse(projectpath + "/packages.xml")            
+        packagesdoc = xml.dom.minidom.parse(projectpath + "/packages.xml")
         for x in packagesdoc.getElementsByTagName("package"):
             if x.attributes["name"].value == packagename:
                 repo = git.Repo(x.attributes["git"].value, odbt=git.GitDB)
@@ -113,10 +113,10 @@ def get_package_tree_for_commit_or_rev(projectpath, packagename, revorcommit):
             if x.attributes["to"].value == packagename:
                 return get_package_tree_for_commit_or_rev(projectpath, x.attributes["from"].value, revorcommit)
         return None
-        
+
 
 def get_package_commit_mtime_vrev(projectpath, packagename):
-        packagesdoc = xml.dom.minidom.parse(projectpath + "/packages.xml")            
+        packagesdoc = xml.dom.minidom.parse(projectpath + "/packages.xml")
         for x in packagesdoc.getElementsByTagName("package"):
             if x.attributes["name"].value == packagename:
                 repo = git.Repo(x.attributes["git"].value, odbt=git.GitDB)
@@ -125,13 +125,13 @@ def get_package_commit_mtime_vrev(projectpath, packagename):
             if x.attributes["to"].value == packagename:
                 return get_package_commit_mtime_vrev(projectpath, x.attributes["from"].value)
         return None
-        
+
 
 def get_entries_from_commit(projectpath, packagename, commit):
-        packagesdoc = xml.dom.minidom.parse(projectpath + "/packages.xml")            
+        packagesdoc = xml.dom.minidom.parse(projectpath + "/packages.xml")
         for x in packagesdoc.getElementsByTagName("package"):
             if x.attributes["name"].value == packagename:
-                
+
                 for mappingsdoc in get_mappingscache().getElementsByTagName("repo"):
                  if mappingsdoc.attributes["path"].value == x.attributes["git"].value:
                   for y in mappingsdoc.getElementsByTagName("map"):
@@ -143,27 +143,27 @@ def get_entries_from_commit(projectpath, packagename, commit):
         for x in packagesdoc.getElementsByTagName("link"):
             if x.attributes["to"].value == packagename:
                 return get_entries_from_commit(projectpath, x.attributes["from"].value, commit)
-        return None       
+        return None
 
 def get_latest_commit(projectpath, packagename):
-        packagesdoc = xml.dom.minidom.parse(projectpath + "/packages.xml")            
+        packagesdoc = xml.dom.minidom.parse(projectpath + "/packages.xml")
         for x in packagesdoc.getElementsByTagName("package"):
             if x.attributes["name"].value == packagename:
                         return x.attributes["commit"].value
         for x in packagesdoc.getElementsByTagName("link"):
             if x.attributes["to"].value == packagename:
                 return get_latest_commit(projectpath, x.attributes["from"].value)
-        return None       
+        return None
 
 def get_package_link(projectpath, packagename):
-        packagesdoc = xml.dom.minidom.parse(projectpath + "/packages.xml")            
+        packagesdoc = xml.dom.minidom.parse(projectpath + "/packages.xml")
         for x in packagesdoc.getElementsByTagName("link"):
             if x.attributes["to"].value == packagename:
                 return x.attributes["to"].value
         return None
 
 def get_package_index_supportlink(projectpath, packagename, getrev, expand):
-        return get_package_index(projectpath, packagename, getrev=getrev)    
+        return get_package_index(projectpath, packagename, getrev=getrev)
 
 def get_package_index(projectpath, packagename, getrev=None):
         if getrev is None:
@@ -174,17 +174,17 @@ def get_package_index(projectpath, packagename, getrev=None):
             getrev = "latest"
         if getrev == "latest":
             getrev = get_latest_commit(projectpath, packagename)
-        
+
         impl = getDOMImplementation()
         indexdoc = impl.createDocument(None, "directory", None)
         indexdoc.childNodes[0].setAttribute("name", packagename)
-          
+
         commit, rev, srcmd5, tree, git = get_package_tree_from_commit_or_rev(projectpath, packagename, getrev)
         indexdoc.childNodes[0].setAttribute("srcmd5", srcmd5)
 
         mtime, vrev = get_package_commit_mtime_vrev(projectpath, packagename)
         entrymd5s = get_entries_from_commit(projectpath, packagename, commit)
-                
+
 #        if projectpath == "obs-projects/Core-armv7l":
 #          indexdoc.childNodes[0].setAttribute("rev", str(int(rev) + 1))
 #        else:
@@ -198,17 +198,17 @@ def get_package_index(projectpath, packagename, getrev=None):
             entryelm.setAttribute("size", str(entry.size))
             entryelm.setAttribute("mtime", str(mtime))
             entryelm.setAttribute("md5", entrymd5s[entry.name])
-                        
+
             indexdoc.childNodes[0].appendChild(entryelm)
-        return indexdoc.childNodes[0].toprettyxml(encoding="us-ascii")        
+        return indexdoc.childNodes[0].toprettyxml(encoding="us-ascii")
 
 
 def get_package_file_supportlink(projectpath, packagename, filename, getrev, expand):
-        return get_package_file(projectpath, packagename, filename, getrev=getrev)    
+        return get_package_file(projectpath, packagename, filename, getrev=getrev)
 
 
 def update_package_xml(packagesfile, package=None):
-        packagesdoc = xml.dom.minidom.parse(packagesfile)            
+        packagesdoc = xml.dom.minidom.parse(packagesfile)
         for x in packagesdoc.getElementsByTagName("package"):
            if not package is None:
             if x.attributes["name"].value != package:
@@ -227,8 +227,8 @@ def update_package_xml(packagesfile, package=None):
         newxml = packagesdoc.toxml(encoding="us-ascii")
         f = open(packagesfile, "wb")
         f.write(newxml)
-        f.close()                        
-        
+        f.close()
+
 def get_next_event():
         f = open("lastevents", 'rb')
         csvReader = csv.reader(f, delimiter='|', quotechar='"')
@@ -236,16 +236,16 @@ def get_next_event():
         for row in csvReader:
             last = int(row[0])
         f.close()
-        return last 
-           
+        return last
+
 
 def get_events_filtered(start, filters):
         f = open("lastevents", 'rb')
-        
+
         impl = getDOMImplementation()
         indexdoc = impl.createDocument(None, "events", None)
-        indexdoc.childNodes[0].setAttribute("next", str(get_next_event()))        
-        
+        indexdoc.childNodes[0].setAttribute("next", str(get_next_event()))
+
         csvReader = csv.reader(f, delimiter='|', quotechar='"')
         for row in csvReader:
             num = int(row[0])
@@ -264,35 +264,35 @@ def get_events_filtered(start, filters):
                 if row[2] == "package":
                     prjelm = indexdoc.createElement("project")
                     prjtext = indexdoc.createTextNode(row[3])
-                    prjelm.appendChild(prjtext)            
+                    prjelm.appendChild(prjtext)
                     eventelm.appendChild(prjelm)
                     packageelm = indexdoc.createElement("package")
                     packagetext = indexdoc.createTextNode(row[4])
                     packageelm.appendChild(packagetext)
-                    eventelm.appendChild(packageelm)  
+                    eventelm.appendChild(packageelm)
                 if row[2] == "repository":
                     prjelm = indexdoc.createElement("project")
                     prjtext = indexdoc.createTextNode(row[3])
-                    prjelm.appendChild(prjtext)            
+                    prjelm.appendChild(prjtext)
                     eventelm.appendChild(prjelm)
                     repelm = indexdoc.createElement("repository")
                     reptext = indexdoc.createTextNode(row[4])
                     repelm.appendChild(reptext)
-                    eventelm.appendChild(repelm)  
+                    eventelm.appendChild(repelm)
                     archelm = indexdoc.createElement("arch")
                     archtext = indexdoc.createTextNode(row[5])
                     archelm.appendChild(archtext)
-                    eventelm.appendChild(archelm)  
+                    eventelm.appendChild(archelm)
                 if row[2] == "project":
                     prjelm = indexdoc.createElement("project")
                     prjtext = indexdoc.createTextNode(row[3])
                     prjelm.appendChild(prjtext)
                     eventelm.appendChild(prjelm)
-                indexdoc.childNodes[0].appendChild(eventelm)                
+                indexdoc.childNodes[0].appendChild(eventelm)
         f.close()
 #  XXX add support for project events and repository events
 #        print indexdoc.childNodes[0].toxml(encoding="us-ascii")
-        
+
         return indexdoc.childNodes[0].toxml(encoding="us-ascii")
 
 def file_fix_meta(realproject, packagename, metastr, ifdisable):
@@ -309,19 +309,19 @@ def file_fix_meta(realproject, packagename, metastr, ifdisable):
           meta.childNodes[0].appendChild(buildelm)
         disableelm = meta.createElement("disable")
         disableelm.setAttribute("arch", "i586")
-        buildelm.appendChild(disableelm)             
-            
+        buildelm.appendChild(disableelm)
+
     out = meta.childNodes[0].toxml(encoding="utf-8")
     return len(out), out
 
 def get_if_disable(projectpath, packagename):
-    packagesdoc = xml.dom.minidom.parse(projectpath + "/packages.xml")            
+    packagesdoc = xml.dom.minidom.parse(projectpath + "/packages.xml")
     if packagesdoc.childNodes[0].attributes.has_key("disablei586"):
       for x in packagesdoc.getElementsByTagName("package"):
          if x.attributes["name"].value != packagename:
            continue
          if x.attributes.has_key("enablei586"):
-           return False 
+           return False
       for x in packagesdoc.getElementsByTagName("link"):
          if x.attributes["to"].value != packagename:
           continue
@@ -336,7 +336,7 @@ def get_package_file(realproject, projectpath, packagename, filename, getrev):
         if getrev == "upload":
             getrev = "latest"
         if getrev == "build":
-            getrev = "latest"        
+            getrev = "latest"
         if getrev == "latest":
             getrev = get_latest_commit(projectpath, packagename)
         impl = getDOMImplementation()
@@ -364,14 +364,21 @@ def get_package_file(realproject, projectpath, packagename, filename, getrev):
 def git_cat(gitpath, object):
     return Popen(["git", "--git-dir=" + gitpath, "cat-file", "blob", object], stdout=PIPE).communicate()[0]
 
+def git_compute_md5(gitpath, object):
+    # TODO: check that this method is really better than loading the
+    # file into Python and then computing the checksum.
+    p1 = Popen(["git", "--git-dir=" + gitpath, "cat-file", "blob", object], stdout=PIPE)
+    p2 = Popen(["md5sum", "-"], stdin=p1.stdout, stdout=PIPE)
+    return p2.communicate()[0][:32]
+
 def generate_mappings(repos):
         impl = getDOMImplementation()
         indexdoc = impl.createDocument(None, "maps", None)
-        
+
         for x in repos:
                 pkgelement = indexdoc.createElement("repo")
                 pkgelement.setAttribute("path", x)
-                
+
                 repo = git.Repo(x, odbt=git.GitDB)
                 for branch in repo.heads:
                     toprev = 0
@@ -384,10 +391,16 @@ def generate_mappings(repos):
                       for entry in cm.tree:
                          if entry.name == "_meta" or entry.name == "_attribute":
                               continue
-                         st = git_cat(x, entry.hexsha)
-                         assert len(st) == entry.size
-                         m = hashlib.md5(st)
-                         entries[entry.name] = m.hexdigest()
+                         # If file is bigger than 20MB, do not load it
+                         # to compute the checksum
+                         if entry.size > (20 * 2 ** 20):
+                             checksum = git_compute_md5(x, entry.hexsha)
+                             entries[entry.name] = checksum
+                         else:
+                             st = git_cat(x, entry.hexsha)
+                             assert len(st) == entry.size
+                             m = hashlib.md5(st)
+                             entries[entry.name] = m.hexdigest()
                       sortedkeys = sorted(entries.keys())
                       meta = ""
                       for y in sortedkeys:
@@ -395,33 +408,33 @@ def generate_mappings(repos):
                          meta += "  "
                          meta += y
                          meta += "\n"
-    
+
                       m = hashlib.md5(meta)
                       mapelm = indexdoc.createElement("map")
                       mapelm.setAttribute("branch", branch.name)
                       mapelm.setAttribute("commit", cm.hexsha)
                       mapelm.setAttribute("srcmd5", m.hexdigest())
-                      mapelm.setAttribute("rev", str(toprev-rev))
+                      mapelm.setAttribute("rev", str(toprev - rev))
                       for y in sortedkeys:
                           entryelm = indexdoc.createElement("entry")
                           entryelm.setAttribute("name", y)
                           entryelm.setAttribute("md5", entries[y])
                           mapelm.appendChild(entryelm)
-                      pkgelement.appendChild(mapelm)   
-                      rev = rev + 1     
+                      pkgelement.appendChild(mapelm)
+                      rev = rev + 1
                 indexdoc.childNodes[0].appendChild(pkgelement)
-                rev = rev + 1     
+                rev = rev + 1
         return indexdoc.childNodes[0].toprettyxml()
 
 #generate_mappings("Base")        
-        
+
 # Normal package
 #for entry in get_package_tree_and_commit("Base", "acl")[1]:
 #    print entry.name
-        
+
 # Linked package
 #for entry in get_package_tree_and_commit("Base", "rpm-python")[1]:
 #    print entry.name
- 
+
 # Get package index
 #print get_package_index("Base", "acl")

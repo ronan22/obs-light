@@ -24,6 +24,7 @@ All commands should be run as root.
 Where are fakeobs data stored ?
 -------------------------------
 fakeobs data are stored in /srv/fakeobs and its subdirectories.
+The daemon log file is /var/log/fakeobs.log
 
 
 On which port does fakeobs API listen ?
