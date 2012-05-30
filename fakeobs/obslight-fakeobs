@@ -2,17 +2,21 @@
 
 function usage()
 {
-	echo "Usage: $0 <command> [parameters]"
-	echo ""
-	echo "Commands:"
-	echo "	import <archive.tar.gz> [project_name]"
-	echo "		import a project from an archive"
-	echo ""
-	echo "	remove <project_name>"
-	echo "		remove a project from fakeobs"
-	echo ""
-	echo "	createlink [osc_config_file]"
-	echo "		create the link to the fakeobs API on the OBS running on localhost"
+	cat <<EOF
+Usage: $0 <command> [parameters]
+
+Commands:
+	import <archive.tar.gz> [project_name]
+		import a project from an archive
+
+	remove <project_name>
+		remove a project from fakeobs
+
+	createlink [osc_config_file]
+		create the link to the fakeobs API on the OBS running on localhost.
+		osc_config_file, if provided, should be the osc configuration file
+		of an administrator of the OBS server allowed to create links.
+EOF
 }
 
 function get_abs_path()

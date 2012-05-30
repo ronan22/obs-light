@@ -56,6 +56,9 @@ http://en.opensuse.org/openSUSE:Build_Service_private_instance_boot_strapping#Us
   by
      "http://<your_host>:8001/public"
 
+Note: you have to do this only once. All fakeobs projects will be used
+      through the same link.
+
 
 How to import a fakeobs project from an archive ?
 -------------------------------------------------

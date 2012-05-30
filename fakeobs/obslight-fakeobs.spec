@@ -107,6 +107,7 @@ then
 ln -sf /srv/fakeobs/config/fakeobs-repos.lighttpdconf %{_sysconfdir}/lighttpd/vhosts.d/fakeobs-repos.conf
 fi
 #/sbin/chkconfig --add fakeobs
+%{fillup_and_insserv -f fakeobs}
 # << post
 
 %postun

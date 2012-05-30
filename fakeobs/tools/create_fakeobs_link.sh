@@ -1,5 +1,7 @@
 #!/bin/sh
 
+FAKEOBSLINKNAME="fakeobs"
+
 if [ "$#" -gt "0" ]
 then
   OSCCONFIG=$1
@@ -25,20 +27,20 @@ then
   exit 1
 fi
 
-echo "Checking if 'fakeobs' project exists"
-osc -c $OSCCONFIG meta prj fakeobs > /dev/null
+echo "Checking if '$FAKEOBSLINKNAME' project exists"
+osc -c $OSCCONFIG meta prj $FAKEOBSLINKNAME > /dev/null
 if [ "$?" -eq "0" ]
 then
-  echo "fakeobs remote link already exists!"
+  echo "'$FAKEOBSLINKNAME' remote link already exists!"
 else
-  echo "Creating remote link project 'fakeobs'..."
-  osc -c $OSCCONFIG meta  prj -F config/fakeobs_meta "fakeobs"
+  echo "Creating remote link project '$FAKEOBSLINKNAME'..."
+  osc -c $OSCCONFIG meta  prj -F config/fakeobs_meta "$FAKEOBSLINKNAME"
   if [ "$?" -ne "0" ]
   then
     echo "Creation of the link failed!"
     exit 1
   else
-    echo "Link created"
+    echo "Link '$FAKEOBSLINKNAME' created"
   fi
 fi
 
