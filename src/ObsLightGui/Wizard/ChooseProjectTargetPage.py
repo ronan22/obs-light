@@ -21,7 +21,7 @@ Created on 21 déc. 2011
 @author: Florent Vennetier
 '''
 
-from ObsLightGui.Utils import uiFriendly
+from ObsLightGui.Utils import ProgressRunnable2
 
 from WizardPageWrapper import ObsLightWizardPage
 
@@ -36,16 +36,25 @@ class ChooseProjectTargetPage(ObsLightWizardPage):
         chooseProjectPageIndex = self.wizard().pageIndex(u'ChooseProject')
         chooseProjectPage = self.wizard().page(chooseProjectPageIndex)
         project = chooseProjectPage.getSelectedProject()
-        self.setBusyCursor(self._fillTargetCBox, server, project)
+        self._asyncGetTargetList(server, project)
 
-    def _fillTargetCBox(self, server, project):
+    def _fillTargetCBox(self, targetList):
         self.ui_WizardPage.targetComboBox.clear()
-        targetList = self._getTargetList(server, project)
-        self.ui_WizardPage.targetComboBox.addItems(targetList)
+        if targetList is not None:
+            self.ui_WizardPage.targetComboBox.addItems(targetList)
 
-    @uiFriendly()
     def _getTargetList(self, server, project):
         return self.manager.getTargetList(server, project)
+
+    def _asyncGetTargetList(self, server, project):
+        progress = self.gui.getInfiniteProgressDialog()
+        runnable = ProgressRunnable2(progress)
+        runnable.setDialogMessage(u"Loading target list (may be long)")
+        runnable.setRunMethod(self._getTargetList, server, project)
+        runnable.caughtException.connect(self.gui.popupErrorCallback)
+        runnable.finished[object].connect(self._fillTargetCBox)
+        progress.forceShow()
+        runnable.runOnGlobalInstance()
 
     def getSelectedTarget(self):
         return self.ui_WizardPage.targetComboBox.currentText()

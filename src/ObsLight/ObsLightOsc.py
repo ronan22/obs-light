@@ -755,8 +755,8 @@ class ObsLightOsc(object):
         '''
         url = str(obsServer + "/build/" + projectObsName)
         res = self.getHttp_request(url)
-        if res == None:
-            return None
+        if res is None:
+            return []
         aElement = ElementTree.fromstring(res)
         res = []
         for directory in aElement:
