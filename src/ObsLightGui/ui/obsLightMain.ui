@@ -25,8 +25,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>990</width>
-     <height>562</height>
+     <width>1065</width>
+     <height>797</height>
     </rect>
    </property>
    <property name="sizePolicy">
@@ -156,8 +156,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>239</width>
-                    <height>105</height>
+                    <width>240</width>
+                    <height>223</height>
                    </rect>
                   </property>
                   <layout class="QGridLayout" name="gridLayout_2" columnstretch="0,1">
@@ -526,8 +526,8 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>351</width>
-                    <height>97</height>
+                    <width>350</width>
+                    <height>214</height>
                    </rect>
                   </property>
                   <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -707,13 +707,6 @@ You can select several packages.</string>
              <width>200</width>
              <height>0</height>
             </size>
-           </property>
-           <property name="toolTip">
-            <string>The &quot;Patch Mode&quot; allows the user to automatically generate patches of their work on its local packages.
-It forces the user to Performing a &quot;% Prep&quot; and a first &quot;% build&quot; inside the chroot jail, the sections &quot;% build&quot;, &quot;% install&quot; and &quot;% file&quot; will be activated later.
-If the user disables &quot;Patch Mode&quot; It will be disabled deffinitivement.
-If the user activates modes &quot;short circuit&quot; mode &quot;Patch Mode&quot; He shook off deffinitivement.
-To reactivate the &quot;Patch Mode&quot;, the user will have reinstalled the package.</string>
            </property>
            <property name="currentIndex">
             <number>0</number>
@@ -1166,201 +1159,112 @@ It may open in background on some desktop environments.</string>
              </item>
             </layout>
            </widget>
-           <widget class="QWidget" name="tab">
+           <widget class="QWidget" name="specFileTab">
             <attribute name="title">
              <string>Spec File</string>
             </attribute>
-            <widget class="QTabWidget" name="Main">
-             <property name="geometry">
-              <rect>
-               <x>0</x>
-               <y>10</y>
-               <width>371</width>
-               <height>111</height>
-              </rect>
-             </property>
-             <property name="currentIndex">
-              <number>0</number>
-             </property>
-             <widget class="QWidget" name="tab_2">
-              <attribute name="title">
-               <string>Main</string>
-              </attribute>
-              <widget class="QTextEdit" name="textEdit_5">
-               <property name="geometry">
-                <rect>
-                 <x>0</x>
-                 <y>0</y>
-                 <width>361</width>
-                 <height>81</height>
-                </rect>
+            <layout class="QGridLayout" name="gridLayout_23">
+             <item row="0" column="0" colspan="4">
+              <widget class="QSplitter" name="splitter_6">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+               <widget class="QTabWidget" name="specPreambleTabWidget">
+                <property name="currentIndex">
+                 <number>0</number>
+                </property>
+                <widget class="QWidget" name="mainTab_2">
+                 <attribute name="title">
+                  <string>Preamble (Main)</string>
+                 </attribute>
+                 <layout class="QVBoxLayout" name="verticalLayout_5">
+                  <item>
+                   <widget class="QTextEdit" name="specPreambleTextEdit"/>
+                  </item>
+                 </layout>
+                </widget>
+               </widget>
+               <widget class="QTabWidget" name="specSectionsTabWidget">
+                <property name="currentIndex">
+                 <number>0</number>
+                </property>
+                <widget class="QWidget" name="prepTab">
+                 <attribute name="title">
+                  <string>%prep</string>
+                 </attribute>
+                 <layout class="QVBoxLayout" name="verticalLayout_6">
+                  <item>
+                   <widget class="QTextEdit" name="specSectionsPrepTextEdit"/>
+                  </item>
+                 </layout>
+                </widget>
+                <widget class="QWidget" name="buildTab">
+                 <attribute name="title">
+                  <string>%build</string>
+                 </attribute>
+                 <layout class="QVBoxLayout" name="verticalLayout_9">
+                  <item>
+                   <widget class="QTextEdit" name="specSectionsBuildTextEdit"/>
+                  </item>
+                 </layout>
+                </widget>
+                <widget class="QWidget" name="installTab">
+                 <attribute name="title">
+                  <string>%install</string>
+                 </attribute>
+                 <layout class="QVBoxLayout" name="verticalLayout_8">
+                  <item>
+                   <widget class="QTextEdit" name="specSectionsInstallTextEdit"/>
+                  </item>
+                 </layout>
+                </widget>
+               </widget>
+               <widget class="QTabWidget" name="specFileListTabWidget">
+                <property name="currentIndex">
+                 <number>0</number>
+                </property>
+                <widget class="QWidget" name="mainTab">
+                 <attribute name="title">
+                  <string>%files (Main)</string>
+                 </attribute>
+                 <layout class="QVBoxLayout" name="verticalLayout_7">
+                  <item>
+                   <widget class="QTextEdit" name="specFileListTextEdit"/>
+                  </item>
+                 </layout>
+                </widget>
+               </widget>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QPushButton" name="saveSpecFileButton">
+               <property name="text">
+                <string>Save</string>
                </property>
               </widget>
-             </widget>
-            </widget>
-            <widget class="QTabWidget" name="tabWidget">
-             <property name="geometry">
-              <rect>
-               <x>0</x>
-               <y>130</y>
-               <width>371</width>
-               <height>161</height>
-              </rect>
-             </property>
-             <property name="currentIndex">
-              <number>0</number>
-             </property>
-             <widget class="QWidget" name="tab_4">
-              <attribute name="title">
-               <string>%prep</string>
-              </attribute>
-              <widget class="QTextEdit" name="textEdit_4">
-               <property name="geometry">
-                <rect>
-                 <x>0</x>
-                 <y>0</y>
-                 <width>361</width>
-                 <height>131</height>
-                </rect>
+             </item>
+             <item row="1" column="2">
+              <widget class="QPushButton" name="selectSpecFileButton">
+               <property name="text">
+                <string>Select spec file</string>
                </property>
               </widget>
-             </widget>
-             <widget class="QWidget" name="tab_5">
-              <attribute name="title">
-               <string>%build</string>
-              </attribute>
-              <widget class="QTextEdit" name="textEdit_3">
-               <property name="geometry">
-                <rect>
-                 <x>0</x>
-                 <y>0</y>
-                 <width>361</width>
-                 <height>161</height>
-                </rect>
+             </item>
+             <item row="1" column="3">
+              <widget class="QPushButton" name="generateSpecFileButton">
+               <property name="text">
+                <string>Generate from spectacle</string>
                </property>
               </widget>
-             </widget>
-             <widget class="QWidget" name="tab_6">
-              <attribute name="title">
-               <string>%install</string>
-              </attribute>
-              <widget class="QTextEdit" name="textEdit_2">
-               <property name="geometry">
-                <rect>
-                 <x>0</x>
-                 <y>0</y>
-                 <width>361</width>
-                 <height>161</height>
-                </rect>
+             </item>
+             <item row="1" column="1">
+              <widget class="QPushButton" name="sendSpecFileToObsButton">
+               <property name="text">
+                <string>Send to OBS</string>
                </property>
               </widget>
-             </widget>
-            </widget>
-            <widget class="QTabWidget" name="tabWidget_2">
-             <property name="geometry">
-              <rect>
-               <x>0</x>
-               <y>300</y>
-               <width>371</width>
-               <height>121</height>
-              </rect>
-             </property>
-             <widget class="QWidget" name="tab_8">
-              <attribute name="title">
-               <string>Main</string>
-              </attribute>
-              <widget class="QTextEdit" name="textEdit">
-               <property name="geometry">
-                <rect>
-                 <x>0</x>
-                 <y>0</y>
-                 <width>361</width>
-                 <height>91</height>
-                </rect>
-               </property>
-              </widget>
-             </widget>
-            </widget>
-            <widget class="QLabel" name="label_15">
-             <property name="geometry">
-              <rect>
-               <x>10</x>
-               <y>290</y>
-               <width>52</width>
-               <height>14</height>
-              </rect>
-             </property>
-             <property name="text">
-              <string>%file</string>
-             </property>
-            </widget>
-            <widget class="QPushButton" name="pushButton_6">
-             <property name="geometry">
-              <rect>
-               <x>0</x>
-               <y>460</y>
-               <width>90</width>
-               <height>41</height>
-              </rect>
-             </property>
-             <property name="text">
-              <string>Save</string>
-             </property>
-            </widget>
-            <widget class="QPushButton" name="pushButton_7">
-             <property name="geometry">
-              <rect>
-               <x>90</x>
-               <y>460</y>
-               <width>90</width>
-               <height>41</height>
-              </rect>
-             </property>
-             <property name="text">
-              <string>Send 2 OBS</string>
-             </property>
-            </widget>
-            <widget class="QPushButton" name="pushButton_8">
-             <property name="geometry">
-              <rect>
-               <x>180</x>
-               <y>460</y>
-               <width>81</width>
-               <height>41</height>
-              </rect>
-             </property>
-             <property name="text">
-              <string>Select Spec
-File</string>
-             </property>
-            </widget>
-            <widget class="QPushButton" name="pushButton_9">
-             <property name="geometry">
-              <rect>
-               <x>260</x>
-               <y>460</y>
-               <width>90</width>
-               <height>41</height>
-              </rect>
-             </property>
-             <property name="text">
-              <string>Generete From
-spectacle</string>
-             </property>
-            </widget>
-            <widget class="QPushButton" name="pushButton_10">
-             <property name="geometry">
-              <rect>
-               <x>0</x>
-               <y>420</y>
-               <width>90</width>
-               <height>23</height>
-              </rect>
-             </property>
-             <property name="text">
-              <string>Add package</string>
-             </property>
-            </widget>
+             </item>
+            </layout>
            </widget>
           </widget>
          </widget>
@@ -1432,7 +1336,7 @@ spectacle</string>
             <bool>false</bool>
            </property>
            <property name="currentIndex">
-            <number>5</number>
+            <number>0</number>
            </property>
            <widget class="QWidget" name="kickstartMainTab">
             <attribute name="title">
@@ -2093,7 +1997,7 @@ If destination does not exist on your host, select '/', validate, and edit desti
           </property>
           <widget class="QWidget" name="layoutWidget">
            <layout class="QGridLayout" name="gridLayout_18">
-            <item row="0" column="0">
+            <item row="0" column="0" colspan="2">
              <widget class="QListWidget" name="repositoryListWidget"/>
             </item>
             <item row="1" column="0">
@@ -2116,6 +2020,19 @@ If destination does not exist on your host, select '/', validate, and edit desti
                <string>Modify</string>
               </property>
              </widget>
+            </item>
+            <item row="2" column="1">
+             <spacer name="horizontalSpacer_12">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
             </item>
            </layout>
           </widget>
@@ -2169,7 +2086,7 @@ If destination does not exist on your host, select '/', validate, and edit desti
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>1037</width>
      <height>20</height>
     </rect>
    </property>
