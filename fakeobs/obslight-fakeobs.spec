@@ -23,6 +23,7 @@ Requires:   python-async
 Requires:   python-gitdb
 Requires:   python-gitpython
 Requires:   python-smmap
+Requires(post): sysconfig
 Requires(post): /sbin/service
 Requires(post): /sbin/chkconfig
 Requires(postun): /sbin/service
@@ -80,7 +81,7 @@ ln -sf %{_sysconfdir}/init.d/fakeobs %{buildroot}%{_sbindir}/rcfakeobs
 # >> preun
 %stop_on_removal fakeobs
 if [ $1 -eq 0 ] ; then
-  /sbin/chkconfig --del fakeobs
+/sbin/chkconfig --del fakeobs
 fi
 # << preun
 
@@ -107,7 +108,7 @@ then
 ln -sf /srv/fakeobs/config/fakeobs-repos.lighttpdconf %{_sysconfdir}/lighttpd/vhosts.d/fakeobs-repos.conf
 fi
 #/sbin/chkconfig --add fakeobs
-%{fillup_and_insserv -f fakeobs}
+%{fillup_and_insserv -f -y fakeobs}
 # << post
 
 %postun

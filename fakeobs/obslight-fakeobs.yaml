@@ -19,5 +19,7 @@ Requires:
     - python-gitdb
     - python-gitpython
     - python-smmap
+RequiresPost:
+    - sysconfig
 Configure: none
 Builder: none
