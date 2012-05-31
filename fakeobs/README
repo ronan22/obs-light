@@ -86,6 +86,22 @@ Some archives for Tizen are available at http://tizen.fridu.net/.
 
 Can I create fakeobs project archive myself ?
 ---------------------------------------------
-Yes you can, but it's not documented at the moment.
-You can take a look at "/srv/fakeobs/tools/grab_fakeobs_project.sh".
+You will need:
+- a release name or number (please avoid white spaces)
+- the name of the project
+- the URL of the OBS public API you want to get project from
+- the URL of the package repositories where the project is published
+- the name of the repository target
+- the list of architectures of the project
 
+Step1: grab the project
+  obslight-fakeobs grab <release> <api> <repo_url> <project_name> <repository> <architectures>
+ex: obslight-fakeobs grab "1.0" "https://api.tizen.org/public" "rsync://download.tizen.org/live" "Tizen:1.0:Base" "standard" "i586 armv7el"
+This will take some time, depending on your internet connection.
+At this point, the project is installed locally as if you had done an import.
+
+Step2: build the archive
+  obslight-fakeobs export <project_name> <release>
+ex: obslight-fakeobs export "Tizen:1.0:Base" "1.0"
+Now you can find a big archive in /srv/fakeobs/ named after the project
+(with ':' replaced by '_').

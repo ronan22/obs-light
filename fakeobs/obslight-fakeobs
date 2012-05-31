@@ -6,16 +6,37 @@ function usage()
 Usage: $0 <command> [parameters]
 
 Commands:
-	import <archive.tar.gz> [project_name]
-		import a project from an archive
-
-	remove <project_name>
-		remove a project from fakeobs
-
 	createlink [osc_config_file]
-		create the link to the fakeobs API on the OBS running on localhost.
+		Create the link to the fakeobs API on the OBS running on localhost.
 		osc_config_file, if provided, should be the osc configuration file
 		of an administrator of the OBS server allowed to create links.
+
+	export <project_name> <release>
+		Export a project to an archive. The archive will be named
+		"project_name-release.tar.gz", with all ':' replaced by '_'.
+		(ex: "Tizen:1.0:Base" "1.0" -> "Tizen_1.0_Base-1.0.tar.gz")
+
+	grab <release> <api> <repo_url> <project_name> <repository> <architectures>
+		Grab a project from an OBS server
+		 release:       a release name or number (ex: "1.0")
+		 api:           the URL of the OBS public API
+		                (ex: "https://api.tizen.org/public")
+		 repo_url:      the URL where to the package repositories where
+		                the project is published
+		                (ex: "rsync://download.tizen.org/live")
+		 project_name:  the name of the project to grab
+		                (ex: "Tizen:1.0:Base")
+		 repository:    the name of the target repository to grab
+		                (ex: "standard")
+		 architectures: a list of architectures to grab
+		                (ex: "i586 armv7el")
+
+	import <archive.tar.gz> [project_name]
+		Import a project from an archive. Project name will be guessed
+		from archive name if not provided.
+
+	remove <project_name>
+		Remove a project from fakeobs.
 EOF
 }
 
@@ -25,6 +46,30 @@ function get_abs_path()
 	DIRPATH="`dirname $1`"
 	ABSPATH="`cd $DIRPATH; pwd`/$BASENAME"
 	echo $ABSPATH
+}
+
+function export_project()
+{
+	if [ "$#" -lt 2 ]
+	then
+		echo "Too few arguments for 'export'!"
+		usage
+		exit 1
+	fi
+	cd /srv/fakeobs
+	tools/export_fakeobs_project.sh $@
+}
+
+function grab_project()
+{
+	if [ "$#" -lt 6 ]
+	then
+		echo "Too few arguments for 'grab'!"
+		usage
+		exit 1
+	fi
+	cd /srv/fakeobs
+	tools/grab_fakeobs_project.sh $@
 }
 
 function import_project()
@@ -38,7 +83,7 @@ function import_project()
 	ARCHIVE="`get_abs_path $1`"
 	cd /srv/fakeobs
 #	echo "tools/import_fakeobs_project.sh $ARCHIVE $2"
-	tools/import_fakeobs_project.sh "$ARCHIVE" $2
+	tools/import_fakeobs_project.sh "$ARCHIVE" "$2"
 }
 
 function remove_project()
@@ -50,18 +95,19 @@ function remove_project()
                 exit 1
 	fi
 	cd /srv/fakeobs
-#	echo tools/remove_fakeobs_project.sh $1
-	tools/remove_fakeobs_project.sh $1
+	tools/remove_fakeobs_project.sh $@
 }
 
 function create_link()
 {
+	cd /srv/fakeobs
 	if [ "$#" -gt 0 ]
 	then
 		OSCCONFIG="`get_abs_path $1`"
+		tools/create_fakeobs_link.sh $OSCCONFIG
+	else
+		tools/create_fakeobs_link.sh
 	fi
-	cd /srv/fakeobs
-	tools/create_fakeobs_link.sh $OSCCONFIG
 }
 
 if [ "$#" -lt 1 ]
@@ -76,20 +122,28 @@ then
 	exit 1
 fi
 
-case $1 in
+COMMAND=$1
+shift
+
+case $COMMAND in
+	export)
+		export_project $@
+		;;
+	grab)
+		grab_project $@
+		;;
 	import)
-		import_project $2 $3
+		import_project $@
 		;;
 	remove)
-		remove_project $2
+		remove_project $@
 		;;
 	createlink)
-		create_link $2
+		create_link $@
 		;;
 	*)
-		echo "Unknown command: $1"
+		echo "Unknown command: $COMMAND"
 		usage
 		exit 1
 		;;
 esac
-
