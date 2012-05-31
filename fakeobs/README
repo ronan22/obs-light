@@ -65,15 +65,22 @@ How to import a fakeobs project from an archive ?
 Run "obslight-fakeobs import" with the archive path as parameter,
 and optionally the name of the project as second parameter
 ('_' in archive name will be replaced by ':' when guessing project name).
-A "<project>.manifest" file will be created ; do not remove it.
+A "<project>.manifest" file will be created ; do not remove it, it will
+be used when removing the project.
 
 Example:
 $ obslight-fakeobs import Tizen_1.0_Base-1.0.tar.gz "Tizen:1.0:Base"
+
+Warning: if you try to import an archive with a different release,
+         source files of the old release will be overwritten (but
+         binaries will be kept). We suggest you to maintain only one
+         release for each project at a time.
 
 
 How to remove a fakeobs project ?
 ---------------------------------
 Run "obslight-fakeobs remove" with the project name as parameter.
+All releases of the project will be removed.
 
 Example:
 $ obslight-fakeobs remove "Tizen:1.0:Base"

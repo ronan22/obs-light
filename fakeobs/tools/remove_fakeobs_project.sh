@@ -3,14 +3,25 @@
 PROJECT=$1
 MANIFEST="`echo $PROJECT | sed y,:,_,`.manifest"
 
-if [ ! -f "$MANIFEST" ]
+if [ -f "$MANIFEST" ]
 then
-	echo "Error: could not find manifest file '$MANIFEST'"
-	exit 1
+  echo "Removing files of project $PROJECT as listed in '$MANIFEST'..."
+  cat $MANIFEST | sort -r | xargs rm -frv
+else
+  echo "Manifest file '$MANIFEST' not found, some files may not be removed..."
+  RELEASES=`/bin/ls -1 obs-repos/ | sed -n -r s,"$PROJECT:([^:]*)$","\1",p`
+  for RELEASE in $RELEASES
+  do
+    CONFDIR="obs-projects/`echo $PROJECT | sed y,:,/,`"
+    FULLDIR="obs-repos/$PROJECT:$RELEASE"
+    GITDIR="packages-git/`echo $PROJECT | sed y,:,_,`"
+    REPODIR="releases/$RELEASE/builds/`echo $PROJECT | cut -d ':' -f 1- --output-delimiter ':/'`"
+    rm -frv $CONFDIR
+    rm -frv $FULLDIR
+    rm -frv $GITDIR
+    rm -frv $REPODIR
+  done
 fi
-
-echo "Removing files of project $PROJECT"
-cat $MANIFEST | sort -r | xargs rm -vrf
 
 echo
 echo "Updating packages-git/repos.lst..."

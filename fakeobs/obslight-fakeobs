@@ -36,7 +36,7 @@ Commands:
 		from archive name if not provided.
 
 	remove <project_name>
-		Remove a project from fakeobs.
+		Remove a project from fakeobs. All releases are removed.
 EOF
 }
 

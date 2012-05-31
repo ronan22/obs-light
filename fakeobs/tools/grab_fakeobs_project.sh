@@ -29,10 +29,6 @@ SANITIZEDNAME=`echo $PROJECT | sed y,:,_,`
 mkdir -p packages-git/$SANITIZEDNAME
 mv gitrepos/* packages-git/$SANITIZEDNAME/
 
-# Dress the list of packages and create/update mappings cache
-find packages-git/ -mindepth 2 -maxdepth 2 -type d -printf "%p\n" | sort > packages-git/repos.lst
-python tools/makemappings.py packages-git/repos.lst packages-git/mappingscache.xml
-
 echo "Generating final package list..."
 # Generate package list with last commit hash for each
 TMPPACKAGESXML=`mktemp pkgxml-XXXX`
