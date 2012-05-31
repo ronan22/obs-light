@@ -359,7 +359,7 @@ def get_package_file(realproject, projectpath, packagename, filename, getrev):
         for entry in tree:
             if entry.name == filename:
                return entry.size, git_cat(git, entry.hexsha)
-        return None
+        return None, None
 
 def git_cat(gitpath, object):
     return Popen(["git", "--git-dir=" + gitpath, "cat-file", "blob", object], stdout=PIPE).communicate()[0]

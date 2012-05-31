@@ -189,9 +189,12 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 if query.has_key("rev"):
                         rev = query["rev"][0]
                 contentsize, contentst = gitmer.get_package_file(realproject, pathparts[2], pathparts[3], pathparts[4], rev)
-                contentz, content = string2stream(contentst)
-                contenttype = "application/octet-stream"
-                contentmtime = time.time()
+                if contentsize is None:
+                    content = None
+                else:
+                    contentz, content = string2stream(contentst)
+                    contenttype = "application/octet-stream"
+                    contentmtime = time.time()
         elif path.startswith("/public/build"):
             pathparts = path.split("/")
             pathparts = pathparts[1:]
