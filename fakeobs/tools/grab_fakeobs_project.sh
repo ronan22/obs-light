@@ -55,17 +55,12 @@ curl -k "$API/source/$PROJECT/_meta" > obs-projects/$EXTENDEDPROJECTDIR/_meta
 echo "Getting project _config..."
 curl -k "$API/source/$PROJECT/_config" > obs-projects/$EXTENDEDPROJECTDIR/_config
 
-echo "Updating fakeobs project mappings..."
-if [ -f mappings.xml ]
-then
-  cp -f mappings.xml mappings.xml.`date +%Y%m%d%H%M%S`
-else
-  touch mappings.xml
-fi
-bash tools/updatemappings.sh $PROJECT > mappings_new.xml
-mv mappings_new.xml mappings.xml
+echo "Executing post import operations..."
+tools/post_import_operations.sh $PROJECT
 
 # Remove temporary files
 echo "Removing temporary files ($PKGLISTFILE $TMPPACKAGESXML)"
 rm -f $PKGLISTFILE
 rm -f $TMPPACKAGESXML
+
+echo "Project '$PROJECT' grabbed. It will be accessible on OBS by 'fakeobs:$PROJECT'"
