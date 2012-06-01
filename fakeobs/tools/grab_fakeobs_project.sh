@@ -10,6 +10,8 @@ PROJECT="$4"
 TARGET=$5
 ARCHS="$6"
 
+SKIPPEDPACKAGES=""
+
 echo "Creating release, getting binary RPMs..."
 tools/createrelease.sh "$RELEASE" "$API" "$RSYNC" "$PROJECT" "$TARGET" "$ARCHS"
 
@@ -22,6 +24,10 @@ curl -k "$API/source/$PROJECT" > $PKGLISTFILE
 for pkg in `python tools/printnames.py $PKGLISTFILE`
 do
   tools/gitify-package "$PROJECT" $pkg "$API"
+  if [ "$?" -ne "0" ]
+  then
+    SKIPPEDPACKAGES="$SKIPPEDPACKAGES $pkg"
+  fi
 done
 
 # Move them to the right place
@@ -60,3 +66,8 @@ rm -f $PKGLISTFILE
 rm -f $TMPPACKAGESXML
 
 echo "Project '$PROJECT' grabbed. It will be accessible on OBS by 'fakeobs:$PROJECT'"
+if [ -n "$SKIPPEDPACKAGES" ]
+then
+  echo "The following packages have been skipped:"
+  echo "$SKIPPEDPACKAGES"
+fi

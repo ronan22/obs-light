@@ -9,7 +9,16 @@ git init .
 wget --no-check-certificate -nd -nH -cr $API/source/$REPO/$PACKAGE/_meta $API/source/$REPO/$PACKAGE/_attribute $API/source/$REPO/$PACKAGE/ 
 #$API/source/$REPO/$x?expand=1
 mv index.html _index
-python $ORIG/tools/downloadfiles.py _index $API $REPO | sh
+#python $ORIG/tools/downloadfiles.py _index $API $REPO | sh
+python $ORIG/tools/downloadfiles.py _index $API $REPO
+if [ "$?" -ne "0" ]
+then
+  echo -e "\e[31;1m"
+  echo "Some files of $PACKAGE were not downloaded correctly !"
+  echo "Skipping..."
+  echo -e "\e[0m"
+  exit 1
+fi
 rm -f _index
 git add .
 git commit -s -m "Initial import"
