@@ -1,6 +1,10 @@
 #!/bin/sh
 
 FAKEOBSLINKNAME="fakeobs"
+RED="\e[31;1m"
+GREEN="\e[32;1m"
+YELLOW="\e[33;1m"
+DEFAULT="\e[0m"
 
 if [ "$#" -gt "0" ]
 then
@@ -19,28 +23,29 @@ else
   OSCCONFIG=$TMPOSCRC
 fi
 
-echo "Listing OBS projects to see if we can connect to..."
+echo -e "$GREEN" "Listing OBS projects to see if we can connect to..." "$DEFAULT"
 osc -c $OSCCONFIG ls
 if [ "$?" -ne "0" ]
 then
-  echo "Cannot contact OBS API running on localhost"
+  echo -e "$RED" "Cannot contact OBS API running on localhost" "$DEFAULT"
   exit 1
 fi
 
-echo "Checking if '$FAKEOBSLINKNAME' project exists"
+echo -e "$GREEN" "Checking if '$FAKEOBSLINKNAME' project exists..." "$DEFAULT"
 osc -c $OSCCONFIG meta prj $FAKEOBSLINKNAME > /dev/null
 if [ "$?" -eq "0" ]
 then
-  echo "'$FAKEOBSLINKNAME' remote link already exists!"
+  echo -e "$YELLOW" "'$FAKEOBSLINKNAME' remote link already exists!" "$DEFAULT"
 else
-  echo "Creating remote link project '$FAKEOBSLINKNAME'..."
+  echo -e "$GREEN" "  ==> The project does not exist"
+  echo -e "$GREEN" "Creating remote link project '$FAKEOBSLINKNAME'..." "$DEFAULT"
   osc -c $OSCCONFIG meta  prj -F config/fakeobs_meta "$FAKEOBSLINKNAME"
   if [ "$?" -ne "0" ]
   then
-    echo "Creation of the link failed!"
+    echo -e "$RED" "Creation of the link failed!" "$DEFAULT"
     exit 1
   else
-    echo "Link '$FAKEOBSLINKNAME' created"
+    echo -e "$GREEN" "Link '$FAKEOBSLINKNAME' created" "$DEFAULT"
   fi
 fi
 
