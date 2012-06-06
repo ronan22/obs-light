@@ -32,7 +32,7 @@ for x in doc1.getElementsByTagName("entry"):
                 retcode = 1
                 msg = "Error in downloaded file (md5 %s should be %s)"
                 print msg % (real_md5, file_md5)
-                subprocess.call(["rm", file_name])
+                subprocess.call(["rm", "-f", file_name])
                 continue
             break
     if retcode != 0:

@@ -30,6 +30,7 @@ grab_build()
 	cd releases/$RELEASE/builds/$NAME
 	mkdir -p packages debug
 	cd packages
+	echo -e "\e[32;1mGrabbing repositories of project '$PROJECT' target '$NAME'\e[0m"
 	rsync  -aHx --progress $RSYNC/$SYNCPATH/* --exclude=*.src.rpm --exclude=repocache/ --exclude=*.repo --exclude=repodata/ --exclude=src/ --include=*.rpm .
 	find -name \*.rpm | xargs -L1 rpm --delsign
 	mv */*-debuginfo-* ../debug

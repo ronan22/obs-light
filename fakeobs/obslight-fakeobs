@@ -57,7 +57,7 @@ function export_project()
 		exit 1
 	fi
 	cd /srv/fakeobs
-	tools/export_fakeobs_project.sh $@
+	tools/export_fakeobs_project.sh "$@"
 }
 
 function grab_project()
@@ -69,7 +69,7 @@ function grab_project()
 		exit 1
 	fi
 	cd /srv/fakeobs
-	tools/grab_fakeobs_project.sh $@
+	tools/grab_fakeobs_project.sh "$@"
 }
 
 function import_project()
@@ -95,7 +95,7 @@ function remove_project()
                 exit 1
 	fi
 	cd /srv/fakeobs
-	tools/remove_fakeobs_project.sh $@
+	tools/remove_fakeobs_project.sh "$@"
 }
 
 function create_link()
@@ -127,19 +127,19 @@ shift
 
 case $COMMAND in
 	export)
-		export_project $@
+		export_project "$@"
 		;;
 	grab)
-		grab_project $@
+		grab_project "$@"
 		;;
 	import)
-		import_project $@
+		import_project "$@"
 		;;
 	remove)
-		remove_project $@
+		remove_project "$@"
 		;;
 	createlink)
-		create_link $@
+		create_link "$@"
 		;;
 	*)
 		echo "Unknown command: $COMMAND"

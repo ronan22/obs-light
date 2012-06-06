@@ -68,6 +68,8 @@ rm -f $TMPPACKAGESXML
 echo "Project '$PROJECT' grabbed. It will be accessible on OBS by 'fakeobs:$PROJECT'"
 if [ -n "$SKIPPEDPACKAGES" ]
 then
-  echo "The following packages have been skipped:"
+  echo -e "\e[33;1m"
+  echo "The following packages have been skipped because of errors:"
   echo "$SKIPPEDPACKAGES"
+  echo -e "\e[0m"
 fi

@@ -3,13 +3,41 @@ ORIG=$PWD
 REPO=$1
 PACKAGE=$2
 API=$3
+
+WGETOPTS="--no-check-certificate -nd -nH -cr"
+
+# Be sure that the directory does not exist
+rm -rf gitrepos/$PACKAGE
 mkdir -p gitrepos/$PACKAGE
 cd gitrepos/$PACKAGE
 git init .
-wget --no-check-certificate -nd -nH -cr $API/source/$REPO/$PACKAGE/_meta $API/source/$REPO/$PACKAGE/_attribute $API/source/$REPO/$PACKAGE/ 
-#$API/source/$REPO/$x?expand=1
+
+wget $WGETOPTS $API/source/$REPO/$PACKAGE/_meta $API/source/$REPO/$PACKAGE/_attribute
+
+# Get the list of files to download
+wget $WGETOPTS $API/source/$REPO/$PACKAGE/
+# FIXME: retry more than once
+if [ "$?" -ne "0" -o ! -s "index.html" ]
+then
+  wget $WGETOPTS $API/source/$REPO/$PACKAGE/
+  if [ "$?" -ne "0" ]
+  then
+    echo -e "\e[31;1m"
+    echo "Problem getting list of files to download for package '$PACKAGE' !"
+    echo "Skipping..."
+    echo -e "\e[0m"
+    exit 1
+  fi
+  if [ ! -s "index.html" ]
+  then
+    echo -e "\e[31;1m"
+    echo "File index for package '$PACKAGE' is empty !"
+    echo -e "\e[0m"
+    exit 1
+  fi
+fi
 mv index.html _index
-#python $ORIG/tools/downloadfiles.py _index $API $REPO | sh
+
 python $ORIG/tools/downloadfiles.py _index $API $REPO
 if [ "$?" -ne "0" ]
 then

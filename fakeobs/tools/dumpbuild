@@ -10,7 +10,9 @@ WGETOPTIONS="--no-check-certificate -N -c -r -nd -nH"
 
 mkdir -p obs-repos/$OUTDIR/$REPONAME
 cd obs-repos/$OUTDIR/$REPONAME
+echo -e "\e[32;1mHave to dump :full for $SCHEDULERS\e[0m"
 for scheduler in $SCHEDULERS; do
+	echo -e "\e[32;1mDumping :full for scheduler '$scheduler'\e[0m"
 	mkdir -p $scheduler
 	cd $scheduler
 	wget $WGETOPTIONS $API/build/$OBSPROJECT/$REPONAME/$scheduler/_repository?view=cache
