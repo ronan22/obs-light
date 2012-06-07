@@ -1,2 +1,3 @@
 #!/bin/sh
-curl -k "$1" | cpio -idvm
+set -o pipefail
+curl -k --retry 5 "$1" | cpio -idvm

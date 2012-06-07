@@ -3,6 +3,12 @@
 source tools/common.sh
 
 PROJECT=$1
+
+if [ -z "$PROJECT" ]
+then
+  echo_red "Missing project argument!"
+fi
+
 MANIFEST="`echo $PROJECT | sed y,:,_,`.manifest"
 
 if [ -f "$MANIFEST" ]
@@ -58,7 +64,8 @@ MAPPINGSBACKUP="mappings.xml.`date +%Y%m%d%H%M%S`"
 if [ -f mappings.xml ]
 then
   cp -f mappings.xml $MAPPINGSBACKUP
-  cat $MAPPINGSBACKUP | grep -v "project=\"$PROJECT\"" > mappings.xml
+  bash tools/updatemappings.sh $PROJECT > mappings_new.xml
+  mv mappings_new.xml mappings.xml
 fi
 
 DISTRUBUTIONS_PATH="/srv/www/obs/api/files/distributions.xml"

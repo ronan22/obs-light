@@ -20,7 +20,7 @@ tools/createrelease.sh "$RELEASE" "$API" "$RSYNC" "$PROJECT" "$TARGET" "$ARCHS"
 echo_green "Gitifying packages..."
 # Build the list of OBS packages to prepare
 PKGLISTFILE=`mktemp pkglist-XXXX`
-curl -k "$API/source/$PROJECT" > $PKGLISTFILE
+curl $CURLARGS "$API/source/$PROJECT" > $PKGLISTFILE
 
 # Create local git repositories for these OBS packages
 for pkg in `python tools/printnames.py $PKGLISTFILE`
@@ -38,10 +38,10 @@ mkdir -p packages-git/$SANITIZEDNAME
 mv gitrepos/* packages-git/$SANITIZEDNAME/
 
 echo_green "Getting project _meta..."
-curl -k "$API/source/$PROJECT/_meta" > obs-projects/$EXTENDEDPROJECTDIR/_meta
+curl $CURLARGS "$API/source/$PROJECT/_meta" > obs-projects/$EXTENDEDPROJECTDIR/_meta
 
 echo_green "Getting project _config..."
-curl -k "$API/source/$PROJECT/_config" > obs-projects/$EXTENDEDPROJECTDIR/_config
+curl $CURLARGS "$API/source/$PROJECT/_config" > obs-projects/$EXTENDEDPROJECTDIR/_config
 
 echo_green "Executing post import operations..."
 tools/post_import_operations.sh $PROJECT

@@ -21,3 +21,4 @@ function echo_yellow()
 }
 
 PROJECTINFOFILE="project_info"
+CURLARGS="-k --retry 5"

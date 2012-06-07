@@ -20,8 +20,8 @@ if node_to_remove is not None:
     doc1.firstChild.removeChild(distrib)
     with open(distributions_file, "w+") as output_file:
         doc1.writexml(output_file, encoding="UTF-8")
-    msg = "Distribution '%s' removed from %s"
+    msg = "  \\[\\e[32;1m\\]Distribution '%s' removed from %s\\[\\e[0m\\]"
 else:
-    msg = "Distribution '%s' not found in %s"
+    msg = "  \\[\\e[32;1m\\]Distribution '%s' not found in %s\\[\\e[0m\\]"
 
 print msg % (project_id, distributions_file)

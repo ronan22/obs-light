@@ -21,7 +21,8 @@ for scheduler in $SCHEDULERS; do
 	wget $WGETOPTIONS $API/build/$OBSPROJECT/$REPONAME/$scheduler/_repository?view=names
 	wget $WGETOPTIONS $API/build/$OBSPROJECT/$REPONAME/$scheduler/_repository?view=binaryversions
 	wget $WGETOPTIONS $API/build/$OBSPROJECT/$REPONAME/$scheduler/_repository?view=solvstate
-	# Grab 
+	# Grab :full RPMs
+	set -o pipefail
 	python $ORIG/tools/printbinaries.py "_repository?view=names" \
 		| xargs -L1 -Ixxx $ORIG/tools/curlunpack "$API/build/$OBSPROJECT/$REPONAME/$scheduler/_repository?xxx"
 	cd ..
