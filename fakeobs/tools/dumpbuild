@@ -8,11 +8,13 @@ SCHEDULERS="$5"
 
 WGETOPTIONS="--no-check-certificate -N -c -r -nd -nH"
 
+source tools/common.sh
+
 mkdir -p obs-repos/$OUTDIR/$REPONAME
 cd obs-repos/$OUTDIR/$REPONAME
-echo -e "\e[32;1mHave to dump :full for $SCHEDULERS\e[0m"
+echo_green "Have to dump :full for $SCHEDULERS"
 for scheduler in $SCHEDULERS; do
-	echo -e "\e[32;1mDumping :full for scheduler '$scheduler'\e[0m"
+	echo_green "Dumping :full for scheduler '$scheduler'"
 	mkdir -p $scheduler
 	cd $scheduler
 	wget $WGETOPTIONS $API/build/$OBSPROJECT/$REPONAME/$scheduler/_repository?view=cache

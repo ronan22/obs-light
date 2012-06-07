@@ -8,6 +8,8 @@
 PROJECT=$1
 RELEASE=$2
 
+source tools/common.sh
+
 CONFDIR="obs-projects/`echo $PROJECT | sed y,:,/,`"
 FULLDIR="obs-repos/$PROJECT:$RELEASE"
 GITDIR="packages-git/`echo $PROJECT | sed y,:,_,`"
@@ -15,9 +17,17 @@ REPODIR="releases/$RELEASE/builds/`echo $PROJECT | cut -d ':' -f 1- --output-del
 
 ARCHIVENAME="`echo $PROJECT | sed y,:,_,`-$RELEASE.tar.gz"
 
+rm -f $PROJECTINFOFILE
+echo "$PROJECT" "$RELEASE" > $PROJECTINFOFILE
+
 # Create archive
-tar -cvzf $ARCHIVENAME $CONFDIR $FULLDIR $GITDIR $REPODIR
+tar -cvzf $ARCHIVENAME $PROJECTINFOFILE $CONFDIR $FULLDIR $GITDIR $REPODIR
 if [ "$?" -eq "0" ]
 then
-	echo "Archive $PWD/$ARCHIVENAME created"
+  rm $PROJECTINFOFILE
+  echo_green "Archive $PWD/$ARCHIVENAME created"
+else
+  rm $PROJECTINFOFILE
+  echo_red "Failed to create archive $PWD/$ARCHIVENAME"
+  exit 1
 fi

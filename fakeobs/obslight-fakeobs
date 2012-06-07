@@ -31,9 +31,10 @@ Commands:
 		 architectures: a list of architectures to grab
 		                (ex: "i586 armv7el")
 
-	import <archive.tar.gz> [project_name]
-		Import a project from an archive. Project name will be guessed
-		from archive name if not provided.
+	import <archive.tar.gz>
+		Import a project from an archive. For old archives which do not
+		contain project_info, the name of the project will be guessed
+		from archive name, and user will be asked for confirmation.
 
 	remove <project_name>
 		Remove a project from fakeobs. All releases are removed.
@@ -83,7 +84,7 @@ function import_project()
 	ARCHIVE="`get_abs_path $1`"
 	cd /srv/fakeobs
 #	echo "tools/import_fakeobs_project.sh $ARCHIVE $2"
-	tools/import_fakeobs_project.sh "$ARCHIVE" "$2"
+	tools/import_fakeobs_project.sh "$ARCHIVE"
 }
 
 function remove_project()

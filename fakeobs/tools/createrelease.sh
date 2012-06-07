@@ -8,9 +8,11 @@ PROJECT="$4"
 TARGET=$5
 ARCHS="$6"
 
+source tools/common.sh
+
 if [ x$1 = x -o x$2 = x -o x$3 = x ]; then
 	echo Syntax: tools/createrelease.sh RELEASE OBSAPI RSYNCURL
-	exit 0
+	exit 1
 fi
 
 if [ x$RESYNC = x ]; then
@@ -30,7 +32,7 @@ grab_build()
 	cd releases/$RELEASE/builds/$NAME
 	mkdir -p packages debug
 	cd packages
-	echo -e "\e[32;1mGrabbing repositories of project '$PROJECT' target '$NAME'\e[0m"
+	echo_green "Grabbing repositories of project '$PROJECT' target '$NAME'"
 	rsync  -aHx --progress $RSYNC/$SYNCPATH/* --exclude=*.src.rpm --exclude=repocache/ --exclude=*.repo --exclude=repodata/ --exclude=src/ --include=*.rpm .
 	find -name \*.rpm | xargs -L1 rpm --delsign
 	mv */*-debuginfo-* ../debug
