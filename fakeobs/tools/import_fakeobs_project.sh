@@ -14,14 +14,16 @@ then
 fi
 
 rm -f $PROJECTINFOFILE
+echo_green "Looking for 'project_info' in $ARCHIVE..."
 tar -xf $ARCHIVE $PROJECTINFOFILE
 if [ -f $PROJECTINFOFILE ]
 then
   PROJECT=`sed -rn -e s,"^([^ ]*) ([^ ]*)( .*)*$","\1",p $PROJECTINFOFILE`
   RELEASE=`sed -rn -e s,"^([^ ]*) ([^ ]*)( .*)*$","\2",p $PROJECTINFOFILE`
   rm -f $PROJECTINFOFILE
-  echo_green "Project name found in archive: '$PROJECT'"
+  echo_green "  Found '$PROJECT'"
 else
+  echo_green "  Not found"
   PROJECT=`basename $ARCHIVE | sed -r -e s,"(.*)-(.*)\.tar\.gz$","\1", -e y,_,:,`
   echo_green "Project name guessed from archive name: '$PROJECT'"
   echo_green "Is this OK ? y/N"

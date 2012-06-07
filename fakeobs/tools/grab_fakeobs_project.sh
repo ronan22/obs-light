@@ -37,7 +37,16 @@ SANITIZEDNAME=`echo $PROJECT | sed y,:,_,`
 mkdir -p packages-git/$SANITIZEDNAME
 mv gitrepos/* packages-git/$SANITIZEDNAME/
 
-echo_green "Generating final package list..."
+echo_green "Getting project _meta..."
+curl -k "$API/source/$PROJECT/_meta" > obs-projects/$EXTENDEDPROJECTDIR/_meta
+
+echo_green "Getting project _config..."
+curl -k "$API/source/$PROJECT/_config" > obs-projects/$EXTENDEDPROJECTDIR/_config
+
+echo_green "Executing post import operations..."
+tools/post_import_operations.sh $PROJECT
+
+echo_green "Generating final package list of project $PROJECT..."
 # Generate package list with last commit hash for each
 TMPPACKAGESXML=`mktemp pkgxml-XXXX`
 echo -e "<project>" >> $TMPPACKAGESXML
@@ -52,15 +61,6 @@ echo -e "</project>" >> $TMPPACKAGESXML
 EXTENDEDPROJECTDIR=`echo $PROJECT | sed y,:,/,`
 mkdir -p obs-projects/$EXTENDEDPROJECTDIR
 bash tools/mergetwo $TMPPACKAGESXML > obs-projects/$EXTENDEDPROJECTDIR/packages.xml
-
-echo_green "Getting project _meta..."
-curl -k "$API/source/$PROJECT/_meta" > obs-projects/$EXTENDEDPROJECTDIR/_meta
-
-echo_green "Getting project _config..."
-curl -k "$API/source/$PROJECT/_config" > obs-projects/$EXTENDEDPROJECTDIR/_config
-
-echo_green "Executing post import operations..."
-tools/post_import_operations.sh $PROJECT
 
 # Remove temporary files
 echo_green "Removing temporary files ($PKGLISTFILE $TMPPACKAGESXML)"
