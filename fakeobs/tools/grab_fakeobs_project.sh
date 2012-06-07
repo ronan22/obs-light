@@ -32,8 +32,9 @@ do
   fi
 done
 
-# Move them to the right place
 SANITIZEDNAME=`echo $PROJECT | sed y,:,_,`
+EXTENDEDPROJECTDIR=`echo $PROJECT | sed y,:,/,`
+# Move them to the right place
 mkdir -p packages-git/$SANITIZEDNAME
 mv gitrepos/* packages-git/$SANITIZEDNAME/
 
@@ -58,7 +59,6 @@ done
 echo -e "</project>" >> $TMPPACKAGESXML
 
 # Copy package list at the right place
-EXTENDEDPROJECTDIR=`echo $PROJECT | sed y,:,/,`
 mkdir -p obs-projects/$EXTENDEDPROJECTDIR
 bash tools/mergetwo $TMPPACKAGESXML > obs-projects/$EXTENDEDPROJECTDIR/packages.xml
 

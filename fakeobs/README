@@ -97,7 +97,7 @@ You will need:
 - a release name or number (please avoid white spaces)
 - the name of the project
 - the URL of the OBS public API you want to get project from
-- the URL of the package repositories where the project is published
+- the URL of the root of package repositories (see example below)
 - the name of the repository target
 - the list of architectures of the project
 
