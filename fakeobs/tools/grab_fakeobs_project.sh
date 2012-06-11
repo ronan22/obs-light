@@ -12,6 +12,11 @@ ARCHS="$6"
 
 source tools/common.sh
 
+SANITIZEDNAME=`echo $PROJECT | sed y,:,_,`
+EXTENDEDPROJECTDIR=`echo $PROJECT | sed y,:,/,`
+mkdir -p packages-git/$SANITIZEDNAME
+mkdir -p obs-projects/$EXTENDEDPROJECTDIR
+
 SKIPPEDPACKAGES=""
 
 echo_green "Creating release, getting binary RPMs..."
@@ -32,10 +37,7 @@ do
   fi
 done
 
-SANITIZEDNAME=`echo $PROJECT | sed y,:,_,`
-EXTENDEDPROJECTDIR=`echo $PROJECT | sed y,:,/,`
-# Move them to the right place
-mkdir -p packages-git/$SANITIZEDNAME
+# Move git repositories to the right place
 mv gitrepos/* packages-git/$SANITIZEDNAME/
 
 echo_green "Getting project _meta..."
@@ -59,7 +61,6 @@ done
 echo -e "</project>" >> $TMPPACKAGESXML
 
 # Copy package list at the right place
-mkdir -p obs-projects/$EXTENDEDPROJECTDIR
 bash tools/mergetwo $TMPPACKAGESXML > obs-projects/$EXTENDEDPROJECTDIR/packages.xml
 
 # Remove temporary files
