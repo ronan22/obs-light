@@ -24,7 +24,7 @@ setup(name='obslight',
       license='GPLv2',
       platforms=['Linux'],
       keywords=['MeeGo', 'OBS', 'chroot', 'RPM', 'build', 'buildservice'],
-      url='http://wiki.meego.com/OBS_Light',
+      url='http://en.opensuse.org/openSUSE:OBS_Light',
       download_url='https://meego.gitorious.org/meego-developer-tools/obs-light',
 
       packages=['ObsLight', 'ObsLight.util', 'ObsLightGui', 'ObsLightGui.Wizard'],

@@ -1,7 +1,7 @@
 #
 # OBS Light post-installation configuration
 #
-# http://wiki.meego.com/OBS_Light_Installation#For_OpenSUSE_12.1
+# http://en.opensuse.org/openSUSE:OBS_Light_Installation#For_OpenSUSE_12.1
 #
 
 # Add vagrant to "users" group

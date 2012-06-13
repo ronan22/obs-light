@@ -9,6 +9,6 @@ echo "Login/PW:root/opensuse"
 echo "Login/PW:tux/opensuse"
 echo "Login/PW:imager/imager"
 echo "http://wiki.meego.com/Release_Infrastructure/IMG_Installation_using_Suse_Studio"
-echo "http://wiki.meego.com/OBS_Light"
+echo "http://en.opensuse.org/openSUSE:OBS_Light"
 echo Server Imager ready http://`/sbin/ifconfig  | grep 'inet '| grep -v '127.0.0.1' | cut -d: -f2 | awk '{ print $1}'`/img/
 echo "To login to the webinterface, please use the username 'imager' with password 'imager'."

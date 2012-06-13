@@ -11,13 +11,15 @@ It is based on Mer Delivery System tools
 http://wiki.merproject.org/index.php?title=Mer_Delivery_System
 
 modified for the needs of OBS Light project
-http://wiki.meego.com/OBS_Light
+http://en.opensuse.org/openSUSE:OBS_Light
 
 RPM packages for openSUSE 11.4 and 12.1:
 http://repo.pub.meego.com/Project:/OBS_Light/
 Python dependencies (python-async, python-gitdb, python-smmap):
 http://download.opensuse.org/repositories/devel:/languages:/python/
 
+More information on
+http://en.opensuse.org/openSUSE:OBS_Light_Fakeobs
 
 All commands should be run as root.
 

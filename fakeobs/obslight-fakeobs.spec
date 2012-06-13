@@ -61,12 +61,12 @@ mkdir -p %{buildroot}/srv/fakeobs/releases
 mkdir -p %{buildroot}%{_sysconfdir}/init.d
 mkdir -p %{buildroot}%{_sbindir}
 mkdir -p %{buildroot}%{_bindir}
-mkdir -p %{buildroot}%{_docdir}%{name}
+mkdir -p %{buildroot}%{_docdir}/%{name}
 cp -rf tools %{buildroot}/srv/fakeobs/tools
 cp -rf config %{buildroot}/srv/fakeobs/config
 cp -f obslight-fakeobs %{buildroot}%{_bindir}
 cp -f init_fakeobs %{buildroot}%{_sysconfdir}/init.d/fakeobs
-cp -f README %{buildroot}%{_docdir}%{name}
+cp -f README %{buildroot}%{_docdir}/%{name}
 
 ln -sf /srv/fakeobs/tools/fakeobs.py %{buildroot}%{_sbindir}/fakeobs
 ln -sf %{_sysconfdir}/init.d/fakeobs %{buildroot}%{_sbindir}/rcfakeobs
@@ -134,7 +134,7 @@ fi
 %{_sbindir}/fakeobs
 %{_sbindir}/rcfakeobs
 %{_bindir}/obslight-fakeobs
-%{_docdir}%{name}
+%{_docdir}/%{name}
 # << files
 
 
