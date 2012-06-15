@@ -2,6 +2,7 @@
 import sys
 import subprocess
 import xml.dom.minidom
+from urllib import quote
 
 retries = 5
 wget_options = ["--no-check-certificate", "-nd", "-nH", "-nv", "-cr"]
@@ -21,8 +22,11 @@ for x in doc1.getElementsByTagName("directory"):
 for x in doc1.getElementsByTagName("entry"):
     file_name = x.attributes["name"].value
     file_md5 = x.attributes["md5"].value
-    url = "%s/source/%s/%s/%s" % (api_url, project, pkg, file_name)
+    url_path = quote("source/%s/%s/%s" % (project, pkg, file_name))
+    url = "%s/%s" % (api_url, url_path)
+    print "URL: %s" % url
     wget_args = ["wget"] + wget_options + [url]
+    print "wget args: ", wget_args
     for i in range(retries):
         retcode = subprocess.call(wget_args)
         if retcode == 0:
@@ -37,7 +41,7 @@ for x in doc1.getElementsByTagName("entry"):
             break
     if retcode != 0:
         msg = "Failed to retrieve file '%s' of package '%s'" % (file_name, pkg)
-        print "\\[\\e[31;1m\\]%s\\[\\e[0m\\]" % msg
+        print "\033[31;1m%s\033[0m" % msg
         exit_status = 1
 
 sys.exit(exit_status)
