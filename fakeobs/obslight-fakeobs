@@ -38,6 +38,9 @@ Commands:
 
 	remove <project_name>
 		Remove a project from fakeobs. All releases are removed.
+
+	list
+		List projects already grabbed or imported
 EOF
 }
 
@@ -111,36 +114,62 @@ function create_link()
 	fi
 }
 
+function list_projects()
+{
+	cd /srv/fakeobs
+	sed -r -n -e "s,.*project=\"([^ ]*)\".*,\1,p" /srv/fakeobs/mappings.xml
+}
+
 if [ "$#" -lt 1 ]
 then
 	usage
 	exit 1
 fi
 
-if [ "`whoami`" != "root" ]
-then
-	echo "Please run this program as root"
-	exit 1
-fi
+function check_user_is_root()
+{
+	if [ "`whoami`" != "root" ]
+	then
+		echo "Please run this command as root"
+		exit 1
+	fi
+}
 
 COMMAND=$1
 shift
 
 case $COMMAND in
+	version|--version)
+		versionfile="/usr/share/doc/packages/obslight-fakeobs/VERSION"
+		[ -f "$versionfile" ] && cat "$versionfile" || echo "unknown"
+		exit 0
+		;;
+	help|--help)
+		usage
+		exit 0
+		;;
 	export)
+		check_user_is_root
 		export_project "$@"
 		;;
 	grab)
+		check_user_is_root
 		grab_project "$@"
 		;;
 	import)
+		check_user_is_root
 		import_project "$@"
 		;;
 	remove)
+		check_user_is_root
 		remove_project "$@"
 		;;
 	createlink)
+		check_user_is_root
 		create_link "$@"
+		;;
+	list)
+		list_projects
 		;;
 	*)
 		echo "Unknown command: $COMMAND"
@@ -148,3 +177,4 @@ case $COMMAND in
 		exit 1
 		;;
 esac
+

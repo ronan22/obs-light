@@ -138,9 +138,10 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 contenttype = "text/html"
                 contentmtime = time.time()
 
-        elif path.startswith("/public/source/"):
+        elif path.startswith("/public/source/") or path.startswith("/source/"):
             pathparts = path.split("/")
-            pathparts = pathparts[1:]
+            if path.startswith("/public/source"):
+                pathparts = pathparts[1:]
             for x in range(0, len(pathparts)):
                 pathparts[x] = urllib.unquote(pathparts[x])
             realproject = None

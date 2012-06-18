@@ -12,6 +12,21 @@ ARCHS="$6"
 
 source tools/common.sh
 
+check_public_api "$API" || exit 1
+project_exists "$PROJECT"
+if [ "$?" -eq "0" ]
+then
+  echo_red "The project '$PROJECT' already exists."
+  echo_red "Please remove it before trying to re-import it."
+  exit 1
+fi
+project_exists_on_server "$API" "$PROJECT" || exit 1
+target_exists_on_server "$API" "$PROJECT" "$TARGET" || exit 1
+for arch in $ARCHS
+do
+  arch_exists_on_server "$API" "$PROJECT" "$TARGET" "$arch" || exit 1
+done
+
 SANITIZEDNAME=`echo $PROJECT | sed y,:,_,`
 EXTENDEDPROJECTDIR=`echo $PROJECT | sed y,:,/,`
 mkdir -p packages-git/$SANITIZEDNAME
@@ -19,8 +34,14 @@ mkdir -p obs-projects/$EXTENDEDPROJECTDIR
 
 SKIPPEDPACKAGES=""
 
+grab_error=0
 echo_green "Creating release, getting binary RPMs..."
 tools/createrelease.sh "$RELEASE" "$API" "$RSYNC" "$PROJECT" "$TARGET" "$ARCHS"
+if [ "$?" -ne "0" ]
+then
+  grab_error=1
+  echo_red "Error when grabbing :full or repositories"
+fi
 
 echo_green "Gitifying packages..."
 # Build the list of OBS packages to prepare
@@ -43,8 +64,13 @@ mv gitrepos/* packages-git/$SANITIZEDNAME/
 echo_green "Getting project _meta..."
 curl $CURLARGS "$API/source/$PROJECT/_meta" > obs-projects/$EXTENDEDPROJECTDIR/_meta
 
+project_conf_empty=0
 echo_green "Getting project _config..."
 curl $CURLARGS "$API/source/$PROJECT/_config" > obs-projects/$EXTENDEDPROJECTDIR/_config
+if [ ! -s "obs-projects/$EXTENDEDPROJECTDIR/_config" ]
+then
+  project_conf_empty=1
+fi
 
 echo_green "Executing post import operations..."
 tools/post_import_operations.sh $PROJECT
@@ -68,7 +94,18 @@ echo_green "Removing temporary files ($PKGLISTFILE $TMPPACKAGESXML)"
 rm -f $PKGLISTFILE
 rm -f $TMPPACKAGESXML
 
-echo_green "Project '$PROJECT' grabbed. It will be accessible on OBS by 'fakeobs:$PROJECT'"
+if [ "$grab_error" -eq "0" ]
+then
+  echo_green "Project '$PROJECT' grabbed. It will be accessible on OBS by 'fakeobs:$PROJECT'"
+else
+  echo_yellow "Errors were encountered while grabbing repositories of '$PROJECT'."
+  echo_yellow "You should check everything is OK before exporting the project."
+fi
+if [ "$project_conf_empty" -ne "0" ]
+then
+  echo_yellow "Project configuration is empty, is this OK ?"
+  echo_yellow "Please check /srv/fakeobs/obs-projects/$EXTENDEDPROJECTDIR/_config"
+fi
 if [ -n "$SKIPPEDPACKAGES" ]
 then
   echo_red "The following packages have been skipped because of errors:"

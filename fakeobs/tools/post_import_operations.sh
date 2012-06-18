@@ -41,7 +41,7 @@ then
   echo_red "   python tools/makemappings.py packages-git/repos.lst packages-git/mappingscache.xml"
 fi
 
-ONOBSAPPLIANCE=`grep -q "Intel OTC" /var/config_obs && echo 1 || echo 0`
+ONOBSAPPLIANCE=`grep -q "Intel OTC" /var/config_obs 2>/dev/null && echo 1 || echo 0`
 if [ $ONOBSAPPLIANCE -eq 1 ]
 then
   echo_green "This machine seems to be an OBS appliance"

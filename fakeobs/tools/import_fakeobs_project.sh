@@ -35,6 +35,14 @@ else
   fi
 fi
 
+project_exists $PROJECT
+if [ "$?" -eq "0" ]
+then
+  echo_red "The project '$PROJECT' already exists."
+  echo_red "Please remove it before trying to re-import it."
+  exit 1
+fi
+
 # name of the manifest file
 MANIFEST="`echo $PROJECT | sed y,:,_,`.manifest"
 
