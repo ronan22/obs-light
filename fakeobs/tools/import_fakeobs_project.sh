@@ -60,4 +60,6 @@ set +o pipefail
 echo_green "Executing post import operations..."
 tools/post_import_operations.sh $PROJECT
 
+clean_old_mappings
+
 echo_green "Project '$PROJECT' imported. It will be accessible on OBS by 'fakeobs:$PROJECT'"

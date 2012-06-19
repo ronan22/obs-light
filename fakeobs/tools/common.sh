@@ -108,3 +108,18 @@ function arch_exists_on_server()
   fi
 }
 
+function clean_old_mappings()
+{
+  # Keep the 3 most recent backups
+  local mappings=`ls -1 mappings.xml.* | sort | head -n -3`
+  if [ -n "$mappings" ]
+  then
+    echo_yellow "We found old mappings files:\n$mappings"
+    echo_yellow "Do you want to remove them ? [Y/n] "
+    # '-l' is for lowercase
+    declare -l answer
+    read answer
+    [ "$answer" != "n" ] && rm -f $mappings
+  fi
+}
+

@@ -94,6 +94,8 @@ echo_green "Removing temporary files ($PKGLISTFILE $TMPPACKAGESXML)"
 rm -f $PKGLISTFILE
 rm -f $TMPPACKAGESXML
 
+clean_old_mappings
+
 if [ "$grab_error" -eq "0" ]
 then
   echo_green "Project '$PROJECT' grabbed. It will be accessible on OBS by 'fakeobs:$PROJECT'"

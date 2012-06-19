@@ -78,3 +78,6 @@ else
   echo_yellow "this file on your OBS server."
   echo_yellow "See http://en.opensuse.org/openSUSE:Build_Service_private_installation#Add_Repositories_targets"
 fi
+
+clean_old_mappings
+
