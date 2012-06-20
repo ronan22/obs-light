@@ -88,6 +88,8 @@ class ObsLightOsc(object):
 
         if os.path.isfile(self.__confFile):
             self.get_config()
+            if not self.isApihostInPackageCacheDir():
+                self.addApihostInPackageCacheDir()
 
     def get_config(self):
         self.__aLock.acquire()
@@ -139,9 +141,6 @@ class ObsLightOsc(object):
             aFile.close()
 
     def changeAPI(self, api, newApi):
-        '''
-        
-        '''
         f = open(self.__confFile, 'r')
         txt = f.read()
         f.close()
@@ -149,14 +148,26 @@ class ObsLightOsc(object):
         f.write(txt.replace("[" + api + "]", "[" + newApi + "]"))
         f.close()
 
+    @staticmethod
+    def isApihostInPackageCacheDir():
+        """
+        Test if the 'packagecachedir' configuration option
+        contains an 'apihost' pattern.
+        """
+        return "%(apihost)s" in conf.config["packagecachedir"]
+
+    def addApihostInPackageCacheDir(self):
+        """Append '%(apihost)s' to the 'packagecachedir' config option"""
+        packageCacheDir = conf.config["packagecachedir"]
+        packageCacheDir = os.path.join(packageCacheDir, "%(apihost)s")
+        conf.config_set_option("general", "packagecachedir", packageCacheDir)
+        conf.write_config(self.__confFile, conf.get_configParser())
+
     def getUserProfil(self, api, user):
         "GET /person/<userid>"
         pass
 
     def changeUser(self, api, user):
-        '''
-        
-        '''
         self.get_config()
         aOscConfigParser = conf.get_configParser(self.__confFile, force_read=True)
 
@@ -166,9 +177,6 @@ class ObsLightOsc(object):
         aOscConfigParser.write(aFile, True)
 
     def changePassw(self, api, passw):
-        '''
-        
-        '''
         self.get_config()
         aOscConfigParser = conf.get_configParser(self.__confFile, force_read=True)
         aOscConfigParser.set(api, 'pass', passw)
@@ -177,9 +185,6 @@ class ObsLightOsc(object):
         aOscConfigParser.write(aFile, True)
 
     def getServersFromOsc(self):
-        '''
-        
-        '''
         result = {}
         if not os.path.isfile(self.__confFile):
             return result
