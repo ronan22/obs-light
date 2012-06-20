@@ -17,7 +17,7 @@ sed -i "s,OBS_SETUP_WORKER_PARTITIONS=\"use_obs_vg\",OBS_SETUP_WORKER_PARTITIONS
 echo "127.0.0.1 $theHostName" >> /etc/hosts
 
 #Configure build architecture
-sed -i "s,^OBS_SCHEDULER_ARCHITECTURES=\"i586 x86_64 armv7l\",OBS_SCHEDULER_ARCHITECTURES=\"i586 armv8el\"," /etc/sysconfig/obs-server
+sed -i "s,^OBS_SCHEDULER_ARCHITECTURES=\"i586 x86_64 armv7l\",OBS_SCHEDULER_ARCHITECTURES=\"i586 armv7el armv8el\"," /etc/sysconfig/obs-server
 
 #For the VM no VM.
 #sed -i "s,^OBS_VM_TYPE=.*$,OBS_VM_TYPE=\"none\"," /etc/sysconfig/obs-worker

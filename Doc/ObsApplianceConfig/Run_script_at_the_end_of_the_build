@@ -29,6 +29,7 @@ insserv obspublisher
 insserv obsworker
 insserv obsapisetup
 insserv obsstoragesetup
+insserv obsservice
 
 # enable autosetup
 sed -i 's,OBS_API_AUTOSETUP=.*,OBS_API_AUTOSETUP="yes",' /etc/sysconfig/obs-server
@@ -38,6 +39,15 @@ sed -i 's,.*our $serviceserve.*,our $serviceserver = "http://127.0.0.1:5152";,' 
 sed -i 's,^our $repodownload.*,our $repodownload = "http://127.0.0.1:82/";,' /usr/lib/obs/server/BSConfig.pm
 
 sed -i 's,^datadir.=.*,datadir = /srv/obs/MySQL,' /etc/my.cnf
+
+sed -i 's,^port: .*,port: 8080,' /etc/obslight/obslight.conf
+
+echo obslightserver >/etc/HOSTNAME
+sed -i "s,DHCLIENT_SET_HOSTNAME=\"yes\",DHCLIENT_SET_HOSTNAME=\"no\"," /etc/sysconfig/network/dhcp
+
+# Refrech DOD primary.xml
+obsdodupdate https://localhost:444 MeeGo_DOD:1.2:oss standard i586
+obsdodupdate https://localhost:444 MeeGo_DOD:1.2.0:oss standard i586
 
 #this is my main script
 bash /var/config_obs
