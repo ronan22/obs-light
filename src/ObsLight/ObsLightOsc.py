@@ -285,7 +285,7 @@ class ObsLightOsc(object):
         buildInfo = result.read()
 
         for package in ElementTree.fromstring(buildInfo):
-            print "package.tag", package.tag
+
             if (package.tag == "error") :
                 msg = package.text
                 raise ObsLightErr.ObsLightOscErr(msg)
@@ -341,6 +341,9 @@ class ObsLightOsc(object):
         prefer_pkgs = {}
 
         bi = Buildinfo(bi_filename, apihost, build_type, prefer_pkgs.keys())
+
+        #Fix to solve Http 401 error under debian.
+        conf._build_opener.last_opener = (None, None)
 
         cache_dir = self.getOscPackagecachedir(apiurl)
 
