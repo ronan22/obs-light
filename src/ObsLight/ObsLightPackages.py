@@ -14,12 +14,13 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
-from ObsLight import ObsLightErr
 '''
 Created on 30 sept. 2011
 
 @author: ronan
 '''
+from ObsLight import ObsLightErr
+
 import os
 
 from ObsLightPackage import ObsLightPackage
@@ -42,8 +43,9 @@ class ObsLightPackages(object):
             self.__currentPackage = ""
         elif projectOscPath != None:
             for name in fromSave["savePackages"].keys():
-                self.__dicOBSLightPackages[name] = ObsLightPackage(packagePath=os.path.join(projectOscPath, name),
-                                                                   fromSave=fromSave["savePackages"][name])
+                package = ObsLightPackage(packagePath=os.path.join(projectOscPath, name),
+                                                                fromSave=fromSave["savePackages"][name])
+                self.__dicOBSLightPackages[name] = package
             if "currentPackage" in fromSave.keys():
                 self.__currentPackage = fromSave["currentPackage"]
             if "currentListPackageInfo" in fromSave.keys():
@@ -72,11 +74,12 @@ class ObsLightPackages(object):
                    packageTitle,
                    specFile=None,
                    yamlFile=None,
-                   listFile=[],
+                   listFile=None,
                    status=""):
         '''
         
         '''
+        listFile = listFile or []
         self.__currentPackage = name
         if listFile == None:
             listFile = []
@@ -91,7 +94,8 @@ class ObsLightPackages(object):
                                                                listFile=listFile,
                                                                status=status)
         else:
-            raise ObsLightErr.ObsLightPackageErr("Can't add package '" + name + "' ,already exist in project.")
+            message = "Can't add package '" + name + "' ,already exist in project."
+            raise ObsLightErr.ObsLightPackageErr(message)
 
     def removePackage(self, package=None):
         '''
@@ -237,7 +241,7 @@ class ObsLightPackages(object):
         '''
         return ["Not installed",
                 "No build directory",
-                "many BUILD directories",
+                "Many BUILD directories",
                 "Prepared",
                 "Built",
                 "Build Installed",

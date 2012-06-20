@@ -43,7 +43,7 @@ class ObsLightPackage(object):
                  name=None,
                  specFile=None,
                  yamlFile=None,
-                 listFile=[],
+                 listFile=None,
                  listInfoFile=None,
                  status="Unknown",
                  obsRev="-1",
@@ -56,7 +56,7 @@ class ObsLightPackage(object):
         '''
         Constructor
         '''
-
+        listFile = listFile or []
         self.__packagePath = packagePath
         self.__mySubprocessCrt = SubprocessCrt()
         self.__yamlFile = None
@@ -76,7 +76,7 @@ class ObsLightPackage(object):
         self.__listFileToDel = []
         self.__prepDirName = None
 
-        self.__obslightGit = "../.git_obslight"
+        self.__obslightGit = ".git_obslight"
         self.__packageGit = None
         self.__currentGitIsPackageGit = False
 
@@ -170,9 +170,9 @@ class ObsLightPackage(object):
 
     def getCurrentGitDirectory(self):
         if self.__currentGitIsPackageGit:
-            return self.__packageGit
+            return os.path.join(self.__chrootRpmBuildDirectory, "BUILD", self.__packageGit)
         else:
-            return self.__obslightGit
+            return os.path.join(self.__chrootRpmBuildDirectory, "BUILD", self.__obslightGit)
 
 
     def setPackageGit(self, directory):
@@ -338,7 +338,7 @@ class ObsLightPackage(object):
         '''
         if os.path.isfile(self.__packagePath + "/" + self.__specFile):
             self.__mySpecFile = ObsLightSpec(packagePath=self.__packagePath,
-                                             file=self.__specFile)
+                                             aFile=self.__specFile)
 
     def delFromChroot(self):
         '''
@@ -436,7 +436,14 @@ class ObsLightPackage(object):
         elif parameter == "yamlFile":
             return self.__yamlFile if self.__yamlFile != None else ""
         elif parameter == "fsPackageDirectory":
-            return self.__packageDirectory if self.__packageDirectory != None else ""
+            if self.__packageDirectory != None:
+                return self.__packageDirectory
+            else :
+                if self.getChRootStatus() == "Not installed":
+                    return ""
+                else:
+                    return self.__chrootRpmBuildDirectory
+
         elif parameter == "oscPackageDirectory":
             return self.__packagePath if self.__packagePath != None else ""
         elif parameter == "description":
@@ -597,6 +604,12 @@ class ObsLightPackage(object):
         return the  spec file.
         '''
         return self.__specFile
+
+    def getSpecFilePath(self):
+        '''
+        return the  spec file abs path.
+        '''
+        return os.path.join(self.__packagePath, self.__specFile)
 
     def getOscDirectory(self):
         '''
@@ -896,7 +909,7 @@ class ObsLightPackage(object):
         '''
         if aFile != None:
             if self.getPackageFileInfo(aFile)[u'Status'].startswith("C"):
-                    return True
+                return True
             return False
         else:
             for aFile in self.getListFile():

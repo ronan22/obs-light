@@ -1,0 +1,133 @@
+#!/usr/bin/python
+# Authors Ronan Le Martret (Intel OTC)
+# ronan@fridu.net
+# Date 31 May 2012
+# License GLPv2
+
+import sys
+import pickle
+import mic
+from mic.plugin import pluginmgr
+from mic import conf
+try:
+    import zypp
+except ImportError:
+    print 'Dummy Import Error: Unable to import zypp bindings'
+
+import obslight_zypp
+
+cachedir = mic.conf.ConfigMgr().create["cachedir"]
+
+instroot = sys.argv[1]
+
+arch = sys.argv[2]
+if arch == "i586":
+    arch = "i686"
+
+#print "arch", arch
+filePkgToInstall = str(sys.argv[3])
+
+#print "filePkgToInstall", filePkgToInstall
+aFile = open(filePkgToInstall, 'r')
+dicoPkgToInstall = pickle.load(aFile)
+aFile.close()
+
+#print "dicoPkgToInstall", dicoPkgToInstall.keys()
+
+pkgmgr = None
+for (key, pcls) in pluginmgr.get_plugins('backend').iteritems():
+    if key == 'zypp-obslight':
+        pkgmgr = pcls
+
+repo_manager_options = zypp.RepoManagerOptions(zypp.Pathname(instroot))
+repo_manager_options.knownReposPath = zypp.Pathname(instroot + "/etc/zypp/repos.d")
+repo_manager_options.repoCachePath = zypp.Pathname(cachedir)
+repo_manager_options.repoRawCachePath = zypp.Pathname(cachedir + "/raw")
+repo_manager_options.repoSolvCachePath = zypp.Pathname(cachedir + "/solv")
+repo_manager_options.repoPackagesCachePath = zypp.Pathname(cachedir + "/packages")
+
+pkg_manager = pkgmgr(arch, instroot, cachedir)
+repoManager = zypp.RepoManager(repo_manager_options)
+pkg_manager.repo_manager_options = repo_manager_options
+pkg_manager.repo_manager = repoManager
+pkg_manager.setup()
+
+repos = pkg_manager.repo_manager.knownRepositories()
+
+pkg_manager.repo_manager.refreshServices()
+
+for repo in repos:
+    if repo.gpgCheck():
+        repo.setGpgCheck(False)
+
+    if not repo.autorefresh():
+        repo.setAutorefresh(True)
+
+    pkg_manager.repo_manager.refreshMetadata(repo, zypp.RepoManager.RefreshForced)
+
+    pkg_manager.repo_manager.modifyRepository(repo)
+
+    if not repo.enabled():
+        continue
+
+    pkg_manager.repo_manager.buildCache(repo, pkg_manager.repo_manager.BuildIfNeeded)
+    pkg_manager.repo_manager.loadFromCache(repo)
+
+#dicoPkgToInstall = {}
+#
+#package = {}
+#package["epoch"] = "0"
+#package["version"] = "3.12.9"
+#package["release"] = "3.15"
+#package["arch"] = "i386"
+#dicoPkgToInstall["nss"] = package
+#perl-libs arch i386 epoch 2 version 5.12.1 release 61.16
+
+#package["epoch"] = "2"
+#package["version"] = "5.12.1"
+#package["release"] = "61.16"
+#package["arch"] = "i386"
+#dicoPkgToInstall["perl"] = package
+
+for name in dicoPkgToInstall.keys():
+
+    package = dicoPkgToInstall[name]
+
+    if "epoch" in package.keys():
+        epoch = package["epoch"]
+    else:
+        epoch = None
+
+    version = package["version"]
+    release = package["release"]
+    arch = package["arch"]
+
+    pkg_manager.selectPackage(name, arch, version, release, epoch, ">=")
+
+
+pkg_manager.Z.resolver().setForceResolve(True)
+
+if not pkg_manager.Z.resolver().resolvePool():
+#    probs = pkg_manager.Z.resolver().problems()
+
+    obslight_zypp.autoResolve(pkg_manager.Z.resolver())
+
+#    todo = zypp.ProblemSolutionLis()
+#    zypp.
+#    for problem in probs:
+#        print "___________________________________________________________"
+#        todo.push_back(problem.solutions().begin())
+#
+##        print "\trepo problem:"
+##        print "\t\tsolutions: %s" % problem.solutions().begin()
+##        print "\t\tdetails: %s" % problem.details()
+##        print "\t\tdescription: %s" % problem.description()
+#
+#    pkg_manager.Z.resolver().applySolutions(todo)
+
+
+pkg_manager.runInstall()
+pkg_manager.close()
+
+
+

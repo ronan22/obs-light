@@ -82,14 +82,15 @@ class ObsLightMic(object):
         '''
         return self.__isInit
 
-    def initChroot(self, chrootDirectory=None,
-                         chrootTransfertDirectory=None,
-                         transfertDirectory=None):
+    def initChroot(self, chrootDirectory=None, mountDir=None):
         '''
         
         '''
+        mountDir = mountDir or {}
         self.testOwnerChRoot(path=chrootDirectory)
-        self.__bindmounts = chrootTransfertDirectory + ":" + transfertDirectory + ";"
+        self.__bindmounts = ""
+        for k in mountDir.keys():
+            self.__bindmounts += mountDir[k] + ":" + k + ";"
         self.__chrootDirectory = chrootDirectory
         self.__findArch()
 
@@ -141,7 +142,8 @@ class ObsLightMic(object):
                                  "/var/lib/dbus",
                                   "/var/run/dbus"):
                     #chroot.pwarning("%s will be mounted by default." % srcdst[0])
-                    self.__obsLightPrint("%s will be mounted by default." % srcdst[0] , isDebug=True)
+                    message = "%s will be mounted by default." % srcdst[0]
+                    self.__obsLightPrint(message, isDebug=True)
                     continue
                 if srcdst[1] == "" or srcdst[1] == "none":
                     srcdst[1] = None
@@ -155,7 +157,9 @@ class ObsLightMic(object):
 
             #"""Default bind mounts"""
             chrootmounts.append(BindChrootMount("/proc", chrootdir, None))
-            chrootmounts.append(BindChrootMount("/proc/sys/fs/binfmt_misc", self.__chrootDirectory, None))
+            chrootmounts.append(BindChrootMount("/proc/sys/fs/binfmt_misc",
+                                                self.__chrootDirectory,
+                                                None))
             chrootmounts.append(BindChrootMount("/sys", chrootdir, None))
             chrootmounts.append(BindChrootMount("/dev", chrootdir, None))
             chrootmounts.append(BindChrootMount("/dev/pts", chrootdir, None))
@@ -294,7 +298,8 @@ class ObsLightMic(object):
 
             for i in range(len(fileOutput)):
                 if fileOutput[i].find("ARM") > 0:
-                    qemu_emulator = misc.setup_qemu_emulator(rootdir=self.__chrootDirectory, arch="arm")
+                    qemu_emulator = misc.setup_qemu_emulator(rootdir=self.__chrootDirectory,
+                                                             arch="arm")
                     architecture_found = True
                     break
                 if fileOutput[i].find("Intel") > 0 or fileOutput[i].find("x86-64") > 0:
@@ -329,7 +334,8 @@ class ObsLightMic(object):
 
             subprocess.call(args, preexec_fn=mychroot)
 
-        except OSError, (err, msg):
+        except OSError, Err:
+            (err, msg) = Err
             self.__obsLightPrint(err, isDebug=True)
             raise fs_related.CreatorError("Failed to chroot: %s" % msg)
         finally:
@@ -401,9 +407,15 @@ class BindChrootMount:
                              (self.src, self.dest))
         if self.option:
             #TODO:change to use SubprocessCrt
-            rc = subprocess.call(["sudo", self.mountcmd, "--bind", "-o", "remount,%s" % self.option, self.dest])
+            rc = subprocess.call(["sudo",
+                                  self.mountcmd,
+                                  "--bind",
+                                  "-o",
+                                  "remount,%s" % self.option,
+                                  self.dest])
             if rc != 0:
-                raise fs_related.MountError("Bind-remounting '" + self.dest + "' failed with code " + str(rc))
+                message = "Bind-remounting '" + self.dest + "' failed with code " + str(rc)
+                raise fs_related.MountError(message)
         self.mounted = True
 
     def unmount(self):

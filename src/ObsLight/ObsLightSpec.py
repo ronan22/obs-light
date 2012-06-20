@@ -30,12 +30,12 @@ class ObsLightSpec:
     '''
     
     '''
-    def __init__(self, packagePath, file):
+    def __init__(self, packagePath, aFile):
         '''
         
         '''
         self.__packagePath = packagePath
-        self.__file = file
+        self.__file = aFile
         self.__path = os.path.join(self.__packagePath, self.__file)
 
         self.__introduction_section = "introduction_section"
@@ -353,9 +353,10 @@ class ObsLightSpec:
 
         patch_Val_Prep = "Patch" + str(patchID)
         patch_Val_Build = "%patch" + str(patchID)
-
-        self.__spectDico[self.__introduction_section].insert(0, patch_Val_Prep + ": " + aFile + "\n")
-        self.__spectDico[self.__introduction_section].insert(0, "# This line is insert automatically , please comment and clean the code\n")
+        patchCommand = patch_Val_Prep + ": " + aFile + "\n"
+        self.__spectDico[self.__introduction_section].insert(0, patchCommand)
+        comment = "# This line is insert automatically , please comment and clean the code\n"
+        self.__spectDico[self.__introduction_section].insert(0, comment)
 
         #You can have not %prep section
         #add the patch after the last one or if any patch present in the prep part, at the end.
@@ -369,7 +370,8 @@ class ObsLightSpec:
             if res == 0:
                 res = i
             self.__spectDico[self.__prepFlag].insert(res, patch_Val_Build + " -p1 \n")
-            self.__spectDico[self.__prepFlag].insert(res, "# This line is insert automatically, please comment and clean the code\n")
+            comment = "# This line is insert automatically, please comment and clean the code\n"
+            self.__spectDico[self.__prepFlag].insert(res, comment)
 
         return 0
 
@@ -400,8 +402,11 @@ class ObsLightSpec:
         source_Val_Prep = "Source" + str(SourceID)
         source_Val_Build = "SOURCE" + str(SourceID)
 
-        self.__spectDico[self.__introduction_section].insert(0, source_Val_Prep + ": " + baseFile + "\n")
-        self.__spectDico[self.__introduction_section].insert(0, "# This line is insert automatically, please comment and clean the code\n")
+        insertLine = source_Val_Prep + ": " + baseFile + "\n"
+        self.__spectDico[self.__introduction_section].insert(0, insertLine)
+
+        comment = "# This line is insert automatically, please comment and clean the code\n"
+        self.__spectDico[self.__introduction_section].insert(0, comment)
 
         #You can have not %prep section
         if not self.__prepFlag in self.__spectDico.keys():
@@ -436,7 +441,8 @@ class ObsLightSpec:
 
         for section in self.__orderList:
             for line in self.__spectDico[section]:
-                if line.startswith("Release:") and (line.strip("Release:").strip(" ").rstrip("\n") == ""):
+                if line.startswith("Release:") and \
+                   (line.strip("Release:").strip(" ").rstrip("\n") == ""):
                     f.write("Release:1\n")
                 else:
                     f.write(line)
@@ -452,7 +458,8 @@ class ObsLightSpec:
         for section in self.__orderList:
             for line in self.__spectDico[section]:
                 if (section == "introduction_section"):
-                    if line.startswith("Release:") and (line.strip("Release:").strip(" ").rstrip("\n") == ""):
+                    if line.startswith("Release:") and \
+                       (line.strip("Release:").strip(" ").rstrip("\n") == ""):
                         f.write("Release:1\n")
                     else:
                         f.write(line)
@@ -466,10 +473,6 @@ class ObsLightSpec:
                         f.write(line)
 
                 elif (section == "%build"):
-                    print "sectionTarget", sectionTarget, "packageStatus", packageStatus, not packageStatus in [ "Built",
-                                                                                                                  "Build Installed",
-                                                                                                                  "Build Packaged"]
-                    print "sectionTarget == install", sectionTarget == "install"
 
                     if sectionTarget == "install" and \
                        packageStatus in [ "Built",
@@ -516,7 +519,8 @@ class ObsLightSpec:
         toWrite = "#File Write by OBSLight don't modify it\n"
         for section in self.__orderList:
             for line in self.__spectDico[section]:
-                if line.startswith("Release:") and (line.strip("Release:").strip(" ").rstrip("\n") == ""):
+                if line.startswith("Release:") and \
+                   (line.strip("Release:").strip(" ").rstrip("\n") == ""):
                     toWrite += "Release:1\n"
                 elif (section == "introduction_section"):
                     if not line.startswith("Patch"):
@@ -527,7 +531,9 @@ class ObsLightSpec:
                     elif (line.startswith('%setup') and (SETUP == False)):
                         line = line.replace("-c", "")
                         toWrite += line
-                        toWrite += "if [ -e .emptyDirectory  ]; then for i in `cat .emptyDirectory` ; do mkdir -p $i;echo $i ; done;fi\n"
+                        toWrite += "if [ -e .emptyDirectory  ]; "
+                        toWrite += "then for i in `cat .emptyDirectory` ; "
+                        toWrite += "do mkdir -p $i;echo $i ; done;fi\n"
                         SETUP = True
                 else:
                     toWrite += line
@@ -540,7 +546,7 @@ class ObsLightSpec:
         aFile = open(path, 'w')
 
         if  len(re.findall(pattern, toWrite)) > 0:
-            aFile.write(re.sub(pattern, r'\1%s' % archive, toWrite))
+            aFile.write(re.sub(pattern, r'\1%s' % str(archive), toWrite))
         else:
             aFile.write('Source:%s\n' % archive)
             aFile.write(toWrite)

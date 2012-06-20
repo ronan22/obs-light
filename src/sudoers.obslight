@@ -25,4 +25,5 @@
 %users ALL=(ALL)NOPASSWD:/usr/bin/tee -a /etc/exports
 %users ALL=(ALL)NOPASSWD:/usr/sbin/exportfs -ra
 %users ALL=(ALL)NOPASSWD:/bin/sed -r -i * /etc/mic/mic.conf
-%users ALL=(ALL)NOPASSWD:/usr/bin/zypper --root /home/*
+%users ALL=(ALL)NOPASSWD:/usr/bin/zypper --cache-dir * --root /home/* *
+%users ALL=(ALL)NOPASSWD:/bin/pkill packagekitd

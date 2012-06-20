@@ -755,7 +755,8 @@ class ObsLightManagerCore(ObsLightManagerBase):
         If onlyInstalled=1, return the list of locally installed packages.
         If onlyInstalled=0, return the list of packages provided by the OBS server for the project.
         '''
-        return self._myObsLightProjects.getProject(projectLocalName).getListPackage(onlyInstalled=onlyInstalled)
+        project = self._myObsLightProjects.getProject(projectLocalName)
+        return project.getListPackage(onlyInstalled=onlyInstalled)
 
     @checkProjectLocalName(1)
     def createLocalProjectObsPackage(self, projectLocalName, name, title="", description=""):
@@ -1003,7 +1004,8 @@ class ObsLightManagerCore(ObsLightManagerBase):
         - "Status": status returned by osc (one character of " MADC?!")
         - "File name length": just to test
         '''
-        return self._myObsLightProjects.getProject(projectLocalName).getPackage(package).getPackageFileInfo(fileName)
+        project = self._myObsLightProjects.getProject(projectLocalName)
+        return project.getPackage(package).getPackageFileInfo(fileName)
 
     @checkProjectLocalName(1)
     def testConflict(self, projectLocalName, package):
@@ -1219,7 +1221,8 @@ class ObsLightManager(ObsLightManagerCore):
             The key is the info, ["obsRev", "oscRev", "status", "oscStatus", "chRootStatus"].
             The val is a string. 
                 For  ["obsRev", "oscRev"] can be -1,0,1,...
-                For ["status", "oscStatus", "chRootStatus"] define in [getListStatus,getListOscStatus,getListChRootStatus]
+                For ["status", "oscStatus", "chRootStatus"] define in 
+                [getListStatus,getListOscStatus,getListChRootStatus]
         If package =None:
             return all the package filtered.
         else:
@@ -1274,7 +1277,8 @@ class ObsLightManager(ObsLightManagerCore):
         The key is the info, ["obsRev", "oscRev", "status", "oscStatus", "chRootStatus"].
         The val is a string. 
             For  ["obsRev", "oscRev"] can be -1,1,2,...
-            For ["status", "oscStatus", "chRootStatus"] define in [getListStatus,getListOscStatus,getListChRootStatus]
+            For ["status", "oscStatus", "chRootStatus"] define in 
+            [getListStatus,getListOscStatus,getListChRootStatus]
         '''
         res = self._myObsLightProjects.getProject(projectLocalName).addPackageFilter(key=key,
                                                                                      val=val)

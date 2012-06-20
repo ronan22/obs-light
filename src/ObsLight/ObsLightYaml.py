@@ -30,12 +30,12 @@ import subprocess
 class ObsLightYaml:
     '''
     '''
-    def __init__(self, packagePath, file=None, specFile=None):
+    def __init__(self, packagePath, aFile=None, specFile=None):
         '''
         
         '''
-        self.__path = os.path.join(packagePath, file)
-        self.__yamlFile = file
+        self.__path = os.path.join(packagePath, aFile)
+        self.__yamlFile = aFile
         self.__packagePath = packagePath
 
         if specFile in (None, 'None', ""):
@@ -224,9 +224,6 @@ class ObsLightYaml:
         return 0
 
     def addFile(self, baseFile=None, aFile=None):
-        '''
-        
-        '''
         if not self.__Sources__ in self.__yamlDico.keys():
             self.__orderList.append(self.__Sources__)
             self.__yamlDico[self.__Sources__] = []
@@ -235,11 +232,7 @@ class ObsLightYaml:
         self.__yamlDico[self.__Sources__].append("    - " + baseFile + "\n")
         return None
 
-    def delFile(self, aFile=None):
-        '''
-        
-        '''
-        #TODO
+    def delFile(self, aFile=None):#XXX To do
         return None
 
     def save(self, path=None):
@@ -289,8 +282,6 @@ if __name__ == '__main__':
     #s.addFile("aPatch.patch")
     s.save(file2)
 
-
-    import subprocess
     subprocess.call(["diff", file1, file2])
 
 
