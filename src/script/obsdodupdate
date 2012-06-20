@@ -9,9 +9,9 @@ if [ $# -ne 4 ]; then
     echo ""
     echo "Usage:     $0 OBS_API PROJECT REPO ARCH"
     echo ""
-    echo "Example1: Local copy"
+    echo "Example1:"
     echo "         $0 https://myObs.mynetwork:444 MyMeeGo:1.2:oss standard i586 "
-    echo "Version 2.3a  Licence GLPv2"
+    echo "Version 1.1, license GLPv2"
 
     exit
 fi
