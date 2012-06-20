@@ -143,7 +143,7 @@ class SubprocessCrt(object):
         p1 = subprocess.Popen(splittedCommand1, stdout=subprocess.PIPE)
         p2 = subprocess.Popen(splittedCommand2, stdin=p1.stdout, stdout=subprocess.PIPE)
         p1.stdout.close()
-
+        p2.stdout.close()
         return 0
 
 

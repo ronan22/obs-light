@@ -31,6 +31,7 @@ then
   #rclighttpd restart
   #echo appliance info 
   sed -i "/^exit 0/ i\. /var/config_obs_boot_info" /etc/init.d/rc
+  obslight-fakeobs createlink
 fi
 
 #to disable GPG checks for OBS Light repo
@@ -39,3 +40,6 @@ then
    sed -i -r s,"gpgcheck=1","gpgcheck=0", /etc/zypp/repos.d/OBS_Light.repo
 fi
 
+# Refrech DOD primary.xml
+obsdodupdate https://localhost:444 MeeGo_DOD:1.2:oss standard i586
+obsdodupdate https://localhost:444 MeeGo_DOD:1.2.0:oss standard i586

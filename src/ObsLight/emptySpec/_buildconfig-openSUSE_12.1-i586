@@ -1,6 +1,6 @@
-%define _project Project:OBS_Light:openSUSE:12.1
+%define _project Project:OBS_Light
 
-### from openSUSE.org:openSUSE:12.1
+### from openSUSE:12.1
 %define _repository standard
 %define gcc_version 46
 %define opensuse_bs 1
@@ -616,20 +616,11 @@ Optflags: * -O2 -Wall -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fas
 %define suse_version 1210
 
 
-### from openSUSE.org:openSUSE:12.1:Update
-%define _repository standard
-
-%if "%_project" == "openSUSE:12.1:Update"
-RepoType: rpm-md:deltainfo splitdebug:_debug
-#RepoType: rpm-md splitdebug:_debug
-%endif
-
-
 Macros:
-%vendor obs://build.pub.meego.com/Project:OBS_Light:openSUSE:12.1
-%_project Project:OBS_Light:openSUSE:12.1
+%vendor obs://build.pub.meego.com/Project:OBS_Light
+%_project Project:OBS_Light
 
-### from openSUSE.org:openSUSE:12.1
+### from openSUSE:12.1
 %_repository standard
 %insserv_prereq insserv sed
 %fillup_prereq fillup coreutils grep diffutils
@@ -656,13 +647,8 @@ Macros:
 %{nil}
 
 
-### from openSUSE.org:openSUSE:12.1:Update
-%_repository standard
-%maintenance_distribution openSUSE 12.1
+%distribution Project:OBS_Light / openSUSE_12.1
+%_project Project:OBS_Light
 
-
-%distribution Project:OBS_Light:openSUSE:12.1 / openSUSE_12.1
-%_project Project:OBS_Light:openSUSE:12.1
-
-### from Project:OBS_Light:openSUSE:12.1
+### from Project:OBS_Light
 %_repository openSUSE_12.1

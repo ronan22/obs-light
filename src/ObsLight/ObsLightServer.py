@@ -113,12 +113,18 @@ class ObsLightServer(object):
                                 projectObsName,
                                 package,
                                 projectTarget,
-                                arch):
-        return ObsLightOsc.getObsLightOsc().getPackageBuildRequires(self.__serverAPI,
+                                arch,
+                                specFile):
+        buildInfoXml = ObsLightOsc.getObsLightOsc().getPackageBuildRequires(self.__serverAPI,
                                                                     projectObsName,
                                                                     package,
                                                                     projectTarget,
-                                                                    arch)
+                                                                    arch,
+                                                                    specFile)
+
+        buildInfoCli = ObsLightOsc.getObsLightOsc().updateCache(buildInfoXml, self.__serverAPI)
+
+        return buildInfoCli
 
     def getObsServerParameter(self, parameter=None):
         '''
@@ -170,7 +176,11 @@ class ObsLightServer(object):
             raise ObsLightErr.ObsLightObsServers(parameter + " is not a parameter of a OBS project")
 
         if not project in self.getLocalProjectList(raw=True):
-            raise ObsLightErr.ObsLightObsServers("Can't return the project parameter,\n '" + project + "' is not a project on obs '" + self.__serverAPI + "'")
+            message = "Can't return the project parameter,\n"
+            message += " '%s' is not a project on obs '%s'"
+            message = message % (project , self.__serverAPI)
+
+            raise ObsLightErr.ObsLightObsServers(message)
 
         return ObsLightOsc.getObsLightOsc().getProjectParameter(projectObsName=project,
                                                                 apiurl=self.__serverAPI,
@@ -198,10 +208,17 @@ class ObsLightServer(object):
             raise ObsLightErr.ObsLightObsServers(parameter + " is not a parameter of a OBS package")
 
         if not project in self.getLocalProjectList(raw=True):
-            raise ObsLightErr.ObsLightObsServers("Can't return the package parameter,\n '" + project + "' is not a project on obs '" + self.__serverAPI + "'")
+            message = "Can't return the package parameter,\n"
+            message += "'%s' is not a project on obs '%s'"
+            message = message % (project, self.__serverAPI)
+
+            raise ObsLightErr.ObsLightObsServers(message)
 
         if not package in self.getObsProjectPackageList(projectObsName=project):
-            raise ObsLightErr.ObsLightObsServers("Can't return the package parameter,\n '" + project + "' is not a package of project '" + project + "' on obs '" + self.__serverAPI + "'")
+            message = "Can't return the package parameter,\n"
+            message += "'%s' is not a package of project '%s' on obs '%s'"
+            message = message % (package, project, self.__serverAPI)
+            raise ObsLightErr.ObsLightObsServers(message)
 
         if parameter in ["title",
                          "description",
@@ -265,7 +282,8 @@ class ObsLightServer(object):
             raise ObsLightErr.ObsLightObsServers("parameter is not valid for setObsServerParameter")
         return None
 
-    def initConfigProject(self, projet, repos, lastResult={}):
+    def initConfigProject(self, projet, repos, lastResult=None):
+        lastResult = lastResult or {}
         #if the repository is link to a listDepProject
         res = ObsLightOsc.getObsLightOsc().getDepProject(apiurl=self.__serverAPI,
                                                          projet=projet,
@@ -284,7 +302,9 @@ class ObsLightServer(object):
             for aprojet in listProject:
                 if (aprojet != projet) or (res[aprojet] != repos) :
                     if (aprojet not in  lastResult.keys()):
-                        self.initConfigProject(projet=aprojet, repos=res[aprojet], lastResult=dicoProject)
+                        self.initConfigProject(projet=aprojet,
+                                               repos=res[aprojet],
+                                               lastResult=dicoProject)
 
     def getDic(self):
         '''
@@ -333,7 +353,8 @@ class ObsLightServer(object):
         '''
 
 
-        result1 = ObsLightOsc.getObsLightOsc().getDependencyProjects(self.__serverAPI, projectObsName, target)
+        result1 = ObsLightOsc.getObsLightOsc().getDependencyProjects(self.__serverAPI,
+                                                                     projectObsName, target)
 
         result2 = {}
         for prj in result1.keys():
@@ -431,3 +452,9 @@ class ObsLightServer(object):
                                                               package,
                                                               title,
                                                               description)
+
+    def saveProjectConfig(self, projectObsName, target):
+        return ObsLightOsc.getObsLightOsc().saveProjectConfig(self.__serverAPI,
+                                                              projectObsName,
+                                                              target)
+

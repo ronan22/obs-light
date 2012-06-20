@@ -51,7 +51,8 @@ class ObsLightServers(object):
         self.__blackList = ObsLightOsc.getObsLightOsc().getServersFromOsc()
 
     def __load(self):
-        if (len(self.__dicOBSLightServers.keys()) == 0) and (len(self.__dicOBSLightServers_unLoad.keys()) == 0):
+        if (len(self.__dicOBSLightServers.keys()) == 0) and \
+           (len(self.__dicOBSLightServers_unLoad.keys()) == 0):
             if os.path.isfile(self.__pathFile):
                 with open(self.__pathFile, 'r') as aFile:
                     try:
@@ -78,7 +79,8 @@ class ObsLightServers(object):
         '''
         
         '''
-        if (len(self.__dicOBSLightServers.keys()) > 0) or (len(self.__dicOBSLightServers_unLoad.keys()) > 0):
+        if (len(self.__dicOBSLightServers.keys()) > 0) or \
+           (len(self.__dicOBSLightServers_unLoad.keys()) > 0):
             saveServers = {}
 
             for obsserverName in self.__dicOBSLightServers.keys():

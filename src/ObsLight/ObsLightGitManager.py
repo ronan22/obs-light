@@ -30,7 +30,6 @@ class ObsLightGitManager(object):
     class Git management
     '''
 
-
     def __init__(self, projectChroot):
 
         '''
@@ -51,7 +50,7 @@ class ObsLightGitManager(object):
     def ___execPipeSubprocess(self, command, command2):
         return self.__mySubprocessCrt.execPipeSubprocess(command, command2)
 
-    def prepareGitCommand(self, workTree, subcommand, gitDir="../.git_obslight"):
+    def prepareGitCommand(self, workTree, subcommand, gitDir):
         """
         Construct a Git command-line, setting its working tree to `workTree`,
         and then appends `subcommand`.
@@ -59,9 +58,7 @@ class ObsLightGitManager(object):
           git --git-dir=<workTree>/[gitDir] --work-tree=<workTree> <subcommand>
         """
         absWorkTree = self.__chroot.getDirectory() + workTree
-        command = "git --git-dir=%s/%s --work-tree=%s " % (absWorkTree,
-                                                           gitDir,
-                                                           absWorkTree)
+        command = "git --git-dir=%s --work-tree=%s " % (self.__chroot.getDirectory() + gitDir, absWorkTree)
         command += subcommand
         return command
 
@@ -121,6 +118,7 @@ class ObsLightGitManager(object):
         command.append(self.prepareGitCommand(path, "init ", pkgCurGitDir))
         command.append(self.prepareGitCommand(path, "add " + absPath + "/\*", pkgCurGitDir))
         command.append(self.prepareGitCommand(path, "commit -a -m %s" % comment, pkgCurGitDir))
+
         res = self.__listSubprocess(command=command)
 
     def ignoreGitWatch(self, package, path=None, commitComment="first build commit", firstBuildCommit=True):
@@ -137,7 +135,7 @@ class ObsLightGitManager(object):
         timeString = time.strftime("%Y-%m-%d_%Hh%Mm%Ss")
         comment = '\"auto commit %s %s\"' % (commitComment, timeString)
 
-        command = self.prepareGitCommand(path, u"status -u -s ")
+        command = self.prepareGitCommand(path, u"status -u -s ", package.getCurrentGitDirectory())
         #| sed -e 's/^[ \t]*//' " + u"| cut -d' ' -f2 >> %s/.gitignore" % absPath, package.getCurrentGitDirectory()
 
         res = self.__subprocess(command=command, stdout=True)
@@ -169,12 +167,12 @@ class ObsLightGitManager(object):
         Get the last Git commit hash.
         '''
 
-        resultFile = "commitTag.log"
+#        resultFile = "commitTag.log"
         command = self.prepareGitCommand(path,
                                          " log HEAD --pretty=short -n 1 " ,
                                         package.getCurrentGitDirectory())
 
-        resPath = self.__chroot.getChrootDirTransfert() + "/" + resultFile
+#        resPath = self.__chroot.getChrootDirTransfert() + "/" + resultFile
         result = self.__subprocess(command=command, stdout=True)
 
         for line in result.split("\n"):
@@ -186,7 +184,7 @@ class ObsLightGitManager(object):
         '''
         Get the last Git commit hash.
         '''
-        resultFile = self.__chroot.getChrootDirTransfert() + "/" + "commitTag.log"
+#        resultFile = self.__chroot.getChrootDirTransfert() + "/" + "commitTag.log"
         command = self.prepareGitCommand(path,
                                          " log HEAD --pretty=short -n 20 ",
                                          package.getCurrentGitDirectory())

@@ -59,7 +59,8 @@ class ObsLightProjects(object):
         '''
         
         '''
-        if ((len(self.__dicOBSLightProjects.keys()) == 0) and (len(self.__dicOBSLightProjects_unload.keys()) == 0)) or (aFile != None):
+        if ((len(self.__dicOBSLightProjects.keys()) == 0) and \
+           (len(self.__dicOBSLightProjects_unload.keys()) == 0)) or (aFile != None):
             if aFile == None:
                 pathFile = self.__pathFile
                 self.__dicOBSLightProjects_unload = {}
@@ -74,15 +75,20 @@ class ObsLightProjects(object):
                 try:
                     self.__saveconfigProject = pickle.load(aFile)
                 except:
-                    raise  ObsLightErr.ObsLightProjectsError("the file: " + pathFile + " is not a backup")
+                    message = "the file: " + pathFile + " is not a backup"
+                    raise  ObsLightErr.ObsLightProjectsError(message)
                 aFile.close()
 
-                if (not "saveProjects" in self.__saveconfigProject.keys()) or (not "currentProject" in self.__saveconfigProject.keys()):
-                    raise ObsLightErr.ObsLightProjectsError("the file: " + pathFile + "  is not a backup")
+                if (not "saveProjects" in self.__saveconfigProject.keys()) or \
+                   (not "currentProject" in self.__saveconfigProject.keys()):
+                    message = "the file: " + pathFile + "  is not a backup"
+                    raise ObsLightErr.ObsLightProjectsError(message)
 
                 for p in self.__saveconfigProject["saveProjects"].keys():
-                    if (p in self.__dicOBSLightProjects_unload.keys()) or (p in self.__dicOBSLightProjects.keys()):
-                        raise ObsLightErr.ObsLightProjectsError("Can't import project: '" + p + "' already a obslight project.")
+                    if (p in self.__dicOBSLightProjects_unload.keys()) or \
+                       (p in self.__dicOBSLightProjects.keys()):
+                        message = "Can't import project: '" + p + "' already a obslight project."
+                        raise ObsLightErr.ObsLightProjectsError(message)
                     self.__dicOBSLightProjects_unload[p] = self.__saveconfigProject["saveProjects"][p]
 
                 self.__currentProjects = self.__saveconfigProject["currentProject"]
@@ -112,7 +118,8 @@ class ObsLightProjects(object):
             elif projectName in self.__dicOBSLightProjects_unload.keys():
                 saveProject[projectName] = self.__dicOBSLightProjects_unload[projectName]
             else:
-                raise ObsLightErr.ObsLightProjectsError("Can't save project '" + projectName + "' ,it doen't exist.")
+                mesage = "Can't save project '" + projectName + "' ,it doen't exist."
+                raise ObsLightErr.ObsLightProjectsError(mesage)
 
         saveconfigProject = {}
         saveconfigProject["saveProjects"] = saveProject
@@ -146,7 +153,8 @@ class ObsLightProjects(object):
 
             return self.__dicOBSLightProjects[project]
         else:
-            raise ObsLightErr.ObsLightProjectsError("the project: '" + project + "'  is not a local project.")
+            message = "the project: '" + project + "'  is not a local project."
+            raise ObsLightErr.ObsLightProjectsError(message)
 
 
     def removeProject(self, projectLocalName=None):
@@ -159,7 +167,8 @@ class ObsLightProjects(object):
         if not os.path.isdir(projetPath):
             del self.__dicOBSLightProjects[projectLocalName]
         else:
-            raise ObsLightErr.ObsLightProjectsError("Error in removeProject, can't remove project directory.")
+            message = "Error in removeProject, can't remove project directory."
+            raise ObsLightErr.ObsLightProjectsError(message)
 
         self.__currentProjects = None
         self.save()
@@ -170,12 +179,14 @@ class ObsLightProjects(object):
         
         '''
         if not (name in self.__dicOBSLightProjects.keys()):
-            self.__dicOBSLightProjects[name] = ObsLightProject(obsServers=self.__obsServers,
-                                                               workingDirectory=self.getObsLightWorkingDirectory(),
-                                                               fromSave=fromSave,
-                                                               importFile=importFile)
+            project = ObsLightProject(obsServers=self.__obsServers,
+                                    workingDirectory=self.getObsLightWorkingDirectory(),
+                                    fromSave=fromSave,
+                                    importFile=importFile)
+            self.__dicOBSLightProjects[name] = project
         else:
-            raise ObsLightErr.ObsLightProjectsError("Can't import: " + name + ", The Project already exists.")
+            message = "Can't import: " + name + ", The Project already exists."
+            raise ObsLightErr.ObsLightProjectsError(message)
         return 0
 
     def getCurrentProject(self):
@@ -199,17 +210,19 @@ class ObsLightProjects(object):
 
         if (projectLocalName in self.__dicOBSLightProjects_unload.keys()) or\
            (projectLocalName in self.__dicOBSLightProjects.keys()):
-            raise ObsLightErr.ObsLightProjectsError("The projectLocalName '" + projectLocalName + "' all ready exist")
+            message = "The projectLocalName '" + projectLocalName + "' all ready exist"
+            raise ObsLightErr.ObsLightProjectsError(message)
 
-        self.__dicOBSLightProjects[projectLocalName] = ObsLightProject(obsServers=self.__obsServers,
-                                                                       workingDirectory=self.getObsLightWorkingDirectory(),
-                                                                       projectLocalName=projectLocalName,
-                                                                       projectObsName=projectObsName,
-                                                                       projectTitle=projectTitle,
-                                                                       description=description,
-                                                                       obsServer=obsServer,
-                                                                       projectTarget=projectTarget,
-                                                                       projectArchitecture=projectArchitecture)
+        project = ObsLightProject(obsServers=self.__obsServers,
+                                  workingDirectory=self.getObsLightWorkingDirectory(),
+                                  projectLocalName=projectLocalName,
+                                  projectObsName=projectObsName,
+                                  projectTitle=projectTitle,
+                                  description=description,
+                                  obsServer=obsServer,
+                                  projectTarget=projectTarget,
+                                  projectArchitecture=projectArchitecture)
+        self.__dicOBSLightProjects[projectLocalName] = project
         return 0
 
     #---------------------------------------------------------------------------
@@ -240,8 +253,9 @@ class ObsLightProjects(object):
         if (isinstance(package, collections.Iterable) and
             not isinstance(package, str) and
             not isinstance(package, unicode)):
+            procedure = self.getProject(projectLocalName).updatePackage
             theBadResult = ObsLightTools.mapProcedureWithThreads(parameterList=package,
-                                                                  procedure=self.getProject(projectLocalName).updatePackage,
+                                                                  procedure=procedure,
                                                                   progress=controlFunction)
             if len(theBadResult) > 0:
                 return 1
@@ -257,8 +271,9 @@ class ObsLightProjects(object):
         if (isinstance(package, collections.Iterable) and
             not isinstance(package, str) and
             not isinstance(package, unicode)):
+            procedure = self.getProject(projectLocalName).refreshOscDirectoryStatus
             theBadResult = ObsLightTools.mapProcedureWithThreads(parameterList=package,
-                                                                  procedure=self.getProject(projectLocalName).refreshOscDirectoryStatus,
+                                                                  procedure=procedure,
                                                                   progress=controlFunction)
             if len(theBadResult) > 0:
                 return 1
@@ -274,8 +289,9 @@ class ObsLightProjects(object):
         if (isinstance(package, collections.Iterable) and
             not isinstance(package, str) and
             not isinstance(package, unicode)):
+            procedure = self.getProject(projectLocalName).refreshObsStatus
             theBadResult = ObsLightTools.mapProcedureWithThreads(parameterList=package,
-                                                                  procedure=self.getProject(projectLocalName).refreshObsStatus,
+                                                                  procedure=procedure,
                                                                   progress=controlFunction)
             if len(theBadResult) > 0:
                 return 1
