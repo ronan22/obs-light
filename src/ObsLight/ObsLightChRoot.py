@@ -42,6 +42,8 @@ import copy
 from ObsLightGitManager import ObsLightGitManager
 from ObsLightRepoManager import ObsLightRepoManager
 
+from ObsLightUtils import isNonEmptyString
+
 import ObsLightOsc
 
 class ObsLightChRoot(object):
@@ -454,48 +456,44 @@ class ObsLightChRoot(object):
                 raise ObsLightErr.ObsLightChRootError(message)
             return res
 
+    def makeRpmbuildScriptParameters(self, specFile, package, target="", args=""):
+        parameters = dict()
+        parameters["packageName"] = package.getName()
+        parameters["buildDir"] = "/root/%s/%s" % (parameters["packageName"],
+                                                  package.getTopDirRpmBuildDirectory())
+        parameters["buildLink"] = "/root/%s/%s" % (parameters["packageName"],
+                                                   package.getTopDirRpmBuildLinkDirectory())
+        srcdefattr = "--define '_srcdefattr (-,root,root)'"
+        topdir = "--define '_topdir %%{getenv:HOME}/%s'" % package.getTopDirRpmBuildLinkDirectory()
+        if isNonEmptyString(target):
+            args = args + " --target=%s" % target
+        rpmbuildCmd = "rpmbuild %s %s %s %s" % (args, srcdefattr, topdir, specFile)
+        parameters["rpmbuildCmd"] = rpmbuildCmd
+        return parameters
+
     # TODO: replace 'arch' by 'target'
     def prepRpm(self, specFile, package, arch):
         '''
         Execute the %prep section of an RPM spec file.
         '''
-        packageName = package.getName()
-
-        buildDir = "/root/" + packageName + "/" + package.getTopDirRpmBuildDirectory()
-        buildLink = "/root/" + packageName + "/" + package.getTopDirRpmBuildLinkDirectory()
-        srcdefattr = "--define '_srcdefattr (-,root,root)'"
-        topdir = "--define '_topdir %%{getenv:HOME}/%s'" % package.getTopDirRpmBuildLinkDirectory()
-
-        if arch != "":
-            target = "--target=" + arch
-        else:
-            target = ""
-
-        rpmbuilCmd = "rpmbuild -bp %s %s %s %s < /dev/null" % (srcdefattr,
-                                                               topdir,
-                                                               specFile,
-                                                               target)
-
-        command = []
-        command.append("HOME=/root/" + package.getName())
-        command.append("rm  " + buildLink)
-        command.append("ln -s %s %s" % (buildDir, buildLink))
-        command.append("chown -R root:users %s" % buildDir)
-        command.append(rpmbuilCmd)
-        command.append("RPMBUILD_RETURN_CODE=$?")
-#        command.append("find %s -type f -name .gitignore -exec rm -v {} \; -print"
-#                       % os.path.join(buildDir, "BUILD"))
-        command.append("exit $RPMBUILD_RETURN_CODE")
-
-        res = self.execCommand(command=command)
+        scriptParameters = self.makeRpmbuildScriptParameters(specFile, package, arch, "-bp")
+        script = """HOME=/root/%(packageName)s
+rm -f %(buildLink)s
+ln -s %(buildDir)s %(buildLink)s
+chown -R root:users %(buildDir)s
+%(rpmbuildCmd)s
+exit $?
+"""
+        script = script % scriptParameters
+        res = self.execCommand([script])
 
         if res != 0:
-            msg = "The first %%prep of package '%s' failed. " % packageName
+            msg = "The first %%prep of package '%s' failed. " % package.getName()
             msg += "Return code was: %s" % str(res)
             raise ObsLightErr.ObsLightChRootError(msg)
 
         packageDirectory = self.__findPackageDirectory(package=package)
-        message = "Package directory used by '%s': %s" % (packageName,
+        message = "Package directory used by '%s': %s" % (package.getName(),
                                                           str(packageDirectory))
         ObsLightPrintManager.getLogger().debug(message)
         package.setDirectoryBuild(packageDirectory)
@@ -525,31 +523,16 @@ class ObsLightChRoot(object):
         '''
         Execute the %build section of an RPM spec file.
         '''
-        buildDir = "/root/" + package.getName() + "/" + package.getTopDirRpmBuildDirectory()
-        buildLink = "/root/" + package.getName() + "/" + package.getTopDirRpmBuildLinkDirectory()
-
-        srcdefattr = "--define '_srcdefattr (-,root,root)'"
-        topdir = "--define '%_topdir %{getenv:HOME}/" + package.getTopDirRpmBuildLinkDirectory() + "'"
-
-        if arch != "":
-            target = "--target=" + arch
-        else:
-            target = ""
-
-        rpmbuilCmd = "rpmbuild -bc --short-circuit %s %s %s %s< /dev/null" % (srcdefattr,
-                                                                              topdir,
-                                                                              specFile,
-                                                                              target)
-
-        command = []
-
-        command.append("HOME=/root/" + package.getName())
-        command.append("rm  " + buildLink)
-        command.append("ln -s %s %s" % (buildDir, buildLink))
-        command.append(rpmbuilCmd)
-        command.append("RPMBUILD_RETURN_CODE=$?")
-        command.append("exit $RPMBUILD_RETURN_CODE")
-        res = self.execCommand(command=command)
+        scriptParameters = self.makeRpmbuildScriptParameters(specFile, package, arch,
+                                                             "-bc --short-circuit")
+        script = """HOME=/root/%(packageName)s
+rm -f %(buildLink)s
+ln -s %(buildDir)s %(buildLink)s
+%(rpmbuildCmd)s
+exit $?
+"""
+        script = script % scriptParameters
+        res = self.execCommand([script])
 
         packageName = package.getName()
         packageDirectory = package.getPackageDirectory()
@@ -572,7 +555,7 @@ class ObsLightChRoot(object):
         Execute the %build section of an RPM spec file.
         '''
         if package.getStatus() == "excluded":
-            msg = u"Package '%s' has a excluded status, it can't be build" % package.getName()
+            msg = u"Package '%s' has a excluded status, it can't be built" % package.getName()
             raise ObsLightErr.ObsLightChRootError(msg)
         if package.specFileHaveAnEmptyBuild():
             package.setChRootStatus("No build directory")
@@ -584,9 +567,9 @@ class ObsLightChRoot(object):
             res = self.__createGhostRpmbuildCommand("bc", package, specFile, arch)
 
             self.__ObsLightGitManager.ignoreGitWatch(package=package,
-                                                    path=package.getPackageDirectory(),
-                                                    commitComment="build commit",
-                                                    firstBuildCommit=False)
+                                                     path=package.getPackageDirectory(),
+                                                     commitComment="build commit",
+                                                     firstBuildCommit=False)
         else:
             res = self.__createRpmbuildCommand("bc", package, specFile, arch)
         if res == 0:
@@ -708,68 +691,40 @@ class ObsLightChRoot(object):
         return res
 
     def __createRpmbuildCommand(self, command, package, pathToSpec, arch):
-        buildDir = package.getTopDirRpmBuildDirectory()
-        buildLink = "/root/" + package.getName() + "/" + package.getTopDirRpmBuildLinkDirectory()
-
-        srcdefattr = "--define '_srcdefattr (-,root,root)'"
-        topdir = "--define '%_topdir %{getenv:HOME}/" + package.getTopDirRpmBuildLinkDirectory() + "'"
-
-        if arch != "":
-            target = "--target=" + arch
-        else:
-            target = ""
-
-        rpmbuilCmd = "rpmbuild -%s %s %s %s %s< /dev/null" % (command,
-                                                            srcdefattr,
-                                                            topdir,
-                                                            pathToSpec,
-                                                            target)
-
-        command = []
-        command.append("HOME=/root/" + package.getName())
-        command.append("rm  " + buildLink)
-        command.append("ln -s %s %s" % (buildDir, buildLink))
-        command.append("chown -R root:users %s" % (buildLink + "/SOURCES/"))
-        command.append("chown -R root:users %s" % (buildLink + "/SPECS/"))
-        command.append(rpmbuilCmd)
-        command.append("RPMBUILD_RETURN_CODE=$?")
-        command.append("exit $RPMBUILD_RETURN_CODE")
-        return self.execCommand(command=command)
+        scriptParameters = self.makeRpmbuildScriptParameters(pathToSpec, package, target=arch,
+                                                             args="-%s" % command)
+        script = """HOME=/root/%(packageName)s
+rm -f %(buildLink)s
+ln -s %(buildDir)s %(buildLink)s
+chown -R root:users %(buildLink)s/SOURCES/
+chown -R root:users %(buildLink)s/SPECS/
+%(rpmbuildCmd)s
+exit $?
+"""
+        script = script % scriptParameters
+        return self.execCommand([script])
 
     def __createGhostRpmbuildCommand(self, command, package, pathToSpec, arch):
-        buildDirTmp = package.getTopDirRpmBuildTmpDirectory()
-        buildDirTmpPath = "/root/" + package.getName() + "/" + buildDirTmp
-        buildDir = package.getTopDirRpmBuildDirectory()
-#        buildDirPath = "/root/" + package.getName() + "/" + buildDir
-        buildLink = "/root/" + package.getName() + "/" + package.getTopDirRpmBuildLinkDirectory()
-
-        srcdefattr = "--define '_srcdefattr (-,root,root)'"
-        topdir = "--define '%_topdir %{getenv:HOME}/" + package.getTopDirRpmBuildLinkDirectory() + "'"
-        if arch != "":
-            target = "--target=" + arch
-        else:
-            target = ""
-
-        rpmbuilCmd = "rpmbuild -%s %s %s %s %s< /dev/null" % (command,
-                                                            srcdefattr,
-                                                            topdir,
-                                                            pathToSpec,
-                                                            target)
-        command = []
-        command.append("HOME=/root/" + package.getName())
-        command.append("rm  " + buildLink)
-        command.append("ln -s %s %s" % (buildDirTmp, buildLink))
-        command.append("chown -R root:users %s" % (buildLink + "/SOURCES/"))
-        command.append("chown -R root:users %s" % (buildLink + "/SPECS/"))
-        command.append(rpmbuilCmd)
-        command.append("RPMBUILD_RETURN_CODE=$?")
-        command.append("cp -fpr  %s/BUILD/* %s/BUILD/" % (buildDirTmpPath, buildDir))
-        command.append("rm -r %s/TMP" % buildDirTmpPath)
-        command.append("rm  " + buildLink)
-        command.append("ln -s %s %s" % (buildDir, buildLink))
-        command.append("exit $RPMBUILD_RETURN_CODE")
-        return self.execCommand(command=command)
-
+        scriptParameters = self.makeRpmbuildScriptParameters(pathToSpec, package,
+                                                             target=arch, args="-%s" % command)
+        script = """HOME=/root/%(packageName)s
+rm -f %(buildLink)s
+ln -s %(buildDirTmp)s %(buildLink)s
+chown -R root:users %(buildLink)s/SOURCES/
+chown -R root:users %(buildLink)s/SPECS/
+%(rpmbuildCmd)s
+RPMBUILD_RETURN_CODE=$?
+cp -fpr %(buildDirTmpPath)s/BUILD/* %(buildDir)s/BUILD/
+rm -r %(buildDirTmpPath)s/TMP
+rm -f %(buildLink)s
+ln -s %(buildDir)s %(buildLink)s
+exit $RPMBUILD_RETURN_CODE
+"""
+        scriptParameters["buildDirTmp"] = package.getTopDirRpmBuildTmpDirectory()
+        scriptParameters["buildDirTmpPath"] = "/root/%s/%s" % (package.getName(),
+                                                               scriptParameters["buildDirTmp"])
+        script = script % scriptParameters
+        return self.execCommand([script])
 
     def execCommand(self, command=None):
         '''
