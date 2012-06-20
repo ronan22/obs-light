@@ -128,7 +128,7 @@ class ObsLightGitManager(object):
         and commit.
         '''
 
-        if path == None:
+        if path is None:
             raise ObsLightErr.ObsLightChRootError("path is not defined in initGitWatch.")
 
         absPath = self.__chroot.getDirectory() + path
@@ -140,6 +140,9 @@ class ObsLightGitManager(object):
         #| sed -e 's/^[ \t]*//' " + u"| cut -d' ' -f2 >> %s/.gitignore" % absPath, package.getCurrentGitDirectory()
 
         res = self.__subprocess(command=command, stdout=True)
+        # some packages modify their file rights, so we have to ensure
+        # this file is writable
+        self.__subprocess("sudo chmod a+w %s/.gitignore" % absPath)
 
         f = open(absPath + "/.gitignore", 'a')
         if firstBuildCommit:
