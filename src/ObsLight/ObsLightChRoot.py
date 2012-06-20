@@ -379,7 +379,6 @@ class ObsLightChRoot(object):
             package.saveSpec(absSpecFile_tmp)
 #            package.saveSpecShortCut(absSpecFile_tmp, section)
 
-
         command = '%s/substitutedeps --root %s --dist "%s" --archpath "%s" --configdir "%s" %s %s'
         command = command % (buildDir,
                              self.getDirectory(),
@@ -467,7 +466,11 @@ class ObsLightChRoot(object):
         srcdefattr = "--define '_srcdefattr (-,root,root)'"
         topdir = "--define '_topdir %%{getenv:HOME}/%s'" % package.getTopDirRpmBuildLinkDirectory()
 
-        target = "--target=" + arch
+        if arch != "":
+            target = "--target=" + arch
+        else:
+            target = ""
+
         rpmbuilCmd = "rpmbuild -bp %s %s %s %s < /dev/null" % (srcdefattr,
                                                                topdir,
                                                                specFile,
@@ -528,7 +531,10 @@ class ObsLightChRoot(object):
         srcdefattr = "--define '_srcdefattr (-,root,root)'"
         topdir = "--define '%_topdir %{getenv:HOME}/" + package.getTopDirRpmBuildLinkDirectory() + "'"
 
-        target = "--target=" + arch
+        if arch != "":
+            target = "--target=" + arch
+        else:
+            target = ""
 
         rpmbuilCmd = "rpmbuild -bc --short-circuit %s %s %s %s< /dev/null" % (srcdefattr,
                                                                               topdir,
@@ -708,7 +714,10 @@ class ObsLightChRoot(object):
         srcdefattr = "--define '_srcdefattr (-,root,root)'"
         topdir = "--define '%_topdir %{getenv:HOME}/" + package.getTopDirRpmBuildLinkDirectory() + "'"
 
-        target = "--target=" + arch
+        if arch != "":
+            target = "--target=" + arch
+        else:
+            target = ""
 
         rpmbuilCmd = "rpmbuild -%s %s %s %s %s< /dev/null" % (command,
                                                             srcdefattr,
@@ -736,7 +745,10 @@ class ObsLightChRoot(object):
 
         srcdefattr = "--define '_srcdefattr (-,root,root)'"
         topdir = "--define '%_topdir %{getenv:HOME}/" + package.getTopDirRpmBuildLinkDirectory() + "'"
-        target = "--target=" + arch
+        if arch != "":
+            target = "--target=" + arch
+        else:
+            target = ""
 
         rpmbuilCmd = "rpmbuild -%s %s %s %s %s< /dev/null" % (command,
                                                             srcdefattr,

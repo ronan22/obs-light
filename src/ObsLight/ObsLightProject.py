@@ -857,10 +857,8 @@ class ObsLightProject(object):
         if target.endswith("\n"):
             target = target[:-len(endline)]
 
-        if target != "":
-            return target
-        else:
-            return self.__projectArchitecture
+        return target
+
 
 
     def createPatch(self, package, patch):
