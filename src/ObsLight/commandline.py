@@ -281,9 +281,9 @@ __DESCRIPTION__ += firstBorder + "For informations, see the Help section" + "\n"
 __DESCRIPTION__ += firstBorder * 2 + "obslight --help\n"
 __DESCRIPTION__ += firstBorder + "The GUI for %s is obslightgui\n" % __PRGNAME__
 __DESCRIPTION__ += firstBorder + "A FAQ is available at:\n"
-__DESCRIPTION__ += firstBorder * 2 + "* http://wiki.meego.com/OBS_Light_FAQ\n"
+__DESCRIPTION__ += firstBorder * 2 + "* http://en.opensuse.org/openSUSE:OBS_Light_FAQ\n"
 __DESCRIPTION__ += firstBorder + "For additional information, see:\n"
-__DESCRIPTION__ += firstBorder * 2 + "* http://wiki.meego.com/OBS_Light\n"
+__DESCRIPTION__ += firstBorder * 2 + "* http://en.opensuse.org/openSUSE:OBS_Light\n"
 
 __DESCRIPTION__ += "Usage: %s [global command] <command> [--command-options]\n" % __PRGNAME__
 __DESCRIPTION__ += "\n"

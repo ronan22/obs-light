@@ -359,7 +359,7 @@ def get_package_file(realproject, projectpath, packagename, filename, getrev):
         for entry in tree:
             if entry.name == filename:
                return entry.size, git_cat(git, entry.hexsha)
-        return None
+        return None, None
 
 def git_cat(gitpath, object):
     return Popen(["git", "--git-dir=" + gitpath, "cat-file", "blob", object], stdout=PIPE).communicate()[0]
@@ -372,59 +372,60 @@ def git_compute_md5(gitpath, object):
     return p2.communicate()[0][:32]
 
 def generate_mappings(repos):
-        impl = getDOMImplementation()
-        indexdoc = impl.createDocument(None, "maps", None)
+    impl = getDOMImplementation()
+    indexdoc = impl.createDocument(None, "maps", None)
+    lenmsg = "Non-matching size for file %s of %s (%d vs %d)"
 
-        for x in repos:
-                pkgelement = indexdoc.createElement("repo")
-                pkgelement.setAttribute("path", x)
+    for x in repos:
+        pkgelement = indexdoc.createElement("repo")
+        pkgelement.setAttribute("path", x)
 
-                repo = git.Repo(x, odbt=git.GitDB)
-                for branch in repo.heads:
-                    toprev = 0
-                    for xz in repo.iter_commits(branch):
-                      toprev = toprev + 1
-                    rev = 0
+        repo = git.Repo(x, odbt=git.GitDB)
+        for branch in repo.heads:
+            toprev = 0
+            for xz in repo.iter_commits(branch):
+                toprev = toprev + 1
+            rev = 0
 
-                    for cm in repo.iter_commits(branch):
-                      entries = {}
-                      for entry in cm.tree:
-                         if entry.name == "_meta" or entry.name == "_attribute":
-                              continue
-                         # If file is bigger than 20MB, do not load it
-                         # to compute the checksum
-                         if entry.size > (20 * 2 ** 20):
-                             checksum = git_compute_md5(x, entry.hexsha)
-                             entries[entry.name] = checksum
-                         else:
-                             st = git_cat(x, entry.hexsha)
-                             assert len(st) == entry.size
-                             m = hashlib.md5(st)
-                             entries[entry.name] = m.hexdigest()
-                      sortedkeys = sorted(entries.keys())
-                      meta = ""
-                      for y in sortedkeys:
-                         meta += entries[y]
-                         meta += "  "
-                         meta += y
-                         meta += "\n"
+            for cm in repo.iter_commits(branch):
+                entries = {}
+                for entry in cm.tree:
+                    if entry.name == "_meta" or entry.name == "_attribute":
+                        continue
+                    # If file is bigger than 20MB, do not load it
+                    # to compute the checksum
+                    if entry.size > (20 * 2 ** 20):
+                        checksum = git_compute_md5(x, entry.hexsha)
+                        entries[entry.name] = checksum
+                    else:
+                        st = git_cat(x, entry.hexsha)
+                        assert len(st) == entry.size, lenmsg % (entry.name, x, len(st), entry.size)
+                        m = hashlib.md5(st)
+                        entries[entry.name] = m.hexdigest()
+                sortedkeys = sorted(entries.keys())
+                meta = ""
+                for y in sortedkeys:
+                    meta += entries[y]
+                    meta += "  "
+                    meta += y
+                    meta += "\n"
 
-                      m = hashlib.md5(meta)
-                      mapelm = indexdoc.createElement("map")
-                      mapelm.setAttribute("branch", branch.name)
-                      mapelm.setAttribute("commit", cm.hexsha)
-                      mapelm.setAttribute("srcmd5", m.hexdigest())
-                      mapelm.setAttribute("rev", str(toprev - rev))
-                      for y in sortedkeys:
-                          entryelm = indexdoc.createElement("entry")
-                          entryelm.setAttribute("name", y)
-                          entryelm.setAttribute("md5", entries[y])
-                          mapelm.appendChild(entryelm)
-                      pkgelement.appendChild(mapelm)
-                      rev = rev + 1
-                indexdoc.childNodes[0].appendChild(pkgelement)
+                m = hashlib.md5(meta)
+                mapelm = indexdoc.createElement("map")
+                mapelm.setAttribute("branch", branch.name)
+                mapelm.setAttribute("commit", cm.hexsha)
+                mapelm.setAttribute("srcmd5", m.hexdigest())
+                mapelm.setAttribute("rev", str(toprev - rev))
+                for y in sortedkeys:
+                    entryelm = indexdoc.createElement("entry")
+                    entryelm.setAttribute("name", y)
+                    entryelm.setAttribute("md5", entries[y])
+                    mapelm.appendChild(entryelm)
+                pkgelement.appendChild(mapelm)
                 rev = rev + 1
-        return indexdoc.childNodes[0].toprettyxml()
+        indexdoc.childNodes[0].appendChild(pkgelement)
+        rev = rev + 1
+    return indexdoc.childNodes[0].toprettyxml()
 
 #generate_mappings("Base")        
 

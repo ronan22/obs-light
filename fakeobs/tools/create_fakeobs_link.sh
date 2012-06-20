@@ -1,5 +1,8 @@
 #!/bin/sh
 
+FAKEOBSLINKNAME="fakeobs"
+source tools/common.sh
+
 if [ "$#" -gt "0" ]
 then
   OSCCONFIG=$1
@@ -17,30 +20,30 @@ else
   OSCCONFIG=$TMPOSCRC
 fi
 
-echo "Listing OBS projects to see if we can connect to..."
+echo_green "Listing OBS projects to see if we can connect to..."
 osc -c $OSCCONFIG ls
 if [ "$?" -ne "0" ]
 then
-  echo "Cannot contact OBS API running on localhost"
+  echo_red "Cannot contact OBS API running on localhost"
   exit 1
 fi
 
-echo "Checking if 'fakeobs' project exists"
-osc -c $OSCCONFIG meta prj fakeobs > /dev/null
+echo_green "Checking if '$FAKEOBSLINKNAME' project exists..."
+osc -c $OSCCONFIG meta prj $FAKEOBSLINKNAME > /dev/null
 if [ "$?" -eq "0" ]
 then
-  echo "fakeobs remote link already exists!"
+  echo_yellow "'$FAKEOBSLINKNAME' remote link already exists!"
 else
-  echo "Creating remote link project 'fakeobs'..."
-  osc -c $OSCCONFIG meta  prj -F config/fakeobs_meta "fakeobs"
+  echo_green "  ==> The project does not exist"
+  echo_green "Creating remote link project '$FAKEOBSLINKNAME'..."
+  osc -c $OSCCONFIG meta  prj -F config/fakeobs_meta "$FAKEOBSLINKNAME"
   if [ "$?" -ne "0" ]
   then
-    echo "Creation of the link failed!"
+    echo_red "Creation of the link failed!"
     exit 1
   else
-    echo "Link created"
+    echo_green "Link '$FAKEOBSLINKNAME' created"
   fi
 fi
 
 [ -n "$TMPOSCRC" ] && rm -f $TMPOSCRC
-

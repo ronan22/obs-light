@@ -14,7 +14,7 @@ Release:    1
 Group:      Development/Tools/Building
 License:    GPLv2
 BuildArch:  noarch
-URL:        http://wiki.meego.com/OBS_Light
+URL:        http://en.opensuse.org/openSUSE:OBS_Light
 Source0:    %{name}-%{version}.tar.gz
 Source100:  obslight.yaml
 Requires:   mic >= 0.4

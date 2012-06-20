@@ -1,7 +1,7 @@
 #
 # OBS Light post-installation configuration
 #
-# http://wiki.meego.com/OBS_Light_Installation#For_Fedora_16
+# http://en.opensuse.org/openSUSE:OBS_Light_Installation#For_Fedora_16
 #
 
 # Add vagrant to "users" group

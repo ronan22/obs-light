@@ -2,17 +2,46 @@
 
 function usage()
 {
-	echo "Usage: $0 <command> [parameters]"
-	echo ""
-	echo "Commands:"
-	echo "	import <archive.tar.gz> [project_name]"
-	echo "		import a project from an archive"
-	echo ""
-	echo "	remove <project_name>"
-	echo "		remove a project from fakeobs"
-	echo ""
-	echo "	createlink [osc_config_file]"
-	echo "		create the link to the fakeobs API on the OBS running on localhost"
+	cat <<EOF
+Usage: $0 <command> [parameters]
+
+Commands:
+	createlink [osc_config_file]
+		Create the link to the fakeobs API on the OBS running on localhost.
+		osc_config_file, if provided, should be the osc configuration file
+		of an administrator of the OBS server allowed to create links.
+
+	export <project_name> <release>
+		Export a project to an archive. The archive will be named
+		"project_name-release.tar.gz", with all ':' replaced by '_'.
+		(ex: "Tizen:1.0:Base" "1.0" -> "Tizen_1.0_Base-1.0.tar.gz")
+
+	grab <release> <api> <repo_url> <project_name> <repository> <architectures>
+		Grab a project from an OBS server
+		 release:       a release name or number (ex: "1.0")
+		 api:           the URL of the OBS public API
+		                (ex: "https://api.tizen.org/public")
+		 repo_url:      the URL where to the package repositories where
+		                the project is published
+		                (ex: "rsync://download.tizen.org/live")
+		 project_name:  the name of the project to grab
+		                (ex: "Tizen:1.0:Base")
+		 repository:    the name of the target repository to grab
+		                (ex: "standard")
+		 architectures: a list of architectures to grab
+		                (ex: "i586 armv7el")
+
+	import <archive.tar.gz>
+		Import a project from an archive. For old archives which do not
+		contain project_info, the name of the project will be guessed
+		from archive name, and user will be asked for confirmation.
+
+	remove <project_name>
+		Remove a project from fakeobs. All releases are removed.
+
+	list
+		List projects already grabbed or imported
+EOF
 }
 
 function get_abs_path()
@@ -21,6 +50,30 @@ function get_abs_path()
 	DIRPATH="`dirname $1`"
 	ABSPATH="`cd $DIRPATH; pwd`/$BASENAME"
 	echo $ABSPATH
+}
+
+function export_project()
+{
+	if [ "$#" -lt 2 ]
+	then
+		echo "Too few arguments for 'export'!"
+		usage
+		exit 1
+	fi
+	cd /srv/fakeobs
+	tools/export_fakeobs_project.sh "$@"
+}
+
+function grab_project()
+{
+	if [ "$#" -lt 6 ]
+	then
+		echo "Too few arguments for 'grab'!"
+		usage
+		exit 1
+	fi
+	cd /srv/fakeobs
+	tools/grab_fakeobs_project.sh "$@"
 }
 
 function import_project()
@@ -34,7 +87,7 @@ function import_project()
 	ARCHIVE="`get_abs_path $1`"
 	cd /srv/fakeobs
 #	echo "tools/import_fakeobs_project.sh $ARCHIVE $2"
-	tools/import_fakeobs_project.sh "$ARCHIVE" $2
+	tools/import_fakeobs_project.sh "$ARCHIVE"
 }
 
 function remove_project()
@@ -46,18 +99,25 @@ function remove_project()
                 exit 1
 	fi
 	cd /srv/fakeobs
-#	echo tools/remove_fakeobs_project.sh $1
-	tools/remove_fakeobs_project.sh $1
+	tools/remove_fakeobs_project.sh "$@"
 }
 
 function create_link()
 {
+	cd /srv/fakeobs
 	if [ "$#" -gt 0 ]
 	then
 		OSCCONFIG="`get_abs_path $1`"
+		tools/create_fakeobs_link.sh $OSCCONFIG
+	else
+		tools/create_fakeobs_link.sh
 	fi
+}
+
+function list_projects()
+{
 	cd /srv/fakeobs
-	tools/create_fakeobs_link.sh $OSCCONFIG
+	sed -r -n -e "s,.*project=\"([^ ]*)\".*,\1,p" /srv/fakeobs/mappings.xml
 }
 
 if [ "$#" -lt 1 ]
@@ -66,24 +126,53 @@ then
 	exit 1
 fi
 
-if [ "`whoami`" != "root" ]
-then
-	echo "Please run this program as root"
-	exit 1
-fi
+function check_user_is_root()
+{
+	if [ "`whoami`" != "root" ]
+	then
+		echo "Please run this command as root"
+		exit 1
+	fi
+}
 
-case $1 in
+COMMAND=$1
+shift
+
+case $COMMAND in
+	version|--version)
+		versionfile="/usr/share/doc/packages/obslight-fakeobs/VERSION"
+		[ -f "$versionfile" ] && cat "$versionfile" || echo "unknown"
+		exit 0
+		;;
+	help|--help)
+		usage
+		exit 0
+		;;
+	export)
+		check_user_is_root
+		export_project "$@"
+		;;
+	grab)
+		check_user_is_root
+		grab_project "$@"
+		;;
 	import)
-		import_project $2 $3
+		check_user_is_root
+		import_project "$@"
 		;;
 	remove)
-		remove_project $2
+		check_user_is_root
+		remove_project "$@"
 		;;
 	createlink)
-		create_link $2
+		check_user_is_root
+		create_link "$@"
+		;;
+	list)
+		list_projects
 		;;
 	*)
-		echo "Unknown command: $1"
+		echo "Unknown command: $COMMAND"
 		usage
 		exit 1
 		;;

@@ -1,6 +1,7 @@
 *.pyc
 src/dist
 src/dist/*
+fakeobs/dist
 .directory
 .settings
 .settings/*

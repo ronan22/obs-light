@@ -17,9 +17,11 @@ cd ..
 FAKEOBSVERSION=`sed -rn s,"Version:\s*(.*)$","\1",p fakeobs/obslight-fakeobs.spec`
 mv fakeobs obslight-fakeobs-$FAKEOBSVERSION
 tar -czf obslight-fakeobs-$FAKEOBSVERSION.tar.gz obslight-fakeobs-$FAKEOBSVERSION
-cp -vf obslight-fakeobs-$FAKEOBSVERSION.tar.gz $INITIALDIR/src/dist/obslight-fakeobs-$FAKEOBSVERSION.tar.gz
+mkdir -p $INITIALDIR/fakeobs/dist
+cp -vf obslight-fakeobs-$FAKEOBSVERSION.tar.gz $INITIALDIR/fakeobs/dist/obslight-fakeobs-$FAKEOBSVERSION.tar.gz
 
 cd $INITIALDIR
-echo "Compressed tar in src/dist/"
+echo "Compressed obslight tar in src/dist/"
+echo "Compressed obslight-fakeobs tar in fakeobs/dist/"
 rm -rf $TMPDIR
 

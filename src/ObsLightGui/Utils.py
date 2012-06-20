@@ -223,6 +223,7 @@ class ProgressRunnable2(QObject, QRunnable):
         # We got some crashes after catching exception,
         # especially in wizard when loading project list.
         if not self.__hasCaughtException:
+            # FIXME: check if "None" can be emitted
             self.finished[object].emit(result)
         self.finished.emit()
 

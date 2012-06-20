@@ -8,16 +8,21 @@ SCHEDULERS="$5"
 
 WGETOPTIONS="--no-check-certificate -N -c -r -nd -nH"
 
+source tools/common.sh
+
 mkdir -p obs-repos/$OUTDIR/$REPONAME
 cd obs-repos/$OUTDIR/$REPONAME
+echo_green "Have to dump :full for $SCHEDULERS"
 for scheduler in $SCHEDULERS; do
+	echo_green "Dumping :full for scheduler '$scheduler'"
 	mkdir -p $scheduler
 	cd $scheduler
 	wget $WGETOPTIONS $API/build/$OBSPROJECT/$REPONAME/$scheduler/_repository?view=cache
 	wget $WGETOPTIONS $API/build/$OBSPROJECT/$REPONAME/$scheduler/_repository?view=names
 	wget $WGETOPTIONS $API/build/$OBSPROJECT/$REPONAME/$scheduler/_repository?view=binaryversions
 	wget $WGETOPTIONS $API/build/$OBSPROJECT/$REPONAME/$scheduler/_repository?view=solvstate
-	# Grab 
+	# Grab :full RPMs
+	set -o pipefail
 	python $ORIG/tools/printbinaries.py "_repository?view=names" \
 		| xargs -L1 -Ixxx $ORIG/tools/curlunpack "$API/build/$OBSPROJECT/$REPONAME/$scheduler/_repository?xxx"
 	cd ..

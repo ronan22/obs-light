@@ -8,7 +8,7 @@ Under a simple UI, it reuses the osc command line tools delivered with OBS to wh
 
 The osc plugin for automatic patch creation are designed to be reusable in a full OBS environment.
 
-wiki: http://wiki.meego.com/OBS_Light
+wiki: http://en.opensuse.org/openSUSE:OBS_Light
 GIT: https://meego.gitorious.org/meego-developer-tools/obs-light
 Bug: https://bugs.meego.com/buglist.cgi?product=Development%20Tools&amp;component=OBS%20Light
 

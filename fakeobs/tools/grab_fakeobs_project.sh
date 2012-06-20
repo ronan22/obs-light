@@ -10,30 +10,72 @@ PROJECT="$4"
 TARGET=$5
 ARCHS="$6"
 
-echo "Creating release, getting binary RPMs..."
-tools/createrelease.sh "$RELEASE" "$API" "$RSYNC" "$PROJECT" "$TARGET" "$ARCHS"
+source tools/common.sh
 
-echo "Gitifying packages..."
+check_public_api "$API" || exit 1
+project_exists "$PROJECT"
+if [ "$?" -eq "0" ]
+then
+  echo_red "The project '$PROJECT' already exists."
+  echo_red "Please remove it before trying to re-import it."
+  exit 1
+fi
+project_exists_on_server "$API" "$PROJECT" || exit 1
+target_exists_on_server "$API" "$PROJECT" "$TARGET" || exit 1
+for arch in $ARCHS
+do
+  arch_exists_on_server "$API" "$PROJECT" "$TARGET" "$arch" || exit 1
+done
+
+SANITIZEDNAME=`echo $PROJECT | sed y,:,_,`
+EXTENDEDPROJECTDIR=`echo $PROJECT | sed y,:,/,`
+mkdir -p packages-git/$SANITIZEDNAME
+mkdir -p obs-projects/$EXTENDEDPROJECTDIR
+
+SKIPPEDPACKAGES=""
+
+grab_error=0
+echo_green "Creating release, getting binary RPMs..."
+tools/createrelease.sh "$RELEASE" "$API" "$RSYNC" "$PROJECT" "$TARGET" "$ARCHS"
+if [ "$?" -ne "0" ]
+then
+  grab_error=1
+  echo_red "Error when grabbing :full or repositories"
+fi
+
+echo_green "Gitifying packages..."
 # Build the list of OBS packages to prepare
 PKGLISTFILE=`mktemp pkglist-XXXX`
-curl -k "$API/source/$PROJECT" > $PKGLISTFILE
+curl $CURLARGS "$API/source/$PROJECT" > $PKGLISTFILE
 
 # Create local git repositories for these OBS packages
 for pkg in `python tools/printnames.py $PKGLISTFILE`
 do
   tools/gitify-package "$PROJECT" $pkg "$API"
+  if [ "$?" -ne "0" ]
+  then
+    SKIPPEDPACKAGES="$SKIPPEDPACKAGES $pkg"
+  fi
 done
 
-# Move them to the right place
-SANITIZEDNAME=`echo $PROJECT | sed y,:,_,`
-mkdir -p packages-git/$SANITIZEDNAME
+# Move git repositories to the right place
 mv gitrepos/* packages-git/$SANITIZEDNAME/
 
-# Dress the list of packages and create/update mappings cache
-find packages-git/ -mindepth 2 -maxdepth 2 -type d -printf "%p\n" | sort > packages-git/repos.lst
-python tools/makemappings.py packages-git/repos.lst packages-git/mappingscache.xml
+echo_green "Getting project _meta..."
+curl $CURLARGS "$API/source/$PROJECT/_meta" > obs-projects/$EXTENDEDPROJECTDIR/_meta
 
-echo "Generating final package list..."
+project_conf_empty=0
+echo_green "Getting project _config..."
+curl $CURLARGS "$API/source/$PROJECT/_config" > obs-projects/$EXTENDEDPROJECTDIR/_config
+if [ ! -s "obs-projects/$EXTENDEDPROJECTDIR/_config" ]
+then
+  project_conf_empty=1
+fi
+
+echo_green "Executing post import operations..."
+tools/post_import_operations.sh $PROJECT
+
+echo_green "Generating final package list of project $PROJECT..."
 # Generate package list with last commit hash for each
 TMPPACKAGESXML=`mktemp pkgxml-XXXX`
 echo -e "<project>" >> $TMPPACKAGESXML
@@ -45,27 +87,29 @@ done
 echo -e "</project>" >> $TMPPACKAGESXML
 
 # Copy package list at the right place
-EXTENDEDPROJECTDIR=`echo $PROJECT | sed y,:,/,`
-mkdir -p obs-projects/$EXTENDEDPROJECTDIR
 bash tools/mergetwo $TMPPACKAGESXML > obs-projects/$EXTENDEDPROJECTDIR/packages.xml
 
-echo "Getting project _meta..."
-curl -k "$API/source/$PROJECT/_meta" > obs-projects/$EXTENDEDPROJECTDIR/_meta
-
-echo "Getting project _config..."
-curl -k "$API/source/$PROJECT/_config" > obs-projects/$EXTENDEDPROJECTDIR/_config
-
-echo "Updating fakeobs project mappings..."
-if [ -f mappings.xml ]
-then
-  cp -f mappings.xml mappings.xml.`date +%Y%m%d%H%M%S`
-else
-  touch mappings.xml
-fi
-bash tools/updatemappings.sh $PROJECT > mappings_new.xml
-mv mappings_new.xml mappings.xml
-
 # Remove temporary files
-echo "Removing temporary files ($PKGLISTFILE $TMPPACKAGESXML)"
+echo_green "Removing temporary files ($PKGLISTFILE $TMPPACKAGESXML)"
 rm -f $PKGLISTFILE
 rm -f $TMPPACKAGESXML
+
+clean_old_mappings
+
+if [ "$grab_error" -eq "0" ]
+then
+  echo_green "Project '$PROJECT' grabbed. It will be accessible on OBS by 'fakeobs:$PROJECT'"
+else
+  echo_yellow "Errors were encountered while grabbing repositories of '$PROJECT'."
+  echo_yellow "You should check everything is OK before exporting the project."
+fi
+if [ "$project_conf_empty" -ne "0" ]
+then
+  echo_yellow "Project configuration is empty, is this OK ?"
+  echo_yellow "Please check /srv/fakeobs/obs-projects/$EXTENDEDPROJECTDIR/_config"
+fi
+if [ -n "$SKIPPEDPACKAGES" ]
+then
+  echo_red "The following packages have been skipped because of errors:"
+  echo_red "$SKIPPEDPACKAGES"
+fi

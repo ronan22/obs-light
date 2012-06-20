@@ -11,7 +11,7 @@ echo "<p><a href="https://obslightserver:444">The OBS api URL(https://obslightse
 echo "<p><a href="http://obslightserver:82">The OBS repositories</a> contain the build results, the repositories can be added to package managers like zypper or apt.</p>" >> /srv/www/obs/overview/index.html
 
 echo "Appliance from http://susegallery.com/a/e0uuBG/meego-obs"
-echo "http://wiki.meego.com/OBS_Light"
+echo "http://en.opensuse.org/openSUSE:OBS_Light"
 echo "Login/PW:root/opensuse"
 echo "Login/PW:tux/opensuse"
 echo Server OBS ready http://$IP/

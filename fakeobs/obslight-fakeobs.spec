@@ -7,7 +7,7 @@
 
 Name:       obslight-fakeobs
 Summary:    Python script that acts as an OBS API
-Version:    0.2
+Version:    0.3
 Release:    1
 Group:      Development/Tools/Building
 License:    GPLv2
@@ -23,6 +23,7 @@ Requires:   python-async
 Requires:   python-gitdb
 Requires:   python-gitpython
 Requires:   python-smmap
+Requires(post): sysconfig
 Requires(post): /sbin/service
 Requires(post): /sbin/chkconfig
 Requires(postun): /sbin/service
@@ -60,12 +61,13 @@ mkdir -p %{buildroot}/srv/fakeobs/releases
 mkdir -p %{buildroot}%{_sysconfdir}/init.d
 mkdir -p %{buildroot}%{_sbindir}
 mkdir -p %{buildroot}%{_bindir}
-mkdir -p %{buildroot}%{_docdir}%{name}
+mkdir -p %{buildroot}%{_docdir}/%{name}
 cp -rf tools %{buildroot}/srv/fakeobs/tools
 cp -rf config %{buildroot}/srv/fakeobs/config
 cp -f obslight-fakeobs %{buildroot}%{_bindir}
 cp -f init_fakeobs %{buildroot}%{_sysconfdir}/init.d/fakeobs
-cp -f README %{buildroot}%{_docdir}%{name}
+cp -f README %{buildroot}%{_docdir}/%{name}
+echo "%{name}-%{version}-%{release}" > %{buildroot}%{_docdir}/%{name}/VERSION
 
 ln -sf /srv/fakeobs/tools/fakeobs.py %{buildroot}%{_sbindir}/fakeobs
 ln -sf %{_sysconfdir}/init.d/fakeobs %{buildroot}%{_sbindir}/rcfakeobs
@@ -80,7 +82,7 @@ ln -sf %{_sysconfdir}/init.d/fakeobs %{buildroot}%{_sbindir}/rcfakeobs
 # >> preun
 %stop_on_removal fakeobs
 if [ $1 -eq 0 ] ; then
-  /sbin/chkconfig --del fakeobs
+/sbin/chkconfig --del fakeobs
 fi
 # << preun
 
@@ -107,6 +109,7 @@ then
 ln -sf /srv/fakeobs/config/fakeobs-repos.lighttpdconf %{_sysconfdir}/lighttpd/vhosts.d/fakeobs-repos.conf
 fi
 #/sbin/chkconfig --add fakeobs
+%{fillup_and_insserv -f -y fakeobs}
 # << post
 
 %postun
@@ -132,7 +135,7 @@ fi
 %{_sbindir}/fakeobs
 %{_sbindir}/rcfakeobs
 %{_bindir}/obslight-fakeobs
-%{_docdir}%{name}
+%{_docdir}/%{name}
 # << files
 
 

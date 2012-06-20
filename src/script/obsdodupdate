@@ -12,6 +12,7 @@ if [ $# -ne 4 ]; then
     echo "Example1: Local copy"
     echo "         $0 https://myObs.mynetwork:444 MyMeeGo:1.2:oss standard i586 "
     echo "Version 2.3a  Licence GLPv2"
+
     exit
 fi
 

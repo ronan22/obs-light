@@ -16,5 +16,5 @@ for x in doc.getElementsByTagName("binary"):
 	initial.append(("binary", os.path.splitext(x.attributes["filename"].value)[0]))
 	count = count + 1	
 	
-if count < 48:
+if count <= 48:
 	print urllib.urlencode(initial)

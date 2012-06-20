@@ -37,7 +37,7 @@
    <item row="0" column="0">
     <widget class="QLabel" name="aboutMessageLabel">
      <property name="text">
-      <string>OBS Light, a lighter version of OBS.&lt;br /&gt;&lt;br /&gt;The full description of OBS Light can be found at &lt;a href=&quot;http://wiki.meego.com/OBS_Light&quot;&gt;http://wiki.meego.com/OBS_Light&lt;/a&gt;&lt;br /&gt;and the FAQ is at &lt;a href=&quot;http://wiki.meego.com/OBS_Light_FAQ&quot;&gt;http://wiki.meego.com/OBS_Light_FAQ&lt;/a&gt;.</string>
+	     <string>OBS Light, a lighter version of OBS.&lt;br /&gt;&lt;br /&gt;The full description of OBS Light can be found at &lt;a href=&quot;http://en.opensuse.org/openSUSE:OBS_Light&quot;&gt;http://en.opensuse.org/openSUSE:OBS_Light&lt;/a&gt;&lt;br /&gt;and the FAQ is at &lt;a href=&quot;http://en.opensuse.org/openSUSE:OBS_Light_FAQ&quot;&gt;http://en.opensuse.org/openSUSE:OBS_Light_FAQ&lt;/a&gt;.</string>
      </property>
      <property name="openExternalLinks">
       <bool>true</bool>

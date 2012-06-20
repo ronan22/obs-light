@@ -8,13 +8,15 @@ PROJECT="$4"
 TARGET=$5
 ARCHS="$6"
 
+source tools/common.sh
+
 if [ x$1 = x -o x$2 = x -o x$3 = x ]; then
 	echo Syntax: tools/createrelease.sh RELEASE OBSAPI RSYNCURL
-	exit 0
+	exit 1
 fi
 
 if [ x$RESYNC = x ]; then
-$TOOLS/dumpbuild "$API" "$PROJECT" "$PROJECT:$RELEASE" $TARGET "$ARCHS"
+	$TOOLS/dumpbuild "$API" "$PROJECT" "$PROJECT:$RELEASE" $TARGET "$ARCHS"
 fi
 if [ x$PRERELEASE = x ]; then
 
@@ -24,13 +26,20 @@ ln -s "$PROJECT:$RELEASE" "obs-repos/$PROJECT:latest"
 fi
 grab_build()
 {
+	local retval=0
 	SYNCPATH=$1
 	NAME=$2
 	mkdir -p releases/$RELEASE/builds/$NAME
 	cd releases/$RELEASE/builds/$NAME
 	mkdir -p packages debug
 	cd packages
+	echo_green "Grabbing repositories of project '$PROJECT' target '$NAME'"
 	rsync  -aHx --progress $RSYNC/$SYNCPATH/* --exclude=*.src.rpm --exclude=repocache/ --exclude=*.repo --exclude=repodata/ --exclude=src/ --include=*.rpm .
+	if [ "$?" -ne "0" ]
+	then
+		echo_red "Problem syncing repositories of '$PROJECT' target '$NAME'"
+		retval=1
+	fi
 	find -name \*.rpm | xargs -L1 rpm --delsign
 	mv */*-debuginfo-* ../debug
 	mv */*-debugsource-* ../debug
@@ -44,11 +53,13 @@ grab_build()
 	cd ../debug
 	createrepo .
 	cd $ORIG
+	return $retval
 }
 
 if [ x$RESYNC = x -a x$NO_GRAB = x ]; then
 	syncpath=`echo "$PROJECT" | cut -d ":" -f 1- --output-delimiter ":/"`
 	grab_build "$syncpath/$TARGET" "$syncpath/$TARGET"
+	[ "$?" -ne "0" ] && exit 1
 fi
 
 if [ x$NORSYNC = x1 ]; then

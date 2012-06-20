@@ -131,7 +131,7 @@ class ObsProject(object):
         # The following method does not work on public repositories :
         #   core.meta_get_packagelist(self.apiUrl, self.name)
         # This is why we have to use the WEB API and parse XML ourselves.
-        url = self.apiUrl + "/source/" + self.name + "/"
+        url = self.apiUrl + "/source/" + self.name
         printdebug("Calling %s" % url)
         xmlResult = core.http_request("GET", url).read()
         packageList = list()
@@ -146,8 +146,8 @@ class ObsProject(object):
         Can raise `urllib2.HTTPError`, `urllib2.URLError` or `ElementTree.ParseError`.
         """
         revisionsList = list()
-        url = self.apiUrl + "/source/" + self.name + "/"
-        url += packageName + "/_history"
+        url = self.apiUrl + "/source/" + self.name
+        url += "/" + packageName + "/_history"
         printdebug("Calling %s" % url)
         try:
             xmlResult = core.http_request("GET", url).read()

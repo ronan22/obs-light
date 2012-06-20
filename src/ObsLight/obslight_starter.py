@@ -93,7 +93,7 @@ def messageIfMicVersionLessThan_0_8_1():
     if compareVersion(micVersion, "0.8.1") < 0:
         message = "WARNING: You have an old version of MIC (%s). " % micVersion
         message += "Consider upgrading to a newer version.\n"
-        message += "See http://wiki.meego.com/ObsLightDeliverable#Migration_from_old_versions"
+	message += "See http://en.opensuse.org/openSUSE:OBS_Light_Installation#Migration_from_old_versions"
         message += " for more information."
         return message
 
