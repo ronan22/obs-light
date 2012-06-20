@@ -73,7 +73,7 @@ class ObsLightPackage(object):
         self.__oscStatus = oscStatus
         self.__oscRev = oscRev
         self.__obsRev = obsRev
-        self.__listFileToDel = []
+        self.__filesToDeleteList = []
         self.__prepDirName = None
 
         self.__obslightGit = ".git_obslight"
@@ -82,12 +82,12 @@ class ObsLightPackage(object):
 
         self.__patchMode = True
 
-        if fromSave == None:
+        if fromSave is None:
             self.__name = name
-            if listFile == None:
-                self.__listFile = []
+            if listFile is None:
+                self.__fileList = []
             else:
-                self.__listFile = listFile
+                self.__fileList = listFile
             self.__status = status
             self.__obsRev = str(obsRev)
             self.__specFile = specFile
@@ -101,7 +101,7 @@ class ObsLightPackage(object):
             if "name" in fromSave.keys():
                 self.__name = fromSave["name"]
             if "listFile" in fromSave.keys():
-                self.__listFile = copy(fromSave["listFile"])
+                self.__fileList = copy(fromSave["listFile"])
             if "status" in fromSave.keys():
                 self.__status = fromSave["status"]
             if "specFile" in fromSave.keys():
@@ -133,7 +133,7 @@ class ObsLightPackage(object):
             if "listInfoFile" in fromSave.keys():
                 self.__listInfoFile = copy(fromSave["listInfoFile"])
             if "listFileToDel" in fromSave.keys():
-                self.__listFileToDel = copy(fromSave["listFileToDel"])
+                self.__filesToDeleteList = copy(fromSave["listFileToDel"])
             if "prepDirName" in fromSave.keys():
                 self.__prepDirName = fromSave["prepDirName"]
 
@@ -270,8 +270,8 @@ class ObsLightPackage(object):
         
         '''
         res = []
-        res.extend(self.__listFile)
-        res.extend(self.__listFileToDel)
+        res.extend(self.__fileList)
+        res.extend(self.__filesToDeleteList)
         return res
 
     def setOscPackageRev(self, rev):
@@ -382,7 +382,7 @@ class ObsLightPackage(object):
         '''
         aDic = {}
         aDic["name"] = self.__name
-        aDic["listFile"] = copy(self.__listFile)
+        aDic["listFile"] = copy(self.__fileList)
         aDic["status"] = self.__status
         aDic["specFile"] = self.__specFile
         aDic["yamlFile"] = self.__yamlFile
@@ -397,7 +397,7 @@ class ObsLightPackage(object):
         aDic["currentPatch"] = self.__currentPatch
         aDic["obsRev"] = self.__obsRev
         aDic["listInfoFile"] = copy(self.__listInfoFile)
-        aDic["listFileToDel"] = copy(self.__listFileToDel)
+        aDic["listFileToDel"] = copy(self.__filesToDeleteList)
         aDic["prepDirName"] = self.__prepDirName
         aDic["packageGit"] = self.__packageGit
         aDic["currentGitIsPackageGit"] = self.__currentGitIsPackageGit
@@ -428,7 +428,7 @@ class ObsLightPackage(object):
         if parameter == "name":
             return self.__name if self.__name != None else ""
         elif parameter == "listFile":
-            return self.__listFile if self.__listFile != None else ""
+            return self.__fileList if self.__fileList != None else ""
         elif parameter == "obsStatus":
             return self.__status if self.__status != None else ""
         elif parameter == "specFile":
@@ -465,7 +465,7 @@ class ObsLightPackage(object):
         elif parameter == "listInfoFile":
             return self.__listInfoFile if self.__listInfoFile != None else ""
         elif parameter == "listFileToDel":
-            return self.__listFileToDel if self.__listFileToDel != None else ""
+            return self.__filesToDeleteList if self.__filesToDeleteList != None else ""
         elif parameter == "prepDirName":
             return self.__prepDirName if self.__prepDirName != None else ""
         elif parameter == "patchMode":
@@ -478,10 +478,10 @@ class ObsLightPackage(object):
         '''
         
         '''
-        if self.__mySpecFile == None:
+        if self.__mySpecFile is None:
             self.__initSpecFile()
 
-        if self.__mySpecFile == None:
+        if self.__mySpecFile is None:
             return None
 
         return self.__mySpecFile.specFileHaveAnEmptyBuild()
@@ -566,7 +566,7 @@ class ObsLightPackage(object):
         elif parameter == "status":
             self.__status = value
         elif parameter == "listFile":
-            self.__listFile = value
+            self.__fileList = value
         elif parameter == "oscStatus":
             self.__oscStatus = value
         elif parameter == "oscRev":
@@ -578,7 +578,7 @@ class ObsLightPackage(object):
         elif parameter == "listInfoFile":
             self.__listInfoFile = value
         elif parameter == "listFileToDel":
-            self.__listFileToDel = value
+            self.__filesToDeleteList = value
         elif parameter == "prepDirName":
             self.__prepDirName = value
         elif parameter == "patchMode":
@@ -591,7 +591,7 @@ class ObsLightPackage(object):
         '''
         
         '''
-        return self.__listFile
+        return self.__fileList
 
     def getStatus(self):
         '''
@@ -647,10 +647,10 @@ class ObsLightPackage(object):
         '''
         Return the Name used for the BUILD directory, by setup in %prep section
         '''
-        if self.__mySpecFile == None:
+        if self.__mySpecFile is None:
             self.__initSpecFile()
 
-        if self.__mySpecFile == None:
+        if self.__mySpecFile is None:
             return None
 
         name = self.__mySpecFile.getMacroDirectoryPackageName()
@@ -665,10 +665,10 @@ class ObsLightPackage(object):
         '''
         return the %{name} of the Pkg
         '''
-        if self.__mySpecFile == None:
+        if self.__mySpecFile is None:
             self.__initSpecFile()
 
-        if self.__mySpecFile == None:
+        if self.__mySpecFile is None:
             return None
         else:
             return self.__mySpecFile.getResolveMacroName("%{name}")
@@ -709,7 +709,7 @@ class ObsLightPackage(object):
         '''
         
         '''
-        self.__listFile.append(afile)
+        self.__fileList.append(afile)
 
     def addFile(self, path):
         '''
@@ -744,15 +744,15 @@ class ObsLightPackage(object):
                 raise ObsLightPackageErr("'" + path + "' not in package directory.")
             os.remove(path)
 
-            if name in self.__listFile:
-                self.__listFile.remove(name)
+            if name in self.__fileList:
+                self.__fileList.remove(name)
 
             if not resInfo['Status'].startswith("?"):
-                self.__listFileToDel.append(name)
+                self.__filesToDeleteList.append(name)
                 ObsLightOsc.getObsLightOsc().remove(path=self.getOscDirectory(), afile=name)
         else:
-            if name in self.__listFileToDel:
-                self.__listFileToDel.remove(name)
+            if name in self.__filesToDeleteList:
+                self.__filesToDeleteList.remove(name)
         self.initPackageFileInfo()
         return 0
 
@@ -835,7 +835,7 @@ class ObsLightPackage(object):
         '''
         
         '''
-        for aFile in self.__listFile:
+        for aFile in self.__fileList:
             if self.testConflict(aFile=aFile):
                 ObsLightOsc.getObsLightOsc().autoResolvedConflict(packagePath=self.getOscDirectory(), aFile=aFile)
         return self.initPackageFileInfo()
@@ -846,7 +846,7 @@ class ObsLightPackage(object):
         '''
         self.autoResolvedConflict()
         ObsLightOsc.getObsLightOsc().commitProject(path=self.getOscDirectory(), message=message)
-        self.__listFileToDel = []
+        self.__filesToDeleteList = []
         self.initPackageFileInfo()
 
     def addRemoveFileToTheProject(self):
@@ -878,7 +878,7 @@ class ObsLightPackage(object):
         
         '''
 
-        if self.__listInfoFile == None:
+        if self.__listInfoFile is None:
             res = ObsLightOsc.getObsLightOsc().getPackageFileInfo(workingdir=self.__packagePath)
             if res != None:
                 self.__listInfoFile = {}

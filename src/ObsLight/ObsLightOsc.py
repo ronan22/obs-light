@@ -380,7 +380,7 @@ class ObsLightOsc(object):
         self.get_config()
         url = str(apiurl + "/source/" + projet + "/_meta")
         result = self.getHttp_request(url)
-        if result == None:
+        if result is None:
             return None
         aElement = ElementTree.fromstring(result)
 
@@ -420,7 +420,7 @@ class ObsLightOsc(object):
         url = str(apiurl + "/source/" + projectObsName + "/" + packageName)
         self.cleanBuffer(url)
         result = self.getHttp_request(url)
-        if result == None:
+        if result is None:
             return None
 
         aElement = ElementTree.fromstring(result)
@@ -449,7 +449,7 @@ class ObsLightOsc(object):
         url = str(apiurl + "/source/" + projectObsName + "/" + package)
         self.cleanBuffer(url)
         result = self.getHttp_request(url)
-        if result == None:
+        if result is None:
             return result
         aElement = ElementTree.fromstring(result)
 
@@ -478,7 +478,7 @@ class ObsLightOsc(object):
     def __subprocess(self, command=None, waitMess=False):
         result = None
         count = 0
-        while(result == None and count < 4):
+        while(result is None and count < 4):
             count += 1
             try:
                 result = self.__mySubprocessCrt.execSubprocess(command=command, waitMess=waitMess)
@@ -486,7 +486,7 @@ class ObsLightOsc(object):
             except BaseException:
                 logger = ObsLightPrintManager.getLogger()
                 logger.error("__subprocess ERROR.")
-        if result == None:
+        if result is None:
             return -1
         return result
 
@@ -531,7 +531,7 @@ class ObsLightOsc(object):
         url = str(obsServer + "/build/" + project + "/" + repo + "/" + arch + "/" + package + "/_status")
         self.cleanBuffer(url)
         result = self.getHttp_request(url)
-        if result == None:
+        if result is None:
             return None
         aElement = ElementTree.fromstring(result)
 
@@ -541,7 +541,7 @@ class ObsLightOsc(object):
         self.get_config()
         url = str(apiurl + "/source/" + project + "/_meta")
         result = self.getHttp_request(url)
-        if result == None:
+        if result is None:
             return None
         aElement = ElementTree.fromstring(result)
 
@@ -576,7 +576,7 @@ class ObsLightOsc(object):
         result = str(apiurl + "/build/" + projet + "/" + repo + "/" + arch + "/_repository")
         self.cleanBuffer(result)
         result = self.getHttp_request(result)
-        if result == None:
+        if result is None:
             return None
         aElement = ElementTree.fromstring(result)
 
@@ -618,7 +618,7 @@ class ObsLightOsc(object):
         self.get_config()
         url = str(apiurl + "/source/" + projet + "/_meta")
         resultTmp = self.getHttp_request(url)
-        if resultTmp == None:
+        if resultTmp is None:
             return None
         aElement = ElementTree.fromstring(resultTmp)
 
@@ -791,8 +791,7 @@ class ObsLightOsc(object):
                                                      remoteurl)
 
     def saveProjectConfig(self, apiurl, projectObsName, target, filePath=None):
-
-        if filePath == None:
+        if filePath is None:
             aFile = tempfile.NamedTemporaryFile("w", delete=False)
         else:
             aFile = open(filePath, "w")
@@ -812,7 +811,7 @@ class ObsLightOsc(object):
         '''
         url = str(apiurl + "/distributions")
         result = self.getHttp_request(url)
-        if result == None:
+        if result is None:
             return None
         aElement = ElementTree.fromstring(result)
         result = []
@@ -847,7 +846,7 @@ class ObsLightOsc(object):
         '''
         url = str(obsServer + "/build/" + projectObsName)
         result = self.getHttp_request(url)
-        if result == None:
+        if result is None:
             return None
         aElement = ElementTree.fromstring(result)
         result = []
@@ -866,7 +865,7 @@ class ObsLightOsc(object):
 
         url = str(obsServer + "/build/" + projectObsName + "/" + projectTarget)
         result = self.getHttp_request(url)
-        if result == None:
+        if result is None:
             return None
         aElement = ElementTree.fromstring(result)
         result = []
@@ -967,7 +966,7 @@ class ObsLightOsc(object):
         self.get_config()
         url = str(apiurl + "/source/" + projectObsName + "/_meta")
         result = self.getHttp_request(url)
-        if result == None:
+        if result is None:
             return None
         aElement = ElementTree.fromstring(result)
 
@@ -1020,7 +1019,7 @@ class ObsLightOsc(object):
         self.get_config()
         aUrl = str(apiurl + "/source/" + projectObsName + "/" + package)
         result = self.getHttp_request(aUrl)
-        if result == None:
+        if result is None:
             return None
         aElement = ElementTree.fromstring(result)
 
@@ -1047,7 +1046,7 @@ class ObsLightOsc(object):
         self.get_config()
         aUrl = str(apiurl + "/source/" + projectObsName + "/" + package + "/_meta")
         result = self.getHttp_request(aUrl)
-        if result == None:
+        if result is None:
             return None
         aElement = ElementTree.fromstring(result)
 
@@ -1078,7 +1077,7 @@ class ObsLightOsc(object):
         self.get_config()
         url = str(apiurl + "/source/" + projectObsName + "/_meta")
         res = self.getHttp_request(url)
-        if res == None:
+        if res is None:
             return None
         aElement = ElementTree.fromstring(res)
 
@@ -1103,7 +1102,7 @@ class ObsLightOsc(object):
         self.get_config()
         url = str(apiurl + "/source/" + projectObsName + "/" + package + "/_meta")
         res = self.getHttp_request(url)
-        if res == None:
+        if res is None:
             return None
         aElement = ElementTree.fromstring(res)
 
@@ -1253,12 +1252,12 @@ class ObsLightOsc(object):
                                         timeout=TIMEOUT)
                 fileXML = res.read()
 
-            if fileXML == None:
+            if fileXML is None:
                 ObsLightErr.ObsLightOscErr("Error the request on '" + url + "' return None.")
-            if (HTTPBUFFER == 1) and (headers == {}) and (data == None) and (aFile == None):
+            if (HTTPBUFFER == 1) and (headers == {}) and (data is None) and (aFile is None):
                 self.__httpBuffer[url] = fileXML
 
-            if (HTTPBUFFER == 1) and (headers == {}) and (data == None) and (aFile == None):
+            if (HTTPBUFFER == 1) and (headers == {}) and (data is None) and (aFile is None):
                 self.__httpBuffer[url] = fileXML
             logger = ObsLightPrintManager.getLogger()
             end = time.time()

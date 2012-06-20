@@ -32,10 +32,6 @@ class ObsLightRepoManager(object):
     '''
 
     def __init__(self, projectChroot):
-
-        '''
-        Constructor
-        '''
         self.__chroot = projectChroot
         self.__mySubprocessCrt = SubprocessCrt()
 
@@ -121,13 +117,11 @@ class ObsLightRepoManager(object):
 
         #command.append(cmd )
         print "sudo obsMicInstall %s %s %s " % (self.__chroot.getDirectory() ,
-                                                                   arch,
-                                                                   aFile.name
-                                                                   )
+                                                arch,
+                                                aFile.name)
         res = self.__subprocess("sudo obsMicInstall %s %s %s " % (self.__chroot.getDirectory() ,
-                                                                   arch,
-                                                                   aFile.name
-                                                                   ))
+                                                                  arch,
+                                                                  aFile.name))
         #res = self.__listSubprocess(command=command)
 
         if res != 0:
@@ -136,5 +130,3 @@ class ObsLightRepoManager(object):
             raise ObsLightErr.ObsLightChRootError(msg)
 
         return res
-
-

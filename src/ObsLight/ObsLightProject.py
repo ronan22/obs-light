@@ -65,7 +65,7 @@ class ObsLightProject(object):
         self.__WorkingDirectory = workingDirectory
         self.__projectTitle = projectTitle
 
-        if fromSave == None:
+        if fromSave is None:
             self.__projectLocalName = projectLocalName
             self.__projectObsName = projectObsName
             self.__obsServer = obsServer
@@ -94,10 +94,12 @@ class ObsLightProject(object):
                 self.__projectArchitecture = fromSave["projectArchitecture"]
             if "title" in fromSave.keys():
                 self.__projectTitle = fromSave["title"]
-                if self.__projectTitle == None:self.__projectTitle = ""
+                if self.__projectTitle is None:
+                    self.__projectTitle = ""
             if "description" in fromSave.keys():
                 self.__description = fromSave["description"]
-                if self.__description == None:self.__description = ""
+                if self.__description is None:
+                    self.__description = ""
 
             if "aChroot" in fromSave.keys():
                 self.__chroot = ObsLightChRoot(projectDirectory=self.getDirectory(),
@@ -136,18 +138,19 @@ class ObsLightProject(object):
 
         self.__configPath = None
 
-        self.__hachAch = {}
-        self.__hachAch["i686"] = "i686:i586:i486:i386"
-        self.__hachAch["i586"] = "i586:i486:i386"
-        self.__hachAch["i486"] = "i486:i386"
-        self.__hachAch["i386"] = "i386"
-        self.__hachAch["x86_64"] = "x86_64:i686:i586:i486:i386"
-        self.__hachAch["sparc64v"] = "sparc64v:sparc64:sparcv9v:sparcv9:sparcv8:sparc"
-        self.__hachAch["sparc64"] = "sparc64:sparcv9:sparcv8:sparc"
-        self.__hachAch["sparcv9v"] = "sparcv9v:sparcv9:sparcv8:sparc"
-        self.__hachAch["sparcv9"] = "sparcv9:sparcv8:sparc"
-        self.__hachAch["sparcv8"] = "sparcv8:sparc"
-        self.__hachAch["sparc"] = "sparc"
+        # Taken from /usr/lib/build/common_functions
+        self.__archHierarchyMap = {}
+        self.__archHierarchyMap["i686"] = "i686:i586:i486:i386"
+        self.__archHierarchyMap["i586"] = "i586:i486:i386"
+        self.__archHierarchyMap["i486"] = "i486:i386"
+        self.__archHierarchyMap["i386"] = "i386"
+        self.__archHierarchyMap["x86_64"] = "x86_64:i686:i586:i486:i386"
+        self.__archHierarchyMap["sparc64v"] = "sparc64v:sparc64:sparcv9v:sparcv9:sparcv8:sparc"
+        self.__archHierarchyMap["sparc64"] = "sparc64:sparcv9:sparcv8:sparc"
+        self.__archHierarchyMap["sparcv9v"] = "sparcv9v:sparcv9:sparcv8:sparc"
+        self.__archHierarchyMap["sparcv9"] = "sparcv9:sparcv8:sparc"
+        self.__archHierarchyMap["sparcv8"] = "sparcv8:sparc"
+        self.__archHierarchyMap["sparc"] = "sparc"
 
 
     def getDirectory(self):
@@ -293,27 +296,16 @@ class ObsLightProject(object):
 
     #---------------------------------------------------------------------------package
     def getCurrentPackage(self):
-        '''
-        
-        '''
         return self.__packages.getCurrentPackage()
-
-
 
     #---------------------------------------------------------------------------
 
     def __subprocess(self, command=None, waitMess=False, stdout=False):
-        '''
-        
-        '''
         return self.__mySubprocessCrt.execSubprocess(command=command,
                                                      waitMess=waitMess,
                                                      stdout=stdout)
 
     def removeProject(self):
-        '''
-        
-        '''
         res = self.removeChRoot()
 
         if res == 0:
@@ -758,9 +750,9 @@ class ObsLightProject(object):
                 subprocess.Popen(command)
 
     def __prepareChroot(self, section, pkgObj, specFileName):
-        #First install the BuildRequires of the spec file.
-        #The BuildRequires come from OBS.
-        #We need a spec file parser to be OBS free.
+        # First install the BuildRequires of the spec file.
+        # The BuildRequires come from OBS.
+        # We need a spec file parser to be OBS free.
         packageName = pkgObj.getName()
 
         obsServer = self.__obsServers.getObsServer(self.__obsServer)
@@ -769,7 +761,6 @@ class ObsLightProject(object):
                                                                 self.__projectTarget ,
                                                                 self.__projectArchitecture,
                                                                 specFileName)
-
 
         if len(buildInfoCli.deps) > 0:
             res = self.__chroot.installBuildRequires(buildInfoCli)
@@ -797,29 +788,26 @@ class ObsLightProject(object):
 
         self.__prepareChroot(section, pkgObj, pkgObj.getSpecFilePath())
 
-
         if pkgObj.getPackageParameter("patchMode") and section != "prep":
             _ = self.__chroot.prepGhostRpmbuild(pkgObj)
 
-
-        arch = self.__getPseudoArch()
-        buildDir = "/usr/lib/build/"
-        configdir = buildDir + "configs"
+        archs = self.__getArchHierarchy()
+        buildDir = "/usr/lib/build"
+        configdir = buildDir + "/configs"
         configPath = self.__getConfigPath()
 
-        archChroot = self.__getArch()
-
+        target = self.__getTarget()
         specFilePath = self.__chroot.addPackageSpecInChRoot(pkgObj,
                                                             specFileName,
                                                             section,
                                                             configPath,
-                                                            arch,
+                                                            archs,
                                                             configdir,
                                                             buildDir)
 
         retVal = sectionMap[section](package=pkgObj,
                                      specFile=specFilePath,
-                                     arch=archChroot)
+                                     arch=target)
         return retVal
 
     def buildPrep(self, package):
@@ -834,38 +822,42 @@ class ObsLightProject(object):
     def packageRpm(self, package):
         return self.__execRpmSection(package, "files")
 
-    def __getPseudoArch(self):
-        if self.__projectArchitecture in self.__hachAch:
-            return  self.__hachAch[self.__projectArchitecture]
+    def __getArchHierarchy(self):
+        if self.__projectArchitecture in self.__archHierarchyMap:
+            return self.__archHierarchyMap[self.__projectArchitecture]
         else:
             return self.__projectArchitecture
 
     def __getConfigPath(self):
-        if self.__configPath == None:
+        if self.__configPath is None:
             obsServer = self.__obsServers.getObsServer(self.__obsServer)
             self.__configPath = obsServer.saveProjectConfig(self.__projectObsName,
                                                             self.__projectTarget)
 
         return self.__configPath
 
-    def __getArch(self):
+    def __getTarget(self):
+        """
+        Get the 'target' string to be passed to rpmbuild.
+        Looks like 'i586-tizen-linux'.
+        """
+        archs = self.__getArchHierarchy()
 
-        arch = self.__getPseudoArch()
-
-        buildDir = "/usr/lib/build/"
-        configdir = buildDir + "configs"
+        buildDir = "/usr/lib/build"
+        configdir = buildDir + "/configs"
 
         configPath = self.__getConfigPath()
-        command = "%sgetchangetarget --dist \"%s\" --configdir \"%s\" --archpath \"%s\""
-        command = command % (buildDir, configPath, configdir, arch)
+        command = '%s/getchangetarget --dist "%s" --configdir "%s" --archpath "%s"'
+        command = command % (buildDir, configPath, configdir, archs)
 
-        arch = self.__subprocess(command, stdout=True)
+        target = self.__subprocess(command, stdout=True)
+        ObsLightPrintManager.getLogger().debug("Target found by getchangetarget: '%s'" % target)
 
         endline = "\n"
-        if arch.endswith("\n"):
-            arch = arch[:-len(endline)]
+        if target.endswith("\n"):
+            target = target[:-len(endline)]
 
-        return arch
+        return target
 
     def createPatch(self, package, patch):
         '''
@@ -907,28 +899,18 @@ class ObsLightProject(object):
         self.__packages.getPackage(package).addRemoveFileToTheProject()
 
     def getPackage(self, package=None):
-        '''
-        
-        '''
         return  self.__packages.getPackage(package=package)
 
     def removePackage(self, package=None):
-        '''
-        
-        '''
         return self.__packages.removePackage(package=package)
 
     def getWebProjectPage(self):
-        '''
-        
-        '''
         serverWeb = self.__obsServers.getObsServer(name=self.__obsServer).getUrlServerWeb()
 
         if serverWeb in (None, "None", ""):
             raise ObsLightErr.ObsLightProjectsError("No Web Server")
         res = urllib.basejoin(serverWeb , "project/show?project=" + self.__projectObsName)
         return res
-
 
     def getPackageInfo(self, package=None):
         return self.__packages.getPackageInfo(package=package)
@@ -962,36 +944,27 @@ class ObsLightProject(object):
                                                    self.__projectArchitecture)
 
 #Manage the repository into the chroot jail
-#___________________________________________________________________________________________________
+#_____________________________________________________________________________
     def deleteRepo(self, repoAlias):
-        '''
-         
-        '''
         return self.__chroot.deleteRepo(repoAlias)
 
     def modifyRepo(self, repoAlias, newUrl, newAlias):
-        '''
-        
-        '''
         return self.__chroot.modifyRepo(repoAlias, newUrl, newAlias)
 
     def addRepo(self, repos=None,
                       alias=None,
                       chroot=None):
-        '''
-        
-        '''
-        if chroot == None:
+        if chroot is None:
             __aChroot = self.__chroot
         else:
             __aChroot = chroot
 
-        if repos == None:
+        if repos is None:
             __aRepos = self.getReposProject()
         else:
             __aRepos = repos
 
-        if alias == None:
+        if alias is None:
             __anAlias = self.__projectObsName
         else:
             __anAlias = alias
@@ -1003,10 +976,4 @@ class ObsLightProject(object):
             ObsLightPrintManager.getLogger().info(message)
             return 0
 
-#___________________________________________________________________________________________________
-
-
-
-
-
-
+#_____________________________________________________________________________

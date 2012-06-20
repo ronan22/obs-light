@@ -53,12 +53,13 @@ class ObsLightGitManager(object):
     def prepareGitCommand(self, workTree, subcommand, gitDir):
         """
         Construct a Git command-line, setting its working tree to `workTree`,
-        and then appends `subcommand`.
+        and git directory to `gitDir`, and then appends `subcommand`.
         Output example:
-          git --git-dir=<workTree>/[gitDir] --work-tree=<workTree> <subcommand>
+          git --git-dir=<gitDir> --work-tree=<workTree> <subcommand>
         """
         absWorkTree = self.__chroot.getDirectory() + workTree
-        command = "git --git-dir=%s --work-tree=%s " % (self.__chroot.getDirectory() + gitDir, absWorkTree)
+        absGitDir = self.__chroot.getDirectory() + gitDir
+        command = "git --git-dir=%s --work-tree=%s " % (absGitDir, absWorkTree)
         command += subcommand
         return command
 
