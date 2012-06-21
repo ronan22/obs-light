@@ -304,7 +304,7 @@ class ObsLightSpec:
                 raise ObsLightErr.ObsLightSpec("parseFile: the path: " + path + ", do not exist")
 
             #Load the file in a list
-            f = open(path, 'r')
+            f = open(path, 'rb')
 
             for line in f:
                 tmpLineList.append(line)
@@ -321,7 +321,7 @@ class ObsLightSpec:
                 #use a clean string
 
                 tmp_line = self.__cleanline(line)
-                if tmp_line in self.__listSection:
+                if (tmp_line in self.__listSection) and (tmp_line != currentSection):
                     currentSection = tmp_line
                     self.__spectDico[currentSection] = []
                     self.__orderList.append(currentSection)
@@ -438,7 +438,6 @@ class ObsLightSpec:
             path = self.__path
         f = open(path, 'w')
         f.write("#File Write by OBSLight don't modify it\n")
-
         for section in self.__orderList:
             for line in self.__spectDico[section]:
                 if line.startswith("Release:") and \
@@ -571,11 +570,12 @@ class ObsLightSpec:
         return PrepAndBuild
 
 if __name__ == '__main__':
-    arg = sys.argv[1]
-    print arg
-    cli = ObsLightSpec("/home/meego/Documents/specTest", arg)
-    print cli.specFileHaveAnEmptyBuild()
+    absSpecFile_tmp = "/home/meego/OBSLight/ObsProjects/Tizen_Base/Tizen:FromObsTizen:1.0:Base/cross-armv7l-gcc/cross-armv7l-gcc.tmp.spec"
+    absSpecPath = "/home/meego/OBSLight/ObsProjects/Tizen_Base/Tizen:FromObsTizen:1.0:Base/cross-armv7l-gcc/"
+    absSpecFile = "cross-armv7l-gcc.spec"
 
+    cli = ObsLightSpec(absSpecPath, absSpecFile)
+    cli.save(absSpecFile_tmp)
 
 
 
