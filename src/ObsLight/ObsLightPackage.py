@@ -37,6 +37,7 @@ class ObsLightPackage(object):
     '''
     classdocs
     '''
+    ArchiveSuffix = ".tar.gz"
 
     def __init__(self,
                  packagePath,
@@ -505,13 +506,14 @@ class ObsLightPackage(object):
         return self.__prepDirName
 
     def getArchiveName(self):
-        '''
-        
-        '''
+        """
+        Get the name of the temporary archive we create from
+        sources extracted from git.
+        """
         if self.__prepDirName != None:
-            return self.__name + ".zip"
+            return self.__name + self.ArchiveSuffix
         else:
-            return self.__prepDirName + ".zip"
+            return self.__prepDirName + self.ArchiveSuffix
 
     def initCurrentPatch(self):
         '''

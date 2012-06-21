@@ -63,13 +63,16 @@ class ObsLightGitManager(object):
         command += subcommand
         return command
 
-    def makeArchiveGitSubcommand(self, prefix, revision=u"HEAD"):
+    def makeArchiveGitSubcommand(self, prefix, revision=u"HEAD", outputFilePath=None):
         """
-        Construct a Git 'archive' subcommand with tar format,
-        piped on gzip to produce a .tar.gz file.
+        Construct a Git 'archive' subcommand with auto-detected format.
+        If outputFilePath is None, format will be tar, and output will
+        be stdout.
         """
-        command = "archive --format=zip --prefix=%s/ %s "
+        command = "archive --prefix=%s/ %s "
         command = command % (prefix, revision)
+        if outputFilePath is not None:
+            command += " -o %s" % outputFilePath
         return command
 
     def execMakeArchiveGitSubcommand(self,
@@ -77,23 +80,33 @@ class ObsLightGitManager(object):
                                     outputFilePath,
                                     prefix,
                                     packageCurrentGitDirectory):
-
+        absOutputFilePath = self.__chroot.getDirectory()
+        # TODO: make something more generic (gz, bz2, xz...)
+        if outputFilePath.endswith(".tar.gz"):
+            # git archive does not know .tar.gz,
+            # we have to compress the file afterwards
+            absOutputFilePath += outputFilePath[:-len('.gz')]
+        else:
+            absOutputFilePath += outputFilePath
+        archiveSubCommand = self.makeArchiveGitSubcommand(prefix,
+                                                          outputFilePath=absOutputFilePath)
         command = self.prepareGitCommand(packagePath,
-                                         self.makeArchiveGitSubcommand(prefix),
+                                         archiveSubCommand,
                                          packageCurrentGitDirectory)
-
-        res = self.__subprocess(command, stdout=True, noOutPut=True)
-        f = open(self.__chroot.getDirectory() + outputFilePath, 'w')
-        f.write(res)
-        f.close()
-
-        return 0
+        res = self.__subprocess(command)
+        if res != 0:
+            return res
+        if outputFilePath.endswith(".tar.gz"):
+            # Without '-f' user will be prompted if .gz file already exists
+            command = "gzip -f %s" % absOutputFilePath
+            res = self.__subprocess(command)
+        return res
 
     def initGitWatch(self, path, package):
         '''
         Initialize a Git repository in the specified path, and 'git add' everything.
         '''
-        if path == None:
+        if path is None:
             raise ObsLightErr.ObsLightChRootError("Path is not defined in initGitWatch.")
 
         absPath = self.__chroot.getDirectory() + path
@@ -142,7 +155,7 @@ class ObsLightGitManager(object):
         res = self.__subprocess(command=command, stdout=True)
         # some packages modify their file rights, so we have to ensure
         # this file is writable
-        self.__subprocess("sudo chmod a+w %s/.gitignore" % absPath)
+        self.__subprocess("sudo chmod -f a+w %s %s/.gitignore" % (absPath, absPath))
 
         f = open(absPath + "/.gitignore", 'a')
         if firstBuildCommit:
@@ -152,7 +165,7 @@ class ObsLightGitManager(object):
             f.write("*.in\n")
 
             self.__subprocess(self.prepareGitCommand(path,
-                                                     u"add " + absPath + "/.gitignore",
+                                                     "add " + absPath + "/.gitignore",
                                                      package.getCurrentGitDirectory()))
 
         if type(res) is not type(int()):
@@ -204,7 +217,7 @@ class ObsLightGitManager(object):
     def commitGit(self, mess, package):
         packagePath = package.getPackageDirectory()
         command = []
-        if packagePath == None:
+        if packagePath is None:
             raise ObsLightErr.ObsLightChRootError("path is not defined in commitGit for .")
 
         timeString = time.strftime("%Y-%m-%d_%Hh%Mm%Ss")
