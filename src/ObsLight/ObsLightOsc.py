@@ -280,7 +280,19 @@ class ObsLightOsc(object):
         logger.debug("Getting buildrequires of %s from %s" % (package, buildinfoUrl))
         self.cleanBuffer(buildinfoUrl)
 
-        result = self.http_request("POST", str(buildinfoUrl), aFile=specFile, timeout=TIMEOUT)
+        try:
+            # We must read specfile before giving the content to http_request "data":
+            # giving the path of the specfile to http_request "aFile" would result
+            # in error 400 in some obscure cases.
+            with open(specFile) as specFileObj:
+                build_descr_data = specFileObj.read()
+            result = self.http_request("POST", str(buildinfoUrl),
+                                       data=build_descr_data, timeout=TIMEOUT)
+        except urllib2.HTTPError as he:
+            msg = "Could not compute buildinfo. Server returned error %d" % he.getcode()
+            if he.hasAttribute("fp") and he.fp is not None:
+                msg += " with message:\n%s" % he.fp.read()
+            raise ObsLightErr.ObsLightOscErr(msg)
 
         buildInfo = result.read()
 
