@@ -290,7 +290,7 @@ class ObsLightOsc(object):
                                        data=build_descr_data, timeout=TIMEOUT)
         except urllib2.HTTPError as he:
             msg = "Could not compute buildinfo. Server returned error %d" % he.getcode()
-            if he.hasAttribute("fp") and he.fp is not None:
+            if hasattr(he, "fp") and he.fp is not None:
                 msg += " with message:\n%s" % he.fp.read()
             raise ObsLightErr.ObsLightOscErr(msg)
 
