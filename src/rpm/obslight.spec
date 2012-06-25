@@ -33,8 +33,12 @@ Requires:   git
 %if 0%{?suse_version} > 1120
 Requires:   imagewriter
 %endif
+%if 0%{?suse_version} > 1140
+Requires:   qemu-linux-user
+%endif
 %if 0%{?fedora}
 Requires:   nfs-utils
+Requires:   qemu-user
 Requires:   redhat-lsb
 %else
 Requires:   nfs-kernel-server
