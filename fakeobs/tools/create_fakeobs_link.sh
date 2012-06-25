@@ -8,7 +8,7 @@ then
   OSCCONFIG=$1
 else
   WEBUICONFIG="/srv/www/obs/webui/config/environments/production.rb"
-  HOST=`sed -rn s,"^FRONTEND_HOST\s*=\s*['\"]{1}([a-zA-Z]*)['\"]{1}","\1",p $WEBUICONFIG`
+  HOST=`sed -rn s,"^FRONTEND_HOST\s*=\s*['\"]{1}([a-zA-Z0-9\-]*)['\"]{1}","\1",p $WEBUICONFIG`
   PORT=`sed -rn s,"^FRONTEND_PORT\s*=\s*([0-9]*)","\1",p $WEBUICONFIG`
   PROTOCOL=`sed -rn s,"^FRONTEND_PROTOCOL\s*=\s*['\"]{1}([a-zA-Z]*)['\"]{1}","\1",p $WEBUICONFIG`
 
