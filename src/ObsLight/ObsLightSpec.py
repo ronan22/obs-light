@@ -570,9 +570,9 @@ class ObsLightSpec:
         return PrepAndBuild
 
 if __name__ == '__main__':
-    absSpecFile_tmp = "/home/meego/OBSLight/ObsProjects/Tizen_Base/Tizen:FromObsTizen:1.0:Base/cross-armv7l-gcc/cross-armv7l-gcc.tmp.spec"
-    absSpecPath = "/home/meego/OBSLight/ObsProjects/Tizen_Base/Tizen:FromObsTizen:1.0:Base/cross-armv7l-gcc/"
-    absSpecFile = "cross-armv7l-gcc.spec"
+    absSpecFile_tmp = "/home/meego/OBSLight/ObsProjects/Tizen_Base/Tizen:FromObsTizen:1.0:Base/nss/nss.tmp.spec"
+    absSpecPath = "/home/meego/OBSLight/ObsProjects/Tizen_Base/Tizen:FromObsTizen:1.0:Base/nss/"
+    absSpecFile = "nss.spec"
 
     cli = ObsLightSpec(absSpecPath, absSpecFile)
     cli.save(absSpecFile_tmp)

@@ -756,7 +756,10 @@ exit $RPMBUILD_RETURN_CODE
         f.write("# Created by obslight\n\n")
         #Warning
         f.write("if [ -e /root/.bashrc ];then . /root/.bashrc;fi\n")
-#        f.write("set -x\n")
+        #When OBS Light is used in graphic mode (without console), the commands like "tput"
+        #Need a value  for TERM other than "unknown" (xterm, linux,...)
+        f.write("if [ $TERM = unknown ] ; then TERM=xterm ;fi")
+
         for c in command:
             f.write(c + "\n")
         f.close()
