@@ -73,6 +73,7 @@ class ObsLightChRoot(object):
 
         self.__mySubprocessCrt = SubprocessCrt()
         self.hostArch = platform.machine()
+        self.__obsLightMic = None
 
         if fromSave is None:
             self.__dicoRepos = {}
@@ -85,8 +86,7 @@ class ObsLightChRoot(object):
         mountDir = {}
         mountDir[self.__transferDir] = self.__chrootTransferDir
         mountDir[self.__oscCacheDir] = self.__chrootOscCacheDir
-        obsLightMic = ObsLightMic.getObsLightMic(self.getDirectory())
-        obsLightMic.initChroot(chrootDirectory=self.getDirectory(), mountDir=mountDir)
+        self.obsLightMic.initChroot(chrootDirectory=self.getDirectory(), mountDir=mountDir)
 
     def initChRoot(self):
         if not os.path.isdir(self.__chrootTransferDir):
@@ -106,6 +106,12 @@ class ObsLightChRoot(object):
         Return the path of aChRoot of a project 
         '''
         return self.__chrootDirectory
+
+    @property
+    def obsLightMic(self):
+        if self.__obsLightMic is None:
+            self.__obsLightMic = ObsLightMic.getObsLightMic(self.getDirectory())
+        return self.__obsLightMic
 
     def failIfAclsNotReady(self):
         """
@@ -148,7 +154,7 @@ class ObsLightChRoot(object):
             raise ObsLightErr.ObsLightChRootError(message)
 
     def removeChRoot(self):
-        if  ObsLightMic.getObsLightMic(name=self.getDirectory()).isInit():
+        if self.obsLightMic.isInit():
             ObsLightMic.destroy(name=self.getDirectory())
 
         self.failIfUserNotInUserGroup()
@@ -242,7 +248,7 @@ class ObsLightChRoot(object):
         elif not os.path.isdir(self.getDirectory()):
             raise ObsLightErr.ObsLightChRootError("'%s' is not a directory" % self.getDirectory())
 
-        if  not ObsLightMic.getObsLightMic(name=self.getDirectory()).isInit():
+        if not self.obsLightMic.isInit():
             self.__initChroot()
 
         self.failIfUserNotInUserGroup()
@@ -735,7 +741,7 @@ exit $RPMBUILD_RETURN_CODE
 
         self.failIfUserNotInUserGroup()
 
-        if not ObsLightMic.getObsLightMic(name=self.getDirectory()).isInit():
+        if not self.obsLightMic.isInit():
             self.__initChroot()
 
         self.testOwnerChRoot()
@@ -771,7 +777,7 @@ exit $RPMBUILD_RETURN_CODE
         '''
         self.failIfUserNotInUserGroup()
 
-        if not ObsLightMic.getObsLightMic(name=self.getDirectory()).isInit():
+        if not self.obsLightMic.isInit():
             self.__initChroot()
 
         if os.path.isfile(aPath):
@@ -814,7 +820,7 @@ exit $RPMBUILD_RETURN_CODE
 
         self.failIfUserNotInUserGroup()
 
-        if  not ObsLightMic.getObsLightMic(name=self.getDirectory()).isInit():
+        if not self.obsLightMic.isInit():
             self.__initChroot()
 
         # FIXME: project should be accessible by self.project
@@ -934,19 +940,21 @@ exit $RPMBUILD_RETURN_CODE
         command.append("chown -R root:users /etc/zypp/repos.d")
         command.append("chmod g+rwX etc/zypp/repos.d")
 
-        if ObsLightMic.getObsLightMic(name=self.getDirectory()).isArmArch(chrootDir):
-            # If rpm and rpmbuild binaries are not ARM, replace them by ARM versions
-            command.append('[ -z "$(file /bin/rpm | grep ARM)" -a -f /bin/rpm.orig-arm ]'
-                + ' && cp /bin/rpm /bin/rpm.x86 && cp /bin/rpm.orig-arm /bin/rpm')
-            command.append('[ -z "$(file /usr/bin/rpmbuild ' +
-                           '| grep ARM)" -a -f /usr/bin/rpmbuild.orig-arm ]' +
-                           ' && cp /usr/bin/rpmbuild /usr/bin/rpmbuild.x86 ' +
-                           '&& cp /usr/bin/rpmbuild.orig-arm /usr/bin/rpmbuild')
-            # Remove the old (broken ?) RPM database
-            command.append('rm -f /var/lib/rpm/__db*')
-            # Force zypper and rpm to use armv7hl architecture
-            command.append("echo 'arch = armv7hl' >> /etc/zypp/zypp.conf")
-            command.append("echo -n 'armv7hl-meego-linux' > /etc/rpm/platform")
+        # Tizen ARM chroot jails work without this.
+        # TODO: test with MeeGo
+#        if self.obsLightMic.isArmArch(chrootDir):
+#            # If rpm and rpmbuild binaries are not ARM, replace them by ARM versions
+#            command.append('[ -z "$(file /bin/rpm | grep ARM)" -a -f /bin/rpm.orig-arm ]'
+#                + ' && cp /bin/rpm /bin/rpm.x86 && cp /bin/rpm.orig-arm /bin/rpm')
+#            command.append('[ -z "$(file /usr/bin/rpmbuild ' +
+#                           '| grep ARM)" -a -f /usr/bin/rpmbuild.orig-arm ]' +
+#                           ' && cp /usr/bin/rpmbuild /usr/bin/rpmbuild.x86 ' +
+#                           '&& cp /usr/bin/rpmbuild.orig-arm /usr/bin/rpmbuild')
+#            # Remove the old (broken ?) RPM database
+#            command.append('rm -f /var/lib/rpm/__db*')
+#            # Force zypper and rpm to use armv7hl architecture
+#            command.append("echo 'arch = armv7hl' >> /etc/zypp/zypp.conf")
+#            command.append("echo -n 'armv7hl-meego-linux' > /etc/rpm/platform")
 
 
         command.append("rpm --initdb")
@@ -1030,9 +1038,10 @@ exit $RPMBUILD_RETURN_CODE
                     pkgName = pkgName[:-4]
 
                 testInstall = "rpm --quiet -q " + pkgName
-                installCommand = "rpm --nodeps -i " + absPath
+                installCommand = "rpm --nodeps --ignorearch -i '%s'" % absPath
 
-                command.append("if ! " + testInstall + " ;then " + installCommand + "|| exit 1; fi")
+                cmd = "if ! %s ; then %s || exit 1; fi" % (testInstall, installCommand)
+                command.append(cmd)
 
 
         return self.execCommand(command=command)

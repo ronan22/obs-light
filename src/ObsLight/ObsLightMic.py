@@ -30,21 +30,15 @@ import ObsLightErr
 from ObsLightSubprocess import SubprocessCrt
 
 class ObsLightMic(object):
-    '''
-    classdocs
-    '''
 
     def __init__(self):
-        '''
-        Constructor
-        '''
         self.__isInit = False
 
         self.__chroot_lockfd = None
         self.__chroot_lock = ""
 
         self.__globalmounts = None
-        self.__qemu_emulator = None
+#        self.__qemu_emulator = None
 
         self.__chrootDirectory = None
 
@@ -55,9 +49,6 @@ class ObsLightMic(object):
         self.__bindmounts = None
 
     def destroy(self):
-        '''
-        
-        '''
         if self.__isInit == True:
             self.cleanup_chrootenv(bindmounts=self.__bindmounts)
 
@@ -77,31 +68,22 @@ class ObsLightMic(object):
 #        os.close(dev_null)"""
 
     def isInit(self):
-        '''
-        
-        '''
         return self.__isInit
 
     def initChroot(self, chrootDirectory=None, mountDir=None):
-        '''
-        
-        '''
         mountDir = mountDir or {}
         self.testOwnerChRoot(path=chrootDirectory)
         self.__bindmounts = ""
         for k in mountDir.keys():
             self.__bindmounts += mountDir[k] + ":" + k + ";"
         self.__chrootDirectory = chrootDirectory
-        self.__findArch()
+#        self.__findArch()
 
         self.setup_chrootenv(bindmounts=self.__bindmounts)
 
         self.__isInit = True
 
     def testOwnerChRoot(self, path):
-        '''
-        
-        '''
         if os.path.isdir(path):
             if os.stat(path).st_uid != 0:
                 message = "The project file system '%s' is not owned by root." % path
@@ -112,9 +94,6 @@ class ObsLightMic(object):
             raise ObsLightErr.ObsLightChRootError(message)
 
     def __subprocess(self, command=None):
-        '''
-        
-        '''
         return self.__mySubprocessCrt.execSubprocess(command=command)
 
     def setup_chrootenv(self, bindmounts=None):
@@ -229,10 +208,10 @@ class ObsLightMic(object):
             kill_processes(self.__chrootDirectory)
 
         self.cleanup_mountdir(self.__chrootDirectory, bindmounts)
-        if self.__qemu_emulator:
-
-            command = "sudo rm " + self.__chrootDirectory + self.__qemu_emulator
-            self.__subprocess(command=command)
+#        if self.__qemu_emulator:
+#
+#            command = "sudo rm " + self.__chrootDirectory + self.__qemu_emulator
+#            self.__subprocess(command=command)
 
         command = "sudo rm " + self.__chroot_lock
         self.__subprocess(command=command)
@@ -260,62 +239,61 @@ class ObsLightMic(object):
                     self.__obsLightPrint("dir %s isn't empty." % tmpdir, isDebug=True)
                     #chroot.pwarning("dir %s isn't empty." % tmpdir)
 
-    def isArmArch(self, directory=None):
-        '''
-        
-        '''
-        self.__chrootDirectory = directory
-        self.__findArch()
-        if self.__qemu_emulator:
-            return True
-        else:
-            return False
+# FIXME: to be removed when ARM builds have been validated on openSUSE, Fedora and Ubuntu
+#    def isArmArch(self, directory=None):
+#        self.__chrootDirectory = directory
+#        self.__findArch()
+#        if self.__qemu_emulator:
+#            return True
+#        else:
+#            return False
 
+#    def __findArch(self):
+#        dev_null = os.open("/dev/null", os.O_WRONLY)
+#        files_to_check = ["/bin/bash", "/sbin/init", "/bin/ps",
+#                          "/bin/kill", "/bin/rm", "/bin/grep"]
+#
+#        architecture_found = False
+#
+#        #''' Register statically-linked qemu-arm if it is an ARM fs '''
+#        qemu_emulator = None
+#
+#        for ftc in files_to_check:
+#            ftc = "%s/%s" % (self.__chrootDirectory, ftc)
+#
+#            # Return code of 'file' is "almost always" 0 based on some man pages
+#            # so we need to check the file existance first.
+#            if not os.path.exists(ftc):
+#                continue
+#
+#            filecmd = misc.find_binary_path("file")
+#            initp1 = subprocess.Popen([filecmd, ftc], stdout=subprocess.PIPE, stderr=dev_null)
+#            fileOutput = initp1.communicate()[0].strip().split("\n")
+#
+#            for i in range(len(fileOutput)):
+#                print fileOutput[i]
+#                if fileOutput[i].find("ARM") > 0:
+#                    # It's no more required to setup Qemu since it is done
+#                    # at the creation of the chroot jail by init_buildsystem
+#                    #qemu_emulator = misc.setup_qemu_emulator(rootdir=self.__chrootDirectory,
+#                    #                                         arch="arm")
+#                    qemu_emulator = True
+#                    architecture_found = True
+#                    break
+#                if fileOutput[i].find("Intel") > 0 or fileOutput[i].find("x86-64") > 0:
+#                    architecture_found = True
+#                    break
+#
+#            if architecture_found:
+#                break
+#
+#        os.close(dev_null)
+#        if not architecture_found:
+#            message = "Failed to getObsLightMic architecture from "
+#            message += "any of the following files from chroot: %s" % files_to_check
+#            raise fs_related.CreatorError(message)
 
-    def __findArch(self):
-        '''
-        
-        '''
-        dev_null = os.open("/dev/null", os.O_WRONLY)
-        files_to_check = ["/bin/bash", "/sbin/init", "/bin/ps", "/bin/kill"]
-
-        architecture_found = False
-
-        #''' Register statically-linked qemu-arm if it is an ARM fs '''
-        qemu_emulator = None
-
-        for ftc in files_to_check:
-            ftc = "%s/%s" % (self.__chrootDirectory, ftc)
-
-            # Return code of 'file' is "almost always" 0 based on some man pages
-            # so we need to check the file existance first.
-            if not os.path.exists(ftc):
-                continue
-
-            filecmd = misc.find_binary_path("file")
-            initp1 = subprocess.Popen([filecmd, ftc], stdout=subprocess.PIPE, stderr=dev_null)
-            fileOutput = initp1.communicate()[0].strip().split("\n")
-
-            for i in range(len(fileOutput)):
-                if fileOutput[i].find("ARM") > 0:
-                    qemu_emulator = misc.setup_qemu_emulator(rootdir=self.__chrootDirectory,
-                                                             arch="arm")
-                    architecture_found = True
-                    break
-                if fileOutput[i].find("Intel") > 0 or fileOutput[i].find("x86-64") > 0:
-                    architecture_found = True
-                    break
-
-            if architecture_found:
-                break
-
-        os.close(dev_null)
-        if not architecture_found:
-            message = "Failed to getObsLightMic architecture from "
-            message += "any of the following files from chroot: %s" % files_to_check
-            raise fs_related.CreatorError(message)
-
-        self.__qemu_emulator = qemu_emulator
+#        self.__qemu_emulator = qemu_emulator
 
 
     def chroot(self, bindmounts=None, execute="/bin/bash"):
@@ -323,7 +301,7 @@ class ObsLightMic(object):
             os.chroot(self.__chrootDirectory)
             os.chdir("/")
 
-        self.__findArch()
+#        self.__findArch()
 
         try:
             self.__obsLightPrint("Launching shell. Exit to continue.", isDebug=True)
@@ -361,9 +339,6 @@ class BindChrootMount:
 
 
     def __subprocess(self, command=None):
-        '''
-        
-        '''
         return self.__mySubprocessCrt.execSubprocess(command=command)
 
     def ismounted(self):
@@ -431,9 +406,6 @@ __myListObsLightMic = {}
 
 
 def getObsLightMic(name=None):
-    '''
-    
-    '''
     if not (name in __myListObsLightMic.keys()):
         __myListObsLightMic[name] = ObsLightMic()
 
@@ -441,9 +413,6 @@ def getObsLightMic(name=None):
 
 
 def isInit(name=None):
-    '''
-    
-    '''
     if  (name in __myListObsLightMic.keys()):
         return True
     else:
@@ -451,9 +420,6 @@ def isInit(name=None):
 
 @atexit.register
 def destroy(name=None):
-    '''
-    
-    '''
     if name == None:
         for aName in __myListObsLightMic.keys():
             __myListObsLightMic[aName].destroy()
@@ -463,14 +429,3 @@ def destroy(name=None):
         del __myListObsLightMic[name]
 
     return None
-
-
-
-
-
-
-
-
-
-
-
