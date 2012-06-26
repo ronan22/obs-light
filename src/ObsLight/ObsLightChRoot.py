@@ -73,6 +73,7 @@ class ObsLightChRoot(object):
 
         self.__mySubprocessCrt = SubprocessCrt()
         self.hostArch = platform.machine()
+        self.chrootArch = ""
         self.__obsLightMic = None
 
         if fromSave is None:
@@ -153,6 +154,17 @@ class ObsLightChRoot(object):
             message += "then logout and login again."
             raise ObsLightErr.ObsLightChRootError(message)
 
+    def failIfQemuIsNotStatic(self):
+        """
+        Raise an exception if host does not have a static version of qemu.
+        Do nothing if we do not need qemu.
+        """
+        logger = ObsLightPrintManager.getLogger()
+        if self.chrootArch.lower().startswith("arm"):
+            logger.info("Project has ARM architecture, checking qemu...")
+            # TODO: check if the qemu is statically linked
+            return
+
     def removeChRoot(self):
         if self.obsLightMic.isInit():
             ObsLightMic.destroy(name=self.getDirectory())
@@ -213,9 +225,11 @@ class ObsLightChRoot(object):
                            arch,
                            apiurl,
                            obsProject):
+        self.chrootArch = arch
 
         self.failIfUserNotInUserGroup()
         self.failIfAclsNotReady()
+        self.failIfQemuIsNotStatic()
 
         fsPath = self.getDirectory()
         res = ObsLightOsc.getObsLightOsc().createChRoot(chrootDir=fsPath,
@@ -745,7 +759,7 @@ exit $RPMBUILD_RETURN_CODE
             self.__initChroot()
 
         self.testOwnerChRoot()
-        #Need more then second %S
+        # Need more than second %S
         timeString = time.strftime("%Y-%m-%d_%Hh%Mm") + str(time.time() % 1).split(".")[1]
 
         scriptName = "runMe_" + timeString + ".sh"
@@ -754,11 +768,11 @@ exit $RPMBUILD_RETURN_CODE
         f = open(scriptPath, 'w')
         f.write("#!/bin/sh -x\n")
         f.write("# Created by obslight\n\n")
-        #Warning
-        f.write("if [ -e /root/.bashrc ];then . /root/.bashrc;fi\n")
-        #When OBS Light is used in graphic mode (without console), the commands like "tput"
-        #Need a value  for TERM other than "unknown" (xterm, linux,...)
-        f.write("if [ $TERM = unknown ] ; then TERM=xterm ;fi")
+        # Warning
+        f.write("if [ -e /root/.bashrc ] ; then . /root/.bashrc ; fi\n")
+        # When OBS Light is used in graphic mode (without console), the commands like "tput"
+        # need a value for TERM other than "unknown" (xterm, linux,...)
+        f.write('if [ "$TERM" = "unknown" ] ; then TERM="xterm" ; fi\n')
 
         for c in command:
             f.write(c + "\n")
@@ -938,7 +952,8 @@ exit $RPMBUILD_RETURN_CODE
         command.append("if ! egrep '^root:' >/dev/null </etc/shadow ; then echo 'root:*:15484:0:99999:7:::' >>/etc/shadow ; fi")
         command.append("if ! egrep '^root:' >/dev/null </etc/gshadow ; then echo 'root:*::' >>/etc/gshadow ; fi")
 
-        # We need a "/etc/zypp/repos.d" directory. 
+        # FIXME: is this still required ?
+        # We need a "/etc/zypp/repos.d" directory.
         command.append("mkdir -p /etc/zypp/repos.d")
         command.append("chown -R root:users /etc/zypp/repos.d")
         command.append("chmod g+rwX etc/zypp/repos.d")
