@@ -542,6 +542,9 @@ class ObsLightSpec:
                         toWrite += "if [ -e .emptyDirectory  ]; "
                         toWrite += "then for i in `cat .emptyDirectory` ; "
                         toWrite += "do mkdir -p $i;echo $i ; done;fi\n"
+                        #we need to rename the file ".gitignore.obslight" to ".gitignore"
+                        toWrite += "find ./ -type f -name .gitignore.obslight \
+                                    -execdir mv .gitignore.obslight .gitignore  \;\n"
                         SETUP = True
                 else:
                     toWrite += line

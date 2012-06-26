@@ -497,12 +497,15 @@ class ObsLightChRoot(object):
         Execute the %prep section of an RPM spec file.
         '''
         scriptParameters = self.makeRpmbuildScriptParameters(specFile, package, arch, "-bp")
+        #We need to rename all the .gitignore file to do not disturb the git management
         script = """HOME=/root/%(packageName)s
 rm -f %(buildLink)s
 ln -s %(buildDir)s %(buildLink)s
 chown -R root:users %(buildDir)s
 %(rpmbuildCmd)s
-exit $?
+RETURN_VALUE=$?
+find %(buildDir)s/BUILD -type f -name .gitignore -execdir mv .gitignore .gitignore.obslight  \;
+exit $RETURN_VALUE
 """
         script = script % scriptParameters
         res = self.execCommand([script])
@@ -558,8 +561,7 @@ exit $?
         packageDirectory = package.getPackageDirectory()
 
         if res == 0:
-            self.__ObsLightGitManager.ignoreGitWatch(package=package,
-                                path=packageDirectory)
+            self.__ObsLightGitManager.ignoreGitWatch(package=package, path=packageDirectory)
             package.setFirstCommit(tag=self.__ObsLightGitManager.getCommitTag(packageDirectory,
                                                                               package))
             package.setChRootStatus("Prepared")

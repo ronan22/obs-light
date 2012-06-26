@@ -135,7 +135,11 @@ class ObsLightGitManager(object):
 
         res = self.__listSubprocess(command=command)
 
-    def ignoreGitWatch(self, package, path=None, commitComment="first build commit", firstBuildCommit=True):
+    def ignoreGitWatch(self,
+                       package,
+                       path=None,
+                       commitComment="first build commit",
+                       firstBuildCommit=True):
         '''
         Add all Git untracked files of `path` to .gitignore
         and commit.
