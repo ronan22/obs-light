@@ -9,18 +9,18 @@ Architecture: any
 Depends: ${shlibs:Depends},
  acl,
  build,
+ curl,
+ git,
  mic (>= 0.4),
  osc (>= 0.132),
  python (>= 2.6),
  python-pyside (>= 1.0.6),
- qemu,
+ qemu-user-static,
  spectacle,
  sudo,
  xdg-utils,
  xtightvncviewer,
  wget,
- curl,
- git,
 Recommends:
  usb-imagewriter
 Description: Utilities to work with OBS Light, a lighter version of OBS.

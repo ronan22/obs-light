@@ -73,6 +73,8 @@ class ObsLightChRoot(object):
 
         self.__mySubprocessCrt = SubprocessCrt()
         self.hostArch = platform.machine()
+        self.chrootArch = ""
+        self.__obsLightMic = None
 
         if fromSave is None:
             self.__dicoRepos = {}
@@ -85,8 +87,7 @@ class ObsLightChRoot(object):
         mountDir = {}
         mountDir[self.__transferDir] = self.__chrootTransferDir
         mountDir[self.__oscCacheDir] = self.__chrootOscCacheDir
-        obsLightMic = ObsLightMic.getObsLightMic(self.getDirectory())
-        obsLightMic.initChroot(chrootDirectory=self.getDirectory(), mountDir=mountDir)
+        self.obsLightMic.initChroot(chrootDirectory=self.getDirectory(), mountDir=mountDir)
 
     def initChRoot(self):
         if not os.path.isdir(self.__chrootTransferDir):
@@ -106,6 +107,12 @@ class ObsLightChRoot(object):
         Return the path of aChRoot of a project 
         '''
         return self.__chrootDirectory
+
+    @property
+    def obsLightMic(self):
+        if self.__obsLightMic is None:
+            self.__obsLightMic = ObsLightMic.getObsLightMic(self.getDirectory())
+        return self.__obsLightMic
 
     def failIfAclsNotReady(self):
         """
@@ -147,8 +154,19 @@ class ObsLightChRoot(object):
             message += "then logout and login again."
             raise ObsLightErr.ObsLightChRootError(message)
 
+    def failIfQemuIsNotStatic(self):
+        """
+        Raise an exception if host does not have a static version of qemu.
+        Do nothing if we do not need qemu.
+        """
+        logger = ObsLightPrintManager.getLogger()
+        if self.chrootArch.lower().startswith("arm"):
+            logger.info("Project has ARM architecture, checking qemu...")
+            # TODO: check if the qemu is statically linked
+            return
+
     def removeChRoot(self):
-        if  ObsLightMic.getObsLightMic(name=self.getDirectory()).isInit():
+        if self.obsLightMic.isInit():
             ObsLightMic.destroy(name=self.getDirectory())
 
         self.failIfUserNotInUserGroup()
@@ -207,9 +225,11 @@ class ObsLightChRoot(object):
                            arch,
                            apiurl,
                            obsProject):
+        self.chrootArch = arch
 
         self.failIfUserNotInUserGroup()
         self.failIfAclsNotReady()
+        self.failIfQemuIsNotStatic()
 
         fsPath = self.getDirectory()
         res = ObsLightOsc.getObsLightOsc().createChRoot(chrootDir=fsPath,
@@ -242,7 +262,7 @@ class ObsLightChRoot(object):
         elif not os.path.isdir(self.getDirectory()):
             raise ObsLightErr.ObsLightChRootError("'%s' is not a directory" % self.getDirectory())
 
-        if  not ObsLightMic.getObsLightMic(name=self.getDirectory()).isInit():
+        if not self.obsLightMic.isInit():
             self.__initChroot()
 
         self.failIfUserNotInUserGroup()
@@ -735,11 +755,11 @@ exit $RPMBUILD_RETURN_CODE
 
         self.failIfUserNotInUserGroup()
 
-        if not ObsLightMic.getObsLightMic(name=self.getDirectory()).isInit():
+        if not self.obsLightMic.isInit():
             self.__initChroot()
 
         self.testOwnerChRoot()
-        #Need more then second %S
+        # Need more than second %S
         timeString = time.strftime("%Y-%m-%d_%Hh%Mm") + str(time.time() % 1).split(".")[1]
 
         scriptName = "runMe_" + timeString + ".sh"
@@ -748,11 +768,12 @@ exit $RPMBUILD_RETURN_CODE
         f = open(scriptPath, 'w')
         f.write("#!/bin/sh -x\n")
         f.write("# Created by obslight\n\n")
-        #Warning
-        f.write("if [ -e /root/.bashrc ];then . /root/.bashrc;fi\n")
-        #When OBS Light is used in graphic mode (without console), the commands like "tput"
-        #Need a value  for TERM other than "unknown" (xterm, linux,...)
-        f.write("if [ $TERM = unknown ] ; then TERM=xterm ;fi\n")
+
+        # Warning
+        f.write("if [ -e /root/.bashrc ] ; then . /root/.bashrc ; fi\n")
+        # When OBS Light is used in graphic mode (without console), the commands like "tput"
+        # need a value for TERM other than "unknown" (xterm, linux,...)
+        f.write('if [ "$TERM" = "unknown" ] ; then TERM="xterm" ; fi\n')
 
         for c in command:
             f.write(c + "\n")
@@ -774,7 +795,7 @@ exit $RPMBUILD_RETURN_CODE
         '''
         self.failIfUserNotInUserGroup()
 
-        if not ObsLightMic.getObsLightMic(name=self.getDirectory()).isInit():
+        if not self.obsLightMic.isInit():
             self.__initChroot()
 
         if os.path.isfile(aPath):
@@ -817,7 +838,7 @@ exit $RPMBUILD_RETURN_CODE
 
         self.failIfUserNotInUserGroup()
 
-        if  not ObsLightMic.getObsLightMic(name=self.getDirectory()).isInit():
+        if not self.obsLightMic.isInit():
             self.__initChroot()
 
         # FIXME: project should be accessible by self.project
@@ -932,24 +953,27 @@ exit $RPMBUILD_RETURN_CODE
         command.append("if ! egrep '^root:' >/dev/null </etc/shadow ; then echo 'root:*:15484:0:99999:7:::' >>/etc/shadow ; fi")
         command.append("if ! egrep '^root:' >/dev/null </etc/gshadow ; then echo 'root:*::' >>/etc/gshadow ; fi")
 
-        # We need a "/etc/zypp/repos.d" directory. 
+        # FIXME: is this still required ?
+        # We need a "/etc/zypp/repos.d" directory.
         command.append("mkdir -p /etc/zypp/repos.d")
         command.append("chown -R root:users /etc/zypp/repos.d")
         command.append("chmod g+rwX etc/zypp/repos.d")
 
-        if ObsLightMic.getObsLightMic(name=self.getDirectory()).isArmArch(chrootDir):
-            # If rpm and rpmbuild binaries are not ARM, replace them by ARM versions
-            command.append('[ -z "$(file /bin/rpm | grep ARM)" -a -f /bin/rpm.orig-arm ]'
-                + ' && cp /bin/rpm /bin/rpm.x86 && cp /bin/rpm.orig-arm /bin/rpm')
-            command.append('[ -z "$(file /usr/bin/rpmbuild ' +
-                           '| grep ARM)" -a -f /usr/bin/rpmbuild.orig-arm ]' +
-                           ' && cp /usr/bin/rpmbuild /usr/bin/rpmbuild.x86 ' +
-                           '&& cp /usr/bin/rpmbuild.orig-arm /usr/bin/rpmbuild')
-            # Remove the old (broken ?) RPM database
-            command.append('rm -f /var/lib/rpm/__db*')
-            # Force zypper and rpm to use armv7hl architecture
-            command.append("echo 'arch = armv7hl' >> /etc/zypp/zypp.conf")
-            command.append("echo -n 'armv7hl-meego-linux' > /etc/rpm/platform")
+        # Tizen ARM chroot jails work without this.
+        # TODO: test with MeeGo
+#        if self.obsLightMic.isArmArch(chrootDir):
+#            # If rpm and rpmbuild binaries are not ARM, replace them by ARM versions
+#            command.append('[ -z "$(file /bin/rpm | grep ARM)" -a -f /bin/rpm.orig-arm ]'
+#                + ' && cp /bin/rpm /bin/rpm.x86 && cp /bin/rpm.orig-arm /bin/rpm')
+#            command.append('[ -z "$(file /usr/bin/rpmbuild ' +
+#                           '| grep ARM)" -a -f /usr/bin/rpmbuild.orig-arm ]' +
+#                           ' && cp /usr/bin/rpmbuild /usr/bin/rpmbuild.x86 ' +
+#                           '&& cp /usr/bin/rpmbuild.orig-arm /usr/bin/rpmbuild')
+#            # Remove the old (broken ?) RPM database
+#            command.append('rm -f /var/lib/rpm/__db*')
+#            # Force zypper and rpm to use armv7hl architecture
+#            command.append("echo 'arch = armv7hl' >> /etc/zypp/zypp.conf")
+#            command.append("echo -n 'armv7hl-meego-linux' > /etc/rpm/platform")
 
 
         command.append("rpm --initdb")
@@ -1033,9 +1057,10 @@ exit $RPMBUILD_RETURN_CODE
                     pkgName = pkgName[:-4]
 
                 testInstall = "rpm --quiet -q " + pkgName
-                installCommand = "rpm --nodeps -i " + absPath
+                installCommand = "rpm --nodeps --ignorearch -i '%s'" % absPath
 
-                command.append("if ! " + testInstall + " ;then " + installCommand + "|| exit 1; fi")
+                cmd = "if ! %s ; then %s || exit 1; fi" % (testInstall, installCommand)
+                command.append(cmd)
 
 
         return self.execCommand(command=command)
