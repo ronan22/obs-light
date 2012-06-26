@@ -17,19 +17,20 @@ BuildArch:  noarch
 URL:        http://en.opensuse.org/openSUSE:OBS_Light
 Source0:    %{name}-%{version}.tar.gz
 Source100:  obslight.yaml
-Requires:   mic >= 0.4
-Requires:   sudo
-Requires:   osc >= 0.132
-Requires:   build
-Requires:   qemu
-Requires:   spectacle
 Requires:   acl
-Requires:   tightvnc
-Requires:   tftp
+Requires:   build
 Requires:   createrepo
-Requires:   wget
 Requires:   curl
 Requires:   git
+Requires:   mic >= 0.4
+Requires:   osc >= 0.132
+Requires:   qemu
+Requires:   rpm
+Requires:   spectacle
+Requires:   sudo
+Requires:   tightvnc
+Requires:   tftp
+Requires:   wget
 %if 0%{?suse_version} > 1120
 Requires:   imagewriter
 %endif
@@ -50,11 +51,11 @@ Requires(post): /sbin/chkconfig
 Requires(postun): sudo
 Requires(postun): /sbin/service
 Requires(postun): /sbin/chkconfig
+BuildRequires:  fdupes
 BuildRequires:  python >= 2.6.0
 BuildRequires:  python-devel >= 2.6.0
-BuildRequires:  fdupes
-BuildRequires:  xinetd
 BuildRequires:  rpcbind
+BuildRequires:  xinetd
 %if 0%{?fedora}
 BuildRequires:  nfs-utils
 %else
