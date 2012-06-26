@@ -39,6 +39,8 @@ class ObsLightSpec:
         self.__path = os.path.join(self.__packagePath, self.__file)
 
         self.__introduction_section = "introduction_section"
+        self.__package = "%package"
+        self.__description = "%description"
         self.__prepFlag = "%prep"
         self.__buildFlag = "%build"
         self.__installFlag = "%install"
@@ -50,7 +52,9 @@ class ObsLightSpec:
         self.__postunFlag = "%postun"
         self.__verifyscriptFlag = "%verifyscript"
 
-        self.__listSection = [self.__prepFlag,
+        self.__listSection = [self.__package,
+                              self.__description,
+                              self.__prepFlag,
                               self.__buildFlag,
                               self.__installFlag,
                               self.__cleanFlag,
@@ -66,6 +70,52 @@ class ObsLightSpec:
 
         if self.__path != None:
             self.parseFile()
+
+    def parseFile(self):
+        '''
+        
+        '''
+        def testSection(line):
+            for sect in self.__listSection:
+                if line.startswith(sect):
+                    return True
+            return False
+
+
+        self.__orderList = []
+        self.__spectDico = {}
+
+        path = self.__path
+        if path != None:
+            tmpLineList = []
+
+            if not os.path.exists(path):
+                raise ObsLightErr.ObsLightSpec("parseFile: the path: " + path + ", do not exist")
+
+            #Load the file in a list
+            f = open(path, 'rb')
+
+            for line in f:
+                tmpLineList.append(line)
+            f.close()
+
+            #init variable
+            self.__spectDico = {}
+            currentSection = self.__introduction_section
+            self.__spectDico[currentSection] = []
+            self.__orderList.append(currentSection)
+
+            for line in tmpLineList:
+                #use a clean string
+
+                tmp_line = self.__cleanline(line)
+                if testSection(tmp_line) and (tmp_line != currentSection):
+                    currentSection = tmp_line
+                    self.__spectDico[currentSection] = []
+                    self.__orderList.append(currentSection)
+                self.__spectDico[currentSection].append(line)
+        else:
+            ObsLightPrintManager.obsLightPrint("ERROR")
 
     def __cleanline(self, line):
         '''
@@ -287,47 +337,6 @@ class ObsLightSpec:
             return res
         else:
             return None
-
-
-    def parseFile(self):
-        '''
-        
-        '''
-        self.__orderList = []
-        self.__spectDico = {}
-
-        path = self.__path
-        if path != None:
-            tmpLineList = []
-
-            if not os.path.exists(path):
-                raise ObsLightErr.ObsLightSpec("parseFile: the path: " + path + ", do not exist")
-
-            #Load the file in a list
-            f = open(path, 'rb')
-
-            for line in f:
-                tmpLineList.append(line)
-
-            f.close()
-
-            #init variable
-            self.__spectDico = {}
-            currentSection = self.__introduction_section
-            self.__spectDico[currentSection] = []
-            self.__orderList.append(currentSection)
-
-            for line in tmpLineList:
-                #use a clean string
-
-                tmp_line = self.__cleanline(line)
-                if (tmp_line in self.__listSection) and (tmp_line != currentSection):
-                    currentSection = tmp_line
-                    self.__spectDico[currentSection] = []
-                    self.__orderList.append(currentSection)
-                self.__spectDico[currentSection].append(line)
-        else:
-            ObsLightPrintManager.obsLightPrint("ERROR")
 
     def addpatch(self, aFile):
         '''
@@ -570,12 +579,12 @@ class ObsLightSpec:
         return PrepAndBuild
 
 if __name__ == '__main__':
-    absSpecFile_tmp = "/home/meego/OBSLight/ObsProjects/Tizen_Base/Tizen:FromObsTizen:1.0:Base/nss/nss.tmp.spec"
-    absSpecPath = "/home/meego/OBSLight/ObsProjects/Tizen_Base/Tizen:FromObsTizen:1.0:Base/nss/"
-    absSpecFile = "nss.spec"
+    absSpecFile_tmp = "/home/meego/OBSLight/ObsProjects/Tizen_Main_Build_Failed/Tizen:FromObsTizen:1.0:Main/notification/notification.tmp.spec"
+    absSpecPath = "/home/meego/OBSLight/ObsProjects/Tizen_Main_Build_Failed/Tizen:FromObsTizen:1.0:Main/notification/"
+    absSpecFile = "notification.spec"
 
     cli = ObsLightSpec(absSpecPath, absSpecFile)
-    cli.save(absSpecFile_tmp)
+    cli.saveTmpSpec(absSpecFile_tmp, "", "testArchive.gz")
 
 
 
