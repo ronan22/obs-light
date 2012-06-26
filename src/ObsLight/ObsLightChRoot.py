@@ -768,6 +768,7 @@ exit $RPMBUILD_RETURN_CODE
         f = open(scriptPath, 'w')
         f.write("#!/bin/sh -x\n")
         f.write("# Created by obslight\n\n")
+
         # Warning
         f.write("if [ -e /root/.bashrc ] ; then . /root/.bashrc ; fi\n")
         # When OBS Light is used in graphic mode (without console), the commands like "tput"
