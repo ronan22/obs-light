@@ -137,7 +137,11 @@ class ObsLightGitManager(object):
         # FIXME: check return value
         res = self.__listSubprocess(command=command)
 
-    def ignoreGitWatch(self, package, path=None, commitComment="first build commit", firstBuildCommit=True):
+    def ignoreGitWatch(self,
+                       package,
+                       path=None,
+                       commitComment="first build commit",
+                       firstBuildCommit=True):
         '''
         Add all Git untracked files of `path` to .gitignore
         and commit.
@@ -225,8 +229,9 @@ class ObsLightGitManager(object):
         timeString = time.strftime("%Y-%m-%d_%Hh%Mm%Ss")
         comment = '\"auto commit %s %s\"' % (mess, timeString)
 
+        path = self.__chroot.getDirectory() + packagePath
         command.append(self.prepareGitCommand(packagePath,
-                                              " add %s/\* " % (self.__chroot.getDirectory() + packagePath),
+                                              " add %s/\* " % (path),
                                               package.getCurrentGitDirectory()))
         command.append(self.prepareGitCommand(packagePath,
                                               " commit -a -m %s" % comment,
