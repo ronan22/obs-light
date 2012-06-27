@@ -487,7 +487,7 @@ class ObsLightChRoot(object):
         topdir = "--define '_topdir %%{getenv:HOME}/%s'" % package.getTopDirRpmBuildLinkDirectory()
         if isNonEmptyString(target):
             args = args + " --target=%s" % target
-        rpmbuildCmd = "rpmbuild %s %s %s %s" % (args, srcdefattr, topdir, specFile)
+        rpmbuildCmd = "rpmbuild %s %s %s %s << /dev/null" % (args, srcdefattr, topdir, specFile)
         parameters["rpmbuildCmd"] = rpmbuildCmd
         return parameters
 
