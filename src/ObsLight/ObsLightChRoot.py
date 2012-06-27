@@ -74,6 +74,7 @@ class ObsLightChRoot(object):
         self.__mySubprocessCrt = SubprocessCrt()
         self.hostArch = platform.machine()
         self.chrootArch = ""
+        self.logger = ObsLightPrintManager.getLogger()
         self.__obsLightMic = None
 
         if fromSave is None:
@@ -159,9 +160,8 @@ class ObsLightChRoot(object):
         Raise an exception if host does not have a static version of qemu.
         Do nothing if we do not need qemu.
         """
-        logger = ObsLightPrintManager.getLogger()
         if self.chrootArch.lower().startswith("arm"):
-            logger.info("Project has ARM architecture, checking qemu...")
+            self.logger.info("Project has ARM architecture, checking qemu...")
             # TODO: check if the qemu is statically linked
             return
 
@@ -190,6 +190,53 @@ class ObsLightChRoot(object):
         saveconfigPackages["dicoRepos"] = self.__dicoRepos
         return saveconfigPackages
 
+    def allowAccessToObslightGroup(self, path, recursive=False,
+                                   writeAccess=True, absolutePath=True):
+        """
+        Modify ACLs on `path` so users of "obslight" group have read/write/execute rights.
+        `recursive` changes ACLs recursively, `writeAccess` enables/disables write right,
+        `absolutePath` prevents from prefixing `path` with chroot jail path.
+        """
+        if not absolutePath:
+            path = self.getDirectory() + "path"
+        rec = "-R" if recursive else ""
+        rights = "rwX" if writeAccess else "rX"
+        msg = "Giving group '%s' access rights (%s) to %s" % (self.ObsLightUserGroup,
+                                                              rights, path)
+        self.logger.info(msg)
+        return self.__subprocess("sudo setfacl %s -m g:%s:%s %s" % (rec, self.ObsLightUserGroup,
+                                                                    rights, path))
+
+    def allowPackageAccessToObslightGroup(self, package):
+        """
+        Modify ACLs on package files so users of obslight group have read/write/execute rights.
+        """
+        path = self.getDirectory() + "/" + package.getChrootRpmBuildDirectory() + "/BUILD"
+        cmd = "sudo setfacl -R -m g:%(group)s:%(rights)s -d -m g:%(group)s:%(rights)s %(path)s"
+        cmd = cmd % {"group": self.ObsLightUserGroup, "rights": "rwX", "path": path}
+        msg = "Giving group '%s' access rights (%s) to %s" % (self.ObsLightUserGroup,
+                                                              "rwX", path)
+        self.logger.info(msg)
+        return self.__subprocess(cmd)
+
+    def forbidPackageAccessToObslightGroup(self, package):
+        """
+        Undo `allowPackageAccessToObslightGroup`, with the exception of the "BUILD" directory
+        itself, which has to be write-able by obslight.
+        """
+        path = self.getDirectory() + "/%s/BUILD"
+        path1 = path % package.getChrootRpmBuildDirectory()
+        path2 = path % package.getChrootRpmBuildTmpDirectory()
+        msg = "Removing group '%s' access rights to %s"
+        self.logger.info(msg % (self.ObsLightUserGroup, path1))
+        cmd = "sudo setfacl -R -x g:%(group)s -d -x g:%(group)s %(path)s"
+        retval1 = self.__subprocess(cmd % {"group": self.ObsLightUserGroup, "path": path1})
+        self.logger.info(msg % (self.ObsLightUserGroup, path1))
+        retval2 = self.__subprocess(cmd % {"group": self.ObsLightUserGroup, "path": path2})
+        self.allowAccessToObslightGroup(path1, False, True, True)
+
+        return retval1, retval2
+
     def fixFsRights(self):
         errorMessage = "Failed to configure project filesystem access rights. "
         errorMessage += "Commandline was:\n %s"
@@ -206,10 +253,9 @@ class ObsLightChRoot(object):
         # The path of the root of the project filesystem
         fsPath = self.getDirectory()
 
-        self.__subprocess("sudo chmod -R o+rwX %s" % fsPath)
-        # This command often returns 1 for broken symlinks, but we don't care
-        self.__subprocess("sudo setfacl -Rdm o::rwX -m g::rwX -m u::rwX %s" % fsPath)
+        self.allowAccessToObslightGroup(fsPath, recursive=True, writeAccess=True)
 
+        # Some of these commands may be useless since we set ACLs
         cmdList = ["sudo chown root:users %s" % fsPath,
                    "sudo chown root:users %s" % os.path.join(fsPath, "root"),
                    "sudo chown root:users %s" % os.path.join(fsPath, "etc"),
@@ -252,8 +298,8 @@ class ObsLightChRoot(object):
             return retVal
         return self.setTimezoneInBashrc()
 
-    def __subprocess(self, command=None):
-        return self.__mySubprocessCrt.execSubprocess(command)
+    def __subprocess(self, command=None, **kwargs):
+        return self.__mySubprocessCrt.execSubprocess(command, **kwargs)
 
     def __resolveMacro(self, name):
         if not os.path.isdir(self.getDirectory()):
@@ -298,9 +344,9 @@ class ObsLightChRoot(object):
         '''
         name = package.getMacroDirectoryPackageName()
 
-        if name != None:
+        if name is not None:
             prepDirname = self.__resolveMacro(name)
-            if prepDirname == None:
+            if prepDirname is None:
                 raise ObsLightErr.ObsLightChRootError(" Can't resolve the macro " + name)
 
             ObsLightPrintManager.getLogger().debug("for the package " + name + " the prepDirname is: " + str(prepDirname))
@@ -322,7 +368,7 @@ class ObsLightChRoot(object):
 
     def __findPackageDirectory(self, package=None):
         '''
-        Return the directory of where the package were installed.
+        Return the directory of where the package was installed.
         '''
         pathBuild = self.getDirectory() + "/" + package.getChrootRpmBuildDirectory() + "/" + "BUILD"
         if not os.path.isdir(pathBuild):
@@ -427,11 +473,11 @@ class ObsLightChRoot(object):
             chrootRpmBuildDirectory = package.getChrootRpmBuildDirectory()
 
             command.append("rm -fr %s" % chrootRpmBuildDirectory)
-            for directory in ["BUILD", "SPECS", "BUILDROOT", "RPMS", "SOURCES", "SRPMS"]:
+            rpmbuildDirectories = ["BUILD", "SPECS", "BUILDROOT", "RPMS", "SOURCES", "SRPMS"]
+            for directory in rpmbuildDirectories:
                 command.append(mkdirCommand % os.path.join(chrootRpmBuildDirectory, directory))
 
             command.append("chown  root:users " + chrootRpmBuildDirectory)
-            command.append("chmod  g+rwX " + chrootRpmBuildDirectory)
 
             for c in self.__getProxyconfig():
                 command.append(c)
@@ -439,6 +485,7 @@ class ObsLightChRoot(object):
             res = self.execCommand(command=command)
 
             specDirPath = self.getDirectory() + "/" + chrootRpmBuildDirectory + "/SPECS/"
+            self.allowAccessToObslightGroup(specDirPath)
             if os.path.isdir(specDirPath):
 
                 command = "sudo chown root:users %s" % self.getDirectory()
@@ -451,19 +498,20 @@ class ObsLightChRoot(object):
                 self.__subprocess(command)
                 command = "sudo chown -R root:users %s/root/%s" % (self.getDirectory(), packageName)
                 self.__subprocess(command)
-                command = "sudo chmod -R g+rwX %s/root/%s" % (self.getDirectory(), packageName)
-                self.__subprocess(command)
 
                 macroDirectory = os.path.join(self.getDirectory(), "root")
                 macroDest = os.path.join(self.getDirectory(), "root", package.getName())
 
+                self.allowAccessToObslightGroup(macroDest)
                 if not os.path.isfile(os.path.join(macroDest, ".rpmmacros")):
                     shutil.copy2(os.path.join(macroDirectory, ".rpmmacros"), macroDest)
                 if not os.path.isfile(os.path.join(macroDest, ".rpmrc")):
                     shutil.copy2(os.path.join(macroDirectory, ".rpmrc"), macroDest)
 
+                self.allowAccessToObslightGroup("%s/%s/SOURCES/" % (self.getDirectory(),
+                                                                    chrootRpmBuildDirectory))
                 #copy source
-                for aFile in package.getListFile():
+                for aFile in package.getFileList():
                     path = "%s/%s/SOURCES/%s" % (self.getDirectory(),
                                                  chrootRpmBuildDirectory,
                                                  str(aFile))
@@ -521,8 +569,10 @@ exit $?
         if package.getPackageParameter("patchMode"):
             package.initCurrentPatch()
 
-            if packageDirectory != None:
-                self.__subprocess(command="sudo chmod -R og+rwX %s"
+            if packageDirectory is not None:
+                # TODO: check if we can remove this
+                # We shouldn't need to write to package directory anymore
+                self.__subprocess(command="sudo chmod og+rwX %s"
                                   % (self.getDirectory() + "/" + packageDirectory))
 
                 self.__ObsLightGitManager.initGitWatch(packageDirectory, package)
@@ -851,7 +901,7 @@ exit $RPMBUILD_RETURN_CODE
         f = open(pathScript, 'w')
         f.write("#!/bin/sh\n")
         f.write("# Created by obslight\n")
-        if path != None:
+        if path is not None:
             f.write("cd " + path + "\n")
         # control code to change window title
         f.write('echo -en "\e]2;%s\a"\n' % title)
@@ -884,7 +934,7 @@ exit $RPMBUILD_RETURN_CODE
         self.__ObsLightGitManager.commitGit(mess="createPatch", package=package)
 
         tag1 = package.getFirstCommit()
-        if tag1 == None:
+        if tag1 is None:
             raise ObsLightErr.ObsLightChRootError("package: '" + package.getName() +
                                                   "' has no git first tag.")
         tag2 = package.getSecondCommit()
@@ -906,7 +956,7 @@ exit $RPMBUILD_RETURN_CODE
         self.__ObsLightGitManager.commitGit(mess="updatePatch", package=package)
 
         tag1 = package.getFirstCommit()
-        if tag1 == None:
+        if tag1 is None:
             raise ObsLightErr.ObsLightChRootError("package: '" + package.getName() +
                                                   "' has no git first tag.")
         tag2 = package.getSecondCommit()
@@ -1025,12 +1075,12 @@ exit $RPMBUILD_RETURN_CODE
             return False
 
     def modifyRepo(self, repoAlias, newUrl, newAlias):
-        if newUrl == None:
+        if newUrl is None:
             newUrl = self.__dicoRepos[repoAlias]
 
         self.__ObsLightRepoManager.deleteRepo(repoAlias)
 
-        if newAlias == None:
+        if newAlias is None:
             newAlias = repoAlias
 
         self.__ObsLightRepoManager.addRepo(newUrl, newAlias)

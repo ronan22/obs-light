@@ -589,10 +589,11 @@ class ObsLightPackage(object):
             raise ObsLightPackageErr("The parameter '" + parameter + "' value is not valid for setPackageParameter")
         return 0
 
+    # TODO: delete this function
     def getListFile(self):
-        '''
-        
-        '''
+        return self.getFileList()
+
+    def getFileList(self):
         return self.__fileList
 
     def getStatus(self):
