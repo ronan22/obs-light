@@ -540,7 +540,12 @@ class ObsLightSpec:
                         toWrite += line
                     elif (line.startswith('%setup') and (SETUP == False)):
                         line = line.replace("-c", "")
-                        toWrite += line
+                        while "-a" in line:
+                            spLine = line.split()
+                            list1 = spLine[:spLine.index("-a")]
+                            list2 = spLine[spLine.index("-a") + 2:]
+                            line = " ".join(list1 + list2)
+                        toWrite += line + "\n"
                         toWrite += "if [ -e .emptyDirectory  ]; "
                         toWrite += "then for i in `cat .emptyDirectory` ; "
                         toWrite += "do mkdir -p $i;echo $i ; done;fi\n"
