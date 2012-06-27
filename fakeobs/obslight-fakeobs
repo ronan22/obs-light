@@ -1,5 +1,7 @@
 #!/bin/sh
 
+LOGFILE="/var/log/fakeobs-cli.log"
+
 function usage()
 {
 	cat <<EOF
@@ -41,7 +43,17 @@ Commands:
 
 	list
 		List projects already grabbed or imported
+
+
+Commands are logged in $LOGFILE
 EOF
+}
+
+function echo_start_command()
+{
+	COMMAND="$@"
+	DATE=`date`
+	echo "--- $DATE - starting command: $COMMAND"
 }
 
 function get_abs_path()
@@ -61,7 +73,8 @@ function export_project()
 		exit 1
 	fi
 	cd /srv/fakeobs
-	tools/export_fakeobs_project.sh "$@"
+	echo_start_command "export $@" >> $LOGFILE
+	tools/export_fakeobs_project.sh "$@" 2>&1 | tee -a "$LOGFILE"
 }
 
 function grab_project()
@@ -73,7 +86,8 @@ function grab_project()
 		exit 1
 	fi
 	cd /srv/fakeobs
-	tools/grab_fakeobs_project.sh "$@"
+	echo_start_command "grab $@" >> $LOGFILE
+	tools/grab_fakeobs_project.sh "$@" 2>&1 | tee -a "$LOGFILE"
 }
 
 function import_project()
@@ -86,8 +100,8 @@ function import_project()
 	fi
 	ARCHIVE="`get_abs_path $1`"
 	cd /srv/fakeobs
-#	echo "tools/import_fakeobs_project.sh $ARCHIVE $2"
-	tools/import_fakeobs_project.sh "$ARCHIVE"
+	echo_start_command "import $ARCHIVE" >> $LOGFILE
+	tools/import_fakeobs_project.sh "$ARCHIVE" 2>&1 | tee -a "$LOGFILE"
 }
 
 function remove_project()
@@ -95,11 +109,12 @@ function remove_project()
 	if [ "$#" -lt 1 ]
 	then
 		echo "Too few arguments for 'remove'!"
-                usage
-                exit 1
+		usage
+		exit 1
 	fi
 	cd /srv/fakeobs
-	tools/remove_fakeobs_project.sh "$@"
+	echo_start_command "remove $@" >> $LOGFILE
+	tools/remove_fakeobs_project.sh "$@" 2>&1 | tee -a "$LOGFILE"
 }
 
 function create_link()
@@ -108,16 +123,19 @@ function create_link()
 	if [ "$#" -gt 0 ]
 	then
 		OSCCONFIG="`get_abs_path $1`"
-		tools/create_fakeobs_link.sh $OSCCONFIG
+		echo_start_command "createlink $OSCCONFIG" >> $LOGFILE
+		tools/create_fakeobs_link.sh $OSCCONFIG 2>&1 | tee -a "$LOGFILE"
 	else
-		tools/create_fakeobs_link.sh
+		echo_start_command "createlink" >> $LOGFILE
+		tools/create_fakeobs_link.sh 2>&1 | tee -a "$LOGFILE"
 	fi
 }
 
 function list_projects()
 {
 	cd /srv/fakeobs
-	sed -r -n -e "s,.*project=\"([^ ]*)\".*,\1,p" /srv/fakeobs/mappings.xml
+	echo_start_command "list" >> $LOGFILE
+	sed -r -n -e "s,.*project=\"([^ ]*)\".*,\1,p" /srv/fakeobs/mappings.xml 2>&1 | tee -a "$LOGFILE"
 }
 
 if [ "$#" -lt 1 ]

@@ -8,6 +8,12 @@ then
   OSCCONFIG=$1
 else
   WEBUICONFIG="/srv/www/obs/webui/config/environments/production.rb"
+  if [ ! -f "$WEBUICONFIG" ]
+  then
+    echo_red "OBS webui configuration file not found! Are you on an OBS appliance?"
+    echo_red "Config should be at $WEBUICONFIG"
+    exit 1
+  fi
   HOST=`sed -rn s,"^FRONTEND_HOST\s*=\s*['\"]{1}([a-zA-Z0-9\-]*)['\"]{1}","\1",p $WEBUICONFIG`
   PORT=`sed -rn s,"^FRONTEND_PORT\s*=\s*([0-9]*)","\1",p $WEBUICONFIG`
   PROTOCOL=`sed -rn s,"^FRONTEND_PROTOCOL\s*=\s*['\"]{1}([a-zA-Z]*)['\"]{1}","\1",p $WEBUICONFIG`
