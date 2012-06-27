@@ -39,6 +39,13 @@ function check_public_api()
   fi
 }
 
+function check_rsync_url()
+{
+  # TODO: finish this function
+  local url=$1
+  echo $url | sed -rn -e "s,(^rsync:\/\/),\1,p"
+}
+
 function project_exists()
 {
   local project=$1

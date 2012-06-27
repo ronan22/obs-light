@@ -257,7 +257,7 @@ case "$1" in
 	echo -n "Starting fakeobs "
 	## Start daemon with startproc(8). If this fails
 	## the return value is set appropriately by startproc.
-	startproc -l /var/log/fakeobs.log $FOO_BIN
+	startproc -l /var/log/fakeobs-daemon.log $FOO_BIN
 
 	# Remember status and be verbose
 	rc_status -v

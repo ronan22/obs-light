@@ -805,9 +805,14 @@ class ObsLightProject(object):
                                                             configdir,
                                                             buildDir)
 
+        # If we don't remove default ACLs, some files created by the
+        # Makefile of package may have wrong rights, and make the build fail.
+        # (Was detected with "e2fsprogs")
+        self.__chroot.forbidPackageAccessToObslightGroup(pkgObj)
         retVal = sectionMap[section](package=pkgObj,
                                      specFile=specFilePath,
                                      arch=target)
+        self.__chroot.allowPackageAccessToObslightGroup(pkgObj)
         return retVal
 
     def buildPrep(self, package):

@@ -111,13 +111,14 @@ class ObsLightGitManager(object):
 
         absPath = self.__chroot.getDirectory() + path
 
-        #git ignore the empty directory so we must save them into a file.
+        # git ignores empty directories so we must save them into a file.
         projectPath = self.__chroot.getDirectory() + package.getPackageDirectory()
         res = []
         for root, dirs, files in os.walk(projectPath):
             if len(dirs) == 0 and len(files) == 0:
                 res.append(root.replace(projectPath + "/", ""))
 
+        # TODO: move this file to BUILD/
         f = open(projectPath + "/.emptyDirectory", 'w')
 
         for d in res:
@@ -133,6 +134,7 @@ class ObsLightGitManager(object):
         command.append(self.prepareGitCommand(path, "add " + absPath + "/\*", pkgCurGitDir))
         command.append(self.prepareGitCommand(path, "commit -a -m %s" % comment, pkgCurGitDir))
 
+        # FIXME: check return value
         res = self.__listSubprocess(command=command)
 
     def ignoreGitWatch(self,
