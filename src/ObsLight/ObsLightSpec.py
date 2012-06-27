@@ -109,7 +109,9 @@ class ObsLightSpec:
                 #use a clean string
 
                 tmp_line = self.__cleanline(line)
-                if testSection(tmp_line) and (tmp_line != currentSection):
+                if testSection(tmp_line) :
+                    while tmp_line in self.__spectDico.keys():
+                        tmp_line = tmp_line + "(1)"
                     currentSection = tmp_line
                     self.__spectDico[currentSection] = []
                     self.__orderList.append(currentSection)
@@ -543,9 +545,11 @@ class ObsLightSpec:
                         toWrite += "then for i in `cat .emptyDirectory` ; "
                         toWrite += "do mkdir -p $i;echo $i ; done;fi\n"
                         #we need to rename the file ".gitignore.obslight" to ".gitignore"
-                        toWrite += "find ./ -type f -name .gitignore.obslight \
-                                    -execdir mv .gitignore.obslight .gitignore  \;\n"
+                        toWrite += "find ./ -type f -name .gitignore.obslight"
+                        toWrite += " -execdir mv .gitignore.obslight .gitignore  \;\n"
                         SETUP = True
+                    elif line.startswith('%docs_package'):
+                        toWrite += line
                 else:
                     toWrite += line
 
@@ -582,12 +586,13 @@ class ObsLightSpec:
         return PrepAndBuild
 
 if __name__ == '__main__':
-    absSpecFile_tmp = "/home/meego/OBSLight/ObsProjects/Tizen_Main_Build_Failed/Tizen:FromObsTizen:1.0:Main/notification/notification.tmp.spec"
-    absSpecPath = "/home/meego/OBSLight/ObsProjects/Tizen_Main_Build_Failed/Tizen:FromObsTizen:1.0:Main/notification/"
-    absSpecFile = "notification.spec"
+    absSpecFile_tmp = "/home/meego/OBSLight/ObsProjects/Tizen_Base_Build_Failed_2/Tizen:FromObsTizen:1.0:Base/gcc/gcc.tmp.spec"
+    absSpecPath = "/home/meego/OBSLight/ObsProjects/Tizen_Base_Build_Failed_2/Tizen:FromObsTizen:1.0:Base/gcc"
+    absSpecFile = "gcc.spec"
 
     cli = ObsLightSpec(absSpecPath, absSpecFile)
-    cli.saveTmpSpec(absSpecFile_tmp, "", "testArchive.gz")
+    cli.save(absSpecFile_tmp)
+#    cli.saveTmpSpec(absSpecFile_tmp, "", "testArchive.gz")
 
 
 
