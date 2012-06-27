@@ -539,8 +539,9 @@ class ObsLightSpec:
                     if (line.startswith('%prep')) :
                         toWrite += line
                     elif (line.startswith('%setup') and (SETUP == False)):
-                        line = line.replace("-c", "")
-                        while "-a" in line:
+                        # TODO: remove test "in", replace ,find ,... by re used.
+                        line = line.replace(" -c ", "")
+                        while " -a " in line:
                             spLine = line.split()
                             list1 = spLine[:spLine.index("-a")]
                             list2 = spLine[spLine.index("-a") + 2:]
@@ -561,7 +562,7 @@ class ObsLightSpec:
             if (section == "%prep") and (not SETUP):
                 toWrite += '%setup -q -c\n'
 
-        pattern = r'(Source[0]?\s*:).*'
+        pattern = r'([Ss]ource[0]?\s*:).*'
 
         aFile = open(path, 'w')
 
@@ -591,13 +592,13 @@ class ObsLightSpec:
         return PrepAndBuild
 
 if __name__ == '__main__':
-    absSpecFile_tmp = "/home/meego/OBSLight/ObsProjects/Tizen_Base_Build_Failed_2/Tizen:FromObsTizen:1.0:Base/gcc/gcc.tmp.spec"
-    absSpecPath = "/home/meego/OBSLight/ObsProjects/Tizen_Base_Build_Failed_2/Tizen:FromObsTizen:1.0:Base/gcc"
-    absSpecFile = "gcc.spec"
+    absSpecFile_tmp = "/home/meego/OBSLight/ObsProjects/Tizen_Base_Build_Failed/Tizen:FromObsTizen:1.0:Base/perl-WWW-Curl/perl-WWW-Curl.tmp.spec"
+    absSpecPath = "/home/meego/OBSLight/ObsProjects/Tizen_Base_Build_Failed/Tizen:FromObsTizen:1.0:Base/perl-WWW-Curl"
+    absSpecFile = "perl-WWW-Curl.spec"
 
     cli = ObsLightSpec(absSpecPath, absSpecFile)
-    cli.save(absSpecFile_tmp)
-#    cli.saveTmpSpec(absSpecFile_tmp, "", "testArchive.gz")
+    #cli.save(absSpecFile_tmp)
+    cli.saveTmpSpec(absSpecFile_tmp, "", "testArchive.gz")
 
 
 
