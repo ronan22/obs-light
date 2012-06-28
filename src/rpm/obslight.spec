@@ -9,7 +9,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 Name:       obslight
 Summary:    OBS Light
-Version:    0.5.0
+Version:    0.5.1
 Release:    1
 Group:      Development/Tools/Building
 License:    GPLv2
@@ -39,7 +39,8 @@ Requires:   qemu-linux-user
 %endif
 %if 0%{?fedora}
 Requires:   nfs-utils
-Requires:   qemu-user
+# qemu-arm-static is not in Fedora repositories but in OBS Light's ones
+Requires:   qemu-arm-static
 Requires:   redhat-lsb
 %else
 Requires:   nfs-kernel-server
