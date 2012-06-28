@@ -763,7 +763,10 @@ class ObsLightProject(object):
                                                                 specFileName)
 
         if len(buildInfoCli.deps) > 0:
-            res = self.__chroot.installBuildRequires(buildInfoCli)
+            target = self.__getArchHierarchy()
+            configPath = self.__getConfigPath()
+            res = self.__chroot.installBuildRequires(buildInfoCli, target, configPath)
+
         if res != 0:
             raise ObsLightErr.ObsLightProjectsError("Can't install " + packageName)
 

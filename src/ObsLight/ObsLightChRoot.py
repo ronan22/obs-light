@@ -535,7 +535,7 @@ class ObsLightChRoot(object):
         topdir = "--define '_topdir %%{getenv:HOME}/%s'" % package.getTopDirRpmBuildLinkDirectory()
         if isNonEmptyString(target):
             args = args + " --target=%s" % target
-        rpmbuildCmd = "rpmbuild %s %s %s %s << /dev/null" % (args, srcdefattr, topdir, specFile)
+        rpmbuildCmd = "rpmbuild %s %s %s %s < /dev/null" % (args, srcdefattr, topdir, specFile)
         parameters["rpmbuildCmd"] = rpmbuildCmd
         return parameters
 
@@ -1098,22 +1098,66 @@ exit $RPMBUILD_RETURN_CODE
         else:
             raise ObsLightErr.ObsLightChRootError("Can't delete the repo '" + repoAlias + "'")
 
-    def installBuildRequires(self, buildInfoCli):
+    def __reOrderRpm(self, buildInfoCli, target, configPath):
         command = []
+        cacheDir = "/tmp/reOrderDir"
+        cacheRpmList = cacheDir + "/rpmList"
+        cacheRpmLink = cacheDir + "/rpmLink"
 
+        self.__subprocess(command="rm -rf " + cacheRpmLink)
+        self.__subprocess(command="mkdir -p " + cacheRpmLink)
+
+        f = open(cacheRpmList, 'w')
+        listInput = []
+        dicoRpmName = {}
         for i in buildInfoCli.deps:
-            if not ((i in buildInfoCli.preinstall_list) or(i in buildInfoCli.vminstall_list)) :
+            if not ((i in buildInfoCli.preinstall_list) or (i in buildInfoCli.vminstall_list)) :
                 absPath = i.fullfilename
-                pkgName = os.path.basename(i.fullfilename)
+                pkgName = os.path.basename(absPath)
                 if pkgName.endswith(".rpm"):
                     pkgName = pkgName[:-4]
 
-                testInstall = "rpm --quiet -q " + pkgName
-                installCommand = "rpm --nodeps --ignorearch -i '%s'" % absPath
+                pkgName = pkgName[:pkgName.rfind("-")]
+                pkgName = pkgName[:pkgName.rfind("-")]
+                dicoRpmName[pkgName] = i
+                f.write(pkgName + "\n")
+                listInput.append(pkgName)
+                command = "ln -sf " + absPath + " " + cacheRpmLink + "/" + pkgName + ".rpm"
+                self.__subprocess(command=command)
 
-                cmd = "if ! %s ; then %s || exit 1; fi" % (testInstall, installCommand)
-                command.append(cmd)
+        f.close()
+        dicopara = {}
+        dicopara["buildDir"] = "/usr/lib/build"
+        dicopara["cfgPth"] = configPath
+        dicopara["tgt"] = target
+        dicopara["RpmList"] = cacheRpmList
+        dicopara["cacheRpmLink"] = cacheRpmLink
+        command = "%(buildDir)s/order --dist %(cfgPth)s --archpath  %(tgt)s "
+        command += "--configdir %(buildDir)s/configs --manifest %(RpmList)s  %(cacheRpmLink)s"
+        command = command % dicopara
 
+        listOrdered = self.__subprocess(command=command, stdout=True)
+
+        result = []
+        for pkgName in   listOrdered.split():
+            result.append(dicoRpmName[pkgName])
+        return result
+
+    def installBuildRequires(self, buildInfoCli, target, configPath):
+        listOrdered = self.__reOrderRpm(buildInfoCli, target, configPath)
+
+        command = []
+        for i in listOrdered:
+            absPath = i.fullfilename
+            pkgName = os.path.basename(absPath)
+            if pkgName.endswith(".rpm"):
+                pkgName = pkgName[:-4]
+
+            testInstall = "rpm --quiet -q " + pkgName
+            installCommand = "rpm --nodeps --ignorearch -i '%s'" % absPath
+
+            cmd = "if ! %s ; then %s || exit 1; fi" % (testInstall, installCommand)
+            command.append(cmd)
 
         return self.execCommand(command=command)
 

@@ -95,7 +95,7 @@ class SubprocessCrt(object):
                 for fd in select.select([f_stdout, f_stderr], [], [], selectTimeout)[0]:
                     timedOut = False
                     output = fd.read()
-                    if stdout:
+                    if stdout and (f_stdout == fd):
                         outPutRes += output
                     for line in output.split("\n"):
                         if line == b"" and not output.endswith("\n"):
