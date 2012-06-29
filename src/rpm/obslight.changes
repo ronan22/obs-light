@@ -1,3 +1,9 @@
+* Thu Jun 28 2012 Florent Vennetier (Intel OTC) <florent@fridu.net> 0.5.1
+- rewrote package directory ACL management
+- forced ordering of packages dependencies
+- improved project name suggestion in wizard
+- several bug fixes
+
 * Wed May 23 2012 Ronan Le Martret (Intel OTC) <ronan@fridu.net> 0.4.24
 - add git require.
 
