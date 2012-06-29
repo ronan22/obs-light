@@ -912,7 +912,11 @@ class ObsLightProject(object):
         return  self.__packages.getPackage(package=package)
 
     def removePackage(self, package=None):
-        return self.__packages.removePackage(package=package)
+        _ = self.__packages.removePackage(package=package)
+
+        res = self.__chroot.removePackage(package)
+
+        return res
 
     def getWebProjectPage(self):
         serverWeb = self.__obsServers.getObsServer(name=self.__obsServer).getUrlServerWeb()

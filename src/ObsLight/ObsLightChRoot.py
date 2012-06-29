@@ -320,6 +320,7 @@ class ObsLightChRoot(object):
         f.write("#!/bin/sh\n")
         f.write("# Created by obslight\n")
         f.write(command)
+        f.flush()
         f.close()
 
         os.chmod(pathScript, 0654)
@@ -523,6 +524,12 @@ class ObsLightChRoot(object):
                 message = packageName + " source is not installed in " + self.getDirectory()
                 raise ObsLightErr.ObsLightChRootError(message)
             return res
+
+    def removePackage(self, package):
+        command = []
+        command.append("rm -r /root/" + package)
+        self.execCommand(command)
+        return 0
 
     def makeRpmbuildScriptParameters(self, specFile, package, target="", args=""):
         parameters = dict()
@@ -829,6 +836,7 @@ exit $RPMBUILD_RETURN_CODE
 
         for c in command:
             f.write(c + "\n")
+        f.flush()
         f.close()
 
         os.chmod(scriptPath, 0654)
@@ -908,6 +916,7 @@ exit $RPMBUILD_RETURN_CODE
         # control code to change window title
         f.write('echo -en "\e]2;%s\a"\n' % title)
         f.write("exec bash\n")
+        f.flush()
         f.close()
 
         os.chmod(pathScript, 0654)
@@ -1124,7 +1133,7 @@ exit $RPMBUILD_RETURN_CODE
                 listInput.append(pkgName)
                 command = "ln -sf " + absPath + " " + cacheRpmLink + "/" + pkgName + ".rpm"
                 self.__subprocess(command=command)
-
+        f.flush()
         f.close()
         dicopara = {}
         dicopara["buildDir"] = "/usr/lib/build"
