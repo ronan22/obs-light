@@ -537,7 +537,7 @@ class ObsLightSpec:
                         toWrite += line
                     elif (line.startswith('%setup') and (SETUP == False)):
                         # TODO: remove test "in", replace ,find ,... by re used.
-                        line = line.replace(" -c ", "")
+                        line = re.sub("[\s]-c", '', line)
                         while " -a " in line:
                             spLine = line.split()
                             list1 = spLine[:spLine.index("-a")]
