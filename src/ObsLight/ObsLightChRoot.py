@@ -320,7 +320,10 @@ class ObsLightChRoot(object):
         f.write("#!/bin/sh\n")
         f.write("# Created by obslight\n")
         f.write(command)
+        #flush() does not necessarily write the file’s data to disk. 
+        #Use os.fsync() to ensure this behavior.
         f.flush()
+        os.fsync()
         f.close()
 
         os.chmod(pathScript, 0654)
@@ -836,7 +839,10 @@ exit $RPMBUILD_RETURN_CODE
 
         for c in command:
             f.write(c + "\n")
+        #flush() does not necessarily write the file’s data to disk. 
+        #Use os.fsync() to ensure this behavior.
         f.flush()
+        os.fsync()
         f.close()
 
         os.chmod(scriptPath, 0654)
@@ -916,7 +922,10 @@ exit $RPMBUILD_RETURN_CODE
         # control code to change window title
         f.write('echo -en "\e]2;%s\a"\n' % title)
         f.write("exec bash\n")
+        #flush() does not necessarily write the file’s data to disk. 
+        #Use os.fsync() to ensure this behavior.
         f.flush()
+        os.fsync()
         f.close()
 
         os.chmod(pathScript, 0654)
@@ -1133,7 +1142,10 @@ exit $RPMBUILD_RETURN_CODE
                 listInput.append(pkgName)
                 command = "ln -sf " + absPath + " " + cacheRpmLink + "/" + pkgName + ".rpm"
                 self.__subprocess(command=command)
+        #flush() does not necessarily write the file’s data to disk. 
+        #Use os.fsync() to ensure this behavior.
         f.flush()
+        os.fsync()
         f.close()
         dicopara = {}
         dicopara["buildDir"] = "/usr/lib/build"
