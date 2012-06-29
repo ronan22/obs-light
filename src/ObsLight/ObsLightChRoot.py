@@ -373,6 +373,11 @@ class ObsLightChRoot(object):
 
         absSpecFile_tmp = absSpecFile[:-5] + ".tmp.spec"
 
+        self.allowAccessToObslightGroup(os.path.dirname(absSpecFile_tmp),
+                                        recursive=True,
+                                        writeAccess=True,
+                                        absolutePath=True)
+
         if patchMode and not section == "prep":
             tarFile = package.getArchiveName()
             package.saveTmpSpec(path=absSpecFile_tmp, archive=tarFile)
@@ -522,12 +527,13 @@ exit $RETURN_VALUE
                 self.__ObsLightGitManager.initGitWatch(packageDirectory, package)
 
                 if package.specFileHaveAnEmptyBuild():
+                    package.setPackageParameter("patchMode", False)
                     package.setChRootStatus("No build directory")
                     return 0
 
                 return self.__buildRpm(specFile, package, arch)
 
-        else:
+        elif package.getChRootStatus() != "No build directory":
             package.setChRootStatus("Prepared")
 
 
@@ -571,6 +577,7 @@ exit $?
             msg = u"Package '%s' has a excluded status, it can't be built" % package.getName()
             raise ObsLightErr.ObsLightChRootError(msg)
         if package.specFileHaveAnEmptyBuild():
+            package.setPackageParameter("patchMode", False)
             package.setChRootStatus("No build directory")
             return 0
         if package.getPackageParameter("patchMode"):
@@ -711,6 +718,7 @@ rm -f %(buildLink)s
 ln -s %(buildDir)s %(buildLink)s
 chown -R root:users %(buildLink)s/SOURCES/
 chown -R root:users %(buildLink)s/SPECS/
+rm -r %(buildLink)s/BUILD/
 %(rpmbuildCmd)s
 exit $?
 """
