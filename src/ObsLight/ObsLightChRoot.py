@@ -318,7 +318,8 @@ exit $?
             raise ObsLightErr.ObsLightChRootError(message)
 
         self.fixFsRights()
-        self.initRepos()
+        # FIXME: Since we do not use zypper anymore, this is useless
+        #self.initRepos()
 
         retVal = self.prepareChroot(self.getDirectory(), obsProject)
         if retVal != 0:
@@ -793,28 +794,26 @@ exit $RPMBUILD_RETURN_CODE
         scriptName = "runMe_" + timeString + ".sh"
         scriptPath = self.__chrootTransferDir + "/" + scriptName
 
-        f = open(scriptPath, 'w')
-        f.write("#!/bin/sh -x\n")
-        f.write("# Created by obslight\n\n")
+        with open(scriptPath, 'w') as f:
+            f.write("#!/bin/sh -x\n")
+            f.write("# Created by obslight\n\n")
 
-        # Warning
-        f.write("if [ -e /root/.bashrc ] ; then . /root/.bashrc ; fi\n")
-        # When OBS Light is used in graphic mode (without console), the commands like "tput"
-        # need a value for TERM other than "unknown" (xterm, linux,...)
-        f.write('if [ "$TERM" = "unknown" ] ; then TERM="xterm" ; fi\n')
+            # Warning
+            f.write("if [ -e /root/.bashrc ] ; then . /root/.bashrc ; fi\n")
+            # When OBS Light is used in graphic mode (without console), the commands like "tput"
+            # need a value for TERM other than "unknown" (xterm, linux,...)
+            f.write('if [ "$TERM" = "unknown" ] ; then TERM="xterm" ; fi\n')
 
-        for c in command:
-            f.write(c + "\n")
+            for c in command:
+                f.write(c + "\n")
 
-        # flush() does not necessarily write the file's data to disk. 
-        # Use os.fsync(f.fileno()) to ensure this behavior.
-        f.flush()
-        os.fsync(f.fileno())
-
-        f.close()
+            # flush() does not necessarily write the file's data to disk. 
+            # Use os.fsync(f.fileno()) to ensure this behavior.
+            f.flush()
+            os.fsync(f.fileno())
 
         os.chmod(scriptPath, 0654)
-
+        self.logger.info("Running script %s" % scriptName)
         aCommand = "sudo -H chroot %s %s/%s"
         aCommand = aCommand % (self.getDirectory(), self.__transferDir, scriptName)
 
