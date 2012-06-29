@@ -229,8 +229,12 @@ def importCert(url):
     ctx.set_allow_unknown_ca(True)
     ctx.set_verify(SSL.verify_none, 1)
 
-    if len(urllib.getproxies_environment()) > 0:
-        valProxy = urllib.getproxies_environment()['https']
+    proxyEnv = urllib.getproxies_environment()
+    # If there is a proxy environment and the host is not in no_proxy
+    useProxy = len(proxyEnv) > 0 and host not in proxyEnv.get('no', [])
+
+    if useProxy:
+        valProxy = proxyEnv['https']
         netlocProxy = urlparse(valProxy)[1]
         [__PROXYHOST__, __PROXYPORT__] = netlocProxy.split(":")
         conn = M2Crypto.httpslib.ProxyHTTPSConnection(host=__PROXYHOST__, port=__PROXYPORT__)
@@ -243,7 +247,6 @@ def importCert(url):
 
     else:
         conn = SSL.Connection(ctx)
-
         conn.postConnectionCheck = None
         timeout = SSL.timeout(SOCKETTIMEOUT)
         conn.set_socket_read_timeout(timeout)
@@ -253,7 +256,7 @@ def importCert(url):
         except:
             raise
 
-    if len(urllib.getproxies_environment()) > 0:
+    if useProxy:
         cert = conn.sock.get_peer_cert()
     else:
         cert = conn.get_peer_cert()
