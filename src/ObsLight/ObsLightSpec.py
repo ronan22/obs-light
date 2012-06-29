@@ -538,11 +538,8 @@ class ObsLightSpec:
                     elif (line.startswith('%setup') and (SETUP == False)):
                         # TODO: remove test "in", replace ,find ,... by re used.
                         line = re.sub("[\s]-c", '', line)
-                        while " -a " in line:
-                            spLine = line.split()
-                            list1 = spLine[:spLine.index("-a")]
-                            list2 = spLine[spLine.index("-a") + 2:]
-                            line = " ".join(list1 + list2)
+                        line = re.sub("[\s]-a[\s]?[\d]+", '', line)
+
                         toWrite += line + "\n"
                         toWrite += "if [ -e .emptyDirectory  ]; "
                         toWrite += "then for i in `cat .emptyDirectory` ; "
