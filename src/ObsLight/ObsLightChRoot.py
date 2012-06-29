@@ -762,7 +762,7 @@ chown -R root:users %(buildLink)s/SOURCES/
 chown -R root:users %(buildLink)s/SPECS/
 %(rpmbuildCmd)s
 RPMBUILD_RETURN_CODE=$?
-cp -fpr %(buildDirTmpPath)s/BUILD/* %(buildDir)s/BUILD/
+rm -r %(buildDirTmpPath)s/BUILD/
 rm -r %(buildDirTmpPath)s/TMP
 rm -f %(buildLink)s
 ln -s %(buildDir)s %(buildLink)s
