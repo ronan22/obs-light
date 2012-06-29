@@ -853,7 +853,7 @@ exit $RPMBUILD_RETURN_CODE
         # control code to change window title
         f.write('echo -en "\e]2;%s\a"\n' % title)
         f.write("exec bash\n")
-        #flush() does not necessarily write the file’s data to disk. 
+        #flush() does not necessarily write the file's data to disk. 
         #Use os.fsync(f.fileno()) to ensure this behavior.
         f.flush()
         os.fsync(f.fileno())
@@ -1073,7 +1073,7 @@ exit $RPMBUILD_RETURN_CODE
                 listInput.append(pkgName)
                 command = "ln -sf " + absPath + " " + cacheRpmLink + "/" + pkgName + ".rpm"
                 self.__subprocess(command=command)
-        #flush() does not necessarily write the file’s data to disk. 
+        #flush() does not necessarily write the file's data to disk. 
         #Use os.fsync(f.fileno()) to ensure this behavior.
         f.flush()
         os.fsync(f.fileno())
