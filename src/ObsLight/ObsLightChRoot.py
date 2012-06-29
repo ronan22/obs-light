@@ -89,6 +89,7 @@ class ObsLightChRoot(object):
         mountDir[self.__transferDir] = self.__chrootTransferDir
         mountDir[self.__oscCacheDir] = self.__chrootOscCacheDir
         self.obsLightMic.initChroot(chrootDirectory=self.getDirectory(), mountDir=mountDir)
+        self.failIfCannotRunChrootEcho()
 
     def initChRoot(self):
         if not os.path.isdir(self.__chrootTransferDir):
@@ -164,6 +165,32 @@ class ObsLightChRoot(object):
             self.logger.info("Project has ARM architecture, checking qemu...")
             # TODO: check if the qemu is statically linked
             return
+
+    def failIfCannotRunChrootEcho(self):
+        """
+        Try to run 'echo' in chroot jail. If chroot jail architecture
+        is different from host architecture, and binfmt_misc is not
+        correctly configured, this may fail, and raise ObsLightChRootError.
+        """
+        # FIXME: /bin/echo may be i386 but other binaries are ARM.
+        scriptPath = self.__transferDir + "/test_binfmt.sh"
+        with open(self.getDirectory() + scriptPath, "w") as f:
+            script = """#!/bin/bash
+/bin/echo OK
+exit $?
+"""
+            f.write(script)
+            f.flush()
+        os.chmod(self.getDirectory() + scriptPath, 0755)
+
+        cmd = "sudo -H chroot %s %s" % (self.getDirectory(), scriptPath)
+        res = self.__subprocess(cmd)
+        if res != 0:
+            msg = "Could not execute '/bin/echo' in chroot jail, your "
+            msg += "binfmt_misc configuration is probably broken. "
+            msg += "If it's available, try to run "
+            msg += "'qemu-binfmt-conf.sh' as root."
+            raise ObsLightErr.ObsLightChRootError(msg)
 
     def removeChRoot(self):
         if self.obsLightMic.isInit():
@@ -778,10 +805,12 @@ exit $RPMBUILD_RETURN_CODE
 
         for c in command:
             f.write(c + "\n")
-        #flush() does not necessarily write the file's data to disk. 
-        #Use os.fsync(f.fileno()) to ensure this behavior.
+
+        # flush() does not necessarily write the file's data to disk. 
+        # Use os.fsync(f.fileno()) to ensure this behavior.
         f.flush()
         os.fsync(f.fileno())
+
         f.close()
 
         os.chmod(scriptPath, 0654)
@@ -861,8 +890,8 @@ exit $RPMBUILD_RETURN_CODE
         # control code to change window title
         f.write('echo -en "\e]2;%s\a"\n' % title)
         f.write("exec bash\n")
-        #flush() does not necessarily write the file's data to disk. 
-        #Use os.fsync(f.fileno()) to ensure this behavior.
+        # flush() does not necessarily write the file's data to disk. 
+        # Use os.fsync(f.fileno()) to ensure this behavior.
         f.flush()
         os.fsync(f.fileno())
         f.close()
@@ -1081,8 +1110,8 @@ exit $RPMBUILD_RETURN_CODE
                 listInput.append(pkgName)
                 command = "ln -sf " + absPath + " " + cacheRpmLink + "/" + pkgName + ".rpm"
                 self.__subprocess(command=command)
-        #flush() does not necessarily write the file's data to disk. 
-        #Use os.fsync(f.fileno()) to ensure this behavior.
+        # flush() does not necessarily write the file's data to disk. 
+        # Use os.fsync(f.fileno()) to ensure this behavior.
         f.flush()
         os.fsync(f.fileno())
         f.close()
