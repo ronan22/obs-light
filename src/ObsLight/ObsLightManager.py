@@ -28,7 +28,7 @@ from ObsLightServers import ObsLightServers
 from ObsLightProjects import ObsLightProjects
 from ObsLightMicProjects import ObsLightMicProjects
 from ObsLightLocalServer import ObsLightLocalServer
-
+from ObsLightRepositories import  ObsLightRepositories
 
 from ObsLightUtils import isNonEmptyString
 from ObsLightUtils import isBool
@@ -100,8 +100,6 @@ def checkAvailableProjectLocalName(position=None):
             return f(*args, **kwargs)
         return checkAvailableProjectLocalName2
     return checkAvailableProjectLocalName1
-
-
 
 def checkFilePath(position=None):
     def checkFilePath1(f):
@@ -342,6 +340,8 @@ class ObsLightManagerBase(object):
 
         self._myObsLightProjects = ObsLightProjects(self._myObsServers,
                                                     self.getObsLightWorkingDirectory())
+
+        self.__myObsLightRepositories = ObsLightRepositories(self.getObsLightWorkingDirectory())
 
         self._myObsLightLocalServer = ObsLightLocalServer()
 

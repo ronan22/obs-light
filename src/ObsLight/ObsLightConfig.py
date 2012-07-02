@@ -229,6 +229,18 @@ def getHttpBuffer():
     else:
         return 1
 
+def getRepositriespath():
+    aConfigParser = ConfigParser.ConfigParser()
+    aConfigFile = open(CONFIGPATH, 'rw')
+
+    aConfigParser.readfp(aConfigFile)
+    if ('Repositries' in aConfigParser.sections()) and ('path' in aConfigParser.options('Repositries')):
+        try:
+            return str(aConfigParser.get('httpBuffer', 'BufferEnable', raw=True))
+        except :
+            return "~/OBSLight/ObsLightRepo"
+    return "~/OBSLight/ObsLightRepo"
+
 
 if not os.path.exists(CONFIGPATH):
     shutil.copy2(getTemplateConfigPath(), CONFIGPATH)

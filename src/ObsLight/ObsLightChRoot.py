@@ -53,9 +53,7 @@ class ObsLightChRoot(object):
 
     ObsLightUserGroup = "users"
 
-    def __init__(self,
-                 projectDirectory,
-                 fromSave=None):
+    def __init__(self, projectDirectory, fromSave=None):
 
         '''
         Constructor
