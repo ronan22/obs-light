@@ -756,7 +756,7 @@ exit $?
                                                              target=arch, args="-%s" % command)
         script = """HOME=/root/%(packageName)s
 rm -f %(buildLink)s
-ln -s %(buildDirTmp)s %(buildLink)s
+ln -s %(buildDirTmpPath)s %(buildLink)s
 chown -R root:users %(buildLink)s/SOURCES/
 chown -R root:users %(buildLink)s/SPECS/
 %(rpmbuildCmd)s
@@ -804,13 +804,22 @@ exit $RPMBUILD_RETURN_CODE
 
             for c in command:
                 f.write(c + "\n")
+            f.write('\n')
 
             # flush() does not necessarily write the file's data to disk. 
             # Use os.fsync(f.fileno()) to ensure this behavior.
             f.flush()
             os.fsync(f.fileno())
 
+        # Sometimes the subprocess we run does not find the script.
+        # We randomly get this error even with the call to os.fsync().
+        errMsg = "The script '%s' does not exist although we just created it!" % scriptPath
+        if not os.path.exists(scriptPath):
+            raise RuntimeError(errMsg)
         os.chmod(scriptPath, 0654)
+        if not os.path.exists(scriptPath):
+            raise RuntimeError(errMsg)
+
         self.logger.info("Running script %s" % scriptName)
         aCommand = "sudo -H chroot %s %s/%s"
         aCommand = aCommand % (self.getDirectory(), self.__transferDir, scriptName)
