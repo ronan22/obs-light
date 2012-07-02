@@ -132,7 +132,9 @@ class ObsLightMic(object):
                     #    #chroot.pwarning("%s has existed in %s , skip it." % (srcdst[1], chrootdir))
                     #    self.__obsLightPrint("%s has existed in %s , skip it." % (srcdst[1], chrootdir) , isDebug=True)
                     #    continue
-                chrootmounts.append(BindChrootMount(srcdst[0], chrootdir, srcdst[1]))
+                # "dirsync" option added to try to avoid random bug which made scripts
+                # written by obslight in chrootTransfer not available from chroot jail
+                chrootmounts.append(BindChrootMount(srcdst[0], chrootdir, srcdst[1], "dirsync"))
 
             #"""Default bind mounts"""
             chrootmounts.append(BindChrootMount("/proc", chrootdir, None))
@@ -146,8 +148,9 @@ class ObsLightMic(object):
             chrootmounts.append(BindChrootMount("/var/lib/dbus", chrootdir, None))
             chrootmounts.append(BindChrootMount("/var/run/dbus", chrootdir, None))
 
-            for kernel in os.listdir("/lib/modules"):
-                chrootmounts.append(BindChrootMount("/lib/modules/" + kernel, chrootdir, None, "ro"))
+            # FIXME: is this needed ? It makes %prep of kmod-virtiogl fail.
+#            for kernel in os.listdir("/lib/modules"):
+#                chrootmounts.append(BindChrootMount("/lib/modules/" + kernel, chrootdir, None, "ro"))
 
             self.__globalmounts = chrootmounts
 
