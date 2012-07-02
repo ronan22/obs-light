@@ -23,6 +23,10 @@ import ObsLightConfig
 import os
 import pickle
 
+import urlparse
+
+from ObsLightRepository import ObsLightRepository
+
 class ObsLightRepositories(object):
     '''
     classdocs
@@ -33,30 +37,55 @@ class ObsLightRepositories(object):
         '''
         self.__repositoriesPath = ObsLightConfig.getRepositriespath()
         self.__workingDirectory = workingDirectory
-        if not os.path.isdir(self.__repositoriesPath):
-            os.mkdir(self.__repositoriesPath)
+        pathDir = os.path.expanduser(self.__repositoriesPath)
+        if not os.path.isdir(pathDir):
+            os.makedirs(pathDir)
 
         self.__pathFile = os.path.join(self.__workingDirectory, "ObsLightRepositoriesConfig")
+
+        self.__dicOBSLightRepositories = {}
 
     def getRepositoriesList(self):
         '''
         
         '''
-        self.__load()
+#        self.__load()
         res = self.__dicOBSLightRepositories.keys()
         return res
 
-    def __load(self, aFile=None):
-        '''
-        
-        '''
-        return 0
+#    def __load(self, aFile=None):
+#        '''
+#        
+#        '''
+#        return 0
+#
+#    def save(self):
+#        '''
+#        
+#        '''
+#        aFile = open(pathFile, 'w')
+#        pickle.dump(saveconfigProject, aFile)
+#        aFile.close()
+#        return 0
 
-    def save(self):
-        '''
-        
-        '''
-        aFile = open(pathFile, 'w')
-        pickle.dump(saveconfigProject, aFile)
-        aFile.close()
-        return 0
+
+    def getRepository(self, APIName, projectObsName):
+        APIName = str(urlparse.urlparse(APIName)[1])
+        pathDir = os.path.join(os.path.expanduser(self.__repositoriesPath), APIName)
+
+        if APIName in self.getRepositoriesList():
+            if projectObsName in self.__dicOBSLightRepositories[APIName].keys():
+                return self.__dicOBSLightRepositories[APIName][projectObsName]
+        else:
+            self.__dicOBSLightRepositories[APIName] = {}
+
+        repository = ObsLightRepository(pathDir, projectObsName)
+        self.__dicOBSLightRepositories[APIName][projectObsName] = repository
+        return repository
+
+
+
+
+
+
+

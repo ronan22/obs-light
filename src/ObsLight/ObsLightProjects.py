@@ -30,7 +30,7 @@ class ObsLightProjects(object):
     '''
     classdocs
     '''
-    def __init__(self, obsServers, workingDirectory):
+    def __init__(self, obsServers, obsLightRepositories, workingDirectory):
         '''
         Constructor
         '''
@@ -40,6 +40,7 @@ class ObsLightProjects(object):
         self.__dicOBSLightProjects_unload = {}
 
         self.__obsServers = obsServers
+        self.__obsLightRepositories = obsLightRepositories
         self.__currentProjects = None
         self.__workingDirectory = os.path.join(workingDirectory, "ObsProjects")
         self.__pathFile = os.path.join(workingDirectory, "ObsLightProjectsConfig")
@@ -180,6 +181,7 @@ class ObsLightProjects(object):
         '''
         if not (name in self.__dicOBSLightProjects.keys()):
             project = ObsLightProject(obsServers=self.__obsServers,
+                                      obsLightRepositories=self.__obsLightRepositories,
                                     workingDirectory=self.getObsLightWorkingDirectory(),
                                     fromSave=fromSave,
                                     importFile=importFile)
@@ -214,6 +216,7 @@ class ObsLightProjects(object):
             raise ObsLightErr.ObsLightProjectsError(message)
 
         project = ObsLightProject(obsServers=self.__obsServers,
+                                  obsLightRepositories=self.__obsLightRepositories,
                                   workingDirectory=self.getObsLightWorkingDirectory(),
                                   projectLocalName=projectLocalName,
                                   projectObsName=projectObsName,

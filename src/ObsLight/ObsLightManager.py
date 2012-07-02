@@ -338,10 +338,11 @@ class ObsLightManagerBase(object):
 
         self._myObsServers = ObsLightServers(self.getObsLightWorkingDirectory())
 
-        self._myObsLightProjects = ObsLightProjects(self._myObsServers,
-                                                    self.getObsLightWorkingDirectory())
-
         self.__myObsLightRepositories = ObsLightRepositories(self.getObsLightWorkingDirectory())
+
+        self._myObsLightProjects = ObsLightProjects(self._myObsServers,
+                                                    self.__myObsLightRepositories,
+                                                    self.getObsLightWorkingDirectory())
 
         self._myObsLightLocalServer = ObsLightLocalServer()
 

@@ -44,6 +44,7 @@ class ObsLightProject(object):
 
     def __init__(self,
                  obsServers,
+                 obsLightRepositories,
                  workingDirectory,
                  projectObsName=None,
                  projectLocalName=None,
@@ -60,7 +61,7 @@ class ObsLightProject(object):
         self.__mySubprocessCrt = SubprocessCrt()
 
         self.__obsServers = obsServers
-
+        self.__obsLightRepositories = obsLightRepositories
         self.__chrootIsInit = False
         self.__WorkingDirectory = workingDirectory
         self.__projectTitle = projectTitle
@@ -816,6 +817,12 @@ class ObsLightProject(object):
                                      specFile=specFilePath,
                                      arch=target)
         self.__chroot.allowPackageAccessToObslightGroup(pkgObj)
+        if (section == "files") and (pkgObj.getChRootStatus() == "Build Packaged"):
+            buildRootpath = os.path.join(pkgObj.getChrootRpmBuildDirectory(), "RPMS")
+            absBuildRootpath = self.__chroot.getDirectory() + buildRootpath
+            obsApi = self.__obsServers.getObsServer(self.__obsServer).getAPI()
+            repo = self.__obsLightRepositories.getRepository(obsApi, self.__projectObsName)
+            repo.addRPM(absBuildRootpath)
         return retVal
 
     def buildPrep(self, package):
@@ -829,6 +836,14 @@ class ObsLightProject(object):
 
     def packageRpm(self, package):
         return self.__execRpmSection(package, "files")
+
+    def createRepo(self):
+        obsApi = self.__obsServers.getObsServer(self.__obsServer).getAPI()
+        repo = self.__obsLightRepositories.getRepository(obsApi, self.__projectObsName)
+        if repo.isOutOfDate():
+            return repo.createRepo()
+        else:
+            return 0
 
     def __getArchHierarchy(self):
         if self.__projectArchitecture in self.__archHierarchyMap:
