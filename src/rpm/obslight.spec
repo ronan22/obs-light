@@ -206,8 +206,12 @@ fi
 /srv/%IMGSRVPATH/config/obslight-image.apache2conf
 /srv/%REPOSRVPATH/config/obslight-repos.apache2conf
 
+%config %attr(777, nobody, users) /srv/%IMGSRVPATH
+%config %attr(777, nobody, users) /srv/%REPOSRVPATH
 %config %attr(777, nobody, users) /srv/%IMGSRVPATH/config
 %config %attr(777, nobody, users) /srv/%REPOSRVPATH/config
+%config %attr(777, nobody, users) /srv/%IMGSRVPATH/www
+%config %attr(777, nobody, users) /srv/%REPOSRVPATH/www
 
 # << files
 
