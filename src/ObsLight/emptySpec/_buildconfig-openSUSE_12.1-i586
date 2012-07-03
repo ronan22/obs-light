@@ -1,4 +1,4 @@
-%define _project Project:OBS_Light
+%define _project Project:OBS_Light:Testing
 
 ### from openSUSE:12.1
 %define _repository standard
@@ -617,8 +617,8 @@ Optflags: * -O2 -Wall -D_FORTIFY_SOURCE=2 -fstack-protector -funwind-tables -fas
 
 
 Macros:
-%vendor obs://build.pub.meego.com/Project:OBS_Light
-%_project Project:OBS_Light
+%vendor obs://build.pub.meego.com/Project:OBS_Light:Testing
+%_project Project:OBS_Light:Testing
 
 ### from openSUSE:12.1
 %_repository standard
@@ -647,8 +647,8 @@ Macros:
 %{nil}
 
 
-%distribution Project:OBS_Light / openSUSE_12.1
-%_project Project:OBS_Light
+%distribution Project:OBS_Light:Testing / openSUSE_12.1
+%_project Project:OBS_Light:Testing
 
-### from Project:OBS_Light
+### from Project:OBS_Light:Testing
 %_repository openSUSE_12.1
