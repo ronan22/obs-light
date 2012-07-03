@@ -6,8 +6,8 @@
 %{?!fdupes: %define fdupes echo}
 # << macros
 
-IMGSRVPATH=obslight-image-server
-REPOSRVPATH=obslight-repo-server
+%define IMGSRVPATH obslight-image-server
+%define REPOSRVPATH obslight-repo-server
 
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 Name:       obslight
@@ -130,10 +130,10 @@ desktop-file-install --delete-original       \
   --dir %{buildroot}%{_datadir}/applications             \
    %{buildroot}%{_datadir}/applications/*.desktop
 
-mkdir -p %{buildroot}/srv/$IMGSRVPATH/config
-mkdir -p %{buildroot}/srv/$REPOSRVPATH/config
-mkdir -p %{buildroot}/srv/$IMGSRVPATH/www
-mkdir -p %{buildroot}/srv/$REPOSRVPATH/www
+mkdir -p %{buildroot}/srv/%IMGSRVPATH/config
+mkdir -p %{buildroot}/srv/%REPOSRVPATH/config
+mkdir -p %{buildroot}/srv/%IMGSRVPATH/www
+mkdir -p %{buildroot}/srv/%REPOSRVPATH/www
 
 %preun
 # >> preun
@@ -172,8 +172,8 @@ else
 fi
 
 echo "Trying to add OBS Light Image Server..."
-[ -d $RPM_BUILD_ROOT/srv/$IMGSRVPATH/www ] || install -d -o nobody -g users $RPM_BUILD_ROOT/srv/$IMGSRVPATH/www
-[ -d $RPM_BUILD_ROOT/srv/$REPOSRVPATH/www ] || install -d -o nobody -g users $RPM_BUILD_ROOT/srv/$REPOSRVPATH/www
+[ -d $RPM_BUILD_ROOT/srv/%IMGSRVPATH/www ] || install -d -o nobody -g users $RPM_BUILD_ROOT/srv/%IMGSRVPATH/www
+[ -d $RPM_BUILD_ROOT/srv/%REPOSRVPATH/www ] || install -d -o nobody -g users $RPM_BUILD_ROOT/srv/%REPOSRVPATH/www
 echo "/srv/$REPOSRVPATH/www  *(rw,fsid=0,no_root_squash,insecure,no_subtree_check)" >> /etc/exports
 
 /sbin/chkconfig --add xinetd
@@ -182,8 +182,8 @@ echo "/srv/$REPOSRVPATH/www  *(rw,fsid=0,no_root_squash,insecure,no_subtree_chec
 
 if [ -d %{_sysconfdir}/apache2/vhosts.d ]
 then
-ln -sf %{buildroot}/srv/$IMGSRVPATH/config/obslight-image.apache2conf %{_sysconfdir}/apache2/vhosts.d/obslight-image.conf
-ln -sf %{buildroot}/srv/$REPOSRVPATH/config/obslight-repos.apache2conf %{_sysconfdir}/apache2/vhosts.d/obslight-repos.conf 
+ln -sf %{buildroot}/srv/%IMGSRVPATH/config/obslight-image.apache2conf %{_sysconfdir}/apache2/vhosts.d/obslight-image.conf
+ln -sf %{buildroot}/srv/%REPOSRVPATH/config/obslight-repos.apache2conf %{_sysconfdir}/apache2/vhosts.d/obslight-repos.conf 
 fi
 # << post
 
