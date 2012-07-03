@@ -174,6 +174,13 @@ fi
 echo "Trying to add OBS Light Image Server..."
 [ -d $RPM_BUILD_ROOT/srv/%IMGSRVPATH/www ] || install -d -o nobody -g users $RPM_BUILD_ROOT/srv/%IMGSRVPATH/www
 [ -d $RPM_BUILD_ROOT/srv/%REPOSRVPATH/www ] || install -d -o nobody -g users $RPM_BUILD_ROOT/srv/%REPOSRVPATH/www
+
+[ -d $RPM_BUILD_ROOT/srv/%IMGSRVPATH/config ] || install -d -o nobody -g users $RPM_BUILD_ROOT/srv/%IMGSRVPATH/config
+[ -d $RPM_BUILD_ROOT/srv/%REPOSRVPATH/config ] || install -d -o nobody -g users $RPM_BUILD_ROOT/srv/%REPOSRVPATH/config
+
+[ -d $RPM_BUILD_ROOT/srv/%IMGSRVPATH ] || install -d -o nobody -g users $RPM_BUILD_ROOT/srv/%IMGSRVPATH
+[ -d $RPM_BUILD_ROOT/srv/%REPOSRVPATH ] || install -d -o nobody -g users $RPM_BUILD_ROOT/srv/%REPOSRVPATH
+
 echo "/srv/$REPOSRVPATH/www  *(rw,fsid=0,no_root_squash,insecure,no_subtree_check)" >> /etc/exports
 
 /sbin/chkconfig --add xinetd
