@@ -6,6 +6,9 @@
 %{?!fdupes: %define fdupes echo}
 # << macros
 
+IMGSRVPATH=obslight-image-server
+REPOSRVPATH=obslight-repo-server
+
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 Name:       obslight
 Summary:    OBS Light
@@ -17,6 +20,7 @@ BuildArch:  noarch
 URL:        http://en.opensuse.org/openSUSE:OBS_Light
 Source0:    %{name}-%{version}.tar.gz
 Source100:  obslight.yaml
+Requires:   apache2
 Requires:   acl
 Requires:   build
 Requires:   createrepo
@@ -121,13 +125,15 @@ ln -s obslightgui-wrapper.py %{buildroot}/%{_bindir}/obslightgui
 
 install -d $RPM_BUILD_ROOT/etc/init.d
 
-install -m 744 ObsLightServer/obslightserver %{buildroot}%{_sysconfdir}/init.d/obslightserver
-
 # << install post
 desktop-file-install --delete-original       \
   --dir %{buildroot}%{_datadir}/applications             \
    %{buildroot}%{_datadir}/applications/*.desktop
 
+mkdir -p %{buildroot}/srv/$IMGSRVPATH/config
+mkdir -p %{buildroot}/srv/$REPOSRVPATH/config
+mkdir -p %{buildroot}/srv/$IMGSRVPATH/www
+mkdir -p %{buildroot}/srv/$REPOSRVPATH/www
 
 %preun
 # >> preun
@@ -144,14 +150,6 @@ then
   else
     echo "Cannot modify sudoers file !"
   fi
-
-  echo "Removing obslightserver service..."
-%if 0%{?suse_version}
-  %insserv_cleanup
-  %verify_permissions
-%else
-  /sbin/chkconfig --del obslightserver
-%endif
 fi
 # << preun
 
@@ -173,20 +171,21 @@ else
   echo "Cannot modify sudoers file !";
 fi
 
-echo "Trying to add OBS Light server..."
-[ -d $RPM_BUILD_ROOT/srv/obslight ] || install -d -o nobody -g nobody $RPM_BUILD_ROOT/srv/obslight
-echo "/srv/obslight  *(rw,fsid=0,no_root_squash,insecure,no_subtree_check)" >> /etc/exports
+echo "Trying to add OBS Light Image Server..."
+[ -d $RPM_BUILD_ROOT/srv/$IMGSRVPATH/www ] || install -d -o nobody -g users $RPM_BUILD_ROOT/srv/$IMGSRVPATH/www
+[ -d $RPM_BUILD_ROOT/srv/$REPOSRVPATH/www ] || install -d -o nobody -g users $RPM_BUILD_ROOT/srv/$REPOSRVPATH/www
+echo "/srv/$REPOSRVPATH/www  *(rw,fsid=0,no_root_squash,insecure,no_subtree_check)" >> /etc/exports
 
 /sbin/chkconfig --add xinetd
 /sbin/chkconfig --add rpcbind
 /sbin/chkconfig --add nfsserver
-/sbin/chkconfig --add obslightserver
+
+if [ -d %{_sysconfdir}/apache2/vhosts.d ]
+then
+ln -sf %{buildroot}/srv/$IMGSRVPATH/config/obslight-image.apache2conf %{_sysconfdir}/apache2/vhosts.d/obslight-image.conf
+ln -sf %{buildroot}/srv/$REPOSRVPATH/config/obslight-repos.apache2conf %{_sysconfdir}/apache2/vhosts.d/obslight-repos.conf 
+fi
 # << post
-
-
-
-
-
 
 %files
 %defattr(-,root,root,-)
@@ -203,12 +202,9 @@ echo "/srv/obslight  *(rw,fsid=0,no_root_squash,insecure,no_subtree_check)" >> /
 %config %attr(440, root, root) %{_sysconfdir}/sudoers.obslight
 %config %{_sysconfdir}/bash_completion.d/obslight.sh
 %config %{_sysconfdir}/xinetd.d/tftp
-%config %attr(0755, root, root) %{_sysconfdir}/init.d/obslightserver
-%dir %{_sysconfdir}/obslight
-%config(noreplace) %attr(0644,root,root) %{_sysconfdir}/obslight/obslight.conf
-%{_bindir}/ObsLightServer.py
+/srv/$IMGSRVPATH/config/obslight-image.conf
+/srv/$REPOSRVPATH/config/obslight-repos.conf
 # << files
-
 
 %files gui
 %defattr(-,root,root,-)

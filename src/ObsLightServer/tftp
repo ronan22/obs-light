@@ -13,7 +13,7 @@ service tftp
 	flags			= IPv6 IPv4
 	user			= root
 	server			= /usr/sbin/in.tftpd
-	server_args		= -c -s /srv/obslight
+	server_args		= -c -s /srv/obslight-image-server
 #	per_source		= 11
 #	cps			= 100 2
 	disable			= no

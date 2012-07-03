@@ -1167,13 +1167,6 @@ class ObsLightManagerCore(ObsLightManagerBase):
         self._myObsLightProjects.save()
         return res
 
-    def createRepo(self, projectLocalName):
-        '''
-        Create a Repository
-        '''
-        res = self._myObsLightProjects.getProject(projectLocalName).createRepo()
-        return res
-
     @checkProjectLocalName(1)
     @checkNonEmptyStringPackage(2)
     @checkNonEmptyStringPatch(3)
@@ -1623,6 +1616,30 @@ class ObsLightManager(ObsLightManagerCore):
     def createImage(self, micProjectName):
         self._myObsLightMicProjects.createImage(micProjectName=micProjectName)
         self._myObsLightMicProjects.save()
+
+#---------------------------------------------------------------------------
+
+    def createRepo(self, projectLocalName=None, APIName=None, projectObsName=None):
+        '''
+        Create a Repository
+        '''
+        if projectLocalName != None:
+            res = self._myObsLightProjects.getProject(projectLocalName).createRepo()
+        else:
+            res = self.__myObsLightRepositories.createRepo(APIName, projectObsName)
+        return res
+
+    def DeleteRepository(self, APIName, projectObsName):
+        return self.__myObsLightRepositories.DeleteRepository(APIName, projectObsName)
+
+    def createRepository(self, APIName, projectObsName):
+        return self.__myObsLightRepositories.createRepository(APIName, projectObsName)
+
+    def scanRepository(self):
+        return self.__myObsLightRepositories.scanRepository()
+
+    def getRepositoriesList(self, APIName=None):
+        return self.__myObsLightRepositories.getRepositoriesList(APIName=APIName)
 
 #---------------------------------------------------------------------------
     def isObsLightServerAvailable(self):

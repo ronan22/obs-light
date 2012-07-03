@@ -1,0 +1,11 @@
+Listen 82
+
+NameVirtualHost *:82
+
+<VirtualHost *:82>
+  DocumentRoot /srv/obslight-repo-server/www
+  <Directory /srv/obslight-repo-server/www>
+    Options Indexes
+    Allow from all
+  </Directory>
+</VirtualHost>

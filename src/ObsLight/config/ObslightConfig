@@ -38,6 +38,3 @@ DefaultTimeOut=-1
 #BufferEnable=0 No buffer,BufferEnable=1 the http/https requests are execute ones, and the results are store.
 BufferEnable=1
 
-#Define OBS Light Repositories path
-[Repositries]
-path=~/OBSLight/ObsLightRepo

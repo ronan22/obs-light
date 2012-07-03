@@ -22,8 +22,9 @@ Created on 27 fev. 2012
 '''
 
 import os
-from ObsLightSubprocess import SubprocessCrt
 
+import ObsLightConfig
+from ObsLightSubprocess import SubprocessCrt
 from ObsLightErr import ObsLightLocalServerErr
 
 class ObsLightLocalServer(object):
@@ -36,6 +37,7 @@ class ObsLightLocalServer(object):
         Constructor
         '''
         self.__mySubprocessCrt = SubprocessCrt()
+        self.__serverPath = ObsLightConfig.getImageServerPath()
 
 
     def __subprocess(self, command, command2=None, waitMess=False):
@@ -50,15 +52,16 @@ class ObsLightLocalServer(object):
                                                      waitMess=waitMess)
 
     def isObsLightServerAvailable(self):
-        return  os.path.isfile("/etc/obslight/obslight.conf")
+        return  os.path.isfile("/apache2/vhosts.d/obslight-image.conf")
 
 
     def addDirectoryToServer(self, directory):
         if os.path.isdir(directory):
             theBasename = os.path.basename(directory)
-            command1 = "sudo mkdir /srv/obslight/" + theBasename
-            command2 = "sudo mount --bind " + directory + " /srv/obslight/" + theBasename
-            command31 = '''echo '/srv/obslight/''' + theBasename + '''  *(rw,no_root_squash,nohide,insecure,no_subtree_check)' '''
+            projetPath = os.path.join(self.__serverPath, theBasename)
+            command1 = "sudo mkdir " + projetPath
+            command2 = "sudo mount --bind " + directory + " " + projetPath
+            command31 = '''echo \'''' + projetPath + '''  *(rw,no_root_squash,nohide,insecure,no_subtree_check)\' '''
             command32 = '''sudo tee -a /etc/exports'''
             command4 = "sudo /usr/sbin/exportfs -ra"
 

@@ -1,0 +1,11 @@
+Listen 83
+
+NameVirtualHost *:83
+
+<VirtualHost *:83>
+  DocumentRoot /srv/obslight-image-server/www
+  <Directory /srv/obslight-image-server/www>
+    Options Indexes
+    Allow from all
+  </Directory>
+</VirtualHost>

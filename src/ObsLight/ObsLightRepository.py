@@ -44,6 +44,16 @@ class ObsLightRepository(object):
 
         self.__baseurl = None
 
+        self.__createOptionDico = {}
+#       -u --baseurl <url>
+#              Optional base URL location for all files.
+        if self.__baseurl != None:
+            self.__createOptionDico["baseurl"] = "--baseurl " + self.__baseurl
+        else:
+            self.__createOptionDico["baseurl"] = ""
+
+        self.__createOptionDico["path"] = self.__projectDir
+
         self.__mySubprocessCrt = SubprocessCrt()
 
     def __subprocess(self, command=None, waitMess=False, stdout=False):
@@ -74,22 +84,11 @@ class ObsLightRepository(object):
             os.unlink(self.__outOfDate)
 
     def createRepo(self):
-        createOptionDico = {}
-
-#       -u --baseurl <url>
-#              Optional base URL location for all files.
-        if self.__baseurl != None:
-            createOptionDico["baseurl"] = "--baseurl " + self.__baseurl
-        else:
-            createOptionDico["baseurl"] = ""
-
-        createOptionDico["path"] = self.__projectDir
-
 #       --update
 #              If  metadata already exists in the outputdir and an rpm is unchanged (based on file size and mtime) since the metadata was generated, reuse the existing metadata
 #              rather than recalculating it. In the case of a large repository with only a few new or modified rpms this can significantly reduce I/O and processing time.
         command = "createrepo --update %(baseurl)s %(path)s"
-        command = command % createOptionDico
+        command = command % self.__createOptionDico
 
         res = self.__subprocess(command=command)
         self.removeTouch()
@@ -102,7 +101,11 @@ class ObsLightRepository(object):
         else:
             return False
 
+    def DeleteRepository(self):
+        command = "rm -r %(path)s"
+        command = command % self.__createOptionDico
 
+        return self.__subprocess(command=command)
 
 
 

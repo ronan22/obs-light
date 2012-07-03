@@ -563,7 +563,7 @@ class PackageManager(QObject, ObsLightGuiObject):
                                      u"Packaging %(arg)s",
                                      self.__handleRpmOperationResult,
                                      projectName)
-        self.manager.createRepo(projectName)
+        self.manager.createRepo(projectLocalName=projectName)
 
     @popupOnException
     def on_openTermButton_clicked(self):
