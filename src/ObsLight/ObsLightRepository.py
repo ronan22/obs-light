@@ -88,7 +88,7 @@ class ObsLightRepository(object):
 #       --update
 #              If  metadata already exists in the outputdir and an rpm is unchanged (based on file size and mtime) since the metadata was generated, reuse the existing metadata
 #              rather than recalculating it. In the case of a large repository with only a few new or modified rpms this can significantly reduce I/O and processing time.
-        command = "create --update %{baseurl}s %{path}s"
+        command = "createrepo --update %(baseurl)s %(path)s"
         command = command % createOptionDico
 
         res = self.__subprocess(command=command)

@@ -1167,6 +1167,12 @@ class ObsLightManagerCore(ObsLightManagerBase):
         self._myObsLightProjects.save()
         return res
 
+    def createRepo(self, projectLocalName):
+        '''
+        Create a Repository
+        '''
+        res = self._myObsLightProjects.getProject(projectLocalName).createRepo()
+        return res
 
     @checkProjectLocalName(1)
     @checkNonEmptyStringPackage(2)

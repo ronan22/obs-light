@@ -445,7 +445,7 @@ class ObsLightSpec:
         if path == None:
             path = self.__path
         f = open(path, 'w')
-        f.write("# File written by OBS Light, don't modify it\n")
+        f.write("#File written by OBS Light, don't modify it\n")
         for section in self.__orderList:
             for line in self.__spectDico[section]:
                 if line.startswith("Release:") and \

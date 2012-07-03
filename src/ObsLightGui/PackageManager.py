@@ -401,6 +401,7 @@ class PackageManager(QObject, ObsLightGuiObject):
         runnable = ProgressRunnable2(progress)
         if initialMessage is not None:
             runnable.setDialogMessage(initialMessage)
+        packagesNames.sort()
         runnable.setFunctionToMap(method, packagesNames, loopMessage, *args, **kwargs)
         runnable.caughtException.connect(self.gui.popupErrorCallback)
         if callback is not None:
@@ -562,6 +563,7 @@ class PackageManager(QObject, ObsLightGuiObject):
                                      u"Packaging %(arg)s",
                                      self.__handleRpmOperationResult,
                                      projectName)
+        self.manager.createRepo(projectName)
 
     @popupOnException
     def on_openTermButton_clicked(self):
