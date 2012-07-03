@@ -202,8 +202,8 @@ fi
 %config %attr(440, root, root) %{_sysconfdir}/sudoers.obslight
 %config %{_sysconfdir}/bash_completion.d/obslight.sh
 %config %{_sysconfdir}/xinetd.d/tftp
-/srv/$IMGSRVPATH/config/obslight-image.conf
-/srv/$REPOSRVPATH/config/obslight-repos.conf
+/srv/%IMGSRVPATH/config/obslight-image.conf
+/srv/%REPOSRVPATH/config/obslight-repos.conf
 # << files
 
 %files gui
