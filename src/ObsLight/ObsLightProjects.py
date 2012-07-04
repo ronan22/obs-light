@@ -1,5 +1,5 @@
 #
-# Copyright 2011, Intel Inc.
+# Copyright 2011-2012, Intel Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 Created on 29 sept. 2011
 
 @author: ronan
+@author: Florent Vennetier
 '''
 import os
 import pickle
@@ -27,13 +28,8 @@ import ObsLightTools
 import collections
 
 class ObsLightProjects(object):
-    '''
-    classdocs
-    '''
+
     def __init__(self, obsServers, workingDirectory):
-        '''
-        Constructor
-        '''
         self.__saveconfigProject = None
 
         self.__dicOBSLightProjects = {}
@@ -46,9 +42,6 @@ class ObsLightProjects(object):
 
     #---------------------------------------------------------------------------
     def getLocalProjectList(self):
-        '''
-        
-        '''
         self.__load()
         res = self.__dicOBSLightProjects.keys()
         res.extend(self.__dicOBSLightProjects_unload.keys())
@@ -56,12 +49,9 @@ class ObsLightProjects(object):
         return res
 
     def __load(self, aFile=None):
-        '''
-        
-        '''
         if ((len(self.__dicOBSLightProjects.keys()) == 0) and \
-           (len(self.__dicOBSLightProjects_unload.keys()) == 0)) or (aFile != None):
-            if aFile == None:
+           (len(self.__dicOBSLightProjects_unload.keys()) == 0)) or (aFile is not None):
+            if aFile is None:
                 pathFile = self.__pathFile
                 self.__dicOBSLightProjects_unload = {}
                 self.__dicOBSLightProjects = {}
@@ -95,10 +85,7 @@ class ObsLightProjects(object):
             return 0
 
     def save(self, aFile=None, projectName=None):
-        '''
-        
-        '''
-        if aFile == None:
+        if aFile is None:
             pathFile = self.__pathFile
             projectName = None
         else:
@@ -106,7 +93,7 @@ class ObsLightProjects(object):
 
         saveProject = {}
 
-        if projectName == None:
+        if projectName is None:
             for aProjectName in self.__dicOBSLightProjects.keys():
                 saveProject[aProjectName] = self.__dicOBSLightProjects[aProjectName].getDic()
 
@@ -125,20 +112,17 @@ class ObsLightProjects(object):
         saveconfigProject["saveProjects"] = saveProject
         saveconfigProject["currentProject"] = self.__currentProjects
 
-        if (projectName != None) or (saveconfigProject != self.__saveconfigProject):
+        if (projectName is not None) or (saveconfigProject != self.__saveconfigProject):
             aFile = open(pathFile, 'w')
             pickle.dump(saveconfigProject, aFile)
             aFile.close()
 
-            if projectName == None:
+            if projectName is None:
                 self.__saveconfigProject = saveconfigProject
 
         return 0
 
     def getProject(self, project):
-        '''
-        
-        '''
         self.__load()
 
         if project in self.__dicOBSLightProjects_unload.keys():
@@ -158,9 +142,6 @@ class ObsLightProjects(object):
 
 
     def removeProject(self, projectLocalName=None):
-        '''
-        
-        '''
         projetPath = self.getProject(projectLocalName).getDirectory()
 
         self.getProject(projectLocalName).removeProject()
@@ -175,9 +156,6 @@ class ObsLightProjects(object):
         return 0
 
     def __addProjectFromSave(self, name=None, fromSave=None, importFile=None):
-        '''
-        
-        '''
         if not (name in self.__dicOBSLightProjects.keys()):
             project = ObsLightProject(obsServers=self.__obsServers,
                                     workingDirectory=self.getObsLightWorkingDirectory(),
@@ -190,9 +168,6 @@ class ObsLightProjects(object):
         return 0
 
     def getCurrentProject(self):
-        '''
-        
-        '''
         self.__load()
         return self.__currentProjects
 
@@ -202,9 +177,6 @@ class ObsLightProjects(object):
                    obsServer=None ,
                    projectTarget=None,
                    projectArchitecture=None):
-        '''
-        
-        '''
         projectTitle = self.__obsServers.getObsServer(obsServer).getProjectTitle(projectObsName)
         description = self.__obsServers.getObsServer(obsServer).getProjectDescription(projectObsName)
 
@@ -247,9 +219,6 @@ class ObsLightProjects(object):
         return self.save(aFile=path, projectName=projectLocalName)
 
     def updatePackage(self, projectLocalName, package, controlFunction=None):
-        '''
-        
-        '''
         if (isinstance(package, collections.Iterable) and
             not isinstance(package, str) and
             not isinstance(package, unicode)):
@@ -265,9 +234,6 @@ class ObsLightProjects(object):
             return self.getProject(projectLocalName).updatePackage(name=package)
 
     def refreshOscDirectoryStatus(self, projectLocalName, package, controlFunction=None):
-        '''
-        
-        '''
         if (isinstance(package, collections.Iterable) and
             not isinstance(package, str) and
             not isinstance(package, unicode)):
@@ -283,9 +249,6 @@ class ObsLightProjects(object):
             return self.getProject(projectLocalName).refreshOscDirectoryStatus(package=package)
 
     def refreshObsStatus(self, projectLocalName, package, controlFunction=None):
-        '''
-        
-        '''
         if (isinstance(package, collections.Iterable) and
             not isinstance(package, str) and
             not isinstance(package, unicode)):
@@ -300,10 +263,18 @@ class ObsLightProjects(object):
         else:
             return self.getProject(projectLocalName).refreshObsStatus(package=package)
 
+    def importPrepBuildPackages(self, projectName, packageNames=None):
+        """
+        Call `ObsLightProject.importPrepBuildPackages` for all packages
+        of `packageNames`. If `packageNames` is None or an empty list,
+        call `importPrepBuildPackage` for all packages of `projectName`.
 
+        Returns the list of packages which failed, as tuples of
+        (packageName, exception) or (packageName, errorCode) depending
+        on the type of failure.
 
-
-
-
-
+        This function was developed for testing purposes.
+        """
+        projectObj = self.getProject(projectName)
+        return projectObj.importPrepBuildPackages(packageNames)
 

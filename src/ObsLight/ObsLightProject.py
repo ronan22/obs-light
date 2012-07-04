@@ -1,5 +1,5 @@
 #
-# Copyright 2011, Intel Inc.
+# Copyright 2011-2012, Intel Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,29 +18,26 @@
 Created on 29 sept. 2011
 
 @author: ronan
+@author: Florent Vennetier
 '''
 import os
 import shutil
+import urllib
 
 from ObsLightPackages import ObsLightPackages
 from ObsLightChRoot import ObsLightChRoot
 #import ObsLightManager
 import ObsLightErr
 from ObsLightSubprocess import SubprocessCrt
+from ObsLightObject import ObsLightObject
 import ObsLightOsc
-import urllib
-
-import ObsLightPrintManager
 
 import ObsLightConfig
 
 import shlex
 import subprocess
 
-class ObsLightProject(object):
-    '''
-    classdocs
-    '''
+class ObsLightProject(ObsLightObject):
 
     def __init__(self,
                  obsServers,
@@ -54,9 +51,7 @@ class ObsLightProject(object):
                  description="",
                  fromSave=None,
                  importFile=False):
-        '''
-        Constructor
-        '''
+        ObsLightObject.__init__(self)
         self.__mySubprocessCrt = SubprocessCrt()
 
         self.__obsServers = obsServers
@@ -87,7 +82,7 @@ class ObsLightProject(object):
                 self.__obsServer = fromSave["obsServer"]
                 if not (self.__obsServer in self.__obsServers.getObsServerList()):
                     message = "WARNING: '" + self.__obsServer + "' is not a defined OBS server "
-                    ObsLightPrintManager.obsLightPrint(message)
+                    self.logger.warn(message)
             if "projectTarget" in fromSave.keys():
                 self.__projectTarget = fromSave["projectTarget"]
             if "projectArchitecture" in fromSave.keys():
@@ -317,7 +312,7 @@ class ObsLightProject(object):
                     message = "Error in removeProject, can't remove directory, '" + drctr + "'"
                     raise ObsLightErr.ObsLightProjectsError(message)
             else:
-                ObsLightPrintManager.obsLightPrint("WARNING: '" + drctr + "' is not a directory.")
+                self.logger.warn("'%s' is not a directory" % drctr)
                 return 0
         else:
             message = "Error in removeProject, can't remove project file system"
@@ -326,9 +321,6 @@ class ObsLightProject(object):
         return 0
 
     def removeChRoot(self):
-        '''
-        
-        '''
         for package in self.__packages.getListPackages():
             if self.getPackage(package).isInstallInChroot():
                 self.__packages.delFromChroot(package)
@@ -338,21 +330,12 @@ class ObsLightProject(object):
         return res
 
     def getProjectObsName(self):
-        '''
-        
-        '''
         return self.__projectObsName
 
     def getChRoot(self):
-        '''
-         
-        '''
         return self.__chroot
 
     def getDic(self):
-        '''
-        
-        '''
         aDic = {}
         aDic["projectLocalName"] = self.__projectLocalName
         aDic["projectObsName"] = self.__projectObsName
@@ -367,15 +350,17 @@ class ObsLightProject(object):
         return aDic
 
     def getObsServer(self):
-        '''
-        
-        '''
         return self.__obsServer
 
     def getListPackage(self, onlyInstalled=True):
-        '''
-        
-        '''
+        """Deprecated, for compatibility"""
+        return self.getPackageList(onlyInstalled)
+
+    def getPackageList(self, onlyInstalled=True):
+        """
+        Get the list of packages of this project.
+        If `onlyInstalled` is True, get only those which have been imported locally.
+        """
         if not onlyInstalled :
             if self.__obsServer in self.__obsServers.getObsServerList():
                 obsServer = self.__obsServers.getObsServer(self.__obsServer)
@@ -390,21 +375,12 @@ class ObsLightProject(object):
             return self.__packages.getListPackages()
 
     def __getPackagePath(self, package):
-        '''
-        
-        '''
         return os.path.join(self.getDirectory(), self.__projectObsName, package)
 
     def __getProjectOscPath(self):
-        '''
-        
-        '''
         return os.path.join(self.getDirectory(), self.__projectObsName)
 
     def checkoutPackage(self, package=None):
-        '''
-        
-        '''
         ObsLightOsc.getObsLightOsc().checkoutPackage(obsServer=self.__obsServer,
                                                      projectObsName=self.__projectObsName,
                                                      package=package,
@@ -458,9 +434,6 @@ class ObsLightProject(object):
         return packagePath, specFile, yamlFile, listFile
 
     def __updatePackage(self, package, noOscUpdate=False):
-        '''
-        
-        '''
         packagePath = self.__getPackagePath(package)
         if noOscUpdate == False:
             ObsLightOsc.getObsLightOsc().updatePackage(packagePath)
@@ -468,15 +441,9 @@ class ObsLightProject(object):
         return self.checkoutFilePackage(packagePath)
 
     def __isASpecfile(self, aFile):
-        '''
-        
-        '''
         return aFile.endswith(".spec")
 
     def __isAyamlfile(self, aFile):
-        '''
-        
-        '''
         return aFile.endswith(".yaml")
 
 
@@ -510,9 +477,6 @@ class ObsLightProject(object):
         self.checkObsPackageStatus(package=name)
 
     def checkObsPackageStatus(self, package):
-        '''
-        
-        '''
         obsServer = self.__obsServers.getObsServer(self.__obsServer)
         rev = obsServer.getObsPackageRev(self.__projectObsName, package)
         if rev is not None:
@@ -520,9 +484,6 @@ class ObsLightProject(object):
         return 0
 
     def refreshOscDirectoryStatus(self, package=None):
-        '''
-        
-        '''
         if package != None:
             self.updatePackage(name=package, noOscUpdate=True)
             self.checkOscDirectoryStatus(package)
@@ -537,9 +498,6 @@ class ObsLightProject(object):
         return 0
 
     def repairOscPackageDirectory(self, package):
-        '''
-        
-        '''
         if package != None:
             path = self.__getPackagePath(package)
             ObsLightOsc.getObsLightOsc().repairOscPackageDirectory(path=path)
@@ -548,9 +506,6 @@ class ObsLightProject(object):
             return None
 
     def refreshObsStatus(self, package=None):
-        '''
-        
-        '''
         if package != None:
             obsServer = self.__obsServers.getObsServer(self.__obsServer)
             status = obsServer.getPackageStatus(project=self.__projectObsName,
@@ -574,9 +529,6 @@ class ObsLightProject(object):
                                                                           value=status)
 
     def checkOscPackageStatus(self, package):
-        '''
-        
-        '''
         obsServer = self.__obsServers.getObsServer(self.__obsServer)
         oscDirectory = self.__packages.getPackage(package).getOscDirectory()
         rev = obsServer.getOscPackageRev(workingdir=oscDirectory)
@@ -587,9 +539,6 @@ class ObsLightProject(object):
             self.__packages.getPackage(package).setOscPackageRev("-1")
 
     def checkOscDirectoryStatus(self, package):
-        '''
-        
-        '''
         obsServer = self.__obsServers.getObsServer(self.__obsServer)
         dicoListFile = obsServer.getFilesListPackage(projectObsName=self.__projectObsName,
                                                      package=package)
@@ -647,15 +596,9 @@ class ObsLightProject(object):
         return 0
 
     def getChRootRepositories(self):
-        '''
-        
-        '''
         return self.__chroot.getChRootRepositories()
 
     def updateProject(self):
-        '''
-        
-        '''
         for name in self.__packages.getListPackages():
             server = self.__obsServers.getObsServer(self.__obsServer)
             status = server.getPackageStatus(project=self.__projectObsName,
@@ -678,28 +621,19 @@ class ObsLightProject(object):
 
     def createChRoot(self):
         '''
-        Init a chroot and add the project repository. 
+        Initialize a chroot jail.
+        Returns 0 on success. 
         '''
-#        repos = self.getDependencyRepositories()
-
-        self.__initChRoot()
-#        res = self.addRepo()
-#
-#        for alias in repos.keys():
-#            res = self.addRepo(repos=repos[alias], alias=alias)
-
-        return 0
+        return self.__initChRoot()
 
     def __initChRoot(self):
-        '''
-        Init a chroot.
-        '''
         apiurl = self.__obsServers.getObsServer(self.__obsServer).getAPI()
-        self.__chroot.createChRoot(repos=self.__projectTarget,
-                                   arch=self.__projectArchitecture,
-                                   apiurl=apiurl,
-                                   obsProject=self.__projectObsName)
-        self.__chrootIsInit = True
+        retVal = self.__chroot.createChRoot(repos=self.__projectTarget,
+                                            arch=self.__projectArchitecture,
+                                            apiurl=apiurl,
+                                            obsProject=self.__projectObsName)
+        self.__chrootIsInit = retVal == 0
+        return retVal
 
     def getReposProject(self):
         '''
@@ -859,7 +793,7 @@ class ObsLightProject(object):
         command = command % (buildDir, configPath, configdir, archs)
 
         target = self.__subprocess(command, stdout=True)
-        ObsLightPrintManager.getLogger().debug("Target found by getchangetarget: '%s'" % target)
+        self.logger.debug("Target found by getchangetarget: '%s'" % target)
 
         endline = "\n"
         if target.endswith("\n"):
@@ -987,7 +921,60 @@ class ObsLightProject(object):
             return __aChroot.addRepo(repos=__aRepos  , alias=__anAlias)
         else:
             message = __anAlias + " is already installed in the project file system"
-            ObsLightPrintManager.getLogger().info(message)
+            self.logger.info(message)
             return 0
 
 #_____________________________________________________________________________
+
+    def importPrepBuildPackage(self, packageName):
+        """
+        Import the package in OBS Light, import it in chroot jail,
+        execute %prep, then build RPMs.
+        Returns 0 on success, != 0 or exception on failure.
+
+        This function was developed for testing purposes.
+        """
+        if not self.__chrootIsInit:
+            # Maybe we can create chroot jail in the calling function?
+            self.logger.info("Creating chroot jail of project '%s'" % self.__projectLocalName)
+            retVal = self.createChRoot()
+            if retVal != 0:
+                return retVal
+
+        self.logger.info("Importing package '%s'" % packageName)
+        # Does not return anything, will raise exception on error
+        self.addPackage(packageName)
+
+        self.logger.info("Preparing package '%s' in chroot jail" % packageName)
+        retVal = self.buildPrep(packageName)
+        if retVal != 0:
+            return retVal
+
+        self.logger.info("Building RPMs for '%s' in chroot jail" % packageName)
+        retVal = self.packageRpm(packageName)
+        return retVal
+
+    def importPrepBuildPackages(self, packageNames=None):
+        """
+        Call `importPrepBuildPackage` for all packages of `packageNames`.
+        If `packageNames` is None or an empty list, call `importPrepBuildPackage`
+        for all packages of the project.
+
+        Returns the list of packages which failed, as tuples of
+        (packageName, exception) or (packageName, errorCode) depending
+        on the type of failure.
+
+        This function was developed for testing purposes.
+        """
+        failedPackages = list()
+        if packageNames is None or len(packageNames) < 1:
+            packageNames = self.getPackageList(False)
+        for packageName in packageNames:
+            try:
+                retVal = self.importPrepBuildPackage(packageName)
+                if retVal != 0:
+                    failedPackages.append((packageName, retVal))
+            except BaseException as be:
+                failedPackages.append((packageName, be))
+        return failedPackages
+
