@@ -520,7 +520,7 @@ class ObsLightSpec:
         
         '''
         SETUP = False
-
+        print "path", path
         if path == None:
             return None
         toWrite = "#File Write by OBSLight don't modify it\n"
@@ -530,19 +530,18 @@ class ObsLightSpec:
                    (line.strip("Release:").strip(" ").rstrip("\n") == ""):
                     toWrite += "Release:1\n"
                 elif (section == "introduction_section"):
-                    if not line.startswith("Patch"):
-                        toWrite += line
+#                    if not line.startswith("Patch"):
+#                        toWrite += line
+                    #Patch can be used in %install (ex:rpmlint-mini-x86 MeeGo 1.2)
+                    toWrite += line
                 elif (section == "%prep"):
                     if (line.startswith('%prep')) :
                         toWrite += line
                     elif (line.startswith('%setup') and (SETUP == False)):
                         # TODO: remove test "in", replace ,find ,... by re used.
                         line = re.sub("[\s]-c", '', line)
-                        while " -a " in line:
-                            spLine = line.split()
-                            list1 = spLine[:spLine.index("-a")]
-                            list2 = spLine[spLine.index("-a") + 2:]
-                            line = " ".join(list1 + list2)
+                        line = re.sub("[\s]-a[\s]?[\d]+", '', line)
+
                         toWrite += line + "\n"
                         toWrite += "if [ -e .emptyDirectory  ]; "
                         toWrite += "then for i in `cat .emptyDirectory` ; "
@@ -589,9 +588,10 @@ class ObsLightSpec:
         return PrepAndBuild
 
 if __name__ == '__main__':
-    absSpecFile_tmp = "/home/meego/OBSLight/ObsProjects/Tizen_Base_Build_Failed/Tizen:FromObsTizen:1.0:Base/perl-WWW-Curl/perl-WWW-Curl.tmp.spec"
-    absSpecPath = "/home/meego/OBSLight/ObsProjects/Tizen_Base_Build_Failed/Tizen:FromObsTizen:1.0:Base/perl-WWW-Curl"
-    absSpecFile = "perl-WWW-Curl.spec"
+    absSpecPath = "/home/meego/OBSLight/ObsProjects/Meego_oss_Build_Failed/meegotv:oss/rpmlint-mini-x86"
+    absSpecFile = "rpmlint-mini-x86.spec"
+    absSpecTmpFile = "rpmlint-mini-x86.tmp.spec"
+    absSpecFile_tmp = absSpecPath + "/" + absSpecTmpFile
 
     cli = ObsLightSpec(absSpecPath, absSpecFile)
     #cli.save(absSpecFile_tmp)

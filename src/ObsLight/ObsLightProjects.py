@@ -29,13 +29,14 @@ import collections
 
 class ObsLightProjects(object):
 
-    def __init__(self, obsServers, workingDirectory):
+    def __init__(self, obsServers, obsLightRepositories, workingDirectory):
         self.__saveconfigProject = None
 
         self.__dicOBSLightProjects = {}
         self.__dicOBSLightProjects_unload = {}
 
         self.__obsServers = obsServers
+        self.__obsLightRepositories = obsLightRepositories
         self.__currentProjects = None
         self.__workingDirectory = os.path.join(workingDirectory, "ObsProjects")
         self.__pathFile = os.path.join(workingDirectory, "ObsLightProjectsConfig")
@@ -158,6 +159,7 @@ class ObsLightProjects(object):
     def __addProjectFromSave(self, name=None, fromSave=None, importFile=None):
         if not (name in self.__dicOBSLightProjects.keys()):
             project = ObsLightProject(obsServers=self.__obsServers,
+                                      obsLightRepositories=self.__obsLightRepositories,
                                     workingDirectory=self.getObsLightWorkingDirectory(),
                                     fromSave=fromSave,
                                     importFile=importFile)
@@ -186,6 +188,7 @@ class ObsLightProjects(object):
             raise ObsLightErr.ObsLightProjectsError(message)
 
         project = ObsLightProject(obsServers=self.__obsServers,
+                                  obsLightRepositories=self.__obsLightRepositories,
                                   workingDirectory=self.getObsLightWorkingDirectory(),
                                   projectLocalName=projectLocalName,
                                   projectObsName=projectObsName,
