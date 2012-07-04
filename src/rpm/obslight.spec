@@ -108,22 +108,22 @@ CFLAGS="$RPM_OPT_FLAGS" %{__python} setup.py build
 # >> build post
 # << build post
 %install
-rm -rf $RPM_BUILD_ROOT
+rm -rf %{buildroot}
 # >> install pre
 echo "%{version}-%{release}" > VERSION
 # << install pre
 %if 0%{?suse_version}
-%{__python} setup.py install --root=$RPM_BUILD_ROOT --prefix=%{_prefix}
+%{__python} setup.py install --root=%{buildroot} --prefix=%{_prefix}
 %else
-%{__python} setup.py install --root=$RPM_BUILD_ROOT -O1
+%{__python} setup.py install --root=%{buildroot} -O1
 %endif
 
 # >> install post
-%fdupes -s $RPM_BUILD_ROOT/%{python_sitelib}
+%fdupes -s %{buildroot}/%{python_sitelib}
 ln -s obslight-wrapper.py %{buildroot}/%{_bindir}/obslight
 ln -s obslightgui-wrapper.py %{buildroot}/%{_bindir}/obslightgui
 
-install -d $RPM_BUILD_ROOT/etc/init.d
+install -d %{buildroot}/etc/init.d
 
 # << install post
 desktop-file-install --delete-original       \
@@ -134,6 +134,8 @@ mkdir -p %{buildroot}/srv/%IMGSRVPATH/config
 mkdir -p %{buildroot}/srv/%REPOSRVPATH/config
 mkdir -p %{buildroot}/srv/%IMGSRVPATH/www
 mkdir -p %{buildroot}/srv/%REPOSRVPATH/www
+
+%suse_update_desktop_file -i obslightgui Development Tools Building
 
 %preun
 # >> preun
@@ -172,8 +174,8 @@ else
 fi
 
 echo "Trying to add OBS Light Image Server..."
-[ -d $RPM_BUILD_ROOT/srv/%IMGSRVPATH/www ] || install -d -o nobody -g users $RPM_BUILD_ROOT/srv/%IMGSRVPATH/www
-[ -d $RPM_BUILD_ROOT/srv/%REPOSRVPATH/www ] || install -d -o nobody -g users $RPM_BUILD_ROOT/srv/%REPOSRVPATH/www
+[ -d %{buildroot}/srv/%IMGSRVPATH/www ] || install -d -o nobody -g users %{buildroot}/srv/%IMGSRVPATH/www
+[ -d %{buildroot}/srv/%REPOSRVPATH/www ] || install -d -o nobody -g users %{buildroot}/srv/%REPOSRVPATH/www
 
 echo "/srv/$REPOSRVPATH/www  *(rw,fsid=0,no_root_squash,insecure,no_subtree_check)" >> /etc/exports
 
@@ -187,6 +189,20 @@ ln -sf %{buildroot}/srv/%IMGSRVPATH/config/obslight-image.apache2conf %{_sysconf
 ln -sf %{buildroot}/srv/%REPOSRVPATH/config/obslight-repos.apache2conf %{_sysconfdir}/apache2/vhosts.d/obslight-repos.conf 
 fi
 # << post
+
+chown nobody:users /srv/%IMGSRVPATH
+chown nobody:users /srv/%REPOSRVPATH
+chown nobody:users /srv/%IMGSRVPATH/config
+chown nobody:users /srv/%REPOSRVPATH/config
+chown nobody:users /srv/%IMGSRVPATH/www
+chown nobody:users /srv/%REPOSRVPATH/www
+
+chmod g+w /srv/%IMGSRVPATH
+chmod g+w /srv/%REPOSRVPATH
+chmod g+w /srv/%IMGSRVPATH/config
+chmod g+w /srv/%REPOSRVPATH/config
+chmod g+w /srv/%IMGSRVPATH/www
+chmod g+w /srv/%REPOSRVPATH/www
 
 %files
 %defattr(-,root,root,-)
@@ -211,11 +227,6 @@ fi
 %dir /srv/%IMGSRVPATH/www
 %dir /srv/%REPOSRVPATH/www
 
-%attr(777, nobody, users) /srv/%IMGSRVPATH
-%attr(777, nobody, users) /srv/%REPOSRVPATH
-%attr(777, nobody, users) /srv/%IMGSRVPATH/config
-%attr(777, nobody, users) /srv/%REPOSRVPATH/config
-%attr(777, nobody, users) /srv/%IMGSRVPATH/www
 %attr(777, nobody, users) /srv/%REPOSRVPATH/www
 
 /srv/%IMGSRVPATH/config/obslight-image.apache2conf
