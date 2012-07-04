@@ -203,15 +203,23 @@ fi
 %config %attr(440, root, root) %{_sysconfdir}/sudoers.obslight
 %config %{_sysconfdir}/bash_completion.d/obslight.sh
 %config %{_sysconfdir}/xinetd.d/tftp
-%config %attr(777, nobody, users) /srv/%IMGSRVPATH
-%config %attr(777, nobody, users) /srv/%REPOSRVPATH
-%config %attr(777, nobody, users) /srv/%IMGSRVPATH/config
-%config %attr(777, nobody, users) /srv/%REPOSRVPATH/config
-%config %attr(777, nobody, users) /srv/%IMGSRVPATH/www
-%config %attr(777, nobody, users) /srv/%REPOSRVPATH/www
+
+%dir /srv/%IMGSRVPATH
+%dir /srv/%REPOSRVPATH
+%dir /srv/%IMGSRVPATH/config
+%dir /srv/%REPOSRVPATH/config
+%dir /srv/%IMGSRVPATH/www
+%dir /srv/%REPOSRVPATH/www
+
+%attr(777, nobody, users) /srv/%IMGSRVPATH
+%attr(777, nobody, users) /srv/%REPOSRVPATH
+%attr(777, nobody, users) /srv/%IMGSRVPATH/config
+%attr(777, nobody, users) /srv/%REPOSRVPATH/config
+%attr(777, nobody, users) /srv/%IMGSRVPATH/www
+%attr(777, nobody, users) /srv/%REPOSRVPATH/www
+
 /srv/%IMGSRVPATH/config/obslight-image.apache2conf
 /srv/%REPOSRVPATH/config/obslight-repos.apache2conf
-
 # << files
 
 %files gui
