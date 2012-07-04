@@ -174,8 +174,8 @@ else
 fi
 
 echo "Trying to add OBS Light Image Server..."
-[ -d %{buildroot}/srv/%IMGSRVPATH/www ] || install -d -o nobody -g users %{buildroot}/srv/%IMGSRVPATH/www
-[ -d %{buildroot}/srv/%REPOSRVPATH/www ] || install -d -o nobody -g users %{buildroot}/srv/%REPOSRVPATH/www
+[ -d /srv/%IMGSRVPATH/www ] || install -d -o nobody -g users /srv/%IMGSRVPATH/www
+[ -d /srv/%REPOSRVPATH/www ] || install -d -o nobody -g users /srv/%REPOSRVPATH/www
 
 echo "/srv/$REPOSRVPATH/www  *(rw,fsid=0,no_root_squash,insecure,no_subtree_check)" >> /etc/exports
 
@@ -185,8 +185,8 @@ echo "/srv/$REPOSRVPATH/www  *(rw,fsid=0,no_root_squash,insecure,no_subtree_chec
 
 if [ -d %{_sysconfdir}/apache2/vhosts.d ]
 then
-ln -sf %{buildroot}/srv/%IMGSRVPATH/config/obslight-image.apache2conf %{_sysconfdir}/apache2/vhosts.d/obslight-image.conf
-ln -sf %{buildroot}/srv/%REPOSRVPATH/config/obslight-repos.apache2conf %{_sysconfdir}/apache2/vhosts.d/obslight-repos.conf 
+ln -sf /srv/%IMGSRVPATH/config/obslight-image.apache2conf %{_sysconfdir}/apache2/vhosts.d/obslight-image.conf
+ln -sf /srv/%REPOSRVPATH/config/obslight-repos.apache2conf %{_sysconfdir}/apache2/vhosts.d/obslight-repos.conf 
 fi
 # << post
 
@@ -226,8 +226,6 @@ chmod g+w /srv/%REPOSRVPATH/www
 %dir /srv/%REPOSRVPATH/config
 %dir /srv/%IMGSRVPATH/www
 %dir /srv/%REPOSRVPATH/www
-
-%attr(777, nobody, users) /srv/%REPOSRVPATH/www
 
 /srv/%IMGSRVPATH/config/obslight-image.apache2conf
 /srv/%REPOSRVPATH/config/obslight-repos.apache2conf
