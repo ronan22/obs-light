@@ -563,6 +563,7 @@ class PackageManager(QObject, ObsLightGuiObject):
                                      u"Packaging %(arg)s",
                                      self.__handleRpmOperationResult,
                                      projectName)
+        # TODO: Move createRepo at the end of the buid.
         self.manager.createRepo(projectLocalName=projectName)
 
     @popupOnException

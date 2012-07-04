@@ -91,24 +91,26 @@ class ObsLightRepositories(object):
 
 
     def getRepository(self, APIName, projectObsName):
-        APIName = str(urlparse.urlparse(APIName)[1])
+        if APIName.startswith("http"):
+            APIName = str(urlparse.urlparse(APIName)[1])
         pathDir = os.path.join(self.__repositoriesPath, APIName)
 
         if APIName in self.getRepositoriesList():
             if projectObsName in self.__dicOBSLightRepositories[APIName].keys():
                 return self.__dicOBSLightRepositories[APIName][projectObsName]
 
-        self.createRepo(APIName, projectObsName)
-
+        self.createRepository(APIName, projectObsName)
         return self.__dicOBSLightRepositories[APIName][projectObsName]
 
     def createRepository(self, APIName, projectObsName):
-        APIName = str(urlparse.urlparse(APIName)[1])
+        if APIName.startswith("http"):
+            APIName = str(urlparse.urlparse(APIName)[1])
         pathDir = os.path.join(self.__repositoriesPath, APIName)
+        if not APIName in self.getRepositoriesList():
+            self.__dicOBSLightRepositories[APIName] = {}
 
-        if APIName in self.getRepositoriesList():
-            if projectObsName in self.__dicOBSLightRepositories[APIName].keys():
-                return 0
+        if projectObsName in self.__dicOBSLightRepositories[APIName].keys():
+            return 0
 
         self.__dicOBSLightRepositories[APIName] = {}
 
@@ -129,6 +131,8 @@ class ObsLightRepositories(object):
         return 0
 
     def createRepo(self, APIName, projectObsName):
+        if APIName.startswith("http"):
+            APIName = str(urlparse.urlparse(APIName)[1])
         if APIName in self.getRepositoriesList():
             if projectObsName in self.__dicOBSLightRepositories[APIName].keys():
                 return self.__dicOBSLightRepositories[APIName][projectObsName].createRepo()
