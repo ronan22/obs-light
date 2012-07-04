@@ -47,7 +47,7 @@ from osc.fetch import Fetcher
 from osc.build import Buildinfo
 #from osc.build import  check_trusted_projects
 
-
+from ObsLightObject import ObsLightObject
 import ObsLightSubprocess
 import ObsLightPrintManager
 EMPTYPROJECTPATH = os.path.join(os.path.dirname(__file__), "emptySpec")
@@ -74,7 +74,7 @@ import threading
 
 import tempfile
 
-class ObsLightOsc(object):
+class ObsLightOsc(ObsLightObject):
     '''
     ObsLightOsc interact with osc, when possible, do it directly by python API
     '''
@@ -89,6 +89,7 @@ class ObsLightOsc(object):
         '''
         init 
         '''
+        ObsLightObject.__init__(self)
         self.__confFile = os.path.join(os.environ['HOME'], ".oscrc")
         self.__mySubprocessCrt = ObsLightSubprocess.SubprocessCrt()
 
@@ -231,7 +232,7 @@ class ObsLightOsc(object):
     def trustRepos(self,
                    api=None,
                    listDepProject=None):
-        ObsLightPrintManager.getLogger().debug("api" + api)
+        self.logger.debug("api" + api)
         self.get_config()
         aOscConfigParser = conf.get_configParser(self.__confFile, force_read=True)
 
@@ -241,13 +242,13 @@ class ObsLightOsc(object):
             options = ""
 
         result = options
-        ObsLightPrintManager.getLogger().debug("To Add ?" + ("").join(listDepProject.keys()))
-        ObsLightPrintManager.getLogger().debug("Current:" + ("").join(result))
+        self.logger.debug("To Add ?" + ("").join(listDepProject.keys()))
+        self.logger.debug("Current:" + ("").join(result))
         for depProject in listDepProject.keys():
             if not depProject in result.split(" "):
                 result += " " + depProject
 
-        ObsLightPrintManager.getLogger().debug("Result" + ("").join(result))
+        self.logger.debug("Result" + ("").join(result))
         aOscConfigParser.set(api, 'trusted_prj', result)
 
         aFile = open(self.__confFile, 'w')
@@ -267,7 +268,6 @@ class ObsLightOsc(object):
         Get the list of BuildRequires of `package`, from the OBS server at `api`.
         The list contains packages names with version and release appended.
         """
-        logger = ObsLightPrintManager.getLogger()
         self.get_config()
         #
         buildinfoUrl = ("%(api)s/build/%(project)s/%(target)s/%(arch)s/%(package)s/_buildinfo" %
@@ -277,7 +277,7 @@ class ObsLightOsc(object):
                          "target": projectTarget,
                          "arch": arch})
 
-        logger.debug("Getting buildrequires of %s from %s" % (package, buildinfoUrl))
+        self.logger.debug("Getting buildrequires of %s from %s" % (package, buildinfoUrl))
         self.cleanBuffer(buildinfoUrl)
 
         try:
@@ -499,8 +499,7 @@ class ObsLightOsc(object):
                 result = self.__mySubprocessCrt.execSubprocess(command=command, waitMess=waitMess)
                 break
             except BaseException:
-                logger = ObsLightPrintManager.getLogger()
-                logger.error("__subprocess ERROR.")
+                self.logger.error("__subprocess ERROR.")
         if result is None:
             return -1
         return result
@@ -1213,8 +1212,7 @@ class ObsLightOsc(object):
                                       urllib2.ProxyHandler(urllib.getproxies_environment()))
         urllib2.install_opener(opener)
 
-        logger = ObsLightPrintManager.getLogger()
-        logger.info("Trying to log to '%s' with user '%s'", api, user)
+        self.logger.info("Trying to log to '%s' with user '%s'", api, user)
         try:
             res = urllib2.urlopen(api + url).read()
             if isinstance(res, basestring):
@@ -1223,11 +1221,11 @@ class ObsLightOsc(object):
                 return -1
         except urllib2.HTTPError:
             msg = "Could not open %s: wrong user or password"
-            logger.warning(msg, api)
+            self.logger.warning(msg, api)
             return 1
         except urllib2.URLError:
             msg = "Could not open %s: wrong URL"
-            logger.warning(msg, api)
+            self.logger.warning(msg, api)
             return 2
 
 
@@ -1275,9 +1273,8 @@ class ObsLightOsc(object):
 
             if (HTTPBUFFER == 1) and (headers == {}) and (data is None) and (aFile is None):
                 self.__httpBuffer[url] = fileXML
-            logger = ObsLightPrintManager.getLogger()
             end = time.time()
-            logger.debug("The request took %f seconds", end - start)
+            self.logger.debug("The request took %f seconds", end - start)
             return fileXML
 
         except urllib2.URLError, e:
@@ -1401,8 +1398,7 @@ class ObsLightOsc(object):
         authhandler_class = urllib2.HTTPBasicAuthHandler
         if sys.version_info >= (2, 6, 6) and sys.version_info < (2, 7, 1) \
             and not 'reset_retry_count' in dir(urllib2.HTTPBasicAuthHandler):
-            logger = ObsLightPrintManager.getLogger()
-            logger.error('warning: your urllib2 version seems to be broken. ' \
+            self.logger.error('warning: your urllib2 version seems to be broken. ' \
                 'Using a workaround for http://bugs.python.org/issue9639')
             class OscHTTPBasicAuthHandler(urllib2.HTTPBasicAuthHandler):
                 def http_error_401(self, *args):

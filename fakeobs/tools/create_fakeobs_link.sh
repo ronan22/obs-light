@@ -10,8 +10,8 @@ else
   WEBUICONFIG="/srv/www/obs/webui/config/environments/production.rb"
   if [ ! -f "$WEBUICONFIG" ]
   then
-    echo_red "OBS webui configuration file not found! Are you on an OBS appliance?"
-    echo_red "Config should be at $WEBUICONFIG"
+    echo_yellow "OBS webui configuration file not found! Are you on an OBS appliance?"
+    echo_yellow "Config should be at $WEBUICONFIG"
     exit 1
   fi
   HOST=`sed -rn s,"^FRONTEND_HOST\s*=\s*['\"]{1}([a-zA-Z0-9\-]*)['\"]{1}","\1",p $WEBUICONFIG`
@@ -30,7 +30,7 @@ echo_green "Listing OBS projects to see if we can connect to..."
 osc -c $OSCCONFIG ls
 if [ "$?" -ne "0" ]
 then
-  echo_red "Cannot contact OBS API running on localhost"
+  echo_red "Cannot contact OBS API"
   exit 1
 fi
 

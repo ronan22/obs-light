@@ -17,6 +17,7 @@ Source0:    %{name}-%{version}.tar.gz
 Source100:  obslight-fakeobs.yaml
 Requires:   apache2
 Requires:   git
+Requires:   logrotate
 Requires:   osc
 Requires:   python
 Requires:   python-async
@@ -59,6 +60,7 @@ mkdir -p %{buildroot}/srv/fakeobs/obs-repos
 mkdir -p %{buildroot}/srv/fakeobs/packages-git
 mkdir -p %{buildroot}/srv/fakeobs/releases
 mkdir -p %{buildroot}%{_sysconfdir}/init.d
+mkdir -p %{buildroot}%{_sysconfdir}/logrotate.d
 mkdir -p %{buildroot}%{_sbindir}
 mkdir -p %{buildroot}%{_bindir}
 mkdir -p %{buildroot}%{_docdir}/%{name}
@@ -66,6 +68,7 @@ cp -rf tools %{buildroot}/srv/fakeobs/tools
 cp -rf config %{buildroot}/srv/fakeobs/config
 cp -f obslight-fakeobs %{buildroot}%{_bindir}
 cp -f init_fakeobs %{buildroot}%{_sysconfdir}/init.d/fakeobs
+cp -f logrotate_fakeobs %{buildroot}%{_sysconfdir}/logrotate.d/fakeobs
 cp -f README %{buildroot}%{_docdir}/%{name}
 echo "%{name}-%{version}-%{release}" > %{buildroot}%{_docdir}/%{name}/VERSION
 
@@ -132,6 +135,7 @@ fi
 /srv/fakeobs/tools/*
 /srv/fakeobs/config/*
 %config %{_sysconfdir}/init.d/fakeobs
+%config %{_sysconfdir}/logrotate.d/fakeobs
 %{_sbindir}/fakeobs
 %{_sbindir}/rcfakeobs
 %{_bindir}/obslight-fakeobs

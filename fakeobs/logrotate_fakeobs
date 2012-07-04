@@ -1,0 +1,19 @@
+/var/log/fakeobs-daemon.log {
+  compress
+  copytruncate
+  maxage 365
+  rotate 4
+  size 4M
+  notifempty
+  missingok
+}
+
+/var/log/fakeobs-cli.log {
+  compress
+  copytruncate
+  maxage 365
+  rotate 4
+  size 8M
+  notifempty
+  missingok
+}

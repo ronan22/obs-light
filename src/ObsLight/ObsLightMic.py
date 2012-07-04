@@ -1,5 +1,5 @@
 #
-# Copyright 2011, Intel Inc.
+# Copyright 2011-2012, Intel Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -158,6 +158,9 @@ class ObsLightMic(object):
             for b in chrootmounts:
                 self.__obsLightPrint("bind_mount: %s -> %s" % (b.src, b.dest), isDebug=True)
                 b.mount()
+                # b.mount() should raise an exception if it fails
+                # so b.ismounted() is supposed to be always True at this point
+                assert b.ismounted()
 
         def setup_resolv(chrootdir):
             command = "sudo cp /etc/resolv.conf " + chrootdir + "/etc/resolv.conf"
