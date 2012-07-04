@@ -135,7 +135,7 @@ mkdir -p %{buildroot}/srv/%REPOSRVPATH/config
 mkdir -p %{buildroot}/srv/%IMGSRVPATH/www
 mkdir -p %{buildroot}/srv/%REPOSRVPATH/www
 
-%suse_update_desktop_file -i obslightgui Development Tools Building
+
 
 %preun
 # >> preun
