@@ -41,6 +41,7 @@ class ObsLightPackage(object):
 
     def __init__(self,
                  packagePath,
+                 chrootUserHome,
                  name=None,
                  specFile=None,
                  yamlFile=None,
@@ -146,8 +147,8 @@ class ObsLightPackage(object):
         self.__rpmBuildDirectory = "obslightbuild"
         self.__rpmBuildTmpDirectory = "obslightbuild_TMP"
 
-        self.__chrootRpmBuildDirectory = "/root/" + self.__name + "/" + self.__rpmBuildDirectory
-        self.__chrootRpmBuildTmpDirectory = "/root/" + self.__name + "/" + self.__rpmBuildTmpDirectory
+        self.__chrootRpmBuildDirectory = chrootUserHome + "/" + self.__name + "/" + self.__rpmBuildDirectory
+        self.__chrootRpmBuildTmpDirectory = chrootUserHome + "/" + self.__name + "/" + self.__rpmBuildTmpDirectory
 
         self.__initConfigureFile()
 

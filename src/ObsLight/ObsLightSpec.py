@@ -24,6 +24,8 @@ import os
 import re
 import ObsLightPrintManager
 
+from ObsLightTools import fileIsArchive
+
 import ObsLightErr
 
 class ObsLightSpec:
@@ -516,20 +518,22 @@ class ObsLightSpec:
         f.close()
 
     def saveTmpSpec(self, path, excludePatch, archive):
-        '''
-        
-        '''
         SETUP = False
-        print "path", path
         if path == None:
             return None
         toWrite = "#File Write by OBSLight don't modify it\n"
+        isSourceAnArchive = False
         for section in self.__orderList:
             for line in self.__spectDico[section]:
                 if line.startswith("Release:") and \
                    (line.strip("Release:").strip(" ").rstrip("\n") == ""):
                     toWrite += "Release:1\n"
                 elif (section == "introduction_section"):
+                    patternSourceArch = r'[Ss]ource[0]?\s*:[\s]*(.*)'
+
+                    for sourceVal in re.findall(patternSourceArch, line):
+                        if fileIsArchive(sourceVal):
+                            isSourceAnArchive = True
 #                    if not line.startswith("Patch"):
 #                        toWrite += line
                     #Patch can be used in %install (ex:rpmlint-mini-x86 MeeGo 1.2)
@@ -541,7 +545,8 @@ class ObsLightSpec:
                         # TODO: remove test "in", replace ,find ,... by re used.
                         line = re.sub("[\s]-c", '', line)
                         line = re.sub("[\s]-a[\s]?[\d]+", '', line)
-
+                        if not isSourceAnArchive:
+                            line = re.sub("[\s]-T", '', line)
                         toWrite += line + "\n"
                         toWrite += "if [ -e .emptyDirectory  ]; "
                         toWrite += "then for i in `cat .emptyDirectory` ; "

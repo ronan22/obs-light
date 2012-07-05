@@ -30,7 +30,7 @@ class ObsLightPackages(object):
     classdocs
     '''
 
-    def __init__(self, projectOscPath=None, fromSave=None):
+    def __init__(self, chrootUserHome=None, projectOscPath=None, fromSave=None):
         '''
         Constructor
         '''
@@ -41,10 +41,11 @@ class ObsLightPackages(object):
 
         if fromSave == None:
             self.__currentPackage = ""
-        elif projectOscPath != None:
+        elif (projectOscPath != None):
             for name in fromSave["savePackages"].keys():
                 package = ObsLightPackage(packagePath=os.path.join(projectOscPath, name),
-                                                                fromSave=fromSave["savePackages"][name])
+                                          chrootUserHome=chrootUserHome,
+                                          fromSave=fromSave["savePackages"][name])
                 self.__dicOBSLightPackages[name] = package
             if "currentPackage" in fromSave.keys():
                 self.__currentPackage = fromSave["currentPackage"]
@@ -71,6 +72,7 @@ class ObsLightPackages(object):
                    name,
                    packagePath,
                    description,
+                   chrootUserHome,
                    packageTitle,
                    specFile=None,
                    yamlFile=None,
@@ -87,6 +89,7 @@ class ObsLightPackages(object):
         if not name in  self.__dicOBSLightPackages.keys():
             self.__dicOBSLightPackages[name] = ObsLightPackage(name=name,
                                                                packagePath=packagePath,
+                                                               chrootUserHome=chrootUserHome,
                                                                specFile=specFile,
                                                                description=description,
                                                                packageTitle=packageTitle,

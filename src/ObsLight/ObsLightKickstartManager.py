@@ -30,6 +30,7 @@ from mic.kickstart.custom_commands.moblinrepo import Moblin_RepoData
 
 import ObsLightErr
 from ObsLightUtils import isNonEmptyString
+from ObsLightTools import fileIsArchive
 
 class ObsLightKickstartManager(object):
     """
@@ -644,11 +645,7 @@ class ObsLightKickstartManager(object):
         fullSourcePath = os.path.join(self.overlayFilesDirectory, source)
 
         # Test if source is an archive or not.
-        sourceIsArchive = False
-        for ext in self.ArchiveFileExtensions:
-            if fullSourcePath.endswith(ext):
-                sourceIsArchive = True
-                break
+        sourceIsArchive = fileIsArchive(fullSourcePath, tarArchive=True)
 
         # Split destination file and destination directory.
         if destination.endswith("/") or sourceIsArchive:

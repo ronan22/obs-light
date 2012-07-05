@@ -346,6 +346,23 @@ def mapProcedureWithThreads(parameterList, procedure, progress=None):
                 progress()
     return errList
 
+
+def fileIsArchive(fileName, tarArchive=False):
+    archiveFileExtensions = [".tar",
+                             ".tar.gz",
+                             ".tar.bz2",
+                             ".tgz",
+                             ".tbz",
+                             ".tz2",
+                             ".tar.xz"]
+    if not tarArchive:
+        archiveFileExtensions += [".xz", ".zip", ".gz", ".bz2"]
+
+    for ext in archiveFileExtensions:
+        if fileName.endswith(ext):
+            return True
+    return False
+
 def isUserInGroup(group):
     """Check if user running this program is member of `group`"""
     userGroups = [grp.getgrgid(gid).gr_name for gid in os.getgroups()]

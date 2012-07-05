@@ -63,13 +63,14 @@ class ObsLightProject(ObsLightObject):
 
         if fromSave is None:
             self.__projectLocalName = projectLocalName
+            self.__chroot = ObsLightChRoot(projectDirectory=self.getDirectory())
+
             self.__projectObsName = projectObsName
             self.__obsServer = obsServer
             self.__projectTarget = projectTarget
             self.__projectArchitecture = projectArchitecture
             self.__description = description
             self.__packages = ObsLightPackages()
-            self.__chroot = ObsLightChRoot(projectDirectory=self.getDirectory())
 
             #perhaps a trusted_prj must be had
             obsServer = self.__obsServers.getObsServer(name=self.__obsServer)
@@ -77,6 +78,7 @@ class ObsLightProject(ObsLightObject):
         else:
             if "projectLocalName" in fromSave.keys():
                 self.__projectLocalName = fromSave["projectLocalName"]
+            self.__chroot = ObsLightChRoot(projectDirectory=self.getDirectory())
             if "projectObsName" in fromSave.keys():
                 self.__projectObsName = fromSave["projectObsName"]
             if "obsServer" in fromSave.keys():
@@ -97,11 +99,6 @@ class ObsLightProject(ObsLightObject):
                 if self.__description is None:
                     self.__description = ""
 
-            if "aChroot" in fromSave.keys():
-                self.__chroot = ObsLightChRoot(projectDirectory=self.getDirectory(),
-                                               fromSave=fromSave["aChroot"])
-            else:
-                raise ObsLightErr.ObsLightProjectsError("aChroot is not ")
             #perhaps a trusted_prj must be had
             if self.__obsServer in self.__obsServers.getObsServerList():
                 obsServer = self.__obsServers.getObsServer(name=self.__obsServer)
@@ -205,6 +202,7 @@ class ObsLightProject(ObsLightObject):
             fromSave["savePackages"][packageName] = packageFromSave
 
         return ObsLightPackages(projectOscPath=self.__getProjectOscPath(),
+                                chrootUserHome=self.__chroot.getChrootUserHome(),
                                 fromSave=fromSave)
 
     def getProjectParameter(self, parameter=None):
@@ -296,7 +294,7 @@ class ObsLightProject(ObsLightObject):
 
     #---------------------------------------------------------------------------
 
-    def __subprocess(self, command=None, waitMess=False, stdout=False):
+    def _subprocess(self, command=None, waitMess=False, stdout=False):
         return self.__mySubprocessCrt.execSubprocess(command=command,
                                                      waitMess=waitMess,
                                                      stdout=stdout)
@@ -346,7 +344,6 @@ class ObsLightProject(ObsLightObject):
         aDic["title"] = self.__projectTitle
         aDic["description"] = self.__description
         aDic["packages"] = self.__packages.getDic()
-        aDic["aChroot"] = self.__chroot.getDic()
         aDic["chrootIsInit"] = self.__chrootIsInit
         return aDic
 
@@ -465,9 +462,11 @@ class ObsLightProject(ObsLightObject):
         packageTitle = obsServer.getPackageParameter(self.__projectObsName, name, "title")
         description = obsServer.getPackageParameter(self.__projectObsName, name, "description")
 
+
         self.__packages.addPackage(name=name,
                                    packagePath=packagePath,
                                    description=description,
+                                   chrootUserHome=self.__chroot.getChrootUserHome(),
                                    packageTitle=packageTitle,
                                    specFile=specFile,
                                    yamlFile=yamlFile,
@@ -807,7 +806,7 @@ class ObsLightProject(ObsLightObject):
         command = '%s/getchangetarget --dist "%s" --configdir "%s" --archpath "%s"'
         command = command % (buildDir, configPath, configdir, archs)
 
-        target = self.__subprocess(command, stdout=True)
+        target = self._subprocess(command, stdout=True)
         self.logger.debug("Target found by getchangetarget: '%s'" % target)
 
         endline = "\n"
@@ -908,36 +907,36 @@ class ObsLightProject(ObsLightObject):
 
 #Manage the repository into the chroot jail
 #_____________________________________________________________________________
-    def deleteRepo(self, repoAlias):
-        return self.__chroot.deleteRepo(repoAlias)
-
-    def modifyRepo(self, repoAlias, newUrl, newAlias):
-        return self.__chroot.modifyRepo(repoAlias, newUrl, newAlias)
-
-    def addRepo(self, repos=None,
-                      alias=None,
-                      chroot=None):
-        if chroot is None:
-            __aChroot = self.__chroot
-        else:
-            __aChroot = chroot
-
-        if repos is None:
-            __aRepos = self.getReposProject()
-        else:
-            __aRepos = repos
-
-        if alias is None:
-            __anAlias = self.__projectObsName
-        else:
-            __anAlias = alias
-
-        if not __aChroot.isAlreadyAReposAlias(__anAlias):
-            return __aChroot.addRepo(repos=__aRepos  , alias=__anAlias)
-        else:
-            message = __anAlias + " is already installed in the project file system"
-            self.logger.info(message)
-            return 0
+#    def deleteRepo(self, repoAlias):
+#        return self.__chroot.deleteRepo(repoAlias)
+#
+#    def modifyRepo(self, repoAlias, newUrl, newAlias):
+#        return self.__chroot.modifyRepo(repoAlias, newUrl, newAlias)
+#
+#    def addRepo(self, repos=None,
+#                      alias=None,
+#                      chroot=None):
+#        if chroot is None:
+#            __aChroot = self.__chroot
+#        else:
+#            __aChroot = chroot
+#
+#        if repos is None:
+#            __aRepos = self.getReposProject()
+#        else:
+#            __aRepos = repos
+#
+#        if alias is None:
+#            __anAlias = self.__projectObsName
+#        else:
+#            __anAlias = alias
+#
+#        if not __aChroot.isAlreadyAReposAlias(__anAlias):
+#            return __aChroot.addRepo(repos=__aRepos  , alias=__anAlias)
+#        else:
+#            message = __anAlias + " is already installed in the project file system"
+#            self.logger.info(message)
+#            return 0
 
 #_____________________________________________________________________________
 

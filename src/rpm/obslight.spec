@@ -177,7 +177,7 @@ echo "Trying to add OBS Light Image Server..."
 [ -d /srv/%IMGSRVPATH/www ] || install -d -o nobody -g users /srv/%IMGSRVPATH/www
 [ -d /srv/%REPOSRVPATH/www ] || install -d -o nobody -g users /srv/%REPOSRVPATH/www
 
-echo "/srv/$REPOSRVPATH/www  *(rw,fsid=0,no_root_squash,insecure,no_subtree_check)" >> /etc/exports
+echo "/srv/%REPOSRVPATH/www  *(rw,fsid=0,no_root_squash,insecure,no_subtree_check)" >> /etc/exports
 
 /sbin/chkconfig --add xinetd
 /sbin/chkconfig --add rpcbind
