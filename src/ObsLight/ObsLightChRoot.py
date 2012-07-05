@@ -148,7 +148,7 @@ class ObsLightChRootCore(object):
     def removeChRoot(self):
         if self.obsLightMic.isInit():
             ObsLightMic.destroy(name=self.getDirectory())
-
+            self.__obsLightMic = None
         self.failIfUserNotInUserGroup()
 
         if os.path.isdir(self.getDirectory()):
@@ -897,8 +897,8 @@ exit $?
 
         if res == 0:
             self._ObsLightGitManager.ignoreGitWatch(package=package, path=packageDirectory)
-            package.setFirstCommit(tag=self._ObsLightGitManager.getCommitTag(packageDirectory,
-                                                                              package))
+            package.setFirstCommit(tag=self._ObsLightGitManager.initialTag)
+            self._ObsLightGitManager.resetToPrep(package=package, path=packageDirectory)
             package.setChRootStatus("Prepared")
         else:
             msg = "The first build of package '%s' failed." % packageName

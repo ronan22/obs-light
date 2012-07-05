@@ -36,6 +36,7 @@ class ObsLightGitManager(ObsLightObject):
         ObsLightObject.__init__(self)
         self.__chroot = projectChroot
         self.__mySubprocessCrt = SubprocessCrt()
+        self.initialTag = "initial-prep"
 
     def __subprocess(self, command=None, stdout=False, noOutPut=False):
 
@@ -136,11 +137,16 @@ class ObsLightGitManager(ObsLightObject):
         command.append(self.prepareGitCommand(path, "init ", pkgCurGitDir))
         command.append(self.prepareGitCommand(path, "add " + absPath + "/\*", pkgCurGitDir))
         command.append(self.prepareGitCommand(path, "commit -a -m %s" % comment, pkgCurGitDir))
+        command.append(self.prepareGitCommand(path, "tag %s" % self.initialTag , pkgCurGitDir))
 
         res = self.__listSubprocess(command=command)
         if res != 0:
             msg = "Creation of the git repository for %s failed. See the log for more information."
             raise ObsLightErr.ObsLightChRootError(msg % package.getName())
+
+    def resetToPrep(self, path, package):
+        pkgCurGitDir = package.getCurrentGitDirectory()
+        res = self.__listSubprocess([self.prepareGitCommand(path, "checkout  %s" % self.initialTag , pkgCurGitDir)])
 
     def ignoreGitWatch(self,
                        package,

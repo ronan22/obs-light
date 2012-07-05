@@ -51,7 +51,7 @@ class ObsLightMic(object):
     def destroy(self):
         if self.__isInit == True:
             self.cleanup_chrootenv(bindmounts=self.__bindmounts)
-
+        self.__isInit = False
 #        dev_null = os.open("/dev/null", os.O_WRONLY)
 #        proc_mounts = subprocess.Popen([ 'cat', "/proc/mounts" ], stdout=subprocess.PIPE, stderr=dev_null)
 #        outputs = proc_mounts.communicate()[0].strip().split("\n")
