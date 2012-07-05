@@ -18,23 +18,22 @@
 Created on 23 May 2012
 
 @author: Ronan Le Martret
+@author: Florent Vennetier
 '''
 
 import os
 import time
 import ObsLightErr
+from ObsLightObject import ObsLightObject
 from ObsLightSubprocess import SubprocessCrt
 
-class ObsLightGitManager(object):
+class ObsLightGitManager(ObsLightObject):
     '''
-    class Git management
+    Manage the internal Git repository used to generate patches on packages.
     '''
 
     def __init__(self, projectChroot):
-
-        '''
-        Constructor
-        '''
+        ObsLightObject.__init__(self)
         self.__chroot = projectChroot
         self.__mySubprocessCrt = SubprocessCrt()
 
@@ -119,23 +118,29 @@ class ObsLightGitManager(object):
                 res.append(root.replace(projectPath + "/", ""))
 
         # TODO: move this file to BUILD/
-        f = open(projectPath + "/.emptyDirectory", 'w')
-
-        for d in res:
-            f.write(d + "\n")
-        f.close()
+        with open(projectPath + "/.emptyDirectory", 'w') as f:
+            for d in res:
+                f.write(d + "\n")
 
         timeString = time.strftime("%Y-%m-%d_%Hh%Mm%Ss")
         comment = '\"auto commit first commit %s\"' % timeString
 
         pkgCurGitDir = package.getCurrentGitDirectory()
+        # Ensure we have access rights on the directory
+        res = self.__chroot.allowAccessToObslightGroup(os.path.dirname(pkgCurGitDir),
+                                                       absolutePath=False)
+        if res != 0:
+            msg = "Failed to give access rights on '%s'. Git repository creation may fail."
+            self.logger.warn(msg % os.path.dirname(pkgCurGitDir))
         command = []
         command.append(self.prepareGitCommand(path, "init ", pkgCurGitDir))
         command.append(self.prepareGitCommand(path, "add " + absPath + "/\*", pkgCurGitDir))
         command.append(self.prepareGitCommand(path, "commit -a -m %s" % comment, pkgCurGitDir))
 
-        # FIXME: check return value
         res = self.__listSubprocess(command=command)
+        if res != 0:
+            msg = "Creation of the git repository for %s failed. See the log for more information."
+            raise ObsLightErr.ObsLightChRootError(msg % package.getName())
 
     def ignoreGitWatch(self,
                        package,
@@ -253,8 +258,3 @@ class ObsLightGitManager(object):
         f.write(res)
         f.close()
         return 0
-
-
-
-
-
