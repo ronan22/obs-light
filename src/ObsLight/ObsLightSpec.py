@@ -25,17 +25,14 @@ import re
 import ObsLightPrintManager
 
 from ObsLightTools import fileIsArchive
+from ObsLightObject import ObsLightObject
 
 import ObsLightErr
 
-class ObsLightSpec:
-    '''
-    
-    '''
+class ObsLightSpec(ObsLightObject):
+
     def __init__(self, packagePath, aFile):
-        '''
-        
-        '''
+        ObsLightObject.__init__(self)
         self.__packagePath = packagePath
         self.__file = aFile
         self.__path = os.path.join(self.__packagePath, self.__file)
@@ -74,9 +71,6 @@ class ObsLightSpec:
             self.parseFile()
 
     def parseFile(self):
-        '''
-        
-        '''
         def testSection(line):
             for sect in self.__listSection:
                 if line.startswith(sect):
@@ -122,16 +116,10 @@ class ObsLightSpec:
             ObsLightPrintManager.obsLightPrint("ERROR")
 
     def __cleanline(self, line):
-        '''
-            
-        '''
         return line.replace("\n", "").replace(" ", "")
 
 
     def __testLine(self, line, valueToFind):
-        '''
-        
-        '''
         line = line.replace("\n", "")
         if line.startswith("%define"):
             line = line.replace("%define", "").strip()
@@ -180,9 +168,6 @@ class ObsLightSpec:
             return None
 
     def __searchValue(self, valueToFind):
-        '''
-        
-        '''
         for line in self.__spectDico[self.__introduction_section]:
             res = self.__testLine(line, valueToFind)
             if res != None:
@@ -191,10 +176,6 @@ class ObsLightSpec:
         return  None
 
     def __getValue(self, value):
-        '''
-        
-        '''
-
         if value == "%{}":
             return ""
         elif value.strip("%").strip("{").rstrip("}") == "version":
@@ -251,9 +232,6 @@ class ObsLightSpec:
                 return value
 
     def getMacroDirectoryPackageName(self):
-        '''
-        
-        '''
         if self.__prepFlag in self.__spectDico.keys():
             for line in self.__spectDico[self.__prepFlag]:
                 if line.startswith('%setup'):
@@ -281,9 +259,6 @@ class ObsLightSpec:
             return None
 
     def getResolveMacroName(self, name):
-        '''
-        
-        '''
         listToChange = []
         tmp = name
         while ("%" in tmp):
@@ -331,9 +306,6 @@ class ObsLightSpec:
 
 
     def getPrep(self):
-        '''
-        
-        '''
         if self.__prepFlag in self.__spectDico.keys():
             res = ""
             for line in self.__spectDico[self.__prepFlag]:
@@ -343,9 +315,6 @@ class ObsLightSpec:
             return None
 
     def addpatch(self, aFile):
-        '''
-        
-        '''
         #init the aId of the patch
         patchID = 0
         for line in self.__spectDico[self.__introduction_section]:
@@ -389,9 +358,6 @@ class ObsLightSpec:
         return 0
 
     def addFile(self, baseFile=None, aFile=None):
-        '''
-        
-        '''
         #init the aId of the Source
         SourceID = 1
         for line in self.__spectDico[self.__introduction_section]:
@@ -432,9 +398,6 @@ class ObsLightSpec:
         return None
 
     def delFile(self, aFile=None):
-        '''
-        
-        '''
         if self.__prepFlag in self.__spectDico.keys():
             for line in self.__spectDico[self.__prepFlag]:
                 if aFile in line:
@@ -544,8 +507,11 @@ class ObsLightSpec:
                     elif (line.startswith('%setup') and (SETUP == False)):
                         # TODO: remove test "in", replace ,find ,... by re used.
                         line = re.sub("[\s]-c", '', line)
-                        line = re.sub("[\s]-a[\s]?[\d]+", '', line)
-                        if not isSourceAnArchive:
+                        # If we match -a0, remove -T even if not isSourceAnArchive
+                        a0Matched = re.match(r".*[\s]-a[\s]*[0]+($|([^\d].*))", line)
+                        self.logger.debug('Matched "-a0" in %%setup: %s', a0Matched)
+                        line = re.sub("[\s]-a[\s]*[\d]+", '', line)
+                        if not isSourceAnArchive or a0Matched:
                             line = re.sub("[\s]-T", '', line)
                         toWrite += line + "\n"
                         toWrite += "if [ -e .emptyDirectory  ]; "
@@ -575,15 +541,9 @@ class ObsLightSpec:
         aFile.close()
 
     def getsection(self):
-        '''
-        
-        '''
         return self.__orderList
 
     def specFileHaveAnEmptyBuild(self):
-        '''
-        
-        '''
         PrepAndBuild = True
         if "%build" in self.__spectDico.keys():
             for line in self.__spectDico["%build"]:
@@ -601,13 +561,4 @@ if __name__ == '__main__':
     cli = ObsLightSpec(absSpecPath, absSpecFile)
     #cli.save(absSpecFile_tmp)
     cli.saveTmpSpec(absSpecFile_tmp, "", "testArchive.gz")
-
-
-
-
-
-
-
-
-
 
