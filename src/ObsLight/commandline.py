@@ -394,7 +394,7 @@ __command_refresh__ = ["refresh"]
 __command_create__ = ["create", "new"]
 __command_enter__ = ["enter", "chroot"]
 __command_executescript__ = ["executescript", "exec"]
-__command_repositories__ = ["repositories"]
+#__command_repositories__ = ["repositories"]
 __command_prepare__ = ["prepare"]
 __command_build__ = ["build"]
 __command_install__ = ["install"]
@@ -543,7 +543,7 @@ createCommandHelp(__projectfilesystem_command__,
 createCommandHelp(__rpmbuild_command__, "Manage the build of packages into the project filesystem")
 #createCommandHelp(__micproject__, "Manage image biulding") #Feature
 createCommandHelp(__man_command__, "print the man help document")
-createCommandHelp(__command_repositories__, ["the command for file system repositories"])
+#createCommandHelp(__command_repositories__, ["the command for file system repositories"])
 #createCommandHelp(__qemuproject__, "Manage qemu") #Feature
 
 
@@ -970,7 +970,7 @@ appendFileSystemSubCommand(__command_del__)
 appendFileSystemSubCommand(__command_query__)
 appendFileSystemSubCommand(__command_enter__)
 appendFileSystemSubCommand(__command_executescript__)
-appendFileSystemSubCommand(__command_repositories__)
+#appendFileSystemSubCommand(__command_repositories__)
 
 #Define the filesystem command help
 createFileSystemSubCommandHelp(__command_help__, __help_command_help__)
@@ -998,8 +998,8 @@ createFileSystemSubCommandHelp(__command_executescript__,
                                 "{project_alias <project_alias>}",
                                 ""])
 
-createFileSystemSubCommandHelp(__command_repositories__,
-                               ["the sub-command for file system repositories"])
+#createFileSystemSubCommandHelp(__command_repositories__,
+#                               ["the sub-command for file system repositories"])
 
 #Define the filesystem parameter help
 createFilesystemParameter(__command_create__,
@@ -1029,7 +1029,7 @@ createFilesystemParameter(__command_executescript__,
                            __parameter_project_alias__],
                           [__parameter_path__])
 
-createFilesystemParameter(__command_repositories__, [__command_help__])
+#createFilesystemParameter(__command_repositories__, [__command_help__])
 
 #Command Repositories
 appendRepositoriesSubCommand(__command_help__)
@@ -3440,233 +3440,233 @@ class ObsLightObsPackage(ObsLightBase):
 
         return 0
 
-class ObsLightObsRepository(ObsLightBase):
-    '''
-    manage OBSlight server
-    '''
-    def __init__(self):
-        '''
-        init class
-        '''
-        ObsLightBase.__init__(self)
+#class ObsLightObsRepository(ObsLightBase):
+#    '''
+#    manage OBSlight server
+#    '''
+#    def __init__(self):
+#        '''
+#        init class
+#        '''
+#        ObsLightBase.__init__(self)
+#
+#        self.currentCommand = __command_repositories__[0]
+#
+#        self.commandList = __repositories_subcommand_list__
+#        self.parameterCompletionDict = __repositories_parameter_completion_dict__
+#        self.commandHelpDict = __repositories_command_help_dict__
+#        self.parameterDict = __repositories_parameter_dict__
+#
+#    def repository_add(self, listArgv):
+#        Help = False
+#
+#        From = False
+#
+#        url = None
+#        alias = None
+#        fromProject = None
+#        project_alias = None
+#
+#        while self.testArgv(listArgv):
+#            currentCommand, listArgv = self.getParameter(listArgv)
+#            if (currentCommand in __command_help__) or (listArgv == None):
+#                Help = True
+#            elif currentCommand in __parameter_From__:
+#                From = True
+#                fromProject, listArgv = self.getParameter(listArgv)
+#                if (fromProject == None) and ObsLightBase.noaction:
+#                    return self.printProjectCompletionList()
+#                project_alias, listArgv = self.getParameter(listArgv)
+#                if (project_alias == None) and ObsLightBase.noaction:
+#                    return self.printProjectCompletionList()
+#                break
+#            else:
+#                url = currentCommand
+#                alias, listArgv = self.getParameter(listArgv)
+#                if (alias == None) and ObsLightBase.noaction:
+#                    return self.printProjectCompletionList()
+#                project_alias, listArgv = self.getParameter(listArgv)
+#                break
+#
+#        if  Help:
+#            return self.printHelp(__command_add__)
+#        else:
+#            if not ObsLightBase.noaction:
+#                m = ObsLightManager.getCommandLineManager()
+#                if project_alias == None:
+#                    project_alias = m.getCurrentObsProject()
+#                    if project_alias == None:
+#                        return self.printHelp(__command_add__)
+#
+#                if From :
+#                    if fromProject == None:
+#                        return self.printError("Missing  fromProject", __command_commit__)
+#
+#                    res = m.addRepo(projectLocalName=project_alias,
+#                                    fromProject=fromProject,
+#                                    repoUrl=None,
+#                                    alias=None)
+#                    if self.testResult(res, getLineno()) == -1:return - 1
+#                    return res
+#                else:
+#                    if url == None:
+#                        return self.printError("Missing  url", __command_commit__)
+#                    if alias == None:
+#                        return self.printError("Missing  alias", __command_commit__)
+#
+#                    res = m.addRepo(projectLocalName=project_alias,
+#                                    fromProject=None,
+#                                    repoUrl=url,
+#                                    alias=alias)
+#                    if self.testResult(res, getLineno()) == -1:return - 1
+#                    return res
+#            else:
+#                return self.printHelp(__command_add__)
+#
+#    def repository_delete(self, listArgv):
+#        Help = False
+#
+#        repo_alias = None
+#        project_alias = None
+#
+#        while self.testArgv(listArgv):
+#            currentCommand, listArgv = self.getParameter(listArgv)
+#            if currentCommand in __command_help__:
+#                Help = True
+#            elif currentCommand in __parameter_repo_alias__:
+#                repo_alias, listArgv = self.getParameter(listArgv)
+#            elif currentCommand in __parameter_project_alias__:
+#                project_alias, listArgv = self.getParameter(listArgv)
+#                if (project_alias == None) and ObsLightBase.noaction:
+#                    return self.printProjectCompletionList()
+#            else:
+#                return self.printUnknownCommand(currentCommand, __command_del__)
+#
+#        if  Help:
+#            return self.printHelp(__command_del__)
+#        else:
+#            if not ObsLightBase.noaction:
+#                m = ObsLightManager.getCommandLineManager()
+#                if project_alias == None:
+#                    project_alias = m.getCurrentObsProject()
+#                    if project_alias == None:
+#                        return self.printHelp(__command_del__)
+#
+#                if repo_alias == None:
+#                    return self.printError("Missing  repo_alias", __command_del__)
+#
+#                res = m.deleteRepo(projectLocalName=project_alias,
+#                                    repoAlias=repo_alias)
+#
+#                if self.testResult(res, getLineno()) == -1:return - 1
+#                return res
+#            else:
+#                return self.printHelp(__command_del__)
+#
+#
+#    def repository_modify(self, listArgv):
+#        Help = False
+#
+#        repo_alias = None
+#        project_alias = None
+#        newUrl = None
+#        newAlias = None
+#        while self.testArgv(listArgv):
+#            currentCommand, listArgv = self.getParameter(listArgv)
+#            if currentCommand in __command_help__:
+#                Help = True
+#            elif currentCommand in __parameter_newUrl__:
+#                newUrl, listArgv = self.getParameter(listArgv)
+#            elif currentCommand in __parameter_newAlias__:
+#                newAlias, listArgv = self.getParameter(listArgv)
+#            elif currentCommand in __parameter_repo_alias__:
+#                repo_alias, listArgv = self.getParameter(listArgv)
+#            elif currentCommand in __parameter_project_alias__:
+#                project_alias, listArgv = self.getParameter(listArgv)
+#                if (project_alias == None) and ObsLightBase.noaction:
+#                    return self.printProjectCompletionList()
+#            else:
+#                return self.printUnknownCommand(currentCommand, __command_modify__)
+#        if  Help:
+#            return self.printHelp(__command_modify__)
+#        else:
+#            if not ObsLightBase.noaction:
+#                m = ObsLightManager.getCommandLineManager()
+#                if project_alias == None:
+#                    project_alias = m.getCurrentObsProject()
+#                    if project_alias == None:
+#                        return self.printHelp(__command_modify__)
+#                if repo_alias == None:
+#                    return self.printError("Missing  repo_alias ", __command_del__)
+#
+#                if (newUrl == None) and (newAlias == None):
+#                    return self.printError("Missing  newUrl/newAlias ", __command_del__)
+#
+#                res = m.modifyRepo(projectLocalName=project_alias,
+#                                   repoAlias=repo_alias,
+#                                   newUrl=newUrl,
+#                                   newAlias=newAlias)
+#
+#                if self.testResult(res, getLineno()) == -1:return - 1
+#                return res
+#            else:
+#                return self.printHelp(__command_modify__)
 
-        self.currentCommand = __command_repositories__[0]
+#    def repository_query(self, listArgv):
+#        Help = False
+#        project_alias = None
+#
+#        while self.testArgv(listArgv):
+#            currentCommand, listArgv = self.getParameter(listArgv)
+#            if (currentCommand in __command_help__):
+#                Help = True
+#                break
+#            elif currentCommand in __parameter_project_alias__:
+#                project_alias , listArgv = self.getParameter(listArgv)
+#                if (project_alias == None) and ObsLightBase.noaction:
+#                    return self.printProjectCompletionList()
+#            else:
+#                return self.printUnknownCommand(currentCommand, __command_query__)
+#
+#        if  Help :
+#            return self.printHelp(__command_query__)
+#        else:
+#            if not ObsLightBase.noaction:
+#                m = ObsLightManager.getCommandLineManager()
+#                if project_alias == None:
+#                    project_alias = m.getCurrentObsProject()
+#                    if project_alias == None:
+#                        return self.printHelp(__command_query__)
+#
+#                res = m.getChRootRepositories(projectLocalName=project_alias)
+#                if self.testResult(res, getLineno()) == -1:return - 1
+#                self.printSimpleResult("repository: ", "")
+#                for k in res:
+#                    self.printSimpleResult("Alias: " + k + "\t\tURL: " + res[k], k + " " + res[k])
+#                return 0
+#            else:
+#                return self.printHelp(__command_query__)
 
-        self.commandList = __repositories_subcommand_list__
-        self.parameterCompletionDict = __repositories_parameter_completion_dict__
-        self.commandHelpDict = __repositories_command_help_dict__
-        self.parameterDict = __repositories_parameter_dict__
-
-    def repository_add(self, listArgv):
-        Help = False
-
-        From = False
-
-        url = None
-        alias = None
-        fromProject = None
-        project_alias = None
-
-        while self.testArgv(listArgv):
-            currentCommand, listArgv = self.getParameter(listArgv)
-            if (currentCommand in __command_help__) or (listArgv == None):
-                Help = True
-            elif currentCommand in __parameter_From__:
-                From = True
-                fromProject, listArgv = self.getParameter(listArgv)
-                if (fromProject == None) and ObsLightBase.noaction:
-                    return self.printProjectCompletionList()
-                project_alias, listArgv = self.getParameter(listArgv)
-                if (project_alias == None) and ObsLightBase.noaction:
-                    return self.printProjectCompletionList()
-                break
-            else:
-                url = currentCommand
-                alias, listArgv = self.getParameter(listArgv)
-                if (alias == None) and ObsLightBase.noaction:
-                    return self.printProjectCompletionList()
-                project_alias, listArgv = self.getParameter(listArgv)
-                break
-
-        if  Help:
-            return self.printHelp(__command_add__)
-        else:
-            if not ObsLightBase.noaction:
-                m = ObsLightManager.getCommandLineManager()
-                if project_alias == None:
-                    project_alias = m.getCurrentObsProject()
-                    if project_alias == None:
-                        return self.printHelp(__command_add__)
-
-                if From :
-                    if fromProject == None:
-                        return self.printError("Missing  fromProject", __command_commit__)
-
-                    res = m.addRepo(projectLocalName=project_alias,
-                                    fromProject=fromProject,
-                                    repoUrl=None,
-                                    alias=None)
-                    if self.testResult(res, getLineno()) == -1:return - 1
-                    return res
-                else:
-                    if url == None:
-                        return self.printError("Missing  url", __command_commit__)
-                    if alias == None:
-                        return self.printError("Missing  alias", __command_commit__)
-
-                    res = m.addRepo(projectLocalName=project_alias,
-                                    fromProject=None,
-                                    repoUrl=url,
-                                    alias=alias)
-                    if self.testResult(res, getLineno()) == -1:return - 1
-                    return res
-            else:
-                return self.printHelp(__command_add__)
-
-    def repository_delete(self, listArgv):
-        Help = False
-
-        repo_alias = None
-        project_alias = None
-
-        while self.testArgv(listArgv):
-            currentCommand, listArgv = self.getParameter(listArgv)
-            if currentCommand in __command_help__:
-                Help = True
-            elif currentCommand in __parameter_repo_alias__:
-                repo_alias, listArgv = self.getParameter(listArgv)
-            elif currentCommand in __parameter_project_alias__:
-                project_alias, listArgv = self.getParameter(listArgv)
-                if (project_alias == None) and ObsLightBase.noaction:
-                    return self.printProjectCompletionList()
-            else:
-                return self.printUnknownCommand(currentCommand, __command_del__)
-
-        if  Help:
-            return self.printHelp(__command_del__)
-        else:
-            if not ObsLightBase.noaction:
-                m = ObsLightManager.getCommandLineManager()
-                if project_alias == None:
-                    project_alias = m.getCurrentObsProject()
-                    if project_alias == None:
-                        return self.printHelp(__command_del__)
-
-                if repo_alias == None:
-                    return self.printError("Missing  repo_alias", __command_del__)
-
-                res = m.deleteRepo(projectLocalName=project_alias,
-                                    repoAlias=repo_alias)
-
-                if self.testResult(res, getLineno()) == -1:return - 1
-                return res
-            else:
-                return self.printHelp(__command_del__)
-
-
-    def repository_modify(self, listArgv):
-        Help = False
-
-        repo_alias = None
-        project_alias = None
-        newUrl = None
-        newAlias = None
-        while self.testArgv(listArgv):
-            currentCommand, listArgv = self.getParameter(listArgv)
-            if currentCommand in __command_help__:
-                Help = True
-            elif currentCommand in __parameter_newUrl__:
-                newUrl, listArgv = self.getParameter(listArgv)
-            elif currentCommand in __parameter_newAlias__:
-                newAlias, listArgv = self.getParameter(listArgv)
-            elif currentCommand in __parameter_repo_alias__:
-                repo_alias, listArgv = self.getParameter(listArgv)
-            elif currentCommand in __parameter_project_alias__:
-                project_alias, listArgv = self.getParameter(listArgv)
-                if (project_alias == None) and ObsLightBase.noaction:
-                    return self.printProjectCompletionList()
-            else:
-                return self.printUnknownCommand(currentCommand, __command_modify__)
-        if  Help:
-            return self.printHelp(__command_modify__)
-        else:
-            if not ObsLightBase.noaction:
-                m = ObsLightManager.getCommandLineManager()
-                if project_alias == None:
-                    project_alias = m.getCurrentObsProject()
-                    if project_alias == None:
-                        return self.printHelp(__command_modify__)
-                if repo_alias == None:
-                    return self.printError("Missing  repo_alias ", __command_del__)
-
-                if (newUrl == None) and (newAlias == None):
-                    return self.printError("Missing  newUrl/newAlias ", __command_del__)
-
-                res = m.modifyRepo(projectLocalName=project_alias,
-                                   repoAlias=repo_alias,
-                                   newUrl=newUrl,
-                                   newAlias=newAlias)
-
-                if self.testResult(res, getLineno()) == -1:return - 1
-                return res
-            else:
-                return self.printHelp(__command_modify__)
-
-    def repository_query(self, listArgv):
-        Help = False
-        project_alias = None
-
-        while self.testArgv(listArgv):
-            currentCommand, listArgv = self.getParameter(listArgv)
-            if (currentCommand in __command_help__):
-                Help = True
-                break
-            elif currentCommand in __parameter_project_alias__:
-                project_alias , listArgv = self.getParameter(listArgv)
-                if (project_alias == None) and ObsLightBase.noaction:
-                    return self.printProjectCompletionList()
-            else:
-                return self.printUnknownCommand(currentCommand, __command_query__)
-
-        if  Help :
-            return self.printHelp(__command_query__)
-        else:
-            if not ObsLightBase.noaction:
-                m = ObsLightManager.getCommandLineManager()
-                if project_alias == None:
-                    project_alias = m.getCurrentObsProject()
-                    if project_alias == None:
-                        return self.printHelp(__command_query__)
-
-                res = m.getChRootRepositories(projectLocalName=project_alias)
-                if self.testResult(res, getLineno()) == -1:return - 1
-                self.printSimpleResult("repository: ", "")
-                for k in res:
-                    self.printSimpleResult("Alias: " + k + "\t\tURL: " + res[k], k + " " + res[k])
-                return 0
-            else:
-                return self.printHelp(__command_query__)
-
-    def execute(self, listArgv):
-        if len(listArgv) == 0:
-            return self.printHelp()
-        else:
-            currentCommand = listArgv[0]
-            listArgv = listArgv[1:]
-
-            if currentCommand in __command_help__ :
-                return self.printHelp()
-            elif currentCommand in __command_add__:
-                return self.repository_add(listArgv)
-            elif currentCommand in __command_del__ :
-                return self.repository_delete(listArgv)
-            elif currentCommand in __command_modify__:
-                return self.repository_modify(listArgv)
-            elif currentCommand in __command_query__:
-                return self.repository_query(listArgv)
-            else:
-                return self.printHelp()
-        return 0
+#    def execute(self, listArgv):
+#        if len(listArgv) == 0:
+#            return self.printHelp()
+#        else:
+#            currentCommand = listArgv[0]
+#            listArgv = listArgv[1:]
+#
+#            if currentCommand in __command_help__ :
+#                return self.printHelp()
+#            elif currentCommand in __command_add__:
+#                return self.repository_add(listArgv)
+#            elif currentCommand in __command_del__ :
+#                return self.repository_delete(listArgv)
+#            elif currentCommand in __command_modify__:
+#                return self.repository_modify(listArgv)
+#            elif currentCommand in __command_query__:
+#                return self.repository_query(listArgv)
+#            else:
+#                return self.printHelp()
+#        return 0
 
 
 class ObsLightObsProjectfilesystem(ObsLightBase):
@@ -3689,7 +3689,7 @@ class ObsLightObsProjectfilesystem(ObsLightBase):
 
     def man(self):
         ObsLightBase.man(self)
-        ObsLightObsRepository().man()
+#        ObsLightObsRepository().man()
 
     def projectfilesystem_create(self, listArgv):
         Help = False
@@ -3890,8 +3890,8 @@ class ObsLightObsProjectfilesystem(ObsLightBase):
                 return self.projectfilesystem_enter(listArgv)
             elif currentCommand in __command_executescript__:
                 return self.projectfilesystem_executescript(listArgv)
-            elif currentCommand in __command_repositories__:
-                return ObsLightObsRepository().execute(listArgv)
+#            elif currentCommand in __command_repositories__:
+#                return ObsLightObsRepository().execute(listArgv)
             else:
                 return self.printHelp()
         return 0

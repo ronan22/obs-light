@@ -1154,6 +1154,13 @@ It may open in background on some desktop environments.</string>
                   </property>
                  </widget>
                 </item>
+                <item row="0" column="3" colspan="2">
+                 <widget class="QCheckBox" name="checkUserRootForChroot">
+                  <property name="text">
+                   <string>Use root id</string>
+                  </property>
+                 </widget>
+                </item>
                </layout>
               </widget>
              </item>

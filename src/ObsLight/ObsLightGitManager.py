@@ -180,7 +180,7 @@ class ObsLightGitManager(ObsLightObject):
             f.write("debugfiles.list\n")
             f.write("debuglinks.list\n")
             f.write("debugsources.list\n")
-            f.write("*.in\n")
+#            f.write("*.in\n")
 
             self.__subprocess(self.prepareGitCommand(path,
                                                      "add " + absPath + "/.gitignore",

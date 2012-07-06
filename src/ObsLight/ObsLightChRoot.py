@@ -162,6 +162,12 @@ class ObsLightChRootCore(object):
         '''
         if command is None:
             return
+        parameter = self.makeChrootScriptParameters()
+        if user is not None:
+            parameter["user"] = user
+
+        if user == "root":
+            parameter["userHome"] = "/root"
 
         self.failIfUserNotInUserGroup()
 
@@ -180,7 +186,7 @@ class ObsLightChRootCore(object):
             f.write("# Created by obslight\n\n")
 
             # Warning
-            f.write("if [ -e /root/.bashrc ] ; then . /root/.bashrc ; fi\n")
+            f.write("if [ -e %(userHome)s/.bashrc ] ; then . %(userHome)s/.bashrc ; fi\n" % parameter)
             # When OBS Light is used in graphic mode (without console), the commands like "tput"
             # need a value for TERM other than "unknown" (xterm, linux,...)
             f.write('if [ "$TERM" = "unknown" ] ; then TERM="xterm" ; fi\n')
@@ -204,11 +210,14 @@ class ObsLightChRootCore(object):
             raise RuntimeError(errMsg)
 
         self.logger.info("Running script %s" % scriptName)
-        parameter = self.makeChrootScriptParameters()
+
         parameter["scriptPath"] = self.__transferDir + "/" + scriptName
-        if user is not None:
-            parameter["user"] = user
-        aCommand = "sudo -H chroot %(chrootPath)s su -c \"%(scriptPath)s\" - %(user)s"
+
+        if user == "root":
+            aCommand = "sudo -H chroot %(chrootPath)s %(scriptPath)s"
+        else:
+            aCommand = "sudo -H chroot %(chrootPath)s su -c \"%(scriptPath)s\" - %(user)s"
+
         aCommand = aCommand % parameter
 
         if self.hostArch == 'x86_64':
@@ -263,7 +272,7 @@ class ObsLightChRootCore(object):
 
         return res
 
-    def goToChRoot(self, path=None, detach=False, project=None):
+    def goToChRoot(self, path=None, detach=False, project=None, useRootId=False):
         '''
         Go to the chroot.
         Open a Bash in the chroot.
@@ -294,7 +303,7 @@ class ObsLightChRootCore(object):
         # control code to change window title
         f.write('echo -en "\e]2;%s\a"\n' % title)
         f.write("exec bash\n")
-        # flush() does not necessarily write the file's data to disk. 
+        # flush() does not necessarily write the file's data to disk.
         # Use os.fsync(f.fileno()) to ensure this behavior.
         f.flush()
         os.fsync(f.fileno())
@@ -303,6 +312,8 @@ class ObsLightChRootCore(object):
         os.chmod(pathScript, 0755)
 
         parameter = self.makeChrootScriptParameters()
+        if useRootId:
+            parameter["user"] = "root"
         parameter["scriptPath"] = self.__transferDir + "/runMe.sh"
         command = "sudo -H chroot %(chrootPath)s su -c \"%(scriptPath)s\" - %(user)s"
         command = command % parameter
@@ -533,9 +544,15 @@ exit $?
         retVal = self.prepareChroot(self.getDirectory(), obsProject)
         if retVal != 0:
             return retVal
+        retVal = self.prepareChroot(self.getDirectory(), obsProject, user="root")
+        if retVal != 0:
+            return retVal
+        retVal = self.setTimezoneInBashrc("root")
+        if retVal != 0:
+            return retVal
         return self.setTimezoneInBashrc()
 
-    def setTimezoneInBashrc(self):
+    def setTimezoneInBashrc(self, user=None):
         """
         Get the time zone of the current user and sets the TZ variable
         in chroot jail's .bashrc file. Executing it several times may
@@ -546,16 +563,23 @@ exit $?
         # we can call them separately.
         command = []
         tzname = time.tzname[0]
-        msg = "Setting chroot jail's time zone to '%s'" % tzname
+        parameter = self.makeChrootScriptParameters()
+
+        if user == "root":
+            parameter["user"] = "root"
+            parameter["userHome"] = "/root"
+
+
+        msg = "Setting chroot jail's time zone to '%s'" % (tzname)
         ObsLightPrintManager.getLogger().info(msg)
-        command.append('echo "TZ=\\"%s\\"" >> ~/.bashrc' % tzname)
-        command.append('echo "export TZ" >> ~/.bashrc')
-        return self.execCommand(command)
+        command.append('echo "TZ=\\"%s\\"" >> %s/.bashrc' % (tzname, parameter["userHome"]))
+        command.append('echo "export TZ" >> %s/.bashrc' % parameter["userHome"])
+        return self.execCommand(command, user=parameter["user"])
 
 #    def getChRootRepositories(self):
 #        return self.__dicoRepos
 
-    def prepareChroot(self, chrootDir, project):
+    def prepareChroot(self, chrootDir, project, user=None):
         '''
         Prepare the chroot :
         - replaces some binaries by their ARM equivalent (in case chroot is ARM)
@@ -568,19 +592,37 @@ exit $?
 
         parameter = self.makeChrootScriptParameters()
 
-        # Not all distro have "%(ObsLightUserGroup)s" group, obslight needs it for acl and directory management.
-        cmd = "if ! egrep '^%(ObsLightUserGroup)s:' >/dev/null </etc/group ; then echo '%(ObsLightUserGroup)s:x:%(ObsLightUserGroupGID)s:' >>/etc/group ;fi"
-        command.append(cmd % parameter)
-        cmd = "if ! egrep '^%(user)s:' >/dev/null </etc/group ; then echo '%(user)s:x:%(userUID)s:' >>/etc/group ;fi"
-        command.append(cmd % parameter)
+        if user == "root":
+            parameter["user"] = "root"
+            parameter["userHome"] = "/root"
+            # Not all distro have "%(ObsLightUserGroup)s" group, obslight needs it for acl and directory management.
+            cmd = "if ! egrep '^root:' >/dev/null </etc/group ; then echo 'root:x:0:' >>/etc/group ;fi"
+            command.append(cmd % parameter)
 
-        # We need "%(user)s" user too.
-        cmd = "if ! egrep '^%(user)s:' >/dev/null </etc/passwd ; then echo '%(user)s:x:%(userUID)s:%(userGID)s:%(user)s:%(userHome)s:/bin/sh' >>/etc/passwd; fi"
-        command.append(cmd % parameter)
-        cmd = "if ! egrep '^%(user)s:' >/dev/null </etc/shadow ; then echo '%(user)s:*:::::::' >>/etc/shadow ; fi"
-        command.append(cmd % parameter)
-        cmd = "if ! egrep '^%(user)s:' >/dev/null </etc/gshadow ; then echo '%(user)s:*::' >>/etc/gshadow ; fi"
-        command.append(cmd % parameter)
+
+            # We need "%(user)s" user too.
+            cmd = "if ! egrep '^root:' >/dev/null </etc/passwd ; then echo 'root:x:0:0:root:/root:/bin/bash' >>/etc/passwd; fi"
+            command.append(cmd % parameter)
+            cmd = "if ! egrep '^root:' >/dev/null </etc/shadow ; then echo 'root:*:15380:0:99999:7:::' >>/etc/shadow ; fi"
+            command.append(cmd % parameter)
+            cmd = "if ! egrep '^root:' >/dev/null </etc/gshadow ; then echo 'root:*::root' >>/etc/gshadow ; fi"
+            command.append(cmd % parameter)
+
+            command.append("rpm --initdb")
+            command.append("rpm --rebuilddb")
+
+        else:
+            # Not all distro have "%(ObsLightUserGroup)s" group, obslight needs it for acl and directory management.
+            cmd = "if ! egrep '^%(ObsLightUserGroup)s:' >/dev/null </etc/group ; then echo '%(ObsLightUserGroup)s:x:%(ObsLightUserGroupGID)s:' >>/etc/group ;fi"
+            command.append(cmd % parameter)
+
+            # We need "%(user)s" user too.
+            cmd = "if ! egrep '^%(user)s:' >/dev/null </etc/passwd ; then echo '%(user)s:x:%(userUID)s:%(userGID)s:%(user)s:%(userHome)s:/bin/sh' >>/etc/passwd; fi"
+            command.append(cmd % parameter)
+            cmd = "if ! egrep '^%(user)s:' >/dev/null </etc/shadow ; then echo '%(user)s:*:::::::' >>/etc/shadow ; fi"
+            command.append(cmd % parameter)
+            cmd = "if ! egrep '^%(user)s:' >/dev/null </etc/gshadow ; then echo '%(user)s:*::' >>/etc/gshadow ; fi"
+            command.append(cmd % parameter)
 
 #         FIXME: is this still required ?
 #        # We need a "/etc/zypp/repos.d" directory.
@@ -604,26 +646,29 @@ exit $?
 #            command.append("echo 'arch = armv7hl' >> /etc/zypp/zypp.conf")
 #            command.append("echo -n 'armv7hl-meego-linux' > /etc/rpm/platform")
 
-
-        command.append("rpm --initdb")
-        command.append("rpm --rebuilddb")
+        userHome = parameter["userHome"]
 
         for c in self._getProxyconfig():
-            command.append('echo "' + c + '" >> ~/.bashrc')
+            command.append('echo "' + c + '" >> %s/.bashrc' % userHome)
 
-        command.append('echo "alias ll=\\"ls -lh --color\\"" >> ~/.bashrc')
-        command.append('echo "alias la=\\"ls -Alh --color\\"" >> ~/.bashrc')
-        command.append('echo "alias vi=\\"vim\\"" >> ~/.bashrc')
+        command.append('echo "alias ll=\\"ls -lh --color\\"" >> %s/.bashrc' % userHome)
+        command.append('echo "alias la=\\"ls -Alh --color\\"" >> %s/.bashrc' % userHome)
+        command.append('echo "alias vi=\\"vim\\"" >> %s/.bashrc' % userHome)
+
         prompt = {"blue": "\\[\\e[34;1m\\]",
                   "green": "\\[\\e[32;1m\\]",
                   "default": "\\[\\e[0m\\]",
                   "path": "\\w",
-                  "delimiter": "\\\\$ ",
+                  "delimiter": "\\\\\$ ",
                   "project": project}
+
         PS1 = "%(blue)s%(project)s:%(green)s%(path)s%(default)s%(delimiter)s" % prompt
-        command.append('echo "PS1=\\"%s\\"" >> ~/.bashrc' % PS1)
-        command.append('echo "export PS1" >> ~/.bashrc')
-        return self.execCommand(command=command)
+
+        command.append('echo "PS1=\'%s\'" >> %s/.bashrc' % (PS1, userHome))
+        command.append('echo "export PS1" >> %s/.bashrc' % userHome)
+
+        command.append('chown %(user)s:%(userGroup)s %(userHome)s/.bashrc' % parameter)
+        return self.execCommand(command=command, user="root")
 
     def _getProxyconfig(self):
         command = []
@@ -763,12 +808,15 @@ class ObsLightChRoot(ObsLightChRootCore):
 
             parameter = self.makeChrootScriptParameters()
             parameter["RpmBuildDir"] = chrootRpmBuildDirectory
+            parameter["package"] = packageName
+
             command.append("chown  %(user)s:%(userGroup)s %(RpmBuildDir)s" % parameter)
+            command.append("chown  %(user)s:%(userGroup)s %(userHome)s/%(package)s" % parameter)
 
             for c in self._getProxyconfig():
                 command.append(c)
 
-            res = self.execCommand(command=command)
+            res = self.execCommand(command=command, user="root")
 
             specDirPath = self._createAbsPath(chrootRpmBuildDirectory + "/SPECS/")
             self.allowAccessToObslightGroup(specDirPath)

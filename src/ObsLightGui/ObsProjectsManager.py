@@ -158,14 +158,17 @@ class ObsProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
 
         currentPackage = self.__packageManager.currentPackage()
         runnable = ProgressRunnable2()
+        useRootId = self.mainWindow.checkUserRootForChroot.isChecked()
         if currentPackage is None:
             runnable.setRunMethod(self.manager.goToChRoot,
                                   projectName,
+                                  useRootId=useRootId,
                                   detach=True)
         else:
             runnable.setRunMethod(self.manager.goToChRoot,
                                   projectName,
                                   currentPackage,
+                                  useRootId=useRootId,
                                   detach=True)
         runnable.caughtException.connect(self.gui.popupErrorCallback)
         runnable.finished.connect(self.refreshProject)

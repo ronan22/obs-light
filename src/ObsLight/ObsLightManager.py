@@ -1055,12 +1055,14 @@ class ObsLightManagerCore(ObsLightManagerBase):
         return self._myObsLightProjects.getProject(projectLocalName).isChRootInit()
 
     @checkProjectLocalName(1)
-    def goToChRoot(self, projectLocalName, package=None, detach=False):
+    def goToChRoot(self, projectLocalName, package=None, useRootId=False, detach=False):
         '''
         offer a bash in the chroot for the user
         if package  define, the pwd will be ~/rpmbuild/BUILD/[package]
         '''
-        return self._myObsLightProjects.getProject(projectLocalName).goToChRoot(package, detach)
+        return self._myObsLightProjects.getProject(projectLocalName).goToChRoot(package,
+                                                                                useRootId,
+                                                                                detach)
 
     @checkProjectLocalName(1)
     def execScript(self, projectLocalName, aPath):
@@ -1093,14 +1095,14 @@ class ObsLightManagerCore(ObsLightManagerBase):
         self._myObsLightProjects.save()
         return res
 
-    @checkProjectLocalName(1)
-    def getChRootRepositories(self, projectLocalName):
-        '''
-        Return a dictionary of RPM package repositories configured in 
-        the chroot of project 'projectLocalName'. 
-        The dictionary has aliases as keys and URL as values.
-        '''
-        return self._myObsLightProjects.getProject(projectLocalName).getChRootRepositories()
+#    @checkProjectLocalName(1)
+#    def getChRootRepositories(self, projectLocalName):
+#        '''
+#        Return a dictionary of RPM package repositories configured in 
+#        the chroot of project 'projectLocalName'. 
+#        The dictionary has aliases as keys and URL as values.
+#        '''
+#        return self._myObsLightProjects.getProject(projectLocalName).getChRootRepositories()
 
     @checkProjectLocalName(1)
     def deleteRepo(self, projectLocalName, repoAlias):

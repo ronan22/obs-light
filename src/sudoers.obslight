@@ -9,6 +9,8 @@
 %users ALL=(ALL)NOPASSWD:/bin/chmod * */OBSLight/*/aChroot*
 %users ALL=(ALL)NOPASSWD:/usr/bin/chroot */OBSLight/*/aChroot su -c /chrootTransfert/* - *
 %users ALL=(ALL)NOPASSWD:/usr/sbin/chroot */OBSLight/*/aChroot su -c /chrootTransfert/* - *
+%users ALL=(ALL)NOPASSWD:/usr/bin/chroot */OBSLight/*/aChroot /chrootTransfert/*  
+%users ALL=(ALL)NOPASSWD:/usr/sbin/chroot */OBSLight/*/aChroot /chrootTransfert/*
 %users ALL=(ALL)NOPASSWD:/bin/mount --bind * */OBSLight/*/aChroot*
 %users ALL=(ALL)NOPASSWD:/bin/mount --bind -o remount* */OBSLight/*/aChroot*
 %users ALL=(ALL)NOPASSWD:/bin/umount -l */OBSLight/*/aChroot*

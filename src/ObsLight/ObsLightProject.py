@@ -595,8 +595,8 @@ class ObsLightProject(ObsLightObject):
         self.__packages.getPackage(name).initPackageFileInfo()
         return 0
 
-    def getChRootRepositories(self):
-        return self.__chroot.getChRootRepositories()
+#    def getChRootRepositories(self):
+#        return self.__chroot.getChRootRepositories()
 
     def updateProject(self):
         for name in self.__packages.getListPackages():
@@ -643,16 +643,18 @@ class ObsLightProject(ObsLightObject):
                             self.__projectObsName.replace(":", ":/"),
                             self.__projectTarget)
 
-    def goToChRoot(self, package=None, detach=False):
+    def goToChRoot(self, package=None, useRootId=False, detach=False):
         if package != None:
             packagePath = self.__packages.getPackage(package).getPackageDirectory()
             if packagePath != None:
-                return self.__chroot.goToChRoot(path=packagePath, detach=detach,
+                return self.__chroot.goToChRoot(path=packagePath,
+                                                useRootId=useRootId,
+                                                detach=detach,
                                                 project=self.__projectLocalName)
             else:
-                return self.__chroot.goToChRoot(detach=detach, project=self.__projectLocalName)
+                return self.__chroot.goToChRoot(detach=detach, project=self.__projectLocalName, useRootId=useRootId)
         else:
-            return self.__chroot.goToChRoot(detach=detach, project=self.__projectLocalName)
+            return self.__chroot.goToChRoot(detach=detach, project=self.__projectLocalName, useRootId=useRootId)
 
     def execScript(self, aPath):
         return self.__chroot.execScript(aPath)
