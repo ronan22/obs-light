@@ -529,15 +529,22 @@ class ObsLightSpec(ObsLightObject):
             if (section == "%prep") and (not SETUP):
                 toWrite += '%setup -q -c\n'
 
-        pattern = r'([Ss]ource[0]?\s*:).*'
+        patternSourceFile = r'[Ss]ource[0]?\s*:\s*(.*)'
 
         aFile = open(path, 'w')
-
-        if  len(re.findall(pattern, toWrite)) > 0:
-            aFile.write(re.sub(pattern, r'\1%s' % str(archive), toWrite))
+        listFind = re.findall(patternSourceFile, toWrite)
+        if  len(listFind) > 0:
+            for sourceFile in listFind:
+                openBracket = sourceFile.count("{")
+                closeBracket = sourceFile.count("}")
+                if closeBracket > openBracket:
+                    lastBacket = sourceFile.rfind("}", closeBracket - openBracket)
+                    sourceFile = sourceFile[:lastBacket]
+                pattern = r'([Ss]ource[0]?\s*:\s*)' + sourceFile + "(.*)"
+                toWrite = re.sub(pattern, r'\1%s\2' % str(archive), toWrite)
         else:
             aFile.write('Source:%s\n' % archive)
-            aFile.write(toWrite)
+        aFile.write(toWrite)
         aFile.close()
 
     def getsection(self):
@@ -553,9 +560,9 @@ class ObsLightSpec(ObsLightObject):
         return PrepAndBuild
 
 if __name__ == '__main__':
-    absSpecPath = "/home/meego/OBSLight/ObsProjects/Meego_oss_Build_Failed/meegotv:oss/rpmlint-mini-x86"
-    absSpecFile = "rpmlint-mini-x86.spec"
-    absSpecTmpFile = "rpmlint-mini-x86.tmp.spec"
+    absSpecPath = "/home/meego/OBSLight/ObsProjects/Meego_oss_Build_Failed/meegotv:oss/xmlrpc-c"
+    absSpecFile = "xmlrpc-c.spec"
+    absSpecTmpFile = "xmlrpc-c.tmp.spec"
     absSpecFile_tmp = absSpecPath + "/" + absSpecTmpFile
 
     cli = ObsLightSpec(absSpecPath, absSpecFile)
