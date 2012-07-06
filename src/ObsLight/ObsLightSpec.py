@@ -538,8 +538,8 @@ class ObsLightSpec(ObsLightObject):
                 openBracket = sourceFile.count("{")
                 closeBracket = sourceFile.count("}")
                 if closeBracket > openBracket:
-                    lastBacket = sourceFile.rfind("}", closeBracket - openBracket)
-                    sourceFile = sourceFile[:lastBacket]
+                    lastBracket = sourceFile.rfind("}", closeBracket - openBracket)
+                    sourceFile = sourceFile[:lastBracket]
                 pattern = r'([Ss]ource[0]?\s*:\s*)' + sourceFile + "(.*)"
                 toWrite = re.sub(pattern, r'\1%s\2' % str(archive), toWrite)
         else:

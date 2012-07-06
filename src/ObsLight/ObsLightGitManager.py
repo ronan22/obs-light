@@ -147,6 +147,7 @@ class ObsLightGitManager(ObsLightObject):
     def resetToPrep(self, path, package):
         pkgCurGitDir = package.getCurrentGitDirectory()
         res = self.__listSubprocess([self.prepareGitCommand(path, "checkout  %s" % self.initialTag , pkgCurGitDir)])
+        return res
 
     def ignoreGitWatch(self,
                        package,

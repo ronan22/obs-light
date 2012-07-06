@@ -898,8 +898,14 @@ exit $?
         if res == 0:
             self._ObsLightGitManager.ignoreGitWatch(package=package, path=packageDirectory)
             package.setFirstCommit(tag=self._ObsLightGitManager.initialTag)
-            self._ObsLightGitManager.resetToPrep(package=package, path=packageDirectory)
-            package.setChRootStatus("Prepared")
+            self.allowPackageAccessToObslightGroup(package)
+            res = self._ObsLightGitManager.resetToPrep(package=package, path=packageDirectory)
+            if res == 0:
+                package.setChRootStatus("Prepared")
+            else:
+                msg = "Fail to checkout package %s, after the first build." % packageName
+                msg += " Return code was: %s" % str(res)
+                raise ObsLightErr.ObsLightChRootError(msg)
         else:
             msg = "The first build of package '%s' failed." % packageName
             msg += " Return code was: %s" % str(res)
