@@ -31,6 +31,8 @@ import ObsLightErr
 
 class ObsLightSpec(ObsLightObject):
 
+    WrittenByObsLight = "# File written by OBS Light, don't modify it\n"
+
     def __init__(self, packagePath, aFile):
         ObsLightObject.__init__(self)
         self.__packagePath = packagePath
@@ -66,6 +68,9 @@ class ObsLightSpec(ObsLightObject):
 
         self.__orderList = []
         self.__spectDico = {}
+
+        # FIXME: search minimum available source number in spec file
+        self.archiveNumber = 9999
 
         if self.__path != None:
             self.parseFile()
@@ -410,7 +415,7 @@ class ObsLightSpec(ObsLightObject):
         if path == None:
             path = self.__path
         f = open(path, 'w')
-        f.write("#File written by OBS Light, don't modify it\n")
+        f.write(self.WrittenByObsLight)
         for section in self.__orderList:
             for line in self.__spectDico[section]:
                 if line.startswith("Release:") and \
@@ -424,7 +429,7 @@ class ObsLightSpec(ObsLightObject):
         if path == None:
             path = self.__path
         f = open(path, 'w')
-        f.write("#File Write by OBSLight don't modify it\n")
+        f.write(self.WrittenByObsLight)
         NoPrep = False
 
         for section in self.__orderList:
@@ -484,13 +489,13 @@ class ObsLightSpec(ObsLightObject):
         SETUP = False
         if path is None:
             return None
-        toWrite = "#File Write by OBSLight don't modify it\n"
+        toWrite = ""
         isSourceAnArchive = False
         for section in self.__orderList:
             for line in self.__spectDico[section]:
                 if line.startswith("Release:") and \
                    (line.strip("Release:").strip(" ").rstrip("\n") == ""):
-                    toWrite += "Release:1\n"
+                    toWrite += "Release: 1\n"
                 elif (section == "introduction_section"):
                     patternSourceArch = r'[Ss]ource[0]?\s*:[\s]*(.*)'
 
@@ -513,6 +518,10 @@ class ObsLightSpec(ObsLightObject):
                         line = re.sub(r"[\s]-a[\s]*[\d]+", '', line)
                         if not isSourceAnArchive or a0Matched:
                             line = removeShortOption(line, "T")
+                        # OBS Light generates its own archive.
+                        # "-T" disables auto-unpack of Source0,
+                        # "-b XXX" forces unpack of SourceXXX and cd into extracted dir
+                        line = line[:-1] + " -T -b %d\n" % self.archiveNumber
                         toWrite += line + "\n"
                         toWrite += "if [ -e .emptyDirectory  ]; "
                         toWrite += "then for i in `cat .emptyDirectory` ; "
@@ -529,21 +538,28 @@ class ObsLightSpec(ObsLightObject):
             if (section == "%prep") and (not SETUP):
                 toWrite += '%setup -q -c\n'
 
-        patternSourceFile = r'[Ss]ource[0]?\s*:\s*(.*)'
+#        patternSourceFile = r'[Ss]ource[0]?\s*:\s*(.*)'
 
         aFile = open(path, 'w')
-        listFind = re.findall(patternSourceFile, toWrite)
-        if  len(listFind) > 0:
-            for sourceFile in listFind:
-                openBracket = sourceFile.count("{")
-                closeBracket = sourceFile.count("}")
-                if closeBracket > openBracket:
-                    lastBracket = sourceFile.rfind("}", closeBracket - openBracket)
-                    sourceFile = sourceFile[:lastBracket]
-                pattern = r'([Ss]ource[0]?\s*:\s*)' + sourceFile + "(.*)"
-                toWrite = re.sub(pattern, r'\1%s\2' % str(archive), toWrite)
-        else:
-            aFile.write('Source:%s\n' % archive)
+        aFile.write(self.WrittenByObsLight)
+        # Insert OBS Light source declaration on top 
+        aFile.write('Source%d: %s\n' % (self.archiveNumber, archive))
+
+        # TODO: remove following code
+        # This is useless since we add our Source9999
+#        listFind = re.findall(patternSourceFile, toWrite)
+#        if  len(listFind) > 0:
+#            for sourceFile in listFind:
+#                openBracket = sourceFile.count("{")
+#                closeBracket = sourceFile.count("}")
+#                if closeBracket > openBracket:
+#                    lastBracket = sourceFile.rfind("}", closeBracket - openBracket)
+#                    sourceFile = sourceFile[:lastBracket]
+#                pattern = r'([Ss]ource[0]?\s*:\s*)' + sourceFile + "(.*)"
+#                toWrite = re.sub(pattern, r'\1%s\2' % str(archive), toWrite)
+#        else:
+#            aFile.write('Source:%s\n' % archive)
+
         aFile.write(toWrite)
         aFile.close()
 
