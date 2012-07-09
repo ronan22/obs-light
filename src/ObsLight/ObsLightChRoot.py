@@ -860,9 +860,13 @@ class ObsLightChRoot(ObsLightChRootCore):
             return res
 
     def removePackage(self, package):
-        parameter = self.makeChrootScriptParameters()
-        parameter["package"] = package
-        self.execCommand(["rm -rf %(userHome)s/%(package)s" % parameter], user="root")
+        if self.isInit():
+            parameter = self.makeChrootScriptParameters()
+
+            parameter["package"] = package
+
+            self.execCommand(["rm -rf %(userHome)s/%(package)s" % parameter], user="root")
+
         return 0
 
     # TODO: replace 'arch' by 'target'
