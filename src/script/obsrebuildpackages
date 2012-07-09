@@ -1,0 +1,56 @@
+import sys
+from xml.etree import ElementTree
+from osc import conf, core
+
+def getListPackage(apiurl, projectLocalName):
+    url = str(apiurl + "/source/" + projectLocalName)
+    conf.get_config()
+
+    result = core.http_request(method="GET", url=url).read()
+
+    aElement = ElementTree.fromstring(result)
+
+    aList = []
+    for path in aElement:
+        if (path.tag == "entry"):
+            aList.append(path.get("name"))
+    return aList
+
+def getPackageStatus(apiurl,
+                     project,
+                     package,
+                     repo,
+                     arch):
+
+    url = str(apiurl + "/build/" + project + "/" + repo + "/" + arch + "/" + package + "/_status")
+    result = core.http_request(method="GET", url=url).read()
+    if result is None:
+        return None
+    aElement = ElementTree.fromstring(result)
+
+    return aElement.attrib["code"]
+
+if not len(sys.argv) == 5:
+    print "(TMP)Name: obsprojectbuild"
+    print "(TMP)Use full apiurl not alias."
+    print "ex:"
+    print "\tobsprojectbuild apiurl projectLocalName repo arch"
+    sys.exit(0)
+
+apiurl = sys.argv[1]
+projectLocalName = sys.argv[2]
+repo = sys.argv[3]
+arch = sys.argv[4]
+
+print "WARNING!!! DEVEL CODE!!!"
+print "apiurl", apiurl
+print "projectLocalName", projectLocalName
+print "repo", repo
+print "arch", arch
+
+for pk in  getListPackage(apiurl, projectLocalName):
+    if getPackageStatus(apiurl, projectLocalName, pk, repo, arch) == "failed":
+        print "Rebuild pk:", pk,
+        core.rebuild(apiurl, projectLocalName, pk, repo, arch)
+        print "Start"
+
