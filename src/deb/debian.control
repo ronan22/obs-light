@@ -7,9 +7,10 @@ Build-Depends: debhelper (>= 4.1.16), python (>= 2.6)
 Package: obslight
 Architecture: any
 Depends: ${shlibs:Depends},
- apache2,
  acl,
+ apache2,
  build,
+ chkconfig,
  curl,
  git,
  mic (>= 0.4),

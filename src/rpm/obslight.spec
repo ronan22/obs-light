@@ -4,10 +4,9 @@
 # 
 # >> macros
 %{?!fdupes: %define fdupes echo}
-# << macros
-
 %define IMGSRVPATH obslight-image-server
 %define REPOSRVPATH obslight-repo-server
+# << macros
 
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 Name:       obslight
@@ -20,8 +19,8 @@ BuildArch:  noarch
 URL:        http://en.opensuse.org/openSUSE:OBS_Light
 Source0:    %{name}-%{version}.tar.gz
 Source100:  obslight.yaml
-Requires:   apache2
 Requires:   acl
+Requires:   apache2
 Requires:   build
 Requires:   createrepo
 Requires:   curl
@@ -125,17 +124,12 @@ ln -s obslightgui-wrapper.py %{buildroot}/%{_bindir}/obslightgui
 
 install -d %{buildroot}/etc/init.d
 
+mkdir -p %{buildroot}/srv/%IMGSRVPATH/www
+mkdir -p %{buildroot}/srv/%REPOSRVPATH/www
 # << install post
 desktop-file-install --delete-original       \
   --dir %{buildroot}%{_datadir}/applications             \
    %{buildroot}%{_datadir}/applications/*.desktop
-
-mkdir -p %{buildroot}/srv/%IMGSRVPATH/config
-mkdir -p %{buildroot}/srv/%REPOSRVPATH/config
-mkdir -p %{buildroot}/srv/%IMGSRVPATH/www
-mkdir -p %{buildroot}/srv/%REPOSRVPATH/www
-
-
 
 %preun
 # >> preun
@@ -188,7 +182,6 @@ then
 ln -sf /srv/%IMGSRVPATH/config/obslight-image.apache2conf %{_sysconfdir}/apache2/vhosts.d/obslight-image.conf
 ln -sf /srv/%REPOSRVPATH/config/obslight-repos.apache2conf %{_sysconfdir}/apache2/vhosts.d/obslight-repos.conf 
 fi
-# << post
 
 chown nobody:users /srv/%IMGSRVPATH
 chown nobody:users /srv/%REPOSRVPATH
@@ -203,6 +196,8 @@ chmod g+w /srv/%IMGSRVPATH/config
 chmod g+w /srv/%REPOSRVPATH/config
 chmod g+w /srv/%IMGSRVPATH/www
 chmod g+w /srv/%REPOSRVPATH/www
+# << post
+
 
 %files
 %defattr(-,root,root,-)
