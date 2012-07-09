@@ -894,8 +894,7 @@ exit $RETURN_VALUE
             raise ObsLightErr.ObsLightChRootError(msg)
 
         packageDirectory = self.__findPackageDirectory(package=package)
-        message = "Package directory used by '%s': %s" % (package.getName(),
-                                                          str(packageDirectory))
+        message = "Package directory used by '%s': %s" % (package.getName(), str(packageDirectory))
         ObsLightPrintManager.getLogger().debug(message)
         package.setDirectoryBuild(packageDirectory)
 
@@ -948,7 +947,11 @@ exit $?
             package.setFirstCommit(tag=self._ObsLightGitManager.initialTag)
             self.allowPackageAccessToObslightGroup(package)
             res = self._ObsLightGitManager.resetToPrep(package=package, path=packageDirectory)
+
             if res == 0:
+                scriptParameters["packageDirectory"] = packageDirectory
+                cmd = "chown -R %(user)s:%(userGroup)s %(packageDirectory)s" % scriptParameters
+                res = self.execCommand([cmd], user="root")
                 package.setChRootStatus("Prepared")
             else:
                 msg = "Fail to checkout package %s, after the first build." % packageName
@@ -980,8 +983,7 @@ exit $?
 
             self._ObsLightGitManager.ignoreGitWatch(package=package,
                                                      path=package.getPackageDirectory(),
-                                                     commitComment="build commit",
-                                                     firstBuildCommit=False)
+                                                     commitComment="build commit")
         else:
             res = self.__createRpmbuildCommand("bc", package, specFile, arch)
         if res == 0:
@@ -1013,8 +1015,7 @@ exit $?
 
             self._ObsLightGitManager.ignoreGitWatch(package=package,
                                                     path=package.getPackageDirectory(),
-                                                    commitComment="build install commit",
-                                                    firstBuildCommit=False)
+                                                    commitComment="build install commit")
         else:
             res = self.__createRpmbuildCommand("bi", package, specFile, arch)
 
@@ -1048,8 +1049,7 @@ exit $?
 
             self._ObsLightGitManager.ignoreGitWatch(package=package,
                                                     path=package.getPackageDirectory(),
-                                                    commitComment="build package commit",
-                                                    firstBuildCommit=False)
+                                                    commitComment="build package commit")
         else:
             res = self.__createRpmbuildCommand("ba", package, specFile, arch)
 

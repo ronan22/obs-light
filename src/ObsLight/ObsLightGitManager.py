@@ -102,15 +102,7 @@ class ObsLightGitManager(ObsLightObject):
             res = self.__subprocess(command)
         return res
 
-    def initGitWatch(self, path, package):
-        '''
-        Initialize a Git repository in the specified path, and 'git add' everything.
-        '''
-        if path is None:
-            raise ObsLightErr.ObsLightChRootError("Path is not defined in initGitWatch.")
-
-        absPath = self.__chroot.getDirectory() + path
-
+    def findEmptyDirectory(self, package):
         # git ignores empty directories so we must save them into a file.
         projectPath = self.__chroot.getDirectory() + package.getPackageDirectory()
         res = []
@@ -123,13 +115,28 @@ class ObsLightGitManager(ObsLightObject):
             for d in res:
                 f.write(d + "\n")
 
-        timeString = time.strftime("%Y-%m-%d_%Hh%Mm%Ss")
-        comment = '\"auto commit first commit %s\"' % timeString
+    def initGitWatch(self, path, package):
+        '''
+        Initialize a Git repository in the specified path, and 'git add' everything.
+        '''
+        if path is None:
+            raise ObsLightErr.ObsLightChRootError("Path is not defined in initGitWatch.")
+
+        absPath = self.__chroot.getDirectory() + path
 
         pkgCurGitDir = package.getCurrentGitDirectory()
         # Ensure we have access rights on the directory
         res = self.__chroot.allowAccessToObslightGroup(os.path.dirname(pkgCurGitDir),
                                                        absolutePath=False)
+
+        self.findEmptyDirectory(package)
+
+        timeString = time.strftime("%Y-%m-%d_%Hh%Mm%Ss")
+        comment = '\"auto commit first commit %s\"' % timeString
+
+        # Create .gitignore file.
+        self.initGitignore(path, package)
+
         if res != 0:
             msg = "Failed to give access rights on '%s'. Git repository creation may fail."
             self.logger.warn(msg % os.path.dirname(pkgCurGitDir))
@@ -149,11 +156,27 @@ class ObsLightGitManager(ObsLightObject):
         res = self.__listSubprocess([self.prepareGitCommand(path, "checkout  %s" % self.initialTag , pkgCurGitDir)])
         return res
 
+    def initGitignore(self, path, package):
+        absPath = self.__chroot.getDirectory() + path
+        f = open(absPath + "/.gitignore", 'a')
+
+        f.write("debugfiles.list\n")
+        f.write("debuglinks.list\n")
+        f.write("debugsources.list\n")
+        f.write(".gitignore\n")
+        f.write(".emptyDirectory\n")
+#            f.write("*.in\n")
+
+        self.__subprocess(self.prepareGitCommand(path,
+                                                 "add %s/.gitignore" % absPath,
+                                                 package.getCurrentGitDirectory()))
+
+        f.close()
+
     def ignoreGitWatch(self,
                        package,
                        path=None,
-                       commitComment="first build commit",
-                       firstBuildCommit=True):
+                       commitComment="first build commit"):
         '''
         Add all Git untracked files of `path` to .gitignore
         and commit.
@@ -176,15 +199,6 @@ class ObsLightGitManager(ObsLightObject):
         self.__subprocess("sudo chmod -f a+w %s %s/.gitignore" % (absPath, absPath))
 
         f = open(absPath + "/.gitignore", 'a')
-        if firstBuildCommit:
-            f.write("debugfiles.list\n")
-            f.write("debuglinks.list\n")
-            f.write("debugsources.list\n")
-#            f.write("*.in\n")
-
-            self.__subprocess(self.prepareGitCommand(path,
-                                                     "add " + absPath + "/.gitignore",
-                                                     package.getCurrentGitDirectory()))
 
         if type(res) is not type(int()):
             for line in res.split("\n"):
