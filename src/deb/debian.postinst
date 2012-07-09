@@ -9,5 +9,39 @@ if [ ! -f "/etc/sudoers.tmp" ]; then
   rm /etc/sudoers.tmp
 fi
 
+IMGSRVPATH="obslight-image-server"
+REPOSRVPATH="obslight-repo-server"
+
+[ -d /srv/$IMGSRVPATH/www ] || install -d -o nobody -g users /srv/$IMGSRVPATH/www
+[ -d /srv/$REPOSRVPATH/www ] || install -d -o nobody -g users /srv/$REPOSRVPATH/www
+
+echo "/srv/$REPOSRVPATH/www  *(rw,fsid=0,no_root_squash,insecure,no_subtree_check)" >> /etc/exports
+
+/sbin/chkconfig --add xinetd
+/sbin/chkconfig --add rpcbind
+/sbin/chkconfig --add nfsserver
+
+if [ -d /etc/apache2/sites-available ]
+then
+ln -sf /srv/$IMGSRVPATH/config/obslight-image.apache2conf /etc/apache2/sites-available/obslight-image.conf
+ln -sf /srv/$REPOSRVPATH/config/obslight-repos.apache2conf /etc/apache2/sites-available/obslight-repos.conf
+a2ensite obslight-image.conf
+a2ensite obslight-repos.conf
+fi
+
+chown nobody:users /srv/$IMGSRVPATH
+chown nobody:users /srv/$IMGSRVPATH/config
+chown nobody:users /srv/$IMGSRVPATH/www
+chown nobody:users /srv/$REPOSRVPATH
+chown nobody:users /srv/$REPOSRVPATH/config
+chown nobody:users /srv/$REPOSRVPATH/www
+
+chmod g+w /srv/$IMGSRVPATH
+chmod g+w /srv/$IMGSRVPATH/config
+chmod g+w /srv/$IMGSRVPATH/www
+chmod g+w /srv/$REPOSRVPATH
+chmod g+w /srv/$REPOSRVPATH/config
+chmod g+w /srv/$REPOSRVPATH/www
+
 xdg-desktop-menu install --novendor /usr/share/applications/obslightgui.desktop
 
