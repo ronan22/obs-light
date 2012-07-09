@@ -37,11 +37,11 @@ cd $BUILD_PATH/$PROJECT/$REPO/$ARCH/\:full
 if [ -f primary.xml  ]; then rm primary.xml; fi
 if [ -f primary.xml.gz  ]; then rm primary.xml.gz; fi
 
-wget $REPO_URL/repodata/$PRIMARY_URL
+wget -q -c $REPO_URL/repodata/$PRIMARY_URL
 mv  *-primary.xml.gz primary.xml.gz
 gunzip primary.xml.gz
 
-if [ -f "$BUILD_PATH/$PROJECT/$REPO/$ARCH/\:full.solv"  ]; then rm "$BUILD_PATH/$PROJECT/$REPO/$ARCH/\:full.solv"; fi
+if [ -f $BUILD_PATH/$PROJECT/$REPO/$ARCH/\:full.solv  ]; then rm $BUILD_PATH/$PROJECT/$REPO/$ARCH/\:full.solv; fi
 
 chown -R obsrun:obsrun $BUILD_PATH/$PROJECT
 obs_admin --rescan-repository  $PROJECT $REPO $ARCH
