@@ -49,8 +49,8 @@ install: build
 	chmod 0440 /usr/src/packages/BUILD/debian/obslight/etc/sudoers.obslight
 	ln -fs obslight-wrapper.py /usr/src/packages/BUILD/debian/obslight/usr/bin/obslight
 	ln -fs obslightgui-wrapper.py /usr/src/packages/BUILD/debian/obslight/usr/bin/obslightgui
-	mkdir -p /srv/obslight-image-server/www
-	mkdir -p /srv/obslight-repo-server/www
+	mkdir -p /usr/src/packages/BUILD/debian/obslight/srv/obslight-image-server/www
+	mkdir -p /usr/src/packages/BUILD/debian/obslight/srv/obslight-repo-server/www
 	 # make install DESTDIR=/usr/src/packages/BUILD/debian/ace
 	 # --- end custom part for installing
 
