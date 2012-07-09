@@ -25,6 +25,7 @@ from urlparse import urlparse
 import httplib
 import urllib
 import urllib2
+import re
 
 from subprocess import call
 import ObsLightConfig
@@ -367,6 +368,25 @@ def isUserInGroup(group):
     """Check if user running this program is member of `group`"""
     userGroups = [grp.getgrgid(gid).gr_name for gid in os.getgroups()]
     return group in userGroups
+
+def removeShortOption(line, option):
+    """
+    Remove one-letter option `option` from `line`.
+    Returns a new string.
+
+    For example
+        removeShortOption("%setup -qcT", "c")
+    will return
+        "%setup -qT"
+
+    Warning: if there are several `option` in a group of options,
+    it will be removed only once ("-qccT" -> "-qcT").
+    """
+    # remove option if it's alone or at end of line
+    line = re.sub(r"[\s]-%s($|[\s])" % option, r"\1", line)
+    # remove option if it's in a group of options like "-qcT"
+    line = re.sub(r"([\s]-[\w]*)%s([\w]*)" % option, r"\1\2", line)
+    return line
 
 
 if __name__ == '__main__':

@@ -24,7 +24,7 @@ import os
 import re
 import ObsLightPrintManager
 
-from ObsLightTools import fileIsArchive
+from ObsLightTools import fileIsArchive, removeShortOption
 from ObsLightObject import ObsLightObject
 
 import ObsLightErr
@@ -482,7 +482,7 @@ class ObsLightSpec(ObsLightObject):
 
     def saveTmpSpec(self, path, excludePatch, archive):
         SETUP = False
-        if path == None:
+        if path is None:
             return None
         toWrite = "#File Write by OBSLight don't modify it\n"
         isSourceAnArchive = False
@@ -504,18 +504,15 @@ class ObsLightSpec(ObsLightObject):
                 elif (section == "%prep"):
                     if (line.startswith('%prep')) :
                         toWrite += line
-                    elif (line.startswith('%setup') and (SETUP == False)):
-                        # TODO: remove test "in", replace ,find ,... by re used.
-                        line = re.sub("[\s]-c", '', line)
+                    elif (line.startswith('%setup') and (not SETUP)):
+                        line = removeShortOption(line, "c")
                         # If we match -a0, remove -T even if not isSourceAnArchive
                         a0Matched = re.match(r".*[\s]-a[\s]*[0]+($|([^\d].*))", line)
                         self.logger.debug('Matched "-a0" in %%setup: %s', a0Matched)
-                        line = re.sub("[\s]-a[\s]*[\d]+", '', line)
+                        # Remove "-aX", X being a number
+                        line = re.sub(r"[\s]-a[\s]*[\d]+", '', line)
                         if not isSourceAnArchive or a0Matched:
-                            # remove " -T " or " -T" at end of line
-                            line = re.sub("[\s]-T($|[\s])", r"\1", line)
-                            # remove 'T' in group of options like "-qcT"
-                            line = re.sub(r"([\s]-[\w]*)T([\w]*)", r"\1\2", line)
+                            line = removeShortOption(line, "T")
                         toWrite += line + "\n"
                         toWrite += "if [ -e .emptyDirectory  ]; "
                         toWrite += "then for i in `cat .emptyDirectory` ; "
