@@ -512,7 +512,10 @@ class ObsLightSpec(ObsLightObject):
                         self.logger.debug('Matched "-a0" in %%setup: %s', a0Matched)
                         line = re.sub("[\s]-a[\s]*[\d]+", '', line)
                         if not isSourceAnArchive or a0Matched:
-                            line = re.sub("[\s]-T", '', line)
+                            # remove " -T " or " -T" at end of line
+                            line = re.sub("[\s]-T($|[\s])", r"\1", line)
+                            # remove 'T' in group of options like "-qcT"
+                            line = re.sub(r"([\s]-[\w]*)T([\w]*)", r"\1\2", line)
                         toWrite += line + "\n"
                         toWrite += "if [ -e .emptyDirectory  ]; "
                         toWrite += "then for i in `cat .emptyDirectory` ; "
