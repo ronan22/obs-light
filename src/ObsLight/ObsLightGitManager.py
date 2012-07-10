@@ -164,7 +164,6 @@ class ObsLightGitManager(ObsLightObject):
         f.write("debuglinks.list\n")
         f.write("debugsources.list\n")
         f.write(".gitignore\n")
-        f.write(".emptyDirectory\n")
 #            f.write("*.in\n")
 
         f.close()
