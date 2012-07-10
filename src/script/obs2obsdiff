@@ -1,0 +1,390 @@
+#!/usr/bin/env python
+#         Ronan Le Martret (Intel OTC)
+#         Florent Vennetier (Intel OTC)
+# Date 10 Juily 2012
+# Version 1.0
+# License GPLv2
+
+import os
+import sys
+import time
+
+from urllib2 import URLError, HTTPError
+from xml.etree import ElementTree
+
+from osc import conf, core
+
+DEBUG_MODE = False
+MAX_RETRIES = 5
+
+
+
+class PrintHandler(object):
+    """
+    Wrapper for sys.stderr and sys.stdout that writes to a log file.
+    """
+
+    def __init__(self, stream):
+        self.stream = stream
+        self.skipline = False
+
+    def write(self, buf):
+        # osc has the bad habit to print a warning when we do not use HTTPS.
+        # And worse, it also prints a newline...
+        if buf.startswith("WARNING: SSL certificate checks disabled"):
+            self.skipline = True
+        elif self.skipline:
+            self.skipline = False
+        else:
+            self.stream.write(buf)
+
+    def flush(self):
+        self.stream.flush()
+
+    def close(self):
+        self.stream.close()
+
+def help_(progName="obs2obsdiff"):
+    print """HELP
+Function : Compare tag of two project in an OBS.
+        It will create a 2 tag file which contains the MD5 to represent
+        the diff package revision of each project. The tag file can be used as direct input
+        for obs2obscopy.
+        Warning: Two related package by a link, have not the same MD5.
+
+Usage:   """ + progName + """ <obs-alias|obs-api-url> <project-name-1> <obs-alias|obs-api-url> <project-1-name-1> <md5-file-name-1> <md5-file-name-1>
+
+        <obs-alias>     the alias of an OBS server as defined by OSC in ~/.oscrc.
+        <obs-api-url>   a URL to an OBS API. Note that if you do not have a
+                        configured account in ~/.oscrc for this API, you should
+                        try public access, by appending "/public" to the URL.
+        <project-name-1>  the name of the first project.
+        <project-name-2>  the name of the second project.   
+        <md5-file-name-1> the name of the file where to write results of package from project 1 which differ in the project 2.
+        <md5-file-name-2> the name of the file where to write results of package from project 2 which differ in the project 1.
+
+Example: """ + progName + """ http://api.meego.com MeeGo:1.2:oss http://myObs.mynetwork:81 home:me:my_project diff_project1.tag diff_project2.tag
+
+Return code:
+          0 success
+          1 some packages not tagged
+          2 wrong (number of) arguments
+          3 problem writing MD5 file
+          4 network error
+          5 interrupted by user
+          
+Environment:
+       If the DEBUG environment variable is non-empty, all URLs will
+       be printed to stderr before being called.
+
+Version 3.3   License GPLv2"""
+
+def printerror(message):
+    print >> sys.stderr, message
+
+def printdebug(message):
+    if DEBUG_MODE:
+        print >> sys.stderr, "DEBUG:", message
+
+def getApiUrlFromAlias(alias):
+    """
+    Return the full API URL corresponding to `alias`.
+    Return `alias` if it is an URL.
+    """
+    if not alias.startswith("http"):
+        apiUrl = conf.config["apiurl_aliases"].get(alias, None)
+        if apiUrl is None:
+            message = "Wrong API URL or alias: '%s'" % alias
+            printerror(message)
+            sys.exit(2)
+        printdebug("%s is an alias for %s" % (alias, apiUrl))
+        return apiUrl
+    else:
+        return alias
+
+
+class PackageRevision(object):
+    """
+    Reflects the content of a <revision> tag as returned by a 
+    'GET /source/<project>/<package>/_history' call on an OBS project package.
+    """
+
+    def __init__(self, packageName, rev, vrev):
+        self.name = packageName
+        self.rev = rev
+        self.vrev = vrev
+        self.srcmd5 = ""
+        self.time = "0"
+        self.version = ""
+        self.user = ""
+        self.comment = "<no message>"
+
+    def __str__(self):
+        """
+        Simply calls self.__repr__()
+        """
+        return self.__repr__()
+
+    def __repr__(self):
+        """
+        Returns a string suitable for obs2obscopy input
+        """
+        if isinstance(self.comment, basestring):
+            self.comment = self.comment.replace("\n", "\t")
+            self.comment = self.comment.strip()
+        date = time.localtime(int(self.time))
+        s = "%(srcmd5)40s | %(rev)6s | " % self.__dict__
+        s += "%20s | " % time.strftime("%Y-%m-%d %H:%M:%S", date)
+        s += "%(name)s | %(version)s |%(user)s |%(comment)s " % self.__dict__
+        return s
+
+    def __cmp__(self, other):
+        if self.name == other.name:
+            return cmp(int(self.rev) or 0, int(other.rev) or 0)
+        else:
+            return cmp(self.name, other.name)
+
+
+class ObsProject(object):
+
+    def __init__(self, apiUrlOrAlias, projectName):
+        self.name = projectName
+        conf.get_config()
+        tmpApiUrl = getApiUrlFromAlias(apiUrlOrAlias)
+        self.apiUrl = tmpApiUrl if not tmpApiUrl.endswith("/") else tmpApiUrl[:-1]
+
+    def getPackageList(self):
+        """
+        Returns the list of all package names of this project.
+        Can raise `urllib2.HTTPError`, `urllib2.URLError` or `ElementTree.ParseError`.
+        """
+        # The following method does not work on public repositories :
+        #   core.meta_get_packagelist(self.apiUrl, self.name)
+        # This is why we have to use the WEB API and parse XML ourselves.
+        url = self.apiUrl + "/source/" + self.name
+        printdebug("Calling %s" % url)
+        xmlResult = core.http_request("GET", url).read()
+        packageList = list()
+        xmlPackageDir = ElementTree.fromstring(xmlResult)
+        for packageEntry in xmlPackageDir.iter("entry"):
+            packageList.append(packageEntry.get("name"))
+        return packageList
+
+    def getPackageRevisions(self, packageName):
+        """
+        Returns a list of `PackageRevision` of packageName.
+        Can raise `urllib2.HTTPError`, `urllib2.URLError` or `ElementTree.ParseError`.
+        """
+        revisionsList = list()
+        url = self.apiUrl + "/source/" + self.name
+        url += "/" + packageName + "/_history"
+        printdebug("Calling %s" % url)
+        try:
+            xmlResult = core.http_request("GET", url).read()
+        except HTTPError as e:
+            if e.code == 404:
+                printdebug("History not available for %s, trying to get undated last revision"
+                           % packageName)
+                return self.getPackageLastRevisions(packageName)
+            else:
+                raise
+
+        xmlRevisionLists = ElementTree.fromstring(xmlResult)
+        for xmlRevisionList in xmlRevisionLists.iter("revisionlist"):
+            for xmlRevision in xmlRevisionList.iter("revision"):
+                revision = PackageRevision(packageName,
+                                           xmlRevision.get("rev", 1),
+                                           xmlRevision.get("vrev", 1))
+                for field in xmlRevision.iter():
+                    if field.text is not None:
+                        revision.__dict__[field.tag] = field.text
+                revisionsList.append(revision)
+
+        revisionsList.sort(reverse=True)
+
+        if len(revisionsList) > 0:
+            return revisionsList[0]
+        else:
+            return PackageRevision(packageName, "", "")
+
+    def getPackageLastRevisions(self, packageName):
+        """
+        Returns a list of `PackageRevision` of packageName (probably
+        only one).
+        Can raise `urllib2.HTTPError`, `urllib2.URLError` or `ElementTree.ParseError`.
+        """
+        revisionsList = list()
+        url = "%s/source/%s/%s" % (self.apiUrl, self.name, packageName)
+        printdebug("Calling %s" % url)
+        xmlResult = core.http_request("GET", url).read()
+        directoryList = ElementTree.fromstring(xmlResult)
+        for directory in directoryList.iter("directory"):
+            revision = PackageRevision(packageName,
+                                       directory.get("rev", 1),
+                                       directory.get("vrev", 1))
+            srcmd5 = directory.get("srcmd5")
+            if srcmd5 is not None:
+                revision.srcmd5 = srcmd5
+                revisionsList.append(revision)
+        return revisionsList
+
+def initOutPutFile(outFile, apiUrl_1, projectName_1, apiUrl_2, projectName_2):
+    print >> outFile, "# This is a revision Tag file from OBS: %s created by obs2obsdiff." % apiUrl_1
+    print >> outFile, "# That MD5 Tag is directly usable by obs2obscopy script."
+    print >> outFile, "#"
+    print >> outFile, "# Created :", time.strftime("%a, %b %d %H:%M:%S %Z %Y")
+
+    print >> outFile, "# Server name : %s" % apiUrl_1
+    print >> outFile, "# Project name : %s" % projectName_1
+    print >> outFile, "#"
+    print >> outFile, "# This package MD5 Tag differ of the MD5 Tag of project:"
+    print >> outFile, "# Server name : %s" % apiUrl_2
+    print >> outFile, "# Project name : %s" % projectName_2
+    print >> outFile, "#"
+    print >> outFile, "#"
+    print >> outFile, "# %38s | %6s | %20s | %s | %s |%s |%s " % ("pkgMd5",
+                                                                  "pkgRev",
+                                                                  "pkgDate",
+                                                                  "pkgName",
+                                                                  "pkgVersion",
+                                                                  "pkgOwner",
+                                                                  "pkgComment")
+
+
+    print >> outFile, "#"
+
+def getPackageList(obsProject, apiUrl, projectName):
+    packageList = list()
+    try:
+        packageList = obsProject.getPackageList()
+    except HTTPError as e:
+        print >> sys.stderr, "An error occured while retrieving package list: ", str(e)
+        return 4
+    except URLError:
+        print >> sys.stderr, "The URL you gave seems to be invalid or unreachable:", apiUrl
+        return 4
+    except ElementTree.ParseError as pe:
+        print >> sys.stdout, "An error occured while parsing package list:", str(pe)
+        return 4
+
+    if len(packageList) < 1:
+        print "No package found in project %s !", projectName
+        return 0
+
+    return set(packageList)
+
+def main(apiUrl_1, projectName_1, apiUrl_2, projectName_2, outFilePath_1, outFilePath_2):
+    try:
+        outFile_1 = open(outFilePath_1, "wu+", 1)
+    except IOError as err:
+        print >> sys.stderr, "Cannot write", outFilePath_1, ":", err.strerror
+        return 3
+
+    try:
+        outFile_2 = open(outFilePath_2, "wu+", 1)
+    except IOError as err:
+        print >> sys.stderr, "Cannot write", outFilePath_2, ":", err.strerror
+        return 3
+
+    initOutPutFile(outFile_1, apiUrl_1, projectName_1, apiUrl_2, projectName_2)
+    initOutPutFile(outFile_2, apiUrl_2, projectName_2, apiUrl_1, projectName_1)
+
+    obsProject_1 = ObsProject(apiUrl_1, projectName_1)
+    obsProject_2 = ObsProject(apiUrl_2, projectName_2)
+
+    packageList_1 = getPackageList(obsProject_1, apiUrl_1, projectName_1)
+    packageList_2 = getPackageList(obsProject_2, apiUrl_2, projectName_2)
+
+    if type(packageList_1) != type(set()):
+        return packageList_1
+
+    if type(packageList_2) != type(set()):
+        return packageList_2
+
+    totalpackage = packageList_1.union(packageList_2)
+    communPackage = packageList_1.intersection(packageList_2)
+
+    print "Creating a revision tag of source packages"
+
+    packagesTaggedNumber = 0
+    packageCounter = 0
+    failedPackageList = []
+
+    for packageName in totalpackage:
+        packageCounter += 1
+        nbError = 0
+        while (nbError < MAX_RETRIES):
+            nbError += 1
+            try:
+                print "(%d/%d) %s" % (packageCounter, len(totalpackage), packageName),
+                if nbError > 1:
+                    print "retry %d" % (nbError - 1)
+                else:
+                    print
+
+
+                if packageName in packageList_1:
+                    revisions_1 = obsProject_1.getPackageRevisions(packageName)
+                else:
+                    revisions_1 = None
+                if packageName in packageList_2:
+                    revisions_2 = obsProject_2.getPackageRevisions(packageName)
+                else:
+                    revisions_2 = None
+
+                if (packageName in communPackage):
+                    if (revisions_1.srcmd5 != revisions_2.srcmd5):
+                        print >> outFile_1, revisions_1
+                        print >> outFile_2, revisions_2
+                elif packageName in packageList_1:
+                    print >> outFile_1, revisions_1
+                elif packageName in packageList_2:
+                    print >> outFile_2, revisions_2
+
+
+                packagesTaggedNumber += 1
+                nbError = 0
+                break
+            except ElementTree.ParseError as pe:
+                print >> sys.stderr, "An error occured while parsing revision"\
+                    + " list of package '%s': %s" % (packageName, str(pe))
+            except HTTPError as e:
+                print >> sys.stderr, "An error occured while retrieving package revision:",
+                print >> sys.stderr, str(e)
+        if nbError >= MAX_RETRIES:
+            failedPackageList.append(packageName)
+
+    outFile_1.close()
+    outFile_2.close()
+    print "\nFinal reports"
+    print "   Total number packages tagged = ", packagesTaggedNumber
+    print "   %s created" % outFilePath_1
+    print "   %s created" % outFilePath_2
+    if len(failedPackageList) > 0:
+        print "   Tag failed for packages: %s" % (", ".join(failedPackageList))
+        return 1
+    return 0
+
+
+if __name__ == '__main__':
+    if os.environ.has_key("DEBUG") and os.environ["DEBUG"] is not None:
+        DEBUG_MODE = True
+    if len(sys.argv) != 7:
+        help_(sys.argv[0])
+        sys.exit(2)
+
+    sys.stdout = PrintHandler(sys.stdout)
+    sys.stderr = PrintHandler(sys.stderr)
+
+    apiUrl_1 = sys.argv[1]
+    projectName_1 = sys.argv[2]
+    apiUrl_2 = sys.argv[3]
+    projectName_2 = sys.argv[4]
+    outFilePath_1 = sys.argv[5]
+    outFilePath_2 = sys.argv[6]
+
+    try:
+        sys.exit(main(apiUrl_1, projectName_1, apiUrl_2, projectName_2, outFilePath_1, outFilePath_2))
+    except KeyboardInterrupt:
+        print >> sys.stderr, "Interrupted by user..."
+        sys.exit(5)
