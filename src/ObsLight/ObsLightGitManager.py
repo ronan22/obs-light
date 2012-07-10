@@ -167,10 +167,6 @@ class ObsLightGitManager(ObsLightObject):
         f.write(".emptyDirectory\n")
 #            f.write("*.in\n")
 
-        self.__subprocess(self.prepareGitCommand(path,
-                                                 "add %s/.gitignore" % absPath,
-                                                 package.getCurrentGitDirectory()))
-
         f.close()
 
     def ignoreGitWatch(self,
