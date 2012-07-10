@@ -369,6 +369,10 @@ class PackageManager(QObject, ObsLightGuiObject):
         packageList = self.manager.getObsProjectPackageList(server, prjObsName)
         return packageList
 
+    def __packageErrorCallback(self, error, traceback=None):
+        self.__refreshStatus()
+        self.gui.popupErrorCallback(error, traceback)
+
     def __mapOnSelectedPackages(self,
                                 method,
                                 initialMessage,
@@ -403,7 +407,7 @@ class PackageManager(QObject, ObsLightGuiObject):
             runnable.setDialogMessage(initialMessage)
         packagesNames.sort()
         runnable.setFunctionToMap(method, packagesNames, loopMessage, *args, **kwargs)
-        runnable.caughtException.connect(self.gui.popupErrorCallback)
+        runnable.caughtException.connect(self.__packageErrorCallback)
         if callback is not None:
             # detect if callback takes arguments in order to call
             # the appropriate finish signal
@@ -502,6 +506,17 @@ class PackageManager(QObject, ObsLightGuiObject):
                                 message)
         self.__refreshStatus()
 
+    def __handleRpmCreationResult(self, retValList):
+        """
+        If there is at least one zero in `retValList`, call createRepo,
+        then call self.__handleRpmOperationResult.
+        """
+        prj = self.getCurrentProject()
+        if 0 in retValList:
+            msg = "Creating repositories for project '%s'" % prj
+            self.callWithInfiniteProgress(self.manager.createRepo, msg, prj)
+        self.__handleRpmOperationResult(retValList)
+
     @popupOnException
     def on_rpmPrepButton_clicked(self):
         projectName = self.getCurrentProject()
@@ -561,10 +576,8 @@ class PackageManager(QObject, ObsLightGuiObject):
         self.__mapOnSelectedPackages(firstArgLast(self.manager.packageRpm),
                                      None,
                                      u"Packaging %(arg)s",
-                                     self.__handleRpmOperationResult,
+                                     self.__handleRpmCreationResult,
                                      projectName)
-        # TODO: Move createRepo at the end of the buid.
-        self.manager.createRepo(projectLocalName=projectName)
 
     @popupOnException
     def on_openTermButton_clicked(self):
