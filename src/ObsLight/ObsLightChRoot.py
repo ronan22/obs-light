@@ -729,11 +729,16 @@ class ObsLightChRoot(ObsLightChRootCore):
             prepDirname = listDir[0]
             resultPath = package.getChrootRpmBuildDirectory() + "/BUILD/" + prepDirname
             package.setPrepDirName(prepDirname)
-            subDir = os.listdir(pathBuild + "/" + prepDirname)
-            if len(subDir) == 0:
+            dirContent = os.listdir(pathBuild + "/" + prepDirname)
+            if len(dirContent) == 0:
+                # If there is nothing in package directory, we cannot
+                # initialize patch mode.
+                package.setPackageParameter("patchMode", False)
                 return resultPath
-            elif (len(subDir) == 1) and os.path.isdir(pathBuild + "/" + prepDirname + "/" + subDir[0]):
-                return resultPath + "/" + subDir[0]
+            elif (len(dirContent) == 1) and os.path.isdir("%s/%s/%s" % (pathBuild,
+                                                                        prepDirname,
+                                                                        dirContent[0])):
+                return resultPath + "/" + dirContent[0]
             else:
                 return resultPath
         else:
