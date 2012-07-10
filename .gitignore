@@ -23,3 +23,5 @@ _buildinfo-MeeGoTV_1.2-i586.xml
 _buildinfo-meegotv_oss_DOD_MeeGo_1.2-i586.xml
 _buildinfo-openSUSE_12.1-i586.xml
 _buildinfo-standard-i586.xml
+_buildconfig-fake.standard-i586
+_buildinfo-fake.standard-i586.xml
