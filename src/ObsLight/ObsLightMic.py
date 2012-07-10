@@ -144,7 +144,6 @@ class ObsLightMic(object):
             chrootmounts.append(BindChrootMount("/sys", chrootdir, None))
             chrootmounts.append(BindChrootMount("/dev", chrootdir, None))
             chrootmounts.append(BindChrootMount("/dev/pts", chrootdir, None))
-            chrootmounts.append(BindChrootMount("/dev/shm", chrootdir, None))
             chrootmounts.append(BindChrootMount("/var/lib/dbus", chrootdir, None))
             chrootmounts.append(BindChrootMount("/var/run/dbus", chrootdir, None))
 
@@ -160,7 +159,7 @@ class ObsLightMic(object):
                 b.mount()
                 # b.mount() should raise an exception if it fails
                 # so b.ismounted() is supposed to be always True at this point
-                assert b.ismounted()
+                assert b.ismounted(), "Error while mounting %s" % b.src
 
         def setup_resolv(chrootdir):
             command = "sudo cp /etc/resolv.conf " + chrootdir + "/etc/resolv.conf"
