@@ -180,8 +180,11 @@ def appendMicProjectSubCommand(command):
     __micproject_subcommand_list__.append(command[0])
 
 
-def _createCommandParameter(command, parameterList, completionBlacklist,
-                            commandParameterDict, commandParameterCompletionDict):
+def _createCommandParameter(command,
+                            parameterList,
+                            completionBlacklist,
+                            commandParameterDict,
+                            commandParameterCompletionDict):
     commandParameterDict[command[0]] = []
     for parameter in parameterList:
         commandParameterDict[command[0]].append(parameter[0])
@@ -405,6 +408,7 @@ __command_resolveConflict__ = ["resolveConflict"]
 __command_createPatch__ = ["createpatch"]
 __command_updatepatch__ = ["updatepatch"]
 __command_modify__ = ["modify"]
+__command_testBuildPackages__ = ["testBuildPackages"]
 
 #Parameter 
 __parameter_reachable__ = ["reachable"]
@@ -631,7 +635,7 @@ createServerParameter(__command_add__, [__command_help__,
 
 createServerParameter(__command_del__, [__command_help__,
                                         __parameter_server_alias__],
-                      [__parameter_server_alias__])
+                                        [__parameter_server_alias__])
 
 createServerParameter(__command_current__, [__command_help__])
 
@@ -647,6 +651,7 @@ appendObsProjectSubCommand(__command_current__)
 appendObsProjectSubCommand(__command_import__)
 appendObsProjectSubCommand(__command_export__)
 appendObsProjectSubCommand(__command_dependencyrepositories__)
+appendObsProjectSubCommand(__command_testBuildPackages__)
 
 #Define the obsproject command help
 createObsProjectSubCommandHelp(__command_help__, __help_command_help__)
@@ -701,6 +706,12 @@ createObsProjectSubCommandHelp(__command_import__,
 createObsProjectSubCommandHelp(__command_export__,
                                ["obsproject export <path> {<project_alias>}}",
                                 "  export a backup file"])
+
+createObsProjectSubCommandHelp(__command_testBuildPackages__,
+                               ["test the build of package on the obslight" +
+                                "<repository_alias> {project_alias <project_alias>} " +
+                                "{package <package>}",
+                                "import/prep/build/remove"])
 
 #Define the obsproject parameter help
 createObsProjectParameter(__command_create__, [__command_help__,
@@ -773,6 +784,10 @@ createObsProjectParameter(__command_export__,
                            __parameter_project_alias__],
                           [__parameter_path__,
                            __parameter_project_alias__])
+
+createObsProjectParameter(__command_testBuildPackages__, [__command_help__,
+                                                            __parameter_project_alias__,
+                                                            __parameter_package__])
 
 #Command package
 appendPackageSubCommand(__command_help__)
@@ -1064,6 +1079,8 @@ createRepositorySubCommandHelp(__command_modify__,
                                 "<repository_alias> {project_alias <project_alias>}",
                                 "  modify the url/alias of a repository"])
 
+
+
 #Define the Repositories parameter help
 createRepositoriesParameter(__command_add__, [__command_help__,
                                               __parameter_repo_url__,
@@ -1085,6 +1102,8 @@ createRepositoriesParameter(__command_modify__, [__command_help__,
                                                  __parameter_newAlias__,
                                                  __parameter_repo_alias__,
                                                  __parameter_project_alias__])
+
+
 
 #Command rpmbuild
 appendRpmBuildSubCommand(__command_help__)
@@ -2394,6 +2413,45 @@ class ObsLightObsproject(ObsLightBase):
             else:
                 return self.printHelp(__command_dependencyrepositories__)
 
+    def obsproject_testBuildPackages(self, listArgv):
+        Help = False
+        project_alias = None
+        listPackage = None
+
+        while self.testArgv(listArgv):
+            currentCommand, listArgv = self.getParameter(listArgv)
+
+            if (currentCommand in __command_help__) or (listArgv == None):
+                Help = True
+                break
+            elif currentCommand in __parameter_project_alias__:
+                project_alias, listArgv = self.getParameter(listArgv)
+                if (project_alias == None) and ObsLightBase.noaction:
+                    return self.printProjectCompletionList()
+            elif currentCommand in __parameter_package__:
+                listPackage = listArgv
+                break
+            else:
+                return self.printUnknownCommand(currentCommand, __command_testBuildPackages__)
+
+        if  Help:
+            return self.printHelp(__command_testBuildPackages__)
+        else:
+            if not ObsLightBase.noaction:
+                m = ObsLightManager.getCommandLineManager()
+
+                if project_alias == None:
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return self.printHelp()
+
+                res = m.testBuildPackages(project_alias, listPackage)
+
+                if self.testResult(res, getLineno()) == -1:return - 1
+                return 0
+            else:
+                return self.printHelp(__command_testBuildPackages__)
+
     def execute(self, listArgv):
         '''
         Execute a list of arguments.
@@ -2426,6 +2484,8 @@ class ObsLightObsproject(ObsLightBase):
                 return self.obsproject_export(listArgv)
             elif currentCommand in __command_dependencyrepositories__:
                 return self.obsproject_dependencyrepositories(listArgv)
+            elif currentCommand in __command_testBuildPackages__:
+                return self.obsproject_testBuildPackages(listArgv)
             else:
                 return self.printHelp()
 

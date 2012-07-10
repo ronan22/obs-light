@@ -688,7 +688,6 @@ class ObsLightOsc(ObsLightObject):
         listOptExtraPkgs = listOptExtraPkgs or ["gzip",
                                                 "strace",
                                                 "vim",
-                                                "zypper",
                                                 "iptools",
                                                 "sed"]
 

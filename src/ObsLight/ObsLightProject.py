@@ -968,6 +968,10 @@ class ObsLightProject(ObsLightObject):
 
         self.logger.info("Building RPMs for '%s' in chroot jail" % packageName)
         retVal = self.packageRpm(packageName)
+        if retVal != 0:
+            return retVal
+        self.logger.info("Building RPMs for '%s' in chroot jail" % packageName)
+        retVal = self.removePackage(packageName)
         return retVal
 
     def importPrepBuildPackages(self, packageNames=None):

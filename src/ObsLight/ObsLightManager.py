@@ -747,6 +747,22 @@ class ObsLightManagerCore(ObsLightManagerBase):
         '''
         return self._myObsLightProjects.getProject(projectLocalName).getDependencyRepositories()
 
+    def testBuildPackages(self, projectName, packageNames):
+        """
+        Call `ObsLightProject.importPrepBuildPackages` for all packages
+        of `packageNames`. If `packageNames` is None or an empty list,
+        call `importPrepBuildPackage` for all packages of `projectName`.
+
+        Returns the list of packages which failed, as tuples of
+        (packageName, exception) or (packageName, errorCode) depending
+        on the type of failure.
+
+        This function was developed for testing purposes.
+        """
+
+        res = self._myObsLightProjects.importPrepBuildPackages(projectName, packageNames)
+        self._myObsLightProjects.save()
+        return res
 
     #///////////////////////////////////////////////////////////////////////////package
     @checkProjectLocalName(1)
