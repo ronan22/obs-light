@@ -705,6 +705,8 @@ class ObsLightChRoot(ObsLightChRootCore):
             args = args + " --target=%s" % target
         rpmbuildCmd = "rpmbuild %s %s %s %s < /dev/null" % (args, srcdefattr, topdir, specFile)
         parameters["rpmbuildCmd"] = rpmbuildCmd
+        parameters["directoryBuild"] = package.getPackageDirectory()
+
         return parameters
 
     def __findPackageDirectory(self, package=None):
@@ -934,11 +936,17 @@ exit $RETURN_VALUE
                                                              package,
                                                              arch,
                                                              "-bc --short-circuit")
+
         script = """HOME=%(userHome)s/%(packageName)s
 rm -f %(buildLink)s
 ln -s %(buildDir)s %(buildLink)s
+mv  %(directoryBuild)s/.gitignore  %(directoryBuild)s/.gitignore.tmp.build 
+find %(directoryBuild)s -type f -name .gitignore.obslight -execdir mv .gitignore.obslight .gitignore \;
 %(rpmbuildCmd)s
-exit $?
+RETURN_VALUE=$?
+find %(directoryBuild)s -type f -name .gitignore.obslight -execdir mv .gitignore .gitignore.obslight \;
+mv %(directoryBuild)s/.gitignore.tmp.build %(directoryBuild)s/.gitignore
+exit $RETURN_VALUE
 """
         script = script % scriptParameters
         res = self.execCommand([script])
