@@ -22,6 +22,8 @@ Created on 29 sept. 2011
 
 import pickle
 import os
+import shutil
+
 import ObsLightOsc
 from ObsLightServer import ObsLightServer
 from ObsLightErr import ObsLightObsServers
@@ -44,7 +46,10 @@ class ObsLightServers(object):
         self.__blackList = {}
         self.__currentServer = None
         self.__pathFile = os.path.join(workingDirectory , "ObsServersConfig")
+        self.__pathFileBackUp = self.__pathFile + ".backup"
+
         self.__initServersFromOsc()
+
 
 
     def __initServersFromOsc(self):
@@ -93,10 +98,13 @@ class ObsLightServers(object):
             saveconfigServers["currentObsServer"] = self.__currentServer
 
             if saveconfigServers != self.__saveconfigServers:
-                aFile = open(self.__pathFile, 'w')
+                aFile = open(self.__pathFileBackUp, 'w')
                 pickle.dump(saveconfigServers, aFile)
                 aFile.close()
                 self.__saveconfigServers = saveconfigServers
+
+                if os.path.isfile(self.__pathFileBackUp):
+                    shutil.copyfile(self.__pathFileBackUp, self.__pathFile)
 
 #-------------------------------------------------------------------------------
     def getCurrentServer(self):

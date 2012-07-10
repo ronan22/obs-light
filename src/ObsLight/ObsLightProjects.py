@@ -26,6 +26,7 @@ from ObsLightProject import ObsLightProject
 import ObsLightErr
 import ObsLightTools
 import collections
+import shutil
 
 class ObsLightProjects(object):
 
@@ -40,6 +41,7 @@ class ObsLightProjects(object):
         self.__currentProjects = None
         self.__workingDirectory = os.path.join(workingDirectory, "ObsProjects")
         self.__pathFile = os.path.join(workingDirectory, "ObsLightProjectsConfig")
+        self.__pathFileBackUp = self.__pathFile + ".backup"
 
     #---------------------------------------------------------------------------
     def getLocalProjectList(self):
@@ -87,9 +89,11 @@ class ObsLightProjects(object):
 
     def save(self, aFile=None, projectName=None):
         if aFile is None:
+            pathFileBackUp = self.__pathFileBackUp
             pathFile = self.__pathFile
             projectName = None
         else:
+            pathFileBackUp = aFile + ".backup"
             pathFile = aFile
 
         saveProject = {}
@@ -114,9 +118,11 @@ class ObsLightProjects(object):
         saveconfigProject["currentProject"] = self.__currentProjects
 
         if (projectName is not None) or (saveconfigProject != self.__saveconfigProject):
-            aFile = open(pathFile, 'w')
+            aFile = open(pathFileBackUp, 'w')
             pickle.dump(saveconfigProject, aFile)
             aFile.close()
+            if os.path.isfile(pathFileBackUp):
+                shutil.copyfile(pathFileBackUp, pathFile)
 
             if projectName is None:
                 self.__saveconfigProject = saveconfigProject

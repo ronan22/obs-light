@@ -23,6 +23,7 @@ Created on jan 10 2012
 
 import os
 import pickle
+import shutil
 
 import ObsLightErr
 
@@ -37,6 +38,7 @@ class ObsLightMicProjects:
         self.__currentProjects = None
         self.__workingDirectory = os.path.join(workingDirectory, "MicProjects")
         self.__pathFile = os.path.join(workingDirectory , "ObsLightMicProjectsConfig")
+        self.__pathFileBackUp = self.__pathFile + ".backup"
 
         if not os.path.isdir(self.getObsLightMicDirectory()):
             os.makedirs(self.getObsLightMicDirectory())
@@ -70,9 +72,11 @@ class ObsLightMicProjects:
             self.__currentProjects = saveconfigServers["currentProject"]
 
     def save(self, aFile=None, ProjectName=None):
-        if aFile == None:
+        if aFile is None:
+            pathFileBackUp = self.__pathFileBackUp
             pathFile = self.__pathFile
         else:
+            pathFileBackUp = aFile + ".backup"
             pathFile = aFile
 
         saveProject = {}
@@ -86,9 +90,12 @@ class ObsLightMicProjects:
         saveconfigProject = {}
         saveconfigProject["saveProjects"] = saveProject
         saveconfigProject["currentProject"] = self.__currentProjects
-        aFile = open(pathFile, 'w')
+        aFile = open(pathFileBackUp, 'w')
         pickle.dump(saveconfigProject, aFile)
         aFile.close()
+
+        if os.path.isfile(pathFileBackUp):
+            shutil.copyfile(pathFileBackUp, pathFile)
 
     def __addProjectFromSave(self, name, fromSave=None):
         if self.isAMicProject(name):
