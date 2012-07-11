@@ -970,7 +970,7 @@ class ObsLightProject(ObsLightObject):
         retVal = self.packageRpm(packageName)
         if retVal != 0:
             return retVal
-        self.logger.info("Building RPMs for '%s' in chroot jail" % packageName)
+        self.logger.info("Deleting package '%s' as it builds correctly" % packageName)
         retVal = self.removePackage(packageName)
         return retVal
 
