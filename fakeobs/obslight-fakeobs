@@ -21,8 +21,8 @@ Commands:
 	grab <release> <api> <repo_url> <project_name> <repository> <architectures>
 		Grab a project from an OBS server
 		 release:       a release name or number (ex: "1.0")
-		 api:           the URL of the OBS public API
-		                (ex: "https://api.tizen.org/public")
+		 api:           the URL of the OBS API
+		                (ex: "https://api.tizen.org")
 		 repo_url:      the URL where to the package repositories where
 		                the project is published
 		                (ex: "rsync://download.tizen.org/live")
