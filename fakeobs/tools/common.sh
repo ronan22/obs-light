@@ -35,7 +35,7 @@ function fix_api()
 
 function check_public_api()
 {
-  local api=`fix_api $1`
+  local api="$1"
   local url="$api/distributions"
   curl -s -S -f -k $url 1>/dev/null 2>error.log
   if [ "$?" -ne "0" ]
