@@ -1,5 +1,5 @@
 #
-# Copyright 2011, Intel Inc.
+# Copyright 2011-2012, Intel Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@ Created on 22 juil. 2011
 
 @author: rmartret
 '''
-import sys
+
 import os
 import re
 import ObsLightPrintManager
@@ -514,21 +514,21 @@ class ObsLightSpec(ObsLightObject):
                         # If we match -a0, remove -T even if not isSourceAnArchive
                         a0Matched = re.match(r".*[\s]-a[\s]*[0]+($|([^\d].*))", line)
                         self.logger.debug('Matched "-a0" in %%setup: %s', a0Matched)
-                        # Remove "-aX", X being a number
+                        # Remove "-aN", N being a number
                         line = re.sub(r"[\s]-a[\s]*[\d]+", '', line)
                         if not isSourceAnArchive or a0Matched:
                             line = removeShortOption(line, "T")
                         # OBS Light generates its own archive.
                         # "-T" disables auto-unpack of Source0,
-                        # "-b XXX" forces unpack of SourceXXX and cd into extracted dir
+                        # "-b NNN" forces unpack of SourceNNN and cd into extracted dir
                         line = line[:-1] + " -T -b %d\n" % self.archiveNumber
                         toWrite += line + "\n"
                         toWrite += "if [ -e .emptyDirectory  ]; "
                         toWrite += "then for i in `cat .emptyDirectory` ; "
-                        toWrite += "do mkdir -p $i;echo $i ; done;fi\n"
-                        #we need to rename the file ".gitignore.obslight" to ".gitignore"
+                        toWrite += "do mkdir -p $i ; echo $i ; done ; fi\n"
+                        # we need to rename the file ".gitignore.obslight" to ".gitignore"
                         toWrite += "find ./ -type f -name .gitignore.obslight"
-                        toWrite += " -execdir mv .gitignore.obslight .gitignore  \;\n"
+                        toWrite += " -execdir mv {} .gitignore \\;\n"
                         SETUP = True
                     elif line.startswith('%docs_package'):
                         toWrite += line
