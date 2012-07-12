@@ -893,7 +893,7 @@ rm -f %(buildLink)s
 ln -s %(buildDir)s %(buildLink)s
 %(rpmbuildCmd)s
 RETURN_VALUE=$?
-find %(buildDir)s/BUILD -type f -name .gitignore -execdir mv .gitignore .gitignore.obslight  \;
+find %(buildDir)s/BUILD -type f -name .gitignore -execdir mv {} .gitignore.obslight \;
 exit $RETURN_VALUE
 """
         script = script % scriptParameters
@@ -946,10 +946,10 @@ exit $RETURN_VALUE
 rm -f %(buildLink)s
 ln -s %(buildDir)s %(buildLink)s
 mv  %(directoryBuild)s/.gitignore  %(directoryBuild)s/.gitignore.tmp.build 
-find %(directoryBuild)s -type f -name .gitignore.obslight -execdir mv .gitignore.obslight .gitignore \;
+find %(directoryBuild)s -type f -name .gitignore.obslight -execdir mv {} .gitignore \;
 %(rpmbuildCmd)s
 RETURN_VALUE=$?
-find %(directoryBuild)s -type f -name .gitignore.obslight -execdir mv .gitignore .gitignore.obslight \;
+find %(directoryBuild)s -type f -name .gitignore -execdir mv {} .gitignore.obslight \;
 mv %(directoryBuild)s/.gitignore.tmp.build %(directoryBuild)s/.gitignore
 exit $RETURN_VALUE
 """

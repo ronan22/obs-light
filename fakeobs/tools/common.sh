@@ -22,10 +22,21 @@ function echo_yellow()
   echo -e $YELLOW$@$DEFAULT
 }
 
+function fix_api()
+{
+  local orig_api="$1"
+  if ! $(echo $orig_api | grep -q "/public$")
+  then
+    echo $orig_api/public
+  else
+    echo $orig_api
+  fi
+}
+
 function check_public_api()
 {
-  local api=$1
-  local url="$1/distributions"
+  local api="$1"
+  local url="$api/distributions"
   curl -s -S -f -k $url 1>/dev/null 2>error.log
   if [ "$?" -ne "0" ]
   then

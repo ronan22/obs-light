@@ -12,6 +12,7 @@ ARCHS="$6"
 
 source tools/common.sh
 
+API=`fix_api $API`
 check_public_api "$API" || exit 1
 project_exists "$PROJECT"
 if [ "$?" -eq "0" ]
