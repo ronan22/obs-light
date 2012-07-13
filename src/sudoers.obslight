@@ -17,6 +17,7 @@
 %users ALL=(ALL)NOPASSWD:/bin/cp * */OBSLight/*/aChroot*
 %users ALL=(ALL)NOPASSWD:/bin/rm */OBSLight/*/aChroot*
 %users ALL=(ALL)NOPASSWD:/bin/rm -r */OBSLight/*/aChroot*
+%users ALL=(ALL)NOPASSWD:/bin/rm -r */OBSLight/MicProjects/*
 %users ALL=(ALL)NOPASSWD:/bin/touch */OBSLight/*/aChroot*
 %users ALL=(ALL)NOPASSWD:/bin/echo * > /proc/sys/fs/binfmt_misc/*
 %users ALL=(ALL)NOPASSWD:/sbin/modprobe binfmt_misc

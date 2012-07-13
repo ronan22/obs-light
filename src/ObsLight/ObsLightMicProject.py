@@ -354,7 +354,8 @@ class ObsLightMicProject(object):
         """
         Recursively delete the project working directory.
         """
-        shutil.rmtree(self.projectDirectory)
+        return self.__subprocess("sudo rm -r %s" % self.projectDirectory)
+#        shutil.rmtree(self.projectDirectory)
 
     def setArchitecture(self, arch):
         """

@@ -143,8 +143,11 @@ class ObsLightMicProjects:
         Delete `micProjectName` project.
         """
         self._checkMicProjectName(micProjectName)
-        self.__dicOBSLightProjects[micProjectName].deleteProjectDirectory()
-        del self.__dicOBSLightProjects[micProjectName]
+        if self.__dicOBSLightProjects[micProjectName].deleteProjectDirectory() == 0:
+            del self.__dicOBSLightProjects[micProjectName]
+        else:
+            msg = "the Mic project: '%s' Can't be deleted." % micProjectName
+            raise  ObsLightErr.ObsLightMicProjectErr(msg)
 
     def setKickstartFile(self, micProjectName, filePath):
         """
