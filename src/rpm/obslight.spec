@@ -221,12 +221,15 @@ chmod g+w /srv/%REPOSRVPATH/www
 %dir /srv/%REPOSRVPATH
 %dir /srv/%IMGSRVPATH/config
 %dir /srv/%REPOSRVPATH/config
+%dir /srv/%REPOSRVPATH/config/theme
+%dir /srv/%REPOSRVPATH/config/theme/images
 %dir /srv/%IMGSRVPATH/www
 %dir /srv/%REPOSRVPATH/www
 
 /srv/%IMGSRVPATH/config/obslight-image.apache2conf
 /srv/%REPOSRVPATH/config/obslight-repos.apache2conf
 /srv/%REPOSRVPATH/config/theme/*
+/srv/%REPOSRVPATH/config/theme/images/*
 # << files
 
 %files gui
