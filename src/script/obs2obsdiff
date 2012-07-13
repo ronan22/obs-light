@@ -288,10 +288,12 @@ def isDiffPackageFiles(src_apiurl, src_project, src_package,
                      dst_revision):
 
     listToUpdate = set()
-    dicoSrcFiles = getPackageLastRevisions(src_apiurl, src_project, src_package, src_revision)
-    dicoDstFiles = getPackageLastRevisions(dst_apiurl, dst_project, dst_package, dst_revision)
+    dicoSrcFiles = getPackageFiles(src_apiurl, src_project, src_package, src_revision)
+    dicoDstFiles = getPackageFiles(dst_apiurl, dst_project, dst_package, dst_revision)
 
     listSrcPackageFiles = set(dicoSrcFiles.keys())
+    if '_link' in listSrcPackageFiles:
+        listSrcPackageFiles.remove('_link')
     listDstPackageFiles = set(dicoDstFiles.keys())
 
     listToTest = listSrcPackageFiles.intersection(listDstPackageFiles)
@@ -308,22 +310,21 @@ def isDiffPackageFiles(src_apiurl, src_project, src_package,
 
     return len(listToUpdate) > 0
 
-def getPackageLastRevisions(apiurl, project, package, src_revision=None):
+def getPackageFiles(apiurl, project, package, src_revision=None):
     query = {}
     if src_revision:
         query["rev"] = src_revision
-
+    query["expand"] = "1"
     url = makeurl(apiurl, ['source', project, package], query=query)
-    print url
-
-    xmlResult = core.http_request("GET", url).read()
+    res = core.http_request("GET", url)
+    xmlResult = res.read()
     directoryList = ElementTree.fromstring(xmlResult)
     result = {}
     for directory in directoryList:
         for packageEntry in directory.iter("entry"):
             name = packageEntry.get("name")
             md5 = packageEntry.get("md5")
-            if name.startswith('_service:') or name.startswith('_service_') or name.startswith("_link"):
+            if name.startswith('_service:') or name.startswith('_service_'):
                 continue
             result[name] = md5
     return result

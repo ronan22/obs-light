@@ -125,21 +125,21 @@ def makeurl(baseurl, l, query=[]):
         printdebug("-> %s" % finalurl)
     return finalurl
 
-def getPackageLastRevisions(apiurl, project, package, src_revision=None):
+def getPackageFiles(apiurl, project, package, src_revision=None):
     query = {}
     if src_revision:
         query["rev"] = src_revision
-
+    query["expand"] = "1"
     url = makeurl(apiurl, ['source', project, package], query=query)
-
-    xmlResult = core.http_request("GET", url).read()
+    res = core.http_request("GET", url)
+    xmlResult = res.read()
     directoryList = ElementTree.fromstring(xmlResult)
     result = {}
     for directory in directoryList:
         for packageEntry in directory.iter("entry"):
             name = packageEntry.get("name")
             md5 = packageEntry.get("md5")
-            if name.startswith('_service:') or name.startswith('_service_') or name.startswith("_link"):
+            if name.startswith('_service:') or name.startswith('_service_'):
                 continue
             result[name] = md5
     return result
@@ -149,10 +149,13 @@ def testPackageFiles(src_apiurl, src_project, src_package,
                      src_revision):
 
     listToUpdate = set()
-    dicoSrcFiles = getPackageLastRevisions(src_apiurl, src_project, src_package, src_revision)
-    dicoDstFiles = getPackageLastRevisions(dst_apiurl, dst_project, dst_package)
+    dicoSrcFiles = getPackageFiles(src_apiurl, src_project, src_package, src_revision)
+    dicoDstFiles = getPackageFiles(dst_apiurl, dst_project, dst_package)
 
     listSrcPackageFiles = set(dicoSrcFiles.keys())
+    if '_link' in listSrcPackageFiles:
+        listSrcPackageFiles.remove('_link')
+
     listDstPackageFiles = set(dicoDstFiles.keys())
 
     listToTest = listSrcPackageFiles.intersection(listDstPackageFiles)
@@ -189,7 +192,7 @@ def copy_pac(src_apiurl, src_project, src_package,
         src_meta = core.show_package_meta(src_apiurl, src_project, src_package)
         dst_userid = conf.get_apiurl_usr(dst_apiurl)
         src_meta = core.replace_pkg_meta(src_meta, dst_package, dst_project, keep_maintainers,
-                                    dst_userid, keep_develproject)
+                                         dst_userid, keep_develproject)
 
         print 'Sending meta data...'
         u = makeurl(dst_apiurl, ['source', dst_project, dst_package, '_meta'])
@@ -205,7 +208,8 @@ def copy_pac(src_apiurl, src_project, src_package,
                                                      src_package,
                                                      expand=expand,
                                                      revision=revision))
-
+    if '_link' in listSrcPackageFiles:
+        listSrcPackageFiles.remove('_link')
 
     listDstPackageFiles = set(core.meta_get_filelist(dst_apiurl,
                                                      dst_project,
@@ -269,6 +273,17 @@ def getApiUrlFromAlias(alias):
         return apiUrl
     else:
         return alias
+def creatPackage(apiurl, projectObsName, package):
+
+    url = makeurl(apiurl, ['source', projectObsName, package, "_meta"])
+    tmp = '<package project="%s" name="%s"><title>%s</title>'
+    tmp += '<description>%s</description></package>'
+    tmp = tmp % (projectObsName, package, "", "")
+
+    aElement = ElementTree.fromstring(tmp)
+
+    core.http_PUT(url, data=ElementTree.tostring(aElement))
+
 
 def copyproject(apiUrl, srcProjectName, dstApiUrl, dstProjectName, tagFilePath):
     printdebug("Source API URL or alias:      %s" % apiUrl)
@@ -328,7 +343,7 @@ def copyproject(apiUrl, srcProjectName, dstApiUrl, dstProjectName, tagFilePath):
     print "info: Checking connectivity with source project...",
     sys.stdout.flush()
     try:
-        core.meta_get_packagelist(apiUrl, srcProjectName)
+        dstPackageList = core.meta_get_packagelist(dstApiUrl, srcProjectName)
     except KeyboardInterrupt:
         raise
     except (urllib2.HTTPError, urllib2.URLError) as e:
@@ -363,17 +378,21 @@ def copyproject(apiUrl, srcProjectName, dstApiUrl, dstProjectName, tagFilePath):
 
     packageCounter = 0
     failedPackageList = []
+
     for (pkgName, md5) in packageList:
         packageCounter += 1
         packagePresent = False
+        if  not pkgName in dstPackageList:
+            creatPackage(dstApiUrl, dstProjectName, pkgName)
+
         try:
             fileList = core.meta_get_filelist(dstApiUrl,
                                               dstProjectName,
                                               pkgName,
                                               revision=md5)
-
             if len(fileList) > 0 :
                 packagePresent = True
+
         except KeyboardInterrupt:
             raise
         except urllib2.HTTPError as e:
@@ -398,6 +417,7 @@ def copyproject(apiUrl, srcProjectName, dstApiUrl, dstProjectName, tagFilePath):
         packageIsLink = False
         doCopy = True
         if not packagePresent:
+
             try:
                 fileList = core.meta_get_filelist(apiUrl, srcProjectName, pkgName)
                 if "_link" in fileList:
@@ -482,7 +502,6 @@ def copyproject(apiUrl, srcProjectName, dstApiUrl, dstProjectName, tagFilePath):
     print "Log file available in %s" % logFilePath
     if failPkg != 0:
         sys.exit(1)
-
 
 if __name__ == '__main__':
     if os.environ.has_key("DEBUG") and os.environ["DEBUG"] is not None:
