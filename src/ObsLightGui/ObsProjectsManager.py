@@ -21,7 +21,7 @@ Created on 27 sept. 2011
 '''
 
 from PySide.QtGui import QFileDialog, QMessageBox
-
+from PySide.QtCore import Qt
 from Utils import ProgressRunnable2, popupOnException
 from PackageManager import PackageManager
 from RepoConfigManager import RepoConfigManager
@@ -159,6 +159,8 @@ class ObsProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
         currentPackage = self.__packageManager.currentPackage()
         runnable = ProgressRunnable2()
         useRootId = self.mainWindow.checkUserRootForChroot.isChecked()
+        if useRootId:
+            self.mainWindow.checkUserRootForChroot.setCheckState (Qt.CheckState(False))
         if currentPackage is None:
             runnable.setRunMethod(self.manager.goToChRoot,
                                   projectName,
