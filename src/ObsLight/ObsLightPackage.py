@@ -340,7 +340,8 @@ class ObsLightPackage(object):
         '''
         Return True if the package is install into the chroot.
         '''
-        if self.__packageDirectory in (None, ""):
+
+        if self.getChRootStatus() == "Not installed":
             return False
         else:
             return True
