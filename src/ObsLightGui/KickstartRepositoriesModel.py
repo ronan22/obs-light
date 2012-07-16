@@ -44,10 +44,12 @@ class KickstartRepositoriesModel(KickstartModelBase):
 
     # A tuple containing the keys of repository dictionaries
     ColumnKeys = ("name", "baseurl", "priority", "ssl_verify", "gpgkey", "disable",
-                  "save", "includepkgs", "excludepkgs", "source", "debuginfo")
+                  "save", "includepkgs", "excludepkgs", "source", "debuginfo",
+                  "proxy")
 
     ColumnHeaders = ("Name", "URL", "Priority", "SSL verif", "GPG key", "Enabled",
-                     "Save", "Included packages", "Excluded packages", "Source", "Debug info")
+                     "Save", "Included packages", "Excluded packages", "Source", "Debug info",
+                     "Proxy")
     ColumnToolTips = ("A name for the repository, must be unique",
                       "The URL of the repository",
                       "The priority of the repository. 1 is the highest priority, " +
@@ -62,7 +64,8 @@ class KickstartRepositoriesModel(KickstartModelBase):
                       "A comma-separated list of package names and globs" +
                         " that must not be pulled from this repository",
                       "Also add source packages repository",
-                      "Also add debuginfo packages repository")
+                      "Also add debuginfo packages repository",
+                      "Proxy URL for this repository only")
 
     def __init__(self, obsLightManager, projectName):
         """
