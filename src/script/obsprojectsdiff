@@ -46,7 +46,7 @@ class PrintHandler(object):
     def close(self):
         self.stream.close()
 
-def help_(progName="obs2obsdiff"):
+def help_(progName="obsprojectsdiff"):
     print """HELP
 Function : Compare tag of two project in an OBS.
         It will create a 2 tag file which contains the MD5 to represent
@@ -231,7 +231,7 @@ class ObsProject(object):
         return revisionsList
 
 def initOutPutFile(outFile, apiUrl_1, projectName_1, apiUrl_2, projectName_2):
-    print >> outFile, "# This is a revision Tag file from OBS: %s created by obs2obsdiff." % apiUrl_1
+    print >> outFile, "# This is a revision Tag file from OBS: %s created by obsprojectsdiff." % apiUrl_1
     print >> outFile, "# That MD5 Tag is directly usable by obs2obscopy script."
     print >> outFile, "#"
     print >> outFile, "# Created :", time.strftime("%a, %b %d %H:%M:%S %Z %Y")

@@ -10,7 +10,7 @@ Sources:
 Description: |
     Utilities to work with OBS Light, a lighter version of OBS.
     This package contains the API, a commandline client,
-    and some tools (obstag, obs2obscopy, obsextractgroups).
+    and some tools (obstag, obs2obscopy, obsextractgroups, obsprojectsdiff).
 
 PkgBR:
     - python >= 2.6.0

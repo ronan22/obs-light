@@ -884,7 +884,6 @@ class ObsLightManagerCore(ObsLightManagerBase):
             listFile
             status
             specFile
-            yamlFile
             fsPackageDirectory
             oscPackageDirectory
             description
@@ -916,7 +915,6 @@ class ObsLightManagerCore(ObsLightManagerBase):
         return the value  of the parameter of the package:
         the valid parameter is :
             specFile
-            yamlFile
             packageDirectory
             description
             packageTitle

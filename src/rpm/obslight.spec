@@ -206,6 +206,7 @@ chmod g+w /srv/%REPOSRVPATH/www
 %{_bindir}/obstag
 %{_bindir}/obsextractgroups
 %{_bindir}/obsdodupdate
+%{_bindir}/obsprojectsdiff
 %{_bindir}/obslight
 %{_bindir}/obslight-wrapper.py
 %{python_sitelib}/ObsLight
