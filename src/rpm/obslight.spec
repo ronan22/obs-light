@@ -126,6 +126,8 @@ install -d %{buildroot}/etc/init.d
 
 mkdir -p %{buildroot}/srv/%IMGSRVPATH/www
 mkdir -p %{buildroot}/srv/%REPOSRVPATH/www
+ln -f %{buildroot}/srv/%REPOSRVPATH/config/theme/footer.shtml %{buildroot}/srv/%REPOSRVPATH/www/
+ln -f %{buildroot}/srv/%REPOSRVPATH/config/theme/header.shtml %{buildroot}/srv/%REPOSRVPATH/www/
 # << install post
 desktop-file-install --delete-original       \
   --dir %{buildroot}%{_datadir}/applications             \
@@ -228,6 +230,7 @@ chmod g+w /srv/%REPOSRVPATH/www
 
 /srv/%IMGSRVPATH/config/obslight-image.apache2conf
 /srv/%REPOSRVPATH/config/obslight-repos.apache2conf
+/srv/%REPOSRVPATH/www/*
 /srv/%REPOSRVPATH/config/theme/*
 /srv/%REPOSRVPATH/config/theme/images/*
 # << files
