@@ -7,7 +7,7 @@
 
 Name:       obslight-fakeobs
 Summary:    Python script that acts as an OBS API
-Version:    0.3
+Version:    0.4
 Release:    1
 Group:      Development/Tools/Building
 License:    GPLv2
