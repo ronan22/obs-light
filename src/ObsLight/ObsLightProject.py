@@ -43,7 +43,7 @@ class ObsLightProject(ObsLightObject):
                  obsServers,
                  obsLightRepositories,
                  workingDirectory,
-                 projectName=None,
+                 projectObsName=None,
                  projectLocalName=None,
                  obsServer=None,
                  projectTarget=None,
@@ -65,7 +65,7 @@ class ObsLightProject(ObsLightObject):
             self.__projectLocalName = projectLocalName
             self.__chroot = ObsLightChRoot(projectDirectory=self.getDirectory())
 
-            self.__projectName = projectName
+            self.__projectName = projectObsName
             self.__obsServer = obsServer
             self.__projectTarget = projectTarget
             self.__projectArchitecture = projectArchitecture
