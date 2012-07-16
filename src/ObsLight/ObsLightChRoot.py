@@ -29,6 +29,8 @@ import shutil
 import subprocess
 import urllib
 
+import stat
+
 import ObsLightMic
 
 import ObsLightErr
@@ -45,6 +47,7 @@ from ObsLightGitManager import ObsLightGitManager
 from ObsLightUtils import isNonEmptyString
 
 import ObsLightOsc
+
 
 class ObsLightChRootCore(object):
     '''
@@ -683,6 +686,21 @@ exit $?
                 command.append('export https_proxy=' + proxies[scheme])
         return command
 
+    def checkReadAccessForOther(self, path):
+        result = []
+        for walker in os.walk(path):
+            root = walker[0]
+            files = walker[2]
+            for f in files:
+                aPath = os.path.join(root, f)
+                mode = os.stat(aPath)
+                print "mode.st_mode & stat.S_IROTH", mode.st_mode & stat.S_IRGRP, "(mode.st_mode & stat.S_IROTH) == 0", (mode.st_mode & stat.S_IROTH) == 0
+                if (mode.st_mode & stat.S_IROTH) == 0:
+                    result.append(aPath)
+        print result
+        print
+        return result
+
 class ObsLightChRoot(ObsLightChRootCore):
     def __init__(self, projectDirectory):
         ObsLightChRootCore.__init__(self, projectDirectory)
@@ -915,8 +933,26 @@ exit $RETURN_VALUE
             if packageDirectory is not None:
                 # TODO: check if we can remove this
                 # We shouldn't need to write to package directory anymore
-                cmd = "sudo chmod og+rwX %s" % (self.getDirectory() + "/" + packageDirectory)
+                absPackageDirectory = self._createAbsPath(packageDirectory)
+                cmd = "sudo chmod og+rwX %s" % absPackageDirectory
                 self._subprocess(command=cmd)
+
+                #If one or more file into the BUILD package directory have not the read access
+                #for group, the command "git add * will failed.
+                listFile = self.checkReadAccessForOther(absPackageDirectory)
+
+                if len(listFile) > 0:
+                    package.setPackageParameter("patchMode", False)
+                    package.setChRootStatus("Prepared")
+                    msg = "Warrning the file:\n\n"
+
+                    for f in listFile:
+                        msg += "\t\t" + f + "\n"
+                    msg += "\n"
+                    msg += "have not the read access for other.\n"
+                    msg += "the 'patchMode' will be ineffective."
+
+                    raise ObsLightErr.ObsLightChRootError(msg)
 
                 self._ObsLightGitManager.initGitWatch(packageDirectory, package)
 
