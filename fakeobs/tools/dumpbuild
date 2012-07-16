@@ -7,6 +7,7 @@ REPONAME=$4
 SCHEDULERS="$5"
 
 WGETOPTIONS="--no-check-certificate -N -c -r -nd -nH"
+RETURNCODE=0
 
 source tools/common.sh
 
@@ -25,5 +26,16 @@ for scheduler in $SCHEDULERS; do
 	set -o pipefail
 	python $ORIG/tools/printbinaries.py "_repository?view=names" \
 		| xargs -L1 -Ixxx $ORIG/tools/curlunpack "$API/build/$OBSPROJECT/$REPONAME/$scheduler/_repository?xxx"
+	print_rpm_names "_repository\?view\=names" | grep -v "debuginfo.rpm" > rpm_names.txt
+	missing_files=`check_missing_files rpm_names.txt`
+	if [ -n "$missing_files" ]
+	then
+		RETURNCODE=1
+		echo_red "The following files are missing in $PWD"
+		echo_red "$missing_files"
+		echo "$missing_files" > missing_rpms.txt
+	fi
 	cd ..
 done
+
+exit $RETURNCODE

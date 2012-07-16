@@ -17,6 +17,7 @@ fi
 
 if [ x$RESYNC = x ]; then
 	$TOOLS/dumpbuild "$API" "$PROJECT" "$PROJECT:$RELEASE" $TARGET "$ARCHS"
+	DUMPBUILDRETURNCODE=$?
 fi
 if [ x$PRERELEASE = x ]; then
 
@@ -61,6 +62,8 @@ if [ x$RESYNC = x -a x$NO_GRAB = x ]; then
 	grab_build "$syncpath/$TARGET" "$syncpath/$TARGET"
 	[ "$?" -ne "0" ] && exit 1
 fi
+
+[ "$DUMPBUILDRETURNCODE" -ne "0" ] && exit 1
 
 if [ x$NORSYNC = x1 ]; then
  exit 0

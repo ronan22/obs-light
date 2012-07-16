@@ -179,7 +179,9 @@ echo "/srv/%REPOSRVPATH/www  *(rw,fsid=0,no_root_squash,insecure,no_subtree_chec
 if [ -d %{_sysconfdir}/apache2/vhosts.d ]
 then
 ln -sf /srv/%IMGSRVPATH/config/obslight-image.apache2conf %{_sysconfdir}/apache2/vhosts.d/obslight-image.conf
-ln -sf /srv/%REPOSRVPATH/config/obslight-repos.apache2conf %{_sysconfdir}/apache2/vhosts.d/obslight-repos.conf 
+ln -sf /srv/%REPOSRVPATH/config/obslight-repos.apache2conf %{_sysconfdir}/apache2/vhosts.d/obslight-repos.conf
+MOD_INCLUDE="/etc/apache2/mods-available/include.load"
+[ -f $MOD_INCLUDE ] && ln -sf $MOD_INCLUDE /etc/apache2/mods-enabled/include.load
 fi
 
 chown nobody:users /srv/%IMGSRVPATH
@@ -219,11 +221,15 @@ chmod g+w /srv/%REPOSRVPATH/www
 %dir /srv/%REPOSRVPATH
 %dir /srv/%IMGSRVPATH/config
 %dir /srv/%REPOSRVPATH/config
+%dir /srv/%REPOSRVPATH/config/theme
+%dir /srv/%REPOSRVPATH/config/theme/images
 %dir /srv/%IMGSRVPATH/www
 %dir /srv/%REPOSRVPATH/www
 
 /srv/%IMGSRVPATH/config/obslight-image.apache2conf
 /srv/%REPOSRVPATH/config/obslight-repos.apache2conf
+/srv/%REPOSRVPATH/config/theme/*
+/srv/%REPOSRVPATH/config/theme/images/*
 # << files
 
 %files gui

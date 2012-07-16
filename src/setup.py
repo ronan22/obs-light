@@ -46,7 +46,10 @@ setup(name='obslight',
                   ('/usr/share/pixmaps/', ['ObsLightGui/ui/obslight.png']),
                   ('/etc/xinetd.d/', ['ObsLightServer/tftp']),
                   ('/srv/obslight-image-server/config', ['ObsLightServer/obslight-image.apache2conf']),
-                  ('/srv/obslight-repo-server/config', ['ObsLightServer/obslight-repos.apache2conf'])],
+                  ('/srv/obslight-repo-server/config', ['ObsLightServer/obslight-repos.apache2conf'],),
+		  ('/srv/obslight-repo-server/config/theme', ['ObsLightServer/theme/header.shtml',
+			  'ObsLightServer/theme/footer.shtml']),
+		  ('/srv/obslight-repo-server/config/theme/images', ['ObsLightGui/ui/obslight.png'])],
 
       cmdclass={
         'build': build_obslight,

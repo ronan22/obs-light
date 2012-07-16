@@ -5,7 +5,15 @@ NameVirtualHost *:82
 <VirtualHost *:82>
   DocumentRoot /srv/obslight-repo-server/www
   <Directory /srv/obslight-repo-server/www>
-    Options Indexes
+    Options Indexes Includes
     Allow from all
+    AddType text/html .shtml
+    AddOutputFilter INCLUDES .shtml
   </Directory>
+  <IfModule mod_autoindex.c>
+    IndexOptions FancyIndexing IgnoreCase VersionSort SuppressHTMLPreamble
+    ReadmeName /theme/footer.shtml
+    HeaderName /theme/header.shtml
+    Alias /theme /srv/obslight-repo-server/config/theme
+  </IfModule>
 </VirtualHost>

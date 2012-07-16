@@ -4,6 +4,8 @@ GREEN="\e[32;1m"
 YELLOW="\e[33;1m"
 DEFAULT="\e[0m"
 
+FAKEOBSPREFIX="/srv/fakeobs"
+GRABINFOFILE="grab_info"
 PROJECTINFOFILE="project_info"
 CURLARGS="-k --retry 5"
 
@@ -141,3 +143,28 @@ function clean_old_mappings()
   fi
 }
 
+function print_rpm_names()
+{
+  local name_file="$1"
+  sed -r -n "s,.*\"(.*\.rpm)\".*,\1,p" $name_file
+}
+
+function check_missing_files()
+{
+  local file_list_file="$1"
+  local directory="$2"
+  local missing_files=""
+  [ -n "$directory" ] && cd "$directory"
+  for filename in `cat $file_list_file`
+  do
+    [ -f "$filename" ] || missing_files="$missing_files $filename"
+  done
+
+  if [ -n "$missing_files" ]
+  then
+    echo "$missing_files"
+    return 1
+  else
+    return 0
+  fi
+}

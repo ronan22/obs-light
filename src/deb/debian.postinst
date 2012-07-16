@@ -25,6 +25,8 @@ if [ -d /etc/apache2/sites-available ]
 then
 ln -sf /srv/$IMGSRVPATH/config/obslight-image.apache2conf /etc/apache2/sites-available/obslight-image.conf
 ln -sf /srv/$REPOSRVPATH/config/obslight-repos.apache2conf /etc/apache2/sites-available/obslight-repos.conf
+MOD_INCLUDE="/etc/apache2/mods-available/include.load"
+[ -f $MOD_INCLUDE ] && ln -sf $MOD_INCLUDE /etc/apache2/mods-enabled/include.load
 a2ensite obslight-image.conf
 a2ensite obslight-repos.conf
 fi
