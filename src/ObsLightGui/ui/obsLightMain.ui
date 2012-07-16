@@ -156,7 +156,7 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>240</width>
+                    <width>285</width>
                     <height>223</height>
                    </rect>
                   </property>
@@ -526,7 +526,7 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>350</width>
+                    <width>415</width>
                     <height>214</height>
                    </rect>
                   </property>
@@ -709,7 +709,7 @@ You can select several packages.</string>
             </size>
            </property>
            <property name="currentIndex">
-            <number>1</number>
+            <number>0</number>
            </property>
            <widget class="QWidget" name="localDirectoryTab">
             <attribute name="title">
@@ -822,7 +822,7 @@ You can select several packages.</string>
                  <widget class="QPushButton" name="generatePatchButton">
                   <property name="toolTip">
                    <string>Generate a patch from the changes made into the project filesystem,
- and add this patch to the package and into the yaml/spec files.
+ and add this patch to the package and into the spec files.
     -You need to do the '%prep' first.
     -This new patch becomes the current patch of the package, until the next '%prep'.</string>
                   </property>
@@ -1254,13 +1254,6 @@ It may open in background on some desktop environments.</string>
               <widget class="QPushButton" name="selectSpecFileButton">
                <property name="text">
                 <string>Select spec file</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="3">
-              <widget class="QPushButton" name="generateSpecFileButton">
-               <property name="text">
-                <string>Generate from spectacle</string>
                </property>
               </widget>
              </item>

@@ -175,10 +175,9 @@ class ObsLightProject(ObsLightObject):
                 name = packageFromSave["name"]
             packagePath = self.__getPackagePath(name)
             if not os.path.isdir(self.__getPackagePath(name)):
-                packagePath, specFile, yamlFile, listFile = self.checkoutPackage(package=name)
+                packagePath, specFile, listFile = self.checkoutPackage(package=name)
 
                 packageFromSave["specFile"] = specFile
-                packageFromSave["yamlFile"] = yamlFile
                 packageFromSave["listFile"] = listFile
 
             if importFile == True:
@@ -191,10 +190,6 @@ class ObsLightProject(ObsLightObject):
                 if "specFile" in packageFromSave.keys():
                     specFilePath = packageFromSave["specFile"]
                     if specFilePath is not None and not os.path.isfile(specFilePath):
-                        toUpDate = True
-                if "yamlFile" in packageFromSave.keys():
-                    yamlFilePath = packageFromSave["yamlFile"]
-                    if yamlFilePath is not None and not os.path.isfile(yamlFilePath):
                         toUpDate = True
                 if toUpDate == True:
                     ObsLightOsc.getObsLightOsc().updatePackage(packagePath=packagePath)
@@ -268,7 +263,6 @@ class ObsLightProject(ObsLightObject):
             listFile
             status
             specFile
-            yamlFile
             packageDirectory
             description
             title
@@ -280,7 +274,6 @@ class ObsLightProject(ObsLightObject):
         return the value  of the parameter of the package:
         the valid parameter is :
             specFile
-            yamlFile
             packageDirectory
             description
             title
@@ -404,16 +397,11 @@ class ObsLightProject(ObsLightObject):
                 listFile.append(aFile)
 
         listSpecFile = []
-        yamlFile = None
         specFile = None
 
         for f in listFile:
             if self.__isASpecfile(f):
                 listSpecFile.append(f)
-            elif self.__isAyamlfile(f):
-                pass
-            #disable the yaml file management.
-#                yamlFile = f
 
         if len(listSpecFile) > 1:
             specFile = None
@@ -429,7 +417,7 @@ class ObsLightProject(ObsLightObject):
         elif len(listSpecFile) == 1:
             specFile = listSpecFile[0]
 
-        return packagePath, specFile, yamlFile, listFile
+        return packagePath, specFile, listFile
 
     def __updatePackage(self, package, noOscUpdate=False):
         packagePath = self.__getPackagePath(package)
@@ -441,10 +429,6 @@ class ObsLightProject(ObsLightObject):
     def __isASpecfile(self, aFile):
         return aFile.endswith(".spec")
 
-    def __isAyamlfile(self, aFile):
-        return aFile.endswith(".yaml")
-
-
     def addPackage(self, name=None):
         '''
         add a package to the projectLocalName.
@@ -452,7 +436,7 @@ class ObsLightProject(ObsLightObject):
         if name in self.getListPackage():
             return None
 
-        packagePath, specFile, yamlFile, listFile = self.checkoutPackage(package=name)
+        packagePath, specFile, listFile = self.checkoutPackage(package=name)
 
         obsServer = self.__obsServers.getObsServer(self.__obsServer)
         status = obsServer.getPackageStatus(project=self.__projectObsName,
@@ -469,7 +453,6 @@ class ObsLightProject(ObsLightObject):
                                    chrootUserHome=self.__chroot.getChrootUserHome(),
                                    packageTitle=packageTitle,
                                    specFile=specFile,
-                                   yamlFile=yamlFile,
                                    listFile=listFile,
                                    status=status)
         self.checkOscDirectoryStatus(package=name)
@@ -561,8 +544,7 @@ class ObsLightProject(ObsLightObject):
         result = self.__updatePackage(package=name, noOscUpdate=noOscUpdate)
 
         specFile = result[1]
-        yamlFile = result[2]
-        listFile = result[3]
+        listFile = result[2]
 
         server = self.__obsServers.getObsServer(self.__obsServer)
         status = server.getPackageStatus(project=self.__projectObsName,
@@ -580,7 +562,6 @@ class ObsLightProject(ObsLightObject):
 
         packageCli = self.__packages.getPackage(name)
         packageCli.setPackageParameter(parameter="specFile", value=specFile)
-        packageCli.setPackageParameter(parameter="yamlFile", value=yamlFile)
         packageCli.setPackageParameter(parameter="listFile", value=listFile)
         packageCli.setPackageParameter(parameter="status", value=status)
         packageCli.setPackageParameter(parameter="title", value=packageTitle)

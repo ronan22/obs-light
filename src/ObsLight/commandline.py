@@ -446,7 +446,6 @@ __parameter_filelist_status__ = ["filelist_status"]
 __parameter_obsstatus__ = ["obsStatus"]
 __parameter_oscstatus__ = ["oscStatus"]
 __parameter_specFile__ = ["specfile"]
-__parameter_yamlFile__ = ["yamlfile"]
 __parameter_fsPackageDirectory__ = ["fspackagedirectory"]
 __parameter_oscPackageDirectory__ = ["oscpackagedirectory"]
 __parameter_filesystemstatus__ = ["status"]
@@ -505,7 +504,6 @@ createParameterHelp(__parameter_filelist_status__, "the list of files of a packa
 createParameterHelp(__parameter_obsstatus__, "the OBS status")
 createParameterHelp(__parameter_oscstatus__, "OSC status")
 createParameterHelp(__parameter_specFile__, "the spec file name")
-createParameterHelp(__parameter_yamlFile__, "the yaml file name")
 createParameterHelp(__parameter_fsPackageDirectory__, "the directory of the project file system")
 createParameterHelp(__parameter_oscPackageDirectory__, "the OSC package directory")
 createParameterHelp(__parameter_filesystemstatus__, "the project file system directory")
@@ -839,7 +837,7 @@ createPackageSubCommandHelp(__command_query__,
                              "{server_alias <server_alias> {project <project>}}} ",
                              "  query information from OBS project",
                              "package query [title|description|obsrev|oscrev|filelist|" +
-                             "filelist_status|obsstatus|oscstatus|specfile|yamlfile|" +
+                             "filelist_status|obsstatus|oscstatus|specfile|" +
                              "fspackagedirectory|oscpackagedirectory|filesystemstatus|" +
                              "currentpatch] {package <package> {project_alias <project_alias>} }",
                              "  query information from local project",
@@ -926,7 +924,6 @@ createPackageParameter(__command_query__, [__command_help__,
                                            __parameter_obsstatus__,
                                            __parameter_oscstatus__,
                                            __parameter_specFile__,
-                                           __parameter_yamlFile__,
                                            __parameter_fsPackageDirectory__,
                                            __parameter_oscPackageDirectory__,
                                            __parameter_filesystemstatus__,
@@ -1144,7 +1141,7 @@ createRpmBuildSubCommandHelp(__command_createPatch__,
                              ["rpmbuild createpatch <patch> {package <package>} " +
                               "{project_alias <project_alias>}",
                               "  create a current patch and add patch file into osc local " +
-                              "package, and into yaml/specfile"])
+                              "package, and into specfile"])
 
 createRpmBuildSubCommandHelp(__command_updatepatch__,
                              ["rpmbuild updatepatch {package <package> " +
@@ -2687,7 +2684,6 @@ class ObsLightObsPackage(ObsLightBase):
         obsStatus = False
         oscStatus = False
         specFile = False
-        yamlFile = False
         fsPackageDirectory = False
         oscPackageDirectory = False
         patch_mode = False
@@ -2726,8 +2722,6 @@ class ObsLightObsPackage(ObsLightBase):
                 oscStatus = True
             elif currentCommand in __parameter_specFile__:
                 specFile = True
-            elif currentCommand in __parameter_yamlFile__:
-                yamlFile = True
             elif currentCommand in __parameter_fsPackageDirectory__ :
                 fsPackageDirectory = True
             elif currentCommand in __parameter_oscPackageDirectory__ :
@@ -2784,7 +2778,6 @@ class ObsLightObsPackage(ObsLightBase):
                    (not obsStatus)and \
                    (not oscStatus)and \
                    (not specFile)and \
-                   (not yamlFile)and \
                    (not fsPackageDirectory)and \
                    (not oscPackageDirectory)and \
                    (not chRootStatus)and \
@@ -2803,7 +2796,6 @@ class ObsLightObsPackage(ObsLightBase):
                     obsStatus = True
                     oscStatus = True
                     specFile = True
-                    yamlFile = True
                     fsPackageDirectory = True
                     oscPackageDirectory = True
                     chRootStatus = True
@@ -2909,13 +2901,6 @@ class ObsLightObsPackage(ObsLightBase):
                                                     parameter="specFile")
                     if self.testResult(res, getLineno()) == -1:return - 1
                     self.printSimpleResult("specFile: " + res, str(res))
-
-                if yamlFile and (project_alias != None):
-                    res = m.getPackageParameter(projectLocalName=project_alias,
-                                                    package=package,
-                                                    parameter="yamlFile")
-                    if self.testResult(res, getLineno()) == -1:return - 1
-                    self.printSimpleResult("yamlFile: " + res, str(res))
 
                 if fsPackageDirectory and (project_alias != None):
                     res = m.getPackageParameter(projectLocalName=project_alias,

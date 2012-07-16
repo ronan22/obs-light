@@ -75,7 +75,6 @@ class ObsLightPackages(object):
                    chrootUserHome,
                    packageTitle,
                    specFile=None,
-                   yamlFile=None,
                    listFile=None,
                    status=""):
         '''
@@ -93,7 +92,6 @@ class ObsLightPackages(object):
                                                                specFile=specFile,
                                                                description=description,
                                                                packageTitle=packageTitle,
-                                                               yamlFile=yamlFile,
                                                                listFile=listFile,
                                                                status=status)
         else:

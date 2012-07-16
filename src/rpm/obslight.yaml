@@ -26,7 +26,6 @@ Requires:
     - osc >= 0.132
     - build
     - qemu
-    - spectacle
     - acl
     - tightvnc
     - tftp
