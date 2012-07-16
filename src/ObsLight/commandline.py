@@ -1080,12 +1080,8 @@ createRepositorySubCommandHelp(__command_modify__,
 
 #Define the Repositories parameter help
 createRepositoriesParameter(__command_add__, [__command_help__,
-                                              __parameter_repo_url__,
-                                              __parameter_repo_alias__,
                                               __parameter_project_alias__,
-                                              __parameter_From__], [__parameter_repo_url__,
-                                                                    __parameter_repo_alias__,
-                                                                    __parameter_project_alias__])
+                                              __parameter_From__], [__parameter_project_alias__])
 
 createRepositoriesParameter(__command_del__, [__command_help__,
                                               __parameter_repo_alias__,

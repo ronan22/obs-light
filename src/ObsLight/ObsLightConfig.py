@@ -24,6 +24,7 @@ import ConfigParser
 import os
 import shutil
 import re
+import socket
 
 from ObsLightUtils import isNonEmptyString
 
@@ -234,6 +235,10 @@ def getRepositriesServerPath():
 
 def getImageServerPath():
     return "/srv/obslight-image-server/www"
+
+def getLocalRepoServer():
+    return "http://%s:82" % socket.gethostname()
+
 
 if not os.path.exists(CONFIGPATH):
     shutil.copy2(getTemplateConfigPath(), CONFIGPATH)

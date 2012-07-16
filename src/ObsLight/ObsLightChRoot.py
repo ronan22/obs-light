@@ -1200,6 +1200,7 @@ chown -R %(user)s:%(userGroup)s %(buildDirTmpPath)s/SPECS/
         self.execCommand([prepScript], user="root")
 
         script = """HOME=%(userHome)s/%(packageName)s
+rm -rf %(buildDir)s/RPMS/*
 rm -f %(buildLink)s
 ln -s %(buildDirTmpPath)s %(buildLink)s
 %(rpmbuildCmd)s

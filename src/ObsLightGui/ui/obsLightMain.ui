@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>obslight.png</normaloff>obslight.png</iconset>
+    <normaloff>../../../../../../.designer/backup/obslight.png</normaloff>../../../../../../.designer/backup/obslight.png</iconset>
   </property>
   <property name="locale">
    <locale language="English" country="UnitedStates"/>
@@ -117,7 +117,7 @@
                <string/>
               </property>
               <layout class="QGridLayout" name="gridLayout_9">
-               <item row="8" column="0">
+               <item row="7" column="0">
                 <widget class="QPushButton" name="modifyObsProjectButton">
                  <property name="toolTip">
                   <string>Modify the configuration of the selected project.</string>
@@ -127,7 +127,7 @@
                  </property>
                 </widget>
                </item>
-               <item row="7" column="0">
+               <item row="6" column="0">
                 <widget class="QPushButton" name="deleteObsProjectButton">
                  <property name="toolTip">
                   <string>Delete the selected project.</string>
@@ -157,10 +157,10 @@
                     <x>0</x>
                     <y>0</y>
                     <width>285</width>
-                    <height>223</height>
+                    <height>250</height>
                    </rect>
                   </property>
-                  <layout class="QGridLayout" name="gridLayout_2" columnstretch="0,1">
+                  <layout class="QGridLayout" name="gridLayout_2" columnstretch="0,0">
                    <item row="0" column="0" colspan="2">
                     <widget class="QLabel" name="projectTitleLabel">
                      <property name="text">
@@ -204,14 +204,14 @@
                    <item row="6" column="0">
                     <widget class="QLabel" name="projectRepoPageLabel">
                      <property name="text">
-                      <string>Project repository:</string>
+                      <string>Project OBS repo:</string>
                      </property>
                     </widget>
                    </item>
                    <item row="6" column="1">
-                    <widget class="QLabel" name="projectRepoPageLinkLabel">
+                    <widget class="QLabel" name="projectObsRepoPageLinkLabel">
                      <property name="text">
-                      <string>repo link</string>
+                      <string>repo obs link</string>
                      </property>
                      <property name="openExternalLinks">
                       <bool>true</bool>
@@ -245,31 +245,28 @@
                      </property>
                     </widget>
                    </item>
+                   <item row="7" column="0">
+                    <widget class="QLabel" name="projectRepoPageLabel_2">
+                     <property name="text">
+                      <string>Project local repo:</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item row="7" column="1">
+                    <widget class="QLabel" name="projectLocalRepoPageLinkLabel">
+                     <property name="text">
+                      <string>repo local link</string>
+                     </property>
+                     <property name="openExternalLinks">
+                      <bool>true</bool>
+                     </property>
+                    </widget>
+                   </item>
                   </layout>
                  </widget>
                 </widget>
                </item>
                <item row="5" column="0">
-                <widget class="QPushButton" name="newProjectButton">
-                 <property name="enabled">
-                  <bool>false</bool>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>80</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="toolTip">
-                  <string>Create a new project.
-(not implemented yet)</string>
-                 </property>
-                 <property name="text">
-                  <string>New</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="6" column="0">
                 <widget class="QPushButton" name="newObsProjectButton">
                  <property name="toolTip">
                   <string>Import a project that already exists on an OBS server.</string>
@@ -282,7 +279,7 @@
                  </property>
                 </widget>
                </item>
-               <item row="8" column="1">
+               <item row="7" column="1">
                 <widget class="QPushButton" name="loadObsProjectButton">
                  <property name="enabled">
                   <bool>true</bool>
@@ -295,7 +292,7 @@
                  </property>
                 </widget>
                </item>
-               <item row="7" column="1">
+               <item row="6" column="1">
                 <widget class="QPushButton" name="saveObsProjectButton">
                  <property name="enabled">
                   <bool>false</bool>
@@ -314,7 +311,7 @@
                  </property>
                 </widget>
                </item>
-               <item row="7" column="2">
+               <item row="6" column="2">
                 <spacer name="horizontalSpacer_3">
                  <property name="orientation">
                   <enum>Qt::Horizontal</enum>
@@ -487,26 +484,6 @@
                <property name="rightMargin">
                 <number>0</number>
                </property>
-               <item row="9" column="0">
-                <widget class="QPushButton" name="deletePackageButton">
-                 <property name="toolTip">
-                  <string>Remove the selected package(s) from project.</string>
-                 </property>
-                 <property name="text">
-                  <string>Delete</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="6" column="0">
-                <widget class="QPushButton" name="importPackageButton">
-                 <property name="toolTip">
-                  <string>Import an existing package in project.</string>
-                 </property>
-                 <property name="text">
-                  <string>Import</string>
-                 </property>
-                </widget>
-               </item>
                <item row="3" column="0" colspan="4">
                 <widget class="QScrollArea" name="scrollArea_2">
                  <property name="minimumSize">
@@ -527,7 +504,7 @@
                     <x>0</x>
                     <y>0</y>
                     <width>415</width>
-                    <height>214</height>
+                    <height>241</height>
                    </rect>
                   </property>
                   <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -573,36 +550,6 @@
                    </item>
                   </layout>
                  </widget>
-                </widget>
-               </item>
-               <item row="5" column="0">
-                <widget class="QPushButton" name="newPackageButton">
-                 <property name="minimumSize">
-                  <size>
-                   <width>80</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="toolTip">
-                  <string>Create a package from scratch.</string>
-                 </property>
-                 <property name="text">
-                  <string>New</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="10" column="0">
-                <widget class="QPushButton" name="modifyPackageButton">
-                 <property name="enabled">
-                  <bool>false</bool>
-                 </property>
-                 <property name="toolTip">
-                  <string>Modify the configuration of the selected package.
-(not yet implemented)</string>
-                 </property>
-                 <property name="text">
-                  <string>Modify</string>
-                 </property>
                 </widget>
                </item>
                <item row="10" column="3">
@@ -684,6 +631,42 @@ You can select several packages.</string>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item row="10" column="0">
+                <widget class="QPushButton" name="deletePackageButton">
+                 <property name="toolTip">
+                  <string>Remove the selected package(s) from project.</string>
+                 </property>
+                 <property name="text">
+                  <string>Delete</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="9" column="0">
+                <widget class="QPushButton" name="importPackageButton">
+                 <property name="toolTip">
+                  <string>Import an existing package in project.</string>
+                 </property>
+                 <property name="text">
+                  <string>Import</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="6" column="0">
+                <widget class="QPushButton" name="newPackageButton">
+                 <property name="minimumSize">
+                  <size>
+                   <width>80</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="toolTip">
+                  <string>Create a package from scratch.</string>
+                 </property>
+                 <property name="text">
+                  <string>New</string>
                  </property>
                 </widget>
                </item>
@@ -2006,128 +1989,6 @@ If destination does not exist on your host, select '/', validate, and edit desti
              </item>
             </layout>
            </widget>
-          </widget>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="repositoriesTab">
-       <attribute name="title">
-        <string>Project repositories</string>
-       </attribute>
-       <layout class="QHBoxLayout" name="horizontalLayout_4">
-        <item>
-         <widget class="QSplitter" name="splitter_5">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <widget class="QWidget" name="layoutWidget">
-           <layout class="QGridLayout" name="gridLayout_18">
-            <item row="0" column="0" colspan="2">
-             <widget class="QListWidget" name="repositoryListWidget"/>
-            </item>
-            <item row="1" column="0">
-             <widget class="QPushButton" name="newRepositoryButton">
-              <property name="text">
-               <string>New</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="0">
-             <widget class="QPushButton" name="deleteRepositoryButton">
-              <property name="text">
-               <string>Delete</string>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="0">
-             <widget class="QPushButton" name="refrechRepositoryButton">
-              <property name="text">
-               <string>Refrech</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="1">
-             <spacer name="horizontalSpacer_12">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </widget>
-          <widget class="QWidget" name="layoutWidget">
-           <layout class="QGridLayout" name="gridLayout_22">
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_12">
-              <property name="text">
-               <string>Name:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="label_13">
-              <property name="text">
-               <string>URL</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="0">
-             <widget class="QLabel" name="label_14">
-              <property name="text">
-               <string>Path</string>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="0" colspan="3">
-             <widget class="QTableView" name="publishedPackagesTableView"/>
-            </item>
-            <item row="0" column="1">
-             <widget class="QLabel" name="RepoPageLabel">
-              <property name="text">
-               <string>Repo_Name</string>
-              </property>
-              <property name="textFormat">
-               <enum>Qt::RichText</enum>
-              </property>
-              <property name="textInteractionFlags">
-               <set>Qt::TextBrowserInteraction</set>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1">
-             <widget class="QLabel" name="RepoLinkPageLinkLabel">
-              <property name="text">
-               <string>Repo_link</string>
-              </property>
-              <property name="openExternalLinks">
-               <bool>true</bool>
-              </property>
-              <property name="textInteractionFlags">
-               <set>Qt::LinksAccessibleByMouse</set>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="1">
-             <widget class="QLabel" name="RepoPathPageLinkLabel_4">
-              <property name="text">
-               <string>Repo_Path</string>
-              </property>
-              <property name="openExternalLinks">
-               <bool>true</bool>
-              </property>
-              <property name="textInteractionFlags">
-               <set>Qt::LinksAccessibleByMouse</set>
-              </property>
-             </widget>
-            </item>
-           </layout>
           </widget>
          </widget>
         </item>

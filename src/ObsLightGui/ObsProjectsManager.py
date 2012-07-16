@@ -242,7 +242,8 @@ class ObsProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
             projectLink = self.manager.getProjectWebPage(project)
             projectObsName = self.manager.getProjectParameter(project, "projectObsName")
             target = self.manager.getProjectParameter(project, "projectTarget")
-            repoLink = self.manager.getProjectRepository(project)
+            obsRepoLink = self.manager.getProjectRepository(project)
+            localRepoLink = self.manager.getLocalRepository(project)
             projectTitle = self.manager.getProjectParameter(project, "title")
             projectDescription = self.manager.getProjectParameter(project, "description")
 
@@ -251,8 +252,10 @@ class ObsProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
             self.mainWindow.projectDescriptionLabel.setText(projectDescription)
             self.mainWindow.projectPageLinkLabel.setText(u'<a href="%s">%s</a>' % (projectLink,
                                                                                    projectObsName))
-            self.mainWindow.projectRepoPageLinkLabel.setText(u'<a href="%s">%s</a>' % (repoLink,
-                                                                                       target))
+            repoObsLink = u'<a href="%s">%s</a>' % (obsRepoLink, target)
+            repoLocalLink = u'<a href="%s">%s</a>' % (localRepoLink, project)
+            self.mainWindow.projectObsRepoPageLinkLabel.setText(repoObsLink)
+            self.mainWindow.projectLocalRepoPageLinkLabel.setText(repoLocalLink)
             self.mainWindow.saveObsProjectButton.setEnabled(True)
         else:
             self.mainWindow.saveObsProjectButton.setEnabled(False)

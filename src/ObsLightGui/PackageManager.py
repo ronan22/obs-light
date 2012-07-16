@@ -576,7 +576,7 @@ class PackageManager(QObject, ObsLightGuiObject):
         self.__mapOnSelectedPackages(firstArgLast(self.manager.packageRpm),
                                      None,
                                      u"Packaging %(arg)s",
-                                     self.__handleRpmCreationResult,
+                                     self.__handleRpmOperationResult,
                                      projectName)
 
     @popupOnException

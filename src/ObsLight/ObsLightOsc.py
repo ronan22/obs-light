@@ -1363,6 +1363,7 @@ class ObsLightOsc(ObsLightObject):
 
         try:
             fd = urllib2.urlopen(req, data=data)
+
         finally:
             if old_timeout != timeout and not api_host_options.get('sslcertck'):
                 socket.setdefaulttimeout(old_timeout)

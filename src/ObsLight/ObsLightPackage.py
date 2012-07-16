@@ -80,6 +80,7 @@ class ObsLightPackage(object):
         self.__currentGitIsPackageGit = False
 
         self.__patchMode = True
+        self.__listRPMPublished = []
 
         if fromSave is None:
             self.__name = name
@@ -136,6 +137,9 @@ class ObsLightPackage(object):
             if "patchMode" in fromSave.keys():
                 self.__patchMode = fromSave["patchMode"]
 
+            if "listRPMPublished" in fromSave.keys():
+                self.__listRPMPublished = fromSave["listRPMPublished"]
+
 
         self.__rpmBuildDirectoryLink = "rpmbuild"
         self.__rpmBuildDirectory = "obslightbuild"
@@ -158,6 +162,12 @@ class ObsLightPackage(object):
                 self.__mySpecFile = None
         except BaseException:
             ObsLightPrintManager.getLogger().error(u"Error reading SPEC file", exc_info=1)
+
+    def getRPMPublished(self):
+        return self.__listRPMPublished
+
+    def setRPMPublished(self, listRPMPublished):
+        self.__listRPMPublished = listRPMPublished
 
     def getCurrentGitDirectory(self):
         if self.__currentGitIsPackageGit:
@@ -380,6 +390,7 @@ class ObsLightPackage(object):
         aDic["packageGit"] = self.__packageGit
         aDic["currentGitIsPackageGit"] = self.__currentGitIsPackageGit
         aDic["patchMode"] = self.__patchMode
+        aDic["listRPMPublished"] = self.__listRPMPublished
         return aDic
 
     def getPackageParameter(self, parameter=None):

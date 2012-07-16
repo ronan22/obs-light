@@ -54,16 +54,12 @@ class ObsLightRepositories(object):
                                                      waitMess=waitMess,
                                                      stdout=stdout)
 
-    def getRepositoriesList(self, APIName=None):
+    def getRepositoriesList(self):
         '''
         
         '''
+        return self.__dicOBSLightRepositories.keys()
 
-        if APIName == None:
-            return self.__dicOBSLightRepositories.keys()
-        elif APIName in self.__dicOBSLightRepositories.keys():
-            return self.__dicOBSLightRepositories[APIName].keys()
-        return 1
 
 #    def __load(self, aFile=None):
 #        '''
@@ -81,61 +77,35 @@ class ObsLightRepositories(object):
 #        return 0
 
     def scanRepository(self):
-        for APIName in os.listdir(self.__repositoriesPath):
-            APINamePath = os.path.join(self.__repositoriesPath, APIName)
-            if os.path.isdir(APINamePath):
-                for repo in os.listdir(APINamePath):
-                    pathRepo = os.path.join(APINamePath, repo)
-                    if os.path.isdir(pathRepo):
-                        self.createRepo(APIName, repo)
+        for projectName in os.listdir(self.__repositoriesPath):
+            self.createRepo(projectName)
 
+    def getRepository(self, projectName):
+        pathDir = os.path.join(self.__repositoriesPath, self.__repositoriesPath)
 
-    def getRepository(self, APIName, projectObsName):
-        if APIName.startswith("http"):
-            APIName = str(urlparse.urlparse(APIName)[1])
-        pathDir = os.path.join(self.__repositoriesPath, APIName)
+        if projectName in self.__dicOBSLightRepositories.keys():
+            return self.__dicOBSLightRepositories[projectName]
 
-        if APIName in self.getRepositoriesList():
-            if projectObsName in self.__dicOBSLightRepositories[APIName].keys():
-                return self.__dicOBSLightRepositories[APIName][projectObsName]
+        self.createRepository(projectName)
+        return self.__dicOBSLightRepositories[projectName]
 
-        self.createRepository(APIName, projectObsName)
-        return self.__dicOBSLightRepositories[APIName][projectObsName]
-
-    def createRepository(self, APIName, projectObsName):
-        if APIName.startswith("http"):
-            APIName = str(urlparse.urlparse(APIName)[1])
-        pathDir = os.path.join(self.__repositoriesPath, APIName)
-        if not APIName in self.getRepositoriesList():
-            self.__dicOBSLightRepositories[APIName] = {}
-
-        if projectObsName in self.__dicOBSLightRepositories[APIName].keys():
+    def createRepository(self, projectName):
+        if projectName in self.__dicOBSLightRepositories.keys():
             return 0
-
-        self.__dicOBSLightRepositories[APIName] = {}
-
-        repository = ObsLightRepository(pathDir, projectObsName)
-        self.__dicOBSLightRepositories[APIName][projectObsName] = repository
+        repository = ObsLightRepository(self.__repositoriesPath, projectName)
+        self.__dicOBSLightRepositories[projectName] = repository
         return 0
 
-    def DeleteRepository(self, APIName, projectObsName):
-        if APIName in self.getRepositoriesList():
-            if projectObsName in self.__dicOBSLightRepositories[APIName].keys():
-                self.__dicOBSLightRepositories[APIName][projectObsName].DeleteRepository()
-                del self.__dicOBSLightRepositories[APIName][projectObsName]
-                if len(self.__dicOBSLightRepositories[APIName]) == 0:
-                    pathDir = os.path.join(self.__repositoriesPath, APIName)
-                    command = "rm -r %s" % pathDir
-                    return self.__subprocess(command=command)
-                return 0
+    def DeleteRepository(self, projectName):
+        if projectName in self.getRepositoriesList():
+            self.__dicOBSLightRepositories[projectName].DeleteRepository()
+            del self.__dicOBSLightRepositories[projectName]
+            return 0
         return 0
 
-    def createRepo(self, APIName, projectObsName):
-        if APIName.startswith("http"):
-            APIName = str(urlparse.urlparse(APIName)[1])
-        if APIName in self.getRepositoriesList():
-            if projectObsName in self.__dicOBSLightRepositories[APIName].keys():
-                return self.__dicOBSLightRepositories[APIName][projectObsName].createRepo()
+    def createRepo(self, projectName):
+        if projectName in self.getRepositoriesList():
+            return self.__dicOBSLightRepositories[projectName].createRepo()
         return 0
 
 

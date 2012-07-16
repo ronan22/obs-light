@@ -21,6 +21,7 @@ Created on 2 Jui. 2012
 '''
 import os
 import shutil
+import ObsLightConfig
 
 from ObsLightSubprocess import SubprocessCrt
 
@@ -28,15 +29,15 @@ class ObsLightRepository(object):
     '''
     classdocs
     '''
-    def __init__(self, pathDir, projectObsName):
+    def __init__(self, pathDir, projectName):
         '''
         Constructor
         '''
         self.__repositoryPath = pathDir
         if not os.path.isdir(pathDir):
             os.makedirs(pathDir)
-        self.__projectObsName = projectObsName
-        self.__projectDir = os.path.join(self.__repositoryPath, self.__projectObsName)
+        self.__projectName = projectName
+        self.__projectDir = os.path.join(self.__repositoryPath, self.__projectName)
         if not os.path.isdir(self.__projectDir):
             os.makedirs(self.__projectDir)
 
@@ -61,17 +62,32 @@ class ObsLightRepository(object):
                                                      waitMess=waitMess,
                                                      stdout=stdout)
 
-    def addRPM(self, buildRootpath):
+    def addRPM(self, absBuildRootpath, listRPM):
         needTouch = False
-        for arch in os.listdir(buildRootpath):
-            archPath = os.path.join(self.__projectDir, arch)
-            if not os.path.isdir(archPath):
-                os.makedirs(archPath)
-            for rpm in os.listdir(os.path.join(buildRootpath, arch)):
-                pathFile = os.path.join(buildRootpath, arch, rpm)
-                if os.path.isfile(pathFile):
-                    shutil.copyfile(pathFile, os.path.join(archPath, rpm))
-                    needTouch = True
+        for rpm in listRPM:
+            srcPath = os.path.join(absBuildRootpath, rpm)
+            dstPath = os.path.join(self.__projectDir, rpm)
+            if os.path.isfile(srcPath):
+                dstDir = os.path.dirname(dstPath)
+                if os.path.isfile(srcPath) and srcPath.endswith(".rpm"):
+                    if not os.path.isdir(dstDir):
+                        os.makedirs(dstDir)
+
+                shutil.copyfile(srcPath, dstPath)
+
+                needTouch = True
+        if needTouch:
+            self.touch()
+
+    def removeRPM(self, listRPM):
+        needTouch = False
+
+        for rpm in listRPM:
+            rpmPath = os.path.join(self.__projectDir, rpm)
+
+            if os.path.isfile(rpmPath):
+                os.unlink(rpmPath)
+                needTouch = True
         if needTouch:
             self.touch()
 
@@ -108,5 +124,6 @@ class ObsLightRepository(object):
         return self.__subprocess(command=command)
 
 
-
+    def getLocalRepository(self):
+        return ObsLightConfig.getLocalRepoServer() + "/" + self.__projectName
 
