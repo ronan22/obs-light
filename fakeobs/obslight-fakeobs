@@ -44,6 +44,10 @@ Commands:
 	list
 		List projects already grabbed or imported
 
+	check <subcommand> <project_name>
+		Do some checks on a fakeobs project.
+		Use "help" as subcommand for a better description.
+
 
 Commands are logged in $LOGFILE
 EOF
@@ -138,6 +142,19 @@ function list_projects()
 	sed -r -n -e "s,.*project=\"([^ ]*)\".*,\1,p" /srv/fakeobs/mappings.xml 2>&1 | tee -a "$LOGFILE"
 }
 
+function run_check_project()
+{
+	if [ "$#" -lt 1 ]
+	then
+		echo "Too few arguments for 'check'!"
+		usage
+		exit 1
+	fi
+	cd /srv/fakeobs
+	echo_start_command "check $@" >> $LOGFILE
+	tools/check_fakeobs_project.sh "$@" 2>&1 | tee -a "$LOGFILE"
+}
+
 if [ "$#" -lt 1 ]
 then
 	usage
@@ -188,6 +205,10 @@ case $COMMAND in
 		;;
 	list)
 		list_projects
+		;;
+	check)
+		check_user_is_root
+		run_check_project "$@"
 		;;
 	*)
 		echo "Unknown command: $COMMAND"
