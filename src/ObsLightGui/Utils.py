@@ -30,6 +30,9 @@ from PySide.QtGui import QMessageBox, QDialog
 
 from ObsLight import ObsLightErr
 from ObsLight.ObsLightUtils import isNonEmptyString
+from ObsLight.ObsLightTools import dumpError
+
+from ObsLight import ObsLightConfig
 
 URL_REGEXP = QRegExp(u"http[s]?://.+")
 SERVER_ALIAS_REGEXP = QRegExp(u"[^\\s:;,/]+")
@@ -422,9 +425,12 @@ def exceptionToMessageBox(exception, parent=None, traceback_=None):
             message = unicode(exception)
         except UnicodeError:
             message = unicode(str(exception), errors="replace")
-        if traceback_ is not None:
+        logPath = dumpError(type(exception), message, traceback_)
+
+        if (ObsLightConfig.getObslightLoggerLevel() == "DEBUG") and (traceback_ is not None):
             message += "\n\n" + "".join(traceback.format_tb(traceback_))
-            print >> sys.stderr, type(exception), message
+        else:
+            message += "\n\nlogPath: " + logPath
         QMessageBox.critical(parent, "Exception occurred", message)
 
 def popupOnException(f):

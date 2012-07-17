@@ -32,6 +32,8 @@ OBSLIGHTDIRNAME = "OBSLight"
 OBSLIGHTCONFIG = "ObslightConfig"
 
 WORKINGDIRECTORY = os.path.join(os.environ['HOME'], OBSLIGHTDIRNAME)
+ERRORLOGDIRECTORY = os.path.join(WORKINGDIRECTORY, "errorLog")
+
 # If not exists, create the obsLight directory for the user.
 if not os.path.isdir(WORKINGDIRECTORY):
     os.makedirs(WORKINGDIRECTORY)

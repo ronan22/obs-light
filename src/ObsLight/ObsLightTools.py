@@ -26,6 +26,9 @@ import httplib
 import urllib
 import urllib2
 import re
+import traceback
+import time
+import sys
 
 from subprocess import call
 import ObsLightConfig
@@ -388,6 +391,31 @@ def removeShortOption(line, option):
     line = re.sub(r"([\s]-[\w]*)%s([\w]*)" % option, r"\1\2", line)
     return line
 
+def dumpError(exceptionType, message, traceback_):
+    timeString = time.strftime("%Y-%m-%d_%Hh%Mm") + str(time.time() % 1).split(".")[1]
+
+    message2Dump = message
+    if traceback_ is not None:
+        message2Dump += "\n\n" + "".join(traceback.format_tb(traceback_))
+
+    typeName = re.findall(".*\'(.*)\'.*", str(exceptionType))
+    if len(typeName) == 1:
+        exceptionType = typeName[0]
+
+    logfile = "%s-%s.log" % (timeString, exceptionType)
+    if not os.path.isdir(ObsLightConfig.ERRORLOGDIRECTORY):
+        os.makedirs(ObsLightConfig.ERRORLOGDIRECTORY)
+    logPath = os.path.join(ObsLightConfig.ERRORLOGDIRECTORY, logfile)
+
+    with open(logPath, 'w') as f:
+        print >> f, message2Dump
+
+    if (ObsLightConfig.getObslightLoggerLevel() == "DEBUG"):
+        print >> sys.stderr, exceptionType, message2Dump
+    else:
+        message += "\n\nlogPath: " + logPath
+        print >> sys.stderr, exceptionType, message
+    return logPath
 
 if __name__ == '__main__':
 

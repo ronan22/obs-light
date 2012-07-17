@@ -13,6 +13,9 @@ from osc.oscerr import ConfigError
 import urllib2
 
 import ObsLightMic
+from ObsLightTools import dumpError
+import ObsLightConfig
+import traceback
 
 def catchterm(*args):
     '''
@@ -87,6 +90,20 @@ def run(prg=None):
         print >> sys.stderr, 'Local Server Error: ', err.msg
         return 1
 
+    except Exception, e:
+        if 'traceback' in dir(e):
+            traceback_ = e.traceback
+        else:
+            traceback_ = sys.exc_info()[2]
+
+        try:
+            message = unicode(e)
+        except UnicodeError:
+            message = unicode(str(e), errors="replace")
+
+        dumpError(type(e), message, traceback_)
+
+        return 1
 
 
 
