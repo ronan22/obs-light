@@ -1,4 +1,4 @@
-obslight (0.5.1-1) stable; urgency=low
+obslight (0.5.2-1) stable; urgency=low
   * Version 0.5.1
     - rewrote package directory ACL management
     - forced ordering of packages dependencies
