@@ -10,15 +10,10 @@ NameVirtualHost *:82
     AddType text/html .shtml
     AddOutputFilter INCLUDES .shtml
   </Directory>
-  <Directory /srv/obslight-repo-server/config/theme>
-    Options +Indexes
-    Allow from all
-  </Directory>
   <IfModule mod_autoindex.c>
     IndexOptions FancyIndexing IgnoreCase VersionSort SuppressHTMLPreamble
-    IndexIgnore footer.shtml header.shtml
-    ReadmeName /footer.shtml
-    HeaderName /header.shtml
-    Alias /theme /srv/obslight-repo-server/config/theme
+    IndexIgnore /theme
+    ReadmeName /theme/footer.shtml
+    HeaderName /theme/header.shtml
   </IfModule>
 </VirtualHost>

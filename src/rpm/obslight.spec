@@ -122,11 +122,9 @@ ln -s obslight-wrapper.py %{buildroot}/%{_bindir}/obslight
 ln -s obslightgui-wrapper.py %{buildroot}/%{_bindir}/obslightgui
 
 install -d %{buildroot}/etc/init.d
-
+# To be removed when we add a theme (would be already created by setup.py)
 mkdir -p %{buildroot}/srv/%IMGSRVPATH/www
-mkdir -p %{buildroot}/srv/%REPOSRVPATH/www
-ln -f %{buildroot}/srv/%REPOSRVPATH/config/theme/footer.shtml %{buildroot}/srv/%REPOSRVPATH/www/
-ln -f %{buildroot}/srv/%REPOSRVPATH/config/theme/header.shtml %{buildroot}/srv/%REPOSRVPATH/www/
+
 # << install post
 desktop-file-install --delete-original       \
   --dir %{buildroot}%{_datadir}/applications             \
@@ -223,16 +221,15 @@ chmod g+w /srv/%REPOSRVPATH/www
 %dir /srv/%REPOSRVPATH
 %dir /srv/%IMGSRVPATH/config
 %dir /srv/%REPOSRVPATH/config
-%dir /srv/%REPOSRVPATH/config/theme
-%dir /srv/%REPOSRVPATH/config/theme/images
 %dir /srv/%IMGSRVPATH/www
 %dir /srv/%REPOSRVPATH/www
+%dir /srv/%REPOSRVPATH/www/theme
+%dir /srv/%REPOSRVPATH/www/theme/images
 
 /srv/%IMGSRVPATH/config/obslight-image.apache2conf
 /srv/%REPOSRVPATH/config/obslight-repos.apache2conf
-/srv/%REPOSRVPATH/www/*
-/srv/%REPOSRVPATH/config/theme/*
-/srv/%REPOSRVPATH/config/theme/images/*
+/srv/%REPOSRVPATH/www/theme/*
+/srv/%REPOSRVPATH/www/theme/images/*
 # << files
 
 %files gui
