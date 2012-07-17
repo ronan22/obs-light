@@ -65,7 +65,7 @@ class ObsLightProject(ObsLightObject):
             self.__projectLocalName = projectLocalName
             self.__chroot = ObsLightChRoot(projectDirectory=self.getDirectory())
 
-            self.__projectObsName = projectObsName
+            self.__projectName = projectObsName
             self.__obsServer = obsServer
             self.__projectTarget = projectTarget
             self.__projectArchitecture = projectArchitecture
@@ -74,13 +74,13 @@ class ObsLightProject(ObsLightObject):
 
             #perhaps a trusted_prj must be had
             obsServer = self.__obsServers.getObsServer(name=self.__obsServer)
-            obsServer.initConfigProject(projet=self.__projectObsName, repos=self.__projectTarget)
+            obsServer.initConfigProject(projet=self.__projectName, repos=self.__projectTarget)
         else:
             if "projectLocalName" in fromSave.keys():
                 self.__projectLocalName = fromSave["projectLocalName"]
             self.__chroot = ObsLightChRoot(projectDirectory=self.getDirectory())
             if "projectObsName" in fromSave.keys():
-                self.__projectObsName = fromSave["projectObsName"]
+                self.__projectName = fromSave["projectObsName"]
             if "obsServer" in fromSave.keys():
                 self.__obsServer = fromSave["obsServer"]
                 if not (self.__obsServer in self.__obsServers.getObsServerList()):
@@ -102,8 +102,7 @@ class ObsLightProject(ObsLightObject):
             #perhaps a trusted_prj must be had
             if self.__obsServer in self.__obsServers.getObsServerList():
                 obsServer = self.__obsServers.getObsServer(name=self.__obsServer)
-                obsServer.initConfigProject(projet=self.__projectObsName,
-                                            repos=self.__projectTarget)
+                obsServer.initConfigProject(projet=self.__projectName, repos=self.__projectTarget)
 
             if "packages" in fromSave.keys():
                 self.__packages = self.__addPackagesFromSave(fromSave=fromSave["packages"],
@@ -175,10 +174,9 @@ class ObsLightProject(ObsLightObject):
                 name = packageFromSave["name"]
             packagePath = self.__getPackagePath(name)
             if not os.path.isdir(self.__getPackagePath(name)):
-                packagePath, specFile, yamlFile, listFile = self.checkoutPackage(package=name)
+                packagePath, specFile, listFile = self.checkoutPackage(package=name)
 
                 packageFromSave["specFile"] = specFile
-                packageFromSave["yamlFile"] = yamlFile
                 packageFromSave["listFile"] = listFile
 
             if importFile == True:
@@ -191,10 +189,6 @@ class ObsLightProject(ObsLightObject):
                 if "specFile" in packageFromSave.keys():
                     specFilePath = packageFromSave["specFile"]
                     if specFilePath is not None and not os.path.isfile(specFilePath):
-                        toUpDate = True
-                if "yamlFile" in packageFromSave.keys():
-                    yamlFilePath = packageFromSave["yamlFile"]
-                    if yamlFilePath is not None and not os.path.isfile(yamlFilePath):
                         toUpDate = True
                 if toUpDate == True:
                     ObsLightOsc.getObsLightOsc().updatePackage(packagePath=packagePath)
@@ -221,7 +215,7 @@ class ObsLightProject(ObsLightObject):
         if parameter == "projectLocalName":
             return self.__projectLocalName
         elif parameter == "projectObsName":
-            return self.__projectObsName
+            return self.__projectName
         elif parameter == "projectDirectory":
             return self.getDirectory()
         elif parameter == "obsServer":
@@ -268,7 +262,6 @@ class ObsLightProject(ObsLightObject):
             listFile
             status
             specFile
-            yamlFile
             packageDirectory
             description
             title
@@ -280,7 +273,6 @@ class ObsLightProject(ObsLightObject):
         return the value  of the parameter of the package:
         the valid parameter is :
             specFile
-            yamlFile
             packageDirectory
             description
             title
@@ -329,7 +321,7 @@ class ObsLightProject(ObsLightObject):
         return res
 
     def getProjectObsName(self):
-        return self.__projectObsName
+        return self.__projectName
 
     def getChRoot(self):
         return self.__chroot
@@ -337,7 +329,7 @@ class ObsLightProject(ObsLightObject):
     def getDic(self):
         aDic = {}
         aDic["projectLocalName"] = self.__projectLocalName
-        aDic["projectObsName"] = self.__projectObsName
+        aDic["projectObsName"] = self.__projectName
         aDic["obsServer"] = self.__obsServer
         aDic["projectTarget"] = self.__projectTarget
         aDic["projectArchitecture"] = self.__projectArchitecture
@@ -362,7 +354,7 @@ class ObsLightProject(ObsLightObject):
         if not onlyInstalled :
             if self.__obsServer in self.__obsServers.getObsServerList():
                 obsServer = self.__obsServers.getObsServer(self.__obsServer)
-                res1 = set(obsServer.getObsProjectPackageList(projectObsName=self.__projectObsName))
+                res1 = set(obsServer.getObsProjectPackageList(projectObsName=self.__projectName))
                 res2 = set(self.__packages.getListPackages())
                 res = list(res1.difference(res2))
                 res.sort()
@@ -373,14 +365,14 @@ class ObsLightProject(ObsLightObject):
             return self.__packages.getListPackages()
 
     def __getPackagePath(self, package):
-        return os.path.join(self.getDirectory(), self.__projectObsName, package)
+        return os.path.join(self.getDirectory(), self.__projectName, package)
 
     def __getProjectOscPath(self):
-        return os.path.join(self.getDirectory(), self.__projectObsName)
+        return os.path.join(self.getDirectory(), self.__projectName)
 
     def checkoutPackage(self, package=None):
         ObsLightOsc.getObsLightOsc().checkoutPackage(obsServer=self.__obsServer,
-                                                     projectObsName=self.__projectObsName,
+                                                     projectObsName=self.__projectName,
                                                      package=package,
                                                      directory=self.getDirectory())
 
@@ -404,16 +396,11 @@ class ObsLightProject(ObsLightObject):
                 listFile.append(aFile)
 
         listSpecFile = []
-        yamlFile = None
         specFile = None
 
         for f in listFile:
             if self.__isASpecfile(f):
                 listSpecFile.append(f)
-            elif self.__isAyamlfile(f):
-                pass
-            #disable the yaml file management.
-#                yamlFile = f
 
         if len(listSpecFile) > 1:
             specFile = None
@@ -429,7 +416,7 @@ class ObsLightProject(ObsLightObject):
         elif len(listSpecFile) == 1:
             specFile = listSpecFile[0]
 
-        return packagePath, specFile, yamlFile, listFile
+        return packagePath, specFile, listFile
 
     def __updatePackage(self, package, noOscUpdate=False):
         packagePath = self.__getPackagePath(package)
@@ -441,10 +428,6 @@ class ObsLightProject(ObsLightObject):
     def __isASpecfile(self, aFile):
         return aFile.endswith(".spec")
 
-    def __isAyamlfile(self, aFile):
-        return aFile.endswith(".yaml")
-
-
     def addPackage(self, name=None):
         '''
         add a package to the projectLocalName.
@@ -452,15 +435,15 @@ class ObsLightProject(ObsLightObject):
         if name in self.getListPackage():
             return None
 
-        packagePath, specFile, yamlFile, listFile = self.checkoutPackage(package=name)
+        packagePath, specFile, listFile = self.checkoutPackage(package=name)
 
         obsServer = self.__obsServers.getObsServer(self.__obsServer)
-        status = obsServer.getPackageStatus(project=self.__projectObsName,
+        status = obsServer.getPackageStatus(project=self.__projectName,
                                             package=name,
                                             repo=self.__projectTarget,
                                             arch=self.__projectArchitecture)
-        packageTitle = obsServer.getPackageParameter(self.__projectObsName, name, "title")
-        description = obsServer.getPackageParameter(self.__projectObsName, name, "description")
+        packageTitle = obsServer.getPackageParameter(self.__projectName, name, "title")
+        description = obsServer.getPackageParameter(self.__projectName, name, "description")
 
 
         self.__packages.addPackage(name=name,
@@ -469,7 +452,6 @@ class ObsLightProject(ObsLightObject):
                                    chrootUserHome=self.__chroot.getChrootUserHome(),
                                    packageTitle=packageTitle,
                                    specFile=specFile,
-                                   yamlFile=yamlFile,
                                    listFile=listFile,
                                    status=status)
         self.checkOscDirectoryStatus(package=name)
@@ -478,7 +460,7 @@ class ObsLightProject(ObsLightObject):
 
     def checkObsPackageStatus(self, package):
         obsServer = self.__obsServers.getObsServer(self.__obsServer)
-        rev = obsServer.getObsPackageRev(self.__projectObsName, package)
+        rev = obsServer.getObsPackageRev(self.__projectName, package)
         if rev is not None:
             self.__packages.getPackage(package).setPackageParameter("obsRev", rev)
         return 0
@@ -508,7 +490,7 @@ class ObsLightProject(ObsLightObject):
     def refreshObsStatus(self, package=None):
         if package != None:
             obsServer = self.__obsServers.getObsServer(self.__obsServer)
-            status = obsServer.getPackageStatus(project=self.__projectObsName,
+            status = obsServer.getPackageStatus(project=self.__projectName,
                                                 package=package,
                                                 repo=self.__projectTarget,
                                                 arch=self.__projectArchitecture)
@@ -520,7 +502,7 @@ class ObsLightProject(ObsLightObject):
         else:
             for pk in self.getListPackage():
                 obsServer = self.__obsServers.getObsServer(self.__obsServer)
-                status = obsServer.getPackageStatus(project=self.__projectObsName,
+                status = obsServer.getPackageStatus(project=self.__projectName,
                                                     package=pk,
                                                     repo=self.__projectTarget,
                                                     arch=self.__projectArchitecture)
@@ -540,7 +522,7 @@ class ObsLightProject(ObsLightObject):
 
     def checkOscDirectoryStatus(self, package):
         obsServer = self.__obsServers.getObsServer(self.__obsServer)
-        dicoListFile = obsServer.getFilesListPackage(projectObsName=self.__projectObsName,
+        dicoListFile = obsServer.getFilesListPackage(projectObsName=self.__projectName,
                                                      package=package)
         if dicoListFile != None:
             packageCli = self.__packages.getPackage(package)
@@ -561,26 +543,24 @@ class ObsLightProject(ObsLightObject):
         result = self.__updatePackage(package=name, noOscUpdate=noOscUpdate)
 
         specFile = result[1]
-        yamlFile = result[2]
-        listFile = result[3]
+        listFile = result[2]
 
         server = self.__obsServers.getObsServer(self.__obsServer)
-        status = server.getPackageStatus(project=self.__projectObsName,
+        status = server.getPackageStatus(project=self.__projectName,
                                          package=name,
                                          repo=self.__projectTarget,
                                          arch=self.__projectArchitecture)
 
-        packageTitle = server.getPackageParameter(self.__projectObsName,
+        packageTitle = server.getPackageParameter(self.__projectName,
                                                   package=name,
                                                   parameter="title")
 
-        description = server.getPackageParameter(self.__projectObsName,
+        description = server.getPackageParameter(self.__projectName,
                                                   package=name,
                                                   parameter="description")
 
         packageCli = self.__packages.getPackage(name)
         packageCli.setPackageParameter(parameter="specFile", value=specFile)
-        packageCli.setPackageParameter(parameter="yamlFile", value=yamlFile)
         packageCli.setPackageParameter(parameter="listFile", value=listFile)
         packageCli.setPackageParameter(parameter="status", value=status)
         packageCli.setPackageParameter(parameter="title", value=packageTitle)
@@ -601,7 +581,7 @@ class ObsLightProject(ObsLightObject):
     def updateProject(self):
         for name in self.__packages.getListPackages():
             server = self.__obsServers.getObsServer(self.__obsServer)
-            status = server.getPackageStatus(project=self.__projectObsName,
+            status = server.getPackageStatus(project=self.__projectName,
                                              package=name,
                                              repo=self.__projectTarget,
                                              arch=self.__projectArchitecture)
@@ -631,7 +611,7 @@ class ObsLightProject(ObsLightObject):
         retVal = self.__chroot.createChRoot(repos=self.__projectTarget,
                                             arch=self.__projectArchitecture,
                                             apiurl=apiurl,
-                                            obsProject=self.__projectObsName)
+                                            obsProject=self.__projectName)
         self.__chrootIsInit = retVal == 0
         return retVal
 
@@ -640,7 +620,7 @@ class ObsLightProject(ObsLightObject):
         Return the URL of the Repo of the Project
         '''
         return os.path.join(self.__obsServers.getObsServer(self.__obsServer).getRepo(),
-                            self.__projectObsName.replace(":", ":/"),
+                            self.__projectName.replace(":", ":/"),
                             self.__projectTarget)
 
     def goToChRoot(self, package=None, useRootId=False, detach=False):
@@ -692,7 +672,7 @@ class ObsLightProject(ObsLightObject):
         packageName = pkgObj.getName()
 
         obsServer = self.__obsServers.getObsServer(self.__obsServer)
-        buildInfoCli = obsServer.getPackageBuildRequires(self.__projectObsName,
+        buildInfoCli = obsServer.getPackageBuildRequires(self.__projectName,
                                                                 packageName,
                                                                 self.__projectTarget ,
                                                                 self.__projectArchitecture,
@@ -752,13 +732,28 @@ class ObsLightProject(ObsLightObject):
                                      specFile=specFilePath,
                                      arch=target)
         self.__chroot.allowPackageAccessToObslightGroup(pkgObj)
+        #publish RPM builded.
         if (section == "files") and (pkgObj.getChRootStatus() == "Build Packaged"):
             buildRootpath = os.path.join(pkgObj.getChrootRpmBuildDirectory(), "RPMS")
-            absBuildRootpath = self.__chroot.getDirectory() + buildRootpath
-            obsApi = self.__obsServers.getObsServer(self.__obsServer).getAPI()
-            repo = self.__obsLightRepositories.getRepository(obsApi, self.__projectObsName)
-            repo.addRPM(absBuildRootpath)
+            self.publishRPM(pkgObj, buildRootpath)
+
         return retVal
+
+    def publishRPM(self, pkgObj, path):
+        absBuildRootpath = self.__chroot.getDirectory() + path
+        listRPM = []
+
+        for arch in os.listdir(absBuildRootpath):
+            for rpm in os.listdir(os.path.join(absBuildRootpath, arch)):
+                listRPM.append(os.path.join(arch, rpm))
+
+        repo = self.__obsLightRepositories.getRepository(self.__projectLocalName)
+        if len(listRPM) > 0:
+            repo.removeRPM(pkgObj.getRPMPublished())
+            pkgObj.setRPMPublished(listRPM)
+            repo.addRPM(absBuildRootpath, listRPM)
+            repo.createRepo()
+        return 0
 
     def buildPrep(self, package):
         return self.__execRpmSection(package, "prep")
@@ -773,8 +768,7 @@ class ObsLightProject(ObsLightObject):
         return self.__execRpmSection(package, "files")
 
     def createRepo(self):
-        obsApi = self.__obsServers.getObsServer(self.__obsServer).getAPI()
-        repo = self.__obsLightRepositories.getRepository(obsApi, self.__projectObsName)
+        repo = self.__obsLightRepositories.getRepository(self.__projectLocalName)
         if repo.isOutOfDate():
             return repo.createRepo()
         else:
@@ -789,7 +783,7 @@ class ObsLightProject(ObsLightObject):
     def __getConfigPath(self):
         if self.__configPath is None:
             obsServer = self.__obsServers.getObsServer(self.__obsServer)
-            self.__configPath = obsServer.saveProjectConfig(self.__projectObsName,
+            self.__configPath = obsServer.saveProjectConfig(self.__projectName,
                                                             self.__projectTarget)
 
         return self.__configPath
@@ -816,8 +810,6 @@ class ObsLightProject(ObsLightObject):
             target = target[:-len(endline)]
 
         return target
-
-
 
     def createPatch(self, package, patch):
         '''
@@ -873,7 +865,7 @@ class ObsLightProject(ObsLightObject):
 
         if serverWeb in (None, "None", ""):
             raise ObsLightErr.ObsLightProjectsError("No Web Server")
-        res = urllib.basejoin(serverWeb , "project/show?project=" + self.__projectObsName)
+        res = urllib.basejoin(serverWeb , "project/show?project=" + self.__projectName)
         return res
 
     def getPackageInfo(self, package=None):
@@ -903,7 +895,7 @@ class ObsLightProject(ObsLightObject):
 
     def getDependencyRepositories(self):
         obsServer = self.__obsServers.getObsServer(self.__obsServer)
-        return obsServer.getDependencyRepositories(self.__projectObsName,
+        return obsServer.getDependencyRepositories(self.__projectName,
                                                    self.__projectTarget,
                                                    self.__projectArchitecture)
 
@@ -929,7 +921,7 @@ class ObsLightProject(ObsLightObject):
 #            __aRepos = repos
 #
 #        if alias is None:
-#            __anAlias = self.__projectObsName
+#            __anAlias = self.__projectName
 #        else:
 #            __anAlias = alias
 #

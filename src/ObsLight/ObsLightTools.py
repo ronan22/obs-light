@@ -329,11 +329,11 @@ def mapProcedureWithThreads(parameterList, procedure, progress=None):
         aLock = threading.Lock()
         for p in parameterList:
             athread = procedureWithThreads(packagePath=p,
-                                     procedure=procedure,
-                                     sem=sem,
-                                     lock=aLock,
-                                     errList=errList,
-                                     progress=progress)
+                                           procedure=procedure,
+                                           sem=sem,
+                                           lock=aLock,
+                                           errList=errList,
+                                           progress=progress)
             athread.start()
             res.append(athread)
         for th in res:

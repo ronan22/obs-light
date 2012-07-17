@@ -8,6 +8,8 @@
 import os
 import sys
 import time
+import urllib
+import urlparse
 
 from urllib2 import URLError, HTTPError
 from xml.etree import ElementTree
@@ -44,7 +46,7 @@ class PrintHandler(object):
     def close(self):
         self.stream.close()
 
-def help_(progName="obs2obsdiff"):
+def help_(progName="obsprojectsdiff"):
     print """HELP
 Function : Compare tag of two project in an OBS.
         It will create a 2 tag file which contains the MD5 to represent
@@ -229,14 +231,14 @@ class ObsProject(object):
         return revisionsList
 
 def initOutPutFile(outFile, apiUrl_1, projectName_1, apiUrl_2, projectName_2):
-    print >> outFile, "# This is a revision Tag file from OBS: %s created by obs2obsdiff." % apiUrl_1
+    print >> outFile, "# This is a revision Tag file from OBS: %s created by obsprojectsdiff." % apiUrl_1
     print >> outFile, "# That MD5 Tag is directly usable by obs2obscopy script."
     print >> outFile, "#"
     print >> outFile, "# Created :", time.strftime("%a, %b %d %H:%M:%S %Z %Y")
 
     print >> outFile, "# Server name : %s" % apiUrl_1
     print >> outFile, "# Project name : %s" % projectName_1
-    print >> outFile, "#"
+    print >> outFile, "# Tag %s vs %s" % (projectName_1, projectName_2)
     print >> outFile, "# This package MD5 Tag differ of the MD5 Tag of project:"
     print >> outFile, "# Server name : %s" % apiUrl_2
     print >> outFile, "# Project name : %s" % projectName_2
@@ -273,7 +275,88 @@ def getPackageList(obsProject, apiUrl, projectName):
 
     return set(packageList)
 
+def isALinkedPackage(apiUrl, srcProjectName, pkgName):
+
+    fileList = core.meta_get_filelist(apiUrl, srcProjectName, pkgName)
+    if "_link" in fileList:
+        return True
+    return False
+
+def isDiffPackageFiles(src_apiurl, src_project, src_package,
+                     dst_apiurl, dst_project, dst_package,
+                     src_revision,
+                     dst_revision):
+
+    listToUpdate = set()
+    dicoSrcFiles = getPackageFiles(src_apiurl, src_project, src_package, src_revision)
+    dicoDstFiles = getPackageFiles(dst_apiurl, dst_project, dst_package, dst_revision)
+
+    listSrcPackageFiles = set(dicoSrcFiles.keys())
+    if '_link' in listSrcPackageFiles:
+        listSrcPackageFiles.remove('_link')
+    listDstPackageFiles = set(dicoDstFiles.keys())
+
+    listToTest = listSrcPackageFiles.intersection(listDstPackageFiles)
+
+    for aFile in listToTest:
+        if dicoSrcFiles[aFile] != dicoDstFiles[aFile]:
+            listToUpdate.add(aFile)
+
+    for aFile in listSrcPackageFiles.difference(listDstPackageFiles):
+        listToUpdate.add(aFile)
+
+    for aFile in listDstPackageFiles.difference(listSrcPackageFiles):
+        listToUpdate.add(aFile)
+
+    return len(listToUpdate) > 0
+
+def getPackageFiles(apiurl, project, package, src_revision=None):
+    query = {}
+    if src_revision:
+        query["rev"] = src_revision
+    query["expand"] = "1"
+    url = makeurl(apiurl, ['source', project, package], query=query)
+    res = core.http_request("GET", url)
+    xmlResult = res.read()
+    directoryList = ElementTree.fromstring(xmlResult)
+    result = {}
+    for directory in directoryList:
+        for packageEntry in directory.iter("entry"):
+            name = packageEntry.get("name")
+            md5 = packageEntry.get("md5")
+            if name.startswith('_service:') or name.startswith('_service_'):
+                continue
+            result[name] = md5
+    return result
+
+def makeurl(baseurl, l, query=[]):
+    """
+    Replacement for `osc.core.makeurl` which preserves the "path"
+    part of the url.
+    """
+
+#    if conf.config['verbose'] > 1:
+#        print 'makeurl:', baseurl, l, query,
+
+    if type(query) == type(list()):
+        query = '&'.join(query)
+    elif type(query) == type(dict()):
+        query = urllib.urlencode(query)
+
+    scheme, netloc, path = urlparse.urlsplit(baseurl)[0:3]
+    if len(path) > 0:
+        l.insert(0, path)
+    finalurl = urlparse.urlunsplit((scheme, netloc, '/'.join(l), query, ''))
+    if conf.config['verbose'] > 1 or DEBUG_MODE:
+        printdebug("-> %s" % finalurl)
+    return finalurl
+
 def main(apiUrl_1, projectName_1, apiUrl_2, projectName_2, outFilePath_1, outFilePath_2):
+    conf.get_config()
+    core.makeurl = makeurl
+    apiUrl_1 = getApiUrlFromAlias(apiUrl_1)
+    apiUrl_2 = getApiUrlFromAlias(apiUrl_2)
+
     try:
         outFile_1 = open(outFilePath_1, "wu+", 1)
     except IOError as err:
@@ -322,25 +405,36 @@ def main(apiUrl_1, projectName_1, apiUrl_2, projectName_2, outFilePath_1, outFil
                 else:
                     print
 
-
                 if packageName in packageList_1:
                     revisions_1 = obsProject_1.getPackageRevisions(packageName)
                 else:
                     revisions_1 = None
+                    print >> outFile_1, "#Package %s are not present" % packageName
+
                 if packageName in packageList_2:
                     revisions_2 = obsProject_2.getPackageRevisions(packageName)
                 else:
                     revisions_2 = None
+                    print >> outFile_2, "#Package %s are not present" % packageName
 
                 if (packageName in communPackage):
                     if (revisions_1.srcmd5 != revisions_2.srcmd5):
-                        print >> outFile_1, revisions_1
-                        print >> outFile_2, revisions_2
+                        if isALinkedPackage(apiUrl_1, projectName_1, packageName) or\
+                           isALinkedPackage(apiUrl_2, projectName_2, packageName):
+                            if isDiffPackageFiles(apiUrl_1, projectName_1, packageName,
+                                                  apiUrl_2, projectName_2, packageName,
+                                                  revisions_1.srcmd5,
+                                                  revisions_2.srcmd5):
+                                print >> outFile_1, revisions_1
+                                print >> outFile_2, revisions_2
+                        else:
+                            print >> outFile_1, revisions_1
+                            print >> outFile_2, revisions_2
+
                 elif packageName in packageList_1:
                     print >> outFile_1, revisions_1
                 elif packageName in packageList_2:
                     print >> outFile_2, revisions_2
-
 
                 packagesTaggedNumber += 1
                 nbError = 0

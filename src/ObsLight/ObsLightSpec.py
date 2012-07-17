@@ -536,7 +536,7 @@ class ObsLightSpec(ObsLightObject):
                     toWrite += line
 
             if (section == "%prep") and (not SETUP):
-                toWrite += '%setup -q -c\n'
+                toWrite += '%%setup -q -c -T -b %d\n' % self.archiveNumber
 
 #        patternSourceFile = r'[Ss]ource[0]?\s*:\s*(.*)'
 

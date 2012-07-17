@@ -338,10 +338,10 @@ class ObsLightManagerBase(object):
 
         self._myObsServers = ObsLightServers(self.getObsLightWorkingDirectory())
 
-        self.__myObsLightRepositories = ObsLightRepositories(self.getObsLightWorkingDirectory())
+        self._myObsLightRepositories = ObsLightRepositories(self.getObsLightWorkingDirectory())
 
         self._myObsLightProjects = ObsLightProjects(self._myObsServers,
-                                                    self.__myObsLightRepositories,
+                                                    self._myObsLightRepositories,
                                                     self.getObsLightWorkingDirectory())
 
         self._myObsLightLocalServer = ObsLightLocalServer()
@@ -884,7 +884,6 @@ class ObsLightManagerCore(ObsLightManagerBase):
             listFile
             status
             specFile
-            yamlFile
             fsPackageDirectory
             oscPackageDirectory
             description
@@ -916,7 +915,6 @@ class ObsLightManagerCore(ObsLightManagerBase):
         return the value  of the parameter of the package:
         the valid parameter is :
             specFile
-            yamlFile
             packageDirectory
             description
             packageTitle
@@ -1637,27 +1635,27 @@ class ObsLightManager(ObsLightManagerCore):
 
 #---------------------------------------------------------------------------
 
-    def createRepo(self, projectLocalName=None, APIName=None, projectObsName=None):
+    def createRepo(self, projectLocalName=None):
         '''
         Create a Repository
         '''
-        if projectLocalName != None:
-            res = self._myObsLightProjects.getProject(projectLocalName).createRepo()
-        else:
-            res = self.__myObsLightRepositories.createRepo(APIName, projectObsName)
+        res = self._myObsLightProjects.getProject(projectLocalName).createRepo()
         return res
 
-    def DeleteRepository(self, APIName, projectObsName):
-        return self.__myObsLightRepositories.DeleteRepository(APIName, projectObsName)
+    def DeleteRepository(self, projectLocalName):
+        return self._myObsLightRepositories.DeleteRepository(projectLocalName)
 
-    def createRepository(self, APIName, projectObsName):
-        return self.__myObsLightRepositories.createRepository(APIName, projectObsName)
+    def createRepository(self, projectLocalName):
+        return self._myObsLightRepositories.createRepository(projectLocalName)
 
     def scanRepository(self):
-        return self.__myObsLightRepositories.scanRepository()
+        return self._myObsLightRepositories.scanRepository()
 
-    def getRepositoriesList(self, APIName=None):
-        return self.__myObsLightRepositories.getRepositoriesList(APIName=APIName)
+    def getRepositoriesList(self):
+        return self._myObsLightRepositories.getRepositoriesList()
+
+    def getLocalRepository(self, project):
+        return self._myObsLightRepositories.getRepository(project).getLocalRepository()
 
 #---------------------------------------------------------------------------
     def isObsLightServerAvailable(self):
