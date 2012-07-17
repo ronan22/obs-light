@@ -901,7 +901,6 @@ class ObsLightChRoot(ObsLightChRootCore):
         '''
         scriptParameters = self.makeRpmbuildScriptParameters(specFile, package, arch, "-bp")
         #We need to rename all the .gitignore file to do not disturb the git management
-        print tto
         prepScript = "chown -R %(user)s:%(userGroup)s %(buildDir)s"
         prepScript = prepScript % scriptParameters
         _ = self.execCommand([prepScript], user="root")
