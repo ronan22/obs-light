@@ -45,7 +45,19 @@ function check_config()
 	then
 		echo_red "Project meta is empty!"
 	else
-		echo_green "Project meta is present"
+		grep -q -E "<path project=\"fakeobs:" "$EXTENDEDPROJECTDIR/_meta"
+		if [ "$?" -eq "0" ]
+		then
+			echo_red "Project meta contains a path to a fakeobs project!"
+			echo_red "This won't work. Please edit $EXTENDEDPROJECTDIR/_meta"
+			echo_red "and replace any occurence of"
+			echo_red "  '<path project=\"fakeobs:Your:Project\" repository=\"something\" />'"
+			echo_red "by"
+			echo_red "  '<path project=\"Your:Project\" repository=\"something\" />'"
+			echo
+		else
+			echo_green "Project meta seems OK"
+		fi
 	fi
 
 	if [ ! -f "$EXTENDEDPROJECTDIR/_config" ]
@@ -56,7 +68,7 @@ function check_config()
 	then
 		echo_yellow "Project config is empty, may be a problem for top-level projects"
 	else
-		echo_green "Project config is present"
+		echo_green "Project config seems OK"
 	fi
 }
 
