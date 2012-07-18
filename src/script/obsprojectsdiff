@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #         Ronan Le Martret (Intel OTC)
 #         Florent Vennetier (Intel OTC)
-# Date 10 Juily 2012
+# Date 18 July 2012
 # Version 1.0
 # License GPLv2
 
@@ -48,22 +48,26 @@ class PrintHandler(object):
 
 def help_(progName="obsprojectsdiff"):
     print """HELP
-Function : Compare tag of two project in an OBS.
-        It will create a 2 tag file which contains the MD5 to represent
-        the diff package revision of each project. The tag file can be used as direct input
-        for obs2obscopy.
-        Warning: Two related package by a link, have not the same MD5.
+Function: Compare packages of two OBS projects.
+        It will create 2 tag files which can be used as direct input to obs2obscopy.
+        One to make the update from project 1 to project 2,
+        one to make the update from project 2 to project 1.
 
-Usage:   """ + progName + """ <obs-alias|obs-api-url> <project-name-1> <obs-alias|obs-api-url> <project-1-name-1> <md5-file-name-1> <md5-file-name-1>
+        Warning: Two packages with apparently the same source,
+                 but one of is a link, have different MD5.
 
-        <obs-alias>     the alias of an OBS server as defined by OSC in ~/.oscrc.
-        <obs-api-url>   a URL to an OBS API. Note that if you do not have a
-                        configured account in ~/.oscrc for this API, you should
-                        try public access, by appending "/public" to the URL.
-        <project-name-1>  the name of the first project.
-        <project-name-2>  the name of the second project.   
-        <md5-file-name-1> the name of the file where to write results of package from project 1 which differ in the project 2.
-        <md5-file-name-2> the name of the file where to write results of package from project 2 which differ in the project 1.
+Usage:   """ + progName + """ <obs-alias|obs-api-url> <project-1> <obs-alias|obs-api-url> <project-2> <md5-file-1> <md5-file-2>
+
+        <obs-alias>    the alias of an OBS server as defined by OSC in ~/.oscrc.
+        <obs-api-url>  a URL to an OBS API. Note that if you do not have a
+                       configured account in ~/.oscrc for this API, you should
+                       try public access, by appending "/public" to the URL.
+        <project-1>    the name of the first project.
+        <project-2>    the name of the second project.
+        <md5-file-1>   the name of the file to write tags of packages from
+                       project 1 which are different in the project 2.
+        <md5-file-2>   the name of the file to write tags of packages from
+                       project 2 which are different in the project 1.
 
 Example: """ + progName + """ http://api.meego.com MeeGo:1.2:oss http://myObs.mynetwork:81 home:me:my_project diff_project1.tag diff_project2.tag
 
@@ -79,7 +83,7 @@ Environment:
        If the DEBUG environment variable is non-empty, all URLs will
        be printed to stderr before being called.
 
-Version 3.3   License GPLv2"""
+Version 1.0   License GPLv2"""
 
 def printerror(message):
     print >> sys.stderr, message
@@ -187,7 +191,7 @@ class ObsProject(object):
             if e.code == 404:
                 printdebug("History not available for %s, trying to get undated last revision"
                            % packageName)
-                return self.getPackageLastRevisions(packageName)
+                return self.getPackageLastRevisions(packageName)[0]
             else:
                 raise
 
@@ -231,17 +235,16 @@ class ObsProject(object):
         return revisionsList
 
 def initOutPutFile(outFile, apiUrl_1, projectName_1, apiUrl_2, projectName_2):
-    print >> outFile, "# This is a revision Tag file from OBS: %s created by obsprojectsdiff." % apiUrl_1
-    print >> outFile, "# That MD5 Tag is directly usable by obs2obscopy script."
+    print >> outFile, "# This is a revision tag file from OBS %s created by obsprojectsdiff." % apiUrl_1
+    print >> outFile, "# That MD5 tag is directly usable by obs2obscopy script."
     print >> outFile, "#"
-    print >> outFile, "# Created :", time.strftime("%a, %b %d %H:%M:%S %Z %Y")
-
-    print >> outFile, "# Server name : %s" % apiUrl_1
-    print >> outFile, "# Project name : %s" % projectName_1
-    print >> outFile, "# Tag %s vs %s" % (projectName_1, projectName_2)
-    print >> outFile, "# This package MD5 Tag differ of the MD5 Tag of project:"
-    print >> outFile, "# Server name : %s" % apiUrl_2
-    print >> outFile, "# Project name : %s" % projectName_2
+    print >> outFile, "# Created:", time.strftime("%a, %b %d %H:%M:%S %Z %Y")
+    print >> outFile, "# This is a tag between"
+    print >> outFile, "#   Server name: %s" % apiUrl_1
+    print >> outFile, "#   Project name: %s" % projectName_1
+    print >> outFile, "# and"
+    print >> outFile, "#   Server name: %s" % apiUrl_2
+    print >> outFile, "#   Project name: %s" % projectName_2
     print >> outFile, "#"
     print >> outFile, "#"
     print >> outFile, "# %38s | %6s | %20s | %s | %s |%s |%s " % ("pkgMd5",
@@ -251,8 +254,6 @@ def initOutPutFile(outFile, apiUrl_1, projectName_1, apiUrl_2, projectName_2):
                                                                   "pkgVersion",
                                                                   "pkgOwner",
                                                                   "pkgComment")
-
-
     print >> outFile, "#"
 
 def getPackageList(obsProject, apiUrl, projectName):
@@ -276,39 +277,37 @@ def getPackageList(obsProject, apiUrl, projectName):
     return set(packageList)
 
 def isALinkedPackage(apiUrl, srcProjectName, pkgName):
-
     fileList = core.meta_get_filelist(apiUrl, srcProjectName, pkgName)
     if "_link" in fileList:
         return True
     return False
 
-def isDiffPackageFiles(src_apiurl, src_project, src_package,
-                     dst_apiurl, dst_project, dst_package,
-                     src_revision,
-                     dst_revision):
+def packageFilesDiffer(src_apiurl, src_project, src_package,
+                       dst_apiurl, dst_project, dst_package,
+                       src_revision,
+                       dst_revision):
+    filesToUpdate = set()
+    srcFilesDict = getPackageFiles(src_apiurl, src_project, src_package, src_revision)
+    dstFilesDict = getPackageFiles(dst_apiurl, dst_project, dst_package, dst_revision)
 
-    listToUpdate = set()
-    dicoSrcFiles = getPackageFiles(src_apiurl, src_project, src_package, src_revision)
-    dicoDstFiles = getPackageFiles(dst_apiurl, dst_project, dst_package, dst_revision)
+    srcPackageFilesSet = set(srcFilesDict.keys())
+    if '_link' in srcPackageFilesSet:
+        srcPackageFilesSet.remove('_link')
+    dstPackageFilesSet = set(dstFilesDict.keys())
 
-    listSrcPackageFiles = set(dicoSrcFiles.keys())
-    if '_link' in listSrcPackageFiles:
-        listSrcPackageFiles.remove('_link')
-    listDstPackageFiles = set(dicoDstFiles.keys())
+    filesInBothPackages = srcPackageFilesSet.intersection(dstPackageFilesSet)
 
-    listToTest = listSrcPackageFiles.intersection(listDstPackageFiles)
+    for aFile in filesInBothPackages:
+        if srcFilesDict[aFile] != dstFilesDict[aFile]:
+            filesToUpdate.add(aFile)
 
-    for aFile in listToTest:
-        if dicoSrcFiles[aFile] != dicoDstFiles[aFile]:
-            listToUpdate.add(aFile)
+    # FIXME: use symmetric_difference
+    for aFile in srcPackageFilesSet.difference(dstPackageFilesSet):
+        filesToUpdate.add(aFile)
+    for aFile in dstPackageFilesSet.difference(srcPackageFilesSet):
+        filesToUpdate.add(aFile)
 
-    for aFile in listSrcPackageFiles.difference(listDstPackageFiles):
-        listToUpdate.add(aFile)
-
-    for aFile in listDstPackageFiles.difference(listSrcPackageFiles):
-        listToUpdate.add(aFile)
-
-    return len(listToUpdate) > 0
+    return len(filesToUpdate) > 0
 
 def getPackageFiles(apiurl, project, package, src_revision=None):
     query = {}
@@ -384,8 +383,8 @@ def main(apiUrl_1, projectName_1, apiUrl_2, projectName_2, outFilePath_1, outFil
     if type(packageList_2) != type(set()):
         return packageList_2
 
-    totalpackage = packageList_1.union(packageList_2)
-    communPackage = packageList_1.intersection(packageList_2)
+    allPackages = packageList_1.union(packageList_2)
+    commonPackages = packageList_1.intersection(packageList_2)
 
     print "Creating a revision tag of source packages"
 
@@ -393,13 +392,13 @@ def main(apiUrl_1, projectName_1, apiUrl_2, projectName_2, outFilePath_1, outFil
     packageCounter = 0
     failedPackageList = []
 
-    for packageName in totalpackage:
+    for packageName in sorted(allPackages):
         packageCounter += 1
         nbError = 0
         while (nbError < MAX_RETRIES):
             nbError += 1
             try:
-                print "(%d/%d) %s" % (packageCounter, len(totalpackage), packageName),
+                print "(%d/%d) %s" % (packageCounter, len(allPackages), packageName),
                 if nbError > 1:
                     print "retry %d" % (nbError - 1)
                 else:
@@ -409,19 +408,19 @@ def main(apiUrl_1, projectName_1, apiUrl_2, projectName_2, outFilePath_1, outFil
                     revisions_1 = obsProject_1.getPackageRevisions(packageName)
                 else:
                     revisions_1 = None
-                    print >> outFile_1, "#Package %s are not present" % packageName
+                    print >> outFile_1, "# Package %s is not present" % packageName
 
                 if packageName in packageList_2:
                     revisions_2 = obsProject_2.getPackageRevisions(packageName)
                 else:
                     revisions_2 = None
-                    print >> outFile_2, "#Package %s are not present" % packageName
+                    print >> outFile_2, "# Package %s is not present" % packageName
 
-                if (packageName in communPackage):
+                if (packageName in commonPackages):
                     if (revisions_1.srcmd5 != revisions_2.srcmd5):
-                        if isALinkedPackage(apiUrl_1, projectName_1, packageName) or\
-                           isALinkedPackage(apiUrl_2, projectName_2, packageName):
-                            if isDiffPackageFiles(apiUrl_1, projectName_1, packageName,
+                        if (isALinkedPackage(apiUrl_1, projectName_1, packageName) or
+                            isALinkedPackage(apiUrl_2, projectName_2, packageName)):
+                            if packageFilesDiffer(apiUrl_1, projectName_1, packageName,
                                                   apiUrl_2, projectName_2, packageName,
                                                   revisions_1.srcmd5,
                                                   revisions_2.srcmd5):
@@ -478,7 +477,9 @@ if __name__ == '__main__':
     outFilePath_2 = sys.argv[6]
 
     try:
-        sys.exit(main(apiUrl_1, projectName_1, apiUrl_2, projectName_2, outFilePath_1, outFilePath_2))
+        sys.exit(main(apiUrl_1, projectName_1,
+                      apiUrl_2, projectName_2,
+                      outFilePath_1, outFilePath_2))
     except KeyboardInterrupt:
         print >> sys.stderr, "Interrupted by user..."
         sys.exit(5)
