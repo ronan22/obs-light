@@ -726,7 +726,7 @@ You can select several packages.</string>
             </size>
            </property>
            <property name="currentIndex">
-            <number>0</number>
+            <number>2</number>
            </property>
            <widget class="QWidget" name="localDirectoryTab">
             <attribute name="title">
