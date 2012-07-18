@@ -28,6 +28,8 @@ import socket
 
 from ObsLightUtils import isNonEmptyString
 
+from ObsLightSubprocess import SubprocessCrt
+
 OBSLIGHTDIRNAME = "OBSLight"
 OBSLIGHTCONFIG = "ObslightConfig"
 
@@ -38,6 +40,8 @@ ERRORLOGDIRECTORY = os.path.join(WORKINGDIRECTORY, "errorLog")
 if not os.path.isdir(WORKINGDIRECTORY):
     os.makedirs(WORKINGDIRECTORY)
 CONFIGPATH = os.path.join(WORKINGDIRECTORY, OBSLIGHTCONFIG)
+
+HOST_IP = None
 
 class ObsLightConfig(object):
     '''
@@ -239,7 +243,22 @@ def getImageServerPath():
     return "/srv/obslight-image-server/www"
 
 def getLocalRepoServer():
-    return "http://%s:82" % socket.gethostname()
+    cmd = "/sbin/ifconfig"
+    __mySubprocessCrt = SubprocessCrt()
+    global HOST_IP
+    IpLocalHost = "127.0.0.1"
+    if HOST_IP is None:
+        try:
+            res = __mySubprocessCrt.execSubprocess(cmd, stdout=True, noOutPut=True)
+            for ip in re.findall(".*inet.*?:([\d.]*)[\s]+.*", res):
+                if ip != IpLocalHost:
+                    HOST_IP = ip
+                    break
+        except:
+            HOST_IP = IpLocalHost
+    if HOST_IP is None:
+        HOST_IP = IpLocalHost
+    return "http://%s:82" % HOST_IP
 
 
 if not os.path.exists(CONFIGPATH):
