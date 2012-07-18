@@ -89,6 +89,13 @@ Example:
 $ obslight-fakeobs remove "Tizen:1.0:Base"
 
 
+How to check a fakeobs project ?
+--------------------------------
+Run "obslight-fakeobs check all" with the project name as parameter.
+This is automatically run after a grab, but you may want to
+run it after an import.
+
+
 Where can I find fakeobs projects archives ?
 --------------------------------------------
 Some archives for Tizen are available at http://tizen.fridu.net/.

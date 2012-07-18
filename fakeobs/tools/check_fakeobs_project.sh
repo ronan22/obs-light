@@ -29,6 +29,7 @@ function check_config()
 		echo_red "Missing argument for check_config!"
 	fi
 	local project="$1"
+	echo "--- Checking configuration of $project ---"
 	EXTENDEDPROJECTDIR=`echo $project | sed y,:,/,`
 	EXTENDEDPROJECTDIR="$FAKEOBSPREFIX/obs-projects/$EXTENDEDPROJECTDIR"
 	if [ ! -d "$EXTENDEDPROJECTDIR" ]
@@ -44,6 +45,7 @@ function check_config()
 	elif [ ! -s "$EXTENDEDPROJECTDIR/_meta" ]
 	then
 		echo_red "Project meta is empty!"
+		echo_red "Please check $EXTENDEDPROJECTDIR/_meta"
 	else
 		grep -q -E "<path project=\"fakeobs:" "$EXTENDEDPROJECTDIR/_meta"
 		if [ "$?" -eq "0" ]
@@ -67,9 +69,11 @@ function check_config()
 	elif [ ! -s "$EXTENDEDPROJECTDIR/_config" ]
 	then
 		echo_yellow "Project config is empty, may be a problem for top-level projects"
+		echo_yellow "Please check $EXTENDEDPROJECTDIR/_config"
 	else
 		echo_green "Project config seems OK"
 	fi
+	echo
 }
 
 function check_full()
@@ -81,6 +85,7 @@ function check_full()
 	local returncode=0
 	local namesrawfile="_repository?view=names"
 	local project="$1"
+	echo "--- Checking bootstrap of $project ---"
 	local repotopdir="$FAKEOBSPREFIX/obs-repos/$project:latest/"
 	if [ ! -d "$repotopdir" ]
 	then
@@ -113,13 +118,23 @@ function check_full()
 				echo "$missingfiles" > "missing_rpms.txt"
 				echo
 			else
-				echo_green "$project seems OK for target $target/$arch"
+				echo_green "$project bootstrap seems complete for target $target/$arch"
 			fi
 			rm "$namesfile"
+			echo "Running 'rpm -q --checksig -p' on each RPM"
+			find . -name "*.rpm" | xargs -r rpm -q --checksig -p 1>/dev/null
+			if [ "$?" -ne "0" ]
+			then
+				returncode=1
+				echo_red "Integrity test failed for some packages"
+			else
+				echo_green "No package failed the integrity test"
+			fi
 			cd ..
 		done
 		cd ..
 	done
+	echo
 	return $returncode
 }
 
@@ -136,6 +151,7 @@ function check_repositories()
 		echo_red "Please specify a project name!"
 		exit 1
 	fi
+	echo "--- Checking repositories of $project ---"
 	repodirname=`echo "$project" | cut -d ":" -f 1- --output-delimiter ":/"`
 	for dir in `find $FAKEOBSPREFIX/releases -type d | grep "$repodirname\$"`
 	do
@@ -146,9 +162,9 @@ function check_repositories()
 			echo_red "No RPM found in '$dir'!"
 			returncode=1
 		else
-			echo_green "Found $rpmcount RPMs in '$dir'"
+			echo "Found $rpmcount RPMs in '$dir'"
 		fi
-		echo_green "Running 'rpm -q --checksig -p' on each"
+		echo "Running 'rpm -q --checksig -p' on each"
 		find . -name "*.rpm" | xargs -r rpm -q --checksig -p 1>/dev/null
 		if [ "$?" -ne "0" ]
 		then
@@ -160,6 +176,7 @@ function check_repositories()
 		echo
 		cd ..
 	done
+	echo
 	return $returncode
 }
 
