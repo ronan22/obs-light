@@ -24,7 +24,7 @@ Created on 13 déc. 2011
 from PySide.QtCore import QAbstractTableModel, QSize, Qt
 from PySide.QtGui import QColor
 
-
+from ObsLight.ObsLightErr import ObsLightOscErr
 STATUS_COLUMN = u"Status"
 
 
@@ -167,9 +167,13 @@ class OscWorkingCopyModel(QAbstractTableModel):
         self.clearColumns()
         for fileName in files:
             # get informations about a file as a dictionary
-            inf = self.__obsLightManager.getPackageFileInfo(self.__project,
-                                                            self.__package,
-                                                            fileName)
+            try:
+                inf = self.__obsLightManager.getPackageFileInfo(self.__project,
+                                                                self.__package,
+                                                                fileName)
+            #TODO: Match only "WorkingCopyInconsistent"
+            except ObsLightOscErr as e:
+                return e
             # search for new columns
             for key in inf.keys():
                 if not key in self.__columnList:
