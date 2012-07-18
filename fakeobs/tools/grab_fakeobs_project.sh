@@ -71,21 +71,11 @@ done
 # Move git repositories to the right place
 mv gitrepos/* packages-git/$SANITIZEDNAME/
 
-project_meta_empty=0
 echo_green "Getting project _meta..."
 curl $CURLARGS "$API/source/$PROJECT/_meta" > obs-projects/$EXTENDEDPROJECTDIR/_meta
-if [ ! -s "obs-projects/$EXTENDEDPROJECTDIR/_meta" ]
-then
-  project_meta_empty=1
-fi
 
-project_conf_empty=0
 echo_green "Getting project _config..."
 curl $CURLARGS "$API/source/$PROJECT/_config" > obs-projects/$EXTENDEDPROJECTDIR/_config
-if [ ! -s "obs-projects/$EXTENDEDPROJECTDIR/_config" ]
-then
-  project_conf_empty=1
-fi
 
 echo_green "Executing post import operations..."
 tools/post_import_operations.sh $PROJECT
@@ -118,18 +108,10 @@ else
   echo_yellow "Errors were encountered while grabbing repositories of '$PROJECT'."
   echo_yellow "You should check everything is OK before exporting the project."
 fi
-if [ "$project_conf_empty" -ne "0" ]
-then
-  echo_yellow "Project configuration is empty, is this OK ?"
-  echo_yellow "Please check /srv/fakeobs/obs-projects/$EXTENDEDPROJECTDIR/_config"
-fi
-if [ "$project_meta_empty" -ne "0" ]
-then
-  echo_yellow "Project meta is empty, is this OK ?"
-  echo_yellow "Please check /srv/fakeobs/obs-projects/$EXTENDEDPROJECTDIR/_meta"
-fi
 if [ -n "$SKIPPEDPACKAGES" ]
 then
   echo_red "The following packages have been skipped because of errors:"
   echo_red "$SKIPPEDPACKAGES"
 fi
+
+tools/check_fakeobs_project.sh all "$PROJECT"
