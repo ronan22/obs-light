@@ -383,7 +383,7 @@ class ObsLightOsc(ObsLightObject):
 
 #        prj = "home:obsuser:branches:Tizen:FromObsTizen:1.0:Base"
 #        check_trusted_projects(apiurl, [ i for i in bi.projects.keys() if not i == prj ])
-
+        self.get_config()
         fetcher.run(bi)
 
         return bi
@@ -609,16 +609,12 @@ class ObsLightOsc(ObsLightObject):
                     if rpm.endswith(arch):
                         rpm = rpm[:-len(".rpm")]
 
-
-#                print rpm.ljust(50)
-
                 if rpm.count("-") > 1:
                     rpmSplit = rpm.split("-")
 
                     tpmRpm = rpmSplit[:-2]
                     tpmRelease = rpmSplit[-1]
 #                    tpmVersion = rpmSplit[-2]
-#                    print "/", tpmRpm, "/"
 
                     if re.match(r'^[0-9]*\.[0-9]*\.', tpmRelease) != None:
                         rpm = "-".join(tpmRpm)
