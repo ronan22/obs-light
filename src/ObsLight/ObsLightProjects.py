@@ -118,11 +118,24 @@ class ObsLightProjects(object):
         saveconfigProject["currentProject"] = self.__currentProjects
 
         if (projectName is not None) or (saveconfigProject != self.__saveconfigProject):
-            aFile = open(pathFileBackUp, 'w')
-            pickle.dump(saveconfigProject, aFile)
-            aFile.close()
-            if os.path.isfile(pathFileBackUp):
-                shutil.copyfile(pathFileBackUp, pathFile)
+
+            with open(pathFileBackUp, 'w') as aFile:
+                pickle.dump(saveconfigProject, aFile)
+                aFile.flush()
+                os.fsync(aFile.fileno())
+
+            aFile = open(pathFileBackUp, 'r')
+            try:
+                if os.path.isfile(pathFileBackUp):
+                    testLoad = pickle.load(aFile)
+                    shutil.copyfile(pathFileBackUp, pathFile)
+            except:
+                message = "the file: " + pathFileBackUp + " is not a backup"
+                raise  ObsLightErr.ObsLightProjectsError(message)
+            finally:
+                aFile.close()
+
+
 
             if projectName is None:
                 self.__saveconfigProject = saveconfigProject

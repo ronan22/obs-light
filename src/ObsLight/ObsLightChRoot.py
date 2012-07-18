@@ -694,11 +694,8 @@ exit $?
             for f in files:
                 aPath = os.path.join(root, f)
                 mode = os.stat(aPath)
-                print "mode.st_mode & stat.S_IROTH", mode.st_mode & stat.S_IRGRP, "(mode.st_mode & stat.S_IROTH) == 0", (mode.st_mode & stat.S_IROTH) == 0
                 if (mode.st_mode & stat.S_IROTH) == 0:
                     result.append(aPath)
-        print result
-        print
         return result
 
 class ObsLightChRoot(ObsLightChRootCore):
