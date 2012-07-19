@@ -39,10 +39,8 @@ from ObsLightSubprocess import SubprocessCrt
 from ObsLightTools import isUserInGroup
 
 import ObsLightPrintManager
-import copy
 
 from ObsLightGitManager import ObsLightGitManager
-#from ObsLightRepoManager import ObsLightRepoManager
 
 from ObsLightUtils import isNonEmptyString
 
@@ -75,7 +73,6 @@ class ObsLightChRootCore(object):
         self.setUser("abuild")
 
         self._ObsLightGitManager = ObsLightGitManager(self)
-#        self.__ObsLightRepoManager = ObsLightRepoManager(self)
 
         self.__mySubprocessCrt = SubprocessCrt()
         self.hostArch = platform.machine()
@@ -485,38 +482,8 @@ exit $?
         return retval1, retval2
 
     def fixFsRights(self, recursive=True):
-#        errorMessage = "Failed to configure project filesystem access rights. "
-#        errorMessage += "Commandline was:\n %s"
-
-#        def raiseErrorIfNonZero(command):
-#            """
-#            Run `command` in subprocess and raise an error if return code
-#            differs from zero.
-#            """
-#            retCode = self._subprocess(command)
-#            if retCode != 0:
-#                raise ObsLightErr.ObsLightChRootError(errorMessage % command)
-
-        # The path of the root of the project filesystem
         fsPath = self.getDirectory()
-
         self.allowAccessToObslightGroup(fsPath, recursive=recursive, writeAccess=True)
-
-#        absRpmlibPath = self._createAbsPath(os.path.join("usr", "lib", "rpm"))
-#        absUserHome = self._createAbsPath(self.__chrootUserHome)
-#        absChrootEtc = self._createAbsPath("etc")
-#
-#        # Some of these commands may be useless since we set ACLs
-#        cmdList = ["sudo chown root:users %s" % self._createAbsPath(),
-#                   "sudo chown %s:users %s" % (self.__chrootUser, absUserHome),
-#                   "sudo chown %s:users %s" % (self.__chrootUser, absChrootEtc),
-#                   "sudo chmod g+rwX %s" % self._createAbsPath(),
-#                   "sudo chmod g+rwX %s" % absUserHome,
-#                   "sudo chmod g+rwX %s" % absChrootEtc,
-#                   "sudo chown -R %s:users %s" % (self.__chrootUser, absRpmlibPath),
-#                   "sudo chmod -R g+rwX %s" % absRpmlibPath]
-#        for command in cmdList:
-#            raiseErrorIfNonZero(command)
 
     def createChRoot(self, repos,
                            arch,
@@ -542,8 +509,6 @@ exit $?
             raise ObsLightErr.ObsLightChRootError(message)
 
         self.fixFsRights()
-        # FIXME: Since we do not use zypper anymore, this is useless
-        #self.initRepos()
 
         retVal = self.prepareChroot(self.getDirectory(), obsProject)
         if retVal != 0:
@@ -579,9 +544,6 @@ exit $?
         command.append('echo "TZ=\\"%s\\"" >> %s/.bashrc' % (tzname, parameter["userHome"]))
         command.append('echo "export TZ" >> %s/.bashrc' % parameter["userHome"])
         return self.execCommand(command, user=parameter["user"])
-
-#    def getChRootRepositories(self):
-#        return self.__dicoRepos
 
     def prepareChroot(self, chrootDir, project, user=None):
         '''
@@ -627,28 +589,6 @@ exit $?
             command.append(cmd % parameter)
             cmd = "if ! egrep '^%(user)s:' >/dev/null </etc/gshadow ; then echo '%(user)s:*::' >>/etc/gshadow ; fi"
             command.append(cmd % parameter)
-
-#         FIXME: is this still required ?
-#        # We need a "/etc/zypp/repos.d" directory.
-#        command.append("mkdir -p /etc/zypp/repos.d")
-#        command.append("chown -R root:users /etc/zypp/repos.d")
-#        command.append("chmod g+rwX etc/zypp/repos.d")
-
-#         Tizen ARM chroot jails work without this.
-#         TODO: test with MeeGo
-#        if self.obsLightMic.isArmArch(chrootDir):
-#            # If rpm and rpmbuild binaries are not ARM, replace them by ARM versions
-#            command.append('[ -z "$(file /bin/rpm | grep ARM)" -a -f /bin/rpm.orig-arm ]'
-#                + ' && cp /bin/rpm /bin/rpm.x86 && cp /bin/rpm.orig-arm /bin/rpm')
-#            command.append('[ -z "$(file /usr/bin/rpmbuild ' +
-#                           '| grep ARM)" -a -f /usr/bin/rpmbuild.orig-arm ]' +
-#                           ' && cp /usr/bin/rpmbuild /usr/bin/rpmbuild.x86 ' +
-#                           '&& cp /usr/bin/rpmbuild.orig-arm /usr/bin/rpmbuild')
-#            # Remove the old (broken ?) RPM database
-#            command.append('rm -f /var/lib/rpm/__db*')
-#            # Force zypper and rpm to use armv7hl architecture
-#            command.append("echo 'arch = armv7hl' >> /etc/zypp/zypp.conf")
-#            command.append("echo -n 'armv7hl-meego-linux' > /etc/rpm/platform")
 
         userHome = parameter["userHome"]
 
@@ -847,17 +787,6 @@ class ObsLightChRoot(ObsLightChRootCore):
             self.allowAccessToObslightGroup(specDirPath)
             if os.path.isdir(specDirPath):
                 absChrootHome = self._createAbsPath("%(userHome)s" % parameter)
-#                command = "sudo chown root:%(userGroup)s %s" % (self.__chrootUser, self.getDirectory())
-#                self._subprocess(command)
-#                command = "sudo chmod g+rwX %s" % self.getDirectory()
-#                self._subprocess(command)
-#                command = "sudo chown  %(user)s:%(userGroup)s %s" % (self.__chrootUser, absChrootHome)
-#                self._subprocess(command)
-#                command = "sudo chmod  g+rwX %s" % absChrootHome
-#                self._subprocess(command)
-#                command = "sudo chown -R %(user)s:%(userGroup)s %s" % (self.__chrootUser, absChrootHome)
-#                self._subprocess(command)
-
                 macroDirectory = absChrootHome
                 macroDest = os.path.join(absChrootHome, package.getName())
 
@@ -877,8 +806,6 @@ class ObsLightChRoot(ObsLightChRootCore):
                         os.unlink(path)
                     shutil.copy2(package.getOscDirectory() + "/" + str(aFile), path)
 
-#                    cmd="sudo chown -R %s:users %s" % (self.__chrootUser,path)
-#                    self._subprocess(command=cmd )
             else:
                 message = packageName + " source is not installed in " + self.getDirectory()
                 raise ObsLightErr.ObsLightChRootError(message)
@@ -900,7 +827,7 @@ class ObsLightChRoot(ObsLightChRootCore):
         Execute the %prep section of an RPM spec file.
         '''
         scriptParameters = self.makeRpmbuildScriptParameters(specFile, package, arch, "-bp")
-        #We need to rename all the .gitignore file to do not disturb the git management
+        # We need to rename all the .gitignore files to not disturb the git management
         prepScript = "chown -R %(user)s:%(userGroup)s %(buildDir)s"
         prepScript = prepScript % scriptParameters
         _ = self.execCommand([prepScript], user="root")
@@ -936,20 +863,18 @@ exit $RETURN_VALUE
                 cmd = "sudo chmod og+rwX %s" % absPackageDirectory
                 self._subprocess(command=cmd)
 
-                #If one or more file into the BUILD package directory have not the read access
-                #for group, the command "git add * will failed.
-                listFile = self.checkReadAccessForOther(absPackageDirectory)
+                # If one or more files into the package BUILD directory do not have the
+                # read access for group, the command "git add *" will fail.
+                fileList = self.checkReadAccessForOther(absPackageDirectory)
 
-                if len(listFile) > 0:
+                if len(fileList) > 0:
                     package.setPackageParameter("patchMode", False)
                     package.setChRootStatus("Prepared")
-                    msg = "Warrning the file:\n\n"
-
-                    for f in listFile:
+                    msg = "Warning: the following files do not have read access for 'other',"
+                    msg += "the 'patchMode' will be ineffective:\n\n"
+                    for f in fileList:
                         msg += "\t\t" + f + "\n"
                     msg += "\n"
-                    msg += "have not the read access for other.\n"
-                    msg += "the 'patchMode' will be ineffective."
 
                     raise ObsLightErr.ObsLightChRootError(msg)
 
@@ -964,7 +889,6 @@ exit $RETURN_VALUE
 
         elif package.getChRootStatus() != "No build directory":
             package.setChRootStatus("Prepared")
-
 
         return 0
 
@@ -1143,9 +1067,6 @@ exit $RETURN_VALUE
         command.append("ln -sf ../%s/SOURCES %s" % (buildDir, buildDirTmp))
         command.append("ln -sf ../%s/SRPMS %s" % (buildDir, buildDirTmp))
 
-#        command.append("chown -R %s:users %s" % (self.__chrootUser, buildDirTmp))
-#        command.append("chmod -R g+rwX %s" % buildDirTmp)
-
         outputFilePath = os.path.join(buildDirTmp, "SOURCES", tarFile)
 
         tmpPath = packagePath.replace(buildDirPath , "").strip("/")
@@ -1257,60 +1178,6 @@ exit $RPMBUILD_RETURN_CODE
         package.save()
         return 0
 
-
-
-
-
-
-#Manage the repository of the chroot jail
-#_____________________________________________________________________________
-#    def addRepo(self, repos=None, alias=None):
-#        '''
-#        Add a repository in the chroot's zypper configuration file.
-#        '''
-#        if alias in self.__dicoRepos.keys():
-#            msg = "Can't add %s, already configured in project file system" % alias
-#            raise ObsLightErr.ObsLightChRootError(msg)
-#        else:
-#            self.__dicoRepos[alias] = repos
-#
-#        return self.__ObsLightRepoManager.addRepo(repos=repos, alias=alias)
-#
-#    def initRepos(self):
-#        '''
-#        init all the repos in the chroot.
-#        '''
-#        for alias in self.__dicoRepos.keys():
-#            self.__ObsLightRepoManager.addRepo(repos=self.__dicoRepos[alias], alias=alias)
-#
-#    def isAlreadyAReposAlias(self, alias):
-#        if alias in self.__dicoRepos.keys():
-#            return True
-#        else:
-#            return False
-#
-#    def modifyRepo(self, repoAlias, newUrl, newAlias):
-#        if newUrl is None:
-#            newUrl = self.__dicoRepos[repoAlias]
-#
-#        self.__ObsLightRepoManager.deleteRepo(repoAlias)
-#
-#        if newAlias is None:
-#            newAlias = repoAlias
-#
-#        self.__ObsLightRepoManager.addRepo(newUrl, newAlias)
-#
-#        return self.addRepo(repos=newUrl, alias=newAlias)
-#
-#
-#    def deleteRepo(self, repoAlias):
-#        if repoAlias in self.__dicoRepos.keys():
-#            res = self.__ObsLightRepoManager.deleteRepo(repoAlias)
-#            del self.__dicoRepos[repoAlias]
-#            return res
-#        else:
-#            raise ObsLightErr.ObsLightChRootError("Can't delete the repo '" + repoAlias + "'")
-
     def __reOrderRpm(self, buildInfoCli, target, configPath):
         command = []
         cacheDir = "/tmp/reOrderDir"
@@ -1376,7 +1243,4 @@ exit $RPMBUILD_RETURN_CODE
             command.append(cmd)
 
         return self.execCommand(command=command, user="root")
-
-#        return self.__ObsLightRepoManager.installBuildRequires(packageName, dicoPackageBuildRequires, arch)
-#_____________________________________________________________________________
 
