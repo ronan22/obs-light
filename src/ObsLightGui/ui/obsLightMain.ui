@@ -354,7 +354,7 @@
                  </property>
                 </widget>
                </item>
-               <item row="0" column="0" colspan="3">
+               <item row="0" column="0">
                 <widget class="QLabel" name="projectLabelValue">
                  <property name="text">
                   <string/>
@@ -726,7 +726,7 @@ You can select several packages.</string>
             </size>
            </property>
            <property name="currentIndex">
-            <number>2</number>
+            <number>0</number>
            </property>
            <widget class="QWidget" name="localDirectoryTab">
             <attribute name="title">
@@ -1179,106 +1179,6 @@ It may open in background on some desktop environments.</string>
                  </widget>
                 </item>
                </layout>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-           <widget class="QWidget" name="specFileTab">
-            <attribute name="title">
-             <string>Spec File</string>
-            </attribute>
-            <layout class="QGridLayout" name="gridLayout_23">
-             <item row="0" column="0" colspan="4">
-              <widget class="QSplitter" name="splitter_6">
-               <property name="orientation">
-                <enum>Qt::Vertical</enum>
-               </property>
-               <widget class="QTabWidget" name="specPreambleTabWidget">
-                <property name="currentIndex">
-                 <number>0</number>
-                </property>
-                <widget class="QWidget" name="mainTab_2">
-                 <attribute name="title">
-                  <string>Preamble (Main)</string>
-                 </attribute>
-                 <layout class="QVBoxLayout" name="verticalLayout_5">
-                  <item>
-                   <widget class="QTextEdit" name="specPreambleTextEdit"/>
-                  </item>
-                 </layout>
-                </widget>
-               </widget>
-               <widget class="QTabWidget" name="specSectionsTabWidget">
-                <property name="currentIndex">
-                 <number>0</number>
-                </property>
-                <widget class="QWidget" name="prepTab">
-                 <attribute name="title">
-                  <string>%prep</string>
-                 </attribute>
-                 <layout class="QVBoxLayout" name="verticalLayout_6">
-                  <item>
-                   <widget class="QTextEdit" name="specSectionsPrepTextEdit"/>
-                  </item>
-                 </layout>
-                </widget>
-                <widget class="QWidget" name="buildTab">
-                 <attribute name="title">
-                  <string>%build</string>
-                 </attribute>
-                 <layout class="QVBoxLayout" name="verticalLayout_9">
-                  <item>
-                   <widget class="QTextEdit" name="specSectionsBuildTextEdit"/>
-                  </item>
-                 </layout>
-                </widget>
-                <widget class="QWidget" name="installTab">
-                 <attribute name="title">
-                  <string>%install</string>
-                 </attribute>
-                 <layout class="QVBoxLayout" name="verticalLayout_8">
-                  <item>
-                   <widget class="QTextEdit" name="specSectionsInstallTextEdit"/>
-                  </item>
-                 </layout>
-                </widget>
-               </widget>
-               <widget class="QTabWidget" name="specFileListTabWidget">
-                <property name="currentIndex">
-                 <number>0</number>
-                </property>
-                <widget class="QWidget" name="mainTab">
-                 <attribute name="title">
-                  <string>%files (Main)</string>
-                 </attribute>
-                 <layout class="QVBoxLayout" name="verticalLayout_7">
-                  <item>
-                   <widget class="QTextEdit" name="specFileListTextEdit"/>
-                  </item>
-                 </layout>
-                </widget>
-               </widget>
-              </widget>
-             </item>
-             <item row="1" column="0">
-              <widget class="QPushButton" name="saveSpecFileButton">
-               <property name="text">
-                <string>Save</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="2">
-              <widget class="QPushButton" name="selectSpecFileButton">
-               <property name="text">
-                <string>Select spec file</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="1">
-              <widget class="QPushButton" name="sendSpecFileToObsButton">
-               <property name="text">
-                <string>Send to OBS</string>
-               </property>
               </widget>
              </item>
             </layout>
