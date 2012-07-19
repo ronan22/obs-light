@@ -370,7 +370,7 @@ class PackageManager(QObject, ObsLightGuiObject):
         return packageList
 
     def __packageErrorCallback(self, error, traceback=None):
-        self.__refreshStatus()
+#        self.__refreshStatus()
         self.gui.popupErrorCallback(error, traceback)
 
     def __mapOnSelectedPackages(self,
