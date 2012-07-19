@@ -96,11 +96,11 @@ class ObsLightRepositories(object):
         self.__dicOBSLightRepositories[projectName] = repository
         return 0
 
-    def DeleteRepository(self, projectName):
+    def deleteRepository(self, projectName):
         if projectName in self.getRepositoriesList():
-            self.__dicOBSLightRepositories[projectName].DeleteRepository()
+            res = self.__dicOBSLightRepositories[projectName].deleteRepository()
             del self.__dicOBSLightRepositories[projectName]
-            return 0
+            return res
         return 0
 
     def createRepo(self, projectName):

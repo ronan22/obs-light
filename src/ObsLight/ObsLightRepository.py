@@ -117,10 +117,9 @@ class ObsLightRepository(object):
         else:
             return False
 
-    def DeleteRepository(self):
+    def deleteRepository(self):
         command = "rm -r %(path)s"
         command = command % self.__createOptionDico
-
         return self.__subprocess(command=command)
 
 

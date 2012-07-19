@@ -292,6 +292,7 @@ class ObsLightProject(ObsLightObject):
                                                      stdout=stdout)
 
     def removeProject(self):
+        self.removeLocalRepo()
         res = self.removeChRoot()
 
         if res == 0:
@@ -309,7 +310,10 @@ class ObsLightProject(ObsLightObject):
             message = "Error in removeProject, can't remove project file system"
             raise ObsLightErr.ObsLightProjectsError(message)
 
-        return 0
+
+
+    def removeLocalRepo(self):
+        return self.__obsLightRepositories.deleteRepository(self.__projectLocalName)
 
     def removeChRoot(self):
         for package in self.__packages.getListPackages():
@@ -854,10 +858,12 @@ class ObsLightProject(ObsLightObject):
         return  self.__packages.getPackage(package=package)
 
     def removePackage(self, package=None):
+        repo = self.__obsLightRepositories.getRepository(self.__projectLocalName)
+        repo.removeRPM(self.getPackage(package).getRPMPublished())
+        repo.createRepo()
         _ = self.__packages.removePackage(package=package)
 
         res = self.__chroot.removePackage(package)
-
         return res
 
     def getWebProjectPage(self):
