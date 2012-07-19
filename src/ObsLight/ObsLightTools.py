@@ -407,8 +407,13 @@ def dumpError(exceptionType, message, traceback_):
         os.makedirs(ObsLightConfig.ERRORLOGDIRECTORY)
     logPath = os.path.join(ObsLightConfig.ERRORLOGDIRECTORY, logfile)
 
+    try:
+        message2Dump = unicode(message2Dump)
+    except UnicodeError:
+        message2Dump = unicode(str(message2Dump), errors="replace")
+
     with open(logPath, 'w') as f:
-        print >> f, message2Dump
+        print >> f, message2Dump.encode('utf-8')
 
     if (ObsLightConfig.getObslightLoggerLevel() == "DEBUG"):
         print >> sys.stderr, exceptionType, message2Dump
