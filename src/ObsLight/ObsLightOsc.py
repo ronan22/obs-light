@@ -23,6 +23,7 @@ Created on 3 oct. 2011
 import os
 import sys
 import time
+import stat
 from xml.etree import ElementTree
 import urlparse
 import urllib
@@ -707,11 +708,25 @@ class ObsLightOsc(ObsLightObject):
                 extraPkgs += "-x " + pkg + " "
 
         command = "osc -A " + apiurl + " build --root=" + chrootDir + " " + extraPkgs
-        command += " --clean "
+        command += " %(clean)s "
         command += " --noservice --no-verify --alternative-project " + project + " "
         command += repos + " " + arch + " --local-package emptySpec.spec"
-        return self.__subprocess(command=command, waitMess=True)
+        retCode = self.__subprocess(command % {"clean": "--clean"}, waitMess=True)
 
+        # FIXME: since 0.5.1 there is a big regression: Tizen chroot jail creation fails.
+        # The problem comes from Tizen's "rpm" package which does not own /usr/lib/rpm/tizen,
+        # which gives this directory rwx------ file rights on certain conditions.
+        # The following code is to workaround that.
+        rpmTizenDir = os.path.join(chrootDir, "usr/lib/rpm/tizen")
+        if retCode != 0 and os.path.isdir(rpmTizenDir):
+            mode = os.stat(rpmTizenDir).st_mode
+            if (stat.S_IMODE(mode) & (stat.S_IROTH | stat.S_IXOTH)) == 0:
+                self.logger.warning("Using workaround for bug #25565")
+                command2 = "sudo chmod 755 %s" % rpmTizenDir
+                self.__subprocess(command2, waitMess=True)
+                retCode = self.__subprocess(command % {"clean": ""}, waitMess=True)
+
+        return retCode
 
     def getProjectListFromServer(self, obsApi):
         '''
