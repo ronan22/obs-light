@@ -693,8 +693,10 @@ exit $?
             files = walker[2]
             for f in files:
                 aPath = os.path.join(root, f)
-                mode = os.stat(aPath)
-                if (mode.st_mode & stat.S_IROTH) == 0:
+                # os.lstat does not follow symlinks,
+                # so does not fail on broken symlinks.
+                mode = os.lstat(aPath).st_mode
+                if (mode & stat.S_IROTH) == 0:
                     result.append(aPath)
         return result
 
