@@ -26,6 +26,7 @@ import time
 import ObsLightErr
 from ObsLightObject import ObsLightObject
 from ObsLightSubprocess import SubprocessCrt
+from ObsLightUtils import isNonEmptyString
 
 class ObsLightGitManager(ObsLightObject):
     '''
@@ -39,7 +40,6 @@ class ObsLightGitManager(ObsLightObject):
         self.initialTag = "initial-prep"
 
     def __subprocess(self, command=None, stdout=False, noOutPut=False):
-
         return self.__mySubprocessCrt.execSubprocess(command, stdout=stdout, noOutPut=noOutPut)
 
     def __listSubprocess(self, command=None):
@@ -75,11 +75,32 @@ class ObsLightGitManager(ObsLightObject):
             command += " -o %s" % outputFilePath
         return command
 
+    def checkGitUserConfig(self, workTree, gitDir):
+        """
+        Git complains if you don't set 'user.name' and 'user.email' config
+        parameters. This method checks if they are set, and in case they
+        aren't, set them.
+        """
+        confParams = {"user.email": "obslight@example.com", "user.name": "OBS Light"}
+        for param, value in confParams.iteritems():
+            cmd = self.prepareGitCommand(workTree, "config " + param, gitDir)
+            res = self.__subprocess(cmd, stdout=True, noOutPut=True)
+            self.logger.debug("Git parameter '%s': '%s'" % (param, res))
+            if not isNonEmptyString(res):
+                self.logger.debug(" -> Setting it to '%s'" % (value))
+                cmd2 = self.prepareGitCommand(workTree,
+                                              'config %s "%s"' % (param, value),
+                                              gitDir)
+                res2 = self.__subprocess(cmd2)
+                if res2 != 0:
+                    msg = 'Failed to set git parameter "%s", next git operation may fail!'
+                    self.logger.warning(msg % param)
+
     def execMakeArchiveGitSubcommand(self,
-                                    packagePath,
-                                    outputFilePath,
-                                    prefix,
-                                    packageCurrentGitDirectory):
+                                     packagePath,
+                                     outputFilePath,
+                                     prefix,
+                                     packageCurrentGitDirectory):
         absOutputFilePath = self.__chroot.getDirectory()
         # TODO: make something more generic (gz, bz2, xz...)
         if outputFilePath.endswith(".tar.gz"):
@@ -140,15 +161,22 @@ class ObsLightGitManager(ObsLightObject):
         if res != 0:
             msg = "Failed to give access rights on '%s'. Git repository creation may fail."
             self.logger.warn(msg % os.path.dirname(pkgCurGitDir))
+
+        res = self.__subprocess(self.prepareGitCommand(path, "init ", pkgCurGitDir))
+        if res != 0:
+            msg = "Creation of the git repository for %s failed. See the log for more information."
+            raise ObsLightErr.ObsLightChRootError(msg % package.getName())
+        self.checkGitUserConfig(path, pkgCurGitDir)
+
         command = []
-        command.append(self.prepareGitCommand(path, "init ", pkgCurGitDir))
         command.append(self.prepareGitCommand(path, "add " + absPath + "/\*", pkgCurGitDir))
         command.append(self.prepareGitCommand(path, "commit -a -m %s" % comment, pkgCurGitDir))
         command.append(self.prepareGitCommand(path, "tag %s" % self.initialTag , pkgCurGitDir))
 
         res = self.__listSubprocess(command=command)
         if res != 0:
-            msg = "Creation of the git repository for %s failed. See the log for more information."
+            msg = "Initialization of the git repository for %s failed. "
+            msg += "See the log for more information."
             raise ObsLightErr.ObsLightChRootError(msg % package.getName())
 
     def resetToPrep(self, path, package):
@@ -158,15 +186,12 @@ class ObsLightGitManager(ObsLightObject):
 
     def initGitignore(self, path, package):
         absPath = self.__chroot.getDirectory() + path
-        f = open(absPath + "/.gitignore", 'a')
-
-        f.write("debugfiles.list\n")
-        f.write("debuglinks.list\n")
-        f.write("debugsources.list\n")
-        f.write(".gitignore\n")
+        with open(absPath + "/.gitignore", 'a') as f:
+            f.write("debugfiles.list\n")
+            f.write("debuglinks.list\n")
+            f.write("debugsources.list\n")
+            f.write(".gitignore\n")
 #            f.write("*.in\n")
-
-        f.close()
 
     def ignoreGitWatch(self,
                        package,
@@ -193,14 +218,12 @@ class ObsLightGitManager(ObsLightObject):
         # this file is writable
         self.__subprocess("sudo chmod -f a+w %s %s/.gitignore" % (absPath, absPath))
 
-        f = open(absPath + "/.gitignore", 'a')
-
-        if type(res) is not type(int()):
-            for line in res.split("\n"):
-                if len(line) > 0:
-                    line = " ".join(line.strip(" ").split(" ")[1:])
-                    f.write(line + "\n")
-        f.close()
+        with open(absPath + "/.gitignore", 'a') as f:
+            if type(res) is not type(int()):
+                for line in res.split("\n"):
+                    if len(line) > 0:
+                        line = " ".join(line.strip(" ").split(" ")[1:])
+                        f.write(line + "\n")
 
         return self.__subprocess(self.prepareGitCommand(path,
                                  u"commit -a -m %s" % comment,
@@ -210,13 +233,10 @@ class ObsLightGitManager(ObsLightObject):
         '''
         Get the last Git commit hash.
         '''
-
-#        resultFile = "commitTag.log"
         command = self.prepareGitCommand(path,
                                          " log HEAD --pretty=short -n 1 " ,
-                                        package.getCurrentGitDirectory())
+                                         package.getCurrentGitDirectory())
 
-#        resPath = self.__chroot.getChrootDirTransfert() + "/" + resultFile
         result = self.__subprocess(command=command, stdout=True)
 
         for line in result.split("\n"):
@@ -225,10 +245,12 @@ class ObsLightGitManager(ObsLightObject):
                 return res
 
     def getListCommitTag(self, path, package):
+        return self.getCommitTagList(path, package)
+
+    def getCommitTagList(self, path, package):
         '''
         Get the last Git commit hash.
         '''
-#        resultFile = self.__chroot.getChrootDirTransfert() + "/" + "commitTag.log"
         command = self.prepareGitCommand(path,
                                          " log HEAD --pretty=short -n 20 ",
                                          package.getCurrentGitDirectory())
@@ -270,7 +292,6 @@ class ObsLightGitManager(ObsLightObject):
 
         pathOscPackage = package.getOscDirectory()
 
-        f = open(pathOscPackage + "/" + patch, "w'")
-        f.write(res)
-        f.close()
+        with open(pathOscPackage + "/" + patch, "w'") as f:
+            f.write(res)
         return 0
