@@ -127,7 +127,7 @@ class ObsLightProjects(object):
             aFile = open(pathFileBackUp, 'r')
             try:
                 if os.path.isfile(pathFileBackUp):
-                    testLoad = pickle.load(aFile)
+                    _ = pickle.load(aFile)
                     shutil.copyfile(pathFileBackUp, pathFile)
             except:
                 message = "the file: " + pathFileBackUp + " is not a backup"
