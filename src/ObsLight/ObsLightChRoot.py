@@ -263,6 +263,7 @@ class ObsLightChRootCore(object):
         mountDir = {}
         mountDir[self.__transferDir] = self.__chrootTransferDir
         mountDir[self.__oscCacheDir] = self.__chrootOscCacheDir
+        self.fixFsRights(recursive=False)
         self.obsLightMic.initChroot(chrootDirectory=self.getDirectory(), mountDir=mountDir)
         self.failIfCannotRunChrootEcho()
 
@@ -483,7 +484,7 @@ exit $?
 
         return retval1, retval2
 
-    def fixFsRights(self):
+    def fixFsRights(self, recursive=True):
 #        errorMessage = "Failed to configure project filesystem access rights. "
 #        errorMessage += "Commandline was:\n %s"
 
@@ -499,7 +500,7 @@ exit $?
         # The path of the root of the project filesystem
         fsPath = self.getDirectory()
 
-        self.allowAccessToObslightGroup(fsPath, recursive=True, writeAccess=True)
+        self.allowAccessToObslightGroup(fsPath, recursive=recursive, writeAccess=True)
 
 #        absRpmlibPath = self._createAbsPath(os.path.join("usr", "lib", "rpm"))
 #        absUserHome = self._createAbsPath(self.__chrootUserHome)
