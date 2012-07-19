@@ -31,6 +31,14 @@ a2ensite obslight-image.conf
 a2ensite obslight-repos.conf
 fi
 
+#Remove old http python server service.
+service obslightserver status >/dev/null && service obslightserver stop
+/sbin/chkconfig --check obslightserver && /sbin/chkconfig --del obslightserver
+
+#Add new http apache2 server service.
+[ -e /etc/init.d/apache2 ] && /sbin/chkconfig --add apache2
+[ -e /etc/init.d/apache2 ] && service apache2 start
+
 chown nobody:users /srv/$IMGSRVPATH
 chown nobody:users /srv/$IMGSRVPATH/config
 chown nobody:users /srv/$IMGSRVPATH/www

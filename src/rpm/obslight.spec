@@ -184,6 +184,14 @@ MOD_INCLUDE="/etc/apache2/mods-available/include.load"
 [ -f $MOD_INCLUDE ] && ln -sf $MOD_INCLUDE /etc/apache2/mods-enabled/include.load
 fi
 
+#Remove old http python server service.
+service obslightserver status >/dev/null && service obslightserver stop
+/sbin/chkconfig --check obslightserver && /sbin/chkconfig --del obslightserver
+
+#Add new http apache2 server service.
+[ -e /etc/init.d/apache2 ] && /sbin/chkconfig --add apache2
+[ -e /etc/init.d/apache2 ] && service apache2 start
+
 chown nobody:users /srv/%IMGSRVPATH
 chown nobody:users /srv/%REPOSRVPATH
 chown nobody:users /srv/%IMGSRVPATH/config
@@ -198,7 +206,6 @@ chmod g+w /srv/%REPOSRVPATH/config
 chmod g+w /srv/%IMGSRVPATH/www
 chmod g+w /srv/%REPOSRVPATH/www
 # << post
-
 
 %files
 %defattr(-,root,root,-)
