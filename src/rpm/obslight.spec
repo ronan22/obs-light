@@ -20,7 +20,6 @@ URL:        http://en.opensuse.org/openSUSE:OBS_Light
 Source0:    %{name}-%{version}.tar.gz
 Source100:  obslight.yaml
 Requires:   acl
-Requires:   apache2
 Requires:   build
 Requires:   createrepo
 Requires:   curl
@@ -40,11 +39,13 @@ Requires:   imagewriter
 Requires:   qemu-linux-user
 %endif
 %if 0%{?fedora}
+Requires:   httpd
 Requires:   nfs-utils
 # qemu-arm-static is not in Fedora repositories but in OBS Light's ones
 Requires:   qemu-arm-static
 Requires:   redhat-lsb
 %else
+Requires:   apache2
 Requires:   nfs-kernel-server
 Requires:   python-xml
 %endif
