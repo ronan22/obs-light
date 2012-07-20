@@ -1,4 +1,14 @@
 obslight (0.5.2-1) stable; urgency=low
+  * Version 0.5.2
+    - created repository of RPMs built in chroot jail (on port 82)
+    - added obsprojectsdiff utility script
+    - changed default build user from "root" to "abuild"
+    - added possibility to open a shell as root in chroot jail
+      (the default user being abuild)
+    - improved chroot bind-mounts reliability
+    - added some checks for the possibility to do ARM builds
+    - added logs of all unhandled exceptions
+
   * Version 0.5.1
     - rewrote package directory ACL management
     - forced ordering of packages dependencies
@@ -92,4 +102,4 @@ obslight (0.5.2-1) stable; urgency=low
 
   * Initial Release
 
- -- Florent Vennetier (Intel OTC) <florent@fridu.net>  Thu, 28 Jun 2012 18:41:57 +0200
+ -- Florent Vennetier (Intel OTC) <florent@fridu.net>  Fri, 20 Jul 2012 09:08:51 +0200
