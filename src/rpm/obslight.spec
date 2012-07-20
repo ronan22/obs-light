@@ -177,10 +177,19 @@ echo "/srv/%REPOSRVPATH/www  *(rw,fsid=0,no_root_squash,insecure,no_subtree_chec
 /sbin/chkconfig --add rpcbind
 /sbin/chkconfig --add nfsserver
 
-if [ -d %{_sysconfdir}/apache2/vhosts.d ]
+if [ -d "%{_sysconfdir}/apache2/vhosts.d" ]
 then
-ln -sf /srv/%IMGSRVPATH/config/obslight-image.apache2conf %{_sysconfdir}/apache2/vhosts.d/obslight-image.conf
-ln -sf /srv/%REPOSRVPATH/config/obslight-repos.apache2conf %{_sysconfdir}/apache2/vhosts.d/obslight-repos.conf
+# openSUSE
+  APACHEVHOST="%{_sysconfdir}/apache2/vhosts.d"
+elif [ -d "%{_sysconfdir}/httpd/conf.d" ]
+then
+# Fedora
+  APACHEVHOST="%{_sysconfdir}/httpd/conf.d"
+fi
+if [ -n "$APACHEVHOST" ]
+then
+ln -sf /srv/%IMGSRVPATH/config/obslight-image.apache2conf $APACHEVHOST/obslight-image.conf
+ln -sf /srv/%REPOSRVPATH/config/obslight-repos.apache2conf $APACHEVHOST/obslight-repos.conf
 MOD_INCLUDE="/etc/apache2/mods-available/include.load"
 [ -f $MOD_INCLUDE ] && ln -sf $MOD_INCLUDE /etc/apache2/mods-enabled/include.load
 fi
