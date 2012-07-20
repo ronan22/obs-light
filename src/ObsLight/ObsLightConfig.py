@@ -246,18 +246,18 @@ def getLocalRepoServer():
     cmd = "/sbin/ifconfig"
     __mySubprocessCrt = SubprocessCrt()
     global HOST_IP
-    IpLocalHost = "127.0.0.1"
+    localhostIp = "127.0.0.1"
     if HOST_IP is None:
         try:
             res = __mySubprocessCrt.execSubprocess(cmd, stdout=True, noOutPut=True)
             for ip in re.findall(".*inet.*?:([\d.]*)[\s]+.*", res):
-                if ip != IpLocalHost:
+                if isNonEmptyString(ip) and ip != localhostIp:
                     HOST_IP = ip
                     break
         except:
-            HOST_IP = IpLocalHost
+            HOST_IP = localhostIp
     if HOST_IP is None:
-        HOST_IP = IpLocalHost
+        HOST_IP = localhostIp
     return "http://%s:82" % HOST_IP
 
 
