@@ -5,6 +5,8 @@ import csv, os
 import xml.dom.minidom
 from subprocess import *
 from xml.dom.minidom import getDOMImplementation
+from xml.etree import ElementTree
+
 import shutil
 try:
     from cStringIO import StringIO
@@ -370,8 +372,57 @@ def git_compute_md5(gitpath, object):
     p1 = Popen(["git", "--git-dir=" + gitpath, "cat-file", "blob", object], stdout=PIPE)
     p2 = Popen(["md5sum", "-"], stdin=p1.stdout, stdout=PIPE)
     return p2.communicate()[0][:32]
+class xmlCache:
+    def __init__(self, path):
+        with open(path, 'r') as f:
+            xmlString = f.read()
+        f.close()
+        self.__maps = ElementTree.fromstring(xmlString)
+        self.__repo = {}
+        for repo in self.__maps.getchildren():
+            if repo.tag == "repo":
+                path = repo.get("path")
+                if path not in self.__repo.keys():
+                    self.__repo[path] = {}
+                for map in repo.getchildren():
+                    if map.tag == "map":
+                        branch = map.get("branch")
+                        commit = map.get("commit")
+                        rev = map.get("rev")
+                        srcmd5 = map.get("srcmd5")
+                        if commit not in self.__repo[path].keys():
+                            self.__repo[path][commit] = {}
 
-def generate_mappings(repos):
+                        self.__repo[path][commit]["srcmd5"] = srcmd5
+
+                        for entry in map.getchildren():
+                            if entry.tag == "entry":
+                                name = entry.get("name")
+                                md5 = entry.get("md5")
+                                self.__repo[path][commit][name] = md5
+
+    def getFileChecksum(self, repo, commit, name):
+        if (repo in self.__repo.keys()) and\
+           (commit in self.__repo[repo].keys()) and\
+           (name in self.__repo[repo][commit].keys()):
+            return self.__repo[repo][commit][name]
+        else:
+            return None
+
+    def getPackageChecksum(self, repo, commit):
+        if (repo in self.__repo.keys()) and\
+           (commit in self.__repo[repo].keys()) and\
+           ("srcmd5" in self.__repo[repo][commit].keys()):
+            return self.__repo[repo][commit]["srcmd5"]
+        else:
+            return None
+
+def generate_mappings(repos, xmlCacheFile=None):
+    if xmlCacheFile is not None:
+        myXmlCache = xmlCache(xmlCacheFile)
+    else:
+        myXmlCache = None
+
     impl = getDOMImplementation()
     indexdoc = impl.createDocument(None, "maps", None)
     lenmsg = "Non-matching size for file %s of %s (%d vs %d)"
@@ -392,29 +443,42 @@ def generate_mappings(repos):
                 for entry in cm.tree:
                     if entry.name == "_meta" or entry.name == "_attribute":
                         continue
-                    # If file is bigger than 20MB, do not load it
-                    # to compute the checksum
-                    if entry.size > (20 * 2 ** 20):
-                        checksum = git_compute_md5(x, entry.hexsha)
-                        entries[entry.name] = checksum
-                    else:
-                        st = git_cat(x, entry.hexsha)
-                        assert len(st) == entry.size, lenmsg % (entry.name, x, len(st), entry.size)
-                        m = hashlib.md5(st)
-                        entries[entry.name] = m.hexdigest()
-                sortedkeys = sorted(entries.keys())
-                meta = ""
-                for y in sortedkeys:
-                    meta += entries[y]
-                    meta += "  "
-                    meta += y
-                    meta += "\n"
 
-                m = hashlib.md5(meta)
+                    if (myXmlCache is not None):
+                        entries[entry.name] = myXmlCache.getFileChecksum(x, cm.hexsha, entry.name)
+
+                    if entries[entry.name] is None:
+                        # If file is bigger than 20MB, do not load it
+                        # to compute the checksum
+                        if entry.size > (20 * 2 ** 20):
+                            checksum = git_compute_md5(x, entry.hexsha)
+                            entries[entry.name] = checksum
+                        else:
+                            st = git_cat(x, entry.hexsha)
+                            assert len(st) == entry.size, lenmsg % (entry.name, x, len(st), entry.size)
+                            m = hashlib.md5(st)
+                            entries[entry.name] = m.hexdigest()
+
+                sortedkeys = sorted(entries.keys())
+
+                if (myXmlCache is not None):
+                    packageChecksum = myXmlCache.getPackageChecksum(x, cm.hexsha)
+
+                if packageChecksum is None:
+                    meta = ""
+                    for y in sortedkeys:
+                        meta += entries[y]
+                        meta += "  "
+                        meta += y
+                        meta += "\n"
+
+                        m = hashlib.md5(meta)
+                        packageChecksum = m.hexdigest()
+
                 mapelm = indexdoc.createElement("map")
                 mapelm.setAttribute("branch", branch.name)
                 mapelm.setAttribute("commit", cm.hexsha)
-                mapelm.setAttribute("srcmd5", m.hexdigest())
+                mapelm.setAttribute("srcmd5", packageChecksum)
                 mapelm.setAttribute("rev", str(toprev - rev))
                 for y in sortedkeys:
                     entryelm = indexdoc.createElement("entry")
