@@ -56,19 +56,49 @@ def adjust_meta(projectpath, projectname):
             x.setAttribute("name", projectname)
         return meta.childNodes[0].toxml(encoding="us-ascii")
 
-def build_project_index(projectpath):
-        impl = getDOMImplementation()
-        indexdoc = impl.createDocument(None, "directory", None)
+def build_fake_OBS_index(mappings_file):
+    doc = xml.dom.minidom.parse(mappings_file)
+    impl = getDOMImplementation()
+    indexdoc = impl.createDocument(None, "directory", None)
 
-        packagesdoc = xml.dom.minidom.parse(projectpath + "/packages.xml")
-        for x in packagesdoc.getElementsByTagName("package"):
-            entryelm = indexdoc.createElement("entry")
-            entryelm.setAttribute("name", x.attributes["name"].value)
-            indexdoc.childNodes[0].appendChild(entryelm)
-        for x in packagesdoc.getElementsByTagName("link"):
-            entryelm = indexdoc.createElement("entry")
-            entryelm.setAttribute("name", x.attributes["to"].value)
-            indexdoc.childNodes[0].appendChild(entryelm)
+    for x in doc.getElementsByTagName("mapping"):
+        entryelm = indexdoc.createElement("entry")
+        entryelm.setAttribute("name", x.attributes["project"].value)
+        indexdoc.childNodes[0].appendChild(entryelm)
+    return indexdoc.childNodes[0].toprettyxml(encoding="us-ascii")
+
+def build_fake_OBS_search(mappings_file):
+    doc = xml.dom.minidom.parse(mappings_file)
+    impl = getDOMImplementation()
+    indexdoc = impl.createDocument(None, "collection", None)
+
+    for x in doc.getElementsByTagName("mapping"):
+        projectelm = indexdoc.createElement("project")
+        projectelm.setAttribute("name", x.attributes["project"].value)
+
+        titleelm = indexdoc.createElement("title")
+        projectelm.appendChild(titleelm)
+
+        descriptionelm = indexdoc.createElement("description")
+        projectelm.appendChild(descriptionelm)
+
+        indexdoc.childNodes[0].appendChild(projectelm)
+
+    return indexdoc.childNodes[0].toprettyxml(encoding="us-ascii")
+
+def build_project_index(projectpath):
+    impl = getDOMImplementation()
+    indexdoc = impl.createDocument(None, "directory", None)
+
+    packagesdoc = xml.dom.minidom.parse(projectpath + "/packages.xml")
+    for x in packagesdoc.getElementsByTagName("package"):
+        entryelm = indexdoc.createElement("entry")
+        entryelm.setAttribute("name", x.attributes["name"].value)
+        indexdoc.childNodes[0].appendChild(entryelm)
+    for x in packagesdoc.getElementsByTagName("link"):
+        entryelm = indexdoc.createElement("entry")
+        entryelm.setAttribute("name", x.attributes["to"].value)
+        indexdoc.childNodes[0].appendChild(entryelm)
 	return indexdoc.childNodes[0].toprettyxml(encoding="us-ascii")
 
 # Generate index XML

@@ -98,7 +98,13 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             pathparts = path.split("/")
             for x in range(0, len(pathparts)):
                 pathparts[x] = urllib.unquote(pathparts[x])
-            return pathparts[1:]
+
+            if len(pathparts[0]) == 0:
+                pathparts = pathparts[1:]
+            if len(pathparts[-1]) == 0:
+                pathparts = pathparts[:-1]
+
+            return pathparts
 
         content = None
         contentsize = 0
@@ -117,10 +123,14 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             query = urlparse.parse_qs(pathparsed[4])
         else:
             query = {}
-        print "-------------------"
+
         print "path", path
-        print "query", query
-        print "-------------------"
+
+        #GET /about
+        if path.startswith("/about"):
+            contentsize, content = string2stream("Fake OBS\n")
+            contenttype = "text/html"
+            contentmtime = time.time()
         #GET /lastevents
         #TODO: Write lastevents Query.
         #GET /lastevents?filter=XXX&start=YYY
@@ -152,6 +162,61 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 contentsize, content = string2stream(output)
                 contenttype = "text/html"
                 contentmtime = time.time()
+
+
+        #Search
+        #
+        #    GET /search/project
+        #    GET /search/project/id
+        #    GET /search/package
+        #    GET /search/package/id
+        #    GET /search/published/binary/id
+        #    GET /search/published/pattern/id
+        #    GET /search/request
+        #    GET /search/issue
+        elif path.startswith("/search"):
+            pathparts = getCleanPathParts(path)
+            #GET /search/project
+            #GET /search/package
+            #GET /search/request
+            #GET /search/issue
+            if len(pathparts) == 2:
+                #GET /search/project
+                if pathparts[1] == "project":
+                    #Only used for OBS Light
+                    contentsize, content = string2stream(gitmer.build_fake_OBS_search(MAPPINGS_FILE))
+                    contenttype = "text/xml"
+                    contentmtime = time.time()
+                #GET /search/package
+                elif pathparts[1] == "package":
+                    content = None # 404 
+                #GET /search/request
+                elif pathparts[1] == "request":
+                    content = None # 404 it
+                #GET /search/issue
+                elif pathparts[1] == "issue":
+                    content = None # 404 it
+            #GET /search/project/id
+            #GET /search/package/id
+            elif len(pathparts) == 3:
+                id = pathparts[2]
+                #GET /search/project/id
+                if pathparts[1] == "project":
+                    content = None # 404 it
+                #GET /search/package/id
+                elif pathparts[1] == "package":
+                    content = None # 404 
+            #GET /search/published/binary/id
+            #GET /search/published/pattern/id
+            elif len(pathparts) == 4:
+                id = pathparts[3]
+                #GET /search/published/binary/id
+                if pathparts[2] == "binary":
+                    content = None # 404 it
+                #GET /search/published/pattern/id
+                elif pathparts[2] == "pattern":
+                    content = None # 404
+
         #Sources 
         #    Projects 
         #        GET /source/ 
@@ -170,15 +235,16 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         #    Source files 
         #        GET /source/<project>/<package>/<filename> 
         #        GET /source/<project>/<package>/<binary>/_attribute/<attribute> 
-        elif path.startswith("/source/"):
+        elif path.startswith("/source"):
 
             pathparts = getCleanPathParts(path)
-            print "pathparts", pathparts
             realproject = None
 
             #GET /source/
             if len(pathparts) == 1:
-                content = None # 404 it
+                contentsize, content = string2stream(gitmer.build_fake_OBS_index(MAPPINGS_FILE))
+                contenttype = "text/xml"
+                contentmtime = time.time()
 
             elif len(pathparts) >= 2:
                 # find <project>
