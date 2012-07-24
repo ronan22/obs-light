@@ -258,7 +258,7 @@ def getLocalRepoServer():
             HOST_IP = localhostIp
     if HOST_IP is None:
         HOST_IP = localhostIp
-    return "http://%s:82" % HOST_IP
+    return "http://%s:84" % HOST_IP
 
 
 if not os.path.exists(CONFIGPATH):
