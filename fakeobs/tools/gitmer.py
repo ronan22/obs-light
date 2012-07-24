@@ -56,6 +56,33 @@ def adjust_meta(projectpath, projectname):
             x.setAttribute("name", projectname)
         return meta.childNodes[0].toxml(encoding="us-ascii")
 
+def build_fake_OBS_repo(mappings_file, projectName):
+    doc = xml.dom.minidom.parse(mappings_file)
+    impl = getDOMImplementation()
+    indexdoc = impl.createDocument(None, "directory", None)
+
+    for x in doc.getElementsByTagName("mapping"):
+        if projectName == x.attributes["project"].value:
+            entryelm = indexdoc.createElement("entry")
+            entryelm.setAttribute("name", x.attributes["reponame"].value)
+            indexdoc.childNodes[0].appendChild(entryelm)
+    return indexdoc.childNodes[0].toprettyxml(encoding="us-ascii")
+
+def build_fake_OBS_arch(meta_file, repository):
+    doc = xml.dom.minidom.parse(meta_file)
+    impl = getDOMImplementation()
+    indexdoc = impl.createDocument(None, "directory", None)
+
+    for x in doc.getElementsByTagName("project"):
+        for y in x.getElementsByTagName("repository"):
+            if y.attributes["name"].value == repository:
+                for z in y.getElementsByTagName("arch"):
+                    entryelm = indexdoc.createElement("entry")
+                    entryelm.setAttribute("name", z.firstChild.data)
+                    indexdoc.childNodes[0].appendChild(entryelm)
+
+    return indexdoc.childNodes[0].toprettyxml(encoding="us-ascii")
+
 def build_fake_OBS_index(mappings_file):
     doc = xml.dom.minidom.parse(mappings_file)
     impl = getDOMImplementation()
@@ -99,7 +126,8 @@ def build_project_index(projectpath):
         entryelm = indexdoc.createElement("entry")
         entryelm.setAttribute("name", x.attributes["to"].value)
         indexdoc.childNodes[0].appendChild(entryelm)
-	return indexdoc.childNodes[0].toprettyxml(encoding="us-ascii")
+
+    return indexdoc.childNodes[0].toprettyxml(encoding="us-ascii")
 
 # Generate index XML
 #print build_project_index("Base")
@@ -196,6 +224,21 @@ def get_package_link(projectpath, packagename):
 
 def get_package_index_supportlink(projectpath, packagename, getrev, expand):
         return get_package_index(projectpath, packagename, getrev=getrev)
+
+
+def get_package_meta(projectpath, packagename):
+        getrev = get_latest_commit(projectpath, packagename)
+
+        commit, rev, srcmd5, tree, git = get_package_tree_from_commit_or_rev(projectpath, packagename, getrev)
+
+        mtime, vrev = get_package_commit_mtime_vrev(projectpath, packagename)
+        entrymd5s = get_entries_from_commit(projectpath, packagename, commit)
+
+        for entry in tree:
+            if entry.name != "_meta":
+                continue
+            return git_cat(git, entry.hexsha)
+        return None
 
 def get_package_index(projectpath, packagename, getrev=None):
         if getrev is None:
@@ -402,6 +445,7 @@ def git_compute_md5(gitpath, object):
     p1 = Popen(["git", "--git-dir=" + gitpath, "cat-file", "blob", object], stdout=PIPE)
     p2 = Popen(["md5sum", "-"], stdin=p1.stdout, stdout=PIPE)
     return p2.communicate()[0][:32]
+
 class xmlCache:
     def __init__(self, path):
         with open(path, 'r') as f:

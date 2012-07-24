@@ -256,7 +256,8 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
                 #GET /source/<project> 
                 if len(pathparts) == 2:
-                    if os.path.isfile(realprojectPath + "/packages.xml"):
+                    path = realprojectPath + "/packages.xml"
+                    if os.path.isfile(path):
                           contentsize, content = string2stream(gitmer.build_project_index(realprojectPath))
                           contenttype = "text/xml"
                           contentmtime = time.time()
@@ -317,8 +318,12 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                     else:
                         packageName = pathparts[2]
                         # GET /source/<project>/<package>/_meta
+
                         if pathparts[3] == "_meta":
-                            content = None # 404 it
+                            contentsize, content = string2stream(gitmer.get_package_meta(realprojectPath, packageName))
+                            contenttype = "text/xml"
+                            contentmtime = time.time()
+
                         # GET /source/<project>/<package>/_history
                         elif pathparts[3] == "_history":
                             content = None # 404 it
@@ -391,11 +396,15 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 # GET /build/<project>
                 else:
                     projectName = pathparts[1]
-                    content = None # 404 it
+                    contentsize, content = string2stream(gitmer.build_fake_OBS_repo(MAPPINGS_FILE, projectName))
+                    contenttype = "text/xml"
+                    contentmtime = time.time()
 
             if len(pathparts) >= 3:
                 projectName = pathparts[1]
                 projectNamePath = lookup_binariespath(projectName)
+                localProjectNamePath = lookup_path(projectName)
+
                 if projectNamePath is None:
                     projectNamePath = "--UNKNOWNPROJECT"
 
@@ -408,7 +417,10 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                     # GET /build/<project>/<repository>
                     else:
                         repository = pathparts[2]
-                        content = None # 404 it
+                        pathMeta = os.path.join(localProjectNamePath, "_meta")
+                        contentsize, content = string2stream(gitmer.build_fake_OBS_arch(pathMeta, repository))
+                        contenttype = "text/xml"
+                        contentmtime = time.time()
 
                 if len(pathparts) >= 4:
                     repository = pathparts[2]
