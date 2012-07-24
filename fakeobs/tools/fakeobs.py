@@ -94,6 +94,12 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             fs = os.fstat(f.fileno())
             return fs[6], fs.st_mtime, f
 
+        def getCleanPathParts(path):
+            pathparts = path.split("/")
+            for x in range(0, len(pathparts)):
+                pathparts[x] = urllib.unquote(pathparts[x])
+            return pathparts[1:]
+
         content = None
         contentsize = 0
         contentmtime = 0
@@ -101,6 +107,8 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
         pathparsed = urlparse.urlparse(self.path)
         path = pathparsed[2]
+        if path.startswith("/public"):
+            path = path[len("/public"):]
 
         if self.headers.getheader('Content-Length') is not None:
             data = self.rfile.read(int(self.headers.getheader('Content-Length')))
@@ -109,8 +117,14 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             query = urlparse.parse_qs(pathparsed[4])
         else:
             query = {}
-
-        if path.startswith("/public/lastevents"):
+        print "-------------------"
+        print "path", path
+        print "query", query
+        print "-------------------"
+        #GET /lastevents
+        #TODO: Write lastevents Query.
+        #GET /lastevents?filter=XXX&start=YYY
+        if path.startswith("/lastevents"):
             if query.has_key("start"):
                 if int(query["start"][0]) == gitmer.get_next_event():
                         # Normally OBS would block here, but we just 503 and claim we're busy, 
@@ -120,7 +134,7 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                         return None
 
                 filters = []
-
+                #GET /lastevents?filter=XXX
                 if query.has_key("filter"):
                     for x in query["filter"]:
                         spl = x.split('/')
@@ -132,146 +146,375 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 contenttype = "text/html"
                 contentmtime = time.time()
             else:
+                #GET /lastevents
                 output = '<events next="' + str(gitmer.get_next_event()) + '" sync="lost" />\n'
 
                 contentsize, content = string2stream(output)
                 contenttype = "text/html"
                 contentmtime = time.time()
+        #Sources 
+        #    Projects 
+        #        GET /source/ 
+        #        GET /source/<project>/_meta 
+        #        GET /source/<project>/_attribute/<attribute> 
+        #        GET /source/<project>/_config 
+        #        GET /source/<project>/_pattern 
+        #        GET /source/<project>/_pattern/<patternfile> 
+        #        GET /source/<project>/_pubkey 
+        #    Packages 
+        #        GET /source/<project> 
+        #        GET /source/<project>/<package> 
+        #        GET /source/<project>/<package>/_meta 
+        #        GET /source/<project>/<package>/_attribute/<attribute> 
+        #        GET /source/<project>/<package>/_history 
+        #    Source files 
+        #        GET /source/<project>/<package>/<filename> 
+        #        GET /source/<project>/<package>/<binary>/_attribute/<attribute> 
+        elif path.startswith("/source/"):
 
-        elif path.startswith("/public/source/") or path.startswith("/source/"):
-            pathparts = path.split("/")
-            if path.startswith("/public/source"):
-                pathparts = pathparts[1:]
-            for x in range(0, len(pathparts)):
-                pathparts[x] = urllib.unquote(pathparts[x])
+            pathparts = getCleanPathParts(path)
+            print "pathparts", pathparts
             realproject = None
-            if len(pathparts) >= 3:
-               realproject = pathparts[2]
-               pathparts[2] = lookup_path(pathparts[2])
 
-               if pathparts[2] is None:
-                    pathparts[2] = "--UNKNOWNPROJECT"
+            #GET /source/
+            if len(pathparts) == 1:
+                content = None # 404 it
 
-            # /source/project/
-            if len(pathparts) == 3:
-                if os.path.isfile(pathparts[2] + "/packages.xml"):
-                      contentsize, content = string2stream(gitmer.build_project_index(pathparts[2]))
-                      contenttype = "text/xml"
-                      contentmtime = time.time()
-            # package or metadata for project
-            elif len(pathparts) == 4:
-                if pathparts[3] == "_config":
-                    contentsize, contentmtime, content = file2stream(pathparts[2] + "/" + pathparts[3])
-                    contenttype = "text/plain"
-                elif pathparts[3] == "_meta":
-                    contentsize, content = string2stream(gitmer.adjust_meta(pathparts[2], realproject))
-                    contenttype = "text/xml"
-                    contentmtime = time.time()
-                elif pathparts[3] == "_pubkey":
+            elif len(pathparts) >= 2:
+                # find <project>
+                realproject = pathparts[1]
+                realprojectPath = lookup_path(pathparts[1])
+
+                if realprojectPath is None:
+                     realprojectPath = "--UNKNOWNPROJECT"
+
+                #GET /source/<project> 
+                if len(pathparts) == 2:
+                    if os.path.isfile(realprojectPath + "/packages.xml"):
+                          contentsize, content = string2stream(gitmer.build_project_index(realprojectPath))
+                          contenttype = "text/xml"
+                          contentmtime = time.time()
+                # package or metadata for project
+                #GET /source/<project>/_meta 
+                #GET /source/<project>/_config
+                #GET /source/<project>/_pattern
+                #GET /source/<project>/_pubkey
+                #GET /source/<project>/<package>
+                elif len(pathparts) == 3:
+                    #GET /source/<project>/_meta
+                    if pathparts[2] == "_meta":
+                        contentsize, content = string2stream(gitmer.adjust_meta(realprojectPath, realproject))
+                        contenttype = "text/xml"
+                        contentmtime = time.time()
+                    #GET /source/<project>/_config
+                    elif pathparts[2] == "_config":
+                        contentsize, contentmtime, content = file2stream(realprojectPath + "/_config")
+                        contenttype = "text/plain"
+                    #GET /source/<project>/_pubkey
+                    elif pathparts[2] == "_pubkey":
+                        content = None # 404 it
+                    #GET /source/<project>/_pattern
+                    elif pathparts[2] == "_pattern":
+                        content = None # 404 it
+                    #GET /source/<project>/<package>
+                    else:
+                        packageName = pathparts[2]
+                        expand = 0
+                        rev = None
+                        #GET /source/<project>/<package>?expand=[0 1]
+                        if query.has_key("expand"):
+                            expand = int(query["expand"][0])
+                        #GET /source/<project>/<package>?rev=XX
+                        if query.has_key("rev"):
+                            rev = query["rev"][0]
+
+                        contentsize, content = string2stream(gitmer.get_package_index_supportlink(realprojectPath, packageName , rev, expand))
+                        contenttype = "text/xml"
+                        contentmtime = time.time()
+                # GET /source/<project>/_attribute/<attribute> 
+                # GET /source/<project>/_pattern/<patternfile>            
+                # GET /source/<project>/<package>/_meta 
+                # GET /source/<project>/<package>/_history 
+                # GET /source/<project>/<package>/<filename> 
+                elif len(pathparts) == 4:
+                    # GET /source/<project>/_attribute/<attribute>
+                    if pathparts[2] == "_attribute":
+                        attribute = pathparts[3]
+                        content = None # 404 it
+                    # GET /source/<project>/_pattern/<patternfile> 
+                    elif pathparts[2] == "_pattern":
+                        patternfile = pathparts[3]
+                        content = None # 404 it
+                    # GET /source/<project>/<package>/_meta 
+                    # GET /source/<project>/<package>/_history 
+                    # GET /source/<project>/<package>/<filename> 
+                    else:
+                        packageName = pathparts[2]
+                        # GET /source/<project>/<package>/_meta
+                        if pathparts[3] == "_meta":
+                            content = None # 404 it
+                        # GET /source/<project>/<package>/_history
+                        elif pathparts[3] == "_history":
+                            content = None # 404 it
+                        # GET /source/<project>/<package>/<filename> 
+                        else:
+                            filename = pathparts[3]
+                            rev = None
+                            expand = 0
+                            #GET /source/<project>/<package>/<filename>?expand=[0 1]
+                            if query.has_key("expand"):
+                                    expand = int(query["expand"][0])
+                            #GET /source/<project>/<package>/<filename>?rev=XX
+                            if query.has_key("rev"):
+                                    rev = query["rev"][0]
+
+                            contentsize, contentst = gitmer.get_package_file(realproject, realprojectPath, packageName, filename, rev)
+                            if contentsize is None:
+                                content = None
+                            else:
+                                contentz, content = string2stream(contentst)
+                                contenttype = "application/octet-stream"
+                                contentmtime = time.time()
+
+                # GET /source/<project>/<package>/_attribute/<attribute>
+                elif len(pathparts) == 5:
                     content = None # 404 it
-                elif pathparts[3] == "_pattern":
+                # GET /source/<project>/<package>/<binary>/_attribute/<attribute>
+                elif len(pathparts) == 6:
                     content = None # 404 it
-                else:
-                    expand = 0
-                    rev = None
-                    if query.has_key("expand"):
-                        expand = int(query["expand"][0])
-                    if query.has_key("rev"):
-                        rev = query["rev"][0]
 
-                    contentsize, content = string2stream(gitmer.get_package_index_supportlink(pathparts[2], pathparts[3], rev, expand))
-                    contenttype = "text/xml"
-                    contentmtime = time.time()
-            elif len(pathparts) == 5:
-                rev = None
-                expand = 0
-                if query.has_key("expand"):
-                        expand = int(query["expand"][0])
-                if query.has_key("rev"):
-                        rev = query["rev"][0]
-                contentsize, contentst = gitmer.get_package_file(realproject, pathparts[2], pathparts[3], pathparts[4], rev)
-                if contentsize is None:
-                    content = None
-                else:
-                    contentz, content = string2stream(contentst)
-                    contenttype = "application/octet-stream"
-                    contentmtime = time.time()
-        elif path.startswith("/public/build"):
-            pathparts = path.split("/")
-            pathparts = pathparts[1:]
-            print pathparts
+        #Build Results
+        #    GET /build/
+        #    GET /build/_workerstatus
+        #    GET /build/<project>
+        #    GET /build/<project>/<repository>
+        #    GET /build/<project>/<repository/<arch>
+        #    Binaries
+        #        GET /build/<project>/<repository>/<arch>/<package>
+        #        GET /build/<project>/<repository>/<arch>/<package>/<binaryname>
+        #        GET /build/<project>/<repository>/<arch>/<package>/<binaryname>?view=fileinfo
+        #        GET /build/<project>/<repository>/<arch>/<package>/<binaryname>?view=fileinfo_ext
+        #        GET /build/<project>/<repository>/<arch>/_builddepinfo?package=<package>
+        #        GET /build/<project>/<repository>/<arch>/_jobhistory?package=<package>&code=succeeded&limit=10
+        #        GET /build/<project>/<repository>/<arch>/_repository
+        #        GET /build/<project>/<repository>/<arch>/_repository/<binaryname>
+        #    Status
+        #        GET /build/<project>/_result
+        #        GET /build/<project>/<repository>/<arch>/<package>/_history
+        #        GET /build/<project>/<repository>/<arch>/<package>/_reason
+        #        GET /build/<project>/<repository>/<arch>/<package>/_status
+        #        GET /build/<project>/<repository>/<arch>/<package>/_log
+        #    Local Build
+        #        GET /build/<project>/<repository>/<arch>/<package>/_buildinfo
+        #    Repository Information
+        #        GET /build/<project>/<repository>/<arch>/_repository/<binaryname>
+        #        GET /build/<project>/<repository>/<arch>/<package>/_buildinfo
+        #        GET /build/<project>/<repository>/<arch>/_builddepinfo
+        elif path.startswith("/build"):
+            pathparts = getCleanPathParts(path)
             #/public/build/Mer:Trunk:Base/standard/i586/_repository?view=cache
+            # GET /build/
+            if len(pathparts) == 1:
+                content = None # 404 it
+            # GET /build/_workerstatus
+            # GET /build/<project>
+            if len(pathparts) == 2:
+                # GET /build/_workerstatus
+                if pathparts[1] == "_workerstatus":
+                    content = None # 404 it
+                # GET /build/<project>
+                else:
+                    projectName = pathparts[1]
+                    content = None # 404 it
+
             if len(pathparts) >= 3:
-                pathparts[2] = lookup_binariespath(pathparts[2])
-                if pathparts[2] is None:
-                    pathparts[2] = "--UNKNOWNPROJECT"
-            if len(pathparts) == 6 and pathparts[5] == "_repository":
-                # pathparts[2]  == project
-                #          [3]  == repository
-                #          [4]  == scheduler
-                if query.has_key("view") and query["view"][0] == "cache":
-                    if os.path.isfile(pathparts[2] + "/" + pathparts[3] + "/" + pathparts[4] + "/_repository?view=cache"):
-                        contentsize, contentmtime, content = file2stream(pathparts[2] + "/" + pathparts[3] + "/" + pathparts[4] + "/_repository?view=cache")
-                        contenttype = "application/octet-stream"
-                    else:
-                        contentsize, contentmtime, content = file2stream("tools/emptyrepositorycache.cpio")
-                        contenttype = "application/octet-stream"
-                elif query.has_key("view") and query["view"][0] == "solvstate":
-                    if os.path.isfile(pathparts[2] + "/" + pathparts[3] + "/" + pathparts[4] + "/_repository?view=solvstate"):
-                        contentsize, contentmtime, content = file2stream(pathparts[2] + "/" + pathparts[3] + "/" + pathparts[4] + "/_repository?view=solvstate")
-                        contenttype = "application/octet-stream"
-                    else:
-                        contentsize, contentmtime, content = file2stream("tools/emptyrepositorycache.cpio")
-                        contenttype = "application/octet-stream"
-                elif query.has_key("view") and query["view"][0] == "cpio":
-                    binaries = ""
-                    for x in query["binary"]:
-                        if os.path.isfile(pathparts[2] + "/" + pathparts[3] + "/" + pathparts[4] + "/" + os.path.basename(x) + ".rpm"):
-                            assert "" + pathparts[2] + "/" + pathparts[3] + "/" + pathparts[4] + "/" + os.path.basename(x) + ".rpm was not found"
-                        binaries = binaries + os.path.basename(x) + ".rpm\n"
+                projectName = pathparts[1]
+                projectNamePath = lookup_binariespath(projectName)
+                if projectNamePath is None:
+                    projectNamePath = "--UNKNOWNPROJECT"
 
-                    print binaries
+                # GET /build/<project>/_result
+                # GET /build/<project>/<repository>
+                if len(pathparts) == 3:
+                    # GET /build/<project>/_result
+                    if pathparts[2] == "_result":
+                        content = None # 404 it
+                    # GET /build/<project>/<repository>
+                    else:
+                        repository = pathparts[2]
+                        content = None # 404 it
 
-                    cpiooutput = subprocess.Popen(["tools/createcpio", pathparts[2] + "/" + pathparts[3] + "/" + pathparts[4]], stdin=subprocess.PIPE, stdout=subprocess.PIPE).communicate(binaries)[0]
-#                    cpiooutput = subprocess.Popen(["/usr/bin/curl", "http://192.168.100.213:81/public/build/Core:i586/Core_i586/i586/_repository?" + pathparsed[4]], stdin=subprocess.PIPE, stdout=subprocess.PIPE).communicate()[0]
-                    contentsize, content = string2stream(cpiooutput)
-                    print contentsize
-                    contentmtime = time.time()
-                    contenttype = "application/x-cpio"
-                    ##
-                elif query.has_key("view") and query["view"][0] == "names":
-                    if os.path.isfile(pathparts[2] + "/" + pathparts[3] + "/" + pathparts[4] + "/_repository?view=names"):
-                        doc = xml.dom.minidom.parse(pathparts[2] + "/" + pathparts[3] + "/" + pathparts[4] + "/_repository?view=names")
-                        removables = []
-                        for x in doc.getElementsByTagName("binary"):
-                            if not os.path.splitext(x.attributes["filename"].value)[0] in query["binary"]:
-                                removables.append(x)
-                        for x in removables:
-                            doc.childNodes[0].removeChild(x)
-                        contentsize, content = string2stream(doc.childNodes[0].toxml())
-                        contentmtime = time.time()
-                        contenttype = "text/html"
-                    else:
-                        contentsize, content = string2stream("<binarylist />")
-                        contenttype = "text/html"
-                        contentmtime = time.time()
-                    ##
-                elif query.has_key("view") and query["view"][0] == "binaryversions":
-                    if os.path.isfile(pathparts[2] + "/" + pathparts[3] + "/" + pathparts[4] + "/_repository?view=cache"):
-                        doc = xml.dom.minidom.parse(pathparts[2] + "/" + pathparts[3] + "/" + pathparts[4] + "/_repository?view=binaryversions")
-                        removables = []
-                        for x in doc.getElementsByTagName("binary"):
-                            if not os.path.splitext(x.attributes["name"].value)[0] in query["binary"]:
-                                removables.append(x)
-                        for x in removables:
-                            doc.childNodes[0].removeChild(x)
-                        contentsize, content = string2stream(doc.childNodes[0].toxml())
-                        contentmtime = time.time()
-                        contenttype = "text/html"
-                    else:
-                        contentsize, content = string2stream("<binaryversionlist />")
-                        contenttype = "text/html"
-                        contentmtime = time.time()
+                if len(pathparts) >= 4:
+                    repository = pathparts[2]
+                    # GET /build/<project>/<repository/<arch>
+                    # GET /build/<project>/<repository>/_buildconfig
+                    if len(pathparts) == 4:
+                        if pathparts[3] == "_buildconfig":
+                            content = None # 404 it
+                        else:
+                            arch = pathparts[3]
+                            content = None # 404 it
+
+                    # GET /build/<project>/<repository>/<arch>/_repository
+                    # GET /build/<project>/<repository>/<arch>/_builddepinfo
+                    # GET /build/<project>/<repository>/<arch>/_builddepinfo?package=<package>
+                    # GET /build/<project>/<repository>/<arch>/_jobhistory?package=<package>&code=succeeded&limit=10
+                    # GET /build/<project>/<repository>/<arch>/<package>
+                    elif len(pathparts) == 5:
+                        arch = pathparts[3]
+                        # GET /build/<project>/<repository>/<arch>/_repository
+                        if pathparts[4] == "_repository":
+                            arch = pathparts[3]
+                            emptyrepositorycache = "tools/emptyrepositorycache.cpio"
+                            # GET /build/<project>/<repository>/<arch>/_repository?view=cache
+                            if query.has_key("view") and query["view"][0] == "cache":
+                                filePath = os.path.join(projectNamePath ,
+                                                         repository ,
+                                                         arch ,
+                                                         "_repository?view=cache")
+
+                                if os.path.isfile(filePath):
+                                    contentsize, contentmtime, content = file2stream(filePath)
+                                    contenttype = "application/octet-stream"
+                                else:
+                                    contentsize, contentmtime, content = file2stream(emptyrepositorycache)
+                                    contenttype = "application/octet-stream"
+                            # GET /build/<project>/<repository>/<arch>/_repository?view=solvstate
+                            elif query.has_key("view") and query["view"][0] == "solvstate":
+                                filePath = os.path.join(projectNamePath ,
+                                                         repository ,
+                                                         arch ,
+                                                         "_repository?view=solvstate")
+                                if os.path.isfile(filePath):
+                                    contentsize, contentmtime, content = file2stream(filePath)
+                                    contenttype = "application/octet-stream"
+                                else:
+                                    contentsize, contentmtime, content = file2stream(emptyrepositorycache)
+                                    contenttype = "application/octet-stream"
+                            # GET /build/<project>/<repository>/<arch>/_repository?view=cpio&binary=XXX
+                            elif query.has_key("binary") and query.has_key("view") and query["view"][0] == "cpio":
+                                binaries = ""
+                                for x in query["binary"]:
+                                    filePath = os.path.join(projectNamePath ,
+                                                             repository ,
+                                                             arch ,
+                                                             os.path.basename(x) + ".rpm")
+                                    if os.path.isfile(filePath):
+                                        assert filePath + " was not found"
+                                    binaries = binaries + os.path.basename(x) + ".rpm\n"
+
+                                path = os.path.join(projectNamePath , repository , arch)
+                                cpiooutput = subprocess.Popen(["tools/createcpio", path],
+                                                               stdin=subprocess.PIPE,
+                                                               stdout=subprocess.PIPE).communicate(binaries)[0]
+#                               cpiooutput = subprocess.Popen(["/usr/bin/curl", "http://192.168.100.213:81/public/build/Core:i586/Core_i586/i586/_repository?" + pathparsed[4]], stdin=subprocess.PIPE, stdout=subprocess.PIPE).communicate()[0]
+                                contentsize, content = string2stream(cpiooutput)
+                                print contentsize
+                                contentmtime = time.time()
+                                contenttype = "application/x-cpio"
+                                ##
+                            # GET /build/<project>/<repository>/<arch>/_repository?view=names&binary=XXX
+                            elif query.has_key("binary") and\
+                                 query.has_key("view") and\
+                                 query["view"][0] == "names":
+                                filePath = os.path.join(projectNamePath ,
+                                                        repository ,
+                                                        arch ,
+                                                        "_repository?view=names")
+                                if os.path.isfile(filePath):
+                                    print filePath
+                                    doc = xml.dom.minidom.parse(filePath)
+                                    removables = []
+                                    for x in doc.getElementsByTagName("binary"):
+                                        if not os.path.splitext(x.attributes["filename"].value)[0] in query["binary"]:
+                                            removables.append(x)
+                                    for x in removables:
+                                        doc.childNodes[0].removeChild(x)
+                                    contentsize, content = string2stream(doc.childNodes[0].toxml())
+                                    contentmtime = time.time()
+                                    contenttype = "text/html"
+                                else:
+                                    contentsize, content = string2stream("<binarylist />")
+                                    contenttype = "text/html"
+                                    contentmtime = time.time()
+                            # GET /build/<project>/<repository>/<arch>/_repository?view=binaryversions&binary=XXX
+                            elif query.has_key("binary") and\
+                                 query.has_key("view") and\
+                                 query["view"][0] == "binaryversions":
+                                filePathCache = os.path.join(projectNamePath ,
+                                                             repository ,
+                                                             arch ,
+                                                             "_repository?view=cache")
+                                filePathBin = os.path.join(projectNamePath ,
+                                                           repository ,
+                                                           arch ,
+                                                           "_repository?view=binaryversions")
+                                if os.path.isfile(filePathCache):
+                                    doc = xml.dom.minidom.parse(filePathBin)
+                                    removables = []
+                                    for x in doc.getElementsByTagName("binary"):
+                                        if not os.path.splitext(x.attributes["name"].value)[0] in query["binary"]:
+                                            removables.append(x)
+                                    for x in removables:
+                                        doc.childNodes[0].removeChild(x)
+                                    contentsize, content = string2stream(doc.childNodes[0].toxml())
+                                    contentmtime = time.time()
+                                    contenttype = "text/html"
+                                else:
+                                    contentsize, content = string2stream("<binaryversionlist />")
+                                    contenttype = "text/html"
+                                    contentmtime = time.time()
+                        # GET /build/<project>/<repository>/<arch>/_builddepinfo
+                        # GET /build/<project>/<repository>/<arch>/_builddepinfo?package=<package>
+                        elif pathparts[4] == "_builddepinfo":
+                            content = None # 404 it
+                        # GET /build/<project>/<repository>/<arch>/_jobhistory?package=<package>&code=succeeded&limit=10
+                        elif pathparts[4] == "_jobhistory":
+                            content = None # 404 it
+                        # GET /build/<project>/<repository>/<arch>/<package>
+                        else:
+                            package = pathparts[4]
+                            content = None # 404 it
+                    # GET /build/<project>/<repository>/<arch>/_repository/<binaryname>
+                    # GET /build/<project>/<repository>/<arch>/<package>/_history
+                    # GET /build/<project>/<repository>/<arch>/<package>/_reason
+                    # GET /build/<project>/<repository>/<arch>/<package>/_status
+                    # GET /build/<project>/<repository>/<arch>/<package>/_log
+                    # GET /build/<project>/<repository>/<arch>/<package>/_buildinfo
+                    # GET /build/<project>/<repository>/<arch>/<package>/<binaryname>
+                    # GET /build/<project>/<repository>/<arch>/<package>/<binaryname>?view=fileinfo
+                    # GET /build/<project>/<repository>/<arch>/<package>/<binaryname>?view=fileinfo_ext
+                    elif len(pathparts) == 6:
+                        arch = pathparts[3]
+                        # GET /build/<project>/<repository>/<arch>/_repository/<binaryname>
+                        if pathparts[4] == "_repository":
+                            binaryname = pathparts[5]
+                            content = None # 404 it
+                        else:
+                            packageName = pathparts[4]
+                            # GET /build/<project>/<repository>/<arch>/<package>/_history
+                            if pathparts[5] == "_history":
+                                content = None # 404 it
+                            # GET /build/<project>/<repository>/<arch>/<package>/_reason
+                            elif pathparts[5] == "_reason":
+                                content = None # 404 it
+                            # GET /build/<project>/<repository>/<arch>/<package>/_status
+                            elif pathparts[5] == "_status":
+                                content = None # 404 it
+                            # GET /build/<project>/<repository>/<arch>/<package>/_log
+                            elif pathparts[5] == "_log":
+                                content = None # 404 it
+                            # GET /build/<project>/<repository>/<arch>/<package>/_buildinfo
+                            elif pathparts[5] == "_buildinfo":
+                                content = None # 404 it
+                            # GET /build/<project>/<repository>/<arch>/<package>/<binaryname>
+                            # GET /build/<project>/<repository>/<arch>/<package>/<binaryname>?view=fileinfo
+                            # GET /build/<project>/<repository>/<arch>/<package>/<binaryname>?view=fileinfo_ext
+                            else:
+                                binaryname = pathparts[5]
+                                content = None # 404 it
+
+
 
         if content is None:
               print "404: path"
