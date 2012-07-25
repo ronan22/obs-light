@@ -31,10 +31,6 @@ import ObsLightPrintManager
 import select
 import errno
 
-
-
-BREAKPROCESS = False
-
 class SubprocessCrt(object):
     '''
     Control all the subprocesses in the ObsLight project. 
