@@ -428,7 +428,9 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                     # GET /build/<project>/<repository>/_buildconfig
                     if len(pathparts) == 4:
                         if pathparts[3] == "_buildconfig":
-                            content = None # 404 it
+                            path = os.path.join(localProjectNamePath, "_config")
+                            contentsize, contentmtime, content = file2stream(path)
+                            contenttype = "text/plain"
                         else:
                             arch = pathparts[3]
                             content = None # 404 it
@@ -542,6 +544,17 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                                     contentsize, content = string2stream("<binaryversionlist />")
                                     contenttype = "text/html"
                                     contentmtime = time.time()
+                            else:
+                                filePath = os.path.join(projectNamePath ,
+                                                         repository ,
+                                                         arch ,
+                                                         "_repository?view=names")
+                                if os.path.isfile(filePath):
+                                    contentsize, contentmtime, content = file2stream(filePath)
+                                    contenttype = "application/octet-stream"
+                                else:
+                                    contentsize, contentmtime, content = file2stream(emptyrepositorycache)
+                                    contenttype = "application/octet-stream"
                         # GET /build/<project>/<repository>/<arch>/_builddepinfo
                         # GET /build/<project>/<repository>/<arch>/_builddepinfo?package=<package>
                         elif pathparts[4] == "_builddepinfo":
@@ -565,7 +578,7 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                     elif len(pathparts) == 6:
                         arch = pathparts[3]
                         # GET /build/<project>/<repository>/<arch>/_repository/<binaryname>
-                        if pathparts[4] == "_repository":
+                        if pathparts[4] == "_repository" and pathparts[5] != "_buildinfo":
                             binaryname = pathparts[5]
                             content = None # 404 it
                         else:
@@ -583,16 +596,17 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                             elif pathparts[5] == "_log":
                                 content = None # 404 it
                             # GET /build/<project>/<repository>/<arch>/<package>/_buildinfo
+                            # GET /build/<project>/<repository>/<arch>/<package>/_buildinfo?add=package
                             elif pathparts[5] == "_buildinfo":
-                                content = None # 404 it
+                               #Fake just a trick
+                               contentsize, contentmtime, content = file2stream("test_buildInfo")
+                               contenttype = "text/plain"
                             # GET /build/<project>/<repository>/<arch>/<package>/<binaryname>
                             # GET /build/<project>/<repository>/<arch>/<package>/<binaryname>?view=fileinfo
                             # GET /build/<project>/<repository>/<arch>/<package>/<binaryname>?view=fileinfo_ext
                             else:
                                 binaryname = pathparts[5]
                                 content = None # 404 it
-
-
 
         if content is None:
               print "404: path"
