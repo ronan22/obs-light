@@ -36,6 +36,10 @@ try:
 except ImportError:
     from StringIO import StringIO
 
+POST = "POST"
+GET = "GET"
+HEAD = "HEAD"
+
 class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     server_version = "fakeobs/" + __version__
 
@@ -43,7 +47,7 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         """Serve a GET request."""
         f = None
         try:
-            f = self.send_head()
+            f = self.send_head(GET)
         except:
             self.send_response(500)
             print "500: " + self.path
@@ -56,20 +60,20 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
     def do_HEAD(self):
         """Serve a HEAD request."""
-        f = self.send_head()
+        f = self.send_head(HEAD)
         if f:
           if hasattr(f, "close"):
             f.close()
 
     def do_POST(self):
-        f = self.send_head()
+        f = self.send_head(POST)
         if f:
           self.copyfile(f, self.wfile)
           if hasattr(f, "close"):
             f.close()
 
     # Always returns a stream
-    def send_head(self):
+    def send_head(self, action):
         def lookup_path(projectname):
             doc = xml.dom.minidom.parse(MAPPINGS_FILE)
             for x in doc.getElementsByTagName("mapping"):
@@ -115,6 +119,9 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         path = pathparsed[2]
         if path.startswith("/public"):
             path = path[len("/public"):]
+
+        print "self.path", self.path
+        print "self.headers.getheader('Content-Length')", self.headers.getheader('Content-Length')
 
         if self.headers.getheader('Content-Length') is not None:
             data = self.rfile.read(int(self.headers.getheader('Content-Length')))
@@ -163,6 +170,54 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 contenttype = "text/html"
                 contentmtime = time.time()
 
+        #Architectures
+        #    GET /architecture
+        #    GET /architecture/<name>
+
+
+        #Issue Trackers
+        #
+        #    GET /issue_trackers
+        #    GET /issue_trackers/<name>
+        #    PUT /issue_tracker/<name>
+        #    POST /issue_tracker/<name>
+        #    DELETE /issue_tracker/<name>
+        #    GET /issue_trackers/show_url_for
+
+        #Distribution List
+        #
+        #    GET /distributions
+
+        #User data
+        #
+        #    GET /person/<userid>
+        #    PUT /person/<userid>
+        #    GET /person/<userid>/<groupid>
+        #    POST /person/register
+        #    PUT /person/register
+        #    PUT /person/changepasswd
+        #    POST /person/changepasswd
+
+        #Requests
+        #
+        #    GET /request
+        #    GET /request/<id>
+        #    POST /request
+        #    PUT /request/<id>
+        #    POST /request/<id>?cmd=diff
+        #    POST /request/<id>
+        #    DELETE /request/<id>
+
+        #Attribute definition api
+        #
+        #    GET /attribute/
+        #    GET /attribute/<namespace>/
+        #    GET /attribute/<namespace>/_meta
+        #    DELETE /attribute/<namespace>/_meta
+        #    PUT /attribute/<namespace>/_meta
+        #    GET /attribute/<namespace>/<name>/_meta
+        #    DELETE /attribute/<namespace>/<name>/_meta
+        #    PUT /attribute/<namespace>/<name>/_meta
 
         #Search
         #
@@ -377,9 +432,9 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         #        GET /build/<project>/<repository>/<arch>/<package>/_log
         #    Local Build
         #        GET /build/<project>/<repository>/<arch>/<package>/_buildinfo
+        #        POST /build/<project>/<repository>/<arch>/<package>/_buildinfo
         #    Repository Information
         #        GET /build/<project>/<repository>/<arch>/_repository/<binaryname>
-        #        GET /build/<project>/<repository>/<arch>/<package>/_buildinfo
         #        GET /build/<project>/<repository>/<arch>/_builddepinfo
         elif path.startswith("/build"):
             pathparts = getCleanPathParts(path)
@@ -572,6 +627,7 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                     # GET /build/<project>/<repository>/<arch>/<package>/_status
                     # GET /build/<project>/<repository>/<arch>/<package>/_log
                     # GET /build/<project>/<repository>/<arch>/<package>/_buildinfo
+                    # POST /build/<project>/<repository>/<arch>/<package>/_buildinfo
                     # GET /build/<project>/<repository>/<arch>/<package>/<binaryname>
                     # GET /build/<project>/<repository>/<arch>/<package>/<binaryname>?view=fileinfo
                     # GET /build/<project>/<repository>/<arch>/<package>/<binaryname>?view=fileinfo_ext
@@ -597,8 +653,12 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                                 content = None # 404 it
                             # GET /build/<project>/<repository>/<arch>/<package>/_buildinfo
                             # GET /build/<project>/<repository>/<arch>/<package>/_buildinfo?add=package
+                            # POST /build/<project>/<repository>/<arch>/<package>/_buildinfo
+                            # POST /build/<project>/<repository>/<arch>/<package>/_buildinfo?add=package
                             elif pathparts[5] == "_buildinfo":
                                #Fake just a trick
+                               if action == POST:
+                                   specfile = data
                                contentsize, contentmtime, content = file2stream("test_buildInfo")
                                contenttype = "text/plain"
                             # GET /build/<project>/<repository>/<arch>/<package>/<binaryname>
@@ -607,6 +667,74 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                             else:
                                 binaryname = pathparts[5]
                                 content = None # 404 it
+
+        #Published binary package tree
+        #
+        #    GET /published
+        #    GET /published/<project>
+        #    GET /published/<project>/<repository>
+        #    GET /published/<project>/<repository>/<arch>
+        #    GET /published/<project>/<repository>/<arch>/<binary>
+        #    GET /published/<project>/<repository>/<arch>/<binary>?view=ymp
+
+        #Tags
+        #
+        #    GET /source/<project>/_tags
+        #    GET /source/<project>/<package>/_tags
+        #    GET /tag/<tag>/_projects
+        #    GET /tag/<tag>/_packages
+        #    GET /tag/<tag>/_all
+        #    GET /user/<user>/tags/_projects
+        #    GET /user/<user>/tags/_packages
+        #    GET /user/<user>/tags/_tagcloud
+        #    GET /tag/_tagcloud
+        #    GET user/<user>/tags/<project>
+        #    PUT user/<user>/tags/<project>
+        #    GET user/<user>/tags/<project>/<package>
+        #    PUT user/<user>/tags/<project>/<package>
+
+        #Build Results (Legacy)
+        #
+        #    RPMs
+        #        GET /rpm/<project>/<platform>/<package>/<arch>/<rpmname>
+        #        GET /rpm/<project>/<repo>/<arch>/<package>/history
+        #        GET /rpm/<project>/<repo>/<arch>/<package>/buildinfo
+        #        POST /rpm/<project>/<repo>/<arch>/<package>/buildinfo
+        #        GET /rpm/<project>/<repo>/<arch>/<package>/status
+        #    Build Results
+        #        GET /result/<project>/<platform>/result
+        #        GET /result/<project>/<platform>/<package>/result
+        #        GET /result/<project>/<platform>/<package>/<arch>/log
+
+        #Statistics
+        #
+        #    GET /statistics/latest_added?limit=<limit>
+        #    GET /statistics/added_timestamp/<project>/<package>
+        #    GET /statistics/latest_updated?limit=<limit>
+        #    GET /statistics/updated_timestamp/<project>/<package>
+        #    GET /statistics/activity/<project>/<package>
+        #    GET /statistics/most_active?type=<type>&limit=<limit>
+        #    GET /statistics/highest_rated?limit=<limit>
+        #    GET /statistics/rating/<project>/<package>
+        #    PUT /statistics/rating/<project>/<package>
+        #    GET /statistics/download_counter?limit=<limit>
+        #    GET /statistics/download_counter?group_by=<group_by>&limit=<limit>
+        #    PUT /statistics/redirect_stats
+        #    GET /statistics/newest_stats
+
+        #Status Messages
+        #
+        #    GET /status_message/?limit=<limit>
+        #    PUT /status_message/
+
+        #Messages (for projects/packages)
+        #
+        #    GET /message/<id>
+        #    GET /message/?limit=<limit>
+        #    GET /message/?project=<project>
+        #    GET /message/?project=<project>&package=<package>
+        #    PUT /message/?project=<project>&package=<package>
+
 
         if content is None:
               print "404: path"
