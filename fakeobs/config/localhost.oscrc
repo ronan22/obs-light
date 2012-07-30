@@ -2,12 +2,15 @@
 # URL to access API server, e.g. https://build.api.meego.com
 # you also need a section [https://build.api.meego.com] with the credentials
 apiurl = __PROTOCOL__://__HOST__:__PORT__
-verbose = 0
+verbose=0
 # use KDE/Gnome/MacOS/Windows keyring for credentials if available
 use_keyring=0
 su-wrapper=sudo
 
 [__PROTOCOL__://__HOST__:__PORT__]
+# Default user and password on OBS Light OBS appliances
 user=Admin
 pass=opensuse
-
+# Without that, osc will ask user if he wants to import the certificate,
+# but due to buffering, the question is sometimes not displayed.
+sslcertck=0
