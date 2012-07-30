@@ -385,7 +385,7 @@ class ObsLightServer(object):
                             bugowner=False,
                             arch=None,
                             remoteurl=False,
-                            raw=False):
+                            raw=True):
         logger = ObsLightPrintManager.getLogger()
         logger.info("Getting project list from %s" % self.__serverAPI)
 

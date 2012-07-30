@@ -54,8 +54,11 @@ class ChooseProjectPage(ObsLightWizardPage, FilterableWidget):
     def _checkBoxStateChanged(self, _state):
         self.initializePage()
 
-    def _getProjectList(self, serverAlias, restrainMaintainer,
-                        restrainBugowner, restrainRemoteLinks):
+    def _getProjectList(self,
+                        serverAlias,
+                        restrainMaintainer,
+                        restrainBugowner,
+                        restrainRemoteLinks):
         """
         Retrieve project list from `serverAlias`.
         See `ObsLightManager.getObsServerProjectList` for the meaning of
@@ -75,8 +78,11 @@ class ChooseProjectPage(ObsLightWizardPage, FilterableWidget):
         if projectList is not None:
             self.ui_WizardPage.projectListWidget.addItems(projectList)
 
-    def _asyncFillProjectList(self, serverAlias, restrainMaintainer,
-                              restrainBugowner, restrainRemoteLinks):
+    def _asyncFillProjectList(self,
+                              serverAlias,
+                              restrainMaintainer,
+                              restrainBugowner,
+                              restrainRemoteLinks):
         """
         Asynchronously call `_getProjectList()` and send the results
         to `_fillProjectList()`.
@@ -89,6 +95,7 @@ class ChooseProjectPage(ObsLightWizardPage, FilterableWidget):
                               restrainMaintainer,
                               restrainBugowner,
                               restrainRemoteLinks)
+
         runnable.caughtException.connect(self.gui.popupErrorCallback)
         runnable.finished[object].connect(self._fillProjectList)
         progress.forceShow()

@@ -29,8 +29,9 @@ class Ui_WizardPage(object):
         self.restrainRemoteLinksCheckBox.setObjectName("restrainRemoteLinksCheckBox")
         self.formLayout.setWidget(3, QtGui.QFormLayout.FieldRole, self.restrainRemoteLinksCheckBox)
         self.restrainMaintainerCheckBox = QtGui.QCheckBox(WizardPage)
-        self.restrainMaintainerCheckBox.setChecked(True)
-        self.restrainMaintainerCheckBox.setObjectName("restrainMaintainerCheckBox")
+#        self.restrainMaintainerCheckBox.setChecked(True)
+#        self.restrainMaintainerCheckBox.setObjectName("restrainMaintainerCheckBox")
+
         self.formLayout.setWidget(4, QtGui.QFormLayout.FieldRole, self.restrainMaintainerCheckBox)
         self.restrainBugownerCheckBox = QtGui.QCheckBox(WizardPage)
         self.restrainBugownerCheckBox.setObjectName("restrainBugownerCheckBox")

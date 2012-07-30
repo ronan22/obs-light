@@ -558,8 +558,7 @@ class ObsLightManagerCore(ObsLightManagerBase):
                                 maintainer=False,
                                 bugowner=False,
                                 remoteurl=False,
-                                arch=None,
-                                raw=False):
+                                arch=None):
         '''
         Get the list of projects of an OBS server.
         you can also filter the result
@@ -568,6 +567,7 @@ class ObsLightManagerCore(ObsLightManagerBase):
         remoteurl     False,True
         arch
         '''
+        raw = not (maintainer or bugowner or remoteurl)
         checkNonEmptyStringServerApi(serverApi=serverApi)
         self.checkObsServerAlias(serverApi=serverApi)
         server = self._myObsServers.getObsServer(serverApi)
@@ -591,7 +591,7 @@ class ObsLightManagerCore(ObsLightManagerBase):
         '''
         if not isNonEmptyString(projectObsName):
             raise ObsLightObsServers("No projectObsName")
-        if not projectObsName in self.getObsServerProjectList(serverApi, raw=True):
+        if not projectObsName in self.getObsServerProjectList(serverApi):
             raise ObsLightObsServers("'%s' is not a project in the OBS server"
                                      % projectObsName)
 

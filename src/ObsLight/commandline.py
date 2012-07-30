@@ -418,7 +418,6 @@ __parameter_password__ = ["password", "pwd"]
 __parameter_api_url__ = ["api_url"]
 __parameter_repository_url__ = ["repository_url"]
 __parameter_web_url__ = ["web_url"]
-__parameter_raw__ = ["raw"]
 __parameter_project_alias__ = ["project_alias"]
 __parameter_patch_mode__ = ["patch_modes", "pm"]
 __parameter_name_on_obs__ = ["name_on_obs"]
@@ -469,7 +468,6 @@ createParameterHelp(__parameter_password__, "the password for an account on an O
 createParameterHelp(__parameter_api_url__, "the URL of an OBS server API")
 createParameterHelp(__parameter_repository_url__, "the URL of an OBS server repository")
 createParameterHelp(__parameter_web_url__, "the URL of an OBS server web interface")
-createParameterHelp(__parameter_raw__, "no filter on the project list")
 createParameterHelp(__parameter_project_alias__ ,
                     "the name of the obslight project on the local drive.")
 createParameterHelp(__parameter_patch_mode__,
@@ -662,7 +660,7 @@ createObsProjectSubCommandHelp(__command_list__,
                                ["obsproject list BLANK",
                                 "  return all local projects.",
                                 "obsproject list server_alias <server_alias> " +
-                                "raw|[arch <arch>|maintainer|bugowner|remoteurl]",
+                                "[arch <arch>|maintainer|bugowner|remoteurl]",
                                 "  return project on the OBS server filtered " +
                                 "with arch, maintainer, bugowner, remoteurl"])
 
@@ -721,7 +719,6 @@ createObsProjectParameter(__command_create__, [__command_help__,
 
 createObsProjectParameter(__command_list__, [__command_help__,
                                              __parameter_server_alias__,
-                                             __parameter_raw__,
                                              __parameter_arch__,
                                              __parameter_maintainer__,
                                              __parameter_bugowner__,
@@ -1910,7 +1907,6 @@ class ObsLightObsproject(ObsLightBase):
         Help = False
         server_alias = None
         arch = None
-        raw = False
         maintainer = False
         bugowner = False
         remoteurl = False
@@ -1921,8 +1917,6 @@ class ObsLightObsproject(ObsLightBase):
             if (currentCommand in __command_help__) or (listArgv == None):
                 Help = True
                 break
-            elif currentCommand in __parameter_raw__:
-                raw = True
             elif currentCommand in __parameter_server_alias__:
                 server_alias , listArgv = self.getParameter(listArgv)
                 if (server_alias == None) and ObsLightBase.noaction:
@@ -1953,8 +1947,7 @@ class ObsLightObsproject(ObsLightBase):
                                                     maintainer=maintainer,
                                                     bugowner=bugowner,
                                                     remoteurl=remoteurl,
-                                                    arch=arch,
-                                                    raw=raw)
+                                                    arch=arch)
                     if self.testResult(res, getLineno()) == -1:return - 1
                 else:
                     return self.printHelp()
