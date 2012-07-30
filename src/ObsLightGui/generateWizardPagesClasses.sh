@@ -1,5 +1,6 @@
 #!/bin/bash
 
+#pyside-uic come from the package "python-pyside-tools".
 uiFiles=`/bin/ls ui/wizard_*.ui`
 
 for uiFile in $uiFiles

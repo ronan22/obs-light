@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui/wizard_chooseProject.ui'
 #
-# Created: Wed May 16 09:56:48 2012
+# Created: Mon Jul 30 17:12:03 2012
 #      by: pyside-uic 0.2.13 running on PySide 1.1.0
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,7 +12,7 @@ from PySide import QtCore, QtGui
 class Ui_WizardPage(object):
     def setupUi(self, WizardPage):
         WizardPage.setObjectName("WizardPage")
-        WizardPage.resize(400, 300)
+        WizardPage.resize(430, 338)
         WizardPage.setLocale(QtCore.QLocale(QtCore.QLocale.English, QtCore.QLocale.UnitedStates))
         self.formLayout = QtGui.QFormLayout(WizardPage)
         self.formLayout.setObjectName("formLayout")
@@ -27,15 +27,18 @@ class Ui_WizardPage(object):
         self.formLayout.setWidget(1, QtGui.QFormLayout.SpanningRole, self.projectListWidget)
         self.restrainRemoteLinksCheckBox = QtGui.QCheckBox(WizardPage)
         self.restrainRemoteLinksCheckBox.setObjectName("restrainRemoteLinksCheckBox")
-        self.formLayout.setWidget(3, QtGui.QFormLayout.FieldRole, self.restrainRemoteLinksCheckBox)
+        self.formLayout.setWidget(4, QtGui.QFormLayout.FieldRole, self.restrainRemoteLinksCheckBox)
         self.restrainMaintainerCheckBox = QtGui.QCheckBox(WizardPage)
-#        self.restrainMaintainerCheckBox.setChecked(True)
-#        self.restrainMaintainerCheckBox.setObjectName("restrainMaintainerCheckBox")
-
-        self.formLayout.setWidget(4, QtGui.QFormLayout.FieldRole, self.restrainMaintainerCheckBox)
+        self.restrainMaintainerCheckBox.setEnabled(True)
+        self.restrainMaintainerCheckBox.setChecked(False)
+        self.restrainMaintainerCheckBox.setObjectName("restrainMaintainerCheckBox")
+        self.formLayout.setWidget(5, QtGui.QFormLayout.FieldRole, self.restrainMaintainerCheckBox)
         self.restrainBugownerCheckBox = QtGui.QCheckBox(WizardPage)
         self.restrainBugownerCheckBox.setObjectName("restrainBugownerCheckBox")
-        self.formLayout.setWidget(5, QtGui.QFormLayout.FieldRole, self.restrainBugownerCheckBox)
+        self.formLayout.setWidget(6, QtGui.QFormLayout.FieldRole, self.restrainBugownerCheckBox)
+        self.label_2 = QtGui.QLabel(WizardPage)
+        self.label_2.setObjectName("label_2")
+        self.formLayout.setWidget(3, QtGui.QFormLayout.FieldRole, self.label_2)
 
         self.retranslateUi(WizardPage)
         QtCore.QMetaObject.connectSlotsByName(WizardPage)
@@ -48,4 +51,5 @@ class Ui_WizardPage(object):
         self.restrainRemoteLinksCheckBox.setText(QtGui.QApplication.translate("WizardPage", "Show only projects which are remote links", None, QtGui.QApplication.UnicodeUTF8))
         self.restrainMaintainerCheckBox.setText(QtGui.QApplication.translate("WizardPage", "Show only projects on which I am maintainer", None, QtGui.QApplication.UnicodeUTF8))
         self.restrainBugownerCheckBox.setText(QtGui.QApplication.translate("WizardPage", "Show only projects on which I am bugowner", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_2.setText(QtGui.QApplication.translate("WizardPage", "Warrnig These options can increase the response time substantially.", None, QtGui.QApplication.UnicodeUTF8))
 
