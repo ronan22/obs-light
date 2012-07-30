@@ -42,11 +42,12 @@ def getLocalRepoHost():
         HOST_IP = localhostIp
     return "http://%s:8002" % HOST_IP
 
-def getbuildInfo(rev, srcmd5, specFile, listRepository, dist, depfile, arch, projectName, packageName, repository, spec):
+def getbuildInfo(rev, srcmd5, specFile, listRepository, dist, depfile, arch, projectName, packageName, repository, spec, addPackages):
     if arch in archHierarchyMap.keys():
         longArch = archHierarchyMap[arch]
     else:
         longArch = arch
+
     #TODO: We need to rewrite the spec FIle!
 #    buildDir = "/usr/lib/build"
 #
@@ -82,11 +83,17 @@ def getbuildInfo(rev, srcmd5, specFile, listRepository, dist, depfile, arch, pro
     cmd.append("--archpath")
     cmd.append(longArch)
 
+    for p in addPackages:
+        cmd.append("--addPackages")
+        cmd.append(p)
+
     cmd.append("--stderr")
     cmd.append(errFile)
 
     cmd.append("--stdout")
     cmd.append(ouputFile)
+
+
 
     print " ".join(cmd)
     rpmlist = Popen(cmd).communicate()[0]

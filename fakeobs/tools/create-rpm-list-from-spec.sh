@@ -1,4 +1,5 @@
 #!/bin/bash
+ADDPACKAGES=" "
 while test -n "$1" ; do
     case "$1" in
         --repository|--repo)
@@ -21,6 +22,11 @@ while test -n "$1" ; do
             ARCHPATH="$2";
             shift 2;
             ;;
+        --addPackages)
+            ADDPACKAGES=$ADDPACKAGES" $2";
+            shift 2;
+            ;;
+
         --stderr)
             STDERR="$2";
             shift 2;
@@ -113,6 +119,6 @@ validate_cache_file()
 }
 
 validate_cache_file
-/usr/lib/build/expanddeps --dist $DIST --depfile $CACHE_FILE --archpath $ARCHPATH --configdir /usr/lib/build/configs $SPEC >$STDOUT 2>$STDERR
+/usr/lib/build/expanddeps --dist $DIST --depfile $CACHE_FILE --archpath $ARCHPATH --configdir /usr/lib/build/configs $ADDPACKAGES $SPEC >$STDOUT 2>$STDERR
 exit 0
 

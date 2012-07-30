@@ -675,19 +675,23 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                                listRepository = []
                                listRepository.append(repo + "/" + projectName.replace(":", ":/") + "/" + repository)
 
-
+                               if query.has_key("add"):
+                                   addPackages = query["add"]
+                               else:
+                                   addPackages = []
 
                                xmlRes = rpmManager.getbuildInfo(rev,
                                                                 srcmd5,
                                                                 specFile,
-                                                              listRepository,
-                                                              localProjectNamePath + "/_config",
-                                                              localProjectNamePath + "/_rpmcache",
-                                                              arch,
-                                                              projectName,
-                                                              packageName,
-                                                              repository,
-                                                              specWriter.name)
+                                                                listRepository,
+                                                                localProjectNamePath + "/_config",
+                                                                localProjectNamePath + "/_rpmcache",
+                                                                arch,
+                                                                projectName,
+                                                                packageName,
+                                                                repository,
+                                                                specWriter.name,
+                                                                addPackages)
                                contentsize, content = string2stream(xmlRes)
                                contentmtime = time.time()
                                contenttype = "text/html"
