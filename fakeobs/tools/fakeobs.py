@@ -30,6 +30,8 @@ import subprocess
 import xml.dom.minidom
 import os
 import traceback
+import rpmManager
+import tempfile
 
 try:
     from cStringIO import StringIO
@@ -659,8 +661,29 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                                #Fake just a trick
                                if action == POST:
                                    specfile = data
-                               contentsize, contentmtime, content = file2stream("test_buildInfo")
-                               contenttype = "text/plain"
+                               else:
+                                   specfile = gitmer.getSpecFile(localProjectNamePath, packageName)
+
+                               with tempfile.NamedTemporaryFile("w", delete=False, suffix=".spec") as specWriter:
+                                    specWriter.write(specfile)
+
+                               repo = rpmManager.getLocalRepoHost()
+                               listRepository = []
+                               listRepository.append(repo + "/" + projectName.replace(":", ":/") + "/" + repository)
+
+                               xmlRes = rpmManager.getbuildInfo(repo,
+                                                              listRepository,
+                                                              localProjectNamePath + "/_config",
+                                                              localProjectNamePath + "/_rpmcache",
+                                                              arch,
+                                                              projectName,
+                                                              packageName,
+                                                              repository,
+                                                              specWriter.name)
+
+                               contentsize, content = string2stream(xmlRes)
+                               contentmtime = time.time()
+                               contenttype = "text/html"
                             # GET /build/<project>/<repository>/<arch>/<package>/<binaryname>
                             # GET /build/<project>/<repository>/<arch>/<package>/<binaryname>?view=fileinfo
                             # GET /build/<project>/<repository>/<arch>/<package>/<binaryname>?view=fileinfo_ext

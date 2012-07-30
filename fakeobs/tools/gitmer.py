@@ -436,6 +436,36 @@ def get_package_file(realproject, projectpath, packagename, filename, getrev):
                return entry.size, git_cat(git, entry.hexsha)
         return None, None
 
+def getSpecFile(projectpath, packagename):
+    def isASpecfile(aFile):
+        return aFile.endswith(".spec")
+
+    getrev = get_latest_commit(projectpath, packagename)
+
+    commit, rev, srcmd5, tree, git = get_package_tree_from_commit_or_rev(projectpath, packagename, getrev)
+
+    mtime, vrev = get_package_commit_mtime_vrev(projectpath, packagename)
+    entrymd5s = get_entries_from_commit(projectpath, packagename, commit)
+
+    listSpecFile = []
+    specFile = None
+    for entry in tree:
+        if isASpecfile(entry.name):
+            listSpecFile.append(entry)
+
+    if len(listSpecFile) > 1:
+        for spec in listSpecFile:
+            if str(spec.name[:-5]) == str(packageName):
+                specFile = spec
+                break
+            elif spec.startswith(packageName):
+                specFile = spec
+
+    elif len(listSpecFile) == 1:
+        specFile = listSpecFile[0]
+
+    return git_cat(git, specFile.hexsha)
+
 def git_cat(gitpath, object):
     return Popen(["git", "--git-dir=" + gitpath, "cat-file", "blob", object], stdout=PIPE).communicate()[0]
 

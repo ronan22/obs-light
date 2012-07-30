@@ -21,8 +21,12 @@ while test -n "$1" ; do
             ARCHPATH="$2";
             shift 2;
             ;;
-        --resultfile)
-            RESULTFILE="$2";
+        --stderr)
+            STDERR="$2";
+            shift 2;
+            ;;
+        --stdout)
+            STDOUT="$2";
             shift 2;
             ;;
         *)
@@ -44,7 +48,6 @@ getcachedir()
       *.pkg.tar.?z) url="arch@$url" ;;
     esac
     for repo in "${repos[@]}" ; do
-
         if [ "${url:0:${#repo}}" == "$repo" -o "${url:0:${#repo}}" == "$repo" ] ; then
             read repoid dummy < <(echo -n "$repo" | md5sum)
             echo "$CACHE_DIR/$repoid"
@@ -84,10 +87,11 @@ validate_cache_file()
             if [ "${SRC#zypp://}" != "$SRC" ]; then
                 set -- $BUILD_DIR/createrepomddeps "$SRC"
             elif [ "${SRC#http://}" != "$SRC" -o "${SRC#https://}" != "$SRC" -o "${SRC#ftp://}" != "$SRC" -o "${SRC#ftps://}" != "$SRC" ]; then
-                mkdir -p "$(getcachedir \"$SRC\")"
+                mkdir -p "$(getcachedir "$SRC")"
+
                 set -- $BUILD_DIR/createrepomddeps --cachedir="$CACHE_DIR" "$SRC"
             elif [ "${SRC#arch@http://}" != "$SRC" -o "${SRC#arch@https://}" != "$SRC" -o "${SRC#arch@ftp://}" != "$SRC" -o "${SRC#arch@ftps://}" != "$SRC" ]; then
-                mkdir -p "$(getcachedir \"$SRC\")"
+                mkdir -p "$(getcachedir "$SRC")"
                 set -- $BUILD_DIR/createrepomddeps --cachedir="$CACHE_DIR" "$SRC"
             elif [ ! -e "$SRC" ]; then
                 exit 1
@@ -109,6 +113,6 @@ validate_cache_file()
 }
 
 validate_cache_file
-/usr/lib/build/expanddeps --dist $DIST --depfile $CACHE_FILE --archpath $ARCHPATH --configdir /usr/lib/build/configs $SPEC > $RESULTFILE
+/usr/lib/build/expanddeps --dist $DIST --depfile $CACHE_FILE --archpath $ARCHPATH --configdir /usr/lib/build/configs $SPEC >$STDOUT 2>$STDERR
 exit 0
 
