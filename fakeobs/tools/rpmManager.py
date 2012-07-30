@@ -4,6 +4,7 @@ from xml.dom.minidom import getDOMImplementation
 import re
 import shlex
 HOST_IP = None
+import gitmer
 
 
 
@@ -41,7 +42,7 @@ def getLocalRepoHost():
         HOST_IP = localhostIp
     return "http://%s:8002" % HOST_IP
 
-def getbuildInfo(repo, listRepository, dist, depfile, arch, projectName, packageName, repository, spec):
+def getbuildInfo(rev, srcmd5, specFile, listRepository, dist, depfile, arch, projectName, packageName, repository, spec):
     if arch in archHierarchyMap.keys():
         longArch = archHierarchyMap[arch]
     else:
@@ -60,14 +61,14 @@ def getbuildInfo(repo, listRepository, dist, depfile, arch, projectName, package
 #    print command
 #    splittedCommand = shlex.split(str(command))
 #    Popen(splittedCommand).communicate()[0]
-
+    repo = getLocalRepoHost()
     ouputFile = "ouputFile"
     errFile = "errFile"
     cmd = []
     cmd.append("/srv/fakeobs/tools/create-rpm-list-from-spec.sh")
-    for repo in listRepository:
+    for aRepo in listRepository:
         cmd.append("--repository")
-        cmd.append(repo)
+        cmd.append(aRepo)
 
     cmd.append("--dist")
     cmd.append(dist)
@@ -122,7 +123,12 @@ def getbuildInfo(repo, listRepository, dist, depfile, arch, projectName, package
 
                 cout += 1
 
-    preinstallList = preinstallRes[len("preinstall: "):].split()
+    preinstallList = preinstallRes[len("preinstall:"):].split()
+    vminstallList = vminstallRes[len("vminstall:"):].split()
+    cbpreinstallList = cbpreinstallRes[len("cbpreinstall:"):].split()
+    cbinstallList = cbinstallRes[len("cbinstall:"):].split()
+    runscriptsList = runscriptsRes[len("runscripts:"):].split()
+
     impl = getDOMImplementation()
 
     indexbuildinfo = impl.createDocument(None, "buildinfo", None)
@@ -131,50 +137,147 @@ def getbuildInfo(repo, listRepository, dist, depfile, arch, projectName, package
     indexbuildinfo.childNodes[0].setAttribute("package", packageName)
     indexbuildinfo.childNodes[0].setAttribute("downloadurl", repo)
 
+    srcmd5 = srcmd5
+    verifymd5 = srcmd5
+    rev = rev
+    specfile = specFile
+    aFile = specFile
+    #TODO:find version and release
+    versrel = "1-1"
+    bcnt = "1"
+    #TODO:find version and release
+    release = "1"
+    debuginfo = "0"
+
     buildinfoArch = indexbuildinfo.createElement("arch")
     buildinfoArchText = indexbuildinfo.createTextNode(arch)
-
     buildinfoArch.appendChild(buildinfoArchText)
     indexbuildinfo.childNodes[0].appendChild(buildinfoArch)
-#      <srcmd5>107502023cc9d9259034170728b3060e</srcmd5>
-#      <verifymd5>107502023cc9d9259034170728b3060e</verifymd5>
-#      <rev>1</rev>
-#      <specfile>tzdata.spec</specfile>
-#      <file>tzdata.spec</file>
-#      <versrel>2011e-1</versrel>
-#      <bcnt>1</bcnt>
-#      <release>1.1</release>
-#      <debuginfo>0</debuginfo>
-#      <subpack>tzdata</subpack>
-#      <subpack>tzdata-timed</subpack>
-#      <subpack>tzdata-calendar</subpack>
+
+    if srcmd5 is not None:
+        buildinfoSrcmd5 = indexbuildinfo.createElement("srcmd5")
+        buildinfoSrcmd5Text = indexbuildinfo.createTextNode(srcmd5)
+        buildinfoSrcmd5.appendChild(buildinfoSrcmd5Text)
+        indexbuildinfo.childNodes[0].appendChild(buildinfoSrcmd5)
+
+    if verifymd5 is not None:
+        buildinfoVerifymd5 = indexbuildinfo.createElement("verifymd5")
+        buildinfoVerifymd5Text = indexbuildinfo.createTextNode(verifymd5)
+        buildinfoVerifymd5.appendChild(buildinfoVerifymd5Text)
+        indexbuildinfo.childNodes[0].appendChild(buildinfoVerifymd5)
+
+    if rev is not None:
+        buildinfoRev = indexbuildinfo.createElement("rev")
+        buildinfoRevText = indexbuildinfo.createTextNode(rev)
+        buildinfoRev.appendChild(buildinfoRevText)
+        indexbuildinfo.childNodes[0].appendChild(buildinfoRev)
+
+    if specfile is not None:
+        buildinfoSpecfile = indexbuildinfo.createElement("specfile")
+        buildinfoSpecText = indexbuildinfo.createTextNode(specfile)
+        buildinfoSpecfile.appendChild(buildinfoSpecText)
+        indexbuildinfo.childNodes[0].appendChild(buildinfoSpecfile)
+
+    if aFile is not None:
+        buildinfoFile = indexbuildinfo.createElement("file")
+        buildinfoFileText = indexbuildinfo.createTextNode(aFile)
+        buildinfoFile.appendChild(buildinfoFileText)
+        indexbuildinfo.childNodes[0].appendChild(buildinfoFile)
+
+    if versrel is not None:
+        buildinfoVersrel = indexbuildinfo.createElement("versrel")
+        buildinfoVersrelText = indexbuildinfo.createTextNode(versrel)
+        buildinfoVersrel.appendChild(buildinfoVersrelText)
+        indexbuildinfo.childNodes[0].appendChild(buildinfoVersrel)
+
+    if bcnt is not None:
+        buildinfoBcnt = indexbuildinfo.createElement("bcnt")
+        buildinfoBcntText = indexbuildinfo.createTextNode(bcnt)
+        buildinfoBcnt.appendChild(buildinfoBcntText)
+        indexbuildinfo.childNodes[0].appendChild(buildinfoBcnt)
+
+    if release is not None:
+        buildinfoRelease = indexbuildinfo.createElement("release")
+        buildinfoReleaseText = indexbuildinfo.createTextNode(release)
+        buildinfoRelease.appendChild(buildinfoReleaseText)
+        indexbuildinfo.childNodes[0].appendChild(buildinfoRelease)
+
+    buildinfoDebuginfo = indexbuildinfo.createElement("debuginfo")
+    buildinfoDebuginfoText = indexbuildinfo.createTextNode(debuginfo)
+    buildinfoDebuginfo.appendChild(buildinfoDebuginfoText)
+    indexbuildinfo.childNodes[0].appendChild(buildinfoDebuginfo)
 
     for i in range(len(resultDep)):
-        bdepoelement = indexbuildinfo.createElement("bdep")
+        bdepelement = indexbuildinfo.createElement("bdep")
         dep = resultDep[i]
         rpmid = resultDepRPMid[i]
-        print "____________________________________________________"
-        print "i:", i
-        print "dep:", dep
-        print "rpmid:", rpmid
 
 #autoconf http://128.224.218.236:8002/MeeGoTV:/oss.1.2.0.90/MeeGo_1.2_oss/noarch/autoconf-2.68-1.1.noarch.rpm
 #rpmid: autoconf:autoconf-2.68-1.1 1340640610
-        rpmFullName = rpmid.split()[1]
-        rpmFullName = "test"
-        bdepoelement.setAttribute("name", rpmFullName)
-        bdepoelement.setAttribute("preinstall", rpmFullName)
-        bdepoelement.setAttribute("vminstall", rpmFullName)
-        bdepoelement.setAttribute("cbpreinstall", rpmFullName)
-        bdepoelement.setAttribute("cbinstall", rpmFullName)
-        bdepoelement.setAttribute("runscripts", rpmFullName)
-        bdepoelement.setAttribute("epoch", rpmFullName)
-        bdepoelement.setAttribute("version", rpmFullName)
-        bdepoelement.setAttribute("release", rpmFullName)
-        bdepoelement.setAttribute("arch", rpmFullName)
-        bdepoelement.setAttribute("project", rpmFullName)
-        bdepoelement.setAttribute("repository", rpmFullName)
+        rpmName, rpmUrl = dep.split()
+        project, repository, rpmName, rpmEpoch, rpmVersion, rpmRelease, rpmArch = parseRpmUrl(repo, rpmUrl)
 
-        indexbuildinfo.childNodes[0].appendChild(bdepoelement)
+#        RpmName, rpmFullName = rpmid.split()[1].split(":")
 
-    return indexbuildinfo.childNodes[0].toprettyxml()
+        bdepelement.setAttribute("name", rpmName)
+
+        if rpmName in preinstallList:
+             bdepelement.setAttribute("preinstall", "1")
+        if rpmName in vminstallList:
+            bdepelement.setAttribute("vminstall", "1")
+        if rpmName in cbpreinstallList:
+            bdepelement.setAttribute("cbpreinstall", "1")
+        if rpmName in cbinstallList:
+            bdepelement.setAttribute("cbinstall", "1")
+
+        if rpmEpoch:
+            bdepelement.setAttribute("epoch", rpmEpoch)
+
+        bdepelement.setAttribute("version", rpmVersion)
+        bdepelement.setAttribute("release", rpmRelease)
+        bdepelement.setAttribute("arch", rpmArch)
+
+        bdepelement.setAttribute("project", project)
+        bdepelement.setAttribute("repository", repository)
+
+        indexbuildinfo.childNodes[0].appendChild(bdepelement)
+
+    pathelement = indexbuildinfo.createElement("path")
+    pathelement.setAttribute("project", project)
+    pathelement.setAttribute("repository", repository)
+    indexbuildinfo.childNodes[0].appendChild(pathelement)
+
+    return indexbuildinfo.childNodes[0].toxml()
+#    return indexbuildinfo.childNodes[0].toprettyxml()
+
+
+def parseRpmUrl(repo, rpmUrl):
+    url = rpmUrl[len(repo + "/"):]
+    splitedUrl = url.split("/")
+    rpmfullName = splitedUrl[-1]
+    repository = splitedUrl[-3]
+    project = "/".join(splitedUrl[:-3])
+
+    rpmName, rpmEpoch, rpmVersion, rpmRelease, rpmArch = parseRpmFullName(rpmfullName)
+    project = project.replace(":/", ":")
+    return project, repository, rpmName, rpmEpoch, rpmVersion, rpmRelease, rpmArch
+
+def parseRpmFullName(rpmfullName):
+    rpmfullName = rpmfullName[:-len(".rpm")]
+    rpmArch = rpmfullName[rpmfullName.rfind(".") + 1:]
+    rpmfullName = rpmfullName[:rpmfullName.rfind(".")]
+
+    rpmRelease = rpmfullName[rpmfullName.rfind("-") + 1:]
+    rpmfullName = rpmfullName[:rpmfullName.rfind("-")]
+
+    rpmEpochVersion = rpmfullName[rpmfullName.rfind("-") + 1:]
+    rpmName = rpmfullName[:rpmfullName.rfind("-")]
+
+    if ":" in rpmEpochVersion:
+        rpmEpoch, rpmVersion = rpmEpochVersion.split(":")
+    else:
+        rpmEpoch, rpmVersion = None, rpmEpochVersion
+
+    return rpmName, rpmEpoch, rpmVersion, rpmRelease, rpmArch
+
+

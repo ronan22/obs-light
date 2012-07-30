@@ -122,9 +122,6 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         if path.startswith("/public"):
             path = path[len("/public"):]
 
-        print "self.path", self.path
-        print "self.headers.getheader('Content-Length')", self.headers.getheader('Content-Length')
-
         if self.headers.getheader('Content-Length') is not None:
             data = self.rfile.read(int(self.headers.getheader('Content-Length')))
             query = urlparse.parse_qs(data)
@@ -132,8 +129,6 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             query = urlparse.parse_qs(pathparsed[4])
         else:
             query = {}
-
-        print "path", path
 
         #GET /about
         if path.startswith("/about"):
@@ -649,7 +644,10 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                                 content = None # 404 it
                             # GET /build/<project>/<repository>/<arch>/<package>/_status
                             elif pathparts[5] == "_status":
-                                content = None # 404 it
+                                contentsize, content = string2stream('<status package="%s" code="Unknown"><details></details></status>' % projectName)
+                                contentmtime = time.time()
+                                contenttype = "text/html"
+
                             # GET /build/<project>/<repository>/<arch>/<package>/_log
                             elif pathparts[5] == "_log":
                                 content = None # 404 it
@@ -661,8 +659,14 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                                #Fake just a trick
                                if action == POST:
                                    specfile = data
+                                   #TODO:Find Spec file Name.
+                                   specFile = None
+                                   rev = None
+                                   srcmd5 = None
                                else:
                                    specfile = gitmer.getSpecFile(localProjectNamePath, packageName)
+                                   specFile = gitmer.getSpecName(localProjectNamePath, packageName)
+                                   rev, srcmd5 = gitmer.getPackageLastRevSrcmd5(localProjectNamePath, packageName)
 
                                with tempfile.NamedTemporaryFile("w", delete=False, suffix=".spec") as specWriter:
                                     specWriter.write(specfile)
@@ -671,7 +675,11 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                                listRepository = []
                                listRepository.append(repo + "/" + projectName.replace(":", ":/") + "/" + repository)
 
-                               xmlRes = rpmManager.getbuildInfo(repo,
+
+
+                               xmlRes = rpmManager.getbuildInfo(rev,
+                                                                srcmd5,
+                                                                specFile,
                                                               listRepository,
                                                               localProjectNamePath + "/_config",
                                                               localProjectNamePath + "/_rpmcache",
@@ -680,7 +688,6 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                                                               packageName,
                                                               repository,
                                                               specWriter.name)
-
                                contentsize, content = string2stream(xmlRes)
                                contentmtime = time.time()
                                contenttype = "text/html"
