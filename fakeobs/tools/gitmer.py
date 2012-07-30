@@ -517,7 +517,6 @@ class xmlCache:
     def __init__(self, path):
         with open(path, 'r') as f:
             xmlString = f.read()
-        f.close()
         self.__maps = ElementTree.fromstring(xmlString)
         self.__repo = {}
         for repo in self.__maps.getchildren():
@@ -588,7 +587,7 @@ def generate_mappings(repos, xmlCacheFile=None):
                     if (myXmlCache is not None):
                         entries[entry.name] = myXmlCache.getFileChecksum(x, cm.hexsha, entry.name)
 
-                    if entries[entry.name] is None:
+                    if entries.get(entry.name) is None:
                         # If file is bigger than 20MB, do not load it
                         # to compute the checksum
                         if entry.size > (20 * 2 ** 20):
@@ -602,6 +601,7 @@ def generate_mappings(repos, xmlCacheFile=None):
 
                 sortedkeys = sorted(entries.keys())
 
+                packageChecksum = None
                 if (myXmlCache is not None):
                     packageChecksum = myXmlCache.getPackageChecksum(x, cm.hexsha)
 
