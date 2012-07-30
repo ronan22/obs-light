@@ -49,7 +49,7 @@ class ObsLightServer(object):
             if "serverWeb" in fromSave.keys():
                 self.__serverWeb = fromSave["serverWeb"]
             if "serverAPI" in fromSave.keys():
-                self.__serverAPI = fromSave["serverAPI"]
+                self.__serverAPI = str(fromSave["serverAPI"])
             if "serverRepo" in fromSave.keys():
                 self.__serverRepo = fromSave["serverRepo"]
             if "alias" in fromSave.keys():
@@ -61,7 +61,7 @@ class ObsLightServer(object):
         else:
             self.__isOBSConnected = False
             self.__serverWeb = serverWeb
-            self.__serverAPI = serverAPI
+            self.__serverAPI = str(serverAPI)
             self.__serverRepo = serverRepo
 
             self.__alias = alias
@@ -144,7 +144,7 @@ class ObsLightServer(object):
         elif parameter == "serverWeb":
             return self.__serverWeb
         elif parameter == "serverAPI":
-            return self.__serverAPI
+            return str(self.__serverAPI)
         elif parameter == "serverRepo":
             return self.__serverRepo
         elif parameter == "alias":
@@ -187,7 +187,7 @@ class ObsLightServer(object):
                                                                 parameter=parameter)
 
     def getAPI(self):
-        return self.__serverAPI
+        return str(self.__serverAPI)
 
     def getPackageParameter(self, project, package, parameter):
         '''
@@ -265,7 +265,7 @@ class ObsLightServer(object):
         elif parameter == "serverAPI":
             ObsLightOsc.getObsLightOsc().changeAPI(api=self.__serverAPI,
                                                    newApi=value)
-            self.__serverAPI = value
+            self.__serverAPI = str(value)
         elif parameter == "serverRepo":
             self.__serverRepo = value
         elif parameter == "alias":
@@ -313,7 +313,7 @@ class ObsLightServer(object):
         aDic = {}
         aDic["isOBSConnected"] = self.__isOBSConnected = False
         aDic["serverWeb"] = self.__serverWeb
-        aDic["serverAPI"] = self.__serverAPI
+        aDic["serverAPI"] = str(self.__serverAPI)
         aDic["serverRepo"] = self.__serverRepo
         aDic["alias"] = self.__alias
         aDic["user"] = self.__user
