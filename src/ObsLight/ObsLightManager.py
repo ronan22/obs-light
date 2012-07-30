@@ -1643,7 +1643,7 @@ class ObsLightManager(ObsLightManagerCore):
         return res
 
     def DeleteRepository(self, projectLocalName):
-        return self._myObsLightRepositories.DeleteRepository(projectLocalName)
+        return self._myObsLightRepositories.deleteRepository(projectLocalName)
 
     def createRepository(self, projectLocalName):
         return self._myObsLightRepositories.createRepository(projectLocalName)
