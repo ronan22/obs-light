@@ -49,19 +49,20 @@ def getbuildInfo(rev, srcmd5, specFile, listRepository, dist, depfile, arch, pro
         longArch = arch
 
     #TODO: We need to rewrite the spec FIle!
-#    buildDir = "/usr/lib/build"
-#
-#    command = '%s/substitutedeps --root %s --dist "%s" --archpath "%s" --configdir "%s" %s %s'
-#    command = command % (buildDir,
-#                         "/",
-#                         dist,
-#                         longArch,
-#                         "/usr/lib/build/configs",
-#                         spec,
-#                         spec + ".spec")
-#    print command
-#    splittedCommand = shlex.split(str(command))
-#    Popen(splittedCommand).communicate()[0]
+    buildDir = "/usr/lib/build"
+
+    command = '%s/substitutedeps --root %s --dist "%s" --archpath "%s" --configdir "%s" %s %s'
+    command = command % (buildDir,
+                         "/",
+                         dist,
+                         longArch,
+                         "/usr/lib/build/configs",
+                         spec,
+                         spec + ".spec")
+    print command
+    splittedCommand = shlex.split(str(command))
+    Popen(splittedCommand).communicate()[0]
+
     repo = getLocalRepoHost()
     ouputFile = "ouputFile"
     errFile = "errFile"
@@ -78,7 +79,7 @@ def getbuildInfo(rev, srcmd5, specFile, listRepository, dist, depfile, arch, pro
     cmd.append(depfile)
 
     cmd.append("--spec")
-    cmd.append(spec)
+    cmd.append(spec + ".spec")
 
     cmd.append("--archpath")
     cmd.append(longArch)
