@@ -59,7 +59,7 @@ def getbuildInfo(rev, srcmd5, specFile, listRepository, dist, depfile, arch, pro
                          "/usr/lib/build/configs",
                          spec,
                          spec + ".spec")
-    print command
+
     splittedCommand = shlex.split(str(command))
     Popen(splittedCommand).communicate()[0]
 
