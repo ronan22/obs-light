@@ -1,0 +1,8 @@
+-------------------------------------------------------------------
+Mon Jul 30 09:54:24 UTC 2012 - florent@fridu.net
+
+- updated version to 0.5
+- deactivated SSL checks when creating fakeobs project link
+- improved post grab/import/remove operations speed
+  * by optimisation of the generation of packages-git/mappingscache.xml
+
