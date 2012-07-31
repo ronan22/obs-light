@@ -116,14 +116,19 @@ def getbuildInfo(rev, srcmd5, specFile, listRepository, dist, depfile, arch, pro
         for line in f:
             if line.startswith("preinstall"):
                 preinstallRes = line
+                preinstallList = preinstallRes[len("preinstall:"):].split()
             elif line.startswith("vminstall"):
                   vminstallRes = line
+                  vminstallList = vminstallRes[len("vminstall:"):].split()
             elif line.startswith("cbpreinstall"):
                 cbpreinstallRes = line
+                cbpreinstallList = cbpreinstallRes[len("cbpreinstall:"):].split()
             elif line.startswith("cbinstall"):
                 cbinstallRes = line
+                cbinstallList = cbinstallRes[len("cbinstall:"):].split()
             elif line.startswith("runscripts"):
                 runscriptsRes = line
+                runscriptsList = runscriptsRes[len("runscripts:"):].split()
             elif line.startswith("dist"):
                 distRes = line
             else:
@@ -133,12 +138,6 @@ def getbuildInfo(rev, srcmd5, specFile, listRepository, dist, depfile, arch, pro
                     resultDep.append(line)
 
                 cout += 1
-
-    preinstallList = preinstallRes[len("preinstall:"):].split()
-    vminstallList = vminstallRes[len("vminstall:"):].split()
-    cbpreinstallList = cbpreinstallRes[len("cbpreinstall:"):].split()
-    cbinstallList = cbinstallRes[len("cbinstall:"):].split()
-    runscriptsList = runscriptsRes[len("runscripts:"):].split()
 
     impl = getDOMImplementation()
 
@@ -221,9 +220,13 @@ def getbuildInfo(rev, srcmd5, specFile, listRepository, dist, depfile, arch, pro
     err = ""
     if os.path.getsize(errFile[1]) > 0:
         with open(errFile[1], 'r') as f:
+            noErr = True
             for line in f:
-                if not line.startswith("Warning:"):
+                if line.startswith("expansion error") :
+                    noErr = False
+                elif noErr == False:
                     err += line
+
     if len(err) > 0:
         buildinfoError = indexbuildinfo.createElement("error")
         buildinfoErrorText = indexbuildinfo.createTextNode(err)
@@ -235,12 +238,8 @@ def getbuildInfo(rev, srcmd5, specFile, listRepository, dist, depfile, arch, pro
             dep = resultDep[i]
             rpmid = resultDepRPMid[i]
 
-    #autoconf http://128.224.218.236:8002/MeeGoTV:/oss.1.2.0.90/MeeGo_1.2_oss/noarch/autoconf-2.68-1.1.noarch.rpm
-    #rpmid: autoconf:autoconf-2.68-1.1 1340640610
             rpmName, rpmUrl = dep.split()
             project, repository, rpmName, rpmEpoch, rpmVersion, rpmRelease, rpmArch = parseRpmUrl(repo, rpmUrl)
-
-    #        RpmName, rpmFullName = rpmid.split()[1].split(":")
 
             bdepelement.setAttribute("name", rpmName)
 
