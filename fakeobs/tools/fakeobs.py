@@ -42,6 +42,8 @@ POST = "POST"
 GET = "GET"
 HEAD = "HEAD"
 
+DEBUG = 0
+
 class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     server_version = "fakeobs/" + __version__
 
@@ -95,9 +97,11 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             contentsize = content.tell()
             content.seek(0, os.SEEK_SET)
             return contentsize, content
+
         def file2stream(path):
             f = open(path, 'rb')
             fs = os.fstat(f.fileno())
+            # return contentsize, contentmtime, content
             return fs[6], fs.st_mtime, f
 
         def getCleanPathParts(path):
@@ -116,6 +120,7 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         contentsize = 0
         contentmtime = 0
         contenttype = None
+        response = None
 
         pathparsed = urlparse.urlparse(self.path)
         path = pathparsed[2]
@@ -668,6 +673,7 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                                    specFile = gitmer.getSpecName(localProjectNamePath, packageName)
                                    rev, srcmd5 = gitmer.getPackageLastRevSrcmd5(localProjectNamePath, packageName)
 
+
                                with tempfile.NamedTemporaryFile("w", delete=False, suffix=".spec") as specWriter:
                                     specWriter.write(specfile)
 
@@ -692,9 +698,13 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                                                                 repository,
                                                                 specWriter.name,
                                                                 addPackages)
+                               specWriter.close()
+                               os.unlink(specWriter.name)
+
                                contentsize, content = string2stream(xmlRes)
                                contentmtime = time.time()
                                contenttype = "text/html"
+
                             # GET /build/<project>/<repository>/<arch>/<package>/<binaryname>
                             # GET /build/<project>/<repository>/<arch>/<package>/<binaryname>?view=fileinfo
                             # GET /build/<project>/<repository>/<arch>/<package>/<binaryname>?view=fileinfo_ext
@@ -775,7 +785,10 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
               self.send_error(404, "File not found")
               return None
 
-        self.send_response(200)
+        if response is None:
+            self.send_response(200)
+        else:
+            self.send_response(response)
         self.send_header("Content-type", contenttype)
         self.send_header("Content-Length", contentsize)
         self.send_header("Last-Modified", self.date_time_string(contentmtime))
