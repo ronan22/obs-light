@@ -57,6 +57,7 @@ function echo_start_command()
 {
 	COMMAND="$@"
 	DATE=`date`
+	echo
 	echo "--- $DATE - starting command: $COMMAND"
 }
 
@@ -205,6 +206,7 @@ case $COMMAND in
 		;;
 	list)
 		list_projects
+		exit 0
 		;;
 	check)
 		check_user_is_root
@@ -217,3 +219,5 @@ case $COMMAND in
 		;;
 esac
 
+echo
+echo "Commandline log file: $LOGFILE"

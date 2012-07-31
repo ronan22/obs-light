@@ -14,6 +14,7 @@ source tools/common.sh
 
 API=`fix_api $API`
 check_public_api "$API" || exit 1
+check_rsync_url "$RSYNC" || exit 1
 project_exists "$PROJECT"
 if [ "$?" -eq "0" ]
 then
@@ -67,6 +68,7 @@ do
     SKIPPEDPACKAGES="$SKIPPEDPACKAGES $pkg"
   fi
 done
+PKGCOUNT=`python tools/printnames.py $PKGLISTFILE | wc -l`
 
 # Move git repositories to the right place
 mv gitrepos/* packages-git/$SANITIZEDNAME/
@@ -101,17 +103,34 @@ rm -f $TMPPACKAGESXML
 
 clean_old_mappings
 
+echo
+echo "--------------------------------------------------------------------------------"
+echo "---  Report  -------------------------------------------------------------------"
+echo "--------------------------------------------------------------------------------"
+
 if [ "$grab_error" -eq "0" ]
 then
-  echo_green "Project '$PROJECT' grabbed. It will be accessible on OBS by 'fakeobs:$PROJECT'"
+  echo_green "Project '$PROJECT' grabbed. It will be accessible on OBS by 'fakeobs:$PROJECT'."
 else
   echo_yellow "Errors were encountered while grabbing repositories of '$PROJECT'."
   echo_yellow "You should check everything is OK before exporting the project."
+  echo_yellow "Project will be accessible on OBS by 'fakeobs:$PROJECT'."
 fi
-if [ -n "$SKIPPEDPACKAGES" ]
+if [ -z "$SKIPPEDPACKAGES" ]
 then
-  echo_red "The following packages have been skipped because of errors:"
-  echo_red "$SKIPPEDPACKAGES"
+  echo_green "$PKGCOUNT source packages were correctly grabbed."
+else
+  FAILEDCOUNT=`echo $SKIPPEDPACKAGES | wc -w`
+  echo_red "The following packages have been skipped because of errors, their sources"
+  echo_red "won't be available ($FAILEDCOUNT on $PKGCOUNT):"
+  echo_red " $SKIPPEDPACKAGES"
 fi
 
+echo
+echo "--------------------------------------------------------------------------------"
+echo "---  Checks  -------------------------------------------------------------------"
+echo "--------------------------------------------------------------------------------"
+echo
 tools/check_fakeobs_project.sh all "$PROJECT"
+echo
+

@@ -39,14 +39,15 @@ function check_public_api()
 {
   local api="$1"
   local url="$api/distributions"
+  echo_green "Checking API '$url'..."
   curl -s -S -f -k $url 1>/dev/null 2>error.log
   if [ "$?" -ne "0" ]
   then
-    echo_red "'$api' does not seem to be an OBS public API (or it is down)"
+    echo_red " '$api' does not seem to be an OBS public API (or it is down)"
     cat error.log
     return 1
   else
-    echo_green "'$api' is an OBS public API"
+    echo_green " '$api' is an OBS public API"
     rm -f error.log
     return 0
   fi
@@ -54,9 +55,22 @@ function check_public_api()
 
 function check_rsync_url()
 {
-  # TODO: finish this function
   local url=$1
-  echo $url | sed -rn -e "s,(^rsync:\/\/),\1,p"
+  echo_green "Checking rsync URL '$url'..."
+  echo $url | grep -E -q "^rsync:\/\/"
+  if [ "$?" -ne "0" ]
+  then
+    echo_red "rsync URL does not start with 'rsync://': '$url'"
+    return 1
+  fi
+  rsync -q $url
+  if [ "$?" -ne "0" ]
+  then
+    echo_red "Failed to reach '$url'. See above message for details."
+    return 1
+  fi
+  echo_green " OK"
+  return 0
 }
 
 function project_exists()

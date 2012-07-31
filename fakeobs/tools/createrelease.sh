@@ -8,6 +8,7 @@ PROJECT="$4"
 TARGET=$5
 ARCHS="$6"
 
+SANITIZEDNAME=`echo $PROJECT | sed y,:,_,`
 source tools/common.sh
 
 if [ x$1 = x -o x$2 = x -o x$3 = x ]; then
@@ -32,16 +33,20 @@ grab_build()
 	NAME=$2
 	mkdir -p releases/$RELEASE/builds/$NAME
 	cd releases/$RELEASE/builds/$NAME
+	local logfile="$PWD/$SANITIZEDNAME-$RELEASE-rsync.log"
 	mkdir -p packages debug
 	cd packages
 	echo_green "Grabbing repositories of project '$PROJECT' target '$NAME'"
-	rsync  -aHx --progress $RSYNC/$SYNCPATH/* --exclude=*.src.rpm --exclude=repocache/ --exclude=*.repo --exclude=repodata/ --exclude=src/ --include=*.rpm .
+	rsync -aHx --log-file="$logfile" --progress $RSYNC/$SYNCPATH/* --exclude=*.src.rpm --exclude=repocache/ --exclude=*.repo --exclude=repodata/ --exclude=src/ --include=*.rpm .
 	if [ "$?" -ne "0" ]
 	then
 		echo_red "Problem syncing repositories of '$PROJECT' target '$NAME'"
+		echo_red "Log file: $logfile"
 		retval=1
 	fi
+	echo_green "Deleting RPM signatures"
 	find -name \*.rpm | xargs -L1 rpm --delsign
+	echo_green "Moving debuginfo and debugsource RPMs to separate directory"
 	mv */*-debuginfo-* ../debug
 	mv */*-debugsource-* ../debug
 	# Apply package groups and create repository
@@ -49,7 +54,9 @@ grab_build()
 #	cp $ORIG/obs-projects/Core/$NAME/patterns.xml repodata/
 #	modifyrepo repodata/patterns.xml repodata/
 	# TODO: get group.xml and patterns.xml from repository, not from git
+	echo_green "Creating local repository"
 	createrepo .
+	echo_green "Creating local repository for debuginfo and debugsource RPMs"
 	# No need for package groups in debug symbolsA
 	cd ../debug
 	createrepo .
