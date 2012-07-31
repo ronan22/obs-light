@@ -75,6 +75,27 @@ import threading
 
 import tempfile
 
+class PrintHandler(object):
+    """
+    Wrapper for sys.stderr and sys.stdout that writes to a log file.
+    """
+
+    def __init__(self, stream):
+        self.stream = stream
+
+
+    def write(self, buf):
+        self.stream(str(buf))
+
+    def flush(self):
+        pass
+
+    def close(self):
+        pass
+
+    def isatty(self):
+        return True
+
 class ObsLightOsc(ObsLightObject):
     '''
     ObsLightOsc interact with osc, when possible, do it directly by python API
@@ -376,6 +397,12 @@ class ObsLightOsc(ObsLightObject):
 
         urllist.append('%(apiurl)s/build/%(project)s/%(repository)s/%(repoarch)s/%(repopackage)s/%(repofilename)s')
 
+        old_stderr = sys.stderr
+        old_stdout = sys.stdout
+
+        sys.stdout = PrintHandler(ObsLightPrintManager.getLogger().info)
+        sys.stderr = PrintHandler(ObsLightPrintManager.getLogger().error)
+
         fetcher = Fetcher(cache_dir,
                           urllist=urllist,
                           api_host_options=conf.config['api_host_options'],
@@ -387,6 +414,8 @@ class ObsLightOsc(ObsLightObject):
         self.get_config()
         fetcher.run(bi)
 
+        sys.stderr = old_stderr
+        sys.stdout = old_stdout
         return bi
 
     def getDepProject(self,
