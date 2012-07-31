@@ -374,15 +374,15 @@ class ObsLightOsc(ObsLightObject):
         if bi.downloadurl:
             urllist.append(bi.downloadurl + '/%(extproject)s/%(extrepository)s/%(arch)s/%(filename)s')
 
+        urllist.append('%(apiurl)s/build/%(project)s/%(repository)s/%(repoarch)s/%(repopackage)s/%(repofilename)s')
+
         fetcher = Fetcher(cache_dir,
                           urllist=urllist,
                           api_host_options=conf.config['api_host_options'],
-                          offline=None,
                           http_debug=False,
                           enable_cpio=True,
                           cookiejar=conf.cookiejar)
 
-#        prj = "home:obsuser:branches:Tizen:FromObsTizen:1.0:Base"
 #        check_trusted_projects(apiurl, [ i for i in bi.projects.keys() if not i == prj ])
         self.get_config()
         fetcher.run(bi)
@@ -1284,7 +1284,7 @@ class ObsLightOsc(ObsLightObject):
             if (HTTPBUFFER == 1) and (headers == {}) and (data is None) and (aFile is None):
                 self.__httpBuffer[url] = fileXML
             end = time.time()
-            self.logger.debug("The request took %f seconds", end - start)
+            self.logger.debug("The request on %s took %f seconds", url, end - start)
             return fileXML
 
         except urllib2.URLError, e:
