@@ -383,13 +383,16 @@ class PackageManager(QObject, ObsLightGuiObject):
         """
         Call `method(package, *args, **kwargs)` with package
         being successively each of the currently selected packages.
+        
         `callback` will be called at the end of the process. If `callback`
-        takes an argument, it will get the list of results of the
-        different `method` calls. `initialMessage` will be displayed
-        on the progress dialog before the beginning of the internal loop
-        on selected packages. `loopMessage` will be displayed at each loop,
-        and "%(arg)s" will be replaced by the name of package being
-        processed.
+        takes an argument, it will get a list of tuples containing the package
+        names and the results of the different calls to `method`.
+        
+        `initialMessage` will be displayed on the progress dialog before the
+        beginning of the internal loop on selected packages.
+        
+        `loopMessage` will be displayed at each loop, and "%(arg)s"
+        will be replaced by the name of package being processed.
         """
         def generateResult(package, *args, **kwargs):
             return package, method(package, *args, **kwargs)
@@ -431,9 +434,11 @@ class PackageManager(QObject, ObsLightGuiObject):
         """
         Call `method(packages, *args, **kwargs)` with packages being
         the list of currently selected packages.
-        `callback` will be called at the end of the process.
-        If `callback` takes an argument, it will get the result of
-        the call to `method`.
+        
+        `callback` will be called at the end of the process. If `callback`
+        takes an argument, it will get a list of tuples containing the package
+        names and the results of the different calls to `method`.
+        
         `initialMessage` will be displayed on the progress dialog.
         """
         def generateResult(package, *args, **kwargs):

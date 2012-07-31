@@ -26,7 +26,7 @@ for scheduler in $SCHEDULERS; do
 	set -o pipefail
 	python $ORIG/tools/printbinaries.py "_repository?view=names" \
 		| xargs -L1 -Ixxx $ORIG/tools/curlunpack "$API/build/$OBSPROJECT/$REPONAME/$scheduler/_repository?xxx"
-	print_rpm_names "_repository\?view\=names" | grep -v "debuginfo.rpm" > rpm_names.txt
+	print_rpm_names "$PWD/_repository?view=names" | grep -v "debuginfo.rpm" > rpm_names.txt
 	missing_files=`check_missing_files rpm_names.txt`
 	if [ -n "$missing_files" ]
 	then
