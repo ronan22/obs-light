@@ -391,11 +391,14 @@ class PackageManager(QObject, ObsLightGuiObject):
         and "%(arg)s" will be replaced by the name of package being
         processed.
         """
+        def generateResult(package, *args, **kwargs):
+            return package, method(package, *args, **kwargs)
+
         packagesNames = self.selectedPackages()
-        if len(packagesNames) < 1:
+        if len(packagesNames) == 0:
             # no package selected, return
             return
-        elif len(packagesNames) < 2:
+        elif len(packagesNames) == 1:
             # just one package selected, show an infinite progress dialog
             progress = self.gui.getInfiniteProgressDialog()
         else:
@@ -406,7 +409,7 @@ class PackageManager(QObject, ObsLightGuiObject):
         if initialMessage is not None:
             runnable.setDialogMessage(initialMessage)
         packagesNames.sort()
-        runnable.setFunctionToMap(method, packagesNames, loopMessage, *args, **kwargs)
+        runnable.setFunctionToMap(generateResult, packagesNames, loopMessage, *args, **kwargs)
         runnable.caughtException.connect(self.__packageErrorCallback)
         if callback is not None:
             # detect if callback takes arguments in order to call
@@ -422,6 +425,7 @@ class PackageManager(QObject, ObsLightGuiObject):
                                    method,
                                    initialMessage,
                                    callback,
+                                   packagesNames=None,
                                    *args,
                                    **kwargs):
         """
@@ -432,7 +436,11 @@ class PackageManager(QObject, ObsLightGuiObject):
         the call to `method`.
         `initialMessage` will be displayed on the progress dialog.
         """
-        packagesNames = self.selectedPackages()
+        def generateResult(package, *args, **kwargs):
+            return package, method(package, *args, **kwargs)
+
+        if packagesNames is None:
+            packagesNames = self.selectedPackages()
         if len(packagesNames) < 1:
             return
 
@@ -440,7 +448,7 @@ class PackageManager(QObject, ObsLightGuiObject):
         runnable = ProgressRunnable2(progress)
         if initialMessage is not None:
             runnable.setDialogMessage(initialMessage)
-        runnable.setRunMethod(method, packagesNames, *args, **kwargs)
+        runnable.setRunMethod(generateResult, packagesNames, *args, **kwargs)
         runnable.caughtException.connect(self.gui.popupErrorCallback)
         if callback is not None:
             # detect if callback takes arguments in order to call
@@ -493,10 +501,12 @@ class PackageManager(QObject, ObsLightGuiObject):
         and display a message if one if different from 0.
         """
         message = None
-        if len(retValList) == 1 and retValList[0] != 0:
-            message = u"The last operation return code is %d.\n" % retValList[0]
+        packageToRefreshList = [x[0] for x in retValList]
+
+        if len(retValList) == 1 and retValList[0][1] != 0:
+            message = u"The last operation return code is %d.\n" % retValList[0][1]
         elif len(retValList) > 1:
-            res = reduce(lambda x, y: abs(x) + abs(y), retValList)
+            res = reduce(lambda x, y: abs(x[1]) + abs(y[1]), retValList)
             if res > 0:
                 message = u"One of the last operations may have failed (return code != 0)\n"
         if message is not None:
@@ -504,7 +514,7 @@ class PackageManager(QObject, ObsLightGuiObject):
             QMessageBox.warning(self.mainWindow,
                                 u"Bad exit status",
                                 message)
-        self.__refreshStatus()
+        self.__refreshStatus(packageToRefreshList)
 
     def __handleRpmCreationResult(self, retValList):
         """
@@ -597,11 +607,8 @@ class PackageManager(QObject, ObsLightGuiObject):
         project = self.getCurrentProject()
         if project is None:
             return
-        def myTestConflict(package, project):
-            conflict = self.manager.testConflict(project, package)
-            return package, conflict
 
-        self.__mapOnSelectedPackages(myTestConflict,
+        self.__mapOnSelectedPackages(firstArgLast(self.manager.testConflict),
                                      u"Checking for potential conflicts",
                                      u"Checking if package <i>%(arg)s</i> has a conflict",
                                      self.__preCheckingConflicts,
@@ -630,12 +637,18 @@ class PackageManager(QObject, ObsLightGuiObject):
         self.__doUpdatePackages()
 
     def __doUpdatePackages(self):
+        def myRefreshStatus(arg):
+            packageToRefreshList = [x[0] for x in arg]
+            self.__refreshStatus(packageToRefreshList)
+
         project = self.getCurrentProject()
         if project is None:
             return
+
         self.__callWithSelectedPackages(firstArgLast(self.manager.updatePackage),
                                         u"Updating packages",
-                                        self.__refreshStatus,
+                                        myRefreshStatus,
+                                        None,
                                         project)
 
     @popupOnException
@@ -731,12 +744,16 @@ class PackageManager(QObject, ObsLightGuiObject):
         self.manager.refreshOscDirectoryStatus(*args, **kwargs)
         self.manager.refreshObsStatus(*args, **kwargs)
 
-    def __refreshStatus(self):
-        if len(self.selectedPackages()) == 0:
-            self.selectAllPackages()
+    def __refreshStatus(self, packagesNames=None):
+        if  packagesNames is  None:
+            if len(self.selectedPackages()) == 0:
+                self.selectAllPackages()
+            packagesNames = self.selectedPackages()
+
         self.__callWithSelectedPackages(firstArgLast(self.__refreshBothStatuses),
                                         u"Refreshing package status",
                                         self.refresh,
+                                        packagesNames,
                                         self.getCurrentProject())
 
     @popupOnException
