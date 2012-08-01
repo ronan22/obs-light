@@ -111,6 +111,18 @@ if [ -d %{_sysconfdir}/lighttpd/vhosts.d ]
 then
 ln -sf /srv/fakeobs/config/fakeobs-repos.lighttpdconf %{_sysconfdir}/lighttpd/vhosts.d/fakeobs-repos.conf
 fi
+
+OVERVIEW="/srv/www/obs/overview/index.html"
+if [ -f $OVERVIEW ]
+then
+if ! $(grep -q fakeobs $OVERVIEW)
+then
+cat >> $OVERVIEW << EOF
+<p><a href=http://obslightserver:8001>The fakeobs API URL(http://obslightserver:8001)</a> is used by the "fakeobs" project link.</p>
+<p><a href=http://obslightserver:8002>The fakeobs repositories</a> contain the static build results, the repositories can be added to package managers like zypper or apt.</p>
+EOF
+fi
+fi
 #/sbin/chkconfig --add fakeobs
 %{fillup_and_insserv -f -y fakeobs}
 # << post
@@ -119,6 +131,19 @@ fi
 # >> postun
 %restart_on_update fakeobs
 %insserv_cleanup
+
+OVERVIEW="/srv/www/obs/overview/index.html"
+if [ "$1" -eq "0" ]
+then
+if [ -f $OVERVIEW ]
+then
+if $(grep -q fakeobs $OVERVIEW)
+then
+cp -f "$OVERVIEW" "$OVERVIEW.old"
+grep -v fakeobs "$OVERVIEW.old" > "$OVERVIEW"
+fi
+fi
+fi
 # << postun
 
 
