@@ -75,6 +75,12 @@ mv gitrepos/* packages-git/$SANITIZEDNAME/
 
 echo_green "Getting project _meta..."
 curl $CURLARGS "$API/source/$PROJECT/_meta" > obs-projects/$EXTENDEDPROJECTDIR/_meta
+grep -q -E "<path project=\"fakeobs:" obs-projects/$EXTENDEDPROJECTDIR/_meta
+if [ "$?" -eq "0" ]
+then
+  echo_green "  _meta contains path to another fakeobs project, fixing it..."
+  sed -r -i -e "s,(<path\s+project=\")fakeobs:,\1," obs-projects/$EXTENDEDPROJECTDIR/_meta
+fi
 
 echo_green "Getting project _config..."
 curl $CURLARGS "$API/source/$PROJECT/_config" > obs-projects/$EXTENDEDPROJECTDIR/_config

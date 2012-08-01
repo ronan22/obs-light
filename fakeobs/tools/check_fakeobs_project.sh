@@ -11,7 +11,7 @@ Commands:
 	config
 		Checks the existence of a _meta and a _config file in
 		$FAKEOBSPREFIX/obs-projects/<extended/project/name>/
-	full
+	full (or bootstrap)
 		Checks if no RPMs is missing in
 		$FAKEOBSPREFIX/obs-repos/<project_name>:latest/<target>/<arch>/
 	repositories
@@ -85,7 +85,7 @@ function check_full()
 	local returncode=0
 	local namesrawfile="_repository?view=names"
 	local project="$1"
-	echo "--- Checking bootstrap of $project ---"
+	echo "--- Checking bootstrap (:full) of $project ---"
 	local repotopdir="$FAKEOBSPREFIX/obs-repos/$project:latest/"
 	if [ ! -d "$repotopdir" ]
 	then
@@ -193,7 +193,7 @@ case $WHATTOCHECK in
 	config)
 		check_config "$1"
 		;;
-	full)
+	full|bootstrap)
 		check_full "$1"
 		;;
 	repositories|repos)
