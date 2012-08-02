@@ -44,6 +44,8 @@ HEAD = "HEAD"
 
 DEBUG = 0
 
+
+
 class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     server_version = "fakeobs/" + __version__
 
@@ -115,6 +117,19 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 pathparts = pathparts[:-1]
 
             return pathparts
+
+        def getProjectDependency(projectName, targetName):
+            result = []
+            result.append((projectName, targetName))
+            localProjectNamePath = lookup_path(projectName)
+            metaPath = localProjectNamePath + "/_meta"
+            projects = rpmManager.getProjectDependency(metaPath, targetName)
+
+            for (project, target) in  projects:
+                res = getProjectDependency(project, target)
+                result.extend(res)
+
+            return result
 
         content = None
         contentsize = 0
@@ -485,9 +500,15 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                     # GET /build/<project>/<repository>/_buildconfig
                     if len(pathparts) == 4:
                         if pathparts[3] == "_buildconfig":
-                            path = os.path.join(localProjectNamePath, "_config")
-                            contentsize, contentmtime, content = file2stream(path)
-                            contenttype = "text/plain"
+                           _config = ""
+                           for (prj, target) in getProjectDependency(projectName, repository):
+                               localPrjNamePath = lookup_path(prj)
+                               with open(localPrjNamePath + "/_config", 'r') as f:
+                                   _config += f.read() + "\n"
+
+                           contentsize, content = string2stream(_config)
+                           contenttype = "text/plain"
+                           contentmtime = time.time()
                         else:
                             arch = pathparts[3]
                             content = None # 404 it
@@ -661,7 +682,6 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                             # POST /build/<project>/<repository>/<arch>/<package>/_buildinfo
                             # POST /build/<project>/<repository>/<arch>/<package>/_buildinfo?add=package
                             elif pathparts[5] == "_buildinfo":
-                               #Fake just a trick
                                if action == POST:
                                    specfile = data
                                    #TODO:Find Spec file Name.
@@ -678,19 +698,25 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                                     specWriter.write(specfile)
 
                                repo = rpmManager.getLocalRepoHost()
+
                                listRepository = []
-                               listRepository.append(repo + "/" + projectName.replace(":", ":/") + "/" + repository)
+                               with tempfile.NamedTemporaryFile("w", delete=False, suffix=".config") as confWriter:
+                                   for (prj, target) in getProjectDependency(projectName, repository):
+                                       listRepository.append(repo + "/" + prj.replace(":", ":/") + "/" + target)
+                                       localPrjNamePath = lookup_path(prj)
+                                       with  open(localPrjNamePath + "/_config", 'r') as f:
+                                           _configStr = f.read()
+                                           confWriter.write(_configStr + "\n")
 
                                if query.has_key("add"):
                                    addPackages = query["add"]
                                else:
                                    addPackages = []
-
                                xmlRes = rpmManager.getbuildInfo(rev,
                                                                 srcmd5,
                                                                 specFile,
                                                                 listRepository,
-                                                                localProjectNamePath + "/_config",
+                                                                confWriter.name,
                                                                 localProjectNamePath + "/_rpmcache",
                                                                 arch,
                                                                 projectName,
@@ -700,6 +726,8 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                                                                 addPackages)
                                specWriter.close()
                                os.unlink(specWriter.name)
+                               confWriter.close()
+                               os.unlink(confWriter.name)
 
                                contentsize, content = string2stream(xmlRes)
                                contentmtime = time.time()
