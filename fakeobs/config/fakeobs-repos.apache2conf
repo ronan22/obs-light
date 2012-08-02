@@ -5,7 +5,7 @@ NameVirtualHost *:8002
 <VirtualHost *:8002>
   DocumentRoot /srv/fakeobs/releases
   <Directory /srv/fakeobs/releases>
-    Options Indexes
+    Options FollowSymLinks Indexes
     Allow from all
   </Directory>
 </VirtualHost>
