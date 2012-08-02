@@ -842,6 +842,46 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 class XFSPWebServer(SocketServer.ThreadingMixIn, BaseHTTPServer.HTTPServer):
         pass
 
+def getProjectsTargetsAndReleases():
+    """
+    Get a list of tuples of the form
+      ("extended:/project:/name", "target", "release")
+    """
+    PTRList = []
+    for release in os.listdir("releases"):
+        releasePath = os.path.join("releases", release)
+        if (releasePath in ["repositories", "latest", "latest-release"] or
+                not os.path.isdir(releasePath)):
+            continue
+        buildsPath = os.path.join(releasePath, "builds")
+        for entry in os.walk(releasePath):
+            if not "packages" in entry[1]:
+                continue
+            project = os.path.dirname(entry[0][len(buildsPath) + 1:])
+            target = os.path.basename(entry[0])
+            PTRList.append((project, target, release))
+    return PTRList
+
+def updateRepository(extProject, target, release):
+    """
+    Create/update a directory hierarchy suitable for use as an OBS live
+    RPM repository, based on actual repositories, suitables for image
+    generation by MIC.
+    """
+    extPrjRepo = os.path.join("releases", "repositories", extProject)
+    os.makedirs(extPrjRepo)
+    linkTarget = "../" * (extProject.count(':/') + 2)
+    linkTarget = os.path.join(linkTarget, release, "builds", extProject, target, "packages")
+    linkName = os.path.join(extPrjRepo, target)
+    print linkName, " -> ", linkTarget
+    if os.path.exists(linkName):
+        os.unlink(linkName)
+    os.symlink(linkTarget, linkName)
+
+def updateRepositories():
+    for ptr in getProjectsTargetsAndReleases():
+        updateRepository(*ptr)
+
 if len(sys.argv) > 1:
     PORT = int(sys.argv[1])
 else:
@@ -855,6 +895,8 @@ if not os.path.exists(MAPPINGS_FILE):
     msg = "Error: %s not found neither in current directory nor in %s"
     print >> sys.stderr, msg % (MAPPINGS_FILE, DEFAULT_DIR)
     exit(1)
+
+updateRepositories()
 
 httpd = XFSPWebServer(("0.0.0.0", PORT), SimpleHTTPRequestHandler)
 httpd.serve_forever()
