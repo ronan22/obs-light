@@ -119,6 +119,6 @@ validate_cache_file()
 }
 
 validate_cache_file
-/usr/lib/build/expanddeps --dist $DIST --depfile $CACHE_FILE --archpath $ARCHPATH --configdir /usr/lib/build/configs $ADDPACKAGES $SPEC >$STDOUT 2>$STDERR
+/srv/fakeobs/tools/expanddeps --dist $DIST --depfile $CACHE_FILE --archpath $ARCHPATH --configdir /usr/lib/build/configs $ADDPACKAGES $SPEC >$STDOUT 2>$STDERR
 exit 0
 
