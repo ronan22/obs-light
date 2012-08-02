@@ -1,6 +1,6 @@
 # -*- coding: utf8 -*-
 #
-# Copyright 2011, Intel Inc.
+# Copyright 2011-2012, Intel Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -36,6 +36,32 @@ class ConfigureServerUrlPage(ObsLightWizardPage):
                         u"repoUrl": "serverRepo",
                         u"username": "user",
                         u"password": "passw"}
+    # FIXME: the following list should be moved somewhere else
+    # The first element is empty, so it can be used to clean fields
+    preConfiguredServerList = [{"serverAlias": "",
+                                "webUrl": "",
+                                "apiUrl": "",
+                                "repoUrl": "",
+                                "username": "",
+                                "password": ""},
+                               {"serverAlias": "meego.com",
+                                "webUrl": "https://build.meego.com",
+                                "apiUrl": "https://api.meego.com",
+                                "repoUrl": "http://download.meego.com/live"},
+                               {"serverAlias": "pub.meego.com",
+                                "webUrl": "https://build.pub.meego.com",
+                                "apiUrl": "https://api.pub.meego.com",
+                                "repoUrl": "http://repo.pub.meego.com"},
+                               {"serverAlias": "opensuse.org",
+                                "webUrl": "https://build.opensuse.org",
+                                "apiUrl": "https://api.opensuse.org",
+                                "repoUrl": "http://download.opensuse.org/repositories"},
+                               {"serverAlias": "obslightserver",
+                                "webUrl": "https://obslightserver",
+                                "apiUrl": "https://obslightserver:444",
+                                "repoUrl": "http://obslightserver:82",
+                                "username": "obsuser",
+                                "password": "opensuse"}]
 
     def __init__(self, gui, index):
         ObsLightWizardPage.__init__(self, gui, index, u"wizard_configServerUrl.ui")
@@ -44,6 +70,9 @@ class ConfigureServerUrlPage(ObsLightWizardPage):
         self.ui_WizardPage.webUrlLineEdit.setValidator(httpValidator)
         self.ui_WizardPage.apiUrlLineEdit.setValidator(httpValidator)
         self.ui_WizardPage.repoUrlLineEdit.setValidator(httpValidator)
+        for pc in self.preConfiguredServerList:
+            self.ui_WizardPage.preConfiguredServerCBox.addItem(pc['serverAlias'], pc)
+        self.ui_WizardPage.preConfiguredServerCBox.currentIndexChanged.connect(self.autoConfServer)
 
         self.registerField(u"webUrl*", self.ui_WizardPage.webUrlLineEdit)
         self.registerField(u"apiUrl*", self.ui_WizardPage.apiUrlLineEdit)
@@ -72,6 +101,15 @@ class ConfigureServerUrlPage(ObsLightWizardPage):
         self._clearEffects()
         self.setBusyCursor(self.doValidatePage)
         return self.isOk
+
+    def autoConfServer(self, index):
+        """Load pre-configured values in wizard fields"""
+        configDict = self.preConfiguredServerList[index]
+        if self.wizard().isModifyingServer:
+            # If we are modifying an existing server, don't change its alias
+            configDict.pop('serverAlias', None)
+        for fieldName, value in configDict.iteritems():
+            self.setField(fieldName, value)
 
     def _clearEffects(self):
         removeEffect(self.ui_WizardPage.apiUrlLineEdit)

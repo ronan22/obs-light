@@ -1,6 +1,6 @@
 # -*- coding: utf8 -*-
 #
-# Copyright 2011, Intel Inc.
+# Copyright 2011-2012, Intel Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -50,6 +50,7 @@ class ConfigWizard(QWizard, ObsLightGuiObject):
         # QPlainTextEdit is not a known field type so we have to register it
         self.setDefaultProperty(QPlainTextEdit.__name__, "plainText", "textChanged")
         self.loadPages()
+        self.isModifyingServer = False
 
     def pageIndex(self, pageName):
         return self.Pages[pageName].index
@@ -125,3 +126,4 @@ class ConfigWizard(QWizard, ObsLightGuiObject):
         self.setStartId(self.Pages[u'ConfigureServerUrl'].index)
         for key, value in prefilledValues.iteritems():
             self.setField(key, value)
+        self.isModifyingServer = prefilledValues.has_key('serverAlias')

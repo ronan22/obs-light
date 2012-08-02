@@ -1,6 +1,6 @@
 # -*- coding: utf8 -*-
 #
-# Copyright 2011, Intel Inc.
+# Copyright 2011-2012, Intel Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -42,10 +42,8 @@ class ConfigureServerAliasPage(ObsLightWizardPage):
         self.ui_WizardPage.aliasLineEdit.setValidator(noSpaceValidator)
         self.registerField(u"serverAlias*", self.ui_WizardPage.aliasLineEdit)
         self.setCommitPage(True)
-        self.serverAlreadyExists = False
 
     def initializePage(self):
-        self.serverAlreadyExists = isNonEmptyString(self.field(u"serverAlias"))
         linkString = u'<a href="%s">%s</a>'
         webUrl = self.field(u"webUrl")
         self.ui_WizardPage.webUrlLabel.setText(linkString % (webUrl, webUrl))
@@ -56,10 +54,10 @@ class ConfigureServerAliasPage(ObsLightWizardPage):
         username = self.field(u"username")
         self.ui_WizardPage.usernameLabel.setText(username)
         # If we are modifying an existing server, do not allow to change alias
-        self.ui_WizardPage.aliasLineEdit.setEnabled(not self.serverAlreadyExists)
+        self.ui_WizardPage.aliasLineEdit.setEnabled(not self.wizard().isModifyingServer)
         # and hide tips about aliases
-        self.ui_WizardPage.aliasColorsLabel.setVisible(not self.serverAlreadyExists)
-        self.ui_WizardPage.pleaseEnterAliasLabel.setVisible(not self.serverAlreadyExists)
+        self.ui_WizardPage.aliasColorsLabel.setVisible(not self.wizard().isModifyingServer)
+        self.ui_WizardPage.pleaseEnterAliasLabel.setVisible(not self.wizard().isModifyingServer)
 
     @popupOnException
     def isComplete(self):
@@ -68,7 +66,7 @@ class ConfigureServerAliasPage(ObsLightWizardPage):
     @popupOnException
     def validatePage(self):
         if self.checkAlias():
-            if self.serverAlreadyExists:
+            if self.wizard().isModifyingServer:
                 self.callWithInfiniteProgress(self._doModifyServer, "Modifying server")
             else:
                 self.callWithInfiniteProgress(self._doAddServer, "Adding server")
@@ -96,7 +94,7 @@ class ConfigureServerAliasPage(ObsLightWizardPage):
         """
         alias = self.field(u"serverAlias")
         srvList = self.manager.getObsServerList()
-        if isNonEmptyString(alias) and (self.serverAlreadyExists or alias not in srvList):
+        if isNonEmptyString(alias) and (self.wizard().isModifyingServer or alias not in srvList):
             colorizeWidget(self.ui_WizardPage.aliasLineEdit, u"green")
             return True
         else:
