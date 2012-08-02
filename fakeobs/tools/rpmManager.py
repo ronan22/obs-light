@@ -7,6 +7,8 @@ import xml.dom.minidom
 from subprocess import Popen, PIPE
 from xml.dom.minidom import getDOMImplementation
 
+from xml.etree import ElementTree
+
 import gitmer
 
 HOST_IP = None
@@ -45,6 +47,20 @@ def getLocalRepoHost():
         HOST_IP = localhostIp
     return "http://%s:8002" % HOST_IP
 
+def getProjectDependency(metaPath, repos):
+    with open(metaPath, "r") as f:
+        _meta = f.read()
+
+    aElement = ElementTree.fromstring(_meta)
+
+    result = []
+    for project in aElement:
+        if (project.tag == "repository") and (project.get("name") == repos):
+            for path in project.getiterator():
+                if path.tag == "path":
+                    result.append((path.get("project"), path.get("repository")))
+    return result
+
 def getbuildInfo(rev, srcmd5, specFile, listRepository, dist, depfile, arch, projectName, packageName, repository, spec, addPackages):
     if arch in archHierarchyMap.keys():
         longArch = archHierarchyMap[arch]
@@ -68,6 +84,7 @@ def getbuildInfo(rev, srcmd5, specFile, listRepository, dist, depfile, arch, pro
 
     repo = getLocalRepoHost()
     ouputFile = tempfile.mkstemp(suffix=".ouputFile")
+
     errFile = tempfile.mkstemp(suffix=".errFile")
     cmd = []
     cmd.append("/srv/fakeobs/tools/create-rpm-list-from-spec.sh")

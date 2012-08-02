@@ -681,6 +681,7 @@ class ObsLightProject(ObsLightObject):
                                                                 self.__projectTarget ,
                                                                 self.__projectArchitecture,
                                                                 specFileName)
+        res = -1
 
         if len(buildInfoCli.deps) > 0:
             target = self.__getArchHierarchy()
