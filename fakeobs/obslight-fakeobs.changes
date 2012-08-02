@@ -10,3 +10,5 @@ Tue Jul 31 17:54:25 CEST 2012 - florent@fridu.net
 - improved error reporting after a grab
 - changed postinstall script to update /srv/www/obs/overview/index.html
 - made grab fix project _meta if grabbing a project with a fakeobs target
+- created alternative repositories in /srv/fakeobs/releases/repositories,
+  more compatible with OBS live repositories

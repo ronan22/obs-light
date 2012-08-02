@@ -869,12 +869,13 @@ def updateRepository(extProject, target, release):
     generation by MIC.
     """
     extPrjRepo = os.path.join("releases", "repositories", extProject)
-    os.makedirs(extPrjRepo)
+    if not os.path.isdir(extPrjRepo):
+        os.makedirs(extPrjRepo)
     linkTarget = "../" * (extProject.count(':/') + 2)
     linkTarget = os.path.join(linkTarget, release, "builds", extProject, target, "packages")
     linkName = os.path.join(extPrjRepo, target)
     print linkName, " -> ", linkTarget
-    if os.path.exists(linkName):
+    if os.path.lexists(linkName):
         os.unlink(linkName)
     os.symlink(linkTarget, linkName)
 
