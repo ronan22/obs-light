@@ -875,7 +875,7 @@ def updateRepository(extProject, target, release):
     linkTarget = os.path.join(linkTarget, release, "builds", extProject, target, "packages")
     linkName = os.path.join(extPrjRepo, target)
     print linkName, " -> ", linkTarget
-    if os.path.exists(linkName):
+    if os.path.lexists(linkName):
         os.unlink(linkName)
     os.symlink(linkTarget, linkName)
 
