@@ -44,6 +44,12 @@ class ConfigureServerUrlPage(ObsLightWizardPage):
                                 "repoUrl": "",
                                 "username": "",
                                 "password": ""},
+                               {"serverAlias": "fakeobs.local",
+                                "webUrl": "http://localhost:8000",
+                                "apiUrl": "http://localhost:8001",
+                                "repoUrl": "http://localhost:8002",
+                                "username": "obsuser",
+                                "password": "opensuse"},
                                {"serverAlias": "meego.com",
                                 "webUrl": "https://build.meego.com",
                                 "apiUrl": "https://api.meego.com",
@@ -52,16 +58,21 @@ class ConfigureServerUrlPage(ObsLightWizardPage):
                                 "webUrl": "https://build.pub.meego.com",
                                 "apiUrl": "https://api.pub.meego.com",
                                 "repoUrl": "http://repo.pub.meego.com"},
-                               {"serverAlias": "opensuse.org",
-                                "webUrl": "https://build.opensuse.org",
-                                "apiUrl": "https://api.opensuse.org",
-                                "repoUrl": "http://download.opensuse.org/repositories"},
                                {"serverAlias": "obslightserver",
                                 "webUrl": "https://obslightserver",
                                 "apiUrl": "https://obslightserver:444",
                                 "repoUrl": "http://obslightserver:82",
                                 "username": "obsuser",
-                                "password": "opensuse"}]
+                                "password": "opensuse"},
+                               {"serverAlias": "opensuse.org",
+                                "webUrl": "https://build.opensuse.org",
+                                "apiUrl": "https://api.opensuse.org",
+                                "repoUrl": "http://download.opensuse.org/repositories"},
+                               {"serverAlias": "tizen.org",
+                                "webUrl": "https://build.tizen.org",
+                                "apiUrl": "https://api.tizen.org",
+                                "repoUrl": "http://download.tizen.org/live"}
+                               ]
 
     def __init__(self, gui, index):
         ObsLightWizardPage.__init__(self, gui, index, u"wizard_configServerUrl.ui")
