@@ -9,7 +9,7 @@
 PRJ=obslight-fakeobs 
 OBSPROJECT=Project:OBS_Light:Testing
 OBSAPI=https://api.pub.meego.com
-PRJDIR=fakeobs/
+PRJDIR=obslight-fakeobs/
 PACKAGING="$PRJDIR"packaging/
  
 . ./send_project_to_obs.sh $#

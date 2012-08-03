@@ -1,0 +1,20 @@
+Source: obslight-fakeobs
+Section: unknown
+Priority: optional
+Maintainer: Ronan Le Martret <ronan@fridu.net>
+Build-Depends: debhelper (>= 4.1.16), python (>= 2.6)
+
+Package: obslight-fakeobs
+Architecture: any
+Depends: ${shlibs:Depends},
+ apache2,
+ git,
+ logrotate,
+ osc,
+ python,
+ python-async,
+ python-gitdb,
+ python-gitpython,
+ python-smmap,
+Description: Python script that partially implement an OBS API.
+ It is based on Mer Delivery System.

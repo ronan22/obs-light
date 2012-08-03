@@ -1,0 +1,6 @@
+#!/bin/sh
+
+%stop_on_removal fakeobs
+if [ $1 -eq 0 ] ; then
+/sbin/chkconfig --del fakeobs
+fi

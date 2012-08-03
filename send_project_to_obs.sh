@@ -5,7 +5,7 @@
 # - run ./buildtgz.sh
 # - update the changelogs (obslight.spec, debian.changelog)
 #
-
+set -x
 if [ $# -ne 1 ]; then
   echo "usage: $0 \"commit message\""
   exit 1
@@ -33,7 +33,7 @@ osc -v ci -m "$1"
 RETVAL=$?
 cd $PROJECTDIR
 if [ $RETVAL -eq 0 ]; then
-  rm -rf $TMPDIR
+  #rm -rf $TMPDIR
   echo "DONE"
 else
   echo "FAILED"

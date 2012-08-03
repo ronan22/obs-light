@@ -12,5 +12,5 @@ cd "$TMPDIR"
 gzip -f "$PRJ"-"$PRJOBSVERSION".tar
 cp -vf "$PRJ"-"$PRJOBSVERSION".tar.gz $INITIALDIR/"$PRJDIR"/dist/
 cd "$INITIALDIR"
-#rm -rf "$TMPDIR"
+rm -rf "$TMPDIR"
 

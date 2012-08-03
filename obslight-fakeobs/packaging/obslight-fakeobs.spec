@@ -15,7 +15,14 @@ BuildArch:  noarch
 URL:        https://meego.gitorious.org/meego-developer-tools/obs-light/trees/master
 Source0:    %{name}-%{version}.tar.gz
 Source100:  obslight-fakeobs.yaml
+%if 0%{?fedora}
+Requires:   httpd
+Requires:   redhat-lsb
+%else
 Requires:   apache2
+Requires(post): sysconfig
+%endif
+
 Requires:   git
 Requires:   logrotate
 Requires:   osc
@@ -24,7 +31,7 @@ Requires:   python-async
 Requires:   python-gitdb
 Requires:   python-gitpython
 Requires:   python-smmap
-Requires(post): sysconfig
+
 Requires(post): /sbin/service
 Requires(post): /sbin/chkconfig
 Requires(postun): /sbin/service
@@ -103,13 +110,24 @@ then
 echo -e "<mappings>\n</mappings>" > mappings.xml
 fi
 
+if [ -d "%{_sysconfdir}/apache2/vhosts.d" ]
+then
+# openSUSE
+  APACHEVHOST="%{_sysconfdir}/apache2/vhosts.d"
+elif [ -d "%{_sysconfdir}/httpd/conf.d" ]
+then
+# Fedora
+  APACHEVHOST="%{_sysconfdir}/httpd/conf.d"
+fi
+
+
 if [ -d %{_sysconfdir}/apache2/vhosts.d ]
 then
-ln -sf /srv/fakeobs/config/fakeobs-repos.apache2conf %{_sysconfdir}/apache2/vhosts.d/fakeobs-repos.conf
+ln -sf /srv/fakeobs/config/fakeobs-repos.apache2conf "$APACHEVHOST"/fakeobs-repos.conf
 fi
 if [ -d %{_sysconfdir}/lighttpd/vhosts.d ]
 then
-ln -sf /srv/fakeobs/config/fakeobs-repos.lighttpdconf %{_sysconfdir}/lighttpd/vhosts.d/fakeobs-repos.conf
+ln -sf /srv/fakeobs/config/fakeobs-repos.lighttpdconf "$APACHEVHOST"/fakeobs-repos.conf
 fi
 
 OVERVIEW="/srv/www/obs/overview/index.html"
