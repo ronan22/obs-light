@@ -45,7 +45,7 @@ def getLocalRepoHost():
             HOST_IP = localhostIp
     if HOST_IP is None:
         HOST_IP = localhostIp
-    return "http://%s:8002" % HOST_IP
+    return "http://%s:8002/repositories" % HOST_IP
 
 def getProjectDependency(metaPath, repos):
     with open(metaPath, "r") as f:

@@ -14,18 +14,18 @@ fi
 # Create a temporary directory and go into it
 TMPDIR=`mktemp -d`
 PROJECTDIR=`pwd`
+
 cd $TMPDIR
 echo TMPDIR $TMPDIR
 # Checkout the project
-osc -A https://api.pub.meego.com co -c Project:OBS_Light:Testing obslight
+osc -A "$OBSAPI" co -c "$OBSPROJECT" "$PRJ"
 # Delete the old source archive
-rm obslight/obslight*.tar.gz
-cd $PROJECTDIR
+rm "$PRJ"/*
+cd "$PRJ"
 # Copy all project file to the temporary directory
-cp -v src/dist/obslight*.tar.gz $TMPDIR/obslight
-cp -v src/rpm/obslight.spec src/rpm/obslight.yaml src/rpm/obslight.changes src/rpm/Makefile $TMPDIR/obslight
-cp -v src/deb/debian.changelog src/deb/debian.control src/deb/debian.postinst src/deb/debian.prerm src/deb/debian.rules src/deb/obslight.dsc $TMPDIR/obslight
-cd $TMPDIR/obslight
+cp -v "$PROJECTDIR"/"$PRJDIR"dist/"$PRJ"*.tar.gz $TMPDIR/"$PRJ"
+cp -v "$PROJECTDIR"/"$PACKAGING"/* $TMPDIR/"$PRJ"
+cd $TMPDIR/"$PRJ"
 # Add all new files, remove disappeared files, and commit
 osc -v ar 
 osc -v ci -m "$1"

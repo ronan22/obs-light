@@ -1,7 +1,7 @@
 *.pyc
 obslight/dist
 obslight/dist/*
-fakeobs/dist
+obslight-fakeobs/dist
 .directory
 .settings
 .settings/*

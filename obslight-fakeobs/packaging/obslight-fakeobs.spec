@@ -39,7 +39,7 @@ It is based on Mer Delivery System.
 
 
 %prep
-%setup -q -n %{name}-%{version}
+%setup -q -n %{name}
 
 # >> setup
 # << setup
