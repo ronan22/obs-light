@@ -1,8 +1,8 @@
 #!/bin/bash
 #
 # Before running this you have to:
-# - run ./update_version.sh <old_version> <new_version>
-# - run ./buildtgz.sh
+# - run ./update_obslight_version.sh <old_version> <new_version>
+# - run ./build-obslight-tgz.sh
 # - update the changelogs (obslight.spec, debian.changelog)
 #
 
@@ -17,14 +17,14 @@ PROJECTDIR=`pwd`
 cd $TMPDIR
 echo TMPDIR $TMPDIR
 # Checkout the project
-osc -A https://api.pub.meego.com co -c Project:OBS_Light:Testing obslight
+osc -A https://api.pub.meego.com co -c Project:OBS_Light:Testing obslight-fakeobs
 # Delete the old source archive
-rm obslight/obslight*.tar.gz
+rm obslight-fakeobs/obslight-fakeobs*.tar.gz
 cd $PROJECTDIR
 # Copy all project file to the temporary directory
-cp -v src/dist/obslight*.tar.gz $TMPDIR/obslight
-cp -v src/rpm/obslight.spec src/rpm/obslight.yaml src/rpm/obslight.changes src/rpm/Makefile $TMPDIR/obslight
-cp -v src/deb/debian.changelog src/deb/debian.control src/deb/debian.postinst src/deb/debian.prerm src/deb/debian.rules src/deb/obslight.dsc $TMPDIR/obslight
+cp -v obslight/dist/obslight*.tar.gz $TMPDIR/obslight
+cp -v obslight/rpm/obslight.spec src/rpm/obslight.yaml obslight/rpm/obslight.changes obslight/rpm/Makefile $TMPDIR/obslight
+cp -v obslight/deb/debian.changelog src/deb/debian.control obslight/deb/debian.postinst obslight/deb/debian.prerm obslight/deb/debian.rules src/deb/obslight.dsc $TMPDIR/obslight
 cd $TMPDIR/obslight
 # Add all new files, remove disappeared files, and commit
 osc -v ar 

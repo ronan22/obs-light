@@ -7,58 +7,63 @@ fi
 
 OLDVERSION=$1
 NEWVERSION=$2
+
+PRJDIR=obslight/
+PACKAGING="$PRJDIR"packaging/
+
+OBSLIGHTMANAGER="$PRJDIR"ObsLight/ObsLightManager.py
+DEBIANLOG="$PACKAGING"debian.changelog
+DEBIANDSC="$PACKAGING"obslight.dsc
+OBSLIGHTYAML="$PACKAGING"obslight.yaml
+OBSLIGHTSPEC="$PACKAGING"obslight.spec
+OBSLIGHTSETUP="$PRJDIR"setup.py
+
+set -x 
+
 echo __________________________________________________________________________
-echo src/ObsLight/ObsLightManager.py
-grep --color "VERSION = " src/ObsLight/ObsLightManager.py
-sed -i s/"VERSION = .*"/"VERSION = \"$NEWVERSION-1\""/ src/ObsLight/ObsLightManager.py
+echo $OBSLIGHTMANAGER
+grep --color "VERSION = " $OBSLIGHTMANAGER
+sed -i s/"VERSION = .*"/"VERSION = \"$NEWVERSION-1\""/ $OBSLIGHTMANAGER
 echo "---"
-grep --color "VERSION = " src/ObsLight/ObsLightManager.py
+grep --color "VERSION = " $OBSLIGHTMANAGER
 echo "----------------"
 echo __________________________________________________________________________
-echo src/deb/debian.changelog
-grep --color "obslight ($OLDVERSION-1)" src/deb/debian.changelog
-sed -i s/"obslight ($OLDVERSION-1)"/"obslight ($NEWVERSION-1)"/ src/deb/debian.changelog
+echo $DEBIANLOG
+grep --color "obslight ($OLDVERSION-1)" $DEBIANLOG
+sed -i s/"obslight ($OLDVERSION-1)"/"obslight ($NEWVERSION-1)"/ $DEBIANLOG
 echo "---"
-grep --color "obslight ($NEWVERSION-1)" src/deb/debian.changelog
+grep --color "obslight ($NEWVERSION-1)" $DEBIANLOG
 echo "----------------"
 echo __________________________________________________________________________
-echo src/deb/obslight.dsc
-grep --color "Version: $OLDVERSION" src/deb/obslight.dsc
-sed -i s/"Version: $OLDVERSION"/"Version: $NEWVERSION"/ src/deb/obslight.dsc
+echo $DEBIANDSC
+grep --color "Version: $OLDVERSION" $DEBIANDSC
+sed -i s/"Version: $OLDVERSION"/"Version: $NEWVERSION"/ $DEBIANDSC
 echo "---"
-grep --color "Version: $NEWVERSION" src/deb/obslight.dsc
+grep --color "Version: $NEWVERSION" $DEBIANDSC
 echo -
-grep --color "obslight_$OLDVERSION" src/deb/obslight.dsc
-sed -i s/"obslight_$OLDVERSION"/"obslight_$NEWVERSION"/ src/deb/obslight.dsc
+grep --color "obslight_$OLDVERSION" $DEBIANDSC
+sed -i s/"obslight_$OLDVERSION"/"obslight_$NEWVERSION"/ $DEBIANDSC
 echo "---"
-grep --color "obslight_$NEWVERSION" src/deb/obslight.dsc
+grep --color "obslight_$NEWVERSION" $DEBIANDSC
 echo "----------------"
 echo __________________________________________________________________________
-echo src/rpm/obslight.yaml
-grep --color "Version: $OLDVERSION" src/rpm/obslight.yaml
-sed -i s/"Version: $OLDVERSION"/"Version: $NEWVERSION"/ src/rpm/obslight.yaml
+echo $OBSLIGHTYAML
+grep --color "Version: $OLDVERSION" $OBSLIGHTYAML
+sed -i s/"Version: $OLDVERSION"/"Version: $NEWVERSION"/ $OBSLIGHTYAML
 echo "---"
-grep --color "Version: $NEWVERSION" src/rpm/obslight.yaml
+grep --color "Version: $NEWVERSION" $OBSLIGHTYAML
 echo "----------------"
 echo __________________________________________________________________________
-echo src/rpm/obslight.spec
-grep --color "Version:    $OLDVERSION" src/rpm/obslight.spec
-sed -i s/"Version:    $OLDVERSION"/"Version:    $NEWVERSION"/ src/rpm/obslight.spec
+echo $OBSLIGHTSPEC
+grep --color "Version:    $OLDVERSION" $OBSLIGHTSPEC
+sed -i s/"Version:    $OLDVERSION"/"Version:    $NEWVERSION"/ $OBSLIGHTSPEC
 echo "---"
-grep --color "Version:    $NEWVERSION" src/rpm/obslight.spec
+grep --color "Version:    $NEWVERSION" $OBSLIGHTSPEC
 echo "----------------"
-
-
-#specify src/rpm/obslight.yaml
-#grep --color "version $OLDVERSION" rpm/obslight.spec
-#sed -i s/"version $OLDVERSION"/"version $NEWVERSION"/ rpm/obslight.spec
-#echo "---"
-#grep --color "version $NEWVERSION" rpm/obslight.spec
-#echo "----------------"
 echo __________________________________________________________________________
-echo src/setup.py
-grep --color "version=\"$OLDVERSION\"" src/setup.py
-sed -i s/"version=\"$OLDVERSION\""/"version=\"$NEWVERSION\""/ src/setup.py
+echo $OBSLIGHTSETUP
+grep --color "version=\"$OLDVERSION\"" $OBSLIGHTSETUP
+sed -i s/"version=\"$OLDVERSION\""/"version=\"$NEWVERSION\""/ $OBSLIGHTSETUP
 echo "---"
-grep --color "version=\"$NEWVERSION\"" src/setup.py
+grep --color "version=\"$NEWVERSION\"" $OBSLIGHTSETUP
 
