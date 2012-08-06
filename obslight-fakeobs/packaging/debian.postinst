@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# Install python dependency not available in
+# current Ubuntu version (12.04).
+easy_install async gitdb gitpython smmap
+
 cd /srv/fakeobs/
 if [ ! -f lastevents ]
 then
@@ -9,30 +13,13 @@ fi
 
 if [ ! -f mappings.xml ]
 then
-echo -e "<mappings>\n</mappings>" > mappings.xml
+echo "<mappings>\n</mappings>" > mappings.xml
 fi
 
-APACHEVHOST="%{_sysconfdir}/apache2/vhosts.d"
+ln -sf /srv/fakeobs/config/fakeobs-repos.apache2conf /etc/apache2/sites-available/fakeobs-repos.conf
+a2ensite fakeobs-repos.conf
+chkconfig --add apache2
+service apache2 start
 
-if [ -d %{_sysconfdir}/apache2/vhosts.d ]
-then
-ln -sf /srv/fakeobs/config/fakeobs-repos.apache2conf "$APACHEVHOST"/fakeobs-repos.conf
-fi
-if [ -d %{_sysconfdir}/lighttpd/vhosts.d ]
-then
-ln -sf /srv/fakeobs/config/fakeobs-repos.lighttpdconf "$APACHEVHOST"/fakeobs-repos.conf
-fi
-
-OVERVIEW="/srv/www/obs/overview/index.html"
-if [ -f $OVERVIEW ]
-then
-if ! $(grep -q fakeobs $OVERVIEW)
-then
-cat >> $OVERVIEW << EOF
-<p><a href=http://obslightserver:8001>The fakeobs API URL(http://obslightserver:8001)</a> is used by the "fakeobs" project link.</p>
-<p><a href=http://obslightserver:8002>The fakeobs repositories</a> contain the static build results, the repositories can be added to package managers like zypper or apt.</p>
-EOF
-fi
-fi
-#/sbin/chkconfig --add fakeobs
-%{fillup_and_insserv -f -y fakeobs}
+# Using upstart, no need to chkconfig
+service fakeobs start

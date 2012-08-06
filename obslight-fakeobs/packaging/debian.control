@@ -12,9 +12,13 @@ Depends: ${shlibs:Depends},
  logrotate,
  osc,
  python,
- python-async,
- python-gitdb,
- python-gitpython,
- python-smmap,
+#  The following packages will be available with 12.10.
+#  Until then, we will install them with "easy_install".
+# python-async,
+# python-gitdb,
+# python-gitpython,
+# python-smmap,
+ python-setuptools,
+ upstart
 Description: Python script that partially implement an OBS API.
  It is based on Mer Delivery System.
