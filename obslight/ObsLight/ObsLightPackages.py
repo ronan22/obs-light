@@ -23,7 +23,6 @@ from ObsLight import ObsLightErr
 
 import os
 
-from ObsLightPackage import ObsLightPackage
 
 NOT_INSTALLED = "Not installed"
 NO_BUILD_DIRECTORY = "No build directory"
@@ -33,6 +32,8 @@ PREPARED = "Prepared"
 BUILD = "Built"
 BUILD_INSTALLED = "Build Installed"
 BUILD_PACKAGED = "Build Packaged"
+
+from ObsLightPackage import ObsLightPackage
 
 
 class ObsLightPackages(object):
