@@ -29,6 +29,8 @@ from ObsLightObject import ObsLightObject
 
 import ObsLightErr
 
+import ObsLightPackages as PK_CONST
+
 class ObsLightSpec(ObsLightObject):
 
     WrittenByObsLight = "# File written by OBS Light, don't modify it\n"
@@ -442,7 +444,7 @@ class ObsLightSpec(ObsLightObject):
                         f.write(line)
 
                 elif (section == "%prep") :
-                    if not packageStatus in ["Not installed"]:
+                    if not packageStatus in [PK_CONST.NOT_INSTALLED]:
                         f.write("%prep\n\n")
                         NoPrep = True
                         break
@@ -452,9 +454,9 @@ class ObsLightSpec(ObsLightObject):
                 elif (section == "%build"):
 
                     if sectionTarget == "install" and \
-                       packageStatus in [ "Built",
-                                          "Build Installed",
-                                          "Build Packaged"]:
+                       packageStatus in [ PK_CONST.BUILD,
+                                          PK_CONST.BUILD_INSTALLED,
+                                          PK_CONST.BUILD_PACKAGED]:
 
                         f.write("%build\n\n")
                         break

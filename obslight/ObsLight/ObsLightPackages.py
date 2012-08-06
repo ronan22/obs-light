@@ -25,6 +25,16 @@ import os
 
 from ObsLightPackage import ObsLightPackage
 
+NOT_INSTALLED = "Not installed"
+NO_BUILD_DIRECTORY = "No build directory"
+NO_BUILD_SECTION = "No build section"
+MANY_BUILD_DIRECTORIES = "Many BUILD directories"
+PREPARED = "Prepared"
+BUILD = "Built"
+BUILD_INSTALLED = "Build Installed"
+BUILD_PACKAGED = "Build Packaged"
+
+
 class ObsLightPackages(object):
     '''
     classdocs
@@ -240,13 +250,14 @@ class ObsLightPackages(object):
         '''
         
         '''
-        return ["Not installed",
-                "No build directory",
-                "Many BUILD directories",
-                "Prepared",
-                "Built",
-                "Build Installed",
-                "Build Packaged"]
+        return [NOT_INSTALLED,
+                NO_BUILD_DIRECTORY,
+                NO_BUILD_SECTION,
+                MANY_BUILD_DIRECTORIES,
+                PREPARED,
+                BUILD,
+                BUILD_INSTALLED,
+                BUILD_PACKAGED]
 
     def __isFilterInfo(self, info):
         '''

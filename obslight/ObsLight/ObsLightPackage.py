@@ -33,6 +33,8 @@ from ObsLightErr import ObsLightPackageErr
 
 from copy import copy
 
+import ObsLightPackages as PK_CONST
+
 class ObsLightPackage(object):
     '''
     classdocs
@@ -50,7 +52,7 @@ class ObsLightPackage(object):
                  obsRev="-1",
                  oscStatus="Unknown",
                  oscRev="-1",
-                 chRootStatus="Not installed",
+                 chRootStatus=PK_CONST.NOT_INSTALLED,
                  description="",
                  packageTitle="",
                  fromSave=None):
@@ -334,14 +336,14 @@ class ObsLightPackage(object):
         
         '''
         self.__packageDirectory = None
-        self.__chRootStatus = "Not installed"
+        self.__chRootStatus = PK_CONST.NOT_INSTALLED
 
     def isInstallInChroot(self):
         '''
         Return True if the package is install into the chroot.
         '''
 
-        if self.getChRootStatus() == "Not installed":
+        if self.getChRootStatus() == PK_CONST.NOT_INSTALLED:
             return False
         else:
             return True
@@ -426,7 +428,7 @@ class ObsLightPackage(object):
             if self.__packageDirectory != None:
                 return self.__packageDirectory
             else :
-                if self.getChRootStatus() == "Not installed":
+                if self.getChRootStatus() == PK_CONST.NOT_INSTALLED:
                     return ""
                 else:
                     return self.__chrootRpmBuildDirectory
