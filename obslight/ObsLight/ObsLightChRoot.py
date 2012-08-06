@@ -46,6 +46,7 @@ from ObsLightUtils import isNonEmptyString
 
 import ObsLightOsc
 
+import ObsLightPackages as PK_CONST
 
 class ObsLightChRootCore(object):
     '''
@@ -680,7 +681,7 @@ class ObsLightChRoot(ObsLightChRootCore):
 
         if len(listDir) == 0:
             package.setPackageParameter("patchMode", False)
-            package.setChRootStatus("No build directory")
+            package.setChRootStatus(PK_CONST.NO_BUILD_DIRECTORY)
             raise ObsLightErr.ObsLightChRootError("No sub-directory in '" + pathBuild + "'." +
                                                   " There should be exactly one.")
         elif len(listDir) == 1:
@@ -701,7 +702,7 @@ class ObsLightChRoot(ObsLightChRootCore):
                 return resultPath
         else:
             package.setPackageParameter("patchMode", False)
-            package.setChRootStatus("Many BUILD directories")
+            package.setChRootStatus(PK_CONST.MANY_BUILD_DIRECTORIES)
             raise ObsLightErr.ObsLightChRootError("Too many sub-directories in '%s'" % pathBuild)
 
     def addPackageSpecInChRoot(self, package,
@@ -869,7 +870,7 @@ exit $RETURN_VALUE
 
                 if len(fileList) > 0:
                     package.setPackageParameter("patchMode", False)
-                    package.setChRootStatus("Prepared")
+                    package.setChRootStatus(PK_CONST.PREPARED)
                     msg = "Warning: the following files do not have read access for 'other',"
                     msg += "the 'patchMode' will be ineffective:\n\n"
                     for f in fileList:
@@ -881,14 +882,13 @@ exit $RETURN_VALUE
                 self._ObsLightGitManager.initGitWatch(packageDirectory, package)
 
                 if package.specFileHaveAnEmptyBuild():
-                    package.setPackageParameter("patchMode", False)
-                    package.setChRootStatus("No build directory")
+                    package.setChRootStatus(PK_CONST.NO_BUILD_SECTION)
                     return 0
 
                 return self.__buildRpm(specFile, package, arch)
 
-        elif package.getChRootStatus() != "No build directory":
-            package.setChRootStatus("Prepared")
+        elif package.getChRootStatus() != PK_CONST.NO_BUILD_DIRECTORY:
+            package.setChRootStatus(PK_CONST.PREPARED)
 
         return 0
 
@@ -928,7 +928,7 @@ exit $RETURN_VALUE
                 scriptParameters["packageDirectory"] = packageDirectory
                 cmd = "chown -R %(user)s:%(userGroup)s %(packageDirectory)s" % scriptParameters
                 res = self.execCommand([cmd], user="root")
-                package.setChRootStatus("Prepared")
+                package.setChRootStatus(PK_CONST.PREPARED)
             else:
                 msg = "Fail to checkout package %s, after the first build." % packageName
                 msg += " Return code was: %s" % str(res)
@@ -949,7 +949,7 @@ exit $RETURN_VALUE
             raise ObsLightErr.ObsLightChRootError(msg)
         if package.specFileHaveAnEmptyBuild():
             package.setPackageParameter("patchMode", False)
-            package.setChRootStatus("No build directory")
+            package.setChRootStatus(PK_CONST.NO_BUILD_DIRECTORY)
             return 0
         if package.getPackageParameter("patchMode"):
 
@@ -971,7 +971,7 @@ exit $RETURN_VALUE
 #                                                          str(packageDirectory))
 #                ObsLightPrintManager.getLogger().debug(message)
 #                package.setDirectoryBuild(packageDirectory)
-            package.setChRootStatus("Built")
+            package.setChRootStatus(PK_CONST.BUILD)
         return res
 
     # TODO: replace 'arch' by 'target'
@@ -1005,7 +1005,7 @@ exit $RETURN_VALUE
 #                ObsLightPrintManager.getLogger().debug(message)
 #                package.setDirectoryBuild(packageDirectory)
 
-            package.setChRootStatus("Build Installed")
+            package.setChRootStatus(PK_CONST.BUILD_INSTALLED)
         return res
 
     # TODO: replace 'arch' by 'target'
@@ -1039,7 +1039,7 @@ exit $RETURN_VALUE
 #                ObsLightPrintManager.getLogger().debug(message)
 #                package.setDirectoryBuild(packageDirectory)
 
-            package.setChRootStatus("Build Packaged")
+            package.setChRootStatus(PK_CONST.BUILD_PACKAGED)
         return res
 
     def prepGhostRpmbuild(self, package):
