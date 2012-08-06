@@ -707,7 +707,10 @@ class ObsLightProject(ObsLightObject):
 
         pkgObj = self.__packages.getPackage(packageName)
 
-        pkgObj.getSpecFileObj().parseFile()
+        specFileObj = pkgObj.getSpecFileObj()
+        if specFileObj is None:
+            raise ObsLightErr.ObsLightPackageErr("Package '%s' has no Spec file!" % packageName)
+        specFileObj.parseFile()
         specFileName = pkgObj.getSpecFile()
 
         self.__prepareChroot(section, pkgObj, pkgObj.getSpecFilePath())
