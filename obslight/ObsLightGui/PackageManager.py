@@ -29,7 +29,7 @@ from PySide.QtGui import QLineEdit, QMessageBox, QRegExpValidator
 
 from PackageModel import PackageModel
 from ObsLightGui.FileManager import FileManager
-from Utils import popupOnException, ProgressRunnable2, firstArgLast, PATCH_NAME_REGEXP
+from Utils import popupOnException, ProgressRunnable2, ProgressRunnable3, firstArgLast, PATCH_NAME_REGEXP
 from ObsLightGuiObject import ObsLightGuiObject
 
 class PackageManager(QObject, ObsLightGuiObject):
@@ -394,8 +394,6 @@ class PackageManager(QObject, ObsLightGuiObject):
         `loopMessage` will be displayed at each loop, and "%(arg)s"
         will be replaced by the name of package being processed.
         """
-        def generateResult(package, *args, **kwargs):
-            return package, method(package, *args, **kwargs)
 
         packagesNames = self.selectedPackages()
         if len(packagesNames) == 0:
@@ -408,11 +406,11 @@ class PackageManager(QObject, ObsLightGuiObject):
             # several packages selected, show a standard progress dialog
             progress = self.gui.getProgressDialog()
             progress.setValue(0)
-        runnable = ProgressRunnable2(progress)
+        runnable = ProgressRunnable3(progress)
         if initialMessage is not None:
             runnable.setDialogMessage(initialMessage)
         packagesNames.sort()
-        runnable.setFunctionToMap(generateResult, packagesNames, loopMessage, *args, **kwargs)
+        runnable.setFunctionToMap(method, packagesNames, loopMessage, *args, **kwargs)
         runnable.caughtException.connect(self.__packageErrorCallback)
         if callback is not None:
             # detect if callback takes arguments in order to call
@@ -441,8 +439,6 @@ class PackageManager(QObject, ObsLightGuiObject):
         
         `initialMessage` will be displayed on the progress dialog.
         """
-        def generateResult(package, *args, **kwargs):
-            return package, method(package, *args, **kwargs)
 
         if packagesNames is None:
             packagesNames = self.selectedPackages()
@@ -450,10 +446,10 @@ class PackageManager(QObject, ObsLightGuiObject):
             return
 
         progress = self.gui.getInfiniteProgressDialog()
-        runnable = ProgressRunnable2(progress)
+        runnable = ProgressRunnable3(progress)
         if initialMessage is not None:
             runnable.setDialogMessage(initialMessage)
-        runnable.setRunMethod(generateResult, packagesNames, *args, **kwargs)
+        runnable.setRunMethod(method, packagesNames, *args, **kwargs)
         runnable.caughtException.connect(self.gui.popupErrorCallback)
         if callback is not None:
             # detect if callback takes arguments in order to call
@@ -508,17 +504,22 @@ class PackageManager(QObject, ObsLightGuiObject):
         message = None
         packageToRefreshList = [x[0] for x in retValList]
 
-        if len(retValList) == 1 and retValList[0][1] != 0:
-            message = u"The last operation return code is %d.\n" % retValList[0][1]
-        elif len(retValList) > 1:
-            res = reduce(lambda x, y: abs(x[1]) + abs(y[1]), retValList)
-            if res > 0:
-                message = u"One of the last operations may have failed (return code != 0)\n"
+        err = False
+        packageErr = []
+        for (pkg, r) in retValList:
+            if r != 0:
+                err = True
+                packageErr.append(pkg)
+
+        if err :
+            message = u"Operations on %s may have failed (return code != 0)\n" % ",".join(packageErr)
+
         if message is not None:
             message += u"You should check the log to find any error."
             QMessageBox.warning(self.mainWindow,
                                 u"Bad exit status",
                                 message)
+
         self.__refreshStatus(packageToRefreshList)
 
     def __handleRpmCreationResult(self, retValList):
