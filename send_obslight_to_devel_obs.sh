@@ -12,5 +12,5 @@ OBSAPI=https://api.pub.meego.com
 PRJDIR=obslight/
 PACKAGING="$PRJDIR"packaging/
  
-. ./send_project_to_obs.sh $#
+. ./send_project_to_obs.sh "$@"
 
