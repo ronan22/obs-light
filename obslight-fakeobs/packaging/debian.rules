@@ -59,7 +59,7 @@ install: build
 	cp -rf tools /usr/src/packages/BUILD/debian/obslight-fakeobs/srv/fakeobs/tools
 	cp -rf config /usr/src/packages/BUILD/debian/obslight-fakeobs/srv/fakeobs/config
 	cp -f obslight-fakeobs /usr/src/packages/BUILD/debian/obslight-fakeobs/usr/bin
-	cp -f upstart_fakeobs /usr/src/packages/BUILD/debian/obslight-fakeobs/etc/init/fakeobs
+	cp -f upstart_fakeobs /usr/src/packages/BUILD/debian/obslight-fakeobs/etc/init/fakeobs.conf
 	ln -s /lib/init/upstart-job /usr/src/packages/BUILD/debian/obslight-fakeobs/etc/init.d/fakeobs
 	cp -f logrotate_fakeobs /usr/src/packages/BUILD/debian/obslight-fakeobs/etc/logrotate.d/fakeobs
 	cp -f README /usr/src/packages/BUILD/debian/obslight-fakeobs/usr/share/doc/packages/obslight-fakeobs

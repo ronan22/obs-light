@@ -1,3 +1,5 @@
 #!/bin/sh
 
 service fakeobs stop
+a2dissite fakeobs-repos.conf
+rm -f /srv/fakeobs/tools/*.{pyc,pyo}
