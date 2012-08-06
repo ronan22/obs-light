@@ -511,9 +511,16 @@ class PackageManager(QObject, ObsLightGuiObject):
         if len(retValList) == 1 and retValList[0][1] != 0:
             message = u"The last operation return code is %d.\n" % retValList[0][1]
         elif len(retValList) > 1:
-            res = reduce(lambda x, y: abs(x[1]) + abs(y[1]), retValList)
-            if res > 0:
-                message = u"One of the last operations may have failed (return code != 0)\n"
+            err = False
+            packageErr = []
+            for (pkg, r) in retValList:
+                if r != 0:
+                    err = True
+                    packageErr.append(pkg)
+
+            if err :
+                message = u"Operations on %s may have failed (return code != 0)\n" % ",".join(packageErr)
+
         if message is not None:
             message += u"You should check the log to find any error."
             QMessageBox.warning(self.mainWindow,
