@@ -206,12 +206,14 @@ class ProgressRunnable2(QObject, QRunnable):
                 # "Infinite" progress dialog, so do nothing
                 pass
 
-    def setHasFinished(self, result=None):
+    def setHasFinished(self, result=""):
         """
         Inform the progress dialog that the run method has finished
         its execution (so it will be hidden). Also emits the finished
         signal.
         """
+        if result == None:
+            result = ""
         if self.__finishedCalled:
             raise RuntimeError(u'setHasFinished() called twice')
         self.result = result
@@ -225,9 +227,9 @@ class ProgressRunnable2(QObject, QRunnable):
             self.__finished.emit()
         # We got some crashes after catching exception,
         # especially in wizard when loading project list.
-        if not self.__hasCaughtException:
-            # FIXME: check if "None" can be emitted
-            self.finished[object].emit(result)
+#        if not self.__hasCaughtException:
+#            # FIXME: check if "None" can be emitted
+        self.finished[object].emit(result)
         self.finished.emit()
 
     def setHasCaughtException(self, exception):
@@ -276,6 +278,9 @@ class ProgressRunnable2(QObject, QRunnable):
                 self.deleteLater()
         self.run = run
 
+    def _getisFinite(self):
+        return self.__isFinite
+
     def setFunctionToMap(self, function, iterable, message=None, *otherArgs, **kwargs):
         """
         Replace the 'run' method of this instance by one which will
@@ -287,7 +292,7 @@ class ProgressRunnable2(QObject, QRunnable):
         def run():
             results = list()
             try:
-                if self.__isFinite:
+                if self._getisFinite():
                     self.setMax(len(iterable))
                 self.setHasStarted()
                 for arg in iterable:
@@ -328,6 +333,47 @@ class ProgressRunnable2(QObject, QRunnable):
             while not self.__finishedCalled:
                 sleep(0.01)
                 QApplication.processEvents()
+
+class ProgressRunnable3(ProgressRunnable2):
+    def setFunctionToMap(self, function, iterable, message=None, *otherArgs, **kwargs):
+        """
+        Replace the 'run' method of this instance by one which will
+        map 'function' on every element of 'iterable'. It is possible to
+        change the progress dialog message with 'message' ("%(arg)s" is
+        replaced by an unicode representation of the current element),
+        and to pass other parameters to the function.
+        """
+        def run():
+            results = list()
+            try:
+                if self._getisFinite():
+                    self.setMax(len(iterable))
+                self.setHasStarted()
+                for arg in iterable:
+                    if self.wasAskedToCancel():
+                        break
+                    caughtException = None
+                    try:
+                        if isNonEmptyString(message):
+                            unicodeArg = unicode(str(arg), errors='replace')
+                            self.setDialogMessage(message % {"arg":unicodeArg})
+                        results.append((arg, function(arg, *otherArgs, **kwargs)))
+                    except BaseException as e:
+                        traceback_ = sys.exc_info()[2]
+                        caughtException = e
+                        caughtException.traceback = traceback_
+                        results.append((arg, 1))
+                    finally:
+                        if caughtException is not None:
+                            self.setHasCaughtException(caughtException)
+                        self.setHasProgressed()
+            except:
+                print sys.exc_info()
+            finally:
+                self.setHasFinished(results)
+                self.deleteLater()
+        self.run = run
+
 
 
 QThreadPool.globalInstance().setExpiryTimeout(0)
