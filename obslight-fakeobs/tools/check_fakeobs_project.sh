@@ -121,8 +121,8 @@ function check_full()
 				echo_green "$project bootstrap seems complete for target $target/$arch"
 			fi
 			rm "$namesfile"
-			echo "Running 'rpm -q --checksig -p' on each RPM"
-			find . -name "*.rpm" | xargs -r rpm -q --checksig -p 1>/dev/null
+			echo "Running 'rpm --checksig' on each RPM"
+			find . -name "*.rpm" | xargs -r rpm --checksig 1>/dev/null
 			if [ "$?" -ne "0" ]
 			then
 				returncode=1
@@ -164,8 +164,8 @@ function check_repositories()
 		else
 			echo "Found $rpmcount RPMs in '$dir'"
 		fi
-		echo "Running 'rpm -q --checksig -p' on each"
-		find . -name "*.rpm" | xargs -r rpm -q --checksig -p 1>/dev/null
+		echo "Running 'rpm --checksig' on each"
+		find . -name "*.rpm" | xargs -r rpm --checksig 1>/dev/null
 		if [ "$?" -ne "0" ]
 		then
 			returncode=1
