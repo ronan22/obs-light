@@ -646,17 +646,6 @@ You can select several packages.</string>
                  </property>
                 </widget>
                </item>
-               <item row="10" column="2">
-                <widget class="QPushButton" name="refreshOscStatusButton">
-                 <property name="toolTip">
-                  <string>Refresh OSC status column.
- If no package selected, refresh all (may be long).</string>
-                 </property>
-                 <property name="text">
-                  <string>Refresh status</string>
-                 </property>
-                </widget>
-               </item>
                <item row="9" column="1">
                 <widget class="QPushButton" name="addAndCommitButton">
                  <property name="toolTip">
@@ -701,6 +690,17 @@ You can select several packages.</string>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item row="5" column="1">
+                <widget class="QPushButton" name="refreshOscStatusButton">
+                 <property name="toolTip">
+                  <string>Refresh OSC status column.
+ If no package selected, refresh all (may be long).</string>
+                 </property>
+                 <property name="text">
+                  <string>Refresh status</string>
                  </property>
                 </widget>
                </item>
@@ -953,37 +953,6 @@ It may open in background on some desktop environments.</string>
                 </sizepolicy>
                </property>
                <layout class="QGridLayout" name="gridLayout_14">
-                <item row="3" column="0">
-                 <widget class="QPushButton" name="addRepoInChrootButton">
-                  <property name="toolTip">
-                   <string>Make a package repository accessible from the project filesystem (using zypper).
- Import repository from URL.</string>
-                  </property>
-                  <property name="text">
-                   <string>New</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="5" column="0">
-                 <widget class="QPushButton" name="removeRepoFromChrootButton">
-                  <property name="toolTip">
-                   <string>Delete a repository from the project filesystem.</string>
-                  </property>
-                  <property name="text">
-                   <string>Delete</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="7" column="0">
-                 <widget class="QPushButton" name="modifyRepoInChrootButton">
-                  <property name="toolTip">
-                   <string>Modify the URL or alias of a repository.</string>
-                  </property>
-                  <property name="text">
-                   <string>Modify</string>
-                  </property>
-                 </widget>
-                </item>
                 <item row="1" column="2" colspan="3">
                  <widget class="QLineEdit" name="chrootPathLineEdit">
                   <property name="toolTip">
@@ -1004,84 +973,6 @@ It may open in background on some desktop environments.</string>
                   </property>
                  </widget>
                 </item>
-                <item row="3" column="2">
-                 <widget class="QPushButton" name="newChrootButton">
-                  <property name="toolTip">
-                   <string>Create the filesystem of the project.</string>
-                  </property>
-                  <property name="text">
-                   <string>New</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="0">
-                 <widget class="QLabel" name="repositoryLabel">
-                  <property name="text">
-                   <string>Repository</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item row="4" column="0">
-                 <widget class="QPushButton" name="importRepoInChrootButton">
-                  <property name="toolTip">
-                   <string>Make a package repository accessible from the project filesystem (using zypper).
- Import repository from another project.</string>
-                  </property>
-                  <property name="text">
-                   <string>Import</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="5" column="2">
-                 <widget class="QPushButton" name="deleteChrootButton">
-                  <property name="toolTip">
-                   <string>Delete the project filesystem.</string>
-                  </property>
-                  <property name="text">
-                   <string>Delete</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="2">
-                 <widget class="QLabel" name="ChrootLabel">
-                  <property name="text">
-                   <string>Project
-filesystem</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item row="4" column="2">
-                 <widget class="QPushButton" name="pushButton">
-                  <property name="enabled">
-                   <bool>false</bool>
-                  </property>
-                  <property name="toolTip">
-                   <string>Import a filesystem into the project. (not yet implemented)</string>
-                  </property>
-                  <property name="text">
-                   <string>Import</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="7" column="2">
-                 <widget class="QPushButton" name="pushButton_2">
-                  <property name="enabled">
-                   <bool>false</bool>
-                  </property>
-                  <property name="toolTip">
-                   <string>Modify the path of the project filesystem. (not yet implemented)</string>
-                  </property>
-                  <property name="text">
-                   <string>Modify</string>
-                  </property>
-                 </widget>
-                </item>
                 <item row="5" column="4">
                  <spacer name="horizontalSpacer_4">
                   <property name="orientation">
@@ -1095,18 +986,83 @@ filesystem</string>
                   </property>
                  </spacer>
                 </item>
-                <item row="5" column="3">
-                 <widget class="QPushButton" name="rpmInstallButton">
+                <item row="0" column="0" colspan="3">
+                 <widget class="QPushButton" name="openChrootButton">
                   <property name="toolTip">
-                   <string>Execute to the %install section of selected package(s)
- in an alternative rpmbuild directory.</string>
+                   <string>Open a terminal in the project filesystem (using chroot),
+in the source directory of the current package if it is installed.
+It may open in background on some desktop environments.</string>
                   </property>
                   <property name="text">
-                   <string>%install</string>
+                   <string>Open terminal</string>
                   </property>
                  </widget>
                 </item>
-                <item row="3" column="3">
+                <item row="0" column="3" colspan="2">
+                 <widget class="QCheckBox" name="checkUserRootForChroot">
+                  <property name="text">
+                   <string>Use root id</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="0">
+                 <widget class="QLabel" name="ChrootLabel">
+                  <property name="text">
+                   <string>Project
+filesystem</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="0">
+                 <widget class="QPushButton" name="newChrootButton">
+                  <property name="toolTip">
+                   <string>Create the filesystem of the project.</string>
+                  </property>
+                  <property name="text">
+                   <string>New</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="0">
+                 <widget class="QPushButton" name="pushButton">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="toolTip">
+                   <string>Import a filesystem into the project. (not yet implemented)</string>
+                  </property>
+                  <property name="text">
+                   <string>Import</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="0">
+                 <widget class="QPushButton" name="deleteChrootButton">
+                  <property name="toolTip">
+                   <string>Delete the project filesystem.</string>
+                  </property>
+                  <property name="text">
+                   <string>Delete</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="7" column="0">
+                 <widget class="QPushButton" name="pushButton_2">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="toolTip">
+                   <string>Modify the path of the project filesystem. (not yet implemented)</string>
+                  </property>
+                  <property name="text">
+                   <string>Modify</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="2">
                  <widget class="QPushButton" name="rpmPrepButton">
                   <property name="enabled">
                    <bool>false</bool>
@@ -1127,7 +1083,17 @@ filesystem</string>
                   </property>
                  </widget>
                 </item>
-                <item row="4" column="3">
+                <item row="2" column="2">
+                 <widget class="QLabel" name="label_2">
+                  <property name="text">
+                   <string>Spec file</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="2">
                  <widget class="QPushButton" name="rpmBuildButton">
                   <property name="toolTip">
                    <string>Execute to the %build section of selected package(s)
@@ -1138,7 +1104,18 @@ filesystem</string>
                   </property>
                  </widget>
                 </item>
-                <item row="7" column="3">
+                <item row="5" column="2">
+                 <widget class="QPushButton" name="rpmInstallButton">
+                  <property name="toolTip">
+                   <string>Execute to the %install section of selected package(s)
+ in an alternative rpmbuild directory.</string>
+                  </property>
+                  <property name="text">
+                   <string>%install</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="7" column="2">
                  <widget class="QPushButton" name="rpmBuildRpmButton">
                   <property name="toolTip">
                    <string>Build the source and binary RPMs of selected package(s)
@@ -1146,35 +1123,6 @@ filesystem</string>
                   </property>
                   <property name="text">
                    <string>%files</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="3">
-                 <widget class="QLabel" name="label_2">
-                  <property name="text">
-                   <string>Spec file</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="0" colspan="3">
-                 <widget class="QPushButton" name="openChrootButton">
-                  <property name="toolTip">
-                   <string>Open a terminal in the project filesystem (using chroot),
-in the source directory of the current package if it is installed.
-It may open in background on some desktop environments.</string>
-                  </property>
-                  <property name="text">
-                   <string>Open terminal</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="3" colspan="2">
-                 <widget class="QCheckBox" name="checkUserRootForChroot">
-                  <property name="text">
-                   <string>Use root id</string>
                   </property>
                  </widget>
                 </item>

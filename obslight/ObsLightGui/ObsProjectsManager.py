@@ -66,10 +66,6 @@ class ObsProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
         mw.newChrootButton.clicked.connect(self.on_newChrootButton_clicked)
         mw.openChrootButton.clicked.connect(self.on_openChrootButton_clicked)
         mw.deleteChrootButton.clicked.connect(self.on_deleteChrootButton_clicked)
-        mw.addRepoInChrootButton.clicked.connect(self.on_addRepoInChrootButton_clicked)
-        mw.removeRepoFromChrootButton.clicked.connect(self.on_deleteRepoButton_clicked)
-        mw.modifyRepoInChrootButton.clicked.connect(self.on_modifyRepoButton_clicked)
-        mw.importRepoInChrootButton.clicked.connect(self.on_importRepoInChrootButton_clicked)
 
     @popupOnException
     def on_modifyObsProjectButton_clicked(self):
@@ -196,30 +192,6 @@ class ObsProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
             runnable.caughtException.connect(self.gui.popupErrorCallback)
             runnable.runOnGlobalInstance()
 
-    @popupOnException
-    def on_addRepoInChrootButton_clicked(self):
-        projectName = self.currentProject
-        self.__repoConfigManager = RepoConfigManager(self.gui, projectName)
-        self.__repoConfigManager.importFromUrl()
-
-    @popupOnException
-    def on_deleteRepoButton_clicked(self):
-        projectName = self.currentProject
-        self.__repoConfigManager = RepoConfigManager(self.gui, projectName)
-        self.__repoConfigManager.deleteRepo()
-
-    @popupOnException
-    def on_modifyRepoButton_clicked(self):
-        projectName = self.currentProject
-        self.__repoConfigManager = RepoConfigManager(self.gui, projectName)
-        self.__repoConfigManager.modifyRepo()
-
-    @popupOnException
-    def on_importRepoInChrootButton_clicked(self):
-        projectName = self.currentProject
-        self.__repoConfigManager = RepoConfigManager(self.gui, projectName)
-        self.__repoConfigManager.importFromProject()
-
     def on_projectSelected(self, _project):
         self.refreshProject()
 
@@ -281,10 +253,3 @@ class ObsProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
                 self.mainWindow.newChrootButton.setEnabled(True)
                 self.mainWindow.openChrootButton.setEnabled(False)
                 self.mainWindow.chrootPathLineEdit.setText("")
-
-            self.mainWindow.addRepoInChrootButton.setEnabled(isChrootInit)
-            self.mainWindow.importRepoInChrootButton.setEnabled(isChrootInit)
-            self.mainWindow.removeRepoFromChrootButton.setEnabled(isChrootInit)
-            self.mainWindow.modifyRepoInChrootButton.setEnabled(isChrootInit)
-
-            self.mainWindow.deleteChrootButton.setEnabled(isChrootInit)
