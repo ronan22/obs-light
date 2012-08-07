@@ -16,6 +16,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 import sys
+import time
 import traceback
 import urllib2
 import urlparse
@@ -57,7 +58,7 @@ PACKAGE_FILE_TEMPLATE = """
   <td align="left"><a href="%(fileUrl)s">%(name)s</a></td>
   <td align="right">%(size)s</td>
   <td align="right">%(md5)s</td>
-  <td align="right">%(mtime)s</td>
+  <td align="right">%(readableTime)s</td>
  </tr>
 """
 PROJECT_LIST_HEADER = """
@@ -259,6 +260,8 @@ class FakeObsWebUiRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         for fileDict in files:
             fileUrl = "%s/source/%s/%s/%s" % (self.fakeobsUrl, project, package, fileDict["name"])
             fileDict["fileUrl"] = fileUrl
+            readableTime = time.ctime(float(fileDict["mtime"]))
+            fileDict["readableTime"] = readableTime
             content += PACKAGE_FILE_TEMPLATE % fileDict
         content += PACKAGE_FILES_FOOTER
         return content, 200
