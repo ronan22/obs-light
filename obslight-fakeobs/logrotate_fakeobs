@@ -17,3 +17,13 @@
   notifempty
   missingok
 }
+
+/var/log/fakeobs-webui.log {
+  compress
+  copytruncate
+  maxage 365
+  rotate 4
+  size 4M
+  notifempty
+  missingok
+}
