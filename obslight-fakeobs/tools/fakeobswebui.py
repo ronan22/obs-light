@@ -25,6 +25,8 @@ from xml.etree import ElementTree
 import SocketServer
 import BaseHTTPServer
 
+FAKEOBS_URL = "http://localhost:8001/public"
+
 GET = "GET"
 
 BINARY_CONTENTTYPE = "application/octet-stream"
@@ -32,7 +34,8 @@ HTML_CONTENTTYPE = "text/html"
 PLAINTEXT_CONTENTTYPE = "text/plain"
 
 FIRST_PAGE = """
-<a href="/project/list_public">Project list<a>\n
+<br/>
+<h2><a href="/project/list_public">Project list<a></h2>
 """
 GLOBAL_HEADER = """
 <html>
@@ -40,6 +43,7 @@ GLOBAL_HEADER = """
   <title>OBS Light's Fake OBS Web Interface</title>
  </head>
  <body>
+ <h1><img alt="obslight-logo" src="/theme/fakeobs.png" />OBS Light Fake OBS Web UI</h1>
 """
 GLOBAL_FOOTER = """
  </body>
@@ -145,7 +149,7 @@ def getEntriesAsDicts(xmlContent):
 
 class FakeObsWebUiRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
-    fakeobsUrl = "http://localhost:8001/public"
+    fakeobsUrl = ""
 
     def do_GET(self):
         try:
@@ -163,18 +167,20 @@ class FakeObsWebUiRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     def get_content(self, action):
         pathToMethod = {"project": self.handleProjectRequest,
                         "package": self.handlePackagesRequest,
+                        "theme": self.handleThemeRequest,
                         "favicon.ico": self.handleFaviconRequest}
 
         parsedPath = urlparse.urlparse(self.path)
         if parsedPath[2] == "/":
-            return self.getDefaultPage()
-        # path starts with '/' so first splitted element is always empty
-        pathParts = parsedPath[2].split('/')[1:]
-        queryDict = queryToDict(parsedPath[4])
-        try:
-            content, contentType, code = pathToMethod[pathParts[0]](pathParts[1:], queryDict)
-        except KeyError as ke:
-            return self.unknownRequest(pathParts[0])
+            content, contentType, code = self.getDefaultPage()
+        else:
+            # path starts with '/' so first splitted element is always empty
+            pathParts = parsedPath[2].split('/')[1:]
+            queryDict = queryToDict(parsedPath[4])
+            try:
+                content, contentType, code = pathToMethod[pathParts[0]](pathParts[1:], queryDict)
+            except KeyError as ke:
+                return self.unknownRequest(pathParts[0])
         if contentType == HTML_CONTENTTYPE:
             return GLOBAL_HEADER + content + GLOBAL_FOOTER, contentType, code
         else:
@@ -203,7 +209,10 @@ class FakeObsWebUiRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         return content, BINARY_CONTENTTYPE, 200
 
     def handleFaviconRequest(self, *args):
-        return self.sendFile("config/favicon.ico")
+        return self.sendFile("theme/favicon.ico")
+
+    def handleThemeRequest(self, pathParts, queryDict):
+        return self.sendFile("theme/%s" % "/".join(pathParts))
 
     def handleProjectRequest(self, pathParts, queryDict):
         # {"request": (function_to_call, [query_parameters], [other_parameters])}
@@ -238,7 +247,7 @@ class FakeObsWebUiRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
     def getPrettyProjectList(self):
         """call /source, parse the result, format to HTML code"""
-        url = "%s/source" % (self.fakeobsUrl)
+        url = "%s/source" % (FAKEOBS_URL)
         xmlRes = urllib2.urlopen(url).read()
         projectList = getEntryNameList(xmlRes)
         formattedList = PROJECT_LIST_HEADER
@@ -253,7 +262,7 @@ class FakeObsWebUiRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
     def getPrettyPackageList(self, project):
         """call /source/<project>, parse the result, format to HTML code"""
-        url = "%s/source/%s" % (self.fakeobsUrl, project)
+        url = "%s/source/%s" % (FAKEOBS_URL, project)
         xmlRes = urllib2.urlopen(url).read()
         packageList = getEntryNameList(xmlRes)
         formattedList = PACKAGE_LIST_HEADER % {"project": project}
@@ -267,7 +276,7 @@ class FakeObsWebUiRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     def getProjectConfigOrMeta(self, project, what="config"):
         readableWhat = {"config": "project configuration",
                         "meta": "project meta informations"}
-        url = "%s/source/%s/_%s" % (self.fakeobsUrl, project, what)
+        url = "%s/source/%s/_%s" % (FAKEOBS_URL, project, what)
         fileContent = urllib2.urlopen(url).read()
         fileContent = fileContent.replace("<", "&lt").replace(">", "&gt")
         title = "%s %s" % (project, readableWhat[what])
@@ -277,12 +286,12 @@ class FakeObsWebUiRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
     def getPrettyFilesList(self, project, package):
         """call /source/<project>/<package>, parse the result, format to HTML code"""
-        url = "%s/source/%s/%s" % (self.fakeobsUrl, project, package)
+        url = "%s/source/%s/%s" % (FAKEOBS_URL, project, package)
         xmlRes = urllib2.urlopen(url).read()
         files = getEntriesAsDicts(xmlRes)
         content = PACKAGE_FILES_HEADER % {"project": project, "package": package}
         for fileDict in files:
-            fileUrl = "%s/source/%s/%s/%s" % (self.fakeobsUrl, project, package, fileDict["name"])
+            fileUrl = "%s/source/%s/%s/%s" % (FAKEOBS_URL, project, package, fileDict["name"])
             fileDict["fileUrl"] = fileUrl
             readableTime = time.ctime(float(fileDict["mtime"]))
             fileDict["readableTime"] = readableTime
@@ -299,6 +308,8 @@ if __name__ == '__main__':
     else:
         PORT = 8000
         print "No port specified, using %d" % PORT
+    if len(sys.argv) > 2:
+        FAKEOBS_URL = sys.argv[2]
 
     httpd = XFSPWebServer(("0.0.0.0", PORT), FakeObsWebUiRequestHandler)
     httpd.serve_forever()

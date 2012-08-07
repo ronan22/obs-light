@@ -74,6 +74,7 @@ mkdir -p %{buildroot}%{_bindir}
 mkdir -p %{buildroot}%{_docdir}/%{name}
 cp -rf tools %{buildroot}/srv/fakeobs/tools
 cp -rf config %{buildroot}/srv/fakeobs/config
+cp -rf theme %{buildroot}/srv/fakeobs/theme
 cp -f obslight-fakeobs %{buildroot}%{_bindir}
 cp -f init_fakeobs %{buildroot}%{_sysconfdir}/init.d/fakeobs
 cp -f init_fakeobswebui %{buildroot}%{_sysconfdir}/init.d/fakeobswebui
@@ -184,8 +185,10 @@ fi
 %dir /srv/fakeobs/releases
 %dir /srv/fakeobs/tools
 %dir /srv/fakeobs/config
+%dir /srv/fakeobs/theme
 /srv/fakeobs/tools/*
 /srv/fakeobs/config/*
+/srv/fakeobs/theme/*
 %config %{_sysconfdir}/init.d/fakeobs
 %config %{_sysconfdir}/init.d/fakeobswebui
 %config %{_sysconfdir}/logrotate.d/fakeobs

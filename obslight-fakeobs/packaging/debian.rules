@@ -58,6 +58,7 @@ install: build
 	mkdir -p /usr/src/packages/BUILD/debian/obslight-fakeobs/usr/share/doc/packages/obslight-fakeobs
 	cp -rf tools /usr/src/packages/BUILD/debian/obslight-fakeobs/srv/fakeobs/tools
 	cp -rf config /usr/src/packages/BUILD/debian/obslight-fakeobs/srv/fakeobs/config
+	cp -rf theme /usr/src/packages/BUILD/debian/obslight-fakeobs/srv/fakeobs/theme
 	cp -f obslight-fakeobs /usr/src/packages/BUILD/debian/obslight-fakeobs/usr/bin
 	cp -f upstart_fakeobs /usr/src/packages/BUILD/debian/obslight-fakeobs/etc/init/fakeobs.conf
 	cp -f upstart_fakeobswebui /usr/src/packages/BUILD/debian/obslight-fakeobs/etc/init/fakeobswebui.conf

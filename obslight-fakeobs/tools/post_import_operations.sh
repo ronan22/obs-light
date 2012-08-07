@@ -53,7 +53,7 @@ DISTRUBUTIONSPATH="/srv/www/obs/api/files/distributions.xml"
 echo_green "Updating OBS' 'distributions.xml' file..."
 if [ -f "$DISTRUBUTIONSPATH" ]
 then
-  cp -f config/fakeobs.png /srv/www/obs/webui/public/images/distributions/
+  cp -f theme/fakeobs.png /srv/www/obs/webui/public/images/distributions/
   # here we assume there is only one target
   TARGET=`/bin/ls obs-repos/$PROJECT:latest/`
   tools/addfakeobsdistrib.py "$DISTRUBUTIONSPATH" "$PROJECT" "$TARGET"
