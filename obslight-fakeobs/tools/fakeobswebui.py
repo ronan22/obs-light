@@ -15,6 +15,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
+import os.path
 import sys
 import time
 import traceback
@@ -25,6 +26,10 @@ import SocketServer
 import BaseHTTPServer
 
 GET = "GET"
+
+BINARY_CONTENTTYPE = "application/octet-stream"
+HTML_CONTENTTYPE = "text/html"
+PLAINTEXT_CONTENTTYPE = "text/plain"
 
 FIRST_PAGE = """
 <a href="/project/list_public">Project list<a>\n
@@ -137,14 +142,16 @@ def getEntriesAsDicts(xmlContent):
             dictList.append(entry)
     return dictList
 
+
 class FakeObsWebUiRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
     fakeobsUrl = "http://localhost:8001/public"
 
     def do_GET(self):
         try:
-            content, code = self.get_content(GET)
+            content, contentType, code = self.get_content(GET)
             self.send_response(code)
+            self.send_header("Content-type", contentType)
             self.end_headers()
             self.wfile.write(content)
         except:
@@ -155,7 +162,8 @@ class FakeObsWebUiRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
     def get_content(self, action):
         pathToMethod = {"project": self.handleProjectRequest,
-                        "package": self.handlePackagesRequest}
+                        "package": self.handlePackagesRequest,
+                        "favicon.ico": self.handleFaviconRequest}
 
         parsedPath = urlparse.urlparse(self.path)
         if parsedPath[2] == "/":
@@ -164,21 +172,38 @@ class FakeObsWebUiRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         pathParts = parsedPath[2].split('/')[1:]
         queryDict = queryToDict(parsedPath[4])
         try:
-            content, code = pathToMethod[pathParts[0]](pathParts[1:], queryDict)
+            content, contentType, code = pathToMethod[pathParts[0]](pathParts[1:], queryDict)
         except KeyError as ke:
             return self.unknownRequest(pathParts[0])
-        return GLOBAL_HEADER + content + GLOBAL_FOOTER, code
+        if contentType == HTML_CONTENTTYPE:
+            return GLOBAL_HEADER + content + GLOBAL_FOOTER, contentType, code
+        else:
+            return content, contentType, code
 
     def getDefaultPage(self, *args, **kwargs):
-        return FIRST_PAGE, 200
+        return FIRST_PAGE, HTML_CONTENTTYPE, 200
 
     def unknownRequest(self, request):
         message = "Unknown request: %s" % request
-        return message, 400
+        return message, PLAINTEXT_CONTENTTYPE, 400
 
     def missingParameters(self, params):
         message = "Missing parameters: %s" % ", ".join(params)
-        return message, 400
+        return message, PLAINTEXT_CONTENTTYPE, 400
+
+    def fileNotFound(self, path):
+        message = "File not found: %s" % path
+        return message, PLAINTEXT_CONTENTTYPE, 404
+
+    def sendFile(self, path):
+        if not os.path.exists(path):
+            return self.fileNotFound(path)
+        with open(path, "r") as f:
+            content = f.read()
+        return content, BINARY_CONTENTTYPE, 200
+
+    def handleFaviconRequest(self, *args):
+        return self.sendFile("config/favicon.ico")
 
     def handleProjectRequest(self, pathParts, queryDict):
         # {"request": (function_to_call, [query_parameters], [other_parameters])}
@@ -198,8 +223,8 @@ class FakeObsWebUiRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             except KeyError as ke:
                 return self.missingParameters([ke.args[0]])
             myArgs.extend(funcTuple[2])
-            content, code = funcTuple[0](*myArgs)
-            return content, code
+            content, contentType, code = funcTuple[0](*myArgs)
+            return content, contentType, code
 
     def handlePackagesRequest(self, pathParts, queryDict):
         if pathParts[0] == "files":
@@ -210,7 +235,6 @@ class FakeObsWebUiRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 return self.missingParameters([ke.args[0]])
         else:
             return self.unknownRequest("/package/" + pathParts[0])
-        return self.getDefaultPage()
 
     def getPrettyProjectList(self):
         """call /source, parse the result, format to HTML code"""
@@ -225,7 +249,7 @@ class FakeObsWebUiRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                            "metaUrl": "/project/meta?project=%s" % project}
             formattedList += PROJECT_ENTRY_TEMPLATE % projectDict
         formattedList += PROJECT_LIST_FOOTER
-        return formattedList, 200
+        return formattedList, HTML_CONTENTTYPE, 200
 
     def getPrettyPackageList(self, project):
         """call /source/<project>, parse the result, format to HTML code"""
@@ -238,7 +262,7 @@ class FakeObsWebUiRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             formattedList += PACKAGE_ENTRY_TEMPLATE % {"packageFilesUrl": packageFilesUrl,
                                                        "package": package}
         formattedList += PACKAGE_LIST_FOOTER
-        return formattedList, 200
+        return formattedList, HTML_CONTENTTYPE, 200
 
     def getProjectConfigOrMeta(self, project, what="config"):
         readableWhat = {"config": "project configuration",
@@ -249,7 +273,7 @@ class FakeObsWebUiRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         title = "%s %s" % (project, readableWhat[what])
         content = TEXT_FILE_TEMPLATE % {"title": title,
                                         "content": fileContent}
-        return content, 200
+        return content, HTML_CONTENTTYPE, 200
 
     def getPrettyFilesList(self, project, package):
         """call /source/<project>/<package>, parse the result, format to HTML code"""
@@ -264,7 +288,7 @@ class FakeObsWebUiRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             fileDict["readableTime"] = readableTime
             content += PACKAGE_FILE_TEMPLATE % fileDict
         content += PACKAGE_FILES_FOOTER
-        return content, 200
+        return content, HTML_CONTENTTYPE, 200
 
 class XFSPWebServer(SocketServer.ThreadingMixIn, BaseHTTPServer.HTTPServer):
     pass
