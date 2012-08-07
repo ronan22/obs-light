@@ -54,7 +54,7 @@ PACKAGE_FILES_FOOTER = """
 """
 PACKAGE_FILE_TEMPLATE = """
  <tr>
-  <td align="left">%(name)s</td>
+  <td align="left"><a href="%(fileUrl)s">%(name)s</a></td>
   <td align="right">%(size)s</td>
   <td align="right">%(md5)s</td>
   <td align="right">%(mtime)s</td>
@@ -254,10 +254,12 @@ class FakeObsWebUiRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         """call /source/<project>/<package>, parse the result, format to HTML code"""
         url = "%s/source/%s/%s" % (self.fakeobsUrl, project, package)
         xmlRes = urllib2.urlopen(url).read()
-        packages = getEntriesAsDicts(xmlRes)
+        files = getEntriesAsDicts(xmlRes)
         content = PACKAGE_FILES_HEADER % {"project": project, "package": package}
-        for package in packages:
-            content += PACKAGE_FILE_TEMPLATE % package
+        for fileDict in files:
+            fileUrl = "%s/source/%s/%s/%s" % (self.fakeobsUrl, project, package, fileDict["name"])
+            fileDict["fileUrl"] = fileUrl
+            content += PACKAGE_FILE_TEMPLATE % fileDict
         content += PACKAGE_FILES_FOOTER
         return content, 200
 
