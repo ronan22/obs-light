@@ -682,8 +682,9 @@ class ObsLightChRoot(ObsLightChRootCore):
         if len(listDir) == 0:
             package.setPackageParameter("patchMode", False)
             package.setChRootStatus(PK_CONST.NO_BUILD_DIRECTORY)
-            raise ObsLightErr.ObsLightChRootError("No sub-directory in '" + pathBuild + "'." +
-                                                  " There should be exactly one.")
+            return None
+#            raise ObsLightErr.ObsLightChRootError("No sub-directory in '" + pathBuild + "'." +
+#                                                  " There should be exactly one.")
         elif len(listDir) == 1:
             prepDirname = listDir[0]
             resultPath = package.getChrootRpmBuildDirectory() + "/BUILD/" + prepDirname
@@ -703,7 +704,8 @@ class ObsLightChRoot(ObsLightChRootCore):
         else:
             package.setPackageParameter("patchMode", False)
             package.setChRootStatus(PK_CONST.MANY_BUILD_DIRECTORIES)
-            raise ObsLightErr.ObsLightChRootError("Too many sub-directories in '%s'" % pathBuild)
+            return None
+#            raise ObsLightErr.ObsLightChRootError("Too many sub-directories in '%s'" % pathBuild)
 
     def addPackageSpecInChRoot(self, package,
                                      specFile,
@@ -850,6 +852,8 @@ exit $RETURN_VALUE
             raise ObsLightErr.ObsLightChRootError(msg)
 
         packageDirectory = self.__findPackageDirectory(package=package)
+        if packageDirectory is None:
+            return 0
         message = "Package directory used by '%s': %s" % (package.getName(), str(packageDirectory))
         ObsLightPrintManager.getLogger().debug(message)
         package.setDirectoryBuild(packageDirectory)
