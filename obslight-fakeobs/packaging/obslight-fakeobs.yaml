@@ -12,6 +12,7 @@ Sources:
     - "%{name}-%{version}.tar.gz"
 Requires:
     - apache2
+    - bash
     - git
     - logrotate
     - osc

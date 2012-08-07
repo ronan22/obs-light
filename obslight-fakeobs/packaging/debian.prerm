@@ -1,5 +1,7 @@
 #!/bin/sh
 
 service fakeobs stop
+service fakeobswebui stop
 a2dissite fakeobs-repos.conf
+service apache2 reload
 rm -f /srv/fakeobs/tools/*.{pyc,pyo}

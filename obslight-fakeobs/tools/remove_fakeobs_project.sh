@@ -1,6 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 
-source tools/common.sh
+. tools/common.sh
 
 PROJECT=$1
 

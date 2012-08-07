@@ -23,6 +23,7 @@ Requires:   apache2
 Requires(post): sysconfig
 %endif
 
+Requires:   bash
 Requires:   git
 Requires:   logrotate
 Requires:   osc
@@ -75,13 +76,15 @@ cp -rf tools %{buildroot}/srv/fakeobs/tools
 cp -rf config %{buildroot}/srv/fakeobs/config
 cp -f obslight-fakeobs %{buildroot}%{_bindir}
 cp -f init_fakeobs %{buildroot}%{_sysconfdir}/init.d/fakeobs
+cp -f init_fakeobswebui %{buildroot}%{_sysconfdir}/init.d/fakeobswebui
 cp -f logrotate_fakeobs %{buildroot}%{_sysconfdir}/logrotate.d/fakeobs
 cp -f README %{buildroot}%{_docdir}/%{name}
 echo "%{name}-%{version}-%{release}" > %{buildroot}%{_docdir}/%{name}/VERSION
 
 ln -sf /srv/fakeobs/tools/fakeobs.py %{buildroot}%{_sbindir}/fakeobs
 ln -sf %{_sysconfdir}/init.d/fakeobs %{buildroot}%{_sbindir}/rcfakeobs
-
+ln -sf /srv/fakeobs/tools/fakeobswebui.py %{buildroot}%{_sbindir}/fakeobswebui
+ln -sf %{_sysconfdir}/init.d/fakeobswebui %{buildroot}%{_sbindir}/rcfakeobswebui
 # << install pre
 
 # >> install post
@@ -93,6 +96,10 @@ ln -sf %{_sysconfdir}/init.d/fakeobs %{buildroot}%{_sbindir}/rcfakeobs
 %stop_on_removal fakeobs
 if [ $1 -eq 0 ] ; then
 /sbin/chkconfig --del fakeobs
+fi
+%stop_on_removal fakeobswebui
+if [ $1 -eq 0 ] ; then
+/sbin/chkconfig --del fakeobswebui
 fi
 # << preun
 
@@ -143,11 +150,13 @@ fi
 fi
 #/sbin/chkconfig --add fakeobs
 %{fillup_and_insserv -f -y fakeobs}
+%{fillup_and_insserv -f -y fakeobswebui}
 # << post
 
 %postun
 # >> postun
 %restart_on_update fakeobs
+%restart_on_update fakeobswebui
 %insserv_cleanup
 
 OVERVIEW="/srv/www/obs/overview/index.html"
@@ -178,9 +187,12 @@ fi
 /srv/fakeobs/tools/*
 /srv/fakeobs/config/*
 %config %{_sysconfdir}/init.d/fakeobs
+%config %{_sysconfdir}/init.d/fakeobswebui
 %config %{_sysconfdir}/logrotate.d/fakeobs
 %{_sbindir}/fakeobs
+%{_sbindir}/fakeobswebui
 %{_sbindir}/rcfakeobs
+%{_sbindir}/rcfakeobswebui
 %{_bindir}/obslight-fakeobs
 %{_docdir}/%{name}
 # << files

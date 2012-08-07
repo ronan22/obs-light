@@ -1,9 +1,9 @@
-#!/bin/sh
+#!/bin/bash
 
 # Example:
 #   tools/import_fakeobs_project.sh Tizen_1.0_Base-1.0.tar.gz "Tizen:1.0:Base"
 
-source tools/common.sh
+. tools/common.sh
 
 # name of the archive file
 ARCHIVE=$1

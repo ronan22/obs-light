@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 LOGFILE="/var/log/fakeobs-cli.log"
 

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ORIG=$PWD
 API=$2
 TOOLS=$PWD/tools
@@ -9,7 +9,7 @@ TARGET=$5
 ARCHS="$6"
 
 SANITIZEDNAME=`echo $PROJECT | sed y,:,_,`
-source tools/common.sh
+. tools/common.sh
 
 if [ x$1 = x -o x$2 = x -o x$3 = x ]; then
 	echo Syntax: tools/createrelease.sh RELEASE OBSAPI RSYNCURL

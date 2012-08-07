@@ -1,3 +1,3 @@
-#!/bin/sh
+#!/bin/bash
 cd $1
 exec cpio -o -H newc -C 8192

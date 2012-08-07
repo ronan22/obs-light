@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 touch lastevents
 LAST=`tail -n 1 lastevents | cut -d "|" -f 1`
 if [ x$LAST = x ]; then

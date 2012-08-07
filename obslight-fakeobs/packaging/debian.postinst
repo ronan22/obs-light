@@ -19,7 +19,9 @@ fi
 ln -sf /srv/fakeobs/config/fakeobs-repos.apache2conf /etc/apache2/sites-available/fakeobs-repos.conf
 a2ensite fakeobs-repos.conf
 chkconfig --add apache2
-service apache2 start
+# If running, reload, else start
+service apache2 status && service apache2 reload || service apache2 start
 
 # Using upstart, no need to chkconfig
 service fakeobs start
+service fakeobswebui start

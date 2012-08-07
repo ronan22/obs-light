@@ -8,6 +8,7 @@ Package: obslight-fakeobs
 Architecture: any
 Depends: ${shlibs:Depends},
  apache2,
+ bash,
  git,
  logrotate,
  osc,
