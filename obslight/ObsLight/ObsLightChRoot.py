@@ -880,7 +880,7 @@ exit $RETURN_VALUE
                     raise ObsLightErr.ObsLightChRootError(msg)
 
                 self._ObsLightGitManager.initGitWatch(packageDirectory, package)
-
+                package.setFirstCommit(tag=self._ObsLightGitManager.initialTag)
                 if package.specFileHaveAnEmptyBuild():
                     package.setChRootStatus(PK_CONST.NO_BUILD_SECTION)
                     return 0
@@ -920,7 +920,7 @@ exit $RETURN_VALUE
 
         if res == 0:
             self._ObsLightGitManager.ignoreGitWatch(package=package, path=packageDirectory)
-            package.setFirstCommit(tag=self._ObsLightGitManager.initialTag)
+
             self.allowPackageAccessToObslightGroup(package)
             res = self._ObsLightGitManager.resetToPrep(package=package, path=packageDirectory)
 
