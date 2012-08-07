@@ -156,6 +156,7 @@ fi
 %postun
 # >> postun
 %restart_on_update fakeobs
+%restart_on_update fakeobswebui
 %insserv_cleanup
 
 OVERVIEW="/srv/www/obs/overview/index.html"
