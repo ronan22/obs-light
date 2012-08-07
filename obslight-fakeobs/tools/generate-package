@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #  <package commit="0f6b2a134cec0773d89faa509abfd16d05686c96"
 # followbranch="master" git="packages-git/mer-core/xz" name="xz" vrev="1"/>
 VER=`git --git-dir=$1 log | head -n 1 | cut -d " " -f 2`

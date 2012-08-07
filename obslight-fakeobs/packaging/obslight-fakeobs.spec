@@ -23,6 +23,7 @@ Requires:   apache2
 Requires(post): sysconfig
 %endif
 
+Requires:   bash
 Requires:   git
 Requires:   logrotate
 Requires:   osc

@@ -1,7 +1,7 @@
-#!/bin/sh
+#!/bin/bash
 
 PROJECT=$1
-source tools/common.sh
+. tools/common.sh
 
 echo_green "Updating 'latest' links in obs-repos..."
 cd obs-repos

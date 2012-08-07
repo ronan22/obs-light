@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Example:
 #   tools/export_fakeobs_project.sh "Tizen:1.0:Base" "1.0"
@@ -8,7 +8,7 @@
 PROJECT=$1
 RELEASE=$2
 
-source tools/common.sh
+. tools/common.sh
 
 CONFDIR="obs-projects/`echo $PROJECT | sed y,:,/,`"
 FULLDIR="obs-repos/$PROJECT:$RELEASE"

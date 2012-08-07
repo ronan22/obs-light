@@ -1,7 +1,7 @@
-#!/bin/sh
+#!/bin/bash
 
 FAKEOBSLINKNAME="fakeobs"
-source tools/common.sh
+. tools/common.sh
 
 if [ "$#" -gt "0" ]
 then
