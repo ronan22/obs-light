@@ -109,6 +109,7 @@ if [ $1 -eq 0 ] ; then
 /sbin/chkconfig --del fakeobs
 /sbin/chkconfig --del fakeobswebui
 fi
+%endif
 # << preun
 
 %post
