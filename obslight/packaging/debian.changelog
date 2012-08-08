@@ -1,4 +1,10 @@
 obslight (0.5.3-1) stable; urgency=low
+  * Version 0.5.3
+    - Build again OpenSuse i586 and Fedora (Devel).
+    - Add status "No build section" when package have no script into the %build section.
+    - Added pre-configured servers in Wizard
+    - Accelerates the recovery of the list of projects.
+
   * Version 0.5.2
     - created repository of RPMs built in chroot jail (on port 82)
     - added obsprojectsdiff utility script
@@ -102,4 +108,4 @@ obslight (0.5.3-1) stable; urgency=low
 
   * Initial Release
 
- -- Florent Vennetier (Intel OTC) <florent@fridu.net>  Fri, 20 Jul 2012 09:08:51 +0200
+ -- Ronan Le Martret (Intel OTC) <ronan@fridu.net>  Wed, 08 Aug 2012 10:15:33 +0200
