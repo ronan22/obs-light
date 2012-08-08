@@ -5,10 +5,29 @@
 # License GLPv2
 
 IP=`/sbin/ifconfig  | grep 'inet '| grep -v '127.0.0.1' | cut -d: -f2 | awk '{ print $1}'`
-echo "<p>Because the OBS server appliance have not DNS you must add \"$IP obslightserver\" to /etc/hosts</p>" > /srv/www/obs/overview/index.html
-echo "<p><a href="https://obslightserver">The OBS webui</a> can be used to setup OBS, browse the content and to build packages.</p>" >> /srv/www/obs/overview/index.html
-echo "<p><a href="https://obslightserver:444">The OBS api URL(https://obslightserver:444)</a> can be used in clients like osc and to manage user accounts via a browser.</p>" >> /srv/www/obs/overview/index.html
-echo "<p><a href="http://obslightserver:82">The OBS repositories</a> contain the build results, the repositories can be added to package managers like zypper or apt.</p>" >> /srv/www/obs/overview/index.html
+
+echo "<html>
+<head>
+<title>OBS server</title>
+</head>
+<body bgcolor=e1e6ff>
+<div style=\"text-align: center;\">
+<img style=\"width: 300px; height: 300px;\" alt=\"OBS server (OBS Light project)\" src=\"marin.png\"><br>
+OBS server From OBS Light<br>
+<big><big><big><big><span style=\"font-weight: bold;\"><a href=http://en.opensuse.org/openSUSE:OBS_Light>http://en.opensuse.org/openSUSE:OBS_Light</a></span></big></big></big></big><br>
+<p>Because the OBS server appliance have not DNS you must add \"$IP obslightserver\" to /etc/hosts</p>
+<p style=\"text-align: left;\"><span style=\"text-decoration: underline;\">OBS Server:</span><br></p>
+<p style=\"text-align: left;\">&nbsp;&nbsp;&nbsp;<a href=\"https://obslightserver/\">The OBS webui</a> can be used to setup OBS, browse the content and to build packages.</p>
+<p style=\"text-align: left;\">&nbsp;&nbsp;&nbsp;<a href=\"https://obslightserver:444/\">The OBS api</a> URL(https://obslightserver:444) can be used in clients like osc and to manage user accounts via a browser.</p>
+<p style=\"text-align: left;\">&nbsp;&nbsp;&nbsp; <a href=\"http://obslightserver:82/\">The OBS repositories</a>
+contain the build results, the repositories can be added to package managers like zypper or apt.</p>
+<p style=\"text-align: left;\"><span style=\"text-decoration: underline;\">Fake OBS Server:</span><br></p>
+<p style=\"text-align: left;\">&nbsp;&nbsp;&nbsp; <a href=\"http://obslightserver:8000/\">The fakeobs webui</a> URL(http://obslightserver:8000)</p>
+<p style=\"text-align: left;\">&nbsp;&nbsp;&nbsp; <a href=\"http://obslightserver:8001/\">The fakeobs api</a> URL(http://obslightserver:8001)</p>
+<p style=\"text-align: left;\">&nbsp;&nbsp;&nbsp; <a href=\"http://obslightserver:8002/\">The fakeobs repositories</a> URL(http://obslightserver:8002)</p>
+</body>
+</html>" > /srv/www/obs/overview/index.html
+
 
 # Refrech DOD primary.xml
 obsdodupdate https://localhost:444 MeeGo_DOD:1.2:oss standard i586
