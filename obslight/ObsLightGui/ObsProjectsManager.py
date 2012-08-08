@@ -253,3 +253,5 @@ class ObsProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
                 self.mainWindow.newChrootButton.setEnabled(True)
                 self.mainWindow.openChrootButton.setEnabled(False)
                 self.mainWindow.chrootPathLineEdit.setText("")
+
+            self.mainWindow.deleteChrootButton.setEnabled(isChrootInit)

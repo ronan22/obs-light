@@ -71,6 +71,8 @@ class ProgressRunnable2(QObject, QRunnable):
     # Create a single signal, without parameter
     __started = Signal(())
     # Create two signals: one without parameter, the other with one integer parameter
+    # The only documentation I found about this syntax is here:
+    #   http://qt-project.org/wiki/Signals_and_Slots_in_PySide
     __progressed = Signal((), (int,))
     __finished = Signal(())
     __sentMessage = Signal((unicode))
