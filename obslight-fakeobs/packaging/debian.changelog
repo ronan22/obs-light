@@ -1,5 +1,5 @@
-obslight-fakeobs (0.5.0) stable; urgency=low
-  * Version 0.5.
+obslight-fakeobs (0.6.0-1) stable; urgency=low
+  * Version 0.5.0
     - created debian package for obslight-fakeobs
 
  -- Ronan Le Martret (Intel OTC) <ronan@fridu.net>  Fri, 03 Aug 2012 14:57:47 +0200
