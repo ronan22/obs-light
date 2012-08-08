@@ -19,6 +19,10 @@ Source100:  obslight-fakeobs.yaml
 Requires:   httpd
 Requires:   redhat-lsb
 Requires:   GitPython
+BuildRequires: systemd-units
+Requires(post): systemd-units
+Requires(preun): systemd-units
+Requires(postun): systemd-units
 %else
 Requires:   apache2
 Requires:   python-gitpython
@@ -73,6 +77,10 @@ mkdir -p %{buildroot}%{_sysconfdir}/logrotate.d
 mkdir -p %{buildroot}%{_sbindir}
 mkdir -p %{buildroot}%{_bindir}
 mkdir -p %{buildroot}%{_docdir}/%{name}
+%if 0%{?fedora}
+mkdir -p %{buildroot}%{_unitdir}
+cp -f fakeobs.service fakeobswebui.service %{buildroot}%{_unitdir}
+%endif
 cp -rf tools %{buildroot}/srv/fakeobs/tools
 cp -rf config %{buildroot}/srv/fakeobs/config
 cp -rf theme %{buildroot}/srv/fakeobs/theme
@@ -97,10 +105,11 @@ ln -sf %{_sysconfdir}/init.d/fakeobswebui %{buildroot}%{_sbindir}/rcfakeobswebui
 # >> preun
 %if 0%{?fedora}
 if [ $1 -eq 0 ] ; then
-/sbin/service fakeobs stop >/dev/null 2>&1
-/sbin/service fakeobswebui stop >/dev/null 2>&1
-/sbin/chkconfig --del fakeobs
-/sbin/chkconfig --del fakeobswebui
+  # Package removal, not upgrade
+  /bin/systemctl --no-reload disable fakeobs.service > /dev/null 2>&1 || :
+  /bin/systemctl --no-reload disable fakeobswebui.service > /dev/null 2>&1 || :
+  /bin/systemctl stop fakeobs.service > /dev/null 2>&1 || :
+  /bin/systemctl stop fakeobswebui.service > /dev/null 2>&1 || :
 fi
 %else
 %stop_on_removal fakeobs
@@ -159,9 +168,10 @@ fi
 fi
 
 %if 0%{?fedora}
-if [ "$1" -ge "1" ] ; then
-/sbin/service fakeobs restart || :
-/sbin/service fakeobswebui restart || :
+if [ $1 -eq 1 ] ; then
+  # Initial installation
+  /bin/systemctl enable fakeobs.service >/dev/null 2>&1 || :
+  /bin/systemctl enable fakeobswebui.service >/dev/null 2>&1 || :
 fi
 %else
 %{fillup_and_insserv -f -y fakeobs}
@@ -174,9 +184,11 @@ fi
 %postun
 # >> postun
 %if 0%{?fedora}
-if [ $1 -eq 0 ] ; then
-/sbin/chkconfig --del fakeobs
-/sbin/chkconfig --del fakeobswebui
+/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+if [ $1 -ge 1 ] ; then
+  # Package upgrade, not uninstall
+  /bin/systemctl try-restart fakeobs.service >/dev/null 2>&1 || :
+  /bin/systemctl try-restart fakeobswebui.service >/dev/null 2>&1 || :
 fi
 %else
 %insserv_cleanup
@@ -220,6 +232,11 @@ fi
 %{_sbindir}/rcfakeobswebui
 %{_bindir}/obslight-fakeobs
 %{_docdir}/%{name}
+
+%if 0%{?fedora}
+%{_unitdir}/fakeobs.service
+%{_unitdir}/fakeobswebui.service
+%endif
 # << files
 
 

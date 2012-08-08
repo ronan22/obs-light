@@ -1,0 +1,10 @@
+[Unit]
+Description=Fake OBS daemon
+After=multi-user.target
+
+[Service]
+WorkingDirectory=/srv/fakeobs/
+ExecStart=/usr/sbin/fakeobs
+
+[Install]
+WantedBy=multi-user.target
