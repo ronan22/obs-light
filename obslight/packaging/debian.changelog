@@ -1,4 +1,4 @@
-obslight (0.5.2-1) stable; urgency=low
+obslight (0.5.3-1) stable; urgency=low
   * Version 0.5.2
     - created repository of RPMs built in chroot jail (on port 82)
     - added obsprojectsdiff utility script
