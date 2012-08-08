@@ -72,7 +72,6 @@ mkdir -p %{buildroot}/srv/fakeobs/obs-projects
 mkdir -p %{buildroot}/srv/fakeobs/obs-repos
 mkdir -p %{buildroot}/srv/fakeobs/packages-git
 mkdir -p %{buildroot}/srv/fakeobs/releases
-mkdir -p %{buildroot}%{_sysconfdir}/init.d
 mkdir -p %{buildroot}%{_sysconfdir}/logrotate.d
 mkdir -p %{buildroot}%{_sbindir}
 mkdir -p %{buildroot}%{_bindir}
@@ -80,13 +79,15 @@ mkdir -p %{buildroot}%{_docdir}/%{name}
 %if 0%{?fedora}
 mkdir -p %{buildroot}%{_unitdir}
 cp -f fakeobs.service fakeobswebui.service %{buildroot}%{_unitdir}
+%else
+mkdir -p %{buildroot}%{_sysconfdir}/init.d
+cp -f init_fakeobs %{buildroot}%{_sysconfdir}/init.d/fakeobs
+cp -f init_fakeobswebui %{buildroot}%{_sysconfdir}/init.d/fakeobswebui
 %endif
 cp -rf tools %{buildroot}/srv/fakeobs/tools
 cp -rf config %{buildroot}/srv/fakeobs/config
 cp -rf theme %{buildroot}/srv/fakeobs/theme
 cp -f obslight-fakeobs %{buildroot}%{_bindir}
-cp -f init_fakeobs %{buildroot}%{_sysconfdir}/init.d/fakeobs
-cp -f init_fakeobswebui %{buildroot}%{_sysconfdir}/init.d/fakeobswebui
 cp -f logrotate_fakeobs %{buildroot}%{_sysconfdir}/logrotate.d/fakeobs
 cp -f README %{buildroot}%{_docdir}/%{name}
 echo "%{name}-%{version}-%{release}" > %{buildroot}%{_docdir}/%{name}/VERSION
@@ -223,8 +224,13 @@ fi
 /srv/fakeobs/tools/*
 /srv/fakeobs/config/*
 /srv/fakeobs/theme/*
+%if 0%{?fedora}
+%{_unitdir}/fakeobs.service
+%{_unitdir}/fakeobswebui.service
+%else
 %config %{_sysconfdir}/init.d/fakeobs
 %config %{_sysconfdir}/init.d/fakeobswebui
+%endif
 %config %{_sysconfdir}/logrotate.d/fakeobs
 %{_sbindir}/fakeobs
 %{_sbindir}/fakeobswebui
@@ -232,11 +238,6 @@ fi
 %{_sbindir}/rcfakeobswebui
 %{_bindir}/obslight-fakeobs
 %{_docdir}/%{name}
-
-%if 0%{?fedora}
-%{_unitdir}/fakeobs.service
-%{_unitdir}/fakeobswebui.service
-%endif
 # << files
 
 
