@@ -18,8 +18,10 @@ Source100:  obslight-fakeobs.yaml
 %if 0%{?fedora}
 Requires:   httpd
 Requires:   redhat-lsb
+Requires:   GitPython
 %else
 Requires:   apache2
+Requires:   python-gitpython
 Requires(post): sysconfig
 %endif
 
@@ -30,7 +32,6 @@ Requires:   osc
 Requires:   python
 Requires:   python-async
 Requires:   python-gitdb
-Requires:   python-gitpython
 Requires:   python-smmap
 
 Requires(post): /sbin/service
@@ -94,12 +95,18 @@ ln -sf %{_sysconfdir}/init.d/fakeobswebui %{buildroot}%{_sbindir}/rcfakeobswebui
 
 %preun
 # >> preun
-%stop_on_removal fakeobs
+%if 0%{?fedora}
 if [ $1 -eq 0 ] ; then
+/sbin/service fakeobs stop >/dev/null 2>&1
+/sbin/service fakeobswebui stop >/dev/null 2>&1
 /sbin/chkconfig --del fakeobs
+/sbin/chkconfig --del fakeobswebui
 fi
+%else
+%stop_on_removal fakeobs
 %stop_on_removal fakeobswebui
 if [ $1 -eq 0 ] ; then
+/sbin/chkconfig --del fakeobs
 /sbin/chkconfig --del fakeobswebui
 fi
 # << preun
@@ -149,16 +156,30 @@ cat >> $OVERVIEW << EOF
 EOF
 fi
 fi
-#/sbin/chkconfig --add fakeobs
+
+%if 0%{?fedora}
+if [ "$1" -ge "1" ] ; then
+/sbin/service fakeobs restart || :
+/sbin/service fakeobswebui restart || :
+fi
+%else
 %{fillup_and_insserv -f -y fakeobs}
 %{fillup_and_insserv -f -y fakeobswebui}
+%restart_on_update fakeobs
+%restart_on_update fakeobswebui
+%endif
 # << post
 
 %postun
 # >> postun
-%restart_on_update fakeobs
-%restart_on_update fakeobswebui
+%if 0%{?fedora}
+if [ $1 -eq 0 ] ; then
+/sbin/chkconfig --del fakeobs
+/sbin/chkconfig --del fakeobswebui
+fi
+%else
 %insserv_cleanup
+%endif
 
 OVERVIEW="/srv/www/obs/overview/index.html"
 if [ "$1" -eq "0" ]

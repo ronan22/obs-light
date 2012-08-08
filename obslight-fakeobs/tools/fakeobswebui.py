@@ -39,7 +39,6 @@ FIRST_PAGE = """
 This is a web interface allowing you to browse the content
 of your fake OBS server.
 </p>
-<!--<h2><a href="/project/list_public">Project list<a></h2>-->
 """
 GLOBAL_HEADER = """
 <html>
@@ -53,7 +52,7 @@ GLOBAL_HEADER = """
  <table border="1px" cellpadding="4px">
   <tr>
    <th><a href="/">Home</a></th>
-   <th><a href="/project/list_public">Project list<a></th>
+   <th><a href="/project/list_public">Project list</a></th>
   </tr>
  </table>
 <!-- </div> -->
@@ -163,8 +162,6 @@ def getEntriesAsDicts(xmlContent):
 
 
 class FakeObsWebUiRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
-
-    fakeobsUrl = ""
 
     def do_GET(self):
         try:
