@@ -1,0 +1,22 @@
+#navbar table
+{
+	border: 1px solid black;
+	padding: 5px;
+}
+
+#navbar th
+{
+	padding: 2px;
+}
+
+#filetable table
+{
+	border: 2px solid black;
+	padding: 5px;
+}
+
+#filetable th
+{
+	border-bottom: 2px solid gray;
+}
+
