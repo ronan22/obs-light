@@ -1,11 +1,14 @@
 obslight-fakeobs (0.6.0-1) stable; urgency=low
   * Version 0.6.0
-    - Now fakeobs can directly be used with OBS Light.
-    - Fakeobs is avalable on Ubuntu and Fedora.
-    - Add a tiny Web UI to fakeobs.
-    - Added date in archive names.
-
-  * Version 0.5.0
-    - created debian package for obslight-fakeobs
+    - Implemented _buildinfo request to allow building without a real OBS
+    - Packaged for Ubuntu and Fedora
+    - Deactivated SSL checks when creating fakeobs project link
+    - Improved post grab/import/remove operations speed
+    - Added date in archive names
+    - Added check of rsync URL before doing grab
+    - Improved error reporting after a grab
+    - Made grab fix project _meta if grabbing a project with a fakeobs target
+    - Created alternative repositories in /srv/fakeobs/releases/repositories
+    - Added a tiny web UI on port 8000
 
  -- Ronan Le Martret (Intel OTC) <ronan@fridu.net>  Wed, 08 Aug 2012 10:09:54 +0200

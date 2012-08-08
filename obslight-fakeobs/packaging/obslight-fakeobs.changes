@@ -1,10 +1,11 @@
 -------------------------------------------------------------------
-Tue Jul 31 17:54:25 CEST 2012 - florent@fridu.net
+Wed Aug  8 11:12:04 CEST 2012 - florent@fridu.net
 
-- updated version to 0.5
+- updated version to 0.6
 - deactivated SSL checks when creating fakeobs project link
 - improved post grab/import/remove operations speed
   * by optimisation of the generation of packages-git/mappingscache.xml
+- implemented _buildinfo request to allow building without a real OBS
 - added date in archive names
 - added check of rsync URL before doing grab
 - improved error reporting after a grab
@@ -12,3 +13,5 @@ Tue Jul 31 17:54:25 CEST 2012 - florent@fridu.net
 - made grab fix project _meta if grabbing a project with a fakeobs target
 - created alternative repositories in /srv/fakeobs/releases/repositories,
   more compatible with OBS live repositories
+- added web UI on port 8000
+- packaged for Ubuntu and Fedora
