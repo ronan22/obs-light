@@ -1236,36 +1236,33 @@ exit $RPMBUILD_RETURN_CODE
     def installBuildRequires(self, buildInfoCli, target, configPath):
         instPkgSet = set(self.getInstalledPackagesList())
         wantedPkgList = self.__reOrderRpm(buildInfoCli, target, configPath)
-        wantedPkgSet = set()
 
         command = []
         instCount = 0
         eraseCount = 0
+        absPathDict = {}
 
-        # Install missing packages
+        # Build a dict of package -> path of RPM
         for i in wantedPkgList:
             absPath = i.fullfilename
             pkgName = os.path.basename(absPath)
             if pkgName.endswith(".rpm"):
                 pkgName = pkgName[:-4]
-            wantedPkgSet.add(pkgName)
+            absPathDict[pkgName] = absPath
 
-            if not pkgName in instPkgSet:
-                cmd = "rpm --nodeps --ignorearch -i '%s'" % absPath
-                command.append(cmd)
-                instCount += 1
-#            testInstall = "rpm --quiet -q " + pkgName
-#            installCommand = "rpm --nodeps --ignorearch -i '%s'" % absPath
-#
-#            cmd = "if ! %s ; then %s || exit 1; fi" % (testInstall, installCommand)
-#            command.append(cmd)
-
-        unWantedPkgSet = instPkgSet.difference(wantedPkgSet)
+        wantedPkgSet = set(absPathDict.keys())
         # Erase unwanted packages
+        unWantedPkgSet = instPkgSet.difference(wantedPkgSet)
         for p in unWantedPkgSet:
             cmd = "rpm --nodeps -e '%s'" % p
             command.append(cmd)
             eraseCount += 1
+        # Install missing packages
+        missingPkgSet = wantedPkgSet.difference(instPkgSet)
+        for p in missingPkgSet:
+            cmd = "rpm --nodeps --ignorearch -i '%s'" % absPathDict[p]
+            command.append(cmd)
+            instCount += 1
 
         msg = "%d packages to %s"
         self.logger.info(msg % (instCount, "install"))
