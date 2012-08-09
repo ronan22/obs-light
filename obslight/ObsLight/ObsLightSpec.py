@@ -41,7 +41,7 @@ class ObsLightSpec(ObsLightObject):
         self.__file = aFile
         self.__path = os.path.join(self.__packagePath, self.__file)
 
-        self.__premble_section = "premble_section"
+        self.__preamble_section = "preamble_section"
         self.__package = "%package"
         self.__description = "%description"
         self.__prepFlag = "%prep"
@@ -104,7 +104,7 @@ class ObsLightSpec(ObsLightObject):
 
             #init variable
             self.__spectDico = {}
-            currentSection = self.__premble_section
+            currentSection = self.__preamble_section
             self.__spectDico[currentSection] = []
             self.__orderList.append(currentSection)
 
@@ -175,7 +175,7 @@ class ObsLightSpec(ObsLightObject):
             return None
 
     def __searchValue(self, valueToFind):
-        for line in self.__spectDico[self.__premble_section]:
+        for line in self.__spectDico[self.__preamble_section]:
             res = self.__testLine(line, valueToFind)
             if res != None:
                 return res
@@ -324,7 +324,7 @@ class ObsLightSpec(ObsLightObject):
     def addpatch(self, aFile):
         #init the aId of the patch
         patchID = 0
-        for line in self.__spectDico[self.__premble_section]:
+        for line in self.__spectDico[self.__preamble_section]:
             #a regular expression sould be better
             if line.startswith("Patch") and (":" in line):
                 try:
@@ -343,9 +343,9 @@ class ObsLightSpec(ObsLightObject):
         patch_Val_Prep = "Patch" + str(patchID)
         patch_Val_Build = "%patch" + str(patchID)
         patchCommand = patch_Val_Prep + ": " + aFile + "\n"
-        self.__spectDico[self.__premble_section].insert(0, patchCommand)
+        self.__spectDico[self.__preamble_section].insert(0, patchCommand)
         comment = "# This line is insert automatically , please comment and clean the code\n"
-        self.__spectDico[self.__premble_section].insert(0, comment)
+        self.__spectDico[self.__preamble_section].insert(0, comment)
 
         #You can have not %prep section
         #add the patch after the last one or if any patch present in the prep part, at the end.
@@ -367,7 +367,7 @@ class ObsLightSpec(ObsLightObject):
     def addFile(self, baseFile=None, aFile=None):
         #init the aId of the Source
         SourceID = 1
-        for line in self.__spectDico[self.__premble_section]:
+        for line in self.__spectDico[self.__preamble_section]:
             #a regular expression sould be better
             if line.startswith("Source") and (":" in line):
                 try:
@@ -389,10 +389,10 @@ class ObsLightSpec(ObsLightObject):
         source_Val_Build = "SOURCE" + str(SourceID)
 
         insertLine = source_Val_Prep + ": " + baseFile + "\n"
-        self.__spectDico[self.__premble_section].insert(0, insertLine)
+        self.__spectDico[self.__preamble_section].insert(0, insertLine)
 
         comment = "# This line is insert automatically, please comment and clean the code\n"
-        self.__spectDico[self.__premble_section].insert(0, comment)
+        self.__spectDico[self.__preamble_section].insert(0, comment)
 
         #You can have not %prep section
         if not self.__prepFlag in self.__spectDico.keys():
@@ -436,7 +436,7 @@ class ObsLightSpec(ObsLightObject):
 
         for section in self.__orderList:
             for line in self.__spectDico[section]:
-                if (section == "premble_section"):
+                if (section == "preamble_section"):
                     if line.startswith("Release:") and \
                        (line.strip("Release:").strip(" ").rstrip("\n") == ""):
                         f.write("Release:1\n")
@@ -503,7 +503,7 @@ class ObsLightSpec(ObsLightObject):
                 if line.startswith("Release:") and \
                    (line.strip("Release:").strip(" ").rstrip("\n") == ""):
                     toWrite += "Release: 1\n"
-                elif (section == "premble_section"):
+                elif (section == "preamble_section"):
                     patternSourceArch = r'[Ss]ource[0]?\s*:[\s]*(.*)'
 
                     for sourceVal in re.findall(patternSourceArch, line):
@@ -636,7 +636,7 @@ class ObsLightSpec(ObsLightObject):
 
     def getSectionContents(self, section):
         '''
-        If "section" is in "premble_section"
+        If "section" is in "preamble_section"
                            "%prep"
                            "%build",
                            "%install"
@@ -657,7 +657,7 @@ class ObsLightSpec(ObsLightObject):
         If "section" is a sub section value,
             Return a tuple of string (line end's with  "\n").
         '''
-        listSection = ["premble_section",
+        listSection = ["preamble_section",
                        "%prep",
                        "%build",
                        "%install",
@@ -699,7 +699,7 @@ if __name__ == '__main__':
     absSpecFile = "perl.spec"
 
     cli = ObsLightSpec(absSpecPath, absSpecFile)
-    list = ["premble_section",
+    list = ["preamble_section",
           "%prep",
           "%build",
           "%install",
