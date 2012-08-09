@@ -411,6 +411,8 @@ __command_modify__ = ["modify"]
 __command_testBuildPackages__ = ["testBuildPackages"]
 
 #Parameter 
+__parameter_gitPath__ = ["path"]
+__parameter_gitUrl__ = ["url"]
 __parameter_reachable__ = ["reachable"]
 __parameter_server_alias__ = ["server_alias", "alias"]
 __parameter_login__ = ["login", "user"]
@@ -462,6 +464,8 @@ __parameter_repo_alias__ = ["repository_alias"]
 
 #Define the server parameter help
 createParameterHelp(__command_help__, __help_command_help__)
+createParameterHelp(__parameter_gitPath__ , ["The local git project directory."])
+createParameterHelp(__parameter_gitUrl__ , ["the URL git project (like: git://XXX.org/XXX/XXX.git)"])
 createParameterHelp(__parameter_reachable__, ["[reachable] optional"])
 createParameterHelp(__parameter_server_alias__, "the alias of an OBS server ")
 createParameterHelp(__parameter_login__, "the login for an account on an OBS server")
@@ -794,6 +798,7 @@ appendPackageSubCommand(__command_help__)
 appendPackageSubCommand(__command_create__)
 appendPackageSubCommand(__command_list__)
 appendPackageSubCommand(__command_current__)
+appendPackageSubCommand(__command_import__)
 appendPackageSubCommand(__command_add__)
 appendPackageSubCommand(__command_del__)
 appendPackageSubCommand(__command_query__)
@@ -825,6 +830,10 @@ createPackageSubCommandHelp(__command_list__,
 createPackageSubCommandHelp(__command_current__,
                             ["package current {project_alias <project_alias>}",
                              "print the current package use on the local project"])
+
+createPackageSubCommandHelp(__command_import__,
+                            ["package import {project_alias <project_alias>} path|url <path|url> package <package>",
+                             "import a source git package {path|url} to local project with the name package"])
 
 createPackageSubCommandHelp(__command_add__,
                             ["package add {package <package>} {project_alias <project_alias>}",
@@ -903,6 +912,12 @@ createPackageParameter(__command_create__, [__command_help__,
 
 createPackageParameter(__command_current__, [__command_help__,
                                              __parameter_project_alias__])
+
+createPackageParameter(__command_import__, [__command_help__,
+                                            __parameter_project_alias__,
+                                            __parameter_gitPath__,
+                                            __parameter_gitUrl__,
+                                            __parameter_package__])
 
 createPackageParameter(__command_add__, [__command_help__,
                                          __parameter_package__,
@@ -2553,6 +2568,62 @@ class ObsLightObsPackage(ObsLightBase):
             else:
                 return self.printHelp(__command_create__)
 
+
+
+    def package_import(self, listArgv):
+        Help = False
+        package = None
+        url = None
+        path = None
+        project_alias = None
+
+        while self.testArgv(listArgv):
+            print listArgv
+            currentCommand, listArgv = self.getParameter(listArgv)
+            if (currentCommand in __command_help__) or (listArgv == None):
+                Help = True
+                break
+            elif currentCommand in __parameter_project_alias__:
+                project_alias, listArgv = self.getParameter(listArgv)
+                if (project_alias == None) and ObsLightBase.noaction:
+                    return self.printProjectCompletionList()
+            elif currentCommand in __parameter_gitPath__:
+                path, listArgv = self.getParameter(listArgv)
+                if (path == None) and ObsLightBase.noaction:
+                    return self.printHelp(__command_import__)
+            elif currentCommand in __parameter_gitUrl__:
+                url, listArgv = self.getParameter(listArgv)
+                if (url == None) and ObsLightBase.noaction:
+                    return self.printHelp(__command_import__)
+            elif currentCommand in __parameter_package__:
+                package, listArgv = self.getParameter(listArgv)
+                if (package == None) and ObsLightBase.noaction:
+                    return self.printHelp(__command_import__)
+            else:
+                return self.printUnknownCommand(currentCommand, __command_import__)
+
+        if  Help  :
+            return self.printHelp(__command_import__)
+        else:
+            if not ObsLightBase.noaction:
+                if (package == None):
+                    return self.printError("Missing  package", __command_import__)
+
+                m = ObsLightManager.getCommandLineManager()
+
+                if project_alias == None:
+                    project_alias = m.getCurrentObsProject()
+                    if project_alias == None:
+                        return self.printHelp(__command_import__)
+
+                return m.importPackage(project_alias,
+                                       package,
+                                       url,
+                                       path)
+            else:
+                return self.printHelp(__command_import__)
+
+
     def package_add(self, listArgv):
         Help = False
         package = None
@@ -2572,7 +2643,7 @@ class ObsLightObsPackage(ObsLightBase):
                 if (package == None) and (project_alias != None) and ObsLightBase.noaction:
                     return self.printPackageCompletionList(project_alias, onlyInstalled=False)
             else:
-                self.printUnknownCommand(currentCommand, __command_add__)
+                return self.printUnknownCommand(currentCommand, __command_add__)
 
         if  Help  :
             return self.printHelp(__command_add__)
@@ -3397,9 +3468,6 @@ class ObsLightObsPackage(ObsLightBase):
             else:
                 return self.printHelp(__command_testConflict__)
 
-
-
-
     def package_resolveConflict(self, listArgv):
         Help = False
         project_alias = None
@@ -3443,7 +3511,6 @@ class ObsLightObsPackage(ObsLightBase):
             else:
                 return self.printHelp(__command_resolveConflict__)
 
-
     def execute(self, listArgv):
         if len(listArgv) == 0:
             self.printHelp()
@@ -3456,6 +3523,8 @@ class ObsLightObsPackage(ObsLightBase):
                 return self.printHelp()
             elif currentCommand in __command_create__ :
                 return self.package_create(listArgv)
+            elif currentCommand in __command_import__:
+                return self.package_import(listArgv)
             elif currentCommand in __command_add__ :
                 return self.package_add(listArgv)
             elif currentCommand in __command_del__:
