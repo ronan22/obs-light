@@ -22,6 +22,7 @@ Created on 30 sept. 2011
 '''
 
 import os
+import re
 import time
 import platform
 import shlex
@@ -157,12 +158,14 @@ class ObsLightChRootCore(object):
 
         return 0
 
-    def execCommand(self, command=None, user=None):
+    def execCommand(self, command=None, user=None, **kwargs):
         '''
         Execute a list of commands in the chroot.
         '''
         if command is None:
             return
+        if isinstance(command, basestring):
+            command = [command]
         parameter = self.makeChrootScriptParameters()
         if user is not None:
             parameter["user"] = user
@@ -224,7 +227,7 @@ class ObsLightChRootCore(object):
         if self.hostArch == 'x86_64':
             aCommand = "linux32 " + aCommand
 
-        return self._subprocess(command=aCommand)
+        return self._subprocess(command=aCommand, **kwargs)
 
     def execScript(self, aPath):
         '''
@@ -1231,20 +1234,55 @@ exit $RPMBUILD_RETURN_CODE
         return result
 
     def installBuildRequires(self, buildInfoCli, target, configPath):
-        listOrdered = self.__reOrderRpm(buildInfoCli, target, configPath)
+        instPkgSet = set(self.getInstalledPackagesList())
+        wantedPkgList = self.__reOrderRpm(buildInfoCli, target, configPath)
+        wantedPkgSet = set()
 
         command = []
-        for i in listOrdered:
+        instCount = 0
+        eraseCount = 0
+
+        # Install missing packages
+        for i in wantedPkgList:
             absPath = i.fullfilename
             pkgName = os.path.basename(absPath)
             if pkgName.endswith(".rpm"):
                 pkgName = pkgName[:-4]
+            wantedPkgSet.add(pkgName)
 
-            testInstall = "rpm --quiet -q " + pkgName
-            installCommand = "rpm --nodeps --ignorearch -i '%s'" % absPath
+            if not pkgName in instPkgSet:
+                cmd = "rpm --nodeps --ignorearch -i '%s'" % absPath
+                command.append(cmd)
+                instCount += 1
+#            testInstall = "rpm --quiet -q " + pkgName
+#            installCommand = "rpm --nodeps --ignorearch -i '%s'" % absPath
+#
+#            cmd = "if ! %s ; then %s || exit 1; fi" % (testInstall, installCommand)
+#            command.append(cmd)
 
-            cmd = "if ! %s ; then %s || exit 1; fi" % (testInstall, installCommand)
+        unWantedPkgSet = instPkgSet.difference(wantedPkgSet)
+        # Erase unwanted packages
+        for p in unWantedPkgSet:
+            cmd = "rpm --nodeps -e '%s'" % p
             command.append(cmd)
+            eraseCount += 1
 
+        msg = "%d packages to %s"
+        self.logger.info(msg % (instCount, "install"))
+        self.logger.info(msg % (eraseCount, "erase"))
         return self.execCommand(command=command, user="root")
 
+    def getInstalledPackagesList(self):
+        """Returns the list packages installed in chroot jail (using RPM DB)."""
+        cmd = "rpm -qa"
+        res = self.execCommand(cmd, user="root", stdout=True, noOutPut=True)
+        lines = [l for l in res.split("\n") if l != ""]
+        return lines
+        # Separate package name and version
+#        myRe = re.compile(r"(.*)-([^-]+-[^-]+)")
+#        packages = []
+#        for line in lines:
+#            match = myRe.search(line)
+#            if match is not None:
+#                packages.append(match.group(1, 2))
+#        return packages

@@ -60,6 +60,8 @@ class ObsLightProject(ObsLightObject):
         self.__chrootIsInit = False
         self.__WorkingDirectory = workingDirectory
         self.__projectTitle = projectTitle
+        # package name as key, install/don't install as value
+        self.__extraChrootPackages = {"vim": False, "emacs": False, "strace": False}
 
         if fromSave is None:
             self.__projectLocalName = projectLocalName
@@ -117,6 +119,8 @@ class ObsLightProject(ObsLightObject):
                 else:
                     if self.__chroot.isInit():
                         self.__chrootIsInit = True
+
+#            self.__extraChrootPackages = fromSave.get("extraChrootPackages", {})
 
 #            if self.__chrootIsInit:
 #                for packageName in self.__packages.getListPackages():
@@ -341,6 +345,7 @@ class ObsLightProject(ObsLightObject):
         aDic["description"] = self.__description
         aDic["packages"] = self.__packages.getDic()
         aDic["chrootIsInit"] = self.__chrootIsInit
+#        aDic["extraChrootPackages"] = self.__extraChrootPackages
         return aDic
 
     def getObsServer(self):
@@ -573,7 +578,7 @@ class ObsLightProject(ObsLightObject):
         self.refreshObsStatus(package=name)
 
         self.checkOscDirectoryStatus(package=name)
-        if noOscUpdate == False:
+        if not noOscUpdate:
             self.checkOscPackageStatus(package=name)
 
         self.__packages.getPackage(name).initPackageFileInfo()
@@ -676,11 +681,13 @@ class ObsLightProject(ObsLightObject):
         packageName = pkgObj.getName()
 
         obsServer = self.__obsServers.getObsServer(self.__obsServer)
+        extraPkg = [x for x in self.__extraChrootPackages.keys() if self.__extraChrootPackages[x]]
         buildInfoCli = obsServer.getPackageBuildRequires(self.__projectName,
-                                                                packageName,
-                                                                self.__projectTarget ,
-                                                                self.__projectArchitecture,
-                                                                specFileName)
+                                                         packageName,
+                                                         self.__projectTarget ,
+                                                         self.__projectArchitecture,
+                                                         specFileName,
+                                                         extraPkg)
         res = -1
 
         if len(buildInfoCli.deps) > 0:
@@ -1000,3 +1007,27 @@ class ObsLightProject(ObsLightObject):
                 failedPackages.append((packageName, be))
         return failedPackages
 
+    def autoDisableExtraChrootPackages(self, packageName, specFileName):
+        """Checks if extra packages are available, and enable/disable them accordingly"""
+        obsServer = self.__obsServers.getObsServer(self.__obsServer)
+        extraPackages = set(self.__extraChrootPackages)
+        gotError = True
+        while(gotError and len(extraPackages) > 0):
+            try:
+                buildInfoCli = obsServer.getPackageBuildRequires(self.__projectName,
+                                                                 packageName,
+                                                                 self.__projectTarget ,
+                                                                 self.__projectArchitecture,
+                                                                 specFileName,
+                                                                 list(extraPackages))
+                gotError = False
+            except ObsLightErr.ObsLightOscErr as e:
+                gotError = True
+                toBeRemoved = set()
+                for p in extraPackages:
+                    if e.msg.find(p) >= 0:
+                        toBeRemoved.add(p)
+
+                extraPackages.difference_update(toBeRemoved)
+        for p in self.__extraChrootPackages.keys():
+            self.__extraChrootPackages[p] = p in extraPackages
