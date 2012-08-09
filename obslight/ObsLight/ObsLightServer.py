@@ -174,7 +174,8 @@ class ObsLightServer(object):
                              "arch",
                              "repository",
                              "readonly"]:
-            raise ObsLightErr.ObsLightObsServers(parameter + " is not a parameter of a OBS project")
+            mess = "\"%s\" is not a parameter of a OBS project" % parameter
+            raise ObsLightErr.ObsLightObsServers(mess)
 
         if not project in self.getLocalProjectList(raw=True):
             message = "Can't return the project parameter,\n"
@@ -183,9 +184,17 @@ class ObsLightServer(object):
 
             raise ObsLightErr.ObsLightObsServers(message)
 
-        return ObsLightOsc.getObsLightOsc().getProjectParameter(projectObsName=project,
+        if parameter == "readonly":
+
+            res = ObsLightOsc.getObsLightOsc().getProjectParameter(projectObsName=project,
+                                                                apiurl=self.__serverAPI,
+                                                                parameter="maintainer")
+            return not self.__user in res
+        else:
+            res = ObsLightOsc.getObsLightOsc().getProjectParameter(projectObsName=project,
                                                                 apiurl=self.__serverAPI,
                                                                 parameter=parameter)
+            return res
 
     def getAPI(self):
         return str(self.__serverAPI)
