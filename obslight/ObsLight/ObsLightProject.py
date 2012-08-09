@@ -836,6 +836,12 @@ class ObsLightProject(ObsLightObject):
         '''
         commit the package to the OBS server.
         '''
+        server = self.__obsServers.getObsServer(self.__obsServer)
+        if server.getProjectParameter(self.__projectName, "readonly"):
+            message = "Can't commit project you are not maintainer on project."
+
+            raise ObsLightErr.ObsLightProjectsError(message)
+
         obsRev = self.__packages.getPackage(package).getObsPackageRev()
         oscRev = self.__packages.getPackage(package).getOscPackageRev()
         if obsRev != oscRev:
