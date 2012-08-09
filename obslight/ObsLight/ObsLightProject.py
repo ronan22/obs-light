@@ -37,6 +37,8 @@ import ObsLightConfig
 import shlex
 import subprocess
 
+import ObsLightGitManager
+
 class ObsLightProject(ObsLightObject):
 
     def __init__(self,
@@ -150,6 +152,10 @@ class ObsLightProject(ObsLightObject):
         Return the project directory.
         '''
         return os.path.join(self.__WorkingDirectory, self.__projectLocalName)
+
+    def getGitPackagesDefaultDirectory(self):
+        return os.path.join(self.getDirectory(), "gitPackage")
+
 
     def getAbsPackagePath(self, name):
         '''
@@ -432,6 +438,50 @@ class ObsLightProject(ObsLightObject):
     def __isASpecfile(self, aFile):
         return aFile.endswith(".spec")
 
+    def __createpackageFileFromGit(self, path, packagePath, package):
+        cmd = []
+        cmd.append("DESTDIR=%s" % packagePath)
+        cmd.append("PRJ=%s" % package)
+        cmd.append("PRJDIR=%s" % path)
+        cmd.append("mkdir -p \"$DESTDIR\"")
+        cmd.append("git --git-dir=\"$PRJDIR\"/.git archive -o \"$DESTDIR\"/\"$PRJ\".tar HEAD")
+        cmd.append("[ -d \"$PRJDIR\"/packaging ] && cp -v \"$PRJDIR\"/packaging/* \"$DESTDIR\"")
+        cmd.append("cd \"$DESTDIR\"")
+        cmd.append("gzip -f \"$PRJ\".tar.gz")
+
+        self.__mySubprocessCrt.execSubprocess(";\n".join(cmd))
+
+    def __checkoutGitPackage(self, package, url, path):
+
+        if url != None:
+            if path is None:
+                path = os.path.join(self.getGitPackagesDefaultDirectory(), package)
+
+            if os.path.isdir(path):
+                if len(os.listdir(path)) > 0:
+                    mess = "The destination directory for git clone:\n\t\"%s\"\n is not empty." % path
+                    raise ObsLightErr.ObsLightPackageErr(mess)
+
+            ObsLightGitManager.cloneGitpackage(url, path)
+
+        elif path is None:
+            raise ObsLightErr.ObsLightPackageErr("No path or url specify for git package.")
+
+        if not os.path.isdir(os.path.join(path, ".git")):
+            mess = "The directory:\n\t\"%s\"\n is not a git directory" % path
+            raise ObsLightErr.ObsLightPackageErr(mess)
+
+        packagePath = os.path.join(self.getDirectory(), self.__projectName, package)
+        self.__createpackageFileFromGit(path, packagePath, package)
+
+        specFile = None
+        listFile = None
+
+        return packagePath, specFile, listFile
+
+    def importGitPackage(self, package, url, path):
+        packagePath, specFile, listFile = self.__checkoutGitPackage(package, url, path)
+
     def addPackage(self, name=None):
         '''
         add a package to the projectLocalName.
@@ -448,7 +498,6 @@ class ObsLightProject(ObsLightObject):
                                             arch=self.__projectArchitecture)
         packageTitle = obsServer.getPackageParameter(self.__projectName, name, "title")
         description = obsServer.getPackageParameter(self.__projectName, name, "description")
-
 
         self.__packages.addPackage(name=name,
                                    packagePath=packagePath,

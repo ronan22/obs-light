@@ -837,6 +837,23 @@ class ObsLightManagerCore(ObsLightManagerBase):
         '''
         return self._myObsLightProjects.getProject(projectLocalName).getCurrentPackage()
 
+
+
+    @checkProjectLocalName(1)
+    @checkNonEmptyStringPackage(2)
+    def importPackage(self,
+                      projectLocalName,
+                      package,
+                      url=None,
+                      path=None):
+        '''
+        import a package to a local project. 
+        The package should be local or remote git project.
+        '''
+        self.checkNoPackage(projectLocalName=projectLocalName, package=package)
+        self._myObsLightProjects.getProject(projectLocalName).importGitPackage(package, url, path)
+        self._myObsLightProjects.save()
+
     @checkProjectLocalName(1)
     @checkNonEmptyStringPackage(2)
     def addPackage(self, projectLocalName, package):

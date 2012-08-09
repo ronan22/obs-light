@@ -2578,7 +2578,6 @@ class ObsLightObsPackage(ObsLightBase):
         project_alias = None
 
         while self.testArgv(listArgv):
-            print listArgv
             currentCommand, listArgv = self.getParameter(listArgv)
             if (currentCommand in __command_help__) or (listArgv == None):
                 Help = True

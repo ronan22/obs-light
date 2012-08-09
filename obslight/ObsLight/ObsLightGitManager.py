@@ -295,3 +295,9 @@ class ObsLightGitManager(ObsLightObject):
         with open(pathOscPackage + "/" + patch, "w'") as f:
             f.write(res)
         return 0
+
+def cloneGitpackage(url, path):
+    cmd = "git clone %s %s" % (url, path)
+    aSubprocessCrt = SubprocessCrt()
+    aSubprocessCrt.execSubprocess(cmd)
+
