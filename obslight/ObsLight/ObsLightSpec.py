@@ -111,7 +111,7 @@ class ObsLightSpec(ObsLightObject):
             for line in tmpLineList:
                 #use a clean string
 
-                tmp_line = line.replace("\n", "")
+                tmp_line = line.replace("\n", "").rstrip(" ")
                 if testSection(tmp_line) :
                     while tmp_line in self.__spectDico.keys():
                         tmp_line = tmp_line + "(1)"
@@ -677,15 +677,14 @@ class ObsLightSpec(ObsLightObject):
             for s in self.getSectionList():
                 if s.startswith(section):
                     result[s] = self.__spectDico[s]
-                else:
-                    return ""
+
             return result
 
         elif section in listSection:
             if section in self.__spectDico.keys():
                 return self.__spectDico[section]
             else:
-                return ""
+                return []
 
         elif section in self.getSectionList():
             return self.__spectDico[section]
@@ -713,27 +712,27 @@ if __name__ == '__main__':
                 "%post",
                 "%preun",
                 "%postun"]
-    print "____________________________________________________________________________________"
-
-    for line in cli.getSectionContents("%filesPod-Escapes"):
-        print line,
-    print
-
-#    cli.insertLine( "%filesPod-Escapes", 5, "insert lineValue\n")
-#    cli.deleteLine("%filesPod-Escapes", 5)
-    cli.modifyLine("%filesPod-Escapes", 5, "modify lineValue\n")
-
-    print "____________________________________________________________________________________"
-
-    for line in cli.getSectionContents("%filesPod-Escapes"):
-        print line,
-    print
-    print "____________________________________________________________________________________"
-
 #    print "____________________________________________________________________________________"
-#    for sect in cli.getSectionList():
-#        print "\t" + sect
+#
+#    for line in cli.getSectionContents("%files Pod-Escapes"):
+#        print line,
 #    print
+#
+##    cli.insertLine( "%filesPod-Escapes", 5, "insert lineValue\n")
+##    cli.deleteLine("%filesPod-Escapes", 5)
+#    cli.modifyLine("%files Pod-Escapes", 4, "modify lineValue\n")
+#
+#    print "____________________________________________________________________________________"
+#
+#    for line in cli.getSectionContents("%files Pod-Escapes"):
+#        print line,
+#    print
+#    print "____________________________________________________________________________________"
+
+    print "____________________________________________________________________________________"
+    for sect in cli.getSectionList():
+        print "\t" + sect
+    print
 #
 #    for l in list:
 #        print "____________________________________________________________________________________"
@@ -754,6 +753,16 @@ if __name__ == '__main__':
 #                print line,
 #            print
 #            print "**********************"
+
+    res = cli.getSectionContents("%package")
+    for k in res.keys():
+        print "\tsub section:", k
+        print "**********************"
+        for line in res[k]:
+            print line,
+        print
+        print "**********************"
+
 
 
 
