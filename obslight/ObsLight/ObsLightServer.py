@@ -172,7 +172,8 @@ class ObsLightServer(object):
                              "maintainer",
                              "bugowner",
                              "arch",
-                             "repository"]:
+                             "repository",
+                             "readonly"]:
             raise ObsLightErr.ObsLightObsServers(parameter + " is not a parameter of a OBS project")
 
         if not project in self.getLocalProjectList(raw=True):

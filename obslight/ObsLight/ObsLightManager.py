@@ -690,6 +690,7 @@ class ObsLightManagerCore(ObsLightManagerBase):
             bugowner
             repository
             arch
+            readonly
         '''
 
         checkNonEmptyStringServerApi(serverApi=serverApi)
