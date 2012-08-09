@@ -111,7 +111,7 @@ class ObsLightSpec(ObsLightObject):
             for line in tmpLineList:
                 #use a clean string
 
-                tmp_line = self.__cleanline(line)
+                tmp_line = line.replace("\n", "")
                 if testSection(tmp_line) :
                     while tmp_line in self.__spectDico.keys():
                         tmp_line = tmp_line + "(1)"
