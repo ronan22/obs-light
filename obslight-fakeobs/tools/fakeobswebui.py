@@ -35,15 +35,27 @@ PLAINTEXT_CONTENTTYPE = "text/plain"
 
 FIRST_PAGE = """
 <br/>
-<h2><a href="/project/list_public">Project list<a></h2>
+<p>
+This is a web interface allowing you to browse the content
+of your fake OBS server.
+</p>
 """
 GLOBAL_HEADER = """
 <html>
  <head>
+<!--   <link rel="stylesheet" type="text/css" href="/theme/fakeobswebui.css" /> -->
   <title>OBS Light's Fake OBS Web Interface</title>
  </head>
  <body>
  <h1><img alt="obslight-logo" src="/theme/fakeobs.png" />OBS Light Fake OBS Web UI</h1>
+<!-- <div id="navbar"> -->
+ <table border="1px" cellpadding="4px">
+  <tr>
+   <th><a href="/">Home</a></th>
+   <th><a href="/project/list_public">Project list</a></th>
+  </tr>
+ </table>
+<!-- </div> -->
 """
 GLOBAL_FOOTER = """
  </body>
@@ -51,7 +63,8 @@ GLOBAL_FOOTER = """
 """
 PACKAGE_FILES_HEADER = """
 <h3>Files of %(package)s</h3>
-<table border="1">
+<!-- <div id="filetable"> -->
+<table border="1px" cellpadding="2px">
  <tr>
   <th>File</th>
   <th>Size</th>
@@ -61,6 +74,7 @@ PACKAGE_FILES_HEADER = """
 """
 PACKAGE_FILES_FOOTER = """
 </table>
+<!-- </div> -->
 """
 PACKAGE_FILE_TEMPLATE = """
  <tr>
@@ -148,8 +162,6 @@ def getEntriesAsDicts(xmlContent):
 
 
 class FakeObsWebUiRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
-
-    fakeobsUrl = ""
 
     def do_GET(self):
         try:

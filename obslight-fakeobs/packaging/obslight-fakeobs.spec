@@ -18,8 +18,14 @@ Source100:  obslight-fakeobs.yaml
 %if 0%{?fedora}
 Requires:   httpd
 Requires:   redhat-lsb
+Requires:   GitPython
+BuildRequires: systemd-units
+Requires(post): systemd-units
+Requires(preun): systemd-units
+Requires(postun): systemd-units
 %else
 Requires:   apache2
+Requires:   python-gitpython
 Requires(post): sysconfig
 %endif
 
@@ -30,7 +36,6 @@ Requires:   osc
 Requires:   python
 Requires:   python-async
 Requires:   python-gitdb
-Requires:   python-gitpython
 Requires:   python-smmap
 
 Requires(post): /sbin/service
@@ -67,17 +72,22 @@ mkdir -p %{buildroot}/srv/fakeobs/obs-projects
 mkdir -p %{buildroot}/srv/fakeobs/obs-repos
 mkdir -p %{buildroot}/srv/fakeobs/packages-git
 mkdir -p %{buildroot}/srv/fakeobs/releases
-mkdir -p %{buildroot}%{_sysconfdir}/init.d
 mkdir -p %{buildroot}%{_sysconfdir}/logrotate.d
 mkdir -p %{buildroot}%{_sbindir}
 mkdir -p %{buildroot}%{_bindir}
 mkdir -p %{buildroot}%{_docdir}/%{name}
+%if 0%{?fedora}
+mkdir -p %{buildroot}%{_unitdir}
+cp -f fakeobs.service fakeobswebui.service %{buildroot}%{_unitdir}
+%else
+mkdir -p %{buildroot}%{_sysconfdir}/init.d
+cp -f init_fakeobs %{buildroot}%{_sysconfdir}/init.d/fakeobs
+cp -f init_fakeobswebui %{buildroot}%{_sysconfdir}/init.d/fakeobswebui
+%endif
 cp -rf tools %{buildroot}/srv/fakeobs/tools
 cp -rf config %{buildroot}/srv/fakeobs/config
 cp -rf theme %{buildroot}/srv/fakeobs/theme
 cp -f obslight-fakeobs %{buildroot}%{_bindir}
-cp -f init_fakeobs %{buildroot}%{_sysconfdir}/init.d/fakeobs
-cp -f init_fakeobswebui %{buildroot}%{_sysconfdir}/init.d/fakeobswebui
 cp -f logrotate_fakeobs %{buildroot}%{_sysconfdir}/logrotate.d/fakeobs
 cp -f README %{buildroot}%{_docdir}/%{name}
 echo "%{name}-%{version}-%{release}" > %{buildroot}%{_docdir}/%{name}/VERSION
@@ -94,14 +104,22 @@ ln -sf %{_sysconfdir}/init.d/fakeobswebui %{buildroot}%{_sbindir}/rcfakeobswebui
 
 %preun
 # >> preun
-%stop_on_removal fakeobs
+%if 0%{?fedora}
 if [ $1 -eq 0 ] ; then
-/sbin/chkconfig --del fakeobs
+  # Package removal, not upgrade
+  /bin/systemctl --no-reload disable fakeobs.service > /dev/null 2>&1 || :
+  /bin/systemctl --no-reload disable fakeobswebui.service > /dev/null 2>&1 || :
+  /bin/systemctl stop fakeobs.service > /dev/null 2>&1 || :
+  /bin/systemctl stop fakeobswebui.service > /dev/null 2>&1 || :
 fi
+%else
+%stop_on_removal fakeobs
 %stop_on_removal fakeobswebui
 if [ $1 -eq 0 ] ; then
+/sbin/chkconfig --del fakeobs
 /sbin/chkconfig --del fakeobswebui
 fi
+%endif
 # << preun
 
 %post
@@ -149,16 +167,33 @@ cat >> $OVERVIEW << EOF
 EOF
 fi
 fi
-#/sbin/chkconfig --add fakeobs
+
+%if 0%{?fedora}
+if [ $1 -eq 1 ] ; then
+  # Initial installation
+  /bin/systemctl enable fakeobs.service >/dev/null 2>&1 || :
+  /bin/systemctl enable fakeobswebui.service >/dev/null 2>&1 || :
+fi
+%else
 %{fillup_and_insserv -f -y fakeobs}
 %{fillup_and_insserv -f -y fakeobswebui}
+%restart_on_update fakeobs
+%restart_on_update fakeobswebui
+%endif
 # << post
 
 %postun
 # >> postun
-%restart_on_update fakeobs
-%restart_on_update fakeobswebui
+%if 0%{?fedora}
+/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+if [ $1 -ge 1 ] ; then
+  # Package upgrade, not uninstall
+  /bin/systemctl try-restart fakeobs.service >/dev/null 2>&1 || :
+  /bin/systemctl try-restart fakeobswebui.service >/dev/null 2>&1 || :
+fi
+%else
 %insserv_cleanup
+%endif
 
 OVERVIEW="/srv/www/obs/overview/index.html"
 if [ "$1" -eq "0" ]
@@ -189,8 +224,13 @@ fi
 /srv/fakeobs/tools/*
 /srv/fakeobs/config/*
 /srv/fakeobs/theme/*
+%if 0%{?fedora}
+%{_unitdir}/fakeobs.service
+%{_unitdir}/fakeobswebui.service
+%else
 %config %{_sysconfdir}/init.d/fakeobs
 %config %{_sysconfdir}/init.d/fakeobswebui
+%endif
 %config %{_sysconfdir}/logrotate.d/fakeobs
 %{_sbindir}/fakeobs
 %{_sbindir}/fakeobswebui

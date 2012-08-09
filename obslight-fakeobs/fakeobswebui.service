@@ -1,0 +1,11 @@
+[Unit]
+Description=Fake OBS web interface
+After=multi-user.target
+Requires=fakeobs.service
+
+[Service]
+WorkingDirectory=/srv/fakeobs/
+ExecStart=/usr/sbin/fakeobswebui
+
+[Install]
+WantedBy=multi-user.target
