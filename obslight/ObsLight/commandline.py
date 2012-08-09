@@ -416,6 +416,7 @@ __parameter_server_alias__ = ["server_alias", "alias"]
 __parameter_login__ = ["login", "user"]
 __parameter_password__ = ["password", "pwd"]
 __parameter_api_url__ = ["api_url"]
+__parameter_readonly__ = ["readonly"]
 __parameter_repository_url__ = ["repository_url"]
 __parameter_web_url__ = ["web_url"]
 __parameter_project_alias__ = ["project_alias"]
@@ -470,6 +471,9 @@ createParameterHelp(__parameter_repository_url__, "the URL of an OBS server repo
 createParameterHelp(__parameter_web_url__, "the URL of an OBS server web interface")
 createParameterHelp(__parameter_project_alias__ ,
                     "the name of the obslight project on the local drive.")
+createParameterHelp(__parameter_readonly__,
+                    "true if the project is in read only mode.")
+
 createParameterHelp(__parameter_patch_mode__,
                     "The Patch Mode allows the user to automatically generate patches from his local work.\n\
                     The Patch Mode requires the user to perform a % prep and a first % build.\n\
@@ -686,7 +690,7 @@ createObsProjectSubCommandHelp(__command_query__,
                                 "repository|target|architecture] {project_alias <project_alias>}",
                                 "  query local project parameters",
                                 "obsproject query [title|description|target|architecture|" +
-                                "remoteurl|maintainer|bugowner] server_alias <server_alias> " +
+                                "remoteurl|maintainer|bugowner|readonly] server_alias <server_alias> " +
                                 "obsproject <project> ",
                                 "  query OBS project parameters"])
 
@@ -761,7 +765,8 @@ createObsProjectParameter(__command_query__,
                            __parameter_maintainer__,
                            __parameter_bugowner__,
                            __parameter_server_alias__,
-                           __parameter_project__],
+                           __parameter_project__,
+                           __parameter_readonly__],
                           [])
 
 createObsProjectParameter(__command_set__, [__command_help__,
@@ -2072,6 +2077,7 @@ class ObsLightObsproject(ObsLightBase):
         remoteurl = False
         maintainer = False
         bugowner = False
+        readonly = False
 
         server_alias = None
         obsproject = None
@@ -2101,6 +2107,8 @@ class ObsLightObsproject(ObsLightBase):
                 maintainer = True
             elif currentCommand in __parameter_bugowner__:
                 bugowner = True
+            elif currentCommand in __parameter_readonly__:
+                readonly = True
             elif currentCommand in __parameter_project_alias__:
                 project_alias , listArgv = self.getParameter(listArgv)
                 if (project_alias == None) and ObsLightBase.noaction:
@@ -2137,7 +2145,8 @@ class ObsLightObsproject(ObsLightBase):
                     (not architecture)and \
                     (not remoteurl) and \
                     (not maintainer) and \
-                    (not architecture):
+                    (not architecture) and \
+                    (not readonly):
 
                     title = True
                     description = True
@@ -2149,6 +2158,7 @@ class ObsLightObsproject(ObsLightBase):
                     remoteurl = True
                     maintainer = True
                     bugowner = True
+                    readonly = True
 
                 if title :
                     if (server_alias == None) and (obsproject == None):
@@ -2228,13 +2238,18 @@ class ObsLightObsproject(ObsLightBase):
                                                    parameter="remoteurl")
                     if self.testResult(res, getLineno()) == -1:return - 1
                     self.printSimpleResult("remoteurl: " + str(res), str(res))
-
                 if maintainer  and (server_alias != None) and (obsproject != None) :
                     res = m.getObsProjectParameter(serverApi=server_alias,
                                                 obsproject=obsproject,
                                                 parameter="maintainer")
                     if self.testResult(res, getLineno()) == -1:return - 1
                     self.printResultList(res, comment="maintainer: ")
+                if readonly  and (server_alias != None) and (obsproject != None) :
+                    res = m.getObsProjectParameter(serverApi=server_alias,
+                                                obsproject=obsproject,
+                                                parameter="readonly")
+                    if self.testResult(res, getLineno()) == -1:return - 1
+                    self.printSimpleResult("readonly: " + str(res), str(res))
                 if bugowner  and (server_alias != None) and (obsproject != None) :
                     res = m.getObsProjectParameter(serverApi=server_alias,
                                                 obsproject=obsproject,
