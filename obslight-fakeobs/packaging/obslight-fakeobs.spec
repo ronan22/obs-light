@@ -147,13 +147,13 @@ then
 fi
 
 
-if [ -d %{_sysconfdir}/apache2/vhosts.d ]
+if [ -n "$APACHEVHOST" ]
 then
 ln -sf /srv/fakeobs/config/fakeobs-repos.apache2conf "$APACHEVHOST"/fakeobs-repos.conf
 fi
 if [ -d %{_sysconfdir}/lighttpd/vhosts.d ]
 then
-ln -sf /srv/fakeobs/config/fakeobs-repos.lighttpdconf "$APACHEVHOST"/fakeobs-repos.conf
+ln -sf /srv/fakeobs/config/fakeobs-repos.lighttpdconf %{_sysconfdir}/lighttpd/vhosts.d/fakeobs-repos.conf
 fi
 
 OVERVIEW="/srv/www/obs/overview/index.html"
