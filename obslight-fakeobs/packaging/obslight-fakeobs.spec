@@ -183,6 +183,11 @@ service obslightserver status >/dev/null && service obslightserver stop
 %{fillup_and_insserv -f -y fakeobswebui}
 %restart_on_update fakeobs
 %restart_on_update fakeobswebui
+
+#Add new http apache2 server service.
+[ -e /etc/init.d/apache2 ] && /sbin/chkconfig --add apache2
+[ -e /etc/init.d/apache2 ] && service apache2 start
+
 %endif
 # << post
 
