@@ -183,6 +183,9 @@ fi
 %{fillup_and_insserv -f -y fakeobswebui}
 %restart_on_update fakeobs
 %restart_on_update fakeobswebui
+# Starting services also on first install
+service fakeobs status || service fakeobs start || :
+service fakeobswebui status || service fakeobswebui start || :
 
 # Make apache2 start automatically after installation (and at reboot)
 [ -e /etc/init.d/apache2 ] && /sbin/chkconfig --add apache2 || :
