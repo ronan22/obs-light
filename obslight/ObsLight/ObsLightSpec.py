@@ -41,7 +41,7 @@ class ObsLightSpec(ObsLightObject):
         self.__file = aFile
         self.__path = os.path.join(self.__packagePath, self.__file)
 
-        self.__preamble_section = "preamble_section"
+        self.__introduction_section = "introduction_section"
         self.__package = "%package"
         self.__description = "%description"
         self.__prepFlag = "%prep"
@@ -104,14 +104,14 @@ class ObsLightSpec(ObsLightObject):
 
             #init variable
             self.__spectDico = {}
-            currentSection = self.__preamble_section
+            currentSection = self.__introduction_section
             self.__spectDico[currentSection] = []
             self.__orderList.append(currentSection)
 
             for line in tmpLineList:
                 #use a clean string
 
-                tmp_line = line.replace("\n", "").rstrip(" ")
+                tmp_line = self.__cleanline(line)
                 if testSection(tmp_line) :
                     while tmp_line in self.__spectDico.keys():
                         tmp_line = tmp_line + "(1)"
@@ -175,7 +175,7 @@ class ObsLightSpec(ObsLightObject):
             return None
 
     def __searchValue(self, valueToFind):
-        for line in self.__spectDico[self.__preamble_section]:
+        for line in self.__spectDico[self.__introduction_section]:
             res = self.__testLine(line, valueToFind)
             if res != None:
                 return res
@@ -324,7 +324,7 @@ class ObsLightSpec(ObsLightObject):
     def addpatch(self, aFile):
         #init the aId of the patch
         patchID = 0
-        for line in self.__spectDico[self.__preamble_section]:
+        for line in self.__spectDico[self.__introduction_section]:
             #a regular expression sould be better
             if line.startswith("Patch") and (":" in line):
                 try:
@@ -343,9 +343,9 @@ class ObsLightSpec(ObsLightObject):
         patch_Val_Prep = "Patch" + str(patchID)
         patch_Val_Build = "%patch" + str(patchID)
         patchCommand = patch_Val_Prep + ": " + aFile + "\n"
-        self.__spectDico[self.__preamble_section].insert(0, patchCommand)
+        self.__spectDico[self.__introduction_section].insert(0, patchCommand)
         comment = "# This line is insert automatically , please comment and clean the code\n"
-        self.__spectDico[self.__preamble_section].insert(0, comment)
+        self.__spectDico[self.__introduction_section].insert(0, comment)
 
         #You can have not %prep section
         #add the patch after the last one or if any patch present in the prep part, at the end.
@@ -367,7 +367,7 @@ class ObsLightSpec(ObsLightObject):
     def addFile(self, baseFile=None, aFile=None):
         #init the aId of the Source
         SourceID = 1
-        for line in self.__spectDico[self.__preamble_section]:
+        for line in self.__spectDico[self.__introduction_section]:
             #a regular expression sould be better
             if line.startswith("Source") and (":" in line):
                 try:
@@ -389,10 +389,10 @@ class ObsLightSpec(ObsLightObject):
         source_Val_Build = "SOURCE" + str(SourceID)
 
         insertLine = source_Val_Prep + ": " + baseFile + "\n"
-        self.__spectDico[self.__preamble_section].insert(0, insertLine)
+        self.__spectDico[self.__introduction_section].insert(0, insertLine)
 
         comment = "# This line is insert automatically, please comment and clean the code\n"
-        self.__spectDico[self.__preamble_section].insert(0, comment)
+        self.__spectDico[self.__introduction_section].insert(0, comment)
 
         #You can have not %prep section
         if not self.__prepFlag in self.__spectDico.keys():
@@ -436,7 +436,7 @@ class ObsLightSpec(ObsLightObject):
 
         for section in self.__orderList:
             for line in self.__spectDico[section]:
-                if (section == "preamble_section"):
+                if (section == "introduction_section"):
                     if line.startswith("Release:") and \
                        (line.strip("Release:").strip(" ").rstrip("\n") == ""):
                         f.write("Release:1\n")
@@ -488,11 +488,6 @@ class ObsLightSpec(ObsLightObject):
         f.close()
 
     def saveTmpSpec(self, path, excludePatch, archive):
-        '''
-        Save  a temporary spec file 
-        
-        '''
-
         SETUP = False
         if path is None:
             return None
@@ -503,7 +498,7 @@ class ObsLightSpec(ObsLightObject):
                 if line.startswith("Release:") and \
                    (line.strip("Release:").strip(" ").rstrip("\n") == ""):
                     toWrite += "Release: 1\n"
-                elif (section == "preamble_section"):
+                elif (section == "introduction_section"):
                     patternSourceArch = r'[Ss]ource[0]?\s*:[\s]*(.*)'
 
                     for sourceVal in re.findall(patternSourceArch, line):
@@ -543,7 +538,8 @@ class ObsLightSpec(ObsLightObject):
                     toWrite += line
 
             if (section == "%prep") and (not SETUP):
-                toWrite += '%%setup -q -c -T -b %d\n' % self.archiveNumber
+                toWrite += "mkdir -p %{name}-%{version}\n"
+                toWrite += '%%setup -q -D -T -b %d\n' % self.archiveNumber
 
 #        patternSourceFile = r'[Ss]ource[0]?\s*:\s*(.*)'
 
@@ -570,17 +566,10 @@ class ObsLightSpec(ObsLightObject):
         aFile.write(toWrite)
         aFile.close()
 
-    def getSectionList(self):
-        '''
-        Return the list of section in order.
-        '''
+    def getsection(self):
         return self.__orderList
 
     def specFileHaveAnEmptyBuild(self):
-        '''
-        Return if the spec file have an Empty Build section.
-        
-        '''
         PrepAndBuild = True
         if "%build" in self.__spectDico.keys():
             for line in self.__spectDico["%build"]:
@@ -589,182 +578,13 @@ class ObsLightSpec(ObsLightObject):
 
         return PrepAndBuild
 
-    def insertLine(self, section, lineIndex, lineValue):
-        '''
-        Insert a line in the selected section at a index.
-        '''
-        if section not in self.getSectionList():
-            mess = "Can't insert line the section \"%s\" do not exist." % section
-            raise ObsLightErr.ObsLightSpec(mess)
-
-        elif lineIndex > len(self.__spectDico[section]):
-            mess = "Can't insert line insert index is out of section"
-            raise ObsLightErr.ObsLightSpec(mess)
-        else:
-            self.__spectDico[section].insert(lineIndex, lineValue)
-            return 0
-
-    def deleteLine(self, section, lineIndex):
-        '''
-        Deleted a line in the selected section at a index.
-        '''
-        if section not in self.getSectionList():
-            mess = "Can't delete line the section \"%s\" do not exist." % section
-            raise ObsLightErr.ObsLightSpec(mess)
-
-        elif lineIndex > len(self.__spectDico[section]) - 1:
-            mess = "Can't delete line insert index is out of section"
-            raise ObsLightErr.ObsLightSpec(mess)
-        else:
-            self.__spectDico[section].pop(lineIndex)
-            return 0
-
-    def modifyLine(self, section, lineIndex, lineValue):
-        '''
-        Modify a line in the selected section at a index.
-        '''
-        if section not in self.getSectionList():
-            mess = "Can't modify line the section \"%s\" do not exist." % section
-            raise ObsLightErr.ObsLightSpec(mess)
-
-        elif lineIndex > len(self.__spectDico[section]) - 1:
-            mess = "Can't modify line insert index is out of section"
-            raise ObsLightErr.ObsLightSpec(mess)
-        else:
-            self.__spectDico[section][lineIndex] = lineValue
-            return 0
-
-    def getSectionContents(self, section):
-        '''
-        If "section" is in "preamble_section"
-                           "%prep"
-                           "%build",
-                           "%install"
-                           "%clean"
-                           "%check"
-                           "%verifyscript".
-            Return a tuple of string (line end's with  "\n"). 
-            
-        If "section" is in "%package"
-                           "%description"
-                           "%files"
-                           "%post"
-                           "%preun"
-                           "%postun".
-            Return a dict with sub section as key,
-            and  a tuple of string as vaulue (line end's with  "\n").
-            
-        If "section" is a sub section value,
-            Return a tuple of string (line end's with  "\n").
-        '''
-        listSection = ["preamble_section",
-                       "%prep",
-                       "%build",
-                       "%install",
-                       "%clean",
-                       "%check",
-                       "%verifyscript"]
-
-        listSubSection = ["%package",
-                           "%description",
-                           "%files",
-                           "%post",
-                           "%preun",
-                           "%postun"]
-
-        if section in listSubSection:
-            result = {}
-            for s in self.getSectionList():
-                if s.startswith(section):
-                    result[s] = self.__spectDico[s]
-
-            return result
-
-        elif section in listSection:
-            if section in self.__spectDico.keys():
-                return self.__spectDico[section]
-            else:
-                return []
-
-        elif section in self.getSectionList():
-            return self.__spectDico[section]
-
-        else:
-            mess = "Can't return section: \"%s\" ,it's not a spec section." % section
-            raise ObsLightErr.ObsLightSpec(mess)
-
 if __name__ == '__main__':
-    absSpecPath = "/home/meego/OBSLight/ObsProjects/MeeGoTV_1.2.2_FakeObs/MeeGoTV:1.2.2:oss/perl"
-    absSpecFile = "perl.spec"
+    absSpecPath = "/home/meego/OBSLight/ObsProjects/Meego_oss_Build_Failed/meegotv:oss/xmlrpc-c"
+    absSpecFile = "xmlrpc-c.spec"
+    absSpecTmpFile = "xmlrpc-c.tmp.spec"
+    absSpecFile_tmp = absSpecPath + "/" + absSpecTmpFile
 
     cli = ObsLightSpec(absSpecPath, absSpecFile)
-    list = ["preamble_section",
-          "%prep",
-          "%build",
-          "%install",
-          "%clean",
-          "%check",
-          "%verifyscript"]
-
-    longList = ["%package",
-                "%description",
-                "%files",
-                "%post",
-                "%preun",
-                "%postun"]
-#    print "____________________________________________________________________________________"
-#
-#    for line in cli.getSectionContents("%files Pod-Escapes"):
-#        print line,
-#    print
-#
-##    cli.insertLine( "%filesPod-Escapes", 5, "insert lineValue\n")
-##    cli.deleteLine("%filesPod-Escapes", 5)
-#    cli.modifyLine("%files Pod-Escapes", 4, "modify lineValue\n")
-#
-#    print "____________________________________________________________________________________"
-#
-#    for line in cli.getSectionContents("%files Pod-Escapes"):
-#        print line,
-#    print
-#    print "____________________________________________________________________________________"
-
-    print "____________________________________________________________________________________"
-    for sect in cli.getSectionList():
-        print "\t" + sect
-    print
-#
-#    for l in list:
-#        print "____________________________________________________________________________________"
-#        print "section:", l
-#        print
-#        for line in cli.getSectionContents(l):
-#            print line,
-#        print
-#
-#    for l in longList:
-#        print "____________________________________________________________________________________"
-#        print "section:", l
-#        res = cli.getSectionContents(l)
-#        for k in res.keys():
-#            print "\tsub section:", k
-#            print "**********************"
-#            for line in res[k]:
-#                print line,
-#            print
-#            print "**********************"
-
-    res = cli.getSectionContents("%package")
-    for k in res.keys():
-        print "\tsub section:", k
-        print "**********************"
-        for line in res[k]:
-            print line,
-        print
-        print "**********************"
-
-
-
-
-
+    #cli.save(absSpecFile_tmp)
+    cli.saveTmpSpec(absSpecFile_tmp, "", "testArchive.gz")
 
