@@ -176,8 +176,8 @@ if [ $1 -eq 1 ] ; then
 fi
 %else
 #Remove old http python server service.
-service obslightserver status >/dev/null && service obslightserver stop
-/sbin/chkconfig --check obslightserver && /sbin/chkconfig --del obslightserver
+[ -e /etc/init.d/obslightserver ] && service obslightserver status >/dev/null && service obslightserver stop
+[ -e /etc/init.d/obslightserver ] && /sbin/chkconfig --check obslightserver && /sbin/chkconfig --del obslightserver
 
 %{fillup_and_insserv -f -y fakeobs}
 %{fillup_and_insserv -f -y fakeobswebui}
