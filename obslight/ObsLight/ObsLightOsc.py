@@ -285,20 +285,22 @@ class ObsLightOsc(ObsLightObject):
                                 package,
                                 projectTarget,
                                 arch,
-                                specFile):
+                                specFile,
+                                extraPackages=[]):
         """
         Get the list of BuildRequires of `package`, from the OBS server at `api`.
         The list contains packages names with version and release appended.
         """
         self.get_config()
-        #
         buildinfoUrl = ("%(api)s/build/%(project)s/%(target)s/%(arch)s/%(package)s/_buildinfo" %
                         {"api": api,
                          "project": projectObsName,
                          "package": package,
                          "target": projectTarget,
                          "arch": arch})
-
+        if len(extraPackages) > 0:
+            query = "?add=" + "&add=".join(extraPackages)
+            buildinfoUrl += query
         self.logger.debug("Getting buildrequires of %s from %s" % (package, buildinfoUrl))
         self.cleanBuffer(buildinfoUrl)
 

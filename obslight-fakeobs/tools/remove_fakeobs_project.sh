@@ -40,11 +40,15 @@ python tools/makemappings.py packages-git/repos.lst packages-git/mappingscache.x
 
 echo_green "Updating 'latest' links in obs-repos..."
 cd obs-repos
-LATEST=`find . -maxdepth 1 -name "$PROJECT*" -printf "%f\n" | grep -v "$PROJECT:latest" | sort | tail -n 1`
+rm -f "$PROJECT:latest"
+# Do not match "$PROJECT:latest", anything ending with ":latest" or any sub-project
+LATEST=`find . -maxdepth 1 -name "$PROJECT*" -printf "%f\n" | grep -v "$PROJECT:latest" | grep -v ":latest$" | grep -v "$PROJECT:.*:.*" | sort | tail -n 1`
 if [ -z $LATEST ]
 then
-  rm -f "$PROJECT:latest"
+  # rm -f "$PROJECT:latest"
+  echo_green "  No more releases of '$PROJECT'"
 else
+  echo_green "  Pointing 'latest' link to '$LATEST'"
   ln -sTf $LATEST "$PROJECT:latest"
 fi
 cd ..

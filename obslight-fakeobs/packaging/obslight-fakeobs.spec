@@ -7,7 +7,7 @@
 
 Name:       obslight-fakeobs
 Summary:    Python script that acts as an OBS API
-Version:    0.6.0.0
+Version:    0.6.0
 Release:    1
 Group:      Development/Tools/Building
 License:    GPLv2
@@ -175,10 +175,19 @@ if [ $1 -eq 1 ] ; then
   /bin/systemctl enable fakeobswebui.service >/dev/null 2>&1 || :
 fi
 %else
+#Remove old http python server service.
+[ -e /etc/init.d/obslightserver ] && service obslightserver status >/dev/null && service obslightserver stop
+[ -e /etc/init.d/obslightserver ] && /sbin/chkconfig --check obslightserver && /sbin/chkconfig --del obslightserver
+
 %{fillup_and_insserv -f -y fakeobs}
 %{fillup_and_insserv -f -y fakeobswebui}
 %restart_on_update fakeobs
 %restart_on_update fakeobswebui
+
+#Add new http apache2 server service.
+[ -e /etc/init.d/apache2 ] && /sbin/chkconfig --add apache2
+[ -e /etc/init.d/apache2 ] && service apache2 start
+
 %endif
 # << post
 

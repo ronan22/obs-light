@@ -29,6 +29,9 @@ FAKEOBS_URL = "http://localhost:8001/public"
 
 GET = "GET"
 
+DEFAULT_DIR = "/srv/fakeobs"
+THEME_DIR = "theme"
+
 BINARY_CONTENTTYPE = "application/octet-stream"
 HTML_CONTENTTYPE = "text/html"
 PLAINTEXT_CONTENTTYPE = "text/plain"
@@ -322,6 +325,9 @@ if __name__ == '__main__':
         print "No port specified, using %d" % PORT
     if len(sys.argv) > 2:
         FAKEOBS_URL = sys.argv[2]
+
+    if not os.path.exists(THEME_DIR):
+        os.chdir(DEFAULT_DIR)
 
     httpd = XFSPWebServer(("0.0.0.0", PORT), FakeObsWebUiRequestHandler)
     httpd.serve_forever()
