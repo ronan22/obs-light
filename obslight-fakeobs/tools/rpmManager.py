@@ -25,6 +25,8 @@ archHierarchyMap["sparcv9v"] = "sparcv9v:sparcv9:sparcv8:sparc"
 archHierarchyMap["sparcv9"] = "sparcv9:sparcv8:sparc"
 archHierarchyMap["sparcv8"] = "sparcv8:sparc"
 archHierarchyMap["sparc"] = "sparc"
+archHierarchyMap["armv7el"] = "armv7el:armv7l:armv7vl"
+archHierarchyMap["armv8el"] = "armv8el:armv7hl:armv7thl:armv7tnh:armv7h:armv7nh"
 
 def isNonEmptyString(theString):
     return isinstance(theString, basestring) and len(theString) > 0
