@@ -270,6 +270,8 @@ def getbuildInfo(rev, srcmd5, specFile, listRepository, dist, depfile, arch, pro
                 bdepelement.setAttribute("cbpreinstall", "1")
             if rpmName in cbinstallList:
                 bdepelement.setAttribute("cbinstall", "1")
+            if rpmName in runscriptsList:
+                bdepelement.setAttribute("runscripts", "1")
 
             if rpmEpoch:
                 bdepelement.setAttribute("epoch", rpmEpoch)
