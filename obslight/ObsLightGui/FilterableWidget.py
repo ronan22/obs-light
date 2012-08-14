@@ -1,6 +1,6 @@
 # -*- coding: utf8 -*-
 #
-# Copyright 2011, Intel Inc.
+# Copyright 2011-2012, Intel Inc.
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -51,8 +51,9 @@ class FilterableWidget(object):
         Do filter the `QtGui.QListWidget` entries using `newFilter` as
         filter and `Qt.MatchContains` as filtering mode.
         """
+        matchFilterList = self.filterableListWidget.findItems(newFilter, Qt.MatchContains)
+        matchFilterSet = {item.text() for item in matchFilterList}
+
         for i in range(self.filterableListWidget.count()):
             item = self.filterableListWidget.item(i)
-            item.setHidden(True)
-        for item in self.filterableListWidget.findItems(newFilter, Qt.MatchContains):
-            item.setHidden(False)
+            item.setHidden(not item.text() in matchFilterSet)
