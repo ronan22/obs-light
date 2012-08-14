@@ -9,17 +9,9 @@ then
   echo_red "Missing project argument!"
 fi
 
-MANIFEST="`echo $PROJECT | sed y,:,_,`.manifest"
-
-if [ -f "$MANIFEST" ]
-then
-  echo_green "Removing files of project $PROJECT as listed in '$MANIFEST'..."
-  cat $MANIFEST | sort -r | xargs rm -frv
-else
-  echo_yellow "Manifest file '$MANIFEST' not found, some files may not be removed..."
-  RELEASES=`/bin/ls -1 obs-repos/ | sed -n -r s,"$PROJECT:([^:]*)$","\1",p`
-  for RELEASE in $RELEASES
-  do
+RELEASES=`/bin/ls -1 obs-repos/ | sed -n -r s,"$PROJECT:([^:]*)$","\1",p`
+for RELEASE in $RELEASES
+do
     CONFDIR="obs-projects/`echo $PROJECT | sed y,:,/,`"
     FULLDIR="obs-repos/$PROJECT:$RELEASE"
     GITDIR="packages-git/`echo $PROJECT | sed y,:,_,`"
@@ -28,8 +20,8 @@ else
     rm -frv $FULLDIR
     rm -frv $GITDIR
     rm -frv $REPODIR
-  done
-fi
+done
+
 
 echo
 echo_green "Updating packages-git/repos.lst..."
