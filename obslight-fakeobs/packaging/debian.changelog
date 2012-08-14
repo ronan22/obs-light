@@ -1,4 +1,7 @@
-obslight-fakeobs (0.6.0-1) stable; urgency=low
+obslight-fakeobs (0.6.1-1) stable; urgency=low
+  * Version 0.6.1
+    - fixed _buildinfo request for ARM builds
+
   * Version 0.6.0
     - Implemented _buildinfo request to allow building without a real OBS
     - Packaged for Ubuntu and Fedora
@@ -11,4 +14,4 @@ obslight-fakeobs (0.6.0-1) stable; urgency=low
     - Created alternative repositories in /srv/fakeobs/releases/repositories
     - Added a tiny web UI on port 8000
 
- -- Ronan Le Martret (Intel OTC) <ronan@fridu.net>  Wed, 08 Aug 2012 10:09:54 +0200
+ -- Florent Vennetier (Intel OTC) <florent@fridu.net>  Tue, 14 Aug 2012 11:43:02 +0200
