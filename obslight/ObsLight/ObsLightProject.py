@@ -21,7 +21,9 @@ Created on 29 sept. 2011
 @author: Florent Vennetier
 '''
 import os
+import shlex
 import shutil
+import subprocess
 import urllib
 
 from ObsLightUtils import getFilteredFileList, isASpecFile, levenshtein
@@ -35,10 +37,8 @@ import ObsLightOsc
 
 import ObsLightConfig
 
-import shlex
-import subprocess
-
 import ObsLightGitManager
+from ObsLightSpec import getSpecTagValue
 
 class ObsLightProject(ObsLightObject):
 
@@ -159,7 +159,7 @@ class ObsLightProject(ObsLightObject):
         return os.path.join(self.__WorkingDirectory, self.__projectLocalName)
 
     def getGitPackagesDefaultDirectory(self):
-        return os.path.join(self.getDirectory(), "gitPackage")
+        return os.path.join(self.getDirectory(), "gitWorkingTrees")
 
 
     def getAbsPackagePath(self, name):
@@ -395,9 +395,8 @@ class ObsLightProject(ObsLightObject):
                 specFileList.append(f)
         return specFileList
 
-    def findBestSpecFile(self, specFileList, packagePath):
-        """Find the name of the spec file which matches best with `packagePath`"""
-        packageName = os.path.basename(packagePath)
+    def findBestSpecFile(self, specFileList, packageName):
+        """Find the name of the spec file which matches best with `packageName`"""
         specFile = None
         if len(specFileList) < 1:
             # No spec file in list
@@ -452,9 +451,10 @@ class ObsLightProject(ObsLightObject):
             message = "Can't do checkoutFilePackage, the path:'" + packagePath + "' do not exist."
             raise ObsLightErr.ObsLightProjectsError(message)
 
+        packageName = os.path.basename(packagePath)
         fileList = getFilteredFileList(packagePath)
         specFileList = self.getSpecFileList(fileList)
-        specFile = self.findBestSpecFile(specFileList, packagePath)
+        specFile = self.findBestSpecFile(specFileList, packageName)
         return packagePath, specFile, fileList
 
     def __updatePackage(self, package, noOscUpdate=False):
@@ -464,16 +464,46 @@ class ObsLightProject(ObsLightObject):
 
         return self.checkoutFilePackage(packagePath)
 
-    def __createPackageFileFromGit(self, path, packagePath, package):
-        errorMsg = "Failed to create archive of package '%s'" % package
-        packagingDir = os.path.join(path, "packaging")
-        if os.path.exists(packagingDir):
-            shutil.copytree(packagingDir, packagePath)
-        elif not os.path.exists(packagePath):
+    def __createPackageFilesFromGit(self, gitTreePath, packagePath):
+        """Create/update files of package at `packagePath` from a git tree"""
+
+        packagingDir = os.path.join(gitTreePath, "packaging")
+        packagingDirFileList = os.listdir(packagingDir)
+
+        # Create/clean package directory
+        if os.path.exists(packagePath):
+            # Remove all files except ".osc"
+            packageCurrentFiles = os.listdir(packagePath)
+            for f in packageCurrentFiles:
+                if f != ".osc":
+                    os.remove(os.path.join(packagePath, f))
+        else:
             os.makedirs(packagePath)
-        archivePath = os.path.join(packagePath, package + ".tar")
-        cmd = 'git --git-dir="%s/.git" archive -o "%s" HEAD' % (path, archivePath)
+        # Copy files from packaging/ to package directory
+        for f in packagingDirFileList:
+            shutil.copy(os.path.join(packagingDir, f), os.path.join(packagePath, f))
+
+    def __createPackageArchiveFromGit(self, gitTreePath, packagePath,
+                                      packageName, packageVersion=None):
+        """
+        Create the archive of package `packageName`, in directory `packagePath`,
+        from the git tree at `gitTreePath`.
+        `packageName` should be the name of the package as written in spec file.
+        Optional `packageVersion` should be the version of the package as written in spec file.
+        """
+        if packageVersion is None:
+            archiveName = packageName + ".tar"
+            packageTopDir = packageName
+        else:
+            versionSuffix = "-%s" % packageVersion
+            archiveName = packageName + versionSuffix + ".tar"
+            packageTopDir = packageName + versionSuffix
+        archivePath = os.path.join(packagePath, archiveName)
+        cmd = 'git --git-dir="%s/.git" archive --prefix %s/ -o "%s" HEAD' % (gitTreePath,
+                                                                             packageTopDir,
+                                                                             archivePath)
         res = self.__mySubprocessCrt.execSubprocess(cmd)
+        errorMsg = "Failed to create archive of packageName '%s'" % packageName
         if res != 0:
             raise ObsLightErr.ObsLightProjectsError(errorMsg)
         cmd = 'gzip -f %s' % archivePath
@@ -481,41 +511,51 @@ class ObsLightProject(ObsLightObject):
         if res != 0:
             raise ObsLightErr.ObsLightProjectsError(errorMsg)
 
-    def __checkoutGitPackage(self, package, url, path):
+    def __checkoutGitPackage(self, package, gitWorkingTree, url=None):
         if url is not None:
-            if path is None:
-                path = os.path.join(self.getGitPackagesDefaultDirectory(), package)
 
-            if os.path.isdir(path):
-                if len(os.listdir(path)) > 0:
-                    msg = "Cannot do git clone in '%s': directory is not empty." % path
+            if os.path.isdir(gitWorkingTree):
+                if len(os.listdir(gitWorkingTree)) > 0:
+                    msg = "Cannot do git clone in '%s': directory is not empty." % gitWorkingTree
                     raise ObsLightErr.ObsLightPackageErr(msg)
 
-            ObsLightGitManager.cloneGitpackage(url, path)
+            ObsLightGitManager.cloneGitpackage(url, gitWorkingTree)
 
-        elif path is None:
-            raise ObsLightErr.ObsLightPackageErr("No path or url specified for git package!")
-
-        if not os.path.isdir(os.path.join(path, ".git")):
-            mess = "'%s' is not a git directory" % path
+        if not os.path.isdir(os.path.join(gitWorkingTree, ".git")):
+            mess = "'%s' is not a git directory" % gitWorkingTree
             raise ObsLightErr.ObsLightPackageErr(mess)
 
         packagePath = os.path.join(self.getDirectory(), self.__projectName, package)
-        self.__createPackageFileFromGit(path, packagePath, package)
+        self.__createPackageFilesFromGit(gitWorkingTree, packagePath)
 
+        specFile = self.findBestSpecFile(self.getSpecFileList(getFilteredFileList(packagePath)),
+                                         package)
+        specAbsPath = os.path.join(packagePath, specFile)
+        name = getSpecTagValue(specAbsPath, "Name")
+        version = getSpecTagValue(specAbsPath, "Version", startsWithDigit=True)
+        self.__createPackageArchiveFromGit(gitWorkingTree, packagePath, name, version)
         fileList = getFilteredFileList(packagePath)
-        specFile = self.findBestSpecFile(self.getSpecFileList(fileList), packagePath)
 
         return packagePath, specFile, fileList
 
-    def importGitPackage(self, package, url, path):
-        packagePath, specFile, fileList = self.__checkoutGitPackage(package, url, path)
+    def importGitPackage(self, package, url=None, gitWorkingTree=None):
+        """
+        Create a new package `package` from the Git repository at `url`.
+        Save the Git working tree at `gitWorkingTree`.
+        If `url` is not provided, use the already existing `gitWorkingTree`.
+        """
+        if gitWorkingTree is None and url is None:
+            msg = "Neither local path nor URL specified to import package from!"
+            raise ObsLightErr.ObsLightPackageErr(msg)
+        if gitWorkingTree is None:
+            gitWorkingTree = os.path.join(self.getGitPackagesDefaultDirectory(), package)
+        packagePath, specFile, fileList = self.__checkoutGitPackage(package, gitWorkingTree, url)
         obsServer = self.__obsServers.getObsServer(self.__obsServer)
         apiUrl = obsServer.getObsServerParameter("serverAPI")
         p = ObsLightOsc.getObsLightOsc().initPackage(apiUrl, self.__projectLocalName,
                                                      package, packagePath)
         self.__packages.addPackage(package, packagePath, None, self.__chroot.getChrootUserHome(),
-                                   None, specFile, fileList, "", False)
+                                   None, specFile, fileList, "", gitWorkingTree)
 
     def addPackage(self, name=None):
         '''

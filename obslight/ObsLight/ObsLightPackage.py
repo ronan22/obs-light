@@ -37,9 +37,7 @@ from copy import copy
 import ObsLightPackages as PK_CONST
 
 class ObsLightPackage(object):
-    '''
-    classdocs
-    '''
+
     ArchiveSuffix = ".tar.gz"
 
     def __init__(self,
@@ -57,10 +55,7 @@ class ObsLightPackage(object):
                  description="",
                  packageTitle="",
                  fromSave=None,
-                 existsOnServer=True):
-        '''
-        Constructor
-        '''
+                 gitWorkingTree=None):
         listFile = listFile or []
         self.__packagePath = packagePath
         self.__mySubprocessCrt = SubprocessCrt()
@@ -85,7 +80,8 @@ class ObsLightPackage(object):
 
         self.__patchMode = True
         self.__listRPMPublished = []
-        self.__existsOnServer = existsOnServer
+        self.__existsOnServer = gitWorkingTree is None
+        self.__gitWorkingTree = gitWorkingTree
 
         if fromSave is None:
             self.__name = name
@@ -145,6 +141,7 @@ class ObsLightPackage(object):
             if "listRPMPublished" in fromSave.keys():
                 self.__listRPMPublished = fromSave["listRPMPublished"]
             self.__existsOnServer = fromSave.get("existsOnServer", True)
+            self.__gitWorkingTree = fromSave.get("gitWorkingTree", None)
 
         self.__rpmBuildDirectoryLink = "rpmbuild"
         self.__rpmBuildDirectory = "obslightbuild"
@@ -188,9 +185,6 @@ class ObsLightPackage(object):
         return self.__currentGitIsPackageGit
 
     def getPackageInfo(self, info):
-        '''
-        
-        '''
         res = {}
         for i in info:
             if i == "obsRev":
@@ -208,33 +202,18 @@ class ObsLightPackage(object):
         return res
     #---------------------------------------------------------------------------
     def getOscStatus(self):
-        '''
-        
-        '''
         return self.__oscStatus
 
     def getPackageStatus(self):
-        '''
-        
-        '''
         return self.__status
 
     def getChRootStatus(self):
-        '''
-        
-        '''
         return self.__chRootStatus
 
     def getOscPackageRev(self):
-        '''
-        
-        '''
         return self.__oscRev
 
     def getObsPackageRev(self):
-        '''
-        
-        '''
         return self.__obsRev
 
     #---------------------------------------------------------------------------
@@ -243,105 +222,61 @@ class ObsLightPackage(object):
         # TODO: check that it really exists on server
         return self.__existsOnServer
 
+    @property
+    def gitWorkingTree(self):
+        return self.__gitWorkingTree
+
     def getChrootRpmBuildDirectory(self):
-        '''
-        
-        '''
         return self.__chrootRpmBuildDirectory
 
     def getChrootRpmBuildTmpDirectory(self):
-        '''
-        
-        '''
         return self.__chrootRpmBuildTmpDirectory
 
     def getTopDirRpmBuildDirectory(self):
-        '''
-        
-        '''
         return  self.__rpmBuildDirectory
 
     def getTopDirRpmBuildLinkDirectory(self):
-        '''
-        
-        '''
         return self.__rpmBuildDirectoryLink
 
     def getTopDirRpmBuildTmpDirectory(self):
-        '''
-        
-        '''
         return self.__rpmBuildTmpDirectory
 
-
-
     def getPackageFileList(self):
-        '''
-        
-        '''
         res = []
         res.extend(self.__fileList)
         res.extend(self.__filesToDeleteList)
         return res
 
     def setOscPackageRev(self, rev):
-        '''
-        
-        '''
         self.__oscRev = rev
 
     def setObsPackageRev(self, rev):
-        '''
-        
-        '''
         self.__obsRev = rev
 
     def setFirstCommit(self, tag):
-        '''
-        
-        '''
         self.__firstCommitTag = tag
 
     def getFirstCommit(self):
-        '''
-        
-        '''
         return self.__firstCommitTag
 
     def setSecondCommit(self, tag):
-        '''
-        
-        '''
         self.__secondCommitTag = tag
 
     def getSecondCommit(self):
         return self.__secondCommitTag
 
     def getPackagePath(self):
-        '''
-        
-        '''
         return self.__packagePath
 
-
     def setChRootStatus(self, status):
-        '''
-        
-        '''
         self.__chRootStatus = status
 
     def __initSpecFile(self):
-        '''
-        
-        '''
         if os.path.isfile(self.__packagePath + "/" + self.__specFile):
             self.__mySpecFile = ObsLightSpec(packagePath=self.__packagePath,
                                              aFile=self.__specFile)
 
     def delFromChroot(self):
-        '''
-        
-        '''
         self.__packageDirectory = None
         self.__chRootStatus = PK_CONST.NOT_INSTALLED
 
@@ -356,16 +291,10 @@ class ObsLightPackage(object):
             return True
 
     def update(self, status=None):
-        '''
-        
-        '''
         if status not in [None, "", "None"]:
             self.__status = status
 
     def __subprocess(self, command=None, waitMess=False):
-        '''
-        
-        '''
         return self.__mySubprocessCrt.execSubprocess(command=command,
                                                      waitMess=waitMess)
 
@@ -402,6 +331,7 @@ class ObsLightPackage(object):
         aDic["patchMode"] = self.__patchMode
         aDic["listRPMPublished"] = self.__listRPMPublished
         aDic["existsOnServer"] = self.__existsOnServer
+        aDic["gitWorkingTree"] = self.__gitWorkingTree
         return aDic
 
     def getPackageParameter(self, parameter=None):
@@ -472,9 +402,6 @@ class ObsLightPackage(object):
             raise ObsLightPackageErr(msg)
 
     def specFileHaveAnEmptyBuild(self):
-        '''
-        
-        '''
         if self.__mySpecFile is None:
             self.__initSpecFile()
 
@@ -484,21 +411,12 @@ class ObsLightPackage(object):
         return self.__mySpecFile.specFileHaveAnEmptyBuild()
 
     def getSpecFileObj(self):
-
         return self.__mySpecFile
 
-
-
     def setPrepDirName(self, prepDirName):
-        '''
-        
-        '''
         self.__prepDirName = prepDirName
 
     def getPrepDirName(self):
-        '''
-        
-        '''
         return self.__prepDirName
 
     def getArchiveName(self):
@@ -512,28 +430,16 @@ class ObsLightPackage(object):
             return self.__prepDirName + self.ArchiveSuffix
 
     def initCurrentPatch(self):
-        '''
-        
-        '''
         self.__currentPatch = None
 
 
     def patchIsInit(self):
-        '''
-        
-        '''
         return self.__currentPatch != None
 
     def getCurrentPatch(self):
-        '''
-        
-        '''
         return self.__currentPatch
 
     def setOscStatus(self, status):
-        '''
-        
-        '''
         self.__oscStatus = status
 
     def setPackageParameter(self, parameter=None, value=None):
@@ -684,15 +590,9 @@ class ObsLightPackage(object):
         self.__addFile(aFile)
 
     def __isASpecfile(self, afile):
-        '''
-        
-        '''
         return afile.endswith(".spec")
 
     def __addFile(self, afile):
-        '''
-        
-        '''
         self.__fileList.append(afile)
 
     def addFile(self, path):
@@ -715,9 +615,6 @@ class ObsLightPackage(object):
         return 0
 
     def delFile(self, name):
-        '''
-        
-        '''
         path = os.path.join(self.getOscDirectory(), name)
         resInfo = self.getPackageFileInfo(name)
         if not resInfo['Status'].startswith("!"):
@@ -801,9 +698,6 @@ class ObsLightPackage(object):
             raise ObsLightPackageErr("No Spec in the package")
 
     def autoResolvedConflict(self):
-        '''
-        
-        '''
         for aFile in self.__fileList:
             if self.testConflict(aFile=aFile):
                 ObsLightOsc.getObsLightOsc().autoResolvedConflict(packagePath=self.getOscDirectory(), aFile=aFile)
@@ -826,15 +720,11 @@ class ObsLightPackage(object):
         self.initPackageFileInfo()
 
     def destroy(self):
-        '''
-        
-        '''
+        if self.gitWorkingTree is not None:
+            self.__subprocess("rm -r " + self.gitWorkingTree)
         return self.__subprocess(command="rm -r  " + self.getOscDirectory())
 
     def initPackageFileInfo(self):
-        '''
-        
-        '''
         res = ObsLightOsc.getObsLightOsc().getPackageFileInfo(workingdir=self.__packagePath)
         if res != None:
             self.__listInfoFile = {}
@@ -875,9 +765,6 @@ class ObsLightPackage(object):
             return {u'Status': u"! (item is missing, removed by non-osc command)"}
 
     def testConflict(self, aFile=None):
-        '''
-        
-        '''
         if aFile != None:
             if self.getPackageFileInfo(aFile)[u'Status'].startswith("C"):
                 return True
@@ -887,12 +774,3 @@ class ObsLightPackage(object):
                 if self.getPackageFileInfo(aFile)[u'Status'].startswith("C"):
                     return True
             return False
-
-
-
-
-
-
-
-
-

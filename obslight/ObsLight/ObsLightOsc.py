@@ -411,6 +411,12 @@ class ObsLightOsc(ObsLightObject):
     def getListPackage(self,
                        apiurl=None,
                        projectLocalName=None):
+        """Deprecated, for compatibility"""
+        return self.getPackageList(apiurl, projectLocalName)
+
+    def getPackageList(self,
+                       apiurl=None,
+                       projectLocalName=None):
         """
         Get the package list of project `projectLocalName` from `apiurl`.
         """
@@ -456,6 +462,7 @@ class ObsLightOsc(ObsLightObject):
                             apiurl=None,
                             projectObsName=None,
                             package=None):
+        """Deprecated, for compatibility"""
         return self.getPackageFileList(apiurl, projectObsName, package)
 
     def getObsPackageRev(self,

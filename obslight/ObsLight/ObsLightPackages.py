@@ -37,20 +37,14 @@ from ObsLightPackage import ObsLightPackage
 
 
 class ObsLightPackages(object):
-    '''
-    classdocs
-    '''
 
     def __init__(self, chrootUserHome=None, projectOscPath=None, fromSave=None):
-        '''
-        Constructor
-        '''
         self.__dicOBSLightPackages = {}
         self.__packageFilter = {}
         self.__packageFilter_unload = {}
         self.__currentListPackageInfo = self.getDefaultListPackageInfo()
 
-        if fromSave == None:
+        if fromSave is None:
             self.__currentPackage = ""
         elif (projectOscPath != None):
             for name in fromSave["savePackages"].keys():
@@ -69,9 +63,6 @@ class ObsLightPackages(object):
 
 #-------------------------------------------------------------------------------
     def getPackage(self, package):
-        '''
-        
-        '''
         if not package in self.__dicOBSLightPackages.keys():
             raise ObsLightErr.ObsLightPackageErr("No such package: " + str(package))
 
@@ -88,14 +79,11 @@ class ObsLightPackages(object):
                    specFile=None,
                    listFile=None,
                    status="",
-                   existsOnServer=True):
-        '''
-        
-        '''
-        listFile = listFile or []
+                   gitWorkingTree=None):
+        fileList = listFile or []
         self.__currentPackage = name
-        if listFile == None:
-            listFile = []
+        if fileList is None:
+            fileList = []
 
         if not name in  self.__dicOBSLightPackages.keys():
             self.__dicOBSLightPackages[name] = ObsLightPackage(name=name,
@@ -104,17 +92,14 @@ class ObsLightPackages(object):
                                                                specFile=specFile,
                                                                description=description,
                                                                packageTitle=packageTitle,
-                                                               listFile=listFile,
+                                                               listFile=fileList,
                                                                status=status,
-                                                               existsOnServer=existsOnServer)
+                                                               gitWorkingTree=gitWorkingTree)
         else:
             message = "Can't add package '" + name + "' ,already exist in project."
             raise ObsLightErr.ObsLightPackageErr(message)
 
     def removePackage(self, package=None):
-        '''
-        
-        '''
         self.getPackage(package).destroy()
         del self.__dicOBSLightPackages[package]
         if self.__currentPackage == package:
@@ -122,26 +107,14 @@ class ObsLightPackages(object):
         return 0
 
 #-------------------------------------------------------------------------------
-
-
     def removePackageFilter(self, key):
-        '''
-        
-        '''
         if key in self.__packageFilter.keys():
             del self.__packageFilter[key]
 
-
     def getCurrentPackage(self):
-        '''
-        
-        '''
         return self.__currentPackage
 
     def getDic(self):
-        '''
-        
-        '''
         aDic = {}
         for pack in self.getListPackages():
             aDic[pack] = self.__dicOBSLightPackages[pack].getDic()
@@ -155,9 +128,6 @@ class ObsLightPackages(object):
 
 
     def getListPackages(self):
-        '''
-        
-        '''
         res = self.__dicOBSLightPackages.keys()
         res.sort()
         return res
@@ -169,66 +139,38 @@ class ObsLightPackages(object):
 #        return self.getPackage(name).isInstallInChroot()
 
     def delFromChroot(self, package):
-        '''
-        
-        '''
         return self.getPackage(package).delFromChroot()
 
     def getSpecFile(self, name=None):
-        '''
-        
-        '''
         return self.getPackage(name).getSpecFile()
 
     def getOscDirectory(self, name=None):
-        '''
-        
-        '''
         return self.getPackage(name).getOscDirectory()
 
     def getCurrentListPackageInfo(self):
-        '''
-        
-        '''
         return self.__currentListPackageInfo
 
     def resetCurrentListPackageInfo(self):
-        '''
-        
-        '''
         self.__currentListPackageInfo = self.getDefaultListPackageInfo()
 
     def getDefaultListPackageInfo(self):
-        '''
-        
-        '''
         return ["obsRev", "oscRev", "status", "oscStatus", "chRootStatus"]
 
     #---------------------------------------------------------------------------
     def getPackageFilter(self):
-        '''
-        
-        '''
         return self.__packageFilter
 
     def resetPackageFilter(self):
-        '''
-        
-        '''
         self.__packageFilter = {}
 
-
-
     def addPackageFilter(self, key, val):
-        '''
-        
-        '''
         self.__packageFilter[key] = val
 
     def getListStatus(self):
-        '''
-        
-        '''
+        """Deprecated, for compatibility"""
+        return self.getStatusList()
+
+    def getStatusList(self):
         return ["succeeded",
                 "failed",
                 "unresolvable",
@@ -244,15 +186,13 @@ class ObsLightPackages(object):
                 "Unknown"]
 
     def getListOscStatus(self):
-        '''
-        
-        '''
+        """Deprecated, for compatibility"""
+        return self.getOscStatusList()
+
+    def getOscStatusList(self):
         return ["Unknown", "inconsistent state", "Succeeded"]
 
     def getListChRootStatus(self):
-        '''
-        
-        '''
         return [NOT_INSTALLED,
                 NO_BUILD_DIRECTORY,
                 NO_BUILD_SECTION,
@@ -263,9 +203,6 @@ class ObsLightPackages(object):
                 BUILD_PACKAGED]
 
     def __isFilterInfo(self, info):
-        '''
-        
-        '''
         for k in self.__packageFilter:
             if k in info.keys():
                 if (self.__packageFilter[k] != info[k]):
@@ -273,9 +210,6 @@ class ObsLightPackages(object):
         return True
 
     def getPackageInfo(self, package=None):
-        '''
-        
-        '''
         res = {}
         if package == None:
             for pk in self.getListPackages():
@@ -287,16 +221,8 @@ class ObsLightPackages(object):
         return res
 
     #---------------------------------------------------------------------------
-
     def updatePackage(self, name, status=None):
-        '''
-        
-        '''
         self.getPackage(name).update(status=status)
 
-
     def getChrootRpmBuildDirectory(self, name):
-        '''
-        
-        '''
         return self.getPackage(name).getChrootRpmBuildDirectory()

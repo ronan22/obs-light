@@ -18,6 +18,7 @@
 Created on 22 juil. 2011
 
 @author: rmartret
+@author: Florent Vennetier
 '''
 
 import os
@@ -577,6 +578,23 @@ class ObsLightSpec(ObsLightObject):
                     return False
 
         return PrepAndBuild
+
+
+def getSpecTagValue(specPath, tag, startsWithDigit=False):
+    """
+    Search for the value of `tag` ("Name", "Version", etc.) in the spec file at `specPath`.
+    If `startsWithDigit` is True, match only values starting with a digit.
+    Returns None if nothing found.
+
+    WARNING: macros are not resolved.
+    """
+    exp = re.compile(r"\s*%s\s*:\s*(%s.*)\s*" % (tag, r"\d" if startsWithDigit else ""), re.I)
+    with open(specPath, "r") as f:
+        for line in f:
+            m = exp.match(line)
+            if m is not None:
+                return m.group(1)
+    return None
 
 if __name__ == '__main__':
     absSpecPath = "/home/meego/OBSLight/ObsProjects/Meego_oss_Build_Failed/meegotv:oss/xmlrpc-c"
