@@ -115,14 +115,16 @@ class ObsLightServer(object):
                                 projectTarget,
                                 arch,
                                 specFile,
-                                extraPackages=[]):
+                                extraPackages=[],
+                                existsOnServer=True):
         buildInfoXml = ObsLightOsc.getObsLightOsc().getPackageBuildRequires(self.__serverAPI,
                                                                     projectObsName,
                                                                     package,
                                                                     projectTarget,
                                                                     arch,
                                                                     specFile,
-                                                                    extraPackages)
+                                                                    extraPackages,
+                                                                    existsOnServer)
 
         buildInfoCli = ObsLightOsc.getObsLightOsc().updateCache(buildInfoXml, self.__serverAPI)
 

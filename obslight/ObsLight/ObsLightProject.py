@@ -24,6 +24,7 @@ import os
 import shutil
 import urllib
 
+from ObsLightUtils import getFilteredFileList, isASpecFile, levenshtein
 from ObsLightPackages import ObsLightPackages
 from ObsLightChRoot import ObsLightChRoot
 #import ObsLightManager
@@ -385,6 +386,54 @@ class ObsLightProject(ObsLightObject):
     def __getProjectOscPath(self):
         return os.path.join(self.getDirectory(), self.__projectName)
 
+    @staticmethod
+    def getSpecFileList(fileList):
+        """Returns a new list from `fileList` with only spec files"""
+        specFileList = []
+        for f in fileList:
+            if isASpecFile(f):
+                specFileList.append(f)
+        return specFileList
+
+    def findBestSpecFile(self, specFileList, packagePath):
+        """Find the name of the spec file which matches best with `packagePath`"""
+        packageName = os.path.basename(packagePath)
+        specFile = None
+        if len(specFileList) < 1:
+            # No spec file in list
+            specFile = None
+        elif len(specFileList) == 1:
+            # Only one spec file
+            specFile = specFileList[0]
+        else:
+            sameStart = []
+            for spec in specFileList:
+                if str(spec[:-5]) == str(packageName):
+                    # This spec file has the same name as the package
+                    specFile = spec
+                    break
+                elif spec.startswith(packageName):
+                    # This spec file has a name which looks like the package
+                    sameStart.append(spec)
+
+            if specFile is None:
+                if len(sameStart) > 0:
+                    # Sort the list of 'same start' by the Levenshtein distance
+                    sameStart.sort(key=lambda x: levenshtein(x, packageName))
+                    specFile = sameStart[0]
+                else:
+                    # No spec file starts with the name of the package,
+                    # sort the whole spec file list by the Levenshtein distance
+                    specFileList.sort(key=lambda x: levenshtein(x, packageName))
+                    specFile = specFileList[0]
+
+        if specFile is None:
+            msg = "Found no spec file matching package name '%s'" % packageName
+        else:
+            msg = "Spec file chosen for package '%s': '%s'" % (packageName, specFile)
+        self.logger.info(msg)
+        return specFile
+
     def checkoutPackage(self, package=None):
         ObsLightOsc.getObsLightOsc().checkoutPackage(obsServer=self.__obsServer,
                                                      projectObsName=self.__projectName,
@@ -403,35 +452,10 @@ class ObsLightProject(ObsLightObject):
             message = "Can't do checkoutFilePackage, the path:'" + packagePath + "' do not exist."
             raise ObsLightErr.ObsLightProjectsError(message)
 
-        listFile = []
-        for aFile in tmplistFile:
-            if os.path.isfile(packagePath + "/" + aFile) and\
-               not (aFile.startswith(".")) and\
-               not (aFile.endswith("~")):
-                listFile.append(aFile)
-
-        listSpecFile = []
-        specFile = None
-
-        for f in listFile:
-            if self.__isASpecfile(f):
-                listSpecFile.append(f)
-
-        if len(listSpecFile) > 1:
-            specFile = None
-            packageName = os.path.basename(packagePath)
-
-            for spec in listSpecFile:
-                if str(spec[:-5]) == str(packageName):
-                    specFile = spec
-                    break
-                elif spec.startswith(packageName):
-                    specFile = spec
-
-        elif len(listSpecFile) == 1:
-            specFile = listSpecFile[0]
-
-        return packagePath, specFile, listFile
+        fileList = getFilteredFileList(packagePath)
+        specFileList = self.getSpecFileList(fileList)
+        specFile = self.findBestSpecFile(specFileList, packagePath)
+        return packagePath, specFile, fileList
 
     def __updatePackage(self, package, noOscUpdate=False):
         packagePath = self.__getPackagePath(package)
@@ -440,58 +464,64 @@ class ObsLightProject(ObsLightObject):
 
         return self.checkoutFilePackage(packagePath)
 
-    def __isASpecfile(self, aFile):
-        return aFile.endswith(".spec")
-
-    def __createpackageFileFromGit(self, path, packagePath, package):
-        cmd = []
-        cmd.append("DESTDIR=%s" % packagePath)
-        cmd.append("PRJ=%s" % package)
-        cmd.append("PRJDIR=%s" % path)
-        cmd.append("mkdir -p \"$DESTDIR\"")
-        cmd.append("git --git-dir=\"$PRJDIR\"/.git archive -o \"$DESTDIR\"/\"$PRJ\".tar HEAD")
-        cmd.append("[ -d \"$PRJDIR\"/packaging ] && cp -v \"$PRJDIR\"/packaging/* \"$DESTDIR\"")
-        cmd.append("cd \"$DESTDIR\"")
-        cmd.append("gzip -f \"$PRJ\".tar.gz")
-
-        self.__mySubprocessCrt.execSubprocess(";\n".join(cmd))
+    def __createPackageFileFromGit(self, path, packagePath, package):
+        errorMsg = "Failed to create archive of package '%s'" % package
+        packagingDir = os.path.join(path, "packaging")
+        if os.path.exists(packagingDir):
+            shutil.copytree(packagingDir, packagePath)
+        elif not os.path.exists(packagePath):
+            os.makedirs(packagePath)
+        archivePath = os.path.join(packagePath, package + ".tar")
+        cmd = 'git --git-dir="%s/.git" archive -o "%s" HEAD' % (path, archivePath)
+        res = self.__mySubprocessCrt.execSubprocess(cmd)
+        if res != 0:
+            raise ObsLightErr.ObsLightProjectsError(errorMsg)
+        cmd = 'gzip -f %s' % archivePath
+        res = self.__mySubprocessCrt.execSubprocess(cmd)
+        if res != 0:
+            raise ObsLightErr.ObsLightProjectsError(errorMsg)
 
     def __checkoutGitPackage(self, package, url, path):
-
-        if url != None:
+        if url is not None:
             if path is None:
                 path = os.path.join(self.getGitPackagesDefaultDirectory(), package)
 
             if os.path.isdir(path):
                 if len(os.listdir(path)) > 0:
-                    mess = "The destination directory for git clone:\n\t\"%s\"\n is not empty." % path
-                    raise ObsLightErr.ObsLightPackageErr(mess)
+                    msg = "Cannot do git clone in '%s': directory is not empty." % path
+                    raise ObsLightErr.ObsLightPackageErr(msg)
 
             ObsLightGitManager.cloneGitpackage(url, path)
 
         elif path is None:
-            raise ObsLightErr.ObsLightPackageErr("No path or url specify for git package.")
+            raise ObsLightErr.ObsLightPackageErr("No path or url specified for git package!")
 
         if not os.path.isdir(os.path.join(path, ".git")):
-            mess = "The directory:\n\t\"%s\"\n is not a git directory" % path
+            mess = "'%s' is not a git directory" % path
             raise ObsLightErr.ObsLightPackageErr(mess)
 
         packagePath = os.path.join(self.getDirectory(), self.__projectName, package)
-        self.__createpackageFileFromGit(path, packagePath, package)
+        self.__createPackageFileFromGit(path, packagePath, package)
 
-        specFile = None
-        listFile = None
+        fileList = getFilteredFileList(packagePath)
+        specFile = self.findBestSpecFile(self.getSpecFileList(fileList), packagePath)
 
-        return packagePath, specFile, listFile
+        return packagePath, specFile, fileList
 
     def importGitPackage(self, package, url, path):
-        packagePath, specFile, listFile = self.__checkoutGitPackage(package, url, path)
+        packagePath, specFile, fileList = self.__checkoutGitPackage(package, url, path)
+        obsServer = self.__obsServers.getObsServer(self.__obsServer)
+        apiUrl = obsServer.getObsServerParameter("serverAPI")
+        p = ObsLightOsc.getObsLightOsc().initPackage(apiUrl, self.__projectLocalName,
+                                                     package, packagePath)
+        self.__packages.addPackage(package, packagePath, None, self.__chroot.getChrootUserHome(),
+                                   None, specFile, fileList, "", False)
 
     def addPackage(self, name=None):
         '''
         add a package to the projectLocalName.
         '''
-        if name in self.getListPackage():
+        if name in self.getPackageList():
             return None
 
         packagePath, specFile, listFile = self.checkoutPackage(package=name)
@@ -736,7 +766,8 @@ class ObsLightProject(ObsLightObject):
                                                          self.__projectTarget ,
                                                          self.__projectArchitecture,
                                                          specFileName,
-                                                         extraPkg)
+                                                         extraPkg,
+                                                         pkgObj.existsOnServer)
         res = -1
 
         if len(buildInfoCli.deps) > 0:

@@ -22,6 +22,7 @@ Created on 30 sept. 2011
 import os
 import shutil
 
+from ObsLightUtils import getFilteredFileList
 from ObsLightSpec import ObsLightSpec
 
 import ObsLightOsc
@@ -55,7 +56,8 @@ class ObsLightPackage(object):
                  chRootStatus=PK_CONST.NOT_INSTALLED,
                  description="",
                  packageTitle="",
-                 fromSave=None):
+                 fromSave=None,
+                 existsOnServer=True):
         '''
         Constructor
         '''
@@ -83,6 +85,7 @@ class ObsLightPackage(object):
 
         self.__patchMode = True
         self.__listRPMPublished = []
+        self.__existsOnServer = existsOnServer
 
         if fromSave is None:
             self.__name = name
@@ -141,7 +144,7 @@ class ObsLightPackage(object):
 
             if "listRPMPublished" in fromSave.keys():
                 self.__listRPMPublished = fromSave["listRPMPublished"]
-
+            self.__existsOnServer = fromSave.get("existsOnServer", True)
 
         self.__rpmBuildDirectoryLink = "rpmbuild"
         self.__rpmBuildDirectory = "obslightbuild"
@@ -235,6 +238,10 @@ class ObsLightPackage(object):
         return self.__obsRev
 
     #---------------------------------------------------------------------------
+    @property
+    def existsOnServer(self):
+        # TODO: check that it really exists on server
+        return self.__existsOnServer
 
     def getChrootRpmBuildDirectory(self):
         '''
@@ -394,6 +401,7 @@ class ObsLightPackage(object):
         aDic["currentGitIsPackageGit"] = self.__currentGitIsPackageGit
         aDic["patchMode"] = self.__patchMode
         aDic["listRPMPublished"] = self.__listRPMPublished
+        aDic["existsOnServer"] = self.__existsOnServer
         return aDic
 
     def getPackageParameter(self, parameter=None):
@@ -835,12 +843,14 @@ class ObsLightPackage(object):
         return 0
 
     def getPackageFileInfo(self, fileName):
-        '''
-        
-        '''
-
         if self.__listInfoFile is None:
-            res = ObsLightOsc.getObsLightOsc().getPackageFileInfo(workingdir=self.__packagePath)
+            try:
+                res = ObsLightOsc.getObsLightOsc().getPackageFileInfo(workingdir=self.__packagePath)
+            # FVE: temporary hack to get file list in UI
+            except ObsLightOsc.oscerr.NoWorkingCopy:
+                res = []
+                for f in getFilteredFileList(self.__packagePath):
+                    res.append((' ', f))
             if res != None:
                 self.__listInfoFile = {}
                 for status, aFile in res:

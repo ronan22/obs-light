@@ -87,7 +87,8 @@ class ObsLightPackages(object):
                    packageTitle,
                    specFile=None,
                    listFile=None,
-                   status=""):
+                   status="",
+                   existsOnServer=True):
         '''
         
         '''
@@ -104,7 +105,8 @@ class ObsLightPackages(object):
                                                                description=description,
                                                                packageTitle=packageTitle,
                                                                listFile=listFile,
-                                                               status=status)
+                                                               status=status,
+                                                               existsOnServer=existsOnServer)
         else:
             message = "Can't add package '" + name + "' ,already exist in project."
             raise ObsLightErr.ObsLightPackageErr(message)
