@@ -3,6 +3,7 @@ Tue Aug 14 09:38:29 UTC 2012 - florent@fridu.net
 
 - updated version to 0.6.1
 - fixed _buildinfo request for ARM builds
+- not using manifest anymore to remove a project
 
 -------------------------------------------------------------------
 Wed Aug  8 11:12:04 CEST 2012 - florent@fridu.net
