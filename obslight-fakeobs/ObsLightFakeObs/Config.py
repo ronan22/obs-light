@@ -83,9 +83,9 @@ class ObsLightFakeObsConfig(object):
     def getProjectInfoPath(self, project):
         return os.path.join(self.getProjectDir(project), "project_info")
 
-    def getIntLimit(self, limit, default=None):
+    def getIntLimit(self, whatLimit, default=None):
         try:
-            return self.cp.getint("Limits", limit)
+            return self.cp.getint("Limits", whatLimit)
         except ConfigParser.NoOptionError:
             return default
 
@@ -95,11 +95,20 @@ class ObsLightFakeObsConfig(object):
         except ConfigParser.NoOptionError:
             return default
 
+    def getPath(self, whatPath, default=None, vars={}):
+        try:
+            return self.cp.get("Paths", whatPath, vars=vars)
+        except ConfigParser.NoOptionError:
+            return default
+
     def getCommand(self, command, default=None, vars={}):
         try:
             return self.cp.get("Commands", command, vars=vars)
         except ConfigParser.NoOptionError:
             return default
+
+    def getFakeObsApiUrl(self):
+        return "http://localhost:%s/public" % self.getPort("api_port", 8001)
 
     def getLastEventsFilePath(self):
         return os.path.join(self.getFakeObsRootDir(), "lastevents")
