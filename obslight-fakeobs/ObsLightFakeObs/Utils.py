@@ -15,6 +15,8 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 """
+Miscellaneous utilities for FakeOBS.
+
 @author: Florent Vennetier
 """
 
@@ -87,3 +89,93 @@ def computeMd5(path):
     else:
         p = subprocess.Popen(["md5sum", path], stdout=subprocess.PIPE)
         return p.communicate()[0][:32]
+
+def callSubprocess(command, retries=0, *popenargs, **kwargs):
+    """
+    Run subprocess.call(command, *popenargs, **kwargs) until it
+    returns 0, at most `retries` +1 times.
+    """
+    retCode = -1
+    while retCode != 0 and retries >= 0:
+        retCode = subprocess.call(command, *popenargs, **kwargs)
+        retries -= 1
+    return retCode
+
+def isASpecFile(aFile):
+    return aFile.endswith(".spec")
+
+def getSubDirectoryList(path):
+    return [d for d in os.listdir(path)
+            if os.path.isdir(os.path.join(path, d))]
+
+# Implementation taken from http://hetland.org
+def levenshtein(a, b):
+    """Calculates the Levenshtein distance between a and b."""
+    n, m = len(a), len(b)
+    if n > m:
+        # Make sure n <= m, to use O(min(n,m)) space
+        a, b = b, a
+        n, m = m, n
+
+    current = range(n + 1)
+    for i in range(1, m + 1):
+        previous, current = current, [i] + [0] * n
+        for j in range(1, n + 1):
+            add, delete = previous[j] + 1, current[j - 1] + 1
+            change = previous[j - 1]
+            if a[j - 1] != b[i - 1]:
+                change = change + 1
+            current[j] = min(add, delete, change)
+
+    return current[n]
+
+def findBestSpecFile(self, specFileList, packageName):
+    """Find the name of the spec file which matches best with `packageName`"""
+    specFile = None
+    if len(specFileList) < 1:
+        # No spec file in list
+        specFile = None
+    elif len(specFileList) == 1:
+        # Only one spec file
+        specFile = specFileList[0]
+    else:
+        sameStart = []
+        for spec in specFileList:
+            if str(spec[:-5]) == str(packageName):
+                # This spec file has the same name as the package
+                specFile = spec
+                break
+            elif spec.startswith(packageName):
+                # This spec file has a name which looks like the package
+                sameStart.append(spec)
+
+        if specFile is None:
+            if len(sameStart) > 0:
+                # Sort the list of 'same start' by the Levenshtein distance
+                sameStart.sort(key=lambda x: levenshtein(x, packageName))
+                specFile = sameStart[0]
+            else:
+                # No spec file starts with the name of the package,
+                # sort the whole spec file list by the Levenshtein distance
+                specFileList.sort(key=lambda x: levenshtein(x, packageName))
+                specFile = specFileList[0]
+    return specFile
+
+def curlUnpack(url, destDir):
+    """Call `url` and pipe the result to cpio to extract RPMs in `destDir`"""
+    p1 = subprocess.Popen(["curl", "-k", "--retry", "5", url],
+                          stdout=subprocess.PIPE)
+    p2 = subprocess.Popen(["cpio", "-idvm"], stdin=p1.stdout, cwd=destDir)
+    return p2.wait()
+
+def createCpio(outputFile, strFileList, cwd=None):
+    """
+    Create a CPIO archive.
+     `outputFile`:  an open file-object
+     `strFileList`: string with one file name by line
+     `cwd`:         directory where to execute cpio from
+    """
+    cmd = ["cpio", "-o", "-H", "newc", "-C", "8192"]
+    p = subprocess.Popen(cmd, cwd=cwd, stdin=subprocess.PIPE, stdout=outputFile)
+    p.communicate(strFileList)
+    return p.wait()

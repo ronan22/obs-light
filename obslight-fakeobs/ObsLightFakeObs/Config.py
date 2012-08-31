@@ -15,6 +15,8 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 """
+Configuration manager for FakeOBS.
+
 @author: Florent Vennetier
 """
 
@@ -66,6 +68,10 @@ class ObsLightFakeObsConfig(object):
         return os.path.join(self.cp.get("Paths", "repositories_dir"),
                             project.replace(":", ":/"))
 
+    def getProjectLiveDir(self, project):
+        return os.path.join(self.cp.get("Paths", "live_dir"),
+                            project.replace(":", ":/"))
+
     def getProjectPackagesDir(self, project):
         return os.path.join(self.cp.get("Paths", "projects_dir"),
                             project, "packages")
@@ -83,11 +89,20 @@ class ObsLightFakeObsConfig(object):
         except ConfigParser.NoOptionError:
             return default
 
+    def getPort(self, whatPort, default=0):
+        try:
+            return self.cp.getint("Ports", whatPort)
+        except ConfigParser.NoOptionError:
+            return default
+
     def getCommand(self, command, default=None, vars={}):
         try:
             return self.cp.get("Commands", command, vars=vars)
         except ConfigParser.NoOptionError:
             return default
+
+    def getLastEventsFilePath(self):
+        return os.path.join(self.getFakeObsRootDir(), "lastevents")
 
 
 def loadConfig(path=DEFAULT_CONFIG_PATH):

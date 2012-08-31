@@ -16,6 +16,8 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 """
+Commandline client for FakeOBS.
+
 @author: Florent Vennetier
 """
 
@@ -46,13 +48,31 @@ class FakeObsCommandline(cmdln.Cmdln):
             Config.loadConfig(self.options.config)
 
     @cmdln.alias("ls")
+    @cmdln.option("-d", "--dependencies", action="store_true",
+                  help="list also project dependencies for each target")
+    @cmdln.option("-t", "--targets", action="store_true",
+                  help="list targets for each project")
     def do_list(self, subcmd, opts):
         """${cmd_name}: get the list of installed projects
         
         ${cmd_usage}
+        ${cmd_option_list}
         """
         for prj in ProjectManager.getProjectList():
             print prj
+            if opts.targets or opts.dependencies:
+                for target in ProjectManager.getTargetList(prj):
+                    archList = ProjectManager.getArchList(prj, target)
+                    print "  %s (%s)" % (target, ", ".join(archList)),
+                    if opts.dependencies:
+                        deps = ProjectManager.getProjectDependencies(prj,
+                                                                     target)
+                        deps = ["%s(%s)" % (x[0], x[1]) for x in deps
+                                if x != (prj, target)]
+                        print "depends on " + (", ".join(deps) or "itself")
+                    else:
+                        print
+                print
 
     @cmdln.alias("delete", "del", "rm")
     def do_remove(self, subcmd, opts, project):
@@ -109,10 +129,11 @@ class FakeObsCommandline(cmdln.Cmdln):
         gotError = False
         for test, message in testList:
             print message,
+            sys.stdout.flush()
             errors = test(project)
             if len(errors) > 0:
                 gotError = True
-                print
+                print "Error"
                 for error in errors:
                     print >> sys.stderr, error
                 print
@@ -156,7 +177,8 @@ if __name__ == "__main__":
         print >> sys.stderr, ve
         res = 1
     except IOError as ioe:
+        commandline.do_help([sys.argv[0]])
+        print
         print >> sys.stderr, ioe
-        commandline.do_help(sys.argv)
         res = 1
     sys.exit(res)
