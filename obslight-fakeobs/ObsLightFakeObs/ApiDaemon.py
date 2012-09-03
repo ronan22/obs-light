@@ -14,7 +14,8 @@ __all__ = ["SimpleHTTPRequestHandler"]
 MAPPINGS_FILE = "mappings.xml"
 DEFAULT_DIR = "/srv/fakeobs"
 
-import os, sys
+import os
+import sys
 import posixpath
 import SocketServer
 import BaseHTTPServer
@@ -26,7 +27,6 @@ import mimetypes
 import urlparse
 import uuid
 
-import os
 import tempfile
 import traceback
 import xml.dom.minidom
@@ -65,21 +65,21 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         if f:
             self.copyfile(f, self.wfile)
             if hasattr(f, "close"):
-               f.close()
+                f.close()
 
     def do_HEAD(self):
         """Serve a HEAD request."""
         f = self.send_head(HEAD)
         if f:
-          if hasattr(f, "close"):
-            f.close()
+            if hasattr(f, "close"):
+                f.close()
 
     def do_POST(self):
         f = self.send_head(POST)
         if f:
-          self.copyfile(f, self.wfile)
-          if hasattr(f, "close"):
-            f.close()
+            self.copyfile(f, self.wfile)
+            if hasattr(f, "close"):
+                f.close()
 
     # Always returns a stream
     def send_head(self, action):
@@ -173,7 +173,8 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                             filters.append((urllib.unquote(spl[0]),
                                             urllib.unquote(spl[1]),
                                             urllib.unquote(spl[2])))
-                contentsize, content = string2stream(Backend.getEventsFiltered(int(query["start"][0]),
+                start = int(query["start"][0])
+                contentsize, content = string2stream(Backend.getEventsFiltered(start,
                                                                                filters))
                 contenttype = "text/html"
                 contentmtime = time.time()
@@ -267,7 +268,7 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 realprojectPath = conf.getProjectDir(realproject)
 
                 if realprojectPath is None:
-                     realprojectPath = "--UNKNOWNPROJECT"
+                    realprojectPath = "--UNKNOWNPROJECT"
 
                 # GET /source/<project> 
                 if len(pathparts) == 2:
@@ -339,10 +340,10 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                             expand = 0
                             #GET /source/<project>/<package>/<filename>?expand=[0 1]
                             if query.has_key("expand"):
-                                    expand = int(query["expand"][0])
+                                expand = int(query["expand"][0])
                             #GET /source/<project>/<package>/<filename>?rev=XX
                             if query.has_key("rev"):
-                                    rev = query["rev"][0]
+                                rev = query["rev"][0]
 
                             filePath = Backend.getPackageFilePath(realproject,
                                                                   packageName,
@@ -684,9 +685,9 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                                 content = None # 404 it
 
         if content is None:
-              print "404: path"
-              self.send_error(404, "File not found")
-              return None
+            print "404: path"
+            self.send_error(404, "File not found")
+            return None
 
         if response is None:
             self.send_response(200)
@@ -715,7 +716,7 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         shutil.copyfileobj(source, outputfile)
 
 class XFSPWebServer(SocketServer.ThreadingMixIn, BaseHTTPServer.HTTPServer):
-        pass
+    pass
 
 def getProjectsTargetsAndReleases():
     """

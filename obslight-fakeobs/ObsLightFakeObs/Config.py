@@ -23,7 +23,7 @@ Configuration manager for FakeOBS.
 import os
 import ConfigParser
 
-conf = None
+GLOBAL_CONFIG_INSTANCE = None
 
 DEFAULT_CONFIG_PATH = "/etc/obslight-fakeobs.conf"
 DEFAULT_CONFIG = {"fakeobs_root": "/srv/obslight-fakeobs",
@@ -50,6 +50,7 @@ class ObsLightFakeObsConfig(object):
         return self._configParser
 
     def readConfig(self):
+        """Load configuration from the file at `self.configPath`."""
         self._configParser = ConfigParser.SafeConfigParser(DEFAULT_CONFIG)
         if len(self._configParser.read(self.configPath)) < 1:
             raise IOError("%s does not exist or is not readable"
@@ -84,24 +85,28 @@ class ObsLightFakeObsConfig(object):
         return os.path.join(self.getProjectDir(project), "project_info")
 
     def getIntLimit(self, whatLimit, default=None):
+        """Get an integer property from the 'Limits' section."""
         try:
             return self.cp.getint("Limits", whatLimit)
         except ConfigParser.NoOptionError:
             return default
 
     def getPort(self, whatPort, default=0):
+        """Get an integer property from the 'Ports' section."""
         try:
             return self.cp.getint("Ports", whatPort)
         except ConfigParser.NoOptionError:
             return default
 
     def getPath(self, whatPath, default=None, vars={}):
+        """Get a property from the 'Paths' section."""
         try:
             return self.cp.get("Paths", whatPath, vars=vars)
         except ConfigParser.NoOptionError:
             return default
 
     def getCommand(self, command, default=None, vars={}):
+        """Get a property from the 'Commands' section."""
         try:
             return self.cp.get("Commands", command, vars=vars)
         except ConfigParser.NoOptionError:
@@ -115,8 +120,8 @@ class ObsLightFakeObsConfig(object):
 
 
 def loadConfig(path=DEFAULT_CONFIG_PATH):
-    global conf
-    conf = ObsLightFakeObsConfig(path)
+    global GLOBAL_CONFIG_INSTANCE
+    GLOBAL_CONFIG_INSTANCE = ObsLightFakeObsConfig(path)
 
 def getConfig():
-    return conf
+    return GLOBAL_CONFIG_INSTANCE

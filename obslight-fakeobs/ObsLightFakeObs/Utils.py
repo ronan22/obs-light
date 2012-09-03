@@ -16,6 +16,7 @@
 #
 """
 Miscellaneous utilities for FakeOBS.
+These utilities don't depend on 'Config' module.
 
 @author: Florent Vennetier
 """
@@ -24,7 +25,7 @@ import os
 import subprocess
 import urllib2
 import xml.dom.minidom
-from hashlib import md5
+import hashlib
 from xml.etree import ElementTree
 
 SIZE_LIMIT_FOR_INTERNAL_MD5 = 1024 * 1024
@@ -36,8 +37,8 @@ def getEntryNameList(xmlContent, tag="entry", attribute="name"):
     """
     nameList = []
     doc = xml.dom.minidom.parseString(xmlContent)
-    for x in doc.getElementsByTagName(tag):
-        name = x.attributes[attribute].value
+    for element in doc.getElementsByTagName(tag):
+        name = element.attributes[attribute].value
         nameList.append(name)
     return nameList
 
@@ -55,6 +56,26 @@ def getEntriesAsDicts(xmlContent, tag="entry"):
                 entry[attribute[0]] = attribute[1]
             dictList.append(entry)
     return dictList
+
+def httpQueryToDict(query):
+    """
+    Makes a dict from an HTTP query.
+    With query:
+      project=toto&package=foo&package=bar
+    it will return:
+      {"project": ["toto"], "package": ["foo", "bar"]}
+    """
+    queryDict = dict()
+    queryParts = query.split('&')
+    for queryPart in queryParts:
+        subParts = queryPart.split('=')
+        if len(subParts) == 1 and len(subParts[0]) > 0:
+            queryDict[subParts[0]] = list()
+        elif len(subParts) >= 2:
+            values = queryDict.get(subParts[0], list())
+            values.append(subParts[1])
+            queryDict[subParts[0]] = values
+    return queryDict
 
 def getPackageListFromServer(api, project):
     """Get the list of packages of a project from the server."""
@@ -77,6 +98,42 @@ def getArchListFromServer(api, project, target):
     xmlArchList = urllib2.urlopen(url).read()
     return getEntryNameList(xmlArchList)
 
+def projectExistsOnServer(api, project):
+    """Verify that `project` exists on server."""
+    url = "%s/source/%s" % (api, project)
+    try:
+        urllib2.urlopen(url)
+        return True
+    except urllib2.HTTPError:
+        return False
+
+def buildTargetArchTuples(api, project, targets=[], archs=[]):
+    """
+    Calls `api` to search for valid targets and architectures.
+    You can specify which ones you want in `targets` and `archs`.
+    Returns a list of (target, arch) tuples.
+    """
+    result = []
+    availableTargets = getTargetListFromServer(api, project)
+    if len(targets) == 0:
+        # User did not specify targets, take them all
+        targets = availableTargets
+    else:
+        # Refine user-specified target list
+        targets = [t for t in targets if t in availableTargets]
+    for target in targets:
+        availableArchs = getArchListFromServer(api, project, target)
+        if len(archs) == 0:
+            # User did not specify archs, so take all
+            for arch in availableArchs:
+                result.append((target, arch))
+        else:
+            # User specified wanted archs, take those which are available
+            for arch in archs:
+                if arch in availableArchs:
+                    result.append((target, arch))
+    return result
+
 def computeMd5(path):
     """
     Compute MD5 of file at `path`,
@@ -84,11 +141,11 @@ def computeMd5(path):
     using md5sum subprocess otherwise.
     """
     if os.path.getsize(path) < SIZE_LIMIT_FOR_INTERNAL_MD5:
-        with open(path, "rb") as f:
-            return md5(f.read()).hexdigest()
+        with open(path, "rb") as myFile:
+            return hashlib.md5(myFile.read()).hexdigest()
     else:
-        p = subprocess.Popen(["md5sum", path], stdout=subprocess.PIPE)
-        return p.communicate()[0][:32]
+        proc = subprocess.Popen(["md5sum", path], stdout=subprocess.PIPE)
+        return proc.communicate()[0][:32]
 
 def callSubprocess(command, retries=0, *popenargs, **kwargs):
     """
@@ -102,15 +159,20 @@ def callSubprocess(command, retries=0, *popenargs, **kwargs):
     return retCode
 
 def isASpecFile(aFile):
+    """Tells if `aFile` is a spec file by looking at filename extension"""
     return aFile.endswith(".spec")
 
 def getSubDirectoryList(path):
+    """Get the list of immediate sub-directories under `path`."""
     return [d for d in os.listdir(path)
             if os.path.isdir(os.path.join(path, d))]
 
-# Implementation taken from http://hetland.org
 def levenshtein(a, b):
-    """Calculates the Levenshtein distance between a and b."""
+    """
+    Calculates the Levenshtein distance between a and b.
+    
+    Implementation taken from http://hetland.org
+    """
     n, m = len(a), len(b)
     if n > m:
         # Make sure n <= m, to use O(min(n,m)) space
@@ -129,7 +191,7 @@ def levenshtein(a, b):
 
     return current[n]
 
-def findBestSpecFile(self, specFileList, packageName):
+def findBestSpecFile(specFileList, packageName):
     """Find the name of the spec file which matches best with `packageName`"""
     specFile = None
     if len(specFileList) < 1:
@@ -163,10 +225,11 @@ def findBestSpecFile(self, specFileList, packageName):
 
 def curlUnpack(url, destDir):
     """Call `url` and pipe the result to cpio to extract RPMs in `destDir`"""
-    p1 = subprocess.Popen(["curl", "-k", "--retry", "5", url],
+    proc1 = subprocess.Popen(["curl", "-k", "--retry", "5", url],
                           stdout=subprocess.PIPE)
-    p2 = subprocess.Popen(["cpio", "-idvm"], stdin=p1.stdout, cwd=destDir)
-    return p2.wait()
+    proc2 = subprocess.Popen(["cpio", "-idvm"], stdin=proc1.stdout,
+                             cwd=destDir)
+    return proc2.wait()
 
 def createCpio(outputFile, strFileList, cwd=None):
     """
@@ -176,6 +239,32 @@ def createCpio(outputFile, strFileList, cwd=None):
      `cwd`:         directory where to execute cpio from
     """
     cmd = ["cpio", "-o", "-H", "newc", "-C", "8192"]
-    p = subprocess.Popen(cmd, cwd=cwd, stdin=subprocess.PIPE, stdout=outputFile)
-    p.communicate(strFileList)
-    return p.wait()
+    proc = subprocess.Popen(cmd, cwd=cwd,
+                            stdin=subprocess.PIPE,
+                            stdout=outputFile)
+    proc.communicate(strFileList)
+    return proc.wait()
+
+def fixObsPublicApi(api):
+    """
+    Removes ending '/' from `api` and appends '/public' if necessary.
+    Returns the fixed api.
+    """
+    if api.endswith('/'):
+        api = api[:-1]
+    if not api.endswith("/public"):
+        return api + "/public"
+    else:
+        return api
+
+def checkObsPublicApi(api):
+    """Try to contact `api` to see if it's valid."""
+    cmd = ["curl", "-s", "-S", "-f", "-k", api]
+    res = callSubprocess(cmd, stdout=subprocess.PIPE)
+    return res == 0
+
+def checkRsyncUrl(url):
+    """Try to contact `url` with rsync to see if it's valid."""
+    cmd = ["rsync", "-q", url]
+    res = callSubprocess(cmd, stdout=subprocess.PIPE)
+    return res == 0

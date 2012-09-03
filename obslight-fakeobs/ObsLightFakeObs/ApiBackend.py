@@ -63,9 +63,9 @@ def getPackageLastRevSrcmd5(project, package):
     """Get rev and srcmd5 attributes of `package` (as a tuple)."""
     xmlContent = buildFileIndex(project, package)
     doc = xml.dom.minidom.parseString(xmlContent)
-    for x in doc.getElementsByTagName("directory"):
-        rev = x.attributes["rev"]
-        srcmd5 = x.attributes["srcmd5"]
+    for element in doc.getElementsByTagName("directory"):
+        rev = element.attributes["rev"]
+        srcmd5 = element.attributes["srcmd5"]
         return rev, srcmd5
 
 def getProjectSpecFile(project, package):
@@ -87,8 +87,8 @@ def buildFileIndex(project, package):
     packagesDir = getConfig().getProjectPackagesDir(project)
     packagePath = os.path.join(packagesDir, package)
     indexPath = os.path.join(packagePath, getConfig().PackageDescriptionFile)
-    with open(indexPath, "r") as f:
-        return f.read()
+    with open(indexPath, "r") as myFile:
+        return myFile.read()
 
 def buildSearchIndex():
     content = "<collection>\n"
@@ -98,36 +98,36 @@ def buildSearchIndex():
     return content
 
 def getNextEvent():
-    with open(getConfig().getLastEventsFilePath(), 'rb') as f:
-        csvReader = csv.reader(f, delimiter='|', quotechar='"')
+    with open(getConfig().getLastEventsFilePath(), 'rb') as myFile:
+        csvReader = csv.reader(myFile, delimiter='|', quotechar='"')
         last = 0
         for row in csvReader:
             last = int(row[0])
         return last
 
 def getEventsFiltered(start, filters):
-    impl = getDOMImplementation()
+    impl = xml.dom.minidom.getDOMImplementation()
     indexdoc = impl.createDocument(None, "events", None)
 
     def appendTextElement(parent, tag, text):
         node = indexdoc.createElement(tag)
-        node.appendChild(doc1.createTextNode(text))
+        node.appendChild(indexdoc.createTextNode(text))
         parent.appendChild(node)
 
-    with open("lastevents", 'rb') as f:
+    with open("lastevents", 'rb') as myFile:
         indexdoc.childNodes[0].setAttribute("next", str(getNextEvent()))
 
-        csvReader = csv.reader(f, delimiter='|', quotechar='"')
+        csvReader = csv.reader(myFile, delimiter='|', quotechar='"')
         for row in csvReader:
             num = int(row[0])
             if num <= start:
                 continue
             is_ok = False
-            for filter in filters:
-                if filter[2] is None:
-                    if filter[0] == row[2] and filter[1] == row[3]:
-                       is_ok = True
-                elif filter[0] == row[2] and filter[1] == row[3] and filter[2] == row[4]:
+            for filt in filters:
+                if filt[2] is None:
+                    if filt[0] == row[2] and filt[1] == row[3]:
+                        is_ok = True
+                elif filt[0] == row[2] and filt[1] == row[3] and filt[2] == row[4]:
                     is_ok = True
             if is_ok:
                 eventelm = indexdoc.createElement("event")

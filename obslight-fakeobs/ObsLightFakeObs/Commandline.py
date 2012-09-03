@@ -21,7 +21,6 @@ Commandline client for FakeOBS.
 @author: Florent Vennetier
 """
 
-import os
 import sys
 import cmdln
 import Config
@@ -100,10 +99,16 @@ class FakeObsCommandline(cmdln.Cmdln):
     def do_grab(self, subcmd, opts, project):
         """${cmd_name}: import a project from server
         
+        API and RSYNC parameters are mandatory.
+        
         ${cmd_usage}
         ${cmd_option_list}
         """
         new_name = opts.new_name or project
+        if opts.api is None:
+            raise ValueError("You must provide an API! (use -A or --api)")
+        if opts.rsync is None:
+            raise ValueError("You must provide an rsync URL! (use -r or --rsync)")
         ProjectManager.grabProject(opts.api, opts.rsync, project,
                                    opts.targets, opts.archs, new_name)
 
@@ -151,6 +156,11 @@ class FakeObsCommandline(cmdln.Cmdln):
     def do_export(self, subcmd, opts, project):
         """${cmd_name}: export a project to an archive
         
+        Default compression format is gzip. You may override by
+        giving '.tar.bz2' or '.tar.xz' suffix to the archive.
+        
+        You should consider running 'shrink' before exporting.
+        
         ${cmd_usage}
         ${cmd_option_list}
         """
@@ -167,6 +177,16 @@ class FakeObsCommandline(cmdln.Cmdln):
         ${cmd_option_list}
         """
         ProjectManager.importProject(archive, opts.new_name)
+
+    @cmdln.option("-s", "--symbolic", action="store_true",
+                  help="make symbolic links instead of hard links")
+    def do_shrink(self, subcmd, opts, project):
+        """${cmd_name}: reduce disk usage by making hard links between RPMs
+        
+        ${cmd_usage}
+        ${cmd_option_list}
+        """
+        ProjectManager.shrinkProject(project, opts.symbolic)
 
 
 if __name__ == "__main__":

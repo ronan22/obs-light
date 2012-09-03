@@ -26,7 +26,6 @@ import re
 import shlex
 import tempfile
 
-import xml.dom.minidom
 from subprocess import Popen, PIPE
 from xml.dom.minidom import getDOMImplementation
 
@@ -159,8 +158,8 @@ def getbuildInfo(rev, srcmd5, specFile, listRepository, dist, depfile, arch,
                 preinstallRes = line
                 preinstallList = preinstallRes[len("preinstall:"):].split()
             elif line.startswith("vminstall"):
-                  vminstallRes = line
-                  vminstallList = vminstallRes[len("vminstall:"):].split()
+                vminstallRes = line
+                vminstallList = vminstallRes[len("vminstall:"):].split()
             elif line.startswith("cbpreinstall"):
                 cbpreinstallRes = line
                 cbpreinstallList = cbpreinstallRes[len("cbpreinstall:"):].split()
@@ -285,7 +284,7 @@ def getbuildInfo(rev, srcmd5, specFile, listRepository, dist, depfile, arch,
             bdepelement.setAttribute("name", rpmName)
 
             if rpmName in preinstallList:
-                 bdepelement.setAttribute("preinstall", "1")
+                bdepelement.setAttribute("preinstall", "1")
             if rpmName in vminstallList:
                 bdepelement.setAttribute("vminstall", "1")
             if rpmName in cbpreinstallList:

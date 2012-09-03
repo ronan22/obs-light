@@ -32,6 +32,7 @@ import SocketServer
 import BaseHTTPServer
 
 from Config import getConfig, loadConfig
+from Utils import getEntryNameList, getEntriesAsDicts, httpQueryToDict
 
 GET = "GET"
 
@@ -121,51 +122,6 @@ TEXT_FILE_TEMPLATE = """
 <pre>%(content)s</pre>
 """
 
-def queryToDict(query):
-    """
-    Makes a dict from an HTTP query.
-    With query:
-      project=toto&package=foo&package=bar
-    it will return:
-      {"project": ["toto"], "package": ["foo", "bar"]}
-    """
-    queryDict = dict()
-    queryParts = query.split('&')
-    for queryPart in queryParts:
-        subParts = queryPart.split('=')
-        if len(subParts) == 1 and len(subParts[0]) > 0:
-            queryDict[subParts[0]] = list()
-        elif len(subParts) >= 2:
-            values = queryDict.get(subParts[0], list())
-            values.append(subParts[1])
-            queryDict[subParts[0]] = values
-    return queryDict
-
-def getEntryNameList(xmlContent):
-    """Makes a list of all "name" attributes of the XML tree"""
-    nameList = []
-    directoryList = ElementTree.fromstring(xmlContent)
-    for directory in directoryList:
-        for element in directory.iter("entry"):
-            name = element.get("name")
-            nameList.append(name)
-    return nameList
-
-def getEntriesAsDicts(xmlContent):
-    """
-    Make a dict from a string like the one returned by a request to
-      /source/<project>/<package>
-    """
-    dictList = []
-    directoryList = ElementTree.fromstring(xmlContent)
-    for directory in directoryList:
-        for element in directory.iter("entry"):
-            entry = dict()
-            for attribute in element.items():
-                entry[attribute[0]] = attribute[1]
-            dictList.append(entry)
-    return dictList
-
 
 class FakeObsWebUiRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
@@ -194,7 +150,7 @@ class FakeObsWebUiRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         else:
             # path starts with '/' so first splitted element is always empty
             pathParts = parsedPath[2].split('/')[1:]
-            queryDict = queryToDict(parsedPath[4])
+            queryDict = httpQueryToDict(parsedPath[4])
             try:
                 content, contentType, code = pathToMethod[pathParts[0]](pathParts[1:], queryDict)
             except KeyError as ke:

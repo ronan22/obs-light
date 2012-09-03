@@ -25,19 +25,15 @@ import re
 import shlex
 import shutil
 import subprocess
-import sys
 import tempfile
 import time
 import urllib
-import urllib2
 
 import xml.dom.minidom
 import ConfigParser
 
-from Utils import callSubprocess, computeMd5, curlUnpack, findBestSpecFile
-from Utils import getEntryNameList, getEntriesAsDicts
-from Utils import getPackageListFromServer, getSubDirectoryList
-from Utils import isASpecFile
+import Utils
+import Dupes
 from Config import getConfig
 
 def getProjectList():
@@ -54,34 +50,34 @@ def getPackageList(project):
 
 def getTargetList(project):
     """Get the list of targets of a local project."""
-    return getSubDirectoryList(getConfig().getProjectFullDir(project))
+    return Utils.getSubDirectoryList(getConfig().getProjectFullDir(project))
 
 def getArchList(project, target):
     """Get the list of architectures available for `target` of `project`."""
-    td = os.path.join(getConfig().getProjectFullDir(project), target)
-    return getSubDirectoryList(td)
+    targetDir = os.path.join(getConfig().getProjectFullDir(project), target)
+    return Utils.getSubDirectoryList(targetDir)
 
 def getSpecFileList(project, package):
     """Get the list of all spec files of `package`."""
     pDir = os.path.join(getConfig().getProjectPackagesDir(project), package)
     fileList = os.listdir(pDir)
     specFileList = []
-    for f in fileList:
-        if isASpecFile(f):
-            specFileList.append(f)
+    for myFile in fileList:
+        if Utils.isASpecFile(myFile):
+            specFileList.append(myFile)
     return specFileList
 
 def getSpecFile(project, package):
     """Get the name of the spec file of `package`."""
-    return findBestSpecFile(getSpecFileList(project, package))
+    return Utils.findBestSpecFile(getSpecFileList(project, package), package)
 
 def readProjectSpecialFile(project, specialFile="_meta"):
     """Get the content of a file in `project`'s directory (ex: _meta)"""
     projectDir = getConfig().getProjectDir(project)
     filePath = os.path.join(projectDir, specialFile)
     content = ""
-    with open(filePath, "r") as f:
-        content = f.read()
+    with open(filePath, "r") as myFile:
+        content = myFile.read()
     return content
 
 def failIfProjectExists(project):
@@ -95,6 +91,7 @@ def failIfProjectDoesNotExist(project):
         raise ValueError("Project '%s' does not exist!" % project)
 
 def failIfTargetDoesNotExist(project, target):
+    """Raise ValueError if `target` does not exist for `project`"""
     if target not in getTargetList(project):
         raise ValueError("Target '%s' does not exist for project '%s'!"
                          % (target, project))
@@ -110,7 +107,7 @@ def downloadFile(url, destDir=None, fileName=None):
         cmd += ["-O", fileName]
     cmd += [url]
 
-    retCode = callSubprocess(cmd, maxRetries, cwd=destDir)
+    retCode = Utils.callSubprocess(cmd, maxRetries, cwd=destDir)
     return retCode
 
 def downloadFiles(baseUrl, fileNames, destDir=None):
@@ -121,11 +118,11 @@ def downloadFiles(baseUrl, fileNames, destDir=None):
     cmd += shlex.split(conf.getCommand("wget_options",
                                        "--no-check-certificate"))
     urls = []
-    for f in fileNames:
-        urls.append(baseUrl + urllib.quote(f))
+    for myFile in fileNames:
+        urls.append(baseUrl + urllib.quote(myFile))
     cmd += urls
 
-    retCode = callSubprocess(cmd, retries=maxRetries, cwd=destDir)
+    retCode = Utils.callSubprocess(cmd, retries=maxRetries, cwd=destDir)
     return retCode
 
 def makeCpioQueries(namesViewPath, maxRpmPerCpio=48):
@@ -156,6 +153,12 @@ def makeCpioQueries(namesViewPath, maxRpmPerCpio=48):
 
     return outputList
 
+def deleteRpmSignatures(topDir):
+    """Delete signatures of all RPMs under `topDir`"""
+    retCode = Utils.callSubprocess(["find", topDir, "-name", "*.rpm",
+                                    "-exec", "rpm", "--delsign", "{}", ";"])
+    return retCode
+
 def downloadFull(api, project, target, arch, destDir):
     """
     Download the full (aka bootstrap) of `project` from `api`
@@ -175,19 +178,19 @@ def downloadFull(api, project, target, arch, destDir):
                                                           48))
     for query in cpioQueries:
         url = cpioUrl % (api, project, target, arch, query)
-        retCode = curlUnpack(url, destDir)
+        retCode = Utils.curlUnpack(url, destDir)
+    deleteRpmSignatures(destDir)
 
-def downloadFulls(api, project, targets, archs, fullDir):
+def downloadFulls(api, project, targetArchTuples, fullDir):
     """
-    Download the fulls (aka bootstraps) of `project` for `target`
-    and the architectures in `archs`. A directory named `target`
-    will be created in `fullDir`, and a subdirectory for each
-    architecture of `archs`.
+    Download the fulls (aka bootstraps) of `project` for each
+    target and architecture in `targetArchTuples`.
+    A directory named after each target will be created in `fullDir`,
+    and a subdirectory for each architecture.
     """
-    for target in targets:
-        for arch in archs:
-            destDir = os.path.join(fullDir, target, arch)
-            downloadFull(api, project, target, arch, destDir)
+    for target, arch in targetArchTuples:
+        destDir = os.path.join(fullDir, target, arch)
+        downloadFull(api, project, target, arch, destDir)
 
 def downloadRepository(rsyncUrl, project, target, repoDir):
     """Download the RPM repository of `project`, for `target`, using rsync"""
@@ -209,20 +212,19 @@ def downloadRepository(rsyncUrl, project, target, repoDir):
               "--exclude=src/", "--include=*.rpm",
               "%s/%s/%s/*" % (rsyncUrl, project.replace(":", ":/"), target),
               "."]
-    retCode = callSubprocess(rsync, cwd=packagesDir)
     # TODO: check retCode
-    # Is that useful ?
-    retCode = callSubprocess(["find", packagesDir,
-                              "-name", "*.rpm",
-                              "-exec", "rpm", "--delsign", "{}", ";"])
+    retCode = Utils.callSubprocess(rsync, cwd=packagesDir)
+
+    deleteRpmSignatures(packagesDir)
+
     # TODO: check retCode
-    retCode = callSubprocess(["find", packagesDir,
-                              "-name", "*-debuginfo-*", "-o",
-                              "-name", "*-debugsource-*",
-                              "-exec", "mv", "-f", "{}", debugDir, ";"])
-    # TODO: check retCode
-    retCode = callSubprocess(["createrepo", packagesDir])
-    retCode = callSubprocess(["createrepo", debugDir])
+    retCode = Utils.callSubprocess(["find", packagesDir,
+                                    "-name", "*-debuginfo-*", "-o",
+                                    "-name", "*-debugsource-*",
+                                    "-exec", "mv", "-f", "{}", debugDir, ";"])
+    # TODO: check retCodes
+    retCode = Utils.callSubprocess(["createrepo", packagesDir])
+    retCode = Utils.callSubprocess(["createrepo", debugDir])
 
 def downloadRepositories(rsyncUrl, project, targets, repoDir):
     """Download the RPM repositories of `project` using rsync"""
@@ -254,7 +256,7 @@ def downloadPackageFiles(api, project, package, destDir):
     xmlContent = None
     with open(indexPath, "r") as indexFile:
         xmlContent = indexFile.read()
-    entries = getEntriesAsDicts(xmlContent)
+    entries = Utils.getEntriesAsDicts(xmlContent)
     baseUrl = urllib.quote("source/%s/%s/" % (project, package))
     baseUrl = "%s/%s" % (api, baseUrl)
     res = downloadFiles(baseUrl,
@@ -274,7 +276,7 @@ def downloadPackageFiles(api, project, package, destDir):
 
 def downloadPackages(api, project, packagesDir):
     """Download sources of all packages of `project` from `api`"""
-    for package in getPackageListFromServer(api, project):
+    for package in Utils.getPackageListFromServer(api, project):
         packageDir = os.path.join(packagesDir, package)
         downloadPackageFiles(api, project, package, packageDir)
 
@@ -282,8 +284,8 @@ def downloadConfAndMeta(api, project, destDir):
     """Download configuration and meta information about `project`"""
     if not os.path.isdir(destDir):
         os.makedirs(destDir)
-    for f in ["_meta", "_config"]:
-        fileUrl = urllib.quote("source/%s/%s" % (project, f))
+    for myFile in ["_meta", "_config"]:
+        fileUrl = urllib.quote("source/%s/%s" % (project, myFile))
         fileUrl = "%s/%s" % (api, fileUrl)
         retCode = downloadFile(fileUrl, destDir)
 
@@ -298,14 +300,14 @@ def fixProjectMeta(project):
     metaFilePath = os.path.join(projectDir, "_meta")
     # TODO: do these operations with Python instead of sed
     # Remove "fakeobs" project link in dependency projects
-    retCode = callSubprocess(["sed", "-r", "-i", "-e",
-                              r"s,(<path\s+project=\")fakeobs:,\1,",
-                              metaFilePath])
+    retCode = Utils.callSubprocess(["sed", "-r", "-i", "-e",
+                                    r"s,(<path\s+project=\")fakeobs:,\1,",
+                                    metaFilePath])
     # Fix the name of the project, in case user renamed it
-    retCode = callSubprocess(["sed", "-r", "-i", "-e",
-                              r"s,(<project.+name=\")\S+(\".*),\1%s\2,"
-                              % project,
-                              metaFilePath])
+    retCode = Utils.callSubprocess(["sed", "-r", "-i", "-e",
+                                    r"s,(<project.+name=\")\S+(\".*),\1%s\2,"
+                                    % project,
+                                    metaFilePath])
 
 def fixProjectPackagesMeta(project):
     """
@@ -315,10 +317,31 @@ def fixProjectPackagesMeta(project):
     packagesDir = getConfig().getProjectPackagesDir(project)
     for package in getPackageList(project):
         metaPath = os.path.join(packagesDir, package, "_meta")
-        res = callSubprocess(["sed", "-r", "-i", "-e",
-                              (r"s,(<package.+project=\")\S+(\".*),\1%s\2,"
-                               % project),
-                              metaPath])
+        myExp = r"s,(<package.+project=\")\S+(\".*),\1%s\2," % project
+        res = Utils.callSubprocess(["sed", "-r", "-i", "-e", myExp, metaPath])
+
+def writeProjectInfo(api, rsyncUrl, project, targets, archs, newName):
+    """
+    Write informations about recently grabbed `newName` project
+    in a file, for future use.
+    """
+    grabTime = time.asctime()
+    confParser = ConfigParser.SafeConfigParser()
+    confParser.add_section("GrabInfo")
+    confParser.set("GrabInfo", "api", api)
+    confParser.set("GrabInfo", "rsync_url", rsyncUrl)
+    confParser.set("GrabInfo", "project", project)
+    confParser.set("GrabInfo", "targets", ",".join(targets))
+    confParser.set("GrabInfo", "archs", ",".join(archs))
+    confParser.set("GrabInfo", "date", grabTime)
+
+    confParser.add_section("UpdateInfo")
+    confParser.set("UpdateInfo", "last_update", grabTime)
+    confParser.set("UpdateInfo", "rsync_update_url", "")
+    confParser.set("UpdateInfo", "project", project)
+
+    with open(getConfig().getProjectInfoPath(newName), "wb") as configFile:
+        confParser.write(configFile)
 
 def grabProject(api, rsyncUrl, project, targets, archs, newName=None):
     """
@@ -339,7 +362,25 @@ def grabProject(api, rsyncUrl, project, targets, archs, newName=None):
     if newName is None:
         newName = project
     failIfProjectExists(newName)
-    # TODO: check other parameters
+
+    api = Utils.fixObsPublicApi(api)
+    if not Utils.checkObsPublicApi(api):
+        raise ValueError("Invalid API: %s" % api)
+
+    if not Utils.checkRsyncUrl(rsyncUrl):
+        raise ValueError("Invalid rsync URL: %s" % rsyncUrl)
+
+    if not Utils.projectExistsOnServer(api, project):
+        raise ValueError("Could not find project '%s' on server" % project)
+
+    targetArchTuples = Utils.buildTargetArchTuples(api, project,
+                                                   targets, archs)
+    if len(targetArchTuples) == 0:
+        msg = "Invalid target/arch specified, or all disabled on server!"
+        raise ValueError(msg)
+
+    targets = {t for t, a in targetArchTuples}
+    archs = {a for t, a in targetArchTuples}
 
     conf = getConfig()
     projectDir = conf.getProjectDir(newName)
@@ -349,37 +390,21 @@ def grabProject(api, rsyncUrl, project, targets, archs, newName=None):
 
     downloadConfAndMeta(api, project, projectDir)
     fixProjectMeta(newName)
-    downloadFulls(api, project, targets, archs, fullDir)
+    downloadFulls(api, project, targetArchTuples, fullDir)
     downloadPackages(api, project, packagesDir)
     fixProjectPackagesMeta(newName)
     downloadRepositories(rsyncUrl, project, targets, repoDir)
-
-    grabTime = time.asctime()
-    cp = ConfigParser.SafeConfigParser()
-    cp.add_section("GrabInfo")
-    cp.set("GrabInfo", "api", api)
-    cp.set("GrabInfo", "rsync_url", rsyncUrl)
-    cp.set("GrabInfo", "project", project)
-    cp.set("GrabInfo", "targets", ",".join(targets))
-    cp.set("GrabInfo", "archs", ",".join(archs))
-    cp.set("GrabInfo", "date", grabTime)
-
-    cp.add_section("UpdateInfo")
-    cp.set("UpdateInfo", "last_update", grabTime)
-    cp.set("UpdateInfo", "rsync_update_url", "")
-
-    with open(conf.getProjectInfoPath(newName), "wb") as configFile:
-        cp.write(configFile)
     updateLiveRepository(newName)
+    writeProjectInfo(api, rsyncUrl, project, targets, archs, newName)
 
 def removeProject(project):
     """Remove `project` from fakeobs."""
     conf = getConfig()
-    for d in {conf.getProjectDir(project),
+    for myDir in {conf.getProjectDir(project),
               conf.getProjectRepositoryDir(project),
               conf.getProjectLiveDir(project)}:
-        if os.path.isdir(d):
-            shutil.rmtree(d)
+        if os.path.isdir(myDir):
+            shutil.rmtree(myDir)
 
 def exportProject(project, destPath=None):
     """
@@ -401,11 +426,12 @@ def exportProject(project, destPath=None):
         destPath = archiveName
     elif os.path.isdir(destPath):
         destPath = os.path.join(destPath, archiveName)
-    vars = {"archive": destPath, "fakeobs_root": fakeobsRootDir}
+    replacements = {"archive": destPath, "fakeobs_root": fakeobsRootDir}
     tarCmd = [conf.getCommand("tar")]
-    tarCmd += shlex.split(conf.getCommand("tar_create_options", vars=vars))
+    tarCmd += shlex.split(conf.getCommand("tar_create_options",
+                                          vars=replacements))
     tarCmd += [projectRelPath, repoRelPath]
-    res = callSubprocess(tarCmd)
+    res = Utils.callSubprocess(tarCmd)
 
 def importProject(archivePath, newName=None):
     """
@@ -421,10 +447,11 @@ def importProject(archivePath, newName=None):
     stagingDir = tempfile.mkdtemp(dir=fakeobsRootDir)
     try:
         # Extract archive to a temporary directory
-        vars = {"archive": archivePath, "fakeobs_root": stagingDir}
+        replacements = {"archive": archivePath, "fakeobs_root": stagingDir}
         tarCmd = [conf.getCommand("tar")]
-        tarCmd += shlex.split(conf.getCommand("tar_extract_options", vars=vars))
-        res = callSubprocess(tarCmd)
+        tarCmd += shlex.split(conf.getCommand("tar_extract_options",
+                                              vars=replacements))
+        res = Utils.callSubprocess(tarCmd)
         if res != 0:
             # FIXME: raise exception instead of returning 1
             return 1
@@ -471,8 +498,8 @@ def checkProjectConfigAndMeta(project):
             exp = re.compile(r'<path project="fakeobs:')
             found = False
             lineCount = 0
-            with open(metaPath, "r") as f:
-                for line in f:
+            with open(metaPath, "r") as myFile:
+                for line in myFile:
                     lineCount += 1
                     if exp.search(line):
                         found = True
@@ -518,9 +545,10 @@ def checkProjectFull(project):
                 errorList.append(msg % (target, arch))
                 break
             xmlContent = ""
-            with open(namesRawFilePath, "r") as f:
-                xmlContent = f.read()
-            fileList = getEntryNameList(xmlContent, "binary", "filename")
+            with open(namesRawFilePath, "r") as myFile:
+                xmlContent = myFile.read()
+            fileList = Utils.getEntryNameList(xmlContent,
+                                              "binary", "filename")
             for fileName in fileList:
                 if (fileName.endswith("debuginfo.rpm") or
                     fileName.endswith("debugsource.rpm")):
@@ -529,8 +557,8 @@ def checkProjectFull(project):
                 if not os.path.exists(filePath):
                     errorList.append("%s is missing" % filePath)
                     continue
-                res = callSubprocess(["rpm", "--checksig", filePath],
-                                      stdout=subprocess.PIPE)
+                res = Utils.callSubprocess(["rpm", "--checksig", filePath],
+                                           stdout=subprocess.PIPE)
                 if res != 0:
                     errorList.append("%s failed the integrity test"
                                      % filePath)
@@ -551,12 +579,12 @@ def checkProjectRepository(project):
         return errorList
     for target in targetList:
         targetDir = os.path.join(repoDir, target)
-        for (dirPath, dirNames, fileNames) in os.walk(targetDir):
+        for (dirPath, _dirNames, fileNames) in os.walk(targetDir):
             for fileName in fileNames:
                 if fileName.endswith(".rpm"):
                     filePath = os.path.join(dirPath, fileName)
                     cmd = ["rpm", "--checksig", filePath]
-                    res = callSubprocess(cmd, stdout=subprocess.PIPE)
+                    res = Utils.callSubprocess(cmd, stdout=subprocess.PIPE)
                     if res != 0:
                         errorList.append("%s failed the integrity test"
                                          % filePath)
@@ -572,7 +600,7 @@ def checkPackageFilesByPath(packagePath):
     xmlContent = None
     with open(indexPath, "r") as indexFile:
         xmlContent = indexFile.read()
-    entries = getEntriesAsDicts(xmlContent)
+    entries = Utils.getEntriesAsDicts(xmlContent)
     for entry in entries:
         entryPath = os.path.join(packagePath, entry["name"])
         msg = None
@@ -580,7 +608,7 @@ def checkPackageFilesByPath(packagePath):
             msg = "%s is missing!" % entryPath
         elif os.path.getsize(entryPath) != int(entry["size"]):
             msg = "%s has unexpected file size!" % entryPath
-        elif computeMd5(entryPath) != entry["md5"]:
+        elif Utils.computeMd5(entryPath) != entry["md5"]:
             msg = "%s is corrupted!" % entryPath
         if msg is not None:
             errorList.append((msg, entryPath))
@@ -601,7 +629,6 @@ def checkAllPackagesFiles(project):
     Returns a list of error messages.
     """
     conf = getConfig()
-    packagesDir = conf.getProjectPackagesDir(project)
     errorList = []
     for package in getPackageList(project):
         errors = checkPackageFiles(project, package)
@@ -614,8 +641,6 @@ def getProjectDependencies(project, target):
     Returns the dependencies of `project` for `target`
     as a set of (project, target) tuples.
     """
-#    failIfProjectDoesNotExist(project)
-#    failIfTargetDoesNotExist(project, target)
     if not project in getProjectList():
         return []
     projectDir = getConfig().getProjectDir(project)
@@ -644,8 +669,8 @@ def updateLiveRepository(project):
     RPM repository, based on actual repositories suitable for image
     generation by MIC.
     """
+    conf = getConfig()
     for target in getTargetList(project):
-        conf = getConfig()
         prjLiveDir = conf.getProjectLiveDir(project)
         prjRepoDir = conf.getProjectRepositoryDir(project)
         if not os.path.isdir(prjLiveDir):
@@ -662,3 +687,50 @@ def updateLiveRepositories():
     """Call `updateLiveRepository(project)` on each installed project."""
     for project in getProjectList():
         updateLiveRepository(project)
+
+def findDupes(project):
+    """Find duplicates files of `project`, in :full and repository."""
+    conf = getConfig()
+    dupFinder = Dupes.dupfinder()
+    dupFinder.add_dirs([conf.getProjectFullDir(project),
+                conf.getProjectRepositoryDir(project)])
+    dups = dupFinder.find_dups()
+    return dups
+
+def findDupes2(project):
+    """
+    Find duplicates files of `project`, in :full and repository,
+    (by calling fdupes).
+    """
+    conf = getConfig()
+    proc = subprocess.Popen(["fdupes", "-rn",
+                          conf.getProjectFullDir(project),
+                          conf.getProjectRepositoryDir(project)],
+                         stdout=subprocess.PIPE)
+    result = proc.communicate()[0]
+    lineBlocks = result.split("\n\n")
+    dups = []
+    for block in lineBlocks:
+        dups.append(block.splitlines())
+    return dups
+
+def shrinkProject(project, useSymbolicLinks=False):
+    """
+    Find duplicates files of `project`, in :full and repository,
+    and make hard links between them (or symbolic links if
+    `useSymbolicLinks` is True).
+    """
+    conf = getConfig()
+    prjFullDir = conf.getProjectFullDir(project)
+    prjRepoDir = conf.getProjectRepositoryDir(project)
+    dups = findDupes(project)
+    for dup in dups:
+        dup1 = [x for x in dup if x.endswith(".rpm")]
+        if (len(dup1) >= 2 and
+            dup1[0].startswith(prjFullDir) and
+            dup1[1].startswith(prjRepoDir)):
+            os.remove(dup1[0])
+            if useSymbolicLinks:
+                os.symlink(dup1[1], dup1[0])
+            else:
+                os.link(dup1[1], dup1[0])
