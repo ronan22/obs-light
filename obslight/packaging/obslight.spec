@@ -195,8 +195,8 @@ MOD_INCLUDE="/etc/apache2/mods-available/include.load"
 fi
 
 #Remove old http python server service.
-service obslightserver status >/dev/null && service obslightserver stop
-/sbin/chkconfig --check obslightserver && /sbin/chkconfig --del obslightserver
+[ -e /etc/init.d/obslightserver ] && service obslightserver status >/dev/null && service obslightserver stop || :
+[ -e /etc/init.d/obslightserver ] && /sbin/chkconfig --check obslightserver && /sbin/chkconfig --del obslightserver || :
 
 #Add new http apache2 server service.
 [ -e /etc/init.d/apache2 ] && /sbin/chkconfig --add apache2
