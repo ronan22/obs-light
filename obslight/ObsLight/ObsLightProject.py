@@ -468,7 +468,6 @@ class ObsLightProject(ObsLightObject):
         """Create/update files of package at `packagePath` from a git tree"""
 
         packagingDir = os.path.join(gitTreePath, "packaging")
-        packagingDirFileList = os.listdir(packagingDir)
 
         # Create/clean package directory
         if os.path.exists(packagePath):
@@ -479,12 +478,20 @@ class ObsLightProject(ObsLightObject):
                     os.remove(os.path.join(packagePath, f))
         else:
             os.makedirs(packagePath)
-        # Copy files from packaging/ to package directory
-        for f in packagingDirFileList:
-            shutil.copy(os.path.join(packagingDir, f), os.path.join(packagePath, f))
 
-    def __createPackageArchiveFromGit(self, gitTreePath, packagePath,
-                                      packageName, packageVersion=None):
+        # test if the packaging directory exist.
+        if os.path.isdir(packagingDir):
+            packagingDirFileList = os.listdir(packagingDir)
+
+            # Copy files from packaging/ to package directory
+            for f in packagingDirFileList:
+                shutil.copy(os.path.join(packagingDir, f), os.path.join(packagePath, f))
+
+    def __createPackageArchiveFromGit(self,
+                                      gitTreePath,
+                                      packagePath,
+                                      packageName,
+                                      packageVersion=None):
         """
         Create the archive of package `packageName`, in directory `packagePath`,
         from the git tree at `gitTreePath`.
@@ -530,9 +537,13 @@ class ObsLightProject(ObsLightObject):
 
         specFile = self.findBestSpecFile(self.getSpecFileList(getFilteredFileList(packagePath)),
                                          package)
-        specAbsPath = os.path.join(packagePath, specFile)
-        name = getSpecTagValue(specAbsPath, "Name")
-        version = getSpecTagValue(specAbsPath, "Version", startsWithDigit=True)
+        if specFile != None:
+            specAbsPath = os.path.join(packagePath, specFile)
+            name = getSpecTagValue(specAbsPath, "Name")
+            version = getSpecTagValue(specAbsPath, "Version", startsWithDigit=True)
+        else:
+            name = package
+            version = None
         self.__createPackageArchiveFromGit(gitWorkingTree, packagePath, name, version)
         fileList = getFilteredFileList(packagePath)
 
