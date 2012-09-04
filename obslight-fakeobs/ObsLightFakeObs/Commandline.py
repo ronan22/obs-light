@@ -24,6 +24,7 @@ Commandline client for FakeOBS.
 import sys
 import cmdln
 import Config
+import ObsManager
 import ProjectManager
 import DistributionsManager
 import Utils
@@ -91,7 +92,7 @@ class FakeObsCommandline(cmdln.Cmdln):
         ProjectManager.failIfProjectDoesNotExist(project)
         ProjectManager.removeProject(project)
 
-    @cmdln.alias("import-from-server")
+    @cmdln.alias("importfromserver")
     @cmdln.option("-n", "--new-name", dest="new_name",
                   help="rename project to NEW_NAME")
     @cmdln.option("-a", "--arch", action="append", dest="archs",
@@ -119,9 +120,13 @@ class FakeObsCommandline(cmdln.Cmdln):
             raise ValueError("You must provide an API! (use -A or --api)")
         if opts.rsync is None:
             raise ValueError("You must provide an rsync URL! (use -r or --rsync)")
-        ProjectManager.grabProject(opts.api, opts.rsync, project,
-                                   opts.targets, opts.archs, new_name)
-        return self.do_check(subcmd, opts, project)
+        effectiveName = ProjectManager.grabProject(opts.api, opts.rsync,
+                                                   project, opts.targets,
+                                                   opts.archs, new_name)
+        msg = "Project '%s' correctly grabbed" % effectiveName
+        print Utils.colorize(msg, "green")
+        print
+        return self.do_check(subcmd, opts, effectiveName)
 
     @cmdln.alias("verify")
     def do_check(self, subcmd, opts, project):
@@ -142,6 +147,7 @@ class FakeObsCommandline(cmdln.Cmdln):
                     (ProjectManager.checkAllPackagesFiles,
                      " --- Step 4: checking packages files...")]
 
+        print Utils.colorize("Checking project '%s'" % project, "green")
         gotError = False
         for test, message in testList:
             print Utils.colorize(message, "green"),
@@ -189,7 +195,9 @@ class FakeObsCommandline(cmdln.Cmdln):
         ${cmd_option_list}
         """
         Utils.failIfUserIsNotRoot()
-        ProjectManager.importProject(archive, opts.new_name)
+        effectiveName = ProjectManager.importProject(archive, opts.new_name)
+        msg = "Project '%s' correctly imported" % effectiveName
+        print Utils.colorize(msg, "green")
 
     @cmdln.option("-s", "--symbolic", action="store_true",
                   help="make symbolic links instead of hard links")
@@ -202,6 +210,25 @@ class FakeObsCommandline(cmdln.Cmdln):
         """
         Utils.failIfUserIsNotRoot()
         ProjectManager.shrinkProject(project, opts.symbolic)
+
+    @cmdln.option("-c", "--osc-config-file",
+                  help="specify a configuration file for osc")
+    def do_createlink(self, subcmd, opts):
+        """${cmd_name}: create the link to the fakeobs API
+        on the OBS running on localhost
+
+        You need to be on an OBS Light server appliance to run this
+        command without argument. If you run it on another kind of
+        OBS server, you will need to specify the osc configuration
+        file of an administrator (simple users are not allowed
+        to create project links).
+
+        ${cmd_usage}
+        ${cmd_option_list}
+        """
+        warnMsg = ObsManager.createFakeObsLink(opts.osc_config_file)
+        if warnMsg is not None:
+            print Utils.colorize(warnMsg, "yellow")
 
     def do_updatedistributions(self, subcmd, opts):
         """${cmd_name}: update OBS' pre-configured distributions

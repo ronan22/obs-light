@@ -36,6 +36,7 @@ import Utils
 import Dupes
 from Config import getConfig
 from DistributionsManager import updateFakeObsDistributions
+from ObsManager import createFakeObsLink
 
 def getProjectList():
     """Get the local project list."""
@@ -406,7 +407,8 @@ def grabProject(api, rsyncUrl, project, targets, archs, newName=None):
     updateLiveRepository(newName)
     writeProjectInfo(api, rsyncUrl, project, targets, archs, newName)
     updateFakeObsDistributions()
-    # TODO: create fakeobs link
+    createFakeObsLink()
+    return newName
 
 def removeProject(project):
     """Remove `project` from fakeobs."""
@@ -492,6 +494,8 @@ def importProject(archivePath, newName=None):
         shutil.rmtree(stagingDir)
     updateLiveRepository(newName)
     updateFakeObsDistributions()
+    createFakeObsLink()
+    return newName
 
 def checkProjectConfigAndMeta(project):
     """
@@ -575,6 +579,9 @@ def checkProjectFull(project):
                 if not os.path.exists(filePath):
                     msg = Utils.colorize("%s is missing" % filePath, "red")
                     errorList.append(msg)
+                    continue
+                if not fileName.endswith(".rpm"):
+                    # File may be a DEB package, 'rpm' doesn't like them...
                     continue
                 res = Utils.callSubprocess(["rpm", "--checksig", filePath],
                                            stdout=subprocess.PIPE)
