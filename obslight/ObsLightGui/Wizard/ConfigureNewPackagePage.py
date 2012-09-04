@@ -23,7 +23,7 @@ Created on 17 avr. 2012
 from PySide.QtGui import QRegExpValidator
 
 from WizardPageWrapper import ObsLightWizardPage
-from ObsLightGui.Utils import PACKAGE_NAME_REGEXP
+from ObsLightGui.Utils import PACKAGE_NAME_REGEXP, isNonEmptyString
 
 class ConfigureNewPackagePage(ObsLightWizardPage):
 
@@ -53,10 +53,18 @@ class ConfigureNewPackagePage(ObsLightWizardPage):
         newPkgDescr = self.field(u"newPackageDescription")
         projectAlias = self.field(u"projectAlias")
         newPkgGitUrl = self.field(u"newPackageGitUrl")
-#        retVal = self._createPackage(projectAlias, newPkgName,
-#                                     newPkgTitle, newPkgDescr)
-        retVal = self._importPackageFromGit(projectAlias, newPkgName,
-                                            newPkgTitle, newPkgDescr, newPkgGitUrl)
+
+        if not isNonEmptyString(newPkgGitUrl.strip(" ")):
+            retVal = self._createPackage(projectAlias,
+                                         newPkgName,
+                                         newPkgTitle,
+                                         newPkgDescr)
+        else:
+            retVal = self._importPackageFromGit(projectAlias,
+                                                newPkgName,
+                                                newPkgTitle,
+                                                newPkgDescr,
+                                                newPkgGitUrl)
         return retVal is not None
 
     def _createPackage(self, project, name, title, description):

@@ -786,7 +786,12 @@ class ObsLightManagerCore(ObsLightManagerBase):
         """
         server = self.getProjectParameter(projectLocalName, "obsServer")
         projectObsName = self.getProjectParameter(projectLocalName, "projectObsName")
-        return self.createObsPackage(server, projectObsName, name, title, description)
+        res = self.createObsPackage(server, projectObsName, name, title, description)
+
+        return self.addPackage(projectLocalName, name)
+
+
+
 
     def createObsPackage(self, serverApi, projectObsName, package, title="", description=""):
         checkNonEmptyStringServerApi(serverApi=serverApi)
@@ -866,8 +871,8 @@ class ObsLightManagerCore(ObsLightManagerBase):
         server = self._myObsLightProjects.getProject(projectLocalName).getObsServer()
         projectObsName = self._myObsLightProjects.getProject(projectLocalName).getProjectObsName()
         if not package in self.getObsProjectPackageList(server, projectObsName):
-            raise ObsLightObsServers(" package '" + package + "' is not part of the '"
-                                     + projectObsName + "' project")
+            msg = " package '%s' is not part of the '%s' project" % (package, projectObsName)
+            raise ObsLightObsServers(msg)
 
         self._myObsLightProjects.getProject(projectLocalName).addPackage(package)
         self._myObsLightProjects.save()

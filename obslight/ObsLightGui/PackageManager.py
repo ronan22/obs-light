@@ -64,7 +64,6 @@ class PackageManager(QObject, ObsLightGuiObject):
         Connect all package-related buttons to the appropriate methods.
         """
         mw = self.mainWindow
-        mw.newPackageButton.clicked.connect(self.on_newPackageButton_clicked)
         mw.importPackageButton.clicked.connect(self.on_importPackageButton_clicked)
         mw.deletePackageButton.clicked.connect(self.on_deletePackageButton_clicked)
         mw.openTermButton.clicked.connect(self.on_openTermButton_clicked)
@@ -461,11 +460,11 @@ class PackageManager(QObject, ObsLightGuiObject):
                 runnable.finished.connect(callback)
         runnable.runOnGlobalInstance()
 
-    @popupOnException
-    def on_newPackageButton_clicked(self):
-        if self.getCurrentProject() is None:
-            return
-        self.gui.runWizardToAddPackage(self.getCurrentProject(), newPackage=True)
+#    @popupOnException
+#    def on_newPackageButton_clicked(self):
+#        if self.getCurrentProject() is None:
+#            return
+#        self.gui.runWizardToAddPackage(self.getCurrentProject(), newPackage=True)
 
     @popupOnException
     def on_importPackageButton_clicked(self):
