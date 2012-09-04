@@ -41,6 +41,9 @@ class ConfigureNewPackagePage(ObsLightWizardPage):
         self.registerField(u"newPackageGitUrl",
                            self.ui_WizardPage.gitUrlLineEdit)
 
+    def nextId(self):
+        return -1
+
     def cleanupPage(self):
         pass
 
