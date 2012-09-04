@@ -22,6 +22,7 @@ Created on 17 avr. 2012
 '''
 
 from WizardPageWrapper import ObsLightWizardPage
+from ObsLightGui.Utils import popupOnException
 
 class ChooseNewOrExistingPackage(ObsLightWizardPage):
 
@@ -32,6 +33,15 @@ class ChooseNewOrExistingPackage(ObsLightWizardPage):
                            self.ui_WizardPage.importExistingPackageButton)
         self.registerField(u"createNewPackage",
                            self.ui_WizardPage.createNewPackageButton)
+
+    # TODO: implement getProjectParameter(projectAlias, "readonly")
+#    @popupOnException
+#    def initializePage(self):
+#        projectAlias = self.wizard().getSelectedProjectAlias()
+#        readonly = self.manager.getProjectParameter(projectAlias, "readonly")
+#        if readonly:
+#            self.ui_WizardPage.createNewPackageButton.setEnabled(False)
+#            self.ui_WizardPage.createNewPackageButton.setToolTip(u"Project is read only")
 
     def nextId(self):
         if self.field(u"createNewPackage"):

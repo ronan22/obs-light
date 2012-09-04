@@ -28,7 +28,8 @@ from ObsLightGui.Utils import PACKAGE_NAME_REGEXP
 class ConfigureNewPackagePage(ObsLightWizardPage):
 
     def __init__(self, gui, index):
-        ObsLightWizardPage.__init__(self, gui, index, u"wizard_newPackage.ui")
+#        ObsLightWizardPage.__init__(self, gui, index, u"wizard_newPackage.ui")
+        ObsLightWizardPage.__init__(self, gui, index, u"wizard_newPackageFromGit.ui")
         packageNameValidator = QRegExpValidator(PACKAGE_NAME_REGEXP, self)
         self.ui_WizardPage.packageNameLineEdit.setValidator(packageNameValidator)
         self.registerField(u"newPackageName*",
@@ -37,6 +38,8 @@ class ConfigureNewPackagePage(ObsLightWizardPage):
                            self.ui_WizardPage.packageTitleLineEdit)
         self.registerField(u"newPackageDescription",
                            self.ui_WizardPage.packageDescriptionTextEdit)
+        self.registerField(u"newPackageGitUrl",
+                           self.ui_WizardPage.gitUrlLineEdit)
 
     def cleanupPage(self):
         pass
@@ -46,8 +49,11 @@ class ConfigureNewPackagePage(ObsLightWizardPage):
         newPkgTitle = self.field(u"newPackageTitle")
         newPkgDescr = self.field(u"newPackageDescription")
         projectAlias = self.field(u"projectAlias")
-        retVal = self._createPackage(projectAlias, newPkgName,
-                                     newPkgTitle, newPkgDescr)
+        newPkgGitUrl = self.field(u"newPackageGitUrl")
+#        retVal = self._createPackage(projectAlias, newPkgName,
+#                                     newPkgTitle, newPkgDescr)
+        retVal = self._importPackageFromGit(projectAlias, newPkgName,
+                                            newPkgTitle, newPkgDescr, newPkgGitUrl)
         return retVal is not None
 
     def _createPackage(self, project, name, title, description):
@@ -57,4 +63,12 @@ class ConfigureNewPackagePage(ObsLightWizardPage):
                                                name,
                                                title,
                                                description)
+        return retVal
+
+    def _importPackageFromGit(self, project, name, title, description, url):
+        retVal = self.callWithInfiniteProgress(self.manager.importPackage,
+                                               "Creating package %s" % name,
+                                               project,
+                                               name,
+                                               url)
         return retVal

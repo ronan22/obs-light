@@ -110,7 +110,7 @@ class ConfigWizard(QWizard, ObsLightGuiObject):
 
     def skipToPackageSelection(self, projectAlias):
         self.setField(u"projectAlias", projectAlias)
-        self.setStartId(self.Pages[u'ChoosePackage'].index)
+        self.setStartId(self.Pages[u'ChooseNewOrExistingPackage'].index)
 
     def skipToPackageCreation(self, projectAlias):
         self.setField(u"projectAlias", projectAlias)
