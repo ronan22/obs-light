@@ -29,6 +29,15 @@ import hashlib
 from xml.etree import ElementTree
 
 SIZE_LIMIT_FOR_INTERNAL_MD5 = 1024 * 1024
+TERMINAL_COLORS = {"black": "\033[30;1m",
+                   "red": "\033[31;1m",
+                   "green": "\033[32;1m",
+                   "yellow": "\033[33;1m",
+                   "blue": "\033[34;1m",
+                   "magenta": "\033[35;1m",
+                   "cyan": "\033[36;1m",
+                   "white": "\033[37;1m",
+                   "default": "\033[0m"}
 
 def getEntryNameList(xmlContent, tag="entry", attribute="name"):
     """
@@ -107,7 +116,7 @@ def projectExistsOnServer(api, project):
     except urllib2.HTTPError:
         return False
 
-def buildTargetArchTuples(api, project, targets=[], archs=[]):
+def buildTargetArchTuplesFromServer(api, project, targets=[], archs=[]):
     """
     Calls `api` to search for valid targets and architectures.
     You can specify which ones you want in `targets` and `archs`.
@@ -268,3 +277,10 @@ def checkRsyncUrl(url):
     cmd = ["rsync", "-q", url]
     res = callSubprocess(cmd, stdout=subprocess.PIPE)
     return res == 0
+
+def colorize(text, color="green"):
+    """
+    Return a colorized copy of `text`.
+    See Utils.TERMINAL_COLORS.keys() for available colors.
+    """
+    return TERMINAL_COLORS.get(color, "") + text + TERMINAL_COLORS["default"]

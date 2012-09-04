@@ -25,6 +25,7 @@ import sys
 import cmdln
 import Config
 import ProjectManager
+import Utils
 
 class FakeObsCommandline(cmdln.Cmdln):
     name = "obslight-fakeobs"
@@ -58,7 +59,7 @@ class FakeObsCommandline(cmdln.Cmdln):
         ${cmd_option_list}
         """
         for prj in ProjectManager.getProjectList():
-            print prj
+            print Utils.colorize(prj, "green")
             if opts.targets or opts.dependencies:
                 for target in ProjectManager.getTargetList(prj):
                     archList = ProjectManager.getArchList(prj, target)
@@ -111,6 +112,7 @@ class FakeObsCommandline(cmdln.Cmdln):
             raise ValueError("You must provide an rsync URL! (use -r or --rsync)")
         ProjectManager.grabProject(opts.api, opts.rsync, project,
                                    opts.targets, opts.archs, new_name)
+        return self.do_check(subcmd, opts, project)
 
     @cmdln.alias("verify")
     def do_check(self, subcmd, opts, project):
@@ -123,27 +125,27 @@ class FakeObsCommandline(cmdln.Cmdln):
         ProjectManager.failIfProjectDoesNotExist(project)
 
         testList = [(ProjectManager.checkProjectConfigAndMeta,
-                     "Checking _config and _meta..."),
+                     " --- Step 1: checking _config and _meta..."),
                     (ProjectManager.checkProjectFull,
-                     "Checking :full..."),
+                     " --- Step 2: checking :full..."),
                     (ProjectManager.checkProjectRepository,
-                     "Checking repository..."),
+                     " --- Step 3: checking repository..."),
                     (ProjectManager.checkAllPackagesFiles,
-                     "Checking packages files...")]
+                     " --- Step 4: checking packages files...")]
 
         gotError = False
         for test, message in testList:
-            print message,
+            print Utils.colorize(message, "green"),
             sys.stdout.flush()
             errors = test(project)
             if len(errors) > 0:
                 gotError = True
-                print "Error"
+                print Utils.colorize("Error", "red")
                 for error in errors:
                     print >> sys.stderr, error
                 print
             else:
-                print "OK"
+                print Utils.colorize("OK", "green")
 
         if gotError:
             return 1
@@ -194,11 +196,11 @@ if __name__ == "__main__":
     try:
         res = commandline.main()
     except ValueError as ve:
-        print >> sys.stderr, ve
+        print >> sys.stderr, Utils.colorize(str(ve), "red")
         res = 1
     except IOError as ioe:
         commandline.do_help([sys.argv[0]])
         print
-        print >> sys.stderr, ioe
+        print >> sys.stderr, Utils.colorize(str(ioe), "red")
         res = 1
     sys.exit(res)

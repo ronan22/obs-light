@@ -35,6 +35,7 @@ import ConfigParser
 import Utils
 import Dupes
 from Config import getConfig
+from DistributionsManager import updateFakeObsDistributions
 
 def getProjectList():
     """Get the local project list."""
@@ -56,6 +57,14 @@ def getArchList(project, target):
     """Get the list of architectures available for `target` of `project`."""
     targetDir = os.path.join(getConfig().getProjectFullDir(project), target)
     return Utils.getSubDirectoryList(targetDir)
+
+def getProjectTargetTuples():
+    """Get a set of locally installed (project, target) tuples."""
+    result = set()
+    for project in getProjectList():
+        for target in getTargetList(project):
+            result.add((project, target))
+    return result
 
 def getSpecFileList(project, package):
     """Get the list of all spec files of `package`."""
@@ -373,8 +382,8 @@ def grabProject(api, rsyncUrl, project, targets, archs, newName=None):
     if not Utils.projectExistsOnServer(api, project):
         raise ValueError("Could not find project '%s' on server" % project)
 
-    targetArchTuples = Utils.buildTargetArchTuples(api, project,
-                                                   targets, archs)
+    targetArchTuples = Utils.buildTargetArchTuplesFromServer(api, project,
+                                                             targets, archs)
     if len(targetArchTuples) == 0:
         msg = "Invalid target/arch specified, or all disabled on server!"
         raise ValueError(msg)
@@ -396,6 +405,8 @@ def grabProject(api, rsyncUrl, project, targets, archs, newName=None):
     downloadRepositories(rsyncUrl, project, targets, repoDir)
     updateLiveRepository(newName)
     writeProjectInfo(api, rsyncUrl, project, targets, archs, newName)
+    updateFakeObsDistributions()
+    # TODO: create fakeobs link
 
 def removeProject(project):
     """Remove `project` from fakeobs."""
@@ -405,6 +416,7 @@ def removeProject(project):
               conf.getProjectLiveDir(project)}:
         if os.path.isdir(myDir):
             shutil.rmtree(myDir)
+    updateFakeObsDistributions()
 
 def exportProject(project, destPath=None):
     """
@@ -479,6 +491,7 @@ def importProject(archivePath, newName=None):
     finally:
         shutil.rmtree(stagingDir)
     updateLiveRepository(newName)
+    updateFakeObsDistributions()
 
 def checkProjectConfigAndMeta(project):
     """
@@ -489,10 +502,10 @@ def checkProjectConfigAndMeta(project):
     projectDir = getConfig().getProjectDir(project)
     metaPath = os.path.join(projectDir, "_meta")
     if not os.path.exists(metaPath):
-        errorList.append("Project meta does not exist!")
+        errorList.append(Utils.colorize("Project meta does not exist!", "red"))
     else:
         if os.path.getsize(metaPath) == 0:
-            errorList.append("Project meta is empty!")
+            errorList.append(Utils.colorize("Project meta is empty!", "red"))
         else:
 
             exp = re.compile(r'<path project="fakeobs:')
@@ -513,16 +526,20 @@ by
   '<path project=\"Your:Project\" repository=\"something\" />'
 
 """
+                msg = Utils.colorize(msg, "red")
                 errorList.append(msg % (lineCount, metaPath))
 
     configPath = os.path.join(projectDir, "_config")
     if not os.path.exists(configPath):
-        errorList.append("Project config does not exist!")
+        errorList.append(Utils.colorize("Project config does not exist!",
+                                        "red"))
     else:
         if os.path.getsize(configPath) == 0:
-            errorList.append("Project config is empty, may be a problem " +
-                             "for top-level projects.\n" +
-                             "Please check %s" % configPath)
+            msg = "Project config is empty, may be a problem "
+            msg += "for top-level projects.\n"
+            msg += "Please check %s" % configPath
+            msg = Utils.colorize(msg, "yellow")
+            errorList.append(msg)
     return errorList
 
 def checkProjectFull(project):
@@ -532,7 +549,8 @@ def checkProjectFull(project):
     errorList = []
     fullDir = getConfig().getProjectFullDir(project)
     if not os.path.isdir(fullDir):
-        errorList.append("Project :full directory is missing!")
+        errorList.append(Utils.colorize("Project :full directory is missing!",
+                                        "red"))
         return errorList
     for target in os.listdir(fullDir):
         targetDir = os.path.join(fullDir, target)
@@ -542,7 +560,7 @@ def checkProjectFull(project):
                                             "_repository?view=names")
             if not os.path.exists(namesRawFilePath):
                 msg = "The file listing the RPMs is missing for %s %s"
-                errorList.append(msg % (target, arch))
+                errorList.append(Utils.colorize(msg % (target, arch), "red"))
                 break
             xmlContent = ""
             with open(namesRawFilePath, "r") as myFile:
@@ -555,13 +573,14 @@ def checkProjectFull(project):
                     continue
                 filePath = os.path.join(archDir, fileName)
                 if not os.path.exists(filePath):
-                    errorList.append("%s is missing" % filePath)
+                    msg = Utils.colorize("%s is missing" % filePath, "red")
+                    errorList.append(msg)
                     continue
                 res = Utils.callSubprocess(["rpm", "--checksig", filePath],
                                            stdout=subprocess.PIPE)
                 if res != 0:
-                    errorList.append("%s failed the integrity test"
-                                     % filePath)
+                    msg = "%s failed the integrity test" % filePath
+                    errorList.append(Utils.colorize(msg, "red"))
     return errorList
 
 def checkProjectRepository(project):
@@ -571,11 +590,13 @@ def checkProjectRepository(project):
     errorList = []
     repoDir = getConfig().getProjectRepositoryDir(project)
     if not os.path.isdir(repoDir):
-        errorList.append("No repository for project %s!" % project)
+        msg = "No repository for project %s!" % project
+        errorList.append(Utils.colorize(msg, "red"))
         return errorList
     targetList = os.listdir(repoDir)
     if len(targetList) == 0:
-        errorList.append("Repository of %s is empty!" % project)
+        msg = "Repository of %s is empty!" % project
+        errorList.append(Utils.colorize(msg, "red"))
         return errorList
     for target in targetList:
         targetDir = os.path.join(repoDir, target)
@@ -586,8 +607,8 @@ def checkProjectRepository(project):
                     cmd = ["rpm", "--checksig", filePath]
                     res = Utils.callSubprocess(cmd, stdout=subprocess.PIPE)
                     if res != 0:
-                        errorList.append("%s failed the integrity test"
-                                         % filePath)
+                        msg = "%s failed the integrity test" % filePath
+                        errorList.append(Utils.colorize(msg, "red"))
     return errorList
 
 def checkPackageFilesByPath(packagePath):
@@ -611,7 +632,7 @@ def checkPackageFilesByPath(packagePath):
         elif Utils.computeMd5(entryPath) != entry["md5"]:
             msg = "%s is corrupted!" % entryPath
         if msg is not None:
-            errorList.append((msg, entryPath))
+            errorList.append((Utils.colorize(msg, "red"), entryPath))
     return errorList
 
 def checkPackageFiles(project, package):
@@ -678,7 +699,6 @@ def updateLiveRepository(project):
         linkTarget = os.path.join(prjRepoDir, target, "packages")
         linkTarget = os.path.relpath(linkTarget, prjLiveDir)
         linkName = os.path.join(prjLiveDir, target)
-        print linkName, " -> ", linkTarget
         if os.path.lexists(linkName):
             os.unlink(linkName)
         os.symlink(linkTarget, linkName)
@@ -734,3 +754,4 @@ def shrinkProject(project, useSymbolicLinks=False):
                 os.symlink(dup1[1], dup1[0])
             else:
                 os.link(dup1[1], dup1[0])
+
