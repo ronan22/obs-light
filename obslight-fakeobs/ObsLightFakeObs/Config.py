@@ -20,6 +20,7 @@ Configuration manager for FakeOBS.
 @author: Florent Vennetier
 """
 
+import errno
 import os
 import ConfigParser
 
@@ -53,8 +54,11 @@ class ObsLightFakeObsConfig(object):
         """Load configuration from the file at `self.configPath`."""
         self._configParser = ConfigParser.SafeConfigParser(DEFAULT_CONFIG)
         if len(self._configParser.read(self.configPath)) < 1:
-            raise IOError("%s does not exist or is not readable"
-                          % self.configPath)
+            err = IOError(errno.ENOENT,
+                          "Configuration file does not exist or is not readable",
+                          self.configPath)
+            err.fakeobs_config_error = True
+            raise err
 
     def getFakeObsRootDir(self):
         return self.cp.get("Paths", "fakeobs_root")

@@ -25,6 +25,7 @@ import sys
 import cmdln
 import Config
 import ProjectManager
+import DistributionsManager
 import Utils
 
 class FakeObsCommandline(cmdln.Cmdln):
@@ -37,15 +38,18 @@ class FakeObsCommandline(cmdln.Cmdln):
         op = cmdln.Cmdln.get_optparser(self)
         op.add_option("-c", "--config", dest="config",
                       help=("specify an alternative configuration file\n" +
-                            "(%s by default)" % Config.DEFAULT_CONFIG_PATH))
+                            "(by default: %s)" % Config.DEFAULT_CONFIG_PATH))
         return op
 
     # Implements cmdln.Cmdln.postoptparse()
     def postoptparse(self):
-        if self.options.config is None:
-            Config.loadConfig()
-        else:
-            Config.loadConfig(self.options.config)
+        # Don't load config if help asked
+        if (len(self.optparser.rargs) > 0 and
+            self._get_canonical_cmd_name(self.optparser.rargs[0]) != "help"):
+            if self.options.config is None:
+                Config.loadConfig()
+            else:
+                Config.loadConfig(self.options.config)
 
     @cmdln.alias("ls")
     @cmdln.option("-d", "--dependencies", action="store_true",
@@ -77,10 +81,13 @@ class FakeObsCommandline(cmdln.Cmdln):
     @cmdln.alias("delete", "del", "rm")
     def do_remove(self, subcmd, opts, project):
         """${cmd_name}: remove a project
+
+        You need to be root to run this.
         
         ${cmd_usage}
         ${cmd_option_list}
         """
+        Utils.failIfUserIsNotRoot()
         ProjectManager.failIfProjectDoesNotExist(project)
         ProjectManager.removeProject(project)
 
@@ -101,10 +108,12 @@ class FakeObsCommandline(cmdln.Cmdln):
         """${cmd_name}: import a project from server
         
         API and RSYNC parameters are mandatory.
+        You need to be root to run this.
         
         ${cmd_usage}
         ${cmd_option_list}
         """
+        Utils.failIfUserIsNotRoot()
         new_name = opts.new_name or project
         if opts.api is None:
             raise ValueError("You must provide an API! (use -A or --api)")
@@ -175,9 +184,11 @@ class FakeObsCommandline(cmdln.Cmdln):
     def do_import(self, subcmd, opts, archive):
         """${cmd_name}: import a project from an archive
         
+        You need to be root to run this.
         ${cmd_usage}
         ${cmd_option_list}
         """
+        Utils.failIfUserIsNotRoot()
         ProjectManager.importProject(archive, opts.new_name)
 
     @cmdln.option("-s", "--symbolic", action="store_true",
@@ -185,11 +196,25 @@ class FakeObsCommandline(cmdln.Cmdln):
     def do_shrink(self, subcmd, opts, project):
         """${cmd_name}: reduce disk usage by making hard links between RPMs
         
+        You need to be root to run this.
         ${cmd_usage}
         ${cmd_option_list}
         """
+        Utils.failIfUserIsNotRoot()
         ProjectManager.shrinkProject(project, opts.symbolic)
 
+    def do_updatedistributions(self, subcmd, opts):
+        """${cmd_name}: update OBS' pre-configured distributions
+        (build targets) with currently installed FakeOBS projects.
+        This command is automatically run after grab, import and remove.
+
+        You need to be root to run this.
+
+        ${cmd_usage}
+        ${cmd_option_list}
+        """
+        Utils.failIfUserIsNotRoot()
+        DistributionsManager.updateFakeObsDistributions()
 
 if __name__ == "__main__":
     commandline = FakeObsCommandline()
@@ -198,9 +223,12 @@ if __name__ == "__main__":
     except ValueError as ve:
         print >> sys.stderr, Utils.colorize(str(ve), "red")
         res = 1
-    except IOError as ioe:
-        commandline.do_help([sys.argv[0]])
+    except EnvironmentError as ioe:
+#        commandline.do_help([sys.argv[0]])
         print
         print >> sys.stderr, Utils.colorize(str(ioe), "red")
+        if hasattr(ioe, "fakeobs_config_error"):
+            msg = "See '--config' option"
+            print >> sys.stderr, Utils.colorize(msg, "red")
         res = 1
     sys.exit(res)

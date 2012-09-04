@@ -284,3 +284,8 @@ def colorize(text, color="green"):
     See Utils.TERMINAL_COLORS.keys() for available colors.
     """
     return TERMINAL_COLORS.get(color, "") + text + TERMINAL_COLORS["default"]
+
+def failIfUserIsNotRoot():
+    """Raise EnvironmentError if current user is not root (uid != 0)."""
+    if os.getuid() != 0:
+        raise EnvironmentError("You need to be root!")
