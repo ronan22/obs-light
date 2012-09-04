@@ -156,7 +156,7 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>287</width>
+                    <width>298</width>
                     <height>223</height>
                    </rect>
                   </property>
@@ -543,7 +543,7 @@
                    <rect>
                     <x>0</x>
                     <y>0</y>
-                    <width>418</width>
+                    <width>404</width>
                     <height>214</height>
                    </rect>
                   </property>
@@ -604,7 +604,7 @@
                   <string>Create a package from scratch.</string>
                  </property>
                  <property name="text">
-                  <string>New</string>
+                  <string>New Git Package</string>
                  </property>
                 </widget>
                </item>
