@@ -450,6 +450,8 @@ def exportProject(project, destPath=None):
                                           vars=replacements))
     tarCmd += [projectRelPath, repoRelPath]
     res = Utils.callSubprocess(tarCmd)
+    # TODO: check 'res'
+    return destPath
 
 def importProject(archivePath, newName=None):
     """
@@ -491,8 +493,10 @@ def importProject(archivePath, newName=None):
         parentDir = os.path.dirname(projectRepositoryDir)
         if not os.path.isdir(parentDir):
             os.makedirs(parentDir)
-        tmpProjectRepositoryDir = os.path.join(stagingDir, "repositories",
-                                               project.replace(":", ":/"))
+        tmpProjectRepositoryDir = conf.getProjectRepositoryDir(project)
+        tmpProjectRepositoryDir = tmpProjectRepositoryDir.replace(
+                                                            fakeobsRootDir,
+                                                            stagingDir)
         shutil.move(tmpProjectRepositoryDir, projectRepositoryDir)
     finally:
         shutil.rmtree(stagingDir)

@@ -7,7 +7,7 @@
 
 Name:       obslight-fakeobs
 Summary:    Python script that acts as an OBS API
-Version:    0.6.1
+Version:    1.0.0
 Release:    1
 Group:      Development/Tools/Building
 License:    GPLv2
@@ -18,32 +18,27 @@ Source100:  obslight-fakeobs.yaml
 %if 0%{?fedora}
 Requires:   httpd
 Requires:   redhat-lsb
-Requires:   GitPython
 BuildRequires: systemd-units
 Requires(post): systemd-units
 Requires(preun): systemd-units
 Requires(postun): systemd-units
 %else
 Requires:   apache2
-Requires:   python-gitpython
 Requires(post): sysconfig
 %endif
 
-Requires:   bash
-Requires:   git
 Requires:   logrotate
 Requires:   osc
 Requires:   python
-Requires:   python-async
-Requires:   python-gitdb
-Requires:   python-smmap
+Requires:   python-cmdln
 
 Requires(post): /sbin/service
 Requires(post): /sbin/chkconfig
 Requires(postun): /sbin/service
 Requires(postun): /sbin/chkconfig
 
-
+BuildRequires: python
+BuildRequires: python-devel
 %description
 Python script that partially implement an OBS API.
 It is based on Mer Delivery System.
@@ -52,13 +47,14 @@ It is based on Mer Delivery System.
 
 
 %prep
-%setup -q -n %{name}
+%setup -q
 
 # >> setup
 # << setup
 
 %build
 # >> build pre
+CFLAGS="$RPM_OPT_FLAGS" %{__python} setup.py build
 # << build pre
 
 
@@ -68,34 +64,43 @@ It is based on Mer Delivery System.
 %install
 rm -rf %{buildroot}
 # >> install pre
-mkdir -p %{buildroot}/srv/fakeobs/obs-projects
-mkdir -p %{buildroot}/srv/fakeobs/obs-repos
-mkdir -p %{buildroot}/srv/fakeobs/packages-git
-mkdir -p %{buildroot}/srv/fakeobs/releases
+mkdir -p %{buildroot}/srv/obslight-fakeobs/projects
+mkdir -p %{buildroot}/srv/obslight-fakeobs/repositories
+mkdir -p %{buildroot}/srv/obslight-fakeobs/tools
 mkdir -p %{buildroot}%{_sysconfdir}/logrotate.d
 mkdir -p %{buildroot}%{_sbindir}
 mkdir -p %{buildroot}%{_bindir}
 mkdir -p %{buildroot}%{_docdir}/%{name}
+
+%if 0%{?suse_version}
+%{__python} setup.py install --root=%{buildroot} --prefix=%{_prefix}
+%else
+%{__python} setup.py install --root=%{buildroot} -O1
+%endif
+
 %if 0%{?fedora}
 mkdir -p %{buildroot}%{_unitdir}
-cp -f fakeobs.service fakeobswebui.service %{buildroot}%{_unitdir}
+cp -f config/fakeobs.service config/fakeobswebui.service %{buildroot}%{_unitdir}
 %else
 mkdir -p %{buildroot}%{_sysconfdir}/init.d
-cp -f init_fakeobs %{buildroot}%{_sysconfdir}/init.d/fakeobs
-cp -f init_fakeobswebui %{buildroot}%{_sysconfdir}/init.d/fakeobswebui
+cp -f config/init_fakeobs %{buildroot}%{_sysconfdir}/init.d/fakeobs
+cp -f config/init_fakeobswebui %{buildroot}%{_sysconfdir}/init.d/fakeobswebui
 %endif
-cp -rf tools %{buildroot}/srv/fakeobs/tools
-cp -rf config %{buildroot}/srv/fakeobs/config
-cp -rf theme %{buildroot}/srv/fakeobs/theme
-cp -f obslight-fakeobs %{buildroot}%{_bindir}
-cp -f logrotate_fakeobs %{buildroot}%{_sysconfdir}/logrotate.d/fakeobs
+# The following 3 lines are already executed by setup.py
+#cp -rf config %{buildroot}/srv/obslight-fakeobs/config
+#cp -rf theme %{buildroot}/srv/obslight-fakeobs/theme
+#cp -rf tools %{buildroot}/srv/obslight-fakeobs/tools
+ln -sf %{py_sitedir}/ObsLightFakeObs/Commandline.py %{buildroot}%{_bindir}/obslight-fakeobs
+cp -f config/logrotate_fakeobs %{buildroot}%{_sysconfdir}/logrotate.d/fakeobs
 cp -f README %{buildroot}%{_docdir}/%{name}
 echo "%{name}-%{version}-%{release}" > %{buildroot}%{_docdir}/%{name}/VERSION
 
-ln -sf /srv/fakeobs/tools/fakeobs.py %{buildroot}%{_sbindir}/fakeobs
+ln -sf %{py_sitedir}/ObsLightFakeObs/ApiDaemon.py %{buildroot}%{_sbindir}/obslight-fakeobsd
+ln -sf %{py_sitedir}/ObsLightFakeObs/WebUiDaemon.py %{buildroot}%{_sbindir}/obslight-fakeobswebuid
 ln -sf %{_sysconfdir}/init.d/fakeobs %{buildroot}%{_sbindir}/rcfakeobs
-ln -sf /srv/fakeobs/tools/fakeobswebui.py %{buildroot}%{_sbindir}/fakeobswebui
 ln -sf %{_sysconfdir}/init.d/fakeobswebui %{buildroot}%{_sbindir}/rcfakeobswebui
+
+chmod a+x %{buildroot}%{py_sitedir}/ObsLightFakeObs/{Commandline,Dupes,ApiDaemon,WebUiDaemon}.py
 # << install pre
 
 # >> install post
@@ -124,16 +129,11 @@ fi
 
 %post
 # >> post
-cd /srv/fakeobs/
+cd /srv/obslight-fakeobs/
 if [ ! -f lastevents ]
 then
 touch lastevents
-sh tools/addevent initial na na
-fi
-
-if [ ! -f mappings.xml ]
-then
-echo -e "<mappings>\n</mappings>" > mappings.xml
+# sh tools/addevent initial na na
 fi
 
 if [ -d "%{_sysconfdir}/apache2/vhosts.d" ]
@@ -149,11 +149,11 @@ fi
 
 if [ -n "$APACHEVHOST" ]
 then
-ln -sf /srv/fakeobs/config/fakeobs-repos.apache2conf "$APACHEVHOST"/fakeobs-repos.conf
+ln -sf /srv/obslight-fakeobs/config/fakeobs-repos.apache2conf "$APACHEVHOST"/fakeobs-repos.conf
 fi
 if [ -d %{_sysconfdir}/lighttpd/vhosts.d ]
 then
-ln -sf /srv/fakeobs/config/fakeobs-repos.lighttpdconf %{_sysconfdir}/lighttpd/vhosts.d/fakeobs-repos.conf
+ln -sf /srv/obslight-fakeobs/config/fakeobs-repos.lighttpdconf %{_sysconfdir}/lighttpd/vhosts.d/fakeobs-repos.conf
 fi
 
 OVERVIEW="/srv/www/obs/overview/index.html"
@@ -225,17 +225,17 @@ fi
 %files
 %defattr(-,root,root,-)
 # >> files
-%dir /srv/fakeobs
-%dir /srv/fakeobs/obs-projects
-%dir /srv/fakeobs/obs-repos
-%dir /srv/fakeobs/packages-git
-%dir /srv/fakeobs/releases
-%dir /srv/fakeobs/tools
-%dir /srv/fakeobs/config
-%dir /srv/fakeobs/theme
-/srv/fakeobs/tools/*
-/srv/fakeobs/config/*
-/srv/fakeobs/theme/*
+%dir /srv/obslight-fakeobs
+%dir /srv/obslight-fakeobs/projects
+%dir /srv/obslight-fakeobs/repositories
+%dir /srv/obslight-fakeobs/config
+%dir /srv/obslight-fakeobs/theme
+%dir /srv/obslight-fakeobs/tools
+/srv/obslight-fakeobs/config/*
+/srv/obslight-fakeobs/theme/*
+/srv/obslight-fakeobs/tools/*
+%{py_sitedir}/ObsLightFakeObs
+%{py_sitedir}/obslight_fakeobs-*.egg-info
 %if 0%{?fedora}
 %{_unitdir}/fakeobs.service
 %{_unitdir}/fakeobswebui.service
@@ -244,8 +244,9 @@ fi
 %config %{_sysconfdir}/init.d/fakeobswebui
 %endif
 %config %{_sysconfdir}/logrotate.d/fakeobs
-%{_sbindir}/fakeobs
-%{_sbindir}/fakeobswebui
+%config %{_sysconfdir}/obslight-fakeobs.conf
+%{_sbindir}/obslight-fakeobsd
+%{_sbindir}/obslight-fakeobswebuid
 %{_sbindir}/rcfakeobs
 %{_sbindir}/rcfakeobswebui
 %{_bindir}/obslight-fakeobs

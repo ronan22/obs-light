@@ -31,7 +31,7 @@ import tempfile
 import traceback
 import xml.dom.minidom
 
-import Backend
+import ApiBackend as Backend
 from Config import getConfig, loadConfig
 from Utils import createCpio
 import BuildInfoManager

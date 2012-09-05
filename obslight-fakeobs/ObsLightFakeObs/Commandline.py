@@ -182,7 +182,10 @@ class FakeObsCommandline(cmdln.Cmdln):
         ${cmd_option_list}
         """
         ProjectManager.failIfProjectDoesNotExist(project)
-        ProjectManager.exportProject(project, opts.output_file)
+        archive = ProjectManager.exportProject(project, opts.output_file)
+        if archive is not None:
+            msg = "Project '%s' exported to %s" % (project, archive)
+            print Utils.colorize(msg, "green")
 
     @cmdln.alias("extract")
     @cmdln.option("-n", "--new-name", dest="new_name",

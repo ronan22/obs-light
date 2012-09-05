@@ -31,6 +31,8 @@ from xml.dom.minidom import getDOMImplementation
 
 from xml.etree import ElementTree
 
+from Config import getConfig
+
 HOST_IP = None
 
 archHierarchyMap = {"i686": "i686:i586:i486:i386",
@@ -67,7 +69,7 @@ def getLocalRepositoryUrl():
             HOST_IP = localhostIp
     if HOST_IP is None:
         HOST_IP = localhostIp
-    return "http://%s:8002/repositories" % HOST_IP
+    return "http://%s:8002/live" % HOST_IP
 
 def getProjectDependency(metaPath, repo):
     with open(metaPath, "r") as f:
@@ -103,14 +105,16 @@ def getbuildInfo(rev, srcmd5, specFile, listRepository, dist, depfile, arch,
                          tmpSpec[1])
 
     splittedCommand = shlex.split(str(command))
+    # FIXME: shouldn't it be .wait() instead of .communicate() ?
     Popen(splittedCommand).communicate()[0]
 
     repo = getLocalRepositoryUrl()
     ouputFile = tempfile.mkstemp(suffix=".ouputFile")
 
     errFile = tempfile.mkstemp(suffix=".errFile")
+    fakeObsRoot = getConfig().getPath("fakeobs_root", "/srv/obslight-fakeobs")
     cmd = []
-    cmd.append("/srv/fakeobs/tools/create-rpm-list-from-spec.sh")
+    cmd.append("%s/tools/create_rpm_list_from_spec.sh" % fakeObsRoot)
     for aRepo in listRepository:
         cmd.append("--repository")
         cmd.append(aRepo)
@@ -137,7 +141,8 @@ def getbuildInfo(rev, srcmd5, specFile, listRepository, dist, depfile, arch,
     cmd.append("--stdout")
     cmd.append(ouputFile[1])
 
-    Popen(cmd).communicate()
+    # FIXME: shouldn't it be .wait() instead of .communicate() ?
+    Popen(cmd, cwd=fakeObsRoot).communicate()
 
     os.close(tmpSpec[0])
     os.unlink(tmpSpec[1])
