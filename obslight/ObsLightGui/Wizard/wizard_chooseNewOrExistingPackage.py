@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui/wizard_chooseNewOrExistingPackage.ui'
 #
-# Created: Mon Jul 30 17:12:03 2012
+# Created: Wed Sep  5 08:54:33 2012
 #      by: pyside-uic 0.2.13 running on PySide 1.1.0
 #
 # WARNING! All changes made in this file will be lost!
@@ -24,7 +24,9 @@ class Ui_WizardPage(object):
         self.createNewPackageButton.setObjectName("createNewPackageButton")
         self.verticalLayout.addWidget(self.createNewPackageButton)
         self.branchPackageButton = QtGui.QRadioButton(WizardPage)
-        self.branchPackageButton.setEnabled(False)
+        self.branchPackageButton.setEnabled(True)
+        self.branchPackageButton.setToolTip("")
+        self.branchPackageButton.setCheckable(True)
         self.branchPackageButton.setObjectName("branchPackageButton")
         self.verticalLayout.addWidget(self.branchPackageButton)
 
@@ -37,6 +39,5 @@ class Ui_WizardPage(object):
         WizardPage.setSubTitle(QtGui.QApplication.translate("WizardPage", "Do you want to import an existing package from server, create a new one from scratch, or branch an existing package on server ?", None, QtGui.QApplication.UnicodeUTF8))
         self.importExistingPackageButton.setText(QtGui.QApplication.translate("WizardPage", "Import existing package", None, QtGui.QApplication.UnicodeUTF8))
         self.createNewPackageButton.setText(QtGui.QApplication.translate("WizardPage", "Create new package", None, QtGui.QApplication.UnicodeUTF8))
-        self.branchPackageButton.setToolTip(QtGui.QApplication.translate("WizardPage", "Not implemented", None, QtGui.QApplication.UnicodeUTF8))
-        self.branchPackageButton.setText(QtGui.QApplication.translate("WizardPage", "Create a branch of an existing package", None, QtGui.QApplication.UnicodeUTF8))
+        self.branchPackageButton.setText(QtGui.QApplication.translate("WizardPage", "Copy of an existing package", None, QtGui.QApplication.UnicodeUTF8))
 
