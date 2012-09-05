@@ -560,13 +560,31 @@ class ObsLightProject(ObsLightObject):
             raise ObsLightErr.ObsLightPackageErr(msg)
         if gitWorkingTree is None:
             gitWorkingTree = os.path.join(self.getGitPackagesDefaultDirectory(), package)
+
         packagePath, specFile, fileList = self.__checkoutGitPackage(package, gitWorkingTree, url)
         obsServer = self.__obsServers.getObsServer(self.__obsServer)
         apiUrl = obsServer.getObsServerParameter("serverAPI")
-        p = ObsLightOsc.getObsLightOsc().initPackage(apiUrl, self.__projectLocalName,
-                                                     package, packagePath)
-        self.__packages.addPackage(package, packagePath, None, self.__chroot.getChrootUserHome(),
-                                   None, specFile, fileList, "", gitWorkingTree)
+
+        self.initPackage(apiUrl, self.__projectLocalName, package, packagePath, specFile, fileList, gitWorkingTree)
+
+    def initPackage(self, apiUrl, projectLocalName, package, packagePath, specFile, fileList, gitWorkingTree):
+        if packagePath is None:
+            packagePath = os.path.join(self.getDirectory(), self.__projectName, package)
+
+        p = ObsLightOsc.getObsLightOsc().initPackage(apiUrl,
+                                                     self.__projectLocalName,
+                                                     package,
+                                                     packagePath)
+
+        self.__packages.addPackage(package,
+                                   packagePath,
+                                   None,
+                                   self.__chroot.getChrootUserHome(),
+                                   None,
+                                   specFile,
+                                   fileList,
+                                   "",
+                                   gitWorkingTree)
 
     def addPackage(self, name=None):
         '''
