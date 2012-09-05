@@ -48,7 +48,7 @@ install: build
 	mkdir -p /usr/src/packages/BUILD/debian/obslight-fakeobs/srv/obslight-fakeobs/projects
 	mkdir -p /usr/src/packages/BUILD/debian/obslight-fakeobs/srv/obslight-fakeobs/repositories
 	mkdir -p /usr/src/packages/BUILD/debian/obslight-fakeobs/srv/obslight-fakeobs/theme
-        mkdir -p /usr/src/packages/BUILD/debian/obslight-fakeobs/srv/obslight-fakeobs/tools
+	mkdir -p /usr/src/packages/BUILD/debian/obslight-fakeobs/srv/obslight-fakeobs/tools
 	mkdir -p /usr/src/packages/BUILD/debian/obslight-fakeobs/etc/init.d
 	mkdir -p /usr/src/packages/BUILD/debian/obslight-fakeobs/etc/init
 	mkdir -p /usr/src/packages/BUILD/debian/obslight-fakeobs/etc/logrotate.d
@@ -60,7 +60,7 @@ install: build
 	# The following 3 lines are already executed by setup.py
 	#cp -rf config /usr/src/packages/BUILD/debian/obslight-fakeobs/srv/obslight-fakeobs/config
 	#cp -rf theme /usr/src/packages/BUILD/debian/obslight-fakeobs/srv/obslight-fakeobs/theme
-        #cp -rf tools /usr/src/packages/BUILD/debian/obslight-fakeobs/srv/obslight-fakeobs/tools
+	#cp -rf tools /usr/src/packages/BUILD/debian/obslight-fakeobs/srv/obslight-fakeobs/tools
 	ln -sf /usr/share/pyshared/ObsLightFakeObs/Commandline.py /usr/src/packages/BUILD/debian/obslight-fakeobs/usr/bin/obslight-fakeobs
 	ln -sf /usr/share/pyshared/ObsLightFakeObs/ApiDaemon.py /usr/src/packages/BUILD/debian/obslight-fakeobs/usr/sbin/obslight-fakeobsd
 	ln -sf /usr/share/pyshared/ObsLightFakeObs/WebUiDaemon.py /usr/src/packages/BUILD/debian/obslight-fakeobs/usr/sbin/obslight-fakeobswebuid

@@ -1,7 +1,0 @@
-<project name="fakeobs">
-  <title>Fake OBS running on localhost</title>
-  <description/>
-  <remoteurl>http://localhost:8001/public</remoteurl>
-  <person role="maintainer" userid="Admin"/>
-  <person role="bugowner" userid="Admin"/>
-</project>
