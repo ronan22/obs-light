@@ -114,7 +114,7 @@ def getbuildInfo(rev, srcmd5, specFile, listRepository, dist, depfile, arch,
     errFile = tempfile.mkstemp(suffix=".errFile")
     fakeObsRoot = getConfig().getPath("fakeobs_root", "/srv/obslight-fakeobs")
     cmd = []
-    cmd.append("%s/tools/create_rpm_list_from_spec.sh" % fakeObsRoot)
+    cmd.append("%s/tools/create_rpm_list_from_spec" % fakeObsRoot)
     for aRepo in listRepository:
         cmd.append("--repository")
         cmd.append(aRepo)
