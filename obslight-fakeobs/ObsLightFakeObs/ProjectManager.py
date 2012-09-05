@@ -187,8 +187,12 @@ def downloadFull(api, project, target, arch, destDir):
                                   getConfig().getIntLimit("max_rpms_per_cpio",
                                                           48))
     for query in cpioQueries:
-        url = cpioUrl % (api, project, target, arch, query)
-        retCode = Utils.curlUnpack(url, destDir)
+        maxRetries = getConfig().getIntLimit("max_download_retries", 2)
+        retCode = -1
+        while retCode != 0 and maxRetries >= 0:
+            maxRetries -= 1
+            url = cpioUrl % (api, project, target, arch, query)
+            retCode = Utils.curlUnpack(url, destDir)
     deleteRpmSignatures(destDir)
 
 def downloadFulls(api, project, targetArchTuples, fullDir):

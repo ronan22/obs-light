@@ -123,7 +123,7 @@ class FakeObsCommandline(cmdln.Cmdln):
         effectiveName = ProjectManager.grabProject(opts.api, opts.rsync,
                                                    project, opts.targets,
                                                    opts.archs, new_name)
-        msg = "Project '%s' correctly grabbed" % effectiveName
+        msg = "Project '%s' grabbed" % effectiveName
         print Utils.colorize(msg, "green")
         print
         return self.do_check(subcmd, opts, effectiveName)
