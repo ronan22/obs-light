@@ -801,8 +801,11 @@ def shrinkProject(project, useSymbolicLinks=False):
     prjFullDir = conf.getProjectFullDir(project)
     prjRepoDir = conf.getProjectRepositoryDir(project)
     dups = findDupes(project)
+    linkedRpms = []
     for dup in dups:
         dup1 = [x for x in dup if x.endswith(".rpm")]
+        # Check that one RPM comes from :full and
+        # the other from repository
         if (len(dup1) >= 2 and
             dup1[0].startswith(prjFullDir) and
             dup1[1].startswith(prjRepoDir)):
@@ -811,4 +814,5 @@ def shrinkProject(project, useSymbolicLinks=False):
                 os.symlink(dup1[1], dup1[0])
             else:
                 os.link(dup1[1], dup1[0])
-
+            linkedRpms.append((dup1[1], dup1[0], os.path.getsize(dup1[1])))
+    return linkedRpms
