@@ -78,10 +78,12 @@
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
-          <widget class="QWidget" name="projectsWidget" native="true">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
+
+          <widget class="QSplitter" name="splitter_3">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+
            <layout class="QVBoxLayout" name="verticalLayout">
             <property name="margin">
              <number>0</number>
