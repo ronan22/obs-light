@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Sep  6 09:59:03 CEST 2012 - florent@fridu.net
+
+- changed data organisation
+- rewrote most parts in python
+- added 'shrink' command to link duplicated RPMs
+
+-------------------------------------------------------------------
 Tue Aug 14 09:38:29 UTC 2012 - florent@fridu.net
 
 - updated version to 0.6.1

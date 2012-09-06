@@ -106,8 +106,11 @@ def failIfTargetDoesNotExist(project, target):
         raise ValueError("Target '%s' does not exist for project '%s'!"
                          % (target, project))
 
-def downloadFile(url, destDir=None, fileName=None):
-    """Download the file at `url` to `destDir` and name it `fileName`"""
+def downloadFile(url, destDir=None, fileName=None, retryIfEmpty=True):
+    """
+    Download the file at `url` to `destDir` and name it `fileName`.
+    `retryIfEmpty` works only if `fileName` is provided.
+    """
     conf = getConfig()
     maxRetries = conf.getIntLimit("max_download_retries", 2)
     cmd = [conf.getCommand("wget", "wget")]
@@ -117,7 +120,20 @@ def downloadFile(url, destDir=None, fileName=None):
         cmd += ["-O", fileName]
     cmd += [url]
 
-    retCode = Utils.callSubprocess(cmd, maxRetries, cwd=destDir)
+    retryCount = 0
+    sizeOk = False
+    while not sizeOk and retryCount <= maxRetries:
+        retryCount += 1
+        retCode = Utils.callSubprocess(cmd, maxRetries, cwd=destDir)
+        if retCode == 0 and fileName is not None:
+            if destDir is None:
+                absolutePath = fileName
+            else:
+                # if fileName starts with '/', absolutePath == fileName
+                absolutePath = os.path.join(destDir, fileName)
+            sizeOk = (os.path.getsize(absolutePath) > 0)
+        else:
+            sizeOk = True
     return retCode
 
 def downloadFiles(baseUrl, fileNames, destDir=None):
@@ -251,12 +267,13 @@ def downloadPackageFiles(api, project, package, destDir):
     and put them in `destDir`.
     Returns the result of `checkPackageFilesByPath(destDir)`.
     """
+    conf = getConfig()
     if not os.path.isdir(destDir):
         os.makedirs(destDir)
 
     # Download the file index, save it to '_directory'
     indexUrl = "%s/source/%s/%s" % (api, project, package)
-    indexPath = os.path.join(destDir, getConfig().PackageDescriptionFile)
+    indexPath = os.path.join(destDir, conf.PackageDescriptionFile)
     res = downloadFile(indexUrl, fileName=indexPath)
 
     # Download special files, often missing. Don't care about return code.
@@ -278,21 +295,37 @@ def downloadPackageFiles(api, project, package, destDir):
                         destDir)
 
     # Check everything is OK, and retry files which failed
-    maxRetries = getConfig().getIntLimit("max_download_retries", 2)
+    maxRetries = conf.getIntLimit("max_download_retries", 2)
     filesInError = checkPackageFilesByPath(destDir)
     while len(filesInError) > 0 and maxRetries > 0:
-        res = downloadFiles(baseUrl,
-                            [os.path.basename(x[1]) for x in filesInError],
-                            destDir)
+        pathList = [os.path.basename(x[1]) for x in filesInError]
+        res = downloadFiles(baseUrl, pathList, destDir)
         maxRetries -= 1
         filesInError = checkPackageFilesByPath(destDir)
     return filesInError
 
 def downloadPackages(api, project, packagesDir):
     """Download sources of all packages of `project` from `api`"""
-    for package in Utils.getPackageListFromServer(api, project):
+    packagesInError = []
+    packageList = Utils.getPackageListFromServer(api, project)
+
+    # First make a directory for each package
+    for package in packageList:
         packageDir = os.path.join(packagesDir, package)
-        downloadPackageFiles(api, project, package, packageDir)
+        if not os.path.isdir(packageDir):
+            os.makedirs(packageDir)
+
+    # Then download packages
+    for package in packageList:
+        packageDir = os.path.join(packagesDir, package)
+        try:
+            filesInError = downloadPackageFiles(api, project,
+                                                package, packageDir)
+            if len(filesInError) > 0:
+                packagesInError.append((package, filesInError))
+        except BaseException as myException:
+            packagesInError.append((package, myException))
+    return packagesInError
 
 def downloadConfAndMeta(api, project, destDir):
     """Download configuration and meta information about `project`"""
@@ -402,14 +435,17 @@ def grabProject(api, rsyncUrl, project, targets, archs, newName=None):
     packagesDir = conf.getProjectPackagesDir(newName)
     repoDir = conf.getProjectRepositoryDir(newName)
 
+    if not os.path.isdir(projectDir):
+        os.makedirs(projectDir)
+    writeProjectInfo(api, rsyncUrl, project, targets, archs, newName)
     downloadConfAndMeta(api, project, projectDir)
     fixProjectMeta(newName)
     downloadFulls(api, project, targetArchTuples, fullDir)
     downloadPackages(api, project, packagesDir)
+    # TODO: check return value of downloadPackages()
     fixProjectPackagesMeta(newName)
     downloadRepositories(rsyncUrl, project, targets, repoDir)
     updateLiveRepository(newName)
-    writeProjectInfo(api, rsyncUrl, project, targets, archs, newName)
     updateFakeObsDistributions()
     createFakeObsLink()
     return newName
@@ -633,10 +669,16 @@ def checkPackageFilesByPath(packagePath):
     """
     errorList = []
     indexPath = os.path.join(packagePath, getConfig().PackageDescriptionFile)
-    xmlContent = None
-    with open(indexPath, "r") as indexFile:
-        xmlContent = indexFile.read()
-    entries = Utils.getEntriesAsDicts(xmlContent)
+    try:
+        xmlContent = None
+        with open(indexPath, "r") as indexFile:
+            xmlContent = indexFile.read()
+        entries = Utils.getEntriesAsDicts(xmlContent)
+    except BaseException as myException:
+        msg = "Cannot read file index %s: %s" % (indexPath, str(myException))
+        errorList.append((Utils.colorize(msg, "red"), indexPath))
+        return errorList
+
     for entry in entries:
         entryPath = os.path.join(packagePath, entry["name"])
         msg = None

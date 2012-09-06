@@ -63,7 +63,18 @@ class FakeObsCommandline(cmdln.Cmdln):
         ${cmd_usage}
         ${cmd_option_list}
         """
-        for prj in ProjectManager.getProjectList():
+        projectList = ProjectManager.getProjectList()
+
+        def projectAndTargetExists(project, target):
+            return (project in projectList and
+                    target in ProjectManager.getTargetList(project))
+
+        if opts.dependencies:
+            msg = "Dependencies in " + Utils.colorize("red", "red")
+            msg += " are missing\n"
+            print msg
+
+        for prj in projectList:
             print Utils.colorize(prj, "green")
             if opts.targets or opts.dependencies:
                 for target in ProjectManager.getTargetList(prj):
@@ -72,9 +83,15 @@ class FakeObsCommandline(cmdln.Cmdln):
                     if opts.dependencies:
                         deps = ProjectManager.getProjectDependencies(prj,
                                                                      target)
-                        deps = ["%s(%s)" % (x[0], x[1]) for x in deps
-                                if x != (prj, target)]
-                        print "depends on " + (", ".join(deps) or "itself")
+                        realDeps = []
+                        for dprj, dtarget in deps:
+                            if (dprj, dtarget) == (prj, target):
+                                continue
+                            dep = "%s(%s)" % (dprj, dtarget)
+                            if not projectAndTargetExists(dprj, dtarget):
+                                dep = Utils.colorize(dep, "red")
+                            realDeps.append(dep)
+                        print "depends on " + (", ".join(realDeps) or "itself")
                     else:
                         print
                 print

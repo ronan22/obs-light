@@ -1,4 +1,9 @@
-obslight-fakeobs (0.6.1-1) stable; urgency=low
+obslight-fakeobs (1.0.0-1) stable; urgency=low
+  * Version 1.0.0
+    - changed data organisation
+    - rewrote most parts in python
+    - added 'shrink' command to link duplicated RPMs
+
   * Version 0.6.1
     - fixed _buildinfo request for ARM builds
     - not using manifest anymore to remove a project
