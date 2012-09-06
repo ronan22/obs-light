@@ -268,7 +268,7 @@ class FakeObsWebUiRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         files = getEntriesAsDicts(xmlRes)
         content = PACKAGE_FILES_HEADER % {"project": project, "package": package}
         fakeObsApiUrl = getConfig().getFakeObsApiUrl()
-        localIp = Utils.getLocalHostIpAddress()
+        localIp = getLocalHostIpAddress()
         if localIp != "127.0.0.1" and "/localhost:" in fakeObsApiUrl:
             fakeObsApiUrl = fakeObsApiUrl.replace("/localhost:", "/%s:" % localIp)
         for fileDict in files:
