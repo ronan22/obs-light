@@ -33,7 +33,8 @@ class ChooseNewOrExistingPackage(ObsLightWizardPage):
                            self.ui_WizardPage.importExistingPackageButton)
         self.registerField(u"createNewPackage",
                            self.ui_WizardPage.createNewPackageButton)
-
+        self.registerField(u"copyPackage",
+                           self.ui_WizardPage.copyPackageButton)
     # TODO: implement getProjectParameter(projectAlias, "readonly")
 #    @popupOnException
 #    def initializePage(self):
@@ -46,5 +47,7 @@ class ChooseNewOrExistingPackage(ObsLightWizardPage):
     def nextId(self):
         if self.field(u"createNewPackage"):
             return self.wizard().pageIndex(u"ConfigureNewPackage")
+        elif self.field(u"copyPackage"):
+            return self.wizard().pageIndex(u"ChooseLocalProject")
         else:
             return self.wizard().pageIndex(u"ChoosePackage")

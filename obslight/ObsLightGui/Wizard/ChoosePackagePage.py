@@ -80,3 +80,6 @@ class ChoosePackagePage(ObsLightWizardPage, FilterableWidget):
             packageName = item.text()
             packages.add(packageName)
         return list(packages)
+
+    def nextId(self):
+        return -1
