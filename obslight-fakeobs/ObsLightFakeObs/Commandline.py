@@ -142,6 +142,9 @@ class FakeObsCommandline(cmdln.Cmdln):
                                                    opts.archs, new_name)
         msg = "Project '%s' grabbed" % effectiveName
         print Utils.colorize(msg, "green")
+        packageList = ProjectManager.getPackageList(effectiveName)
+        msg = "It contains %d packages" % len(packageList)
+        print Utils.colorize(msg, "green")
         print
         return self.do_check(subcmd, opts, effectiveName)
 
@@ -228,8 +231,20 @@ class FakeObsCommandline(cmdln.Cmdln):
         ${cmd_usage}
         ${cmd_option_list}
         """
+        def mySum(x, y):
+            if isinstance(x, int):
+                return x + y[2]
+            else:
+                return x[2] + y[2]
+
         Utils.failIfUserIsNotRoot()
-        ProjectManager.shrinkProject(project, opts.symbolic)
+        msg = "Shrinking project '%s' using %s links"
+        msg = msg % (project, "symbolic" if opts.symbolic else "hard")
+        print Utils.colorize(msg, "green")
+        linkedRpms = ProjectManager.shrinkProject(project, opts.symbolic)
+        sizeSaved = reduce(mySum, linkedRpms, 0)
+        msg = "%d RPMs linked, saving %d bytes" % (len(linkedRpms), sizeSaved)
+        print Utils.colorize(msg, "green")
 
     @cmdln.option("-c", "--osc-config-file",
                   help="specify a configuration file for osc")
