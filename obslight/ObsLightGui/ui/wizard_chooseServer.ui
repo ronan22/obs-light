@@ -37,16 +37,16 @@
     </widget>
    </item>
    <item>
-    <widget class="QRadioButton" name="chooseServerButton">
-     <property name="text">
-      <string>Choose from list:</string>
+    <widget class="QListWidget" name="serverListWidget">
+     <property name="enabled">
+      <bool>false</bool>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="QListWidget" name="serverListWidget">
-     <property name="enabled">
-      <bool>false</bool>
+    <widget class="QRadioButton" name="chooseServerButton">
+     <property name="text">
+      <string>Choose from list:</string>
      </property>
     </widget>
    </item>
