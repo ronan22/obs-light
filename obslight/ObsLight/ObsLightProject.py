@@ -378,7 +378,8 @@ class ObsLightProject(ObsLightObject):
             else:
                 return  None
         else:
-            return self.__packages.getListPackages()
+            res = self.__packages.getListPackages()
+            return res
 
     def __getPackagePath(self, package):
         return os.path.join(self.getDirectory(), self.__projectName, package)

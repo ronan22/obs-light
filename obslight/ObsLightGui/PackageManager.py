@@ -64,16 +64,25 @@ class PackageManager(QObject, ObsLightGuiObject):
         Connect all package-related buttons to the appropriate methods.
         """
         mw = self.mainWindow
+        #Package
         mw.importPackageButton.clicked.connect(self.on_importPackageButton_clicked)
         mw.deletePackageButton.clicked.connect(self.on_deletePackageButton_clicked)
-        mw.openTermButton.clicked.connect(self.on_openTermButton_clicked)
-        mw.updateFilesButton.clicked.connect(self.on_updateFilesButton_clicked)
-        mw.generatePatchButton.clicked.connect(self.on_makePatchButton_clicked)
-        mw.modifyPatchButton.clicked.connect(self.on_modifyPatchButton_clicked)
         mw.addAndCommitButton.clicked.connect(self.on_addAndCommitButton_clicked)
+
+        #Term
+        mw.openTermButton.clicked.connect(self.on_openTermButton_clicked)
+
+        #OSC
         mw.refreshOscStatusButton.clicked.connect(self.on_refreshOscStatusButton_clicked)
+        mw.updateFilesButton.clicked.connect(self.on_updateFilesButton_clicked)
+
         mw.repairOscButton.clicked.connect(self.on_repairOscButton_clicked)
 
+        #Patch
+        mw.generatePatchButton.clicked.connect(self.on_makePatchButton_clicked)
+        mw.modifyPatchButton.clicked.connect(self.on_modifyPatchButton_clicked)
+
+        #Spec file
         mw.rpmPrepButton.clicked.connect(self.on_rpmPrepButton_clicked)
         mw.rpmBuildButton.clicked.connect(self.on_rpmBuildButton_clicked)
         mw.rpmInstallButton.clicked.connect(self.on_rpmInstallButton_clicked)

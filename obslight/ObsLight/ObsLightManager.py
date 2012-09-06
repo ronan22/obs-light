@@ -766,12 +766,16 @@ class ObsLightManagerCore(ObsLightManagerBase):
         return res
 
     #///////////////////////////////////////////////////////////////////////////package
-    @checkProjectLocalName(1)
+
+    def localCopyPackage(self, projectSrc, projectDst, package):
+        print "projectSrc", projectSrc, "projectDst", projectDst, "package", package
+
+
     def getLocalProjectPackageList(self, projectLocalName, onlyInstalled=True):
         '''
         Return the list of packages of a local project.
-        If onlyInstalled=1, return the list of locally installed packages.
-        If onlyInstalled=0, return the list of packages provided by the OBS server for the project.
+        If onlyInstalled=True, return the list of locally installed packages.
+        If onlyInstalled=False, return the list of packages provided by the OBS server for the project.
         '''
         project = self._myObsLightProjects.getProject(projectLocalName)
         return project.getListPackage(onlyInstalled=onlyInstalled)
