@@ -33,6 +33,7 @@ import BaseHTTPServer
 
 from Config import getConfig, loadConfig
 from Utils import getEntryNameList, getEntriesAsDicts, httpQueryToDict
+from Utils import getLocalHostIpAddress
 
 GET = "GET"
 
@@ -266,8 +267,12 @@ class FakeObsWebUiRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         xmlRes = urllib2.urlopen(url).read()
         files = getEntriesAsDicts(xmlRes)
         content = PACKAGE_FILES_HEADER % {"project": project, "package": package}
+        fakeObsApiUrl = getConfig().getFakeObsApiUrl()
+        localIp = Utils.getLocalHostIpAddress()
+        if localIp != "127.0.0.1" and "/localhost:" in fakeObsApiUrl:
+            fakeObsApiUrl = fakeObsApiUrl.replace("/localhost:", "/%s:" % localIp)
         for fileDict in files:
-            fileUrl = "%s/source/%s/%s/%s" % (getConfig().getFakeObsApiUrl(),
+            fileUrl = "%s/source/%s/%s/%s" % (fakeObsApiUrl,
                                               project, package, fileDict["name"])
             fileDict["fileUrl"] = fileUrl
             readableTime = time.ctime(float(fileDict["mtime"]))

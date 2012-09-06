@@ -32,6 +32,7 @@ from xml.dom.minidom import getDOMImplementation
 from xml.etree import ElementTree
 
 from Config import getConfig
+from Utils import getLocalHostIpAddress
 
 HOST_IP = None
 
@@ -49,26 +50,12 @@ archHierarchyMap = {"i686": "i686:i586:i486:i386",
                     "armv7el": "armv7el:armv7l:armv7vl",
                     "armv8el": "armv8el:armv7hl:armv7thl:armv7tnh:armv7h:armv7nh"}
 
-def isNonEmptyString(theString):
-    return isinstance(theString, basestring) and len(theString) > 0
 
 def getLocalRepositoryUrl():
     """Get the URL of the local fakeobs RPM repository."""
-    cmd = "/sbin/ifconfig"
     global HOST_IP
-    localhostIp = "127.0.0.1"
     if HOST_IP is None:
-        try:
-            res = Popen(cmd, stdout=PIPE).communicate()[0]
-
-            for ip in re.findall(".*inet.*?:([\d.]*)[\s]+.*", res):
-                if isNonEmptyString(ip) and ip != localhostIp:
-                    HOST_IP = ip
-                    break
-        except:
-            HOST_IP = localhostIp
-    if HOST_IP is None:
-        HOST_IP = localhostIp
+        HOST_IP = getLocalHostIpAddress()
     return "http://%s:8002/live" % HOST_IP
 
 def getProjectDependency(metaPath, repo):

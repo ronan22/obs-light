@@ -22,6 +22,7 @@ These utilities don't depend on 'Config' module.
 """
 
 import os
+import re
 import subprocess
 import urllib2
 import xml.dom.minidom
@@ -289,3 +290,20 @@ def failIfUserIsNotRoot():
     """Raise EnvironmentError if current user is not root (uid != 0)."""
     if os.getuid() != 0:
         raise EnvironmentError("You need to be root!")
+
+def isNonEmptyString(theString):
+    return isinstance(theString, basestring) and len(theString) > 0
+
+def getLocalHostIpAddress():
+    """Call ifconfig to find local IP address."""
+    cmd = ["/sbin/ifconfig"]
+    localhostIp = "127.0.0.1"
+    try:
+        res = subprocess.Popen(cmd, stdout=subprocess.PIPE).communicate()[0]
+        for ip in re.findall(".*inet.*?:([\d.]*)[\s]+.*", res):
+            if isNonEmptyString(ip) and ip != localhostIp:
+                hostIp = ip
+                break
+    except:
+        hostIp = localhostIp
+    return hostIp

@@ -21,7 +21,9 @@ Manage the distributions.xml file of an OBS server
 @author: Florent Vennetier
 """
 
+import os
 import re
+import shutil
 import xml.dom.minidom
 import ProjectManager
 from Config import getConfig
@@ -40,6 +42,7 @@ def addDistrib(doc, project, target):
                                    target)
     projectRepoName = project.replace(":", "_")
     projectCleanedName = project.replace(":", " ")
+    projectCleanedName += " (%s)" % target
 
     newDistrib = doc.createElement("distribution")
 
@@ -101,6 +104,19 @@ def saveDocument(doc, filePath):
 #       doc.writexml(outputFile, encoding="UTF-8")
         outputFile.write(prettyXml)
 
+def copyFakeObsLogo():
+    conf = getConfig()
+    themeDir = conf.getPath("theme_dir", "/srv/obslight-fakeobs/theme")
+    logoDir = "/srv/www/obs/webui/public/images/distributions/"
+    src = os.path.join(themeDir, "fakeobs.png")
+    dst = os.path.join(logoDir, "fakeobs.png")
+    if not os.path.exists(dst):
+        try:
+            shutil.copy(src, dst)
+        except IOError as myError:
+            # It's not a real problem if logo is not copied
+            print myError
+
 def updateFakeObsDistributions():
     """
     Update distributions.xml. Add new projects, remove no longer
@@ -128,3 +144,4 @@ def updateFakeObsDistributions():
         addDistrib(doc1, project, target)
 
     saveDocument(doc1, distributionsFile)
+    copyFakeObsLogo()
