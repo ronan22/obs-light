@@ -91,17 +91,13 @@ cp -f config/init_fakeobswebui %{buildroot}%{_sysconfdir}/init.d/fakeobswebui
 #cp -rf config %{buildroot}/srv/obslight-fakeobs/config
 #cp -rf theme %{buildroot}/srv/obslight-fakeobs/theme
 #cp -rf tools %{buildroot}/srv/obslight-fakeobs/tools
-ln -sf %{py_sitedir}/ObsLightFakeObs/Commandline.py %{buildroot}%{_bindir}/obslight-fakeobs
 cp -f config/logrotate_fakeobs %{buildroot}%{_sysconfdir}/logrotate.d/fakeobs
 cp -f README %{buildroot}%{_docdir}/%{name}
 echo "%{name}-%{version}-%{release}" > %{buildroot}%{_docdir}/%{name}/VERSION
 
-ln -sf %{py_sitedir}/ObsLightFakeObs/ApiDaemon.py %{buildroot}%{_sbindir}/obslight-fakeobsd
-ln -sf %{py_sitedir}/ObsLightFakeObs/WebUiDaemon.py %{buildroot}%{_sbindir}/obslight-fakeobswebuid
 ln -sf %{_sysconfdir}/init.d/fakeobs %{buildroot}%{_sbindir}/rcfakeobs
 ln -sf %{_sysconfdir}/init.d/fakeobswebui %{buildroot}%{_sbindir}/rcfakeobswebui
 
-chmod a+x %{buildroot}%{py_sitedir}/ObsLightFakeObs/{Commandline,Dupes,ApiDaemon,WebUiDaemon}.py
 # << install pre
 
 # >> install post

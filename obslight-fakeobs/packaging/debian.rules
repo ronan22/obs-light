@@ -65,12 +65,12 @@ install: build
 	#cp -rf config $(BUILDROOT)/srv/obslight-fakeobs/config
 	#cp -rf theme $(BUILDROOT)/srv/obslight-fakeobs/theme
 	#cp -rf tools $(BUILDROOT)/srv/obslight-fakeobs/tools
-	ln -s $(MODULEPATH)/Commandline.py $(BUILDROOT)/usr/bin/obslight-fakeobs
-	ln -s $(MODULEPATH)/ApiDaemon.py $(BUILDROOT)/usr/sbin/obslight-fakeobsd
-	ln -s $(MODULEPATH)/WebUiDaemon.py $(BUILDROOT)/usr/sbin/obslight-fakeobswebuid
-	chmod a+x $(BUILDROOT)$(MODULEPATH)/Commandline.py
-	chmod a+x $(BUILDROOT)$(MODULEPATH)/ApiDaemon.py
-	chmod a+x $(BUILDROOT)$(MODULEPATH)/WebUiDaemon.py
+	#ln -s $(MODULEPATH)/Commandline.py $(BUILDROOT)/usr/bin/obslight-fakeobs
+	#ln -s $(MODULEPATH)/ApiDaemon.py $(BUILDROOT)/usr/sbin/obslight-fakeobsd
+	#ln -s $(MODULEPATH)/WebUiDaemon.py $(BUILDROOT)/usr/sbin/obslight-fakeobswebuid
+	#chmod a+x $(BUILDROOT)$(MODULEPATH)/Commandline.py
+	#chmod a+x $(BUILDROOT)$(MODULEPATH)/ApiDaemon.py
+	#chmod a+x $(BUILDROOT)$(MODULEPATH)/WebUiDaemon.py
 	cp -f config/upstart_fakeobs $(BUILDROOT)/etc/init/fakeobs.conf
 	cp -f config/upstart_fakeobswebui $(BUILDROOT)/etc/init/fakeobswebui.conf
 	ln -s /lib/init/upstart-job $(BUILDROOT)/etc/init.d/fakeobs
