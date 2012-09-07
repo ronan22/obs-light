@@ -284,7 +284,7 @@ class FakeObsWebUiRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 class XFSPWebServer(SocketServer.ThreadingMixIn, BaseHTTPServer.HTTPServer):
     pass
 
-if __name__ == '__main__':
+def main():
     # TODO: use an option parser and add quiet/verbose modes
     if len(sys.argv) > 1:
         loadConfig(sys.argv[1])
@@ -295,3 +295,6 @@ if __name__ == '__main__':
     httpd = XFSPWebServer(("0.0.0.0", conf.getPort("webui_port", 8000)),
                           FakeObsWebUiRequestHandler)
     httpd.serve_forever()
+
+if __name__ == '__main__':
+    main()

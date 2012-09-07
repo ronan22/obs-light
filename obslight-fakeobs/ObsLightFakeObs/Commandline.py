@@ -280,7 +280,7 @@ class FakeObsCommandline(cmdln.Cmdln):
         Utils.failIfUserIsNotRoot()
         DistributionsManager.updateFakeObsDistributions()
 
-if __name__ == "__main__":
+def main():
     commandline = FakeObsCommandline()
     try:
         res = commandline.main()
@@ -296,3 +296,7 @@ if __name__ == "__main__":
             print >> sys.stderr, Utils.colorize(msg, "red")
         res = 1
     sys.exit(res)
+
+
+if __name__ == "__main__":
+    main()

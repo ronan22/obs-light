@@ -760,7 +760,7 @@ def updateRepositories():
     for ptr in getProjectsTargetsAndReleases():
         updateRepository(*ptr)
 
-if __name__ == "__main__":
+def main():
     # TODO: use an option parser and add quiet/verbose modes
     if len(sys.argv) > 1:
         loadConfig(sys.argv[1])
@@ -772,3 +772,6 @@ if __name__ == "__main__":
     httpd = XFSPWebServer(("0.0.0.0", conf.getPort("api_port", 8001)),
                           SimpleHTTPRequestHandler)
     httpd.serve_forever()
+
+if __name__ == "__main__":
+    main()
