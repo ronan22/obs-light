@@ -446,8 +446,14 @@ def grabProject(api, rsyncUrl, project, targets, archs, newName=None):
     fixProjectPackagesMeta(newName)
     downloadRepositories(rsyncUrl, project, targets, repoDir)
     updateLiveRepository(newName)
-    updateFakeObsDistributions()
-    createFakeObsLink()
+    try:
+        # These operations will fail if program is not run
+        # on an OBS server
+        updateFakeObsDistributions()
+        createFakeObsLink()
+    except IOError:
+        pass
+
     return newName
 
 def removeProject(project):
@@ -683,11 +689,14 @@ def checkPackageFilesByPath(packagePath):
         entryPath = os.path.join(packagePath, entry["name"])
         msg = None
         if not os.path.exists(entryPath):
-            msg = "%s is missing!" % entryPath
+            msg = "Missing file:\t%s" % entryPath
         elif os.path.getsize(entryPath) != int(entry["size"]):
-            msg = "%s has unexpected file size!" % entryPath
+            msg = "Unexpected file size (%d vs %d):\t%s"
+            msg = msg % (os.path.getsize(entryPath),
+                         int(entry["size"]),
+                         entryPath)
         elif Utils.computeMd5(entryPath) != entry["md5"]:
-            msg = "%s is corrupted!" % entryPath
+            msg = "Corrupted file:\t%s" % entryPath
         if msg is not None:
             errorList.append((Utils.colorize(msg, "red"), entryPath))
     return errorList
@@ -712,6 +721,20 @@ def checkAllPackagesFiles(project):
         errors = checkPackageFiles(project, package)
         for error in errors:
             errorList.append(error[0])
+    return errorList
+
+def checkProjectDependencies(project):
+    conf = getConfig()
+    errorList = []
+    projectList = getProjectList()
+    for target in getTargetList(project):
+        for dprj, dtarget in getProjectDependencies(project, target):
+            if not dprj in projectList:
+                msg = "Missing project '%s'" % dprj
+                errorList.append(msg)
+            elif not dtarget in getTargetList(dprj):
+                msg = "Missing target '%s' of project '%s'" % (dtarget, dprj)
+                errorList.append(msg)
     return errorList
 
 def getProjectDependencies(project, target):

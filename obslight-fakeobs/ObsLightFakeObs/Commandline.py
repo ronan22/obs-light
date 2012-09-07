@@ -165,7 +165,9 @@ class FakeObsCommandline(cmdln.Cmdln):
                     (ProjectManager.checkProjectRepository,
                      " --- Step 3: checking repository..."),
                     (ProjectManager.checkAllPackagesFiles,
-                     " --- Step 4: checking packages files...")]
+                     " --- Step 4: checking packages files..."),
+                    (ProjectManager.checkProjectDependencies,
+                     " --- Step 5: checking project dependencies...")]
 
         print Utils.colorize("Checking project '%s'" % project, "green")
         gotError = False

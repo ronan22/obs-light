@@ -17,6 +17,7 @@ endif
 
 PYTHON=$(shell pyversions -d)
 MODULEPATH=/usr/lib/$(PYTHON)/dist-packages/ObsLightFakeObs
+BUILDROOT=/usr/src/packages/BUILD/debian/obslight-fakeobs
 
 build: build-stamp
 build-stamp:
@@ -48,35 +49,35 @@ install: build
 	 # Add here commands to install the package
 	 # The DESTDIR Has To Be Exactly
 	 # /usr/src/packages/BUILD/debian/<nameOfPackage>
-	mkdir -p /usr/src/packages/BUILD/debian/obslight-fakeobs/srv/obslight-fakeobs/projects
-	mkdir -p /usr/src/packages/BUILD/debian/obslight-fakeobs/srv/obslight-fakeobs/repositories
-	mkdir -p /usr/src/packages/BUILD/debian/obslight-fakeobs/srv/obslight-fakeobs/theme
-	mkdir -p /usr/src/packages/BUILD/debian/obslight-fakeobs/srv/obslight-fakeobs/tools
-	mkdir -p /usr/src/packages/BUILD/debian/obslight-fakeobs/etc/init.d
-	mkdir -p /usr/src/packages/BUILD/debian/obslight-fakeobs/etc/init
-	mkdir -p /usr/src/packages/BUILD/debian/obslight-fakeobs/etc/logrotate.d
-	mkdir -p /usr/src/packages/BUILD/debian/obslight-fakeobs/sbin
-	mkdir -p /usr/src/packages/BUILD/debian/obslight-fakeobs/usr/bin
-	mkdir -p /usr/src/packages/BUILD/debian/obslight-fakeobs/usr/sbin
-	mkdir -p /usr/src/packages/BUILD/debian/obslight-fakeobs/usr/share/doc/packages/obslight-fakeobs
-	python setup.py install -O1 --install-layout=deb --root=/usr/src/packages/BUILD/debian/obslight-fakeobs
+	mkdir -p $(BUILDROOT)/srv/obslight-fakeobs/projects
+	mkdir -p $(BUILDROOT)/srv/obslight-fakeobs/repositories
+	mkdir -p $(BUILDROOT)/srv/obslight-fakeobs/theme
+	mkdir -p $(BUILDROOT)/srv/obslight-fakeobs/tools
+	mkdir -p $(BUILDROOT)/etc/init.d
+	mkdir -p $(BUILDROOT)/etc/init
+	mkdir -p $(BUILDROOT)/etc/logrotate.d
+	mkdir -p $(BUILDROOT)/sbin
+	mkdir -p $(BUILDROOT)/usr/bin
+	mkdir -p $(BUILDROOT)/usr/sbin
+	mkdir -p $(BUILDROOT)/usr/share/doc/packages/obslight-fakeobs
+	python setup.py install -O1 --install-layout=deb --root=$(BUILDROOT)
 	# The following 3 lines are already executed by setup.py
-	#cp -rf config /usr/src/packages/BUILD/debian/obslight-fakeobs/srv/obslight-fakeobs/config
-	#cp -rf theme /usr/src/packages/BUILD/debian/obslight-fakeobs/srv/obslight-fakeobs/theme
-	#cp -rf tools /usr/src/packages/BUILD/debian/obslight-fakeobs/srv/obslight-fakeobs/tools
-	ln -s $(MODULEPATH)/Commandline.py /usr/src/packages/BUILD/debian/obslight-fakeobs/usr/bin/obslight-fakeobs
-	ln -s $(MODULEPATH)/ApiDaemon.py /usr/src/packages/BUILD/debian/obslight-fakeobs/usr/sbin/obslight-fakeobsd
-	ln -s $(MODULEPATH)/WebUiDaemon.py /usr/src/packages/BUILD/debian/obslight-fakeobs/usr/sbin/obslight-fakeobswebuid
-        chmod a+x $(MODULEPATH)/Commandline.py
-        chmod a+x $(MODULEPATH)/ApiDaemon.py
-        chmod a+x $(MODULEPATH)/WebUiDaemon.py
-	cp -f config/upstart_fakeobs /usr/src/packages/BUILD/debian/obslight-fakeobs/etc/init/fakeobs.conf
-	cp -f config/upstart_fakeobswebui /usr/src/packages/BUILD/debian/obslight-fakeobs/etc/init/fakeobswebui.conf
-	ln -s /lib/init/upstart-job /usr/src/packages/BUILD/debian/obslight-fakeobs/etc/init.d/fakeobs
-	ln -s /lib/init/upstart-job /usr/src/packages/BUILD/debian/obslight-fakeobs/etc/init.d/fakeobswebui
-	cp -f config/logrotate_fakeobs /usr/src/packages/BUILD/debian/obslight-fakeobs/etc/logrotate.d/fakeobs
-	cp -f README /usr/src/packages/BUILD/debian/obslight-fakeobs/usr/share/doc/packages/obslight-fakeobs
-	echo "obslight-fakeobs-1.0.0-1.0" > /usr/src/packages/BUILD/debian/obslight-fakeobs/usr/share/doc/packages/obslight-fakeobs/VERSION
+	#cp -rf config $(BUILDROOT)/srv/obslight-fakeobs/config
+	#cp -rf theme $(BUILDROOT)/srv/obslight-fakeobs/theme
+	#cp -rf tools $(BUILDROOT)/srv/obslight-fakeobs/tools
+	ln -s $(MODULEPATH)/Commandline.py $(BUILDROOT)/usr/bin/obslight-fakeobs
+	ln -s $(MODULEPATH)/ApiDaemon.py $(BUILDROOT)/usr/sbin/obslight-fakeobsd
+	ln -s $(MODULEPATH)/WebUiDaemon.py $(BUILDROOT)/usr/sbin/obslight-fakeobswebuid
+	chmod a+x $(BUILDROOT)$(MODULEPATH)/Commandline.py
+	chmod a+x $(BUILDROOT)$(MODULEPATH)/ApiDaemon.py
+	chmod a+x $(BUILDROOT)$(MODULEPATH)/WebUiDaemon.py
+	cp -f config/upstart_fakeobs $(BUILDROOT)/etc/init/fakeobs.conf
+	cp -f config/upstart_fakeobswebui $(BUILDROOT)/etc/init/fakeobswebui.conf
+	ln -s /lib/init/upstart-job $(BUILDROOT)/etc/init.d/fakeobs
+	ln -s /lib/init/upstart-job $(BUILDROOT)/etc/init.d/fakeobswebui
+	cp -f config/logrotate_fakeobs $(BUILDROOT)/etc/logrotate.d/fakeobs
+	cp -f README $(BUILDROOT)/usr/share/doc/packages/obslight-fakeobs
+	echo "obslight-fakeobs-1.0.0-1.0" > $(BUILDROOT)/usr/share/doc/packages/obslight-fakeobs/VERSION
 
 	 # make install DESTDIR=/usr/src/packages/BUILD/debian/ace
 	 # --- end custom part for installing
