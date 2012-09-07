@@ -27,6 +27,7 @@ Requires:   apache2
 Requires(post): sysconfig
 %endif
 
+Requires:   createrepo
 Requires:   logrotate
 Requires:   osc
 Requires:   python

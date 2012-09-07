@@ -8,12 +8,14 @@ Package: obslight-fakeobs
 Architecture: any
 Depends: ${shlibs:Depends},
  apache2,
+ createrepo,
  logrotate,
  osc,
  python,
 #  The following packages will be available with 12.10.
 #  Until then, we will install them with "easy_install".
 # python-async,
+# python-cmdln
 # python-gitdb,
 # python-gitpython,
 # python-smmap,
