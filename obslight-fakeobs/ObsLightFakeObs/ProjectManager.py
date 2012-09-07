@@ -209,7 +209,6 @@ def downloadFull(api, project, target, arch, destDir):
             maxRetries -= 1
             url = cpioUrl % (api, project, target, arch, query)
             retCode = Utils.curlUnpack(url, destDir)
-    deleteRpmSignatures(destDir)
 
 def downloadFulls(api, project, targetArchTuples, fullDir):
     """
@@ -245,7 +244,10 @@ def downloadRepository(rsyncUrl, project, target, repoDir):
     # TODO: check retCode
     retCode = Utils.callSubprocess(rsync, cwd=packagesDir)
 
-    deleteRpmSignatures(packagesDir)
+    # Original MDS code was deleting RPM signatures.
+    # We do not do it, so RPMs in :full and repositories are the same,
+    # and we can make hard links between them.
+    #deleteRpmSignatures(packagesDir)
 
     # TODO: check retCode
     retCode = Utils.callSubprocess(["find", packagesDir,
@@ -657,6 +659,13 @@ def checkProjectRepository(project):
         return errorList
     for target in targetList:
         targetDir = os.path.join(repoDir, target)
+        repoMdPath = os.path.join(targetDir, "packages",
+                                  "repodata", "repomd.xml")
+        # Check presence of repomd.xml (can be missing if createrepo failed)
+        if not os.path.isfile(repoMdPath):
+            msg = "Missing repository metadata file: %s" % repoMdPath
+            errorList.append(Utils.colorize(msg, "red"))
+        # Check integrity of all RPMs
         for (dirPath, _dirNames, fileNames) in os.walk(targetDir):
             for fileName in fileNames:
                 if fileName.endswith(".rpm"):

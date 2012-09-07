@@ -499,9 +499,10 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                                 path = os.path.join(projectNamePath , repository , arch)
                                 with tempfile.NamedTemporaryFile("w", suffix=".cpio") as cpioFile:
                                     res = createCpio(cpioFile, binaries, path)
-                                    # cpioFile is delete after this block but it is still open
+                                    # cpioFile is deleted after this block but it is still open
                                     # and readable ('content' is a file-object)
                                     contentsize, contentmtime, content = file2stream(cpioFile.name)
+                                contentmtime = time.time()
                                 contenttype = "application/x-cpio"
                                 ##
                             # GET /build/<project>/<repository>/<arch>/_repository?view=names&binary=XXX
