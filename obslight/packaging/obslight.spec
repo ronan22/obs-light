@@ -93,7 +93,7 @@ This package contains the graphical interface.
 
 
 %prep
-%setup -q -n %{name}
+%setup -q
 
 # >> setup
 # << setup
