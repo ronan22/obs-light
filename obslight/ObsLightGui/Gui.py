@@ -253,6 +253,7 @@ class Gui(QObject):
             self.__wizard.skipToPackageCreation(project)
         else:
             self.__wizard.skipToPackageSelection(project)
+
         self.__wizard.show()
         return self.__wizard
 

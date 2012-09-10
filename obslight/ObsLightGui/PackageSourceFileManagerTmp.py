@@ -28,7 +28,7 @@ from ObsLight.ObsLightErr import ObsLightOscErr
 STATUS_COLUMN = u"Status"
 
 
-class OscWorkingCopyModel(QAbstractTableModel):
+class PackageSourceFileManager(QAbstractTableModel):
     """
     A subclass of QAbstractTableModel which represents the file
     list of an osc working copy.

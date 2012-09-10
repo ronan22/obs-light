@@ -766,12 +766,16 @@ class ObsLightManagerCore(ObsLightManagerBase):
         return res
 
     #///////////////////////////////////////////////////////////////////////////package
-    @checkProjectLocalName(1)
+
+    def localCopyPackage(self, projectSrc, projectDst, package):
+        print "projectSrc", projectSrc, "projectDst", projectDst, "package", package
+
+
     def getLocalProjectPackageList(self, projectLocalName, onlyInstalled=True):
         '''
         Return the list of packages of a local project.
-        If onlyInstalled=1, return the list of locally installed packages.
-        If onlyInstalled=0, return the list of packages provided by the OBS server for the project.
+        If onlyInstalled=True, return the list of locally installed packages.
+        If onlyInstalled=False, return the list of packages provided by the OBS server for the project.
         '''
         project = self._myObsLightProjects.getProject(projectLocalName)
         return project.getListPackage(onlyInstalled=onlyInstalled)
@@ -786,7 +790,28 @@ class ObsLightManagerCore(ObsLightManagerBase):
         """
         server = self.getProjectParameter(projectLocalName, "obsServer")
         projectObsName = self.getProjectParameter(projectLocalName, "projectObsName")
-        return self.createObsPackage(server, projectObsName, name, title, description)
+
+        if self.getObsProjectParameter(server, projectObsName, "readonly"):
+            if name in self.getLocalProjectPackageList(projectLocalName=projectLocalName):
+                msg = "'%s' is already a local package of '%s'" % (name, projectLocalName)
+                raise ObsLightObsServers(msg)
+
+            project = self._myObsLightProjects.getProject(projectLocalName)
+            serverObj = self._myObsServers.getObsServer(server)
+            res = project.initPackage(serverObj.getObsServerParameter("serverAPI"),
+                                      projectLocalName,
+                                      name,
+                                      None,
+                                      None,
+                                      [],
+                                      None)
+
+            self._myObsLightProjects.save()
+            return res
+        else:
+            res = self.createObsPackage(server, projectObsName, name, title, description)
+
+            return self.addPackage(projectLocalName, name)
 
     def createObsPackage(self, serverApi, projectObsName, package, title="", description=""):
         checkNonEmptyStringServerApi(serverApi=serverApi)
@@ -801,8 +826,8 @@ class ObsLightManagerCore(ObsLightManagerBase):
         '''
         def test(package):
             if not package in self.getLocalProjectPackageList(projectLocalName=projectLocalName):
-                raise ObsLightObsServers("'%s' is not a local package of '%s'"
-                                         % (package, projectLocalName))
+                msg = "'%s' is not a local package of '%s'" % (package, projectLocalName)
+                raise ObsLightObsServers(msg)
 
         if isinstance(package, collections.Iterable) and\
            not isinstance(package, str) and\
@@ -866,8 +891,8 @@ class ObsLightManagerCore(ObsLightManagerBase):
         server = self._myObsLightProjects.getProject(projectLocalName).getObsServer()
         projectObsName = self._myObsLightProjects.getProject(projectLocalName).getProjectObsName()
         if not package in self.getObsProjectPackageList(server, projectObsName):
-            raise ObsLightObsServers(" package '" + package + "' is not part of the '"
-                                     + projectObsName + "' project")
+            msg = " package '%s' is not part of the '%s' project" % (package, projectObsName)
+            raise ObsLightObsServers(msg)
 
         self._myObsLightProjects.getProject(projectLocalName).addPackage(package)
         self._myObsLightProjects.save()

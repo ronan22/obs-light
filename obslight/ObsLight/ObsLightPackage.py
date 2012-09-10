@@ -721,7 +721,7 @@ class ObsLightPackage(object):
 
     def destroy(self):
         if self.gitWorkingTree is not None:
-            self.__subprocess("rm -r " + self.gitWorkingTree)
+            self.__subprocess("rm -fr " + self.gitWorkingTree)
         return self.__subprocess(command="rm -r  " + self.getOscDirectory())
 
     def initPackageFileInfo(self):

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'ui/wizard_choosePackage.ui'
+# Form implementation generated from reading ui file 'ui/wizard_chooseLocalPackage.ui'
 #
-# Created: Wed Sep  5 11:04:15 2012
+# Created: Wed Sep  5 11:04:14 2012
 #      by: pyside-uic 0.2.13 running on PySide 1.1.0
 #
 # WARNING! All changes made in this file will be lost!

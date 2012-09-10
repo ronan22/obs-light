@@ -41,15 +41,18 @@
     </widget>
    </item>
    <item>
-    <widget class="QRadioButton" name="branchPackageButton">
+    <widget class="QRadioButton" name="copyPackageButton">
      <property name="enabled">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <property name="toolTip">
-      <string>Not implemented</string>
+      <string/>
      </property>
      <property name="text">
-      <string>Create a branch of an existing package</string>
+      <string>Copy of an existing package</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
      </property>
     </widget>
    </item>

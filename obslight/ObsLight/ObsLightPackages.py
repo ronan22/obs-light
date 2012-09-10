@@ -126,7 +126,6 @@ class ObsLightPackages(object):
         saveconfigPackages["packageFilter"] = self.__packageFilter
         return saveconfigPackages
 
-
     def getListPackages(self):
         res = self.__dicOBSLightPackages.keys()
         res.sort()

@@ -29,12 +29,14 @@ from ChooseServerPage import ChooseServerPage
 from ConfigureServerUrlPage import ConfigureServerUrlPage
 from ConfigureServerAliasPage import ConfigureServerAliasPage
 from ChooseProjectPage import ChooseProjectPage
+from ChooseLocalProjectPage import ChooseLocalProjectPage
 from ChooseProjectTargetPage import ChooseProjectTargetPage
 from ChooseProjectArchPage import ChooseProjectArchPage
 from ConfigureProjectAliasPage import ConfigureProjectAliasPage
 from ChooseNewOrExistingPackage import ChooseNewOrExistingPackage
 from ConfigureNewPackagePage import ConfigureNewPackagePage
 from ChoosePackagePage import ChoosePackagePage
+from ChooseLocalPackagePage import ChooseLocalPackagePage
 
 class ConfigWizard(QWizard, ObsLightGuiObject):
 
@@ -87,11 +89,20 @@ class ConfigWizard(QWizard, ObsLightGuiObject):
         pageCounter += 1
         self.Pages[u'ChoosePackage'] = ChoosePackagePage(self.gui, pageCounter)
 
+        pageCounter += 1
+        self.Pages[u'ChooseLocalProject'] = ChooseLocalProjectPage(self.gui, pageCounter)
+
+        pageCounter += 1
+        self.Pages[u'ChooseLocalPackagePage'] = ChooseLocalPackagePage(self.gui, pageCounter)
+
         for page in self.Pages.values():
             self.setPage(page.index, page)
 
     def getSelectedProject(self):
         return self.Pages[u'ChooseProject'].getSelectedProject()
+
+    def getSelectedLocalProject(self):
+        return self.Pages[u'ChooseLocalProject'].getSelectedLocalProject()
 
     def getSelectedProjectAlias(self):
         return self.field(u"projectAlias")
