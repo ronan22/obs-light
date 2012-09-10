@@ -466,7 +466,10 @@ def removeProject(project):
               conf.getProjectLiveDir(project)}:
         if os.path.isdir(myDir):
             shutil.rmtree(myDir)
-    updateFakeObsDistributions()
+    try:
+        updateFakeObsDistributions()
+    except IOError:
+        pass
 
 def exportProject(project, destPath=None):
     """
@@ -545,8 +548,13 @@ def importProject(archivePath, newName=None):
     finally:
         shutil.rmtree(stagingDir)
     updateLiveRepository(newName)
-    updateFakeObsDistributions()
-    createFakeObsLink()
+    try:
+        # These operations will fail if program is not run
+        # on an OBS server
+        updateFakeObsDistributions()
+        createFakeObsLink()
+    except IOError:
+        pass
     return newName
 
 def checkProjectConfigAndMeta(project):

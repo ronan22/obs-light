@@ -280,6 +280,26 @@ class FakeObsCommandline(cmdln.Cmdln):
         Utils.failIfUserIsNotRoot()
         DistributionsManager.updateFakeObsDistributions()
 
+    @cmdln.option("-n", "--new-name", dest="new_name",
+                  help="rename project to NEW_NAME while converting")
+    def do_convert(self, subcmd, opts, project, release):
+        """${cmd_name}: convert a project from the old Fake OBS format (< 1.0.0)
+        to the new format (>= 1.0.0).
+
+        You need to be root to run this.
+
+        ${cmd_usage}
+         PROJECT is the name of the project
+         RELEASE is the release number of the project
+
+        ${cmd_option_list}
+        """
+        import Converter
+        effectiveName = Converter.convertProject(project, release, opts.new_name)
+        msg = "Project '%s' correctly converted" % effectiveName
+        print Utils.colorize(msg, "green")
+        return self.do_check(subcmd, opts, effectiveName)
+
 def main():
     commandline = FakeObsCommandline()
     try:

@@ -115,7 +115,7 @@ def copyFakeObsLogo():
             shutil.copy(src, dst)
         except IOError as myError:
             # It's not a real problem if logo is not copied
-            print myError
+            pass
 
 def updateFakeObsDistributions():
     """

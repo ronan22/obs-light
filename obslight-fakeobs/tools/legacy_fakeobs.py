@@ -25,13 +25,14 @@ import shutil
 import mimetypes
 import urlparse
 import uuid
-import gitmer
 import subprocess
 import xml.dom.minidom
 import os
 import traceback
-import rpmManager
 import tempfile
+
+import legacy_gitmer as gitmer
+import legacy_rpmManager as rpmManager
 
 try:
     from cStringIO import StringIO
