@@ -54,7 +54,7 @@ It is based on Mer Delivery System.
 
 
 %prep
-%setup -q -n %{name}
+%setup -q
 
 # >> setup
 # << setup
