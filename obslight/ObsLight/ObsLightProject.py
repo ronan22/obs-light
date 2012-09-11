@@ -351,19 +351,19 @@ class ObsLightProject(ObsLightObject):
     def getListChRootStatus(self):
         return self.__packages.getListChRootStatus()
 
-#    def __refreshPackageDirectoryStatus, package=None):
-#        def doUpDatePackage(package):
-#            self.updatePackage(name=package, noOscUpdate=True)
-##            self.refreshPackageDirectoryStatus(package)
-##            self.__packages.getPackage(package).initPackageFileInfo()
-#            self.__refreshOscPackageLocalRev(package)
-#
-#        if package != None:
-#            doUpDatePackage(package)
-#        else:
-#            for pkg in self.getPackageList():
-#                doUpDatePackage(pkg)
-#        return 0
+    def refreshPackageDirectoryStatus(self, package=None):
+        def doUpDatePackage(package):
+            self.updatePackage(name=package)
+#            self.refreshPackageDirectoryStatus(package)
+#            self.__packages.getPackage(package).initPackageFileInfo()
+            self.__refreshOscPackageLocalRev(package)
+
+        if package != None:
+            doUpDatePackage(package)
+        else:
+            for pkg in self.getPackageList():
+                doUpDatePackage(pkg)
+        return 0
 
     def __refreshOscPackageLocalRev(self, package):
         '''
@@ -611,14 +611,14 @@ class ObsLightProject(ObsLightObject):
             else:
                 return None
 
-    def updatePackage(self, name, noOscUpdate=False):
+    def updatePackage(self, name):
         '''
         update a package of the projectLocalName.
         '''
         self.__refreshObsDescription(name)
 
         pkgObj = self.__packages.getPackage(name)
-        pkgObj.updatePackage(noOscUpdate=noOscUpdate)
+        pkgObj.updatePackage()
         if not pkgObj.isGitPackage:
             server = self.__obsServers.getObsServer(self.__obsServer)
             self.refreshObsStatus(name)

@@ -392,11 +392,11 @@ class ObsLightPackage(ObsLightObject):
 
         return 0
 
-    def updatePackage(self, noOscUpdate=False):
+    def updatePackage(self):
         if  self.isGitPackage:
             self.__updateGitPackage()
         else:
-            self.__updateOscPackage(noOscUpdate=False)
+            self.__updateOscPackage()
 
         self.findBestSpecFile()
         return 0
