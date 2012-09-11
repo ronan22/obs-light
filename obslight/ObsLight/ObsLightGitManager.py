@@ -125,7 +125,7 @@ class ObsLightGitManager(ObsLightObject):
 
     def findEmptyDirectory(self, package):
         # git ignores empty directories so we must save them into a file.
-        projectPath = self.__chroot.getDirectory() + package.getPackageDirectory()
+        projectPath = self.__chroot.getDirectory() + package.getChrootBuildDirectory()
         res = []
         for root, dirs, files in os.walk(projectPath):
             if len(dirs) == 0 and len(files) == 0:
@@ -264,7 +264,7 @@ class ObsLightGitManager(ObsLightObject):
         return result
 
     def commitGit(self, mess, package):
-        packagePath = package.getPackageDirectory()
+        packagePath = package.getPackageChrootDirectory()
         command = []
         if packagePath is None:
             raise ObsLightErr.ObsLightChRootError("path is not defined in commitGit for .")

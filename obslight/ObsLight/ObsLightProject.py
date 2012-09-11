@@ -141,7 +141,7 @@ class ObsLightProject(ObsLightObject):
         Open bash in `package`'s osc working directory.
         '''
         if package != None:
-            packagePath = self.__packages.getPackage(package).getPackageSourceDirectory()
+            packagePath = self.__packages.getPackage(package).getPackageChrootDirectory()
             if packagePath != None:
                 pathScript = self.__chroot.getChrootDirTransfert() + "/runMe.sh"
                 title = "%s project directory" % package
@@ -177,11 +177,11 @@ class ObsLightProject(ObsLightObject):
 
         return self.__configPath
 
-    def getChrootUserHome(self):
+    def getChrootUserHome(self, fullPath=True):
         '''
         Return the abs Path of the user home into chroot jail. 
         '''
-        return self.__chroot.getChrootUserHome(fullPath=True)
+        return self.__chroot.getChrootUserHome(fullPath)
 
     def __getTarget(self):
         """
@@ -618,14 +618,13 @@ class ObsLightProject(ObsLightObject):
         self.__refreshObsDescription(name)
 
         pkgObj = self.__packages.getPackage(name)
-        pkgObj.updatePackage()
+#        pkgObj.updatePackage()
         if not pkgObj.isGitPackage:
             server = self.__obsServers.getObsServer(self.__obsServer)
             self.refreshObsStatus(name)
 
     #        self.checkOscDirectoryStatus(package=name)
-            if not noOscUpdate:
-                self.__refreshOscPackageLocalRev(name)
+            self.__refreshOscPackageLocalRev(name)
 
 #            self.getPackage(name).initPackageFileInfo()
         return 0

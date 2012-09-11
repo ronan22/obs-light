@@ -111,8 +111,10 @@ class ObsLightPackage(ObsLightObject):
         self.__rpmBuildDirectory = "obslightbuild"
         self.__rpmBuildTmpDirectory = "obslightbuild_TMP"
 
+        self.__packageChrootBuildDirectory = fromSave.get("packageChrootBuildDirectory", None)
+
         #the Chroot jail path with user home path.
-        self.__chrootUserHome = self.__project.getChrootUserHome()
+        self.__chrootUserHome = self.__project.getChrootUserHome(fullPath=False)
 
         self.__chrootRpmBuildDirectory = os.path.join(self.__chrootUserHome,
                                                       self.__name,
@@ -163,6 +165,7 @@ class ObsLightPackage(ObsLightObject):
         aDic["prepDirName"] = self.__prepDirName
         aDic["listRPMPublished"] = self.__listRPMPublished
 
+        aDic["packageChrootBuildDirectory"] = self.getChrootBuildDirectory()
         return aDic
 
     def getPackageParameter(self, parameter=None):
@@ -511,7 +514,8 @@ class ObsLightPackage(ObsLightObject):
             self.__mySpecFile.saveSpecShortCut(path,
                                                section,
                                                self.getChRootStatus(),
-                                               self.getPackageDirectory())
+                                               self.getPackageChrootDirectory(),
+                                               )
         else:
             raise ObsLightPackageErr("No Spec in the package")
 
@@ -649,7 +653,7 @@ class ObsLightPackage(ObsLightObject):
             return os.path.join(chrootPath , path)
 
         chrootRpmBuildDirectory = self.getChrootRpmBuildDirectory()
-        absChrootRpmBuildDirectory = "/%s/SOURCES/" % chrootRpmBuildDirectory
+        absChrootRpmBuildDirectory = "%s%s/SOURCES/" % (self.__project.getChRootPath(), chrootRpmBuildDirectory)
 
         for aFile in self.getPackagingFiles():
             pathDst = absChrootRpmBuildDirectory + str(aFile)
@@ -706,17 +710,17 @@ class ObsLightPackage(ObsLightObject):
     def getTopDirRpmBuildTmpDirectory(self):
         return self.__rpmBuildTmpDirectory
 
-#    def setDirectoryBuild(self, packageDirectory=None):
-#        '''
-#        Set the directory of the package into the chroot.
-#        '''
-#        self.__packageChrootDirectory = packageDirectory
-#
-#    def getPackageDirectory(self):
-#        '''
-#        Return the directory of the package into the chroot.
-#        '''
-#        return self.__packageChrootDirectory
+    def setChrootBuildDirectory(self, path):
+        '''
+        Set the directory of the package build directory into the chroot.
+        '''
+        self.__packageChrootBuildDirectory = path
+
+    def getChrootBuildDirectory(self):
+        '''
+        Return the directory of the package build directory into the chroot.
+        '''
+        return self.__packageChrootBuildDirectory
 
     #--------------------------------------------------------------------------- Patch Management
     def addPatch(self, aFile=None):
@@ -772,7 +776,7 @@ class ObsLightPackage(ObsLightObject):
         Get the name of the temporary archive we create from
         sources extracted from git.
         """
-        if self.__prepDirName is not None:
+        if self.__prepDirName is None:
             return self.__name + self.ArchiveSuffix
         else:
             return self.__prepDirName + self.ArchiveSuffix

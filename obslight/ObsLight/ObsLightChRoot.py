@@ -857,9 +857,10 @@ exit $RETURN_VALUE
         packageDirectory = self.__findPackageDirectory(package=package)
         if packageDirectory is None:
             return 0
+
         message = "Package directory used by '%s': %s" % (package.getName(), str(packageDirectory))
         ObsLightPrintManager.getLogger().debug(message)
-        package.setDirectoryBuild(packageDirectory)
+        package.setChrootBuildDirectory(packageDirectory)
 
         if package.getPackageParameter("patchMode"):
             package.initCurrentPatch()
@@ -923,7 +924,7 @@ exit $RETURN_VALUE
         res = self.execCommand([script])
 
         packageName = package.getName()
-        packageDirectory = package.getPackageDirectory()
+        packageDirectory = package.getPackageChrootDirectory()
 
         if res == 0:
             self._ObsLightGitManager.ignoreGitWatch(package=package, path=packageDirectory)
@@ -965,7 +966,7 @@ exit $RETURN_VALUE
             res = self.__createGhostRpmbuildCommand("bc", package, specFile, arch)
 
             self._ObsLightGitManager.ignoreGitWatch(package=package,
-                                                     path=package.getPackageDirectory(),
+                                                     path=package.getPackageChrootDirectory(),
                                                      commitComment="build commit")
         else:
             res = self.__createRpmbuildCommand("bc", package, specFile, arch)
@@ -997,7 +998,7 @@ exit $RETURN_VALUE
             res = self.__createGhostRpmbuildCommand("bi", package, specFile, arch)
 
             self._ObsLightGitManager.ignoreGitWatch(package=package,
-                                                    path=package.getPackageDirectory(),
+                                                    path=package.getPackageChrootDirectory(),
                                                     commitComment="build install commit")
         else:
             res = self.__createRpmbuildCommand("bi", package, specFile, arch)
@@ -1031,7 +1032,7 @@ exit $RETURN_VALUE
             res = self.__createGhostRpmbuildCommand("ba", package, specFile, arch)
 
             self._ObsLightGitManager.ignoreGitWatch(package=package,
-                                                    path=package.getPackageDirectory(),
+                                                    path=package.getPackageChrootDirectory(),
                                                     commitComment="build package commit")
         else:
             res = self.__createRpmbuildCommand("ba", package, specFile, arch)
@@ -1050,7 +1051,7 @@ exit $RETURN_VALUE
         return res
 
     def prepGhostRpmbuild(self, package):
-        packagePath = package.getPackageDirectory()
+        packagePath = package.getPackageChrootDirectory()
         tarFile = package.getArchiveName()
 
         parameter = self.makeChrootScriptParameters()
@@ -1148,7 +1149,7 @@ exit $RPMBUILD_RETURN_CODE
         '''
         if not patch.endswith(".patch"):
             patch += ".patch"
-        packagePath = package.getPackageDirectory()
+        packagePath = package.getPackageChrootDirectory()
 
         self._ObsLightGitManager.commitGit(mess="createPatch", package=package)
 
@@ -1169,7 +1170,7 @@ exit $RPMBUILD_RETURN_CODE
         Update a patch from modifications made in the package directory.
         '''
         patch = package.getCurrentPatch()
-        packagePath = package.getPackageDirectory()
+        packagePath = package.getPackageChrootDirectory()
 
         self._ObsLightGitManager.commitGit(mess="updatePatch", package=package)
 
