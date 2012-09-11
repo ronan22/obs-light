@@ -114,7 +114,7 @@ def getEventsFiltered(start, filters):
         node.appendChild(indexdoc.createTextNode(text))
         parent.appendChild(node)
 
-    with open("lastevents", 'rb') as myFile:
+    with open(getConfig().getLastEventsFilePath(), 'rb') as myFile:
         indexdoc.childNodes[0].setAttribute("next", str(getNextEvent()))
 
         csvReader = csv.reader(myFile, delimiter='|', quotechar='"')
