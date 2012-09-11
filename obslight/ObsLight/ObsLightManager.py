@@ -725,21 +725,21 @@ class ObsLightManagerCore(ObsLightManagerBase):
         self._myObsLightProjects.save()
         return res
 
-    @checkFilePath(1)
-    def importProject(self, filePath):
-        '''
-        Import a project from a file.
-        '''
-        res = self._myObsLightProjects.importProject(filePath)
-        self._myObsLightProjects.save()
-        return res
+#    @checkFilePath(1)
+#    def importProject(self, filePath):
+#        '''
+#        Import a project from a file.
+#        '''
+#        res = self._myObsLightProjects.importProject(filePath)
+#        self._myObsLightProjects.save()
+#        return res
 
-    @checkProjectLocalName(1)
-    def exportProject(self, projectLocalName, path=None):
-        '''
-        Export a project to a file.
-        '''
-        return self._myObsLightProjects.exportProject(projectLocalName, path=path)
+#    @checkProjectLocalName(1)
+#    def exportProject(self, projectLocalName, path=None):
+#        '''
+#        Export a project to a file.
+#        '''
+#        return self._myObsLightProjects.exportProject(projectLocalName, path=path)
 
 
     def getDependencyRepositories(self, projectLocalName):
@@ -778,7 +778,7 @@ class ObsLightManagerCore(ObsLightManagerBase):
         If onlyInstalled=False, return the list of packages provided by the OBS server for the project.
         '''
         project = self._myObsLightProjects.getProject(projectLocalName)
-        return project.getListPackage(onlyInstalled=onlyInstalled)
+        return project.getPackageList(onlyInstalled=onlyInstalled)
 
     @checkProjectLocalName(1)
     def createLocalProjectObsPackage(self, projectLocalName, name, title="", description=""):
@@ -869,14 +869,13 @@ class ObsLightManagerCore(ObsLightManagerBase):
     def importPackage(self,
                       projectLocalName,
                       package,
-                      url=None,
-                      path=None):
+                      url=None):
         '''
         import a package to a local project. 
         The package should be local or remote git project.
         '''
         self.checkNoPackage(projectLocalName=projectLocalName, package=package)
-        self._myObsLightProjects.getProject(projectLocalName).importGitPackage(package, url, path)
+        self._myObsLightProjects.getProject(projectLocalName).addPackage(package, url)
         self._myObsLightProjects.save()
 
     @checkProjectLocalName(1)
@@ -904,7 +903,7 @@ class ObsLightManagerCore(ObsLightManagerBase):
         checkNonEmptyStringServerApi(serverApi=serverApi)
         self.checkAvailableProjectObsName(projectObsName=projectObsName, serverApi=serverApi)
         server = self._myObsServers.getObsServer(serverApi)
-        return server.getListPackage(projectLocalName=projectObsName)
+        return server.getPackageList(projectLocalName=projectObsName)
 
     @checkProjectLocalName(1)
     @checkNonEmptyStringPackage(1)
@@ -927,8 +926,8 @@ class ObsLightManagerCore(ObsLightManagerBase):
             listFile
             status
             specFile
-            fsPackageDirectory
-            oscPackageDirectory
+            packageChrootDirectory
+            packageSourceDirectory
             description
             title
         '''
@@ -992,26 +991,26 @@ class ObsLightManagerCore(ObsLightManagerBase):
         self.checkPackage(projectLocalName=projectLocalName, package=package)
         project = self._myObsLightProjects.getProject(projectLocalName)
         project.getPackage(package=package).addRemoveFileToTheProject()
-        res = project.commitToObs(message=message, package=package)
+        res = project.commitPackageChange(message=message, package=package)
         self._myObsLightProjects.save()
         return res
 
     @checkProjectLocalName(1)
-    def repairOscPackageDirectory(self, projectLocalName, package):
+    def repairPackageDirectory(self, projectLocalName, package):
         '''
         Reset a the osc directory.
         '''
         project = self._myObsLightProjects.getProject(projectLocalName)
-        res = project.repairOscPackageDirectory(package=package)
+        res = project.repairPackageDirectory(package=package)
         self._myObsLightProjects.save()
         return res
 
     @checkProjectLocalName(1)
-    def refreshOscDirectoryStatus(self, projectLocalName, package, controlFunction=None):
+    def refreshPackageDirectoryStatus(self, projectLocalName, package, controlFunction=None):
         '''
         Refresh the osc status of a package.
         '''
-        res = self._myObsLightProjects.refreshOscDirectoryStatus(projectLocalName,
+        res = self._myObsLightProjects.refreshPackageDirectoryStatus(projectLocalName,
                                                                  package=package,
                                                                  controlFunction=controlFunction)
         self._myObsLightProjects.save()
@@ -1029,30 +1028,30 @@ class ObsLightManagerCore(ObsLightManagerBase):
         self._myObsLightProjects.save()
         return res
 
-    @checkProjectLocalName(1)
-    @checkNonEmptyStringPackage(2)
-    @checkFilePath(3)
-    def addFileToPackage(self, projectLocalName, package, path):
-        '''
-        Add a file to a package.
-        '''
-        self.checkPackage(projectLocalName=projectLocalName, package=package)
-        project = self._myObsLightProjects.getProject(projectLocalName)
-        res = project.getPackage(package).addFile(path)
-        self._myObsLightProjects.save()
-        return res
+#    @checkProjectLocalName(1)
+#    @checkNonEmptyStringPackage(2)
+#    @checkFilePath(3)
+#    def addFileToPackage(self, projectLocalName, package, path):
+#        '''
+#        Add a file to a package.
+#        '''
+#        self.checkPackage(projectLocalName=projectLocalName, package=package)
+#        project = self._myObsLightProjects.getProject(projectLocalName)
+#        res = project.getPackage(package).addFile(path)
+#        self._myObsLightProjects.save()
+#        return res
 
-    @checkProjectLocalName(1)
-    @checkNonEmptyStringPackage(2)
-    def deleteFileFromPackage(self, projectLocalName, package, name):
-        '''
-        Delete a file from a package.
-        '''
-        self.checkPackage(projectLocalName=projectLocalName, package=package)
-        if not isNonEmptyString(name):
-            raise ObsLightProjectsError(" invalid path name: " + str(name))
-        self._myObsLightProjects.getProject(projectLocalName).getPackage(package).delFile(name)
-        self._myObsLightProjects.save()
+#    @checkProjectLocalName(1)
+#    @checkNonEmptyStringPackage(2)
+#    def deleteFileFromPackage(self, projectLocalName, package, name):
+#        '''
+#        Delete a file from a package.
+#        '''
+#        self.checkPackage(projectLocalName=projectLocalName, package=package)
+#        if not isNonEmptyString(name):
+#            raise ObsLightProjectsError(" invalid path name: " + str(name))
+#        self._myObsLightProjects.getProject(projectLocalName).getPackage(package).delFile(name)
+#        self._myObsLightProjects.save()
 
     @checkProjectLocalName(1)
     @checkNonEmptyStringPackage(2)

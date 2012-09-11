@@ -23,7 +23,8 @@ from ObsLight import ObsLightErr
 
 import os
 
-
+# define the package status into the chroot jail.
+CHROOT_UNKNOWN_STATUS = "Unknown"
 NOT_INSTALLED = "Not installed"
 NO_BUILD_DIRECTORY = "No build directory"
 NO_BUILD_SECTION = "No build section"
@@ -33,33 +34,84 @@ BUILD = "Built"
 BUILD_INSTALLED = "Build Installed"
 BUILD_PACKAGED = "Build Packaged"
 
+
+listChRootStatus = [NOT_INSTALLED,
+                    NO_BUILD_DIRECTORY,
+                    NO_BUILD_SECTION,
+                    MANY_BUILD_DIRECTORIES,
+                    PREPARED,
+                    BUILD,
+                    BUILD_INSTALLED,
+                    BUILD_PACKAGED]
+
+# define the package source status.
+READ_ONLY = "ro"
+READ_WRITE = "rw"
+readWriteStatus = [READ_ONLY,
+                   READ_WRITE]
+
+UNKNOWN_STATUS = "Unknown"
+OSC_INCONSISTENT_STATE = "inconsistent state"
+OSC_CLEAN_STATE = "Succeeded"
+
+LOCAL_STATUS = [UNKNOWN_STATUS,
+                OSC_INCONSISTENT_STATE,
+                OSC_CLEAN_STATE]
+
+# define the package status on OBS SERVER.
+OBS_UNKNOW_STATUS = "Unknown"
+
+OBS_SERVER_STATUS = ["succeeded",
+                     "failed",
+                     "unresolvable",
+                     "broken",
+                     "blocked",
+                     "dispatching",
+                     "scheduled",
+                     "building",
+                     "signing",
+                     "finished",
+                     "disabled",
+                     "excluded",
+                     OBS_UNKNOW_STATUS,
+                     ]
+
+#List
+OBS_REV = "obsRev"
+OBS_STATUS = "status"
+OSC_REV = "oscRev"
+OSC_STATUS = "oscStatus"
+CHROOT_STATUS = "chRootStatus"
+
+listInfo = [OBS_REV,
+            OBS_STATUS,
+            OSC_REV,
+            OSC_STATUS,
+            CHROOT_STATUS]
+
 from ObsLightPackage import ObsLightPackage
 
 
 class ObsLightPackages(object):
 
-    def __init__(self, chrootUserHome=None, projectOscPath=None, fromSave=None):
+    def __init__(self, project, fromSave={}):
         self.__dicOBSLightPackages = {}
-        self.__packageFilter = {}
         self.__packageFilter_unload = {}
+
+        self.__project = project
+        self.__currentPackage = fromSave.get("currentPackage", "")
+
+        for name in fromSave.get("savePackages", {}).keys():
+            packageSave = fromSave["savePackages"][name]
+            package = ObsLightPackage(self.__project,
+                                      fromSave=packageSave)
+
+            self.__dicOBSLightPackages[name] = package
+
         self.__currentListPackageInfo = self.getDefaultListPackageInfo()
 
-        if fromSave is None:
-            self.__currentPackage = ""
-        elif (projectOscPath != None):
-            for name in fromSave["savePackages"].keys():
-                package = ObsLightPackage(packagePath=os.path.join(projectOscPath, name),
-                                          chrootUserHome=chrootUserHome,
-                                          fromSave=fromSave["savePackages"][name])
-                self.__dicOBSLightPackages[name] = package
-            if "currentPackage" in fromSave.keys():
-                self.__currentPackage = fromSave["currentPackage"]
-            if "currentListPackageInfo" in fromSave.keys():
-                self.__currentListPackageInfo = fromSave["currentListPackageInfo"]
-            if "packageFilter" in fromSave.keys():
-                self.__packageFilter = fromSave["packageFilter"]
-        else:
-            raise ObsLightErr.ObsLightPackageErr("Not projectOscPath for the ObsLightPackages init")
+#        self.__packageFilter = fromSave.get("packageFilter", {})
+        self.__packageFilter = {}
 
 #-------------------------------------------------------------------------------
     def getPackage(self, package):
@@ -73,30 +125,18 @@ class ObsLightPackages(object):
     def addPackage(self,
                    name,
                    packagePath,
-                   description,
-                   chrootUserHome,
-                   packageTitle,
-                   specFile=None,
-                   listFile=None,
-                   status="",
-                   gitWorkingTree=None):
-        fileList = listFile or []
-        self.__currentPackage = name
-        if fileList is None:
-            fileList = []
+                   packageGitPath,
+                   ):
 
         if not name in  self.__dicOBSLightPackages.keys():
-            self.__dicOBSLightPackages[name] = ObsLightPackage(name=name,
+            self.__dicOBSLightPackages[name] = ObsLightPackage(self.__project,
+                                                               name=name,
                                                                packagePath=packagePath,
-                                                               chrootUserHome=chrootUserHome,
-                                                               specFile=specFile,
-                                                               description=description,
-                                                               packageTitle=packageTitle,
-                                                               listFile=fileList,
-                                                               status=status,
-                                                               gitWorkingTree=gitWorkingTree)
+                                                               packageGitPath=packageGitPath,
+                                                               )
+            self.__currentPackage = name
         else:
-            message = "Can't add package '" + name + "' ,already exist in project."
+            message = "Can't add package '%s' ,already exist in project." % name
             raise ObsLightErr.ObsLightPackageErr(message)
 
     def removePackage(self, package=None):
@@ -116,7 +156,7 @@ class ObsLightPackages(object):
 
     def getDic(self):
         aDic = {}
-        for pack in self.getListPackages():
+        for pack in self.getPackagesList():
             aDic[pack] = self.__dicOBSLightPackages[pack].getDic()
 
         saveconfigPackages = {}
@@ -126,7 +166,7 @@ class ObsLightPackages(object):
         saveconfigPackages["packageFilter"] = self.__packageFilter
         return saveconfigPackages
 
-    def getListPackages(self):
+    def getPackagesList(self):
         res = self.__dicOBSLightPackages.keys()
         res.sort()
         return res
@@ -137,14 +177,7 @@ class ObsLightPackages(object):
 #        '''
 #        return self.getPackage(name).isInstallInChroot()
 
-    def delFromChroot(self, package):
-        return self.getPackage(package).delFromChroot()
-
-    def getSpecFile(self, name=None):
-        return self.getPackage(name).getSpecFile()
-
-    def getOscDirectory(self, name=None):
-        return self.getPackage(name).getOscDirectory()
+    #--------------------------------------------------------------------------- package status
 
     def getCurrentListPackageInfo(self):
         return self.__currentListPackageInfo
@@ -153,9 +186,8 @@ class ObsLightPackages(object):
         self.__currentListPackageInfo = self.getDefaultListPackageInfo()
 
     def getDefaultListPackageInfo(self):
-        return ["obsRev", "oscRev", "status", "oscStatus", "chRootStatus"]
+        return listInfo
 
-    #---------------------------------------------------------------------------
     def getPackageFilter(self):
         return self.__packageFilter
 
@@ -170,36 +202,17 @@ class ObsLightPackages(object):
         return self.getStatusList()
 
     def getStatusList(self):
-        return ["succeeded",
-                "failed",
-                "unresolvable",
-                "broken",
-                "blocked",
-                "dispatching",
-                "scheduled",
-                "building",
-                "signing",
-                "finished",
-                "disabled",
-                "excluded",
-                "Unknown"]
+        return OBS_SERVER_STATUS
 
     def getListOscStatus(self):
         """Deprecated, for compatibility"""
         return self.getOscStatusList()
 
     def getOscStatusList(self):
-        return ["Unknown", "inconsistent state", "Succeeded"]
+        return LOCAL_STATUS
 
     def getListChRootStatus(self):
-        return [NOT_INSTALLED,
-                NO_BUILD_DIRECTORY,
-                NO_BUILD_SECTION,
-                MANY_BUILD_DIRECTORIES,
-                PREPARED,
-                BUILD,
-                BUILD_INSTALLED,
-                BUILD_PACKAGED]
+        return listChRootStatus
 
     def __isFilterInfo(self, info):
         for k in self.__packageFilter:
@@ -211,7 +224,7 @@ class ObsLightPackages(object):
     def getPackageInfo(self, package=None):
         res = {}
         if package == None:
-            for pk in self.getListPackages():
+            for pk in self.getPackagesList():
                 info = self.getPackage(pk).getPackageInfo(self.getCurrentListPackageInfo())
                 if self.__isFilterInfo(info):
                     res[pk] = info
@@ -223,5 +236,3 @@ class ObsLightPackages(object):
     def updatePackage(self, name, status=None):
         self.getPackage(name).update(status=status)
 
-    def getChrootRpmBuildDirectory(self, name):
-        return self.getPackage(name).getChrootRpmBuildDirectory()

@@ -61,8 +61,8 @@ class ObsProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
         mw.newObsProjectButton.clicked.connect(self.gui.runWizard)
         mw.modifyObsProjectButton.clicked.connect(self.on_modifyObsProjectButton_clicked)
         mw.deleteObsProjectButton.clicked.connect(self.on_deleteObsProjectButton_clicked)
-        mw.loadObsProjectButton.clicked.connect(self.on_importObsProjectButton_clicked)
-        mw.saveObsProjectButton.clicked.connect(self.on_exportObsProjectButton_clicked)
+#        mw.loadObsProjectButton.clicked.connect(self.on_importObsProjectButton_clicked)
+#        mw.saveObsProjectButton.clicked.connect(self.on_exportObsProjectButton_clicked)
         mw.newChrootButton.clicked.connect(self.on_newChrootButton_clicked)
         mw.openChrootButton.clicked.connect(self.on_openChrootButton_clicked)
         mw.deleteChrootButton.clicked.connect(self.on_deleteChrootButton_clicked)
@@ -96,36 +96,36 @@ class ObsProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
         runnable.caughtException.connect(self.gui.popupErrorCallback)
         runnable.runOnGlobalInstance()
 
-    @popupOnException
-    def on_importObsProjectButton_clicked(self):
-        filePath, _filter = QFileDialog.getOpenFileName(self.mainWindow,
-                                                        u"Select project to import")
-        if len(filePath) < 1:
-            return
-        progress = self.gui.getInfiniteProgressDialog()
-        runnable = ProgressRunnable2(progress)
-        runnable.setDialogMessage(u"Importing project...")
-        runnable.setRunMethod(self.manager.importProject, filePath)
-        runnable.caughtException.connect(self.gui.popupErrorCallback)
-        runnable.finished.connect(self.refresh)
-        runnable.runOnGlobalInstance()
+#    @popupOnException
+#    def on_importObsProjectButton_clicked(self):
+#        filePath, _filter = QFileDialog.getOpenFileName(self.mainWindow,
+#                                                        u"Select project to import")
+#        if len(filePath) < 1:
+#            return
+#        progress = self.gui.getInfiniteProgressDialog()
+#        runnable = ProgressRunnable2(progress)
+#        runnable.setDialogMessage(u"Importing project...")
+#        runnable.setRunMethod(self.manager.importProject, filePath)
+#        runnable.caughtException.connect(self.gui.popupErrorCallback)
+#        runnable.finished.connect(self.refresh)
+#        runnable.runOnGlobalInstance()
 
-    @popupOnException
-    def on_exportObsProjectButton_clicked(self):
-        project = self.currentProject
-        if project is None:
-            return
-        filePath, _filter = QFileDialog.getSaveFileName(self.mainWindow,
-                                                        u"Select file to export")
-        if len(filePath) < 1:
-            return
-        progress = self.gui.getInfiniteProgressDialog()
-        runnable = ProgressRunnable2(progress)
-        runnable.setDialogMessage(u"Exporting project...")
-        runnable.setRunMethod(self.manager.exportProject, project, filePath)
-        runnable.caughtException.connect(self.gui.popupErrorCallback)
-        runnable.finished.connect(self.refresh)
-        runnable.runOnGlobalInstance()
+#    @popupOnException
+#    def on_exportObsProjectButton_clicked(self):
+#        project = self.currentProject
+#        if project is None:
+#            return
+#        filePath, _filter = QFileDialog.getSaveFileName(self.mainWindow,
+#                                                        u"Select file to export")
+#        if len(filePath) < 1:
+#            return
+#        progress = self.gui.getInfiniteProgressDialog()
+#        runnable = ProgressRunnable2(progress)
+#        runnable.setDialogMessage(u"Exporting project...")
+#        runnable.setRunMethod(self.manager.exportProject, project, filePath)
+#        runnable.caughtException.connect(self.gui.popupErrorCallback)
+#        runnable.finished.connect(self.refresh)
+#        runnable.runOnGlobalInstance()
 
     @popupOnException
     def on_projectConfigManager_finished(self, success):
@@ -228,9 +228,9 @@ class ObsProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
             repoLocalLink = u'<a href="%s">%s</a>' % (localRepoLink, project)
             self.mainWindow.projectObsRepoPageLinkLabel.setText(repoObsLink)
             self.mainWindow.projectLocalRepoPageLinkLabel.setText(repoLocalLink)
-            self.mainWindow.saveObsProjectButton.setEnabled(True)
-        else:
-            self.mainWindow.saveObsProjectButton.setEnabled(False)
+#            self.mainWindow.saveObsProjectButton.setEnabled(True)
+#        else:
+#            self.mainWindow.saveObsProjectButton.setEnabled(False)
 
     @popupOnException
     def updateChrootPathAndButtons(self):

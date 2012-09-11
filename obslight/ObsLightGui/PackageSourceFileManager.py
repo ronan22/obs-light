@@ -42,26 +42,27 @@ class PackageSourceFileManager(FileManagerModel):
 
         self._init_connect()
 
-        #File
-        self.mainWindow.addFileButton.clicked.connect(self.on_addFileButton_clicked)
-        self.mainWindow.deleteFileButton.clicked.connect(self.on_deleteFileButton_clicked)
+#        #File
+#        self.mainWindow.addFileButton.clicked.connect(self.on_addFileButton_clicked)
+#        self.mainWindow.deleteFileButton.clicked.connect(self.on_deleteFileButton_clicked)
 
 #---------------------------------------------------------------------------------------------------        
     def _initBaseDir(self):
 
         self._baseDirPath = self.manager.getPackageParameter(self._project,
                                                              self._package,
-                                                             parameter="oscPackageDirectory")
+                                                             parameter="packageSourceDirectory")
+        print "self._baseDirPath", self._baseDirPath
 
         self._curentDirPath = self._baseDirPath
 
-    @popupOnException
-    def on_addFileButton_clicked(self):
-        fileNames, _selectedFilter = QFileDialog.getOpenFileNames(self.mainWindow,
-                                                                  u"Select file to add")
-        for fileName in fileNames:
-            self.manager.addFileToPackage(self._project, self._package, fileName)
-        self.refresh()
+#    @popupOnException
+#    def on_addFileButton_clicked(self):
+#        fileNames, _selectedFilter = QFileDialog.getOpenFileNames(self.mainWindow,
+#                                                                  u"Select file to add")
+#        for fileName in fileNames:
+#            self.manager.addFileToPackage(self._project, self._package, fileName)
+#        self.refresh()
 
     @popupOnException
     def on_deleteFileButton_clicked(self):

@@ -49,7 +49,7 @@ class ChrootFileManager(FileManagerModel):
     def _initBaseDir(self):
         pathInChRoot = self.manager.getPackageParameter(self._project,
                                                         self._package,
-                                                        parameter="fsPackageDirectory")
+                                                        parameter="packageChrootDirectory")
 
         self._baseDirPath = self.manager.getChRootPath(self._project)
 

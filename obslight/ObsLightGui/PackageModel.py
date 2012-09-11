@@ -23,6 +23,9 @@ Created on 2 nov. 2011
 from PySide.QtCore import QAbstractTableModel, QSize, Qt
 from PySide.QtGui import QColor
 
+from ObsLight.ObsLightPackages import OBS_REV, OBS_STATUS, OSC_REV, OSC_STATUS, CHROOT_STATUS
+
+
 class PackageModel(QAbstractTableModel):
     '''
     QAbstractTableModel subclass to do the interface between the
@@ -130,15 +133,15 @@ class PackageModel(QAbstractTableModel):
         if column == self.NameColumn:
             retVal = packageName
         elif column == self.ObsStatusColumn:
-            retVal = packageList[packageName]["status"]
+            retVal = packageList[packageName].get(OBS_STATUS, "")
         elif column == self.FSStatusColumn:
-            retVal = packageList[packageName]["chRootStatus"]
+            retVal = packageList[packageName].get(CHROOT_STATUS, "")
         elif column == self.OscStatusColumn:
-            retVal = packageList[packageName]["oscStatus"]
+            retVal = packageList[packageName].get(OSC_STATUS, "")
         elif column == self.OscRevColumn:
-            retVal = packageList[packageName]["oscRev"]
+            retVal = packageList[packageName].get(OSC_REV, "")
         elif column == self.ObsRevColumn:
-            retVal = packageList[packageName]["obsRev"]
+            retVal = packageList[packageName].get(OBS_REV, "")
         return retVal
 
     def foregroundRoleData(self, index):

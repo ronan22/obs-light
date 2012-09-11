@@ -190,30 +190,38 @@ class PackageManager(QObject, ObsLightGuiObject):
         and refresh package view. 
         """
         project = self.getCurrentProject()
-        packageFilter = self.manager.getPackageFilter(project)
-        if filterType in packageFilter:
-            self.manager.removePackageFilter(project, filterType)
-        if filterValue != "":
-            self.manager.addPackageFilter(project, filterType, filterValue)
-        self.refresh()
+        if project is not None:
+            packageFilter = self.manager.getPackageFilter(project)
+            if filterType in packageFilter:
+                self.manager.removePackageFilter(project, filterType)
+            if filterValue != "":
+                self.manager.addPackageFilter(project, filterType, filterValue)
+            self.refresh()
 
     def on_oscRevFilterLineEdit_editingFinished(self):
-        self.__updatePackageFilter("oscRev", self.mainWindow.oscRevFilterLineEdit.text())
+        txt = self.mainWindow.oscRevFilterLineEdit.text()
+        if txt is not None:
+            self.__updatePackageFilter("oscRev", txt)
 
     def on_obsRevFilterLineEdit_editingFinished(self):
-        self.__updatePackageFilter("obsRev", self.mainWindow.obsRevFilterLineEdit.text())
+        txt = self.mainWindow.obsRevFilterLineEdit.text()
+        if txt is not None:
+            self.__updatePackageFilter("obsRev", txt)
 
     def on_oscStatusFilterComboBox_currentIndexChanged(self):
-        self.__updatePackageFilter("oscStatus",
-                                   self.mainWindow.oscStatusFilterComboBox.currentText())
+        txt = self.mainWindow.oscStatusFilterComboBox.currentText()
+        if txt is not None:
+            self.__updatePackageFilter("oscStatus", txt)
 
     def on_obsStatusFilterComboBox_currentIndexChanged(self):
-        self.__updatePackageFilter("status",
-                                   self.mainWindow.obsStatusFilterComboBox.currentText())
+        txt = self.mainWindow.obsStatusFilterComboBox.currentText()
+        if txt is not None:
+            self.__updatePackageFilter("status", txt)
 
     def on_chrootStatusComboBox_currentIndexChanged(self):
-        self.__updatePackageFilter("chRootStatus",
-                                   self.mainWindow.chrootStatusComboBox.currentText())
+        txt = self.mainWindow.chrootStatusComboBox.currentText()
+        if txt is not None:
+            self.__updatePackageFilter("chRootStatus", txt)
 
     def __loadPkgModel(self, projectName):
         """
@@ -241,7 +249,11 @@ class PackageManager(QObject, ObsLightGuiObject):
                                           "Loading package list",
                                           projectName)
             self.mainWindow.packageTableView.setModel(self.__pkgModel)
+
+            self.mainWindow.gridWidget.setEnabled(self.__project is not None)
+            self.mainWindow.packageTableView.setEnabled(self.__project is not None)
             self.mainWindow.packageWidget.setEnabled(self.__project is not None)
+
         if self.currentPackage() is not None:
             self.__fileManager.setCurrentPackage(self.__project, self.currentPackage())
         else:
@@ -273,17 +285,16 @@ class PackageManager(QObject, ObsLightGuiObject):
         package = self.currentPackage()
         project = self.getCurrentProject()
         if package is not None:
-            self.mainWindow.packageNameLabelValue.setText(package)
             packageTitle = self.manager.getPackageParameter(project, package, "title")
             description = self.manager.getPackageParameter(project, package, "description")
 
             self.mainWindow.packageTitleLabel.setText(packageTitle)
             self.mainWindow.packageDescriptionLabel.setText(description)
-            pkgDir = self.manager.getPackageParameter(project, package,
-                                                      parameter="oscPackageDirectory")
+            pkgDir = self.manager.getPackageParameter(project,
+                                                      package,
+                                                      parameter="packageSourceDirectory")
             self.mainWindow.packagePathLineEdit.setText(pkgDir)
         else:
-            self.mainWindow.packageNameLabelValue.setText("No package selected")
             self.mainWindow.packageTitleLabel.setText("")
             self.mainWindow.packageDescriptionLabel.setText("")
             self.mainWindow.packagePathLineEdit.setText("")
@@ -755,7 +766,7 @@ class PackageManager(QObject, ObsLightGuiObject):
         runnable.runOnGlobalInstance()
 
     def __refreshBothStatuses(self, *args, **kwargs):
-        self.manager.refreshOscDirectoryStatus(*args, **kwargs)
+        self.manager.refreshPackageDirectoryStatus(*args, **kwargs)
         self.manager.refreshObsStatus(*args, **kwargs)
 
     def __refreshStatus(self, packagesNames=None):
@@ -792,7 +803,7 @@ class PackageManager(QObject, ObsLightGuiObject):
                                      defaultButton=QMessageBox.Cancel)
         if result != QMessageBox.Yes:
             return
-        self.__mapOnSelectedPackages(firstArgLast(self.manager.repairOscPackageDirectory),
+        self.__mapOnSelectedPackages(firstArgLast(self.manager.repairPackageDirectory),
                                      None,
                                      u"Repairing OSC directory of %(arg)s...",
                                      self.__refreshStatus,

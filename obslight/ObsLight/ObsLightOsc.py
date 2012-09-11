@@ -408,7 +408,7 @@ class ObsLightOsc(ObsLightObject):
                         result[path.get("project")] = path.get("repository")
         return result
 
-    def getListPackage(self,
+    def getPackageList(self,
                        apiurl=None,
                        projectLocalName=None):
         """Deprecated, for compatibility"""

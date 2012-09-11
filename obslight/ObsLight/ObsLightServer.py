@@ -98,7 +98,7 @@ class ObsLightServer(object):
         return self.__isReachable
 
     def getObsProjectPackageList(self, projectObsName):
-        return ObsLightOsc.getObsLightOsc().getListPackage(apiurl=self.__serverAPI,
+        return ObsLightOsc.getObsLightOsc().getPackageList(apiurl=self.__serverAPI,
                                                            projectLocalName=projectObsName)
 
     def getFilesListPackage(self,
@@ -340,8 +340,8 @@ class ObsLightServer(object):
         '''
         return self.__alias
 
-    def getListPackage(self, projectLocalName=None):
-        return ObsLightOsc.getObsLightOsc().getListPackage(apiurl=self.__serverAPI,
+    def getPackageList(self, projectLocalName=None):
+        return ObsLightOsc.getObsLightOsc().getPackageList(apiurl=self.__serverAPI,
                                                         projectLocalName=projectLocalName)
 
     def checkoutPackage(self, projectObsName=None, package=None, directory=None):

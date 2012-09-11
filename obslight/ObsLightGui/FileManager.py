@@ -77,7 +77,7 @@ class FileManager(QObject, ObsLightGuiObject):
 #        if self.__project is not None and self.__package is not None:
 #            path = self.manager.getPackageParameter(self.__project,
 #                                                    self.__package,
-#                                                    parameter="oscPackageDirectory")
+#                                                    parameter="packageSourceDirectory")
 #
 #            self.__packageDir = path
 #            self.__oscWcModel = PackageSourceFileManager(self.manager,

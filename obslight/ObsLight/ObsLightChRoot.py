@@ -119,8 +119,11 @@ class ObsLightChRootCore(object):
 
         self.__chrootUserHome = os.path.join(self.__chrootUsersHome, self.__chrootUser)
 
-    def getChrootUserHome(self):
-        return self.__chrootUserHome
+    def getChrootUserHome(self, fullPath=False):
+        if fullPath:
+            return self.getDirectory() + self.__chrootUserHome
+        else:
+            return self.__chrootUserHome
 
     def getDirectory(self):
         ''' 
@@ -667,7 +670,7 @@ class ObsLightChRoot(ObsLightChRootCore):
             args = args + " --target=%s" % target
         rpmbuildCmd = "rpmbuild %s %s %s %s < /dev/null" % (args, srcdefattr, topdir, specFile)
         parameters["rpmbuildCmd"] = rpmbuildCmd
-        parameters["directoryBuild"] = package.getPackageDirectory()
+        parameters["directoryBuild"] = package.getPackageChrootDirectory()
 
         return parameters
 
@@ -805,12 +808,9 @@ class ObsLightChRoot(ObsLightChRootCore):
                 absChrootRpmBuildDirectory = self._createAbsPath("/%s/SOURCES/")
                 absChrootRpmBuildDirectory = absChrootRpmBuildDirectory % chrootRpmBuildDirectory
                 self.allowAccessToObslightGroup(absChrootRpmBuildDirectory)
+
                 #copy source
-                for aFile in package.getFileList():
-                    path = absChrootRpmBuildDirectory + str(aFile)
-                    if os.path.isfile(path):
-                        os.unlink(path)
-                    shutil.copy2(package.getOscDirectory() + "/" + str(aFile), path)
+                package.exportIntoChroot(self.getDirectory())
 
             else:
                 message = packageName + " source is not installed in " + self.getDirectory()
@@ -1161,7 +1161,6 @@ exit $RPMBUILD_RETURN_CODE
 
         package.addPatch(aFile=patch)
 
-        ObsLightOsc.getObsLightOsc().add(path=package.getOscDirectory(), afile=patch)
         package.save()
         return 0
 

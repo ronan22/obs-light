@@ -290,7 +290,7 @@ class ObsLightGitManager(ObsLightObject):
                                          package.getCurrentGitDirectory())
         res = self.__subprocess(command=command, stdout=True)
 
-        pathOscPackage = package.getOscDirectory()
+        pathOscPackage = package.getPackagingDirectiory()
 
         with open(pathOscPackage + "/" + patch, "w'") as f:
             f.write(res)
@@ -299,5 +299,12 @@ class ObsLightGitManager(ObsLightObject):
 def cloneGitpackage(url, path):
     cmd = "git clone %s %s" % (url, path)
     aSubprocessCrt = SubprocessCrt()
-    aSubprocessCrt.execSubprocess(cmd)
+    return aSubprocessCrt.execSubprocess(cmd)
+
+
+def updateGitpackage(path):
+    cmd = "git --git-dir=%s pull" % os.path.join(path, ".git")
+    aSubprocessCrt = SubprocessCrt()
+    return aSubprocessCrt.execSubprocess(cmd)
+
 
