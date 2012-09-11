@@ -547,6 +547,8 @@ def importProject(archivePath, newName=None):
         shutil.move(tmpProjectRepositoryDir, projectRepositoryDir)
     finally:
         shutil.rmtree(stagingDir)
+    fixProjectMeta(newName)
+    fixProjectPackagesMeta(newName)
     updateLiveRepository(newName)
     try:
         # These operations will fail if program is not run
@@ -856,3 +858,100 @@ def shrinkProject(project, useSymbolicLinks=False):
                 os.link(dup1[1], dup1[0])
             linkedRpms.append((dup1[1], dup1[0], os.path.getsize(dup1[1])))
     return linkedRpms
+
+def updateProject(project, rsyncUrl=None, oldName=None):
+    """
+    Update a local project from a remote project, using rsync.
+    `rsyncUrl` should be a URL to the Fake OBS root ("fakeobs_root"
+    parameter of configuration file) of the remote host.
+    `oldName` should be the name of the remote project to do the
+    update from (local project may have been renamed at import).
+    """
+    conf = getConfig()
+    fakeObsRoot = conf.getFakeObsRootDir()
+    projectInfoPath = conf.getProjectInfoPath(project)
+    confParser = ConfigParser.SafeConfigParser()
+    confParser.read(projectInfoPath)
+
+    if rsyncUrl is None:
+        # User did not provide rsyncUrl.
+        # Check if there is one in project_info file
+        if not os.path.exists(projectInfoPath):
+            msg = "Project '%s' does not have a 'project_info' file."
+            msg += " Please specify rsync url."
+            msg = msg % project
+            raise ValueError(msg)
+
+        msg = "No 'rsync_update_url' parameter in section"
+        msg += " 'UpdateInfo' of %s. Please specify rsync url."
+        if not confParser.has_option("UpdateInfo", "rsync_update_url"):
+            raise ValueError(msg % projectInfoPath)
+        rsyncUrl = confParser.get("UpdateInfo", "rsync_update_url")
+        if not Utils.isNonEmptyString(rsyncUrl):
+            raise ValueError(msg % projectInfoPath)
+
+    if not Utils.checkRsyncUrl(rsyncUrl):
+        msg = "Invalid rsync URL: %s" % rsyncUrl
+        raise ValueError(msg)
+
+    if oldName is None:
+        # User may have renamed the project when importing.
+        # Check if we know the original name.
+        if confParser.has_option("UpdateInfo", "project"):
+            tmpOldName = confParser.get("UpdateInfo", "project")
+            if Utils.isNonEmptyString(tmpOldName):
+                oldName = tmpOldName
+
+    if oldName is None:
+        # We did not find old project name,
+        # so we guess it's the same
+        oldName = project
+
+    rsyncBase = [conf.getCommand("rsync", "rsync")]
+    rsyncBase += shlex.split(conf.getCommand("rsync_options", "-acHrx"))
+
+    if oldName == project:
+        # Do everything with just one rsync call
+        with tempfile.NamedTemporaryFile() as fileListFile:
+            # Write the list of directories to synchronize
+            # to a temporary file
+            prjDir = conf.getProjectDir(project)
+            prjRepoDir = conf.getProjectRepositoryDir(project)
+            relPrjDir = prjDir[len(fakeObsRoot) + 1:]
+            relRepoDir = prjRepoDir[len(fakeObsRoot) + 1:]
+            fileListFile.write(relPrjDir + "\n")
+            fileListFile.write(relRepoDir + "\n")
+            fileListFile.flush()
+
+            # Call rsync using temporary file as input
+            rsync = rsyncBase + ["--files-from", fileListFile.name,
+                                 '--exclude=project_info',
+                                 rsyncUrl, "."]
+            res = Utils.callSubprocess(rsync, cwd=fakeObsRoot)
+    else:
+        # Use separate rsync calls for project and project repositories
+        prjDir = conf.getProjectDir(project)
+        prjRepoDir = conf.getProjectRepositoryDir(project)
+        oldPrjDir = conf.getProjectDir(oldName)
+        oldPrjRepoDir = conf.getProjectRepositoryDir(oldName)
+        relOldPrjDir = oldPrjDir[len(fakeObsRoot) + 1:]
+        relOldPrjRepoDir = oldPrjRepoDir[len(fakeObsRoot) + 1:]
+        prjRsync = rsyncBase + ['--exclude=project_info',
+                                "%s/%s/" % (rsyncUrl, relOldPrjDir),
+                                prjDir]
+        repoRsync = rsyncBase + ["%s/%s/" % (rsyncUrl, relOldPrjRepoDir),
+                                 prjRepoDir]
+        res1 = Utils.callSubprocess(prjRsync, cwd=fakeObsRoot)
+        res2 = Utils.callSubprocess(repoRsync, cwd=fakeObsRoot)
+        res = res1 or res2
+
+    fixProjectMeta(project)
+    fixProjectPackagesMeta(project)
+    updateLiveRepository(project)
+
+    updateTime = time.asctime()
+    confParser.set("UpdateInfo", "last_update", updateTime)
+    with open(projectInfoPath, "wb") as configFile:
+        confParser.write(configFile)
+
+    return res

@@ -23,10 +23,12 @@ Commandline client for FakeOBS.
 
 import sys
 import cmdln
+
 import Config
+import Converter
+import DistributionsManager
 import ObsManager
 import ProjectManager
-import DistributionsManager
 import Utils
 
 class FakeObsCommandline(cmdln.Cmdln):
@@ -294,11 +296,36 @@ class FakeObsCommandline(cmdln.Cmdln):
 
         ${cmd_option_list}
         """
-        import Converter
+        Utils.failIfUserIsNotRoot()
         effectiveName = Converter.convertProject(project, release, opts.new_name)
         msg = "Project '%s' correctly converted" % effectiveName
         print Utils.colorize(msg, "green")
         return self.do_check(subcmd, opts, effectiveName)
+
+    @cmdln.option("-r", "--rsync",
+                  help="rsync URL to do the update from")
+    @cmdln.option("-o", "--original-project",
+                  help="name of the project to do the update from")
+    def do_update(self, subcmd, opts, project):
+        """${cmd_name}: update a project using rsync
+
+        If you don't specify RSYNC or ORIGINAL_PROJECT options,
+        they will be taken from the 'project_info' file of the project.
+
+        You need to be root to run this.
+
+        ${cmd_usage}
+        ${cmd_option_list}
+        """
+        Utils.failIfUserIsNotRoot()
+        res = ProjectManager.updateProject(project, opts.rsync,
+                                           opts.original_project)
+        if res == 0:
+            msg = "Project '%s' correctly updated" % project
+        else:
+            msg = "Errors happened whil updating '%s'" % project
+        print Utils.colorize(msg, "green" if res == 0 else "red")
+        return self.do_check(subcmd, opts, project)
 
 def main():
     commandline = FakeObsCommandline()

@@ -72,7 +72,7 @@ def getProjectDependency(metaPath, repo):
                     result.append((path.get("project"), path.get("repository")))
     return result
 
-def getbuildInfo(rev, srcmd5, specFile, listRepository, dist, depfile, arch,
+def getbuildInfo(rev, srcmd5, specFile, repositoryList, dist, depfile, arch,
                  projectName, packageName, repository, spec, addPackages):
     if arch in archHierarchyMap.keys():
         longArch = archHierarchyMap[arch]
@@ -102,7 +102,7 @@ def getbuildInfo(rev, srcmd5, specFile, listRepository, dist, depfile, arch,
     fakeObsRoot = getConfig().getPath("fakeobs_root", "/srv/obslight-fakeobs")
     cmd = []
     cmd.append("%s/tools/create_rpm_list_from_spec" % fakeObsRoot)
-    for aRepo in listRepository:
+    for aRepo in repositoryList:
         cmd.append("--repository")
         cmd.append(aRepo)
 
