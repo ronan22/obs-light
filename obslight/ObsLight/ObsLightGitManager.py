@@ -264,7 +264,7 @@ class ObsLightGitManager(ObsLightObject):
         return result
 
     def commitGit(self, mess, package):
-        packagePath = package.getPackageChrootDirectory()
+        packagePath = package.getChrootBuildDirectory()
         command = []
         if packagePath is None:
             raise ObsLightErr.ObsLightChRootError("path is not defined in commitGit for .")
@@ -290,7 +290,7 @@ class ObsLightGitManager(ObsLightObject):
                                          package.getCurrentGitDirectory())
         res = self.__subprocess(command=command, stdout=True)
 
-        pathOscPackage = package.getPackagingDirectiory()
+        pathPackagePackaging = package.getPackagingDirectiory()
 
         with open(pathOscPackage + "/" + patch, "w'") as f:
             f.write(res)

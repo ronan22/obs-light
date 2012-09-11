@@ -967,7 +967,7 @@ exit $RETURN_VALUE
             res = self.__createGhostRpmbuildCommand("bc", package, specFile, arch)
 
             self._ObsLightGitManager.ignoreGitWatch(package=package,
-                                                     path=package.getPackageChrootDirectory(),
+                                                     path=package.getChrootBuildDirectory(),
                                                      commitComment="build commit")
         else:
             res = self.__createRpmbuildCommand("bc", package, specFile, arch)
@@ -999,7 +999,7 @@ exit $RETURN_VALUE
             res = self.__createGhostRpmbuildCommand("bi", package, specFile, arch)
 
             self._ObsLightGitManager.ignoreGitWatch(package=package,
-                                                    path=package.getPackageChrootDirectory(),
+                                                    path=package.getChrootBuildDirectory(),
                                                     commitComment="build install commit")
         else:
             res = self.__createRpmbuildCommand("bi", package, specFile, arch)
@@ -1033,7 +1033,7 @@ exit $RETURN_VALUE
             res = self.__createGhostRpmbuildCommand("ba", package, specFile, arch)
 
             self._ObsLightGitManager.ignoreGitWatch(package=package,
-                                                    path=package.getPackageChrootDirectory(),
+                                                    path=package.getChrootBuildDirectory(),
                                                     commitComment="build package commit")
         else:
             res = self.__createRpmbuildCommand("ba", package, specFile, arch)
