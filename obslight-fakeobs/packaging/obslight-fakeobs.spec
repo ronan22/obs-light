@@ -137,6 +137,7 @@ if [ ! -f lastevents ]
 then
 touch lastevents
 # sh tools/addevent initial na na
+echo "1|$(date +%%s)|initial|na|na|" >> lastevents
 fi
 
 if [ -d "%{_sysconfdir}/apache2/vhosts.d" ]

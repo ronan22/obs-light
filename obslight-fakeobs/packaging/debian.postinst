@@ -9,6 +9,7 @@ if [ ! -f lastevents ]
 then
 touch lastevents
 # sh tools/addevent initial na na
+echo "1|$(date +%s)|initial|na|na|" >> lastevents
 fi
 
 ln -sf /srv/obslight-fakeobs/config/fakeobs-repos.apache2conf /etc/apache2/sites-available/fakeobs-repos.conf
