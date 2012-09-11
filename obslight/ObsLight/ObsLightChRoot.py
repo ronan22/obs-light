@@ -670,7 +670,7 @@ class ObsLightChRoot(ObsLightChRootCore):
             args = args + " --target=%s" % target
         rpmbuildCmd = "rpmbuild %s %s %s %s < /dev/null" % (args, srcdefattr, topdir, specFile)
         parameters["rpmbuildCmd"] = rpmbuildCmd
-        parameters["directoryBuild"] = package.getPackageChrootDirectory()
+        parameters["directoryBuild"] = package.getChrootBuildDirectory()
 
         return parameters
 
@@ -921,10 +921,11 @@ mv %(directoryBuild)s/.gitignore.tmp.build %(directoryBuild)s/.gitignore
 exit $RETURN_VALUE
 """
         script = script % scriptParameters
+
         res = self.execCommand([script])
 
         packageName = package.getName()
-        packageDirectory = package.getPackageChrootDirectory()
+        packageDirectory = package.getChrootBuildDirectory()
 
         if res == 0:
             self._ObsLightGitManager.ignoreGitWatch(package=package, path=packageDirectory)
@@ -1051,7 +1052,7 @@ exit $RETURN_VALUE
         return res
 
     def prepGhostRpmbuild(self, package):
-        packagePath = package.getPackageChrootDirectory()
+        packagePath = package.getChrootBuildDirectory()
         tarFile = package.getArchiveName()
 
         parameter = self.makeChrootScriptParameters()
@@ -1149,7 +1150,7 @@ exit $RPMBUILD_RETURN_CODE
         '''
         if not patch.endswith(".patch"):
             patch += ".patch"
-        packagePath = package.getPackageChrootDirectory()
+        packagePath = package.getChrootBuildDirectory()
 
         self._ObsLightGitManager.commitGit(mess="createPatch", package=package)
 
@@ -1170,7 +1171,7 @@ exit $RPMBUILD_RETURN_CODE
         Update a patch from modifications made in the package directory.
         '''
         patch = package.getCurrentPatch()
-        packagePath = package.getPackageChrootDirectory()
+        packagePath = package.getChrootBuildDirectory()
 
         self._ObsLightGitManager.commitGit(mess="updatePatch", package=package)
 
