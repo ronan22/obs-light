@@ -19,6 +19,7 @@ BuildArch:  noarch
 URL:        http://en.opensuse.org/openSUSE:OBS_Light
 Source0:    %{name}-%{version}.tar.gz
 Source100:  obslight.yaml
+Requires:   gbs
 Requires:   acl
 Requires:   build
 Requires:   createrepo
