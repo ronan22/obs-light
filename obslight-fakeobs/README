@@ -91,13 +91,21 @@ This is automatically run after a grab, but you may want to
 run it after an import.
 
 
+How to update a project ?
+-------------------------
+If a URL has been provided by the creator of a fakeobs archive
+(you can check by running 'obslight-fakeobs list -u'), you can
+update the project by running
+  obslight-fakeobs update
+
+
 Where can I find fakeobs projects archives ?
 --------------------------------------------
 Some archives for Tizen are available at http://tizen.fridu.net/.
 
 
 Can I create fakeobs project archives myself ?
----------------------------------------------
+----------------------------------------------
 You will need:
 - the name of the project
 - the URL of the OBS public API you want to get project from
@@ -122,4 +130,16 @@ Step3: build the archive
 ex: obslight-fakeobs export "Tizen:1.0:Base"
 Now you can find a big archive in current directory named after the project
 (with ':' replaced by '_').
+
+
+Import projects from old fakeobs versions (< 1.0.0)
+---------------------------------------------------
+Data organization changed between fakeobs-0.6.x and fakeobs-1.0.x.
+The 'convert' command allows you to import projects which were
+installed by < 1.0.0 versions. After installing the newest version,
+simply run
+  obslight-fakeobs convert <project> <release>
+for each project/release you want to convert.
+After checking that everything works as expected, you can remove
+the old fakeobs directory (/srv/fakeobs).
 

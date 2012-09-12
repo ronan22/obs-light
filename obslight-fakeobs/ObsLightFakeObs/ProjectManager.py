@@ -90,6 +90,24 @@ def readProjectSpecialFile(project, specialFile="_meta"):
         content = myFile.read()
     return content
 
+def getUpdateInformations(project):
+    """
+    Get a dictionary with informations of the [UpdateInfo] section
+    of the project_info file of `project`.
+    """
+    projectInfoPath = getConfig().getProjectInfoPath(project)
+    confParser = ConfigParser.SafeConfigParser()
+    confParser.read(projectInfoPath)
+    infoDict = {"rsync_update_url": None,
+                "project": None,
+                "last_update": None}
+    for option in infoDict.keys():
+        if confParser.has_option("UpdateInfo", option):
+            value = confParser.get("UpdateInfo", option)
+            if Utils.isNonEmptyString(value):
+                infoDict[option] = value
+    return infoDict
+
 def failIfProjectExists(project):
     """Raise ValueError if `project` already exists"""
     if project in getProjectList():
@@ -873,6 +891,7 @@ def updateProject(project, rsyncUrl=None, oldName=None):
     confParser = ConfigParser.SafeConfigParser()
     confParser.read(projectInfoPath)
 
+    # TODO: use getUpdateInformations()
     if rsyncUrl is None:
         # User did not provide rsyncUrl.
         # Check if there is one in project_info file

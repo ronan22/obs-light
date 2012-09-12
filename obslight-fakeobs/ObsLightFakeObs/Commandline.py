@@ -59,6 +59,8 @@ class FakeObsCommandline(cmdln.Cmdln):
                   help="list also project dependencies for each target")
     @cmdln.option("-t", "--targets", action="store_true",
                   help="list targets for each project")
+    @cmdln.option("-u", "--update-info", action="store_true",
+                  help="show update informations for each project")
     def do_list(self, subcmd, opts):
         """${cmd_name}: get the list of installed projects
         
@@ -78,10 +80,19 @@ class FakeObsCommandline(cmdln.Cmdln):
 
         for prj in projectList:
             print Utils.colorize(prj, "green")
+
+            if opts.update_info:
+                infos = ProjectManager.getUpdateInformations(prj)
+                print "  Update informations:"
+                print "    Original name:\t%(project)s" % infos
+                print "    Update URL:\t\t%(rsync_update_url)s" % infos
+                print "    Last update:\t%(last_update)s" % infos
+
             if opts.targets or opts.dependencies:
+                print "  Targets:"
                 for target in ProjectManager.getTargetList(prj):
                     archList = ProjectManager.getArchList(prj, target)
-                    print "  %s (%s)" % (target, ", ".join(archList)),
+                    print "    %s (%s)" % (target, ", ".join(archList)),
                     if opts.dependencies:
                         deps = ProjectManager.getProjectDependencies(prj,
                                                                      target)
