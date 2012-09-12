@@ -134,28 +134,28 @@ class PackageManager(QObject, ObsLightGuiObject):
         Connect package filter signals to the appropriate methods.
         """
         mw = self.mainWindow
-        signal = mw.oscStatusFilterComboBox.currentIndexChanged
-        signal.connect(self.on_oscStatusFilterComboBox_currentIndexChanged)
+#        signal = mw.oscStatusFilterComboBox.currentIndexChanged
+#        signal.connect(self.on_oscStatusFilterComboBox_currentIndexChanged)
         signal = mw.obsStatusFilterComboBox.currentIndexChanged
         signal.connect(self.on_obsStatusFilterComboBox_currentIndexChanged)
         signal = mw.chrootStatusComboBox.currentIndexChanged
         signal.connect(self.on_chrootStatusComboBox_currentIndexChanged)
 
-        signal = mw.obsRevFilterLineEdit.editingFinished
-        signal.connect(self.on_obsRevFilterLineEdit_editingFinished)
-        signal = mw.oscRevFilterLineEdit.editingFinished
-        signal.connect(self.on_oscRevFilterLineEdit_editingFinished)
+#        signal = mw.obsRevFilterLineEdit.editingFinished
+#        signal.connect(self.on_obsRevFilterLineEdit_editingFinished)
+#        signal = mw.oscRevFilterLineEdit.editingFinished
+#        signal.connect(self.on_oscRevFilterLineEdit_editingFinished)
 
     def initializePackageFilters(self):
         currentProject = self.getCurrentProject()
         if currentProject is not None:
             if not self.__packageFilterInitialized:
-                self.mainWindow.oscStatusFilterComboBox.insertItem(0, "")
+#                self.mainWindow.oscStatusFilterComboBox.insertItem(0, "")
                 self.mainWindow.obsStatusFilterComboBox.insertItem(0, "")
                 self.mainWindow.chrootStatusComboBox.insertItem(0, "")
 
-                for i in self.manager.getListOscStatus(currentProject):
-                    self.mainWindow.oscStatusFilterComboBox.addItem(i)
+#                for i in self.manager.getListOscStatus(currentProject):
+#                    self.mainWindow.oscStatusFilterComboBox.addItem(i)
 
                 for i in self.manager.getListStatus(currentProject):
                     self.mainWindow.obsStatusFilterComboBox.addItem(i)
@@ -166,8 +166,7 @@ class PackageManager(QObject, ObsLightGuiObject):
                 self.__packageFilterInitialized = True
 
             packageFilter = self.manager.getPackageFilter(currentProject)
-            for status, cbox in [("oscStatus", self.mainWindow.oscStatusFilterComboBox),
-                                 ("status", self.mainWindow.obsStatusFilterComboBox),
+            for status, cbox in [("status", self.mainWindow.obsStatusFilterComboBox),
                                  ("chRootStatus", self.mainWindow.chrootStatusComboBox)]:
                 if status in packageFilter:
                     val = packageFilter[status]
@@ -176,13 +175,13 @@ class PackageManager(QObject, ObsLightGuiObject):
                 else:
                     cbox.setCurrentIndex(0)
 
-            for revType, lineEdit in [("oscRev", self.mainWindow.obsRevFilterLineEdit),
-                                      ("obsRev", self.mainWindow.oscRevFilterLineEdit)]:
-                if revType in packageFilter:
-                    val = packageFilter[revType]
-                    lineEdit.setText(val)
-                else:
-                    lineEdit.setText("")
+#            for revType, lineEdit in [("oscRev", self.mainWindow.obsRevFilterLineEdit),
+#                                      ("obsRev", self.mainWindow.oscRevFilterLineEdit)]:
+#                if revType in packageFilter:
+#                    val = packageFilter[revType]
+#                    lineEdit.setText(val)
+#                else:
+#                    lineEdit.setText("")
 
     def __updatePackageFilter(self, filterType, filterValue):
         """
@@ -198,20 +197,20 @@ class PackageManager(QObject, ObsLightGuiObject):
                 self.manager.addPackageFilter(project, filterType, filterValue)
             self.refresh()
 
-    def on_oscRevFilterLineEdit_editingFinished(self):
-        txt = self.mainWindow.oscRevFilterLineEdit.text()
-        if txt is not None:
-            self.__updatePackageFilter("oscRev", txt)
+#    def on_oscRevFilterLineEdit_editingFinished(self):
+#        txt = self.mainWindow.oscRevFilterLineEdit.text()
+#        if txt is not None:
+#            self.__updatePackageFilter("oscRev", txt)
 
-    def on_obsRevFilterLineEdit_editingFinished(self):
-        txt = self.mainWindow.obsRevFilterLineEdit.text()
-        if txt is not None:
-            self.__updatePackageFilter("obsRev", txt)
+#    def on_obsRevFilterLineEdit_editingFinished(self):
+#        txt = self.mainWindow.obsRevFilterLineEdit.text()
+#        if txt is not None:
+#            self.__updatePackageFilter("obsRev", txt)
 
-    def on_oscStatusFilterComboBox_currentIndexChanged(self):
-        txt = self.mainWindow.oscStatusFilterComboBox.currentText()
-        if txt is not None:
-            self.__updatePackageFilter("oscStatus", txt)
+#    def on_oscStatusFilterComboBox_currentIndexChanged(self):
+#        txt = self.mainWindow.oscStatusFilterComboBox.currentText()
+#        if txt is not None:
+#            self.__updatePackageFilter("oscStatus", txt)
 
     def on_obsStatusFilterComboBox_currentIndexChanged(self):
         txt = self.mainWindow.obsStatusFilterComboBox.currentText()
