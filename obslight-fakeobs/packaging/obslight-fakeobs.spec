@@ -32,6 +32,11 @@ Requires:   python-cmdln
 Requires(post): sysconfig
 %endif
 
+%if 0%{suse_version} >= 1210
+BuildRequires: systemd
+%{?systemd_requires}
+%endif
+
 Requires:   build
 Requires:   createrepo
 Requires:   logrotate
@@ -85,24 +90,23 @@ mkdir -p %{buildroot}%{_docdir}/%{name}
 %{__python} setup.py install --root=%{buildroot} -O1
 %endif
 
-%if 0%{?fedora}
+%if 0%{?fedora} || 0%{?suse_version} >= 1210
 mkdir -p %{buildroot}%{_unitdir}
 cp -f config/fakeobs.service config/fakeobswebui.service %{buildroot}%{_unitdir}
 %else
 mkdir -p %{buildroot}%{_sysconfdir}/init.d
 cp -f config/init_fakeobs %{buildroot}%{_sysconfdir}/init.d/fakeobs
 cp -f config/init_fakeobswebui %{buildroot}%{_sysconfdir}/init.d/fakeobswebui
+ln -sf %{_sysconfdir}/init.d/fakeobs %{buildroot}%{_sbindir}/rcfakeobs
+ln -sf %{_sysconfdir}/init.d/fakeobswebui %{buildroot}%{_sbindir}/rcfakeobswebui
 %endif
 # The following 3 lines are already executed by setup.py
 #cp -rf config %{buildroot}/srv/obslight-fakeobs/config
 #cp -rf theme %{buildroot}/srv/obslight-fakeobs/theme
 #cp -rf tools %{buildroot}/srv/obslight-fakeobs/tools
-cp -f config/logrotate_fakeobs %{buildroot}%{_sysconfdir}/logrotate.d/fakeobs
+cp -f config/logrotate_fakeobs %{buildroot}%{_sysconfdir}/logrotate.d/obslight-fakeobs
 cp -f README %{buildroot}%{_docdir}/%{name}
 echo "%{name}-%{version}-%{release}" > %{buildroot}%{_docdir}/%{name}/VERSION
-
-ln -sf %{_sysconfdir}/init.d/fakeobs %{buildroot}%{_sbindir}/rcfakeobs
-ln -sf %{_sysconfdir}/init.d/fakeobswebui %{buildroot}%{_sbindir}/rcfakeobswebui
 
 # << install pre
 
@@ -112,7 +116,7 @@ ln -sf %{_sysconfdir}/init.d/fakeobswebui %{buildroot}%{_sbindir}/rcfakeobswebui
 
 %preun
 # >> preun
-%if 0%{?fedora}
+%if 0%{?fedora} || 0%{?suse_version} >= 1210
 if [ $1 -eq 0 ] ; then
   # Package removal, not upgrade
   /bin/systemctl --no-reload disable fakeobs.service > /dev/null 2>&1 || :
@@ -172,13 +176,16 @@ EOF
 fi
 fi
 
-%if 0%{?fedora}
+%if 0%{?fedora} || 0%{?suse_version} >= 1210
 if [ $1 -eq 1 ] ; then
   # Initial installation
   /bin/systemctl enable fakeobs.service >/dev/null 2>&1 || :
   /bin/systemctl enable fakeobswebui.service >/dev/null 2>&1 || :
 
+%if 0%{?fedora}
+# Fedora doesn't have python-cmdln
   easy_install cmdln
+%endif
 fi
 %else
 # Remove old http python server service
@@ -202,7 +209,7 @@ service fakeobswebui status || service fakeobswebui start || :
 
 %postun
 # >> postun
-%if 0%{?fedora}
+%if 0%{?fedora} || 0%{?suse_version} >= 1210
 /bin/systemctl daemon-reload >/dev/null 2>&1 || :
 if [ $1 -ge 1 ] ; then
   # Package upgrade, not uninstall
@@ -242,19 +249,19 @@ fi
 /srv/obslight-fakeobs/tools/*
 %{python_sitelib}/ObsLightFakeObs
 %{python_sitelib}/obslight_fakeobs-*.egg-info
-%if 0%{?fedora}
+%if 0%{?fedora} || 0%{?suse_version} >= 1210
 %{_unitdir}/fakeobs.service
 %{_unitdir}/fakeobswebui.service
 %else
 %config %{_sysconfdir}/init.d/fakeobs
 %config %{_sysconfdir}/init.d/fakeobswebui
+%{_sbindir}/rcfakeobs
+%{_sbindir}/rcfakeobswebui
 %endif
-%config %{_sysconfdir}/logrotate.d/fakeobs
+%config %{_sysconfdir}/logrotate.d/obslight-fakeobs
 %config %{_sysconfdir}/obslight-fakeobs.conf
 %{_sbindir}/obslight-fakeobsd
 %{_sbindir}/obslight-fakeobswebuid
-%{_sbindir}/rcfakeobs
-%{_sbindir}/rcfakeobswebui
 %{_bindir}/obslight-fakeobs
 %{_docdir}/%{name}
 # << files
