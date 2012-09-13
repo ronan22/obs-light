@@ -47,7 +47,7 @@ from ObsLightUtils import isNonEmptyString
 
 import ObsLightOsc
 
-import ObsLightPackages as PK_CONST
+import ObsLightPackageStatus as PK_CONST
 
 class ObsLightChRootCore(object):
     '''
@@ -764,7 +764,7 @@ class ObsLightChRoot(ObsLightChRootCore):
 
     def addPackageSourceInChRoot(self, package):
 
-        if package.getStatus() == "excluded":
+        if package.isExclude():
             message = "%s has a excluded status, it can't be installed"
             raise ObsLightErr.ObsLightChRootError(message % package.getName())
         else:
@@ -895,7 +895,7 @@ exit $RETURN_VALUE
 
                 return self.__buildRpm(specFile, package, arch)
 
-        elif package.getChRootStatus() != PK_CONST.NO_BUILD_DIRECTORY:
+        elif package.haveBuildDirectory():
             package.setChRootStatus(PK_CONST.PREPARED)
 
         return 0
@@ -953,7 +953,7 @@ exit $RETURN_VALUE
         '''
         Execute the %build section of an RPM spec file.
         '''
-        if package.getStatus() == "excluded":
+        if package.isExclude():
             msg = u"Package '%s' has a excluded status, it can't be built" % package.getName()
             raise ObsLightErr.ObsLightChRootError(msg)
         if package.specFileHaveAnEmptyBuild():
@@ -989,7 +989,7 @@ exit $RETURN_VALUE
         Execute the %install section of an RPM spec file.
         '''
 
-        if package.getStatus() == "excluded":
+        if package.isExclude():
             msg = u"Package '%s' has a excluded status, it can't be install" % package.getName()
             raise ObsLightErr.ObsLightChRootError(msg)
 
@@ -1023,7 +1023,7 @@ exit $RETURN_VALUE
         Execute the package section of an RPM spec file.
         '''
 
-        if package.getStatus() == "excluded":
+        if package.isExclude():
             msg = u"Package '%s' has a excluded status, it can't be package" % package.getName()
             raise ObsLightErr.ObsLightChRootError(msg)
 

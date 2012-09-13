@@ -1288,26 +1288,26 @@ class ObsLightManager(ObsLightManagerCore):
         '''
         return self._myObsLightProjects.getProject(projectLocalName).getPackageInfo(package)
 
-    @checkProjectLocalName(1)
-    def getListOscStatus(self, projectLocalName):
-        '''
-        
-        '''
-        return self._myObsLightProjects.getProject(projectLocalName).getListOscStatus()
+#    @checkProjectLocalName(1)
+#    def getListOscStatus(self, projectLocalName):
+#        '''
+#        
+#        '''
+#        return self._myObsLightProjects.getProject(projectLocalName).getListOscStatus()
 
-    @checkProjectLocalName(1)
-    def getListStatus(self, projectLocalName):
-        '''
+#    @checkProjectLocalName(1)
+#    def getListStatus(self, projectLocalName):
+#        '''
+#
+#        '''
+#        return self._myObsLightProjects.getProject(projectLocalName).getListStatus()
 
-        '''
-        return self._myObsLightProjects.getProject(projectLocalName).getListStatus()
-
-    @checkProjectLocalName(1)
-    def getListChRootStatus(self, projectLocalName):
-        '''
-        
-        '''
-        return self._myObsLightProjects.getProject(projectLocalName).getListChRootStatus()
+#    @checkProjectLocalName(1)
+#    def getListChRootStatus(self, projectLocalName):
+#        '''
+#        
+#        '''
+#        return self._myObsLightProjects.getProject(projectLocalName).getListChRootStatus()
 
     @checkProjectLocalName(1)
     def getPackageFilter(self, projectLocalName):

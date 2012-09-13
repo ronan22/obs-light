@@ -317,21 +317,18 @@ class ObsLightProject(ObsLightObject):
 #        aDic["extraChrootPackages"] = self.__extraChrootPackages
         return aDic
 
-    def updateProject(self):
-        server = self.__obsServers.getObsServer(self.__obsServer)
-        for name in self.__packages.getPackagesList():
-            status = server.getPackageStatus(project=self.__projectName,
-                                             package=name,
-                                             repo=self.__projectTarget,
-                                             arch=self.__projectArchitecture)
-            self.__packages.updatePackage(name=name, status=status)
+#    def updateProject(self):
+#        server = self.__obsServers.getObsServer(self.__obsServer)
+#        for name in self.__packages.getPackagesList():
+#            status = server.getPackageStatus(project=self.__projectName,
+#                                             package=name,
+#                                             repo=self.__projectTarget,
+#                                             arch=self.__projectArchitecture)
+#            self.__packages.updatePackage(name=name, status=status)
 
     #---------------------------------------------------------------------------package status
     def getPackageInfo(self, package=None):
         return self.__packages.getPackageInfo(package=package)
-
-    def getListOscStatus(self):
-        return self.__packages.getListOscStatus()
 
     def getPackageFilter(self):
         return self.__packages.getPackageFilter()
@@ -345,18 +342,21 @@ class ObsLightProject(ObsLightObject):
     def addPackageFilter(self, key, val):
         return self.__packages.addPackageFilter(key=key, val=val)
 
-    def getListStatus(self):
-        return self.__packages.getListStatus()
+#    def getListOscStatus(self):
+#        return self.__packages.getListOscStatus()
 
-    def getListChRootStatus(self):
-        return self.__packages.getListChRootStatus()
+#    def getListStatus(self):
+#        return self.__packages.getListStatus()
+
+#    def getListChRootStatus(self):
+#        return self.__packages.getListChRootStatus()
 
     def refreshPackageDirectoryStatus(self, package=None):
         def doUpDatePackage(package):
             self.updatePackage(name=package)
 #            self.refreshPackageDirectoryStatus(package)
 #            self.__packages.getPackage(package).initPackageFileInfo()
-            self.__refreshOscPackageLocalRev(package)
+#            self.__refreshOscPackageLocalRev(package)
 
         if package != None:
             doUpDatePackage(package)
@@ -365,22 +365,22 @@ class ObsLightProject(ObsLightObject):
                 doUpDatePackage(pkg)
         return 0
 
-    def __refreshOscPackageLocalRev(self, package):
-        '''
-        Get the local rev of the "package".
-        rev come from an OBS Server and mean nothing for a git package.
-        '''
-        packageObj = self.__packages.getPackage(package)
-
-        if not packageObj.isGitPackage:
-            obsServer = self.__obsServers.getObsServer(self.__obsServer)
-            oscDirectory = packageObj.getPackageSourceDirectory()
-            rev = obsServer.getOscPackageRev(workingdir=oscDirectory)
-
-            if rev != None:
-                packageObj.setOscPackageRev(rev)
-            else:
-                packageObj.setOscPackageRev("-1")
+#    def __refreshOscPackageLocalRev(self, package):
+#        '''
+#        Get the local rev of the "package".
+#        rev come from an OBS Server and mean nothing for a git package.
+#        '''
+#        packageObj = self.__packages.getPackage(package)
+#
+#        if not packageObj.isGitPackage:
+#            obsServer = self.__obsServers.getObsServer(self.__obsServer)
+#            oscDirectory = packageObj.getPackageSourceDirectory()
+#            rev = obsServer.getOscPackageRev(workingdir=oscDirectory)
+#
+#            if rev != None:
+#                packageObj.setOscPackageRev(rev)
+#            else:
+#                packageObj.setOscPackageRev("-1")
 
 #    def checkOscDirectoryStatus(self, package):
 #        obsServer = self.__obsServers.getObsServer(self.__obsServer)
@@ -418,7 +418,7 @@ class ObsLightProject(ObsLightObject):
         if not pkgObj.isGitPackage:
             #check 
 #            self.checkOscDirectoryStatus(package=package)
-            self.__refreshOscPackageLocalRev(package=package)
+#            self.__refreshOscPackageLocalRev(package=package)
             self.refreshObsStatus(package=package)
 
         return 0
@@ -592,7 +592,7 @@ class ObsLightProject(ObsLightObject):
 
         if not pkgObj.isGitPackage:
             self.__refreshObsDescription(name)
-            self.__refreshOscPackageLocalRev(name)
+#            self.__refreshOscPackageLocalRev(name)
             self.refreshObsStatus(name)
 
     def createPackagePath(self, name, isGitPackage):
@@ -624,7 +624,7 @@ class ObsLightProject(ObsLightObject):
             self.refreshObsStatus(name)
 
     #        self.checkOscDirectoryStatus(package=name)
-            self.__refreshOscPackageLocalRev(name)
+#            self.__refreshOscPackageLocalRev(name)
 
 #            self.getPackage(name).initPackageFileInfo()
         return 0
@@ -870,7 +870,7 @@ class ObsLightProject(ObsLightObject):
                                      arch=target)
         self.__chroot.allowPackageAccessToObslightGroup(pkgObj)
         #publish RPM builded.
-        if (section == "files") and (pkgObj.getChRootStatus() == "Build Packaged"):
+        if (section == "files") and pkgObj.isPackaged():
             buildRootpath = os.path.join(pkgObj.getChrootRpmBuildDirectory(), "RPMS")
             self.publishRPM(pkgObj, buildRootpath)
 

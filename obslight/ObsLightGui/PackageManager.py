@@ -32,6 +32,10 @@ from ObsLightGui.FileManager import FileManager
 from Utils import popupOnException, ProgressRunnable2, ProgressRunnable3, firstArgLast, PATCH_NAME_REGEXP
 from ObsLightGuiObject import ObsLightGuiObject
 
+from ObsLight.ObsLightPackageStatus import LIST_PACKAGE_STATUS, LIST_CHROOT_STATUS, LIST_SYNC_STATUS
+from ObsLight.ObsLightPackageStatus import ID_PACKAGE_NAME, ID_PACKAGE_STATUS, ID_PACKAGE_CHROOT_STATUS, ID_PACKAGE_SYNC
+from ObsLight.ObsLightPackageStatus import  NameColumn, StatusColumn, FSStatusColumn
+
 class PackageManager(QObject, ObsLightGuiObject):
     '''
     Manages the package list widget and package-related buttons
@@ -140,6 +144,8 @@ class PackageManager(QObject, ObsLightGuiObject):
         signal.connect(self.on_obsStatusFilterComboBox_currentIndexChanged)
         signal = mw.chrootStatusComboBox.currentIndexChanged
         signal.connect(self.on_chrootStatusComboBox_currentIndexChanged)
+        signal = mw.SyncStatusComboBox.currentIndexChanged
+        signal.connect(self.on_SyncStatusComboBox_currentIndexChanged)
 
 #        signal = mw.obsRevFilterLineEdit.editingFinished
 #        signal.connect(self.on_obsRevFilterLineEdit_editingFinished)
@@ -153,23 +159,29 @@ class PackageManager(QObject, ObsLightGuiObject):
 #                self.mainWindow.oscStatusFilterComboBox.insertItem(0, "")
                 self.mainWindow.obsStatusFilterComboBox.insertItem(0, "")
                 self.mainWindow.chrootStatusComboBox.insertItem(0, "")
+                self.mainWindow.SyncStatusComboBox.insertItem(0, "")
 
 #                for i in self.manager.getListOscStatus(currentProject):
 #                    self.mainWindow.oscStatusFilterComboBox.addItem(i)
 
-                for i in self.manager.getListStatus(currentProject):
+                for i in LIST_PACKAGE_STATUS:
                     self.mainWindow.obsStatusFilterComboBox.addItem(i)
 
-                for i in self.manager.getListChRootStatus(currentProject):
+                for i in LIST_CHROOT_STATUS:
                     self.mainWindow.chrootStatusComboBox.addItem(i)
+
+                for i in LIST_SYNC_STATUS:
+                    self.mainWindow.SyncStatusComboBox.addItem(i)
 
                 self.__packageFilterInitialized = True
 
             packageFilter = self.manager.getPackageFilter(currentProject)
-            for status, cbox in [("status", self.mainWindow.obsStatusFilterComboBox),
-                                 ("chRootStatus", self.mainWindow.chrootStatusComboBox)]:
+            for status, cbox in [(ID_PACKAGE_STATUS, self.mainWindow.obsStatusFilterComboBox),
+                                 (ID_PACKAGE_CHROOT_STATUS, self.mainWindow.chrootStatusComboBox),
+                                 (ID_PACKAGE_SYNC, self.mainWindow.SyncStatusComboBox)]:
+
                 if status in packageFilter:
-                    val = packageFilter[status]
+                    val = packageFilter.get(status, "")
                     index = cbox.findText(val)
                     cbox.setCurrentIndex(index)
                 else:
@@ -215,12 +227,17 @@ class PackageManager(QObject, ObsLightGuiObject):
     def on_obsStatusFilterComboBox_currentIndexChanged(self):
         txt = self.mainWindow.obsStatusFilterComboBox.currentText()
         if txt is not None:
-            self.__updatePackageFilter("status", txt)
+            self.__updatePackageFilter(ID_PACKAGE_STATUS, txt)
 
     def on_chrootStatusComboBox_currentIndexChanged(self):
         txt = self.mainWindow.chrootStatusComboBox.currentText()
         if txt is not None:
-            self.__updatePackageFilter("chRootStatus", txt)
+            self.__updatePackageFilter(ID_PACKAGE_CHROOT_STATUS, txt)
+
+    def on_SyncStatusComboBox_currentIndexChanged(self):
+        txt = self.mainWindow.SyncStatusComboBox.currentText()
+        if txt is not None:
+            self.__updatePackageFilter(ID_PACKAGE_SYNC, txt)
 
     def __loadPkgModel(self, projectName):
         """
@@ -274,8 +291,8 @@ class PackageManager(QObject, ObsLightGuiObject):
         self.__fileManager.refresh()
         self.updateLabels()
         self.updateButtons()
-        self.mainWindow.packageTableView.resizeColumnToContents(PackageModel.ObsRevColumn)
-        self.mainWindow.packageTableView.resizeColumnToContents(PackageModel.OscRevColumn)
+        self.mainWindow.packageTableView.resizeColumnToContents(StatusColumn)
+        self.mainWindow.packageTableView.resizeColumnToContents(FSStatusColumn)
 
     def updateLabels(self):
         """
@@ -346,7 +363,7 @@ class PackageManager(QObject, ObsLightGuiObject):
         index = self.mainWindow.packageTableView.currentIndex()
         if index.isValid():
             row = index.row()
-            pkgNameIndex = self.__pkgModel.createIndex(row, PackageModel.NameColumn)
+            pkgNameIndex = self.__pkgModel.createIndex(row, NameColumn)
             packageName = self.__pkgModel.data(pkgNameIndex)
             return packageName
         else:
@@ -364,7 +381,7 @@ class PackageManager(QObject, ObsLightGuiObject):
         for index in indices:
             if index.isValid():
                 row = index.row()
-                packageNameIndex = self.__pkgModel.createIndex(row, PackageModel.NameColumn)
+                packageNameIndex = self.__pkgModel.createIndex(row, NameColumn)
                 packageName = self.__pkgModel.data(packageNameIndex)
                 packages.add(packageName)
         return list(packages)

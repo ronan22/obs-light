@@ -38,12 +38,13 @@ from ObsLightErr import ObsLightPackageErr
 
 from copy import copy
 
-import ObsLightPackages as PK_CONST
 from ObsLightUtils import getFilteredFileList, isASpecFile, levenshtein
 
-from ObsLightPackages import OBS_UNKNOW_STATUS, CHROOT_UNKNOWN_STATUS
+from ObsLightPackageStatus import OBS_REV, OBS_STATUS, OSC_REV, OSC_STATUS, CHROOT_STATUS
+from ObsLightPackageStatus import NOT_INSTALLED
 
-from ObsLightPackages import OBS_REV, OBS_STATUS, OSC_REV, OSC_STATUS, CHROOT_STATUS
+from ObsLightPackageStatus import PackageInfo
+
 
 from gbp.scripts.buildpackage_rpm import git_archive, guess_comp_type
 from gbp.scripts.buildpackage_rpm import git_archive
@@ -61,6 +62,7 @@ class ObsLightPackage(ObsLightObject):
                  packageGitPath=None,
                  fromSave={},
                  ):
+
         ObsLightObject.__init__(self)
         self.__project = project
 
@@ -69,6 +71,8 @@ class ObsLightPackage(ObsLightObject):
         self.__mySpecFile = None
 
         # Package info.
+        self.__packageInfo = PackageInfo(self, fromSave.get("packageInfo", {}))
+
         self.__name = fromSave.get("name", name)
 
         #The spec file name of the package
@@ -88,14 +92,7 @@ class ObsLightPackage(ObsLightObject):
         self.__firstCommitTag = fromSave.get("firstCommitTag", None)
         self.__secondCommitTag = fromSave.get("secondCommitTag", None)
 
-        # Local package osc status and rev.
-        self.__oscStatus = fromSave.get(OSC_STATUS, None)
-        self.__oscRev = fromSave.get(OSC_REV, None)
-
-
-        # OBS server rev, status, description, title.
-        self.__obsRev = fromSave.get(OBS_REV, None)
-        self.__obsStatus = fromSave.get(OBS_STATUS, OBS_UNKNOW_STATUS)
+        # OBS server  status, description, title.
         self.__description = fromSave.get("description", None)
         self.__packageTitle = fromSave.get("title", None)
 
@@ -104,7 +101,6 @@ class ObsLightPackage(ObsLightObject):
         self.__patchMode = fromSave.get("patchMode", True)
 
         # Build info.
-        self.__chRootStatus = fromSave.get(CHROOT_STATUS, CHROOT_UNKNOWN_STATUS)
         self.__prepDirName = fromSave.get("prepDirName", None)
         self.__listRPMPublished = fromSave.get("listRPMPublished", [])
 
@@ -154,22 +150,20 @@ class ObsLightPackage(ObsLightObject):
         aDic["firstCommitTag"] = self.__firstCommitTag
         aDic["secondCommitTag"] = self.__secondCommitTag
 
-        aDic[OSC_STATUS] = self.__oscStatus
-        aDic[OSC_REV] = self.__oscRev
 
-        aDic[OBS_REV] = self.__obsRev
-        aDic[OBS_STATUS] = self.__obsStatus
         aDic["description"] = self.__description
         aDic["title"] = self.__packageTitle
 
         aDic["currentPatch"] = self.__currentPatch
         aDic["patchMode"] = self.__patchMode
 
-        aDic[CHROOT_STATUS] = self.__chRootStatus
         aDic["prepDirName"] = self.__prepDirName
         aDic["listRPMPublished"] = self.__listRPMPublished
 
         aDic["packageChrootBuildDirectory"] = self.getChrootBuildDirectory()
+
+        aDic["packageInfo"] = self.__packageInfo.getDic()
+
         return aDic
 
     def getPackageParameter(self, parameter=None):
@@ -185,20 +179,14 @@ class ObsLightPackage(ObsLightObject):
             
             firstCommitTag
             
-            %s
-            %s
             description
             title
-            
-            %s
-            %s
             
             currentPatch
             patchMode
             
-            %s
             prepDirName
-        ''' % (OBS_REV, OBS_STATUS, OSC_STATUS, OSC_REV, CHROOT_STATUS)
+        '''
 
         if parameter == "name":
             return self.getName()
@@ -215,28 +203,16 @@ class ObsLightPackage(ObsLightObject):
         elif  parameter == "firstCommitTag":
             return self.__firstCommitTag if self.__firstCommitTag != None else ""
 
-        elif parameter == OBS_REV:
-            return self.__obsRev if self.__obsRev != None else ""
-        elif parameter == OBS_STATUS:
-            return self.__obsStatus if self.__obsStatus != None else ""
         elif parameter == "description":
             return self.__description if self.__description != None else ""
         elif parameter == "title":
             return self.__packageTitle if self.__packageTitle != None else ""
-
-
-        elif parameter == OSC_STATUS:
-            return  self.__oscStatus if self.__oscStatus != None else ""
-        elif  parameter == OSC_REV:
-            return self.__oscRev if self.__oscRev != None else ""
 
         elif parameter == "currentPatch":
             return self.__currentPatch if self.__currentPatch != None else ""
         elif parameter == "patchMode":
             return self.__patchMode
 
-        elif parameter == CHROOT_STATUS:
-            return self.__chRootStatus if self.__chRootStatus != None else ""
         elif parameter == "prepDirName":
             return self.__prepDirName if self.__prepDirName != None else ""
         else:
@@ -251,20 +227,14 @@ class ObsLightPackage(ObsLightObject):
             
             packageChrootDirectory
             
-            %s
-            %s
             description
             title
-            
-            
-            %s
-            %s
             
             currentPatch
             patchMode
             
             prepDirName
-        ''' % (OBS_REV, OBS_STATUS, OSC_STATUS, OSC_REV)
+        '''
 
         if parameter == "specFile":
             self.setSpecFile(value)
@@ -272,19 +242,10 @@ class ObsLightPackage(ObsLightObject):
         elif parameter == "packageChrootDirectory":
             self.__packageChrootDirectory = value
 
-        elif parameter == OBS_REV:
-            self.__obsRev = value
-        elif parameter == OBS_STATUS:
-            self.__obsStatus = value
         elif parameter == "description":
             self.__description = value
         elif parameter == "title":
             self.__packageTitle = value
-
-        elif parameter == OSC_STATUS:
-            self.__oscStatus = value
-        elif parameter == OSC_REV:
-            self.__oscRev = value
 
         elif parameter == "patchMode":
             self.__patchMode = value
@@ -356,7 +317,7 @@ class ObsLightPackage(ObsLightObject):
 #        if self.__packageChrootDirectory != None:
 #                return self.__packageChrootDirectory
 #            else :
-#                if self.getChRootStatus() == PK_CONST.NOT_INSTALLED:
+#                if self.__packageInfo.getChRootStatus() == PK_CONST.NOT_INSTALLED:
 #                    return ""
 #                else:
 #                    return self.getChrootRpmBuildDirectory()
@@ -517,7 +478,7 @@ class ObsLightPackage(ObsLightObject):
         if self.__mySpecFile != None:
             self.__mySpecFile.saveSpecShortCut(path,
                                                section,
-                                               self.getChRootStatus(),
+                                               self.__packageInfo.getChRootStatus(),
                                                self.getPackageChrootDirectory(),
                                                )
         else:
@@ -684,13 +645,13 @@ class ObsLightPackage(ObsLightObject):
 
     def delFromChroot(self):
         self.__packageChrootDirectory = None
-        self.__chRootStatus = PK_CONST.NOT_INSTALLED
+        self.__packageInfo.delFromChroot()
 
     def isInstallInChroot(self):
         '''
         Return True if the package is install into the chroot.
         '''
-        if self.getChRootStatus() == PK_CONST.NOT_INSTALLED:
+        if self.__packageInfo.getChRootStatus() == NOT_INSTALLED:
             return False
         else:
             return True
@@ -893,63 +854,21 @@ class ObsLightPackage(ObsLightObject):
     #--------------------------------------------------------------------------- Package Info
 
     def getPackageInfo(self, info):
+        return self.__packageInfo.getPackageInfo(info)
         res = {}
-        for i in info:
-            if i == OBS_REV:
-                res[OBS_REV] = self.getObsPackageRev()
-            elif i == OSC_REV:
-                res[OSC_REV] = self.getOscPackageRev()
-            elif i == OBS_STATUS:
-                res[OSC_STATUS] = self.getPackageStatus()
-            elif i == OSC_STATUS:
-                res[OSC_STATUS] = self.getOscStatus()
-            elif i == CHROOT_STATUS :
-                res[CHROOT_STATUS ] = self.getChRootStatus()
-            else:
-                msg = "Error in getPackageInfo '%s' is not valide" % str(i)
-                raise ObsLightPackageErr(msg)
-        return res
 
-    def getOscStatus(self):
-        return self.__oscStatus
-
-    def getPackageStatus(self):
-        return self.__obsStatus
-
-    def getChRootStatus(self):
-        return self.__chRootStatus
-
-    def getOscPackageRev(self):
-        return self.__oscRev
-
-    def getObsPackageRev(self):
-        return self.__obsRev
-
-    def setOscPackageRev(self, rev):
-        self.__oscRev = rev
-
-    def setObsPackageRev(self, rev):
-        self.__obsRev = rev
+    def isExclude(self):
+        return self.__packageInfo.isExclude()
 
     def setChRootStatus(self, status):
-        self.__chRootStatus = status
+        return self.__packageInfo.setChRootStatus(status)
 
-    def update(self, status=None):
-        if status not in [None, "", "None"]:
-            self.__obsStatus = status
+    def haveBuildDirectory(self):
+        return self.__packageInfo.haveBuildDirectory()
 
-    def setOscStatus(self, status):
-        self.__oscStatus = status
-
-    def getStatus(self):
-        '''
-        return the Status of the package.
-        '''
-        return self.__obsStatus
-
+    def isPackaged(self):
+        return self.__packageInfo.isPackaged()
     #---------------------------------------------------------------------------
-
-
     @property
     def existsOnServer(self):
         # TODO: check that it really exists on server
@@ -1046,10 +965,7 @@ class ObsLightPackage(ObsLightObject):
         '''
         commit the package to the OBS server.
         '''
-        obsRev = self.getObsPackageRev()
-        oscRev = self.getOscPackageRev()
-
-        if obsRev != oscRev:
+        if self.__packageInfo.isReadyToCommit():
             message = "Can't Commit \"%s\"\n"
             message += "because local osc rev \"%s\" and OBS rev \"%s\" do not match.\n"
             message += "Please update the package."

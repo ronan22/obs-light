@@ -23,74 +23,8 @@ from ObsLight import ObsLightErr
 
 import os
 
-# define the package status into the chroot jail.
-CHROOT_UNKNOWN_STATUS = "Unknown"
-NOT_INSTALLED = "Not installed"
-NO_BUILD_DIRECTORY = "No build directory"
-NO_BUILD_SECTION = "No build section"
-MANY_BUILD_DIRECTORIES = "Many BUILD directories"
-PREPARED = "Prepared"
-BUILD = "Built"
-BUILD_INSTALLED = "Build Installed"
-BUILD_PACKAGED = "Build Packaged"
-
-
-listChRootStatus = [NOT_INSTALLED,
-                    NO_BUILD_DIRECTORY,
-                    NO_BUILD_SECTION,
-                    MANY_BUILD_DIRECTORIES,
-                    PREPARED,
-                    BUILD,
-                    BUILD_INSTALLED,
-                    BUILD_PACKAGED]
-
-# define the package source status.
-READ_ONLY = "ro"
-READ_WRITE = "rw"
-readWriteStatus = [READ_ONLY,
-                   READ_WRITE]
-
-UNKNOWN_STATUS = "Unknown"
-OSC_INCONSISTENT_STATE = "inconsistent state"
-OSC_CLEAN_STATE = "Succeeded"
-
-LOCAL_STATUS = [UNKNOWN_STATUS,
-                OSC_INCONSISTENT_STATE,
-                OSC_CLEAN_STATE]
-
-# define the package status on OBS SERVER.
-OBS_UNKNOW_STATUS = "Unknown"
-
-OBS_SERVER_STATUS = ["succeeded",
-                     "failed",
-                     "unresolvable",
-                     "broken",
-                     "blocked",
-                     "dispatching",
-                     "scheduled",
-                     "building",
-                     "signing",
-                     "finished",
-                     "disabled",
-                     "excluded",
-                     OBS_UNKNOW_STATUS,
-                     ]
-
-#List
-OBS_REV = "obsRev"
-OBS_STATUS = "status"
-OSC_REV = "oscRev"
-OSC_STATUS = "oscStatus"
-CHROOT_STATUS = "chRootStatus"
-
-listInfo = [OBS_REV,
-            OBS_STATUS,
-            OSC_REV,
-            OSC_STATUS,
-            CHROOT_STATUS]
-
 from ObsLightPackage import ObsLightPackage
-
+from ObsLightPackageStatus import getPackageListID
 
 class ObsLightPackages(object):
 
@@ -186,7 +120,7 @@ class ObsLightPackages(object):
         self.__currentListPackageInfo = self.getDefaultListPackageInfo()
 
     def getDefaultListPackageInfo(self):
-        return listInfo
+        return getPackageListID()
 
     def getPackageFilter(self):
         return self.__packageFilter
@@ -197,22 +131,15 @@ class ObsLightPackages(object):
     def addPackageFilter(self, key, val):
         self.__packageFilter[key] = val
 
-    def getListStatus(self):
-        """Deprecated, for compatibility"""
-        return self.getStatusList()
+#    def getStatusList(self):
+#        return OBS_SERVER_STATUS
 
-    def getStatusList(self):
-        return OBS_SERVER_STATUS
+#    def getOscStatusList(self):
+#        return LOCAL_STATUS
 
-    def getListOscStatus(self):
-        """Deprecated, for compatibility"""
-        return self.getOscStatusList()
 
-    def getOscStatusList(self):
-        return LOCAL_STATUS
-
-    def getListChRootStatus(self):
-        return listChRootStatus
+#    def getListChRootStatus(self):
+#        return listChRootStatus
 
     def __isFilterInfo(self, info):
         for k in self.__packageFilter:
@@ -233,6 +160,6 @@ class ObsLightPackages(object):
         return res
 
     #---------------------------------------------------------------------------
-    def updatePackage(self, name, status=None):
-        self.getPackage(name).update(status=status)
+#    def updatePackage(self, name, status=None):
+#        self.getPackage(name).update(status=status)
 
