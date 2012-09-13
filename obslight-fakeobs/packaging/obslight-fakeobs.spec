@@ -32,7 +32,7 @@ Requires:   python-cmdln
 Requires(post): sysconfig
 %endif
 
-%if 0%{suse_version} >= 1210
+%if 0%{?suse_version} >= 1210
 BuildRequires: systemd
 %{?systemd_requires}
 %endif
