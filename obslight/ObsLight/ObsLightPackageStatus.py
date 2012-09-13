@@ -145,6 +145,11 @@ StatusColorsDict[StatusColumn][OBS_UNRESOLVABLE] = u"darkred"
 
 StatusColorsDict[FSStatusColumn][CHROOT_UNKNOWN_STATUS] = u"red"
 
+StatusColorsDict[SyncStatusColumn][SYNC_FAIL] = u"red"
+StatusColorsDict[SyncStatusColumn][SYNC_OK] = u"green"
+
+
+
 def StatusColumnCount():
     return len(ColumnHeaders.keys())
 
@@ -182,11 +187,11 @@ class PackageInfo(ObsLightObject):
             elif i == ID_PACKAGE_NAME:
                 res[ID_PACKAGE_NAME] = self.__package.getName()
             elif i == ID_PACKAGE_STATUS:
-                res[ID_PACKAGE_STATUS] = OBS_UNKNOWN
+                res[ID_PACKAGE_STATUS] = OBS_SUCCEEDED
             elif i == ID_PACKAGE_CHROOT_STATUS:
-                res[ID_PACKAGE_CHROOT_STATUS] = CHROOT_UNKNOWN_STATUS
+                res[ID_PACKAGE_CHROOT_STATUS] = PREPARED
             elif i == ID_PACKAGE_SYNC:
-                res[ID_PACKAGE_SYNC] = SYNC_UNKNOWN
+                res[ID_PACKAGE_SYNC] = SYNC_OK
 
 
             else:
