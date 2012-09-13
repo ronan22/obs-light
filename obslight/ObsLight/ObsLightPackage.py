@@ -45,6 +45,10 @@ from ObsLightPackages import OBS_UNKNOW_STATUS, CHROOT_UNKNOWN_STATUS
 
 from ObsLightPackages import OBS_REV, OBS_STATUS, OSC_REV, OSC_STATUS, CHROOT_STATUS
 
+from gbp.scripts.buildpackage_rpm import git_archive, guess_comp_type
+from gbp.scripts.buildpackage_rpm import git_archive
+from gbp.rpm.git import GitRepositoryError, RpmGitRepository
+import gbp.rpm as rpm
 
 class ObsLightPackage(ObsLightObject):
 
@@ -660,11 +664,21 @@ class ObsLightPackage(ObsLightObject):
             if os.path.isfile(pathDst):
                 os.unlink(pathDst)
             pathSrc = os.path.join(self.getPackagingDirectiory() , str(aFile))
-            print "pathSrc", pathSrc, "pathDst", pathDst
             shutil.copy2(pathSrc, pathDst)
 
         if self.isGitPackage:
-            pass
+            repo = RpmGitRepository(self.getPackageSourceDirectory())
+            spec = rpm.parse_spec(self.getSpecFile(fullPath=True))
+            destDir = absChrootRpmBuildDirectory
+            comp_type = guess_comp_type(spec)
+
+            git_archive(repo,
+                        spec,
+                        destDir,
+                        'HEAD',
+                        comp_type,
+                        comp_level=9,
+                        with_submodules=True)
 
         return 0
 

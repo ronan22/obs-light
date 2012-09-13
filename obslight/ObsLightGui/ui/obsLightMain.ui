@@ -112,6 +112,12 @@
             <layout class="QGridLayout" name="gridLayout_9">
              <item row="6" column="0">
               <widget class="QPushButton" name="modifyObsProjectButton">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
                <property name="toolTip">
                 <string>Modify the configuration of the selected project.</string>
                </property>
@@ -139,7 +145,7 @@
                  <rect>
                   <x>0</x>
                   <y>0</y>
-                  <width>275</width>
+                  <width>276</width>
                   <height>301</height>
                  </rect>
                 </property>
@@ -271,6 +277,12 @@
              </item>
              <item row="6" column="2">
               <widget class="QPushButton" name="newObsProjectButton">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
                <property name="toolTip">
                 <string>Import a project that already exists on an OBS server.</string>
                </property>
@@ -294,6 +306,12 @@
              </item>
              <item row="6" column="3">
               <widget class="QPushButton" name="deleteObsProjectButton">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
                <property name="toolTip">
                 <string>Delete the selected project.</string>
                </property>
@@ -316,6 +334,12 @@
             <property name="enabled">
              <bool>true</bool>
             </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="baseSize">
              <size>
               <width>0</width>
@@ -337,69 +361,6 @@
               </widget>
              </item>
              <item>
-              <widget class="QLineEdit" name="obsRevFilterLineEdit">
-               <property name="minimumSize">
-                <size>
-                 <width>50</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>50</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-               <property name="toolTip">
-                <string>Select OBS rev filter (-1,1,2..)</string>
-               </property>
-               <property name="maxLength">
-                <number>100</number>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QComboBox" name="oscStatusFilterComboBox">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>16777215</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-               <property name="toolTip">
-                <string>Select OSC status filter</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLineEdit" name="oscRevFilterLineEdit">
-               <property name="minimumSize">
-                <size>
-                 <width>50</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>50</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-               <property name="toolTip">
-                <string>Select OSC rev filter (-1,1,2..)</string>
-               </property>
-               <property name="maxLength">
-                <number>100</number>
-               </property>
-              </widget>
-             </item>
-             <item>
               <widget class="QComboBox" name="chrootStatusComboBox">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -409,6 +370,16 @@
                </property>
                <property name="toolTip">
                 <string>Select filesystem status filter</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="SyncStatus">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
                </property>
               </widget>
              </item>
@@ -464,7 +435,7 @@
                  <rect>
                   <x>0</x>
                   <y>0</y>
-                  <width>375</width>
+                  <width>372</width>
                   <height>253</height>
                  </rect>
                 </property>
@@ -515,6 +486,12 @@
              </item>
              <item row="7" column="1">
               <widget class="QPushButton" name="updateFilesButton">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
                <property name="minimumSize">
                 <size>
                  <width>80</width>
@@ -542,6 +519,12 @@ You can select several packages.</string>
              </item>
              <item row="5" column="1">
               <widget class="QPushButton" name="refreshOscStatusButton">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
                <property name="toolTip">
                 <string>Refresh OSC status column.
  If no package selected, refresh all (may be long).</string>
@@ -553,6 +536,12 @@ You can select several packages.</string>
              </item>
              <item row="5" column="0">
               <widget class="QPushButton" name="importPackageButton">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
                <property name="toolTip">
                 <string>Import an existing package in project.</string>
                </property>
@@ -563,6 +552,12 @@ You can select several packages.</string>
              </item>
              <item row="7" column="0">
               <widget class="QPushButton" name="deletePackageButton">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
                <property name="toolTip">
                 <string>Remove the selected package(s) from project.</string>
                </property>
@@ -573,6 +568,12 @@ You can select several packages.</string>
              </item>
              <item row="7" column="2">
               <widget class="QPushButton" name="repairOscButton">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
                <property name="toolTip">
                 <string>Repair the OSC working copy of the selected package(s).
 You can select several packages.</string>
@@ -597,6 +598,12 @@ You can select several packages.</string>
              </item>
              <item row="5" column="2">
               <widget class="QPushButton" name="addAndCommitButton">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
                <property name="toolTip">
                 <string>Commit all modifications made to the package files.</string>
                </property>
@@ -689,6 +696,12 @@ It may open in background on some desktop environments.</string>
                 <property name="enabled">
                  <bool>false</bool>
                 </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
                 <property name="toolTip">
                  <string>Deleted a patch (not implemented yet).</string>
                 </property>
@@ -712,6 +725,12 @@ It may open in background on some desktop environments.</string>
               </item>
               <item row="12" column="1">
                <widget class="QPushButton" name="generatePatchButton">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
                 <property name="toolTip">
                  <string>Generate a patch from the changes made into the project filesystem,
  and add this patch to the package and into the spec files.
@@ -728,6 +747,12 @@ It may open in background on some desktop environments.</string>
                 <property name="enabled">
                  <bool>false</bool>
                 </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
                 <property name="toolTip">
                  <string>Import a patch (not implemented yet).</string>
                 </property>
@@ -738,6 +763,12 @@ It may open in background on some desktop environments.</string>
               </item>
               <item row="12" column="3">
                <widget class="QPushButton" name="modifyPatchButton">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
                 <property name="toolTip">
                  <string>Update the current patch with new modifications.</string>
                 </property>
@@ -1070,7 +1101,7 @@ filesystem</string>
             <bool>false</bool>
            </property>
            <property name="currentIndex">
-            <number>0</number>
+            <number>5</number>
            </property>
            <widget class="QWidget" name="kickstartMainTab">
             <attribute name="title">
@@ -1279,7 +1310,7 @@ filesystem</string>
             </attribute>
             <layout class="QGridLayout" name="gridLayout_19">
              <item row="0" column="0">
-              <widget class="QSplitter" name="splitter_3">
+              <widget class="QSplitter" name="splitter_31">
                <property name="orientation">
                 <enum>Qt::Vertical</enum>
                </property>
@@ -1516,7 +1547,7 @@ filesystem</string>
             </attribute>
             <layout class="QGridLayout" name="gridLayout_20">
              <item row="0" column="0">
-              <widget class="QSplitter" name="splitter_4">
+              <widget class="QSplitter" name="splitter_41">
                <property name="orientation">
                 <enum>Qt::Vertical</enum>
                </property>
