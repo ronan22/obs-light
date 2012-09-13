@@ -2,6 +2,7 @@ obslight-fakeobs (0.6.1-1) stable; urgency=low
   * Version 0.6.1
     - fixed _buildinfo request for ARM builds
     - not using manifest anymore to remove a project
+    - restart daemon after grab or import
 
   * Version 0.6.0
     - Implemented _buildinfo request to allow building without a real OBS
@@ -15,4 +16,4 @@ obslight-fakeobs (0.6.1-1) stable; urgency=low
     - Created alternative repositories in /srv/fakeobs/releases/repositories
     - Added a tiny web UI on port 8000
 
- -- Florent Vennetier (Intel OTC) <florent@fridu.net>  Tue, 14 Aug 2012 11:43:02 +0200
+ -- Florent Vennetier (Intel OTC) <florent@fridu.net>  Wed, 12 Sep 2012 13:54:49 +0200
