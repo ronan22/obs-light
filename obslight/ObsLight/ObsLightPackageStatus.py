@@ -23,8 +23,7 @@ import os
 
 from ObsLightObject import ObsLightObject
 from ObsLight import ObsLightErr
-
-import ObsLightPackages as PK_CONST
+from ObsLightErr import ObsLightPackageErr
 
 # define the package status into the chroot jail.
 CHROOT_UNKNOWN_STATUS = "Unknown"
@@ -47,10 +46,10 @@ LIST_CHROOT_STATUS = [NOT_INSTALLED,
                     BUILD_PACKAGED]
 
 # define the package source status.
-READ_ONLY = "ro"
-READ_WRITE = "rw"
-readWriteStatus = [READ_ONLY,
-                   READ_WRITE]
+SOURCE_OBS_READ_ONLY = "OBS\n(ro)"
+SOURCE_OBS_READ_WRITE = "OBS\n(rw)"
+SOURCE_GIT = "GIT"
+SOURCE_TYPE = [SOURCE_OBS_READ_ONLY, SOURCE_OBS_READ_WRITE, SOURCE_GIT]
 
 #LOCAL_STATUS = [UNKNOWN_STATUS,
 #                OSC_INCONSISTENT_STATE,
@@ -86,8 +85,16 @@ OBS_SERVER_STATUS = [OBS_SUCCEEDED,
                      OBS_UNKNOWN,
                      ]
 
+# define the package status on GIT.
+GIT_SUCCEEDED = "succeeded"
+GIT_UNKNOWN = "Unknown"
+
+GIT_STATUS = [GIT_SUCCEEDED,
+             GIT_UNKNOWN]
+
 LIST_PACKAGE_STATUS = []
 LIST_PACKAGE_STATUS.extend(OBS_SERVER_STATUS)
+LIST_PACKAGE_STATUS.extend(GIT_STATUS)
 
 #List
 OBS_REV = "obsRev"
@@ -96,40 +103,41 @@ OSC_REV = "oscRev"
 OSC_STATUS = "oscStatus"
 CHROOT_STATUS = "chRootStatus"
 
-SYNC_OK = "OK"
-SYNC_FAIL = "FAIL"
+SYNC_OK = "YES"
+SYNC_FAIL = "NO"
 SYNC_UNKNOWN = "Unknown"
 
 LIST_SYNC_STATUS = [SYNC_OK, SYNC_FAIL, SYNC_UNKNOWN]
 
 NameColumn = 0
-StatusColumn = 1
-FSStatusColumn = 2
-SyncStatusColumn = 3
+SourceType = 1
+StatusColumn = 2
+FSStatusColumn = 3
+SyncStatusColumn = 4
 
 ID_PACKAGE_NAME = 100
 ID_PACKAGE_STATUS = 101
 ID_PACKAGE_CHROOT_STATUS = 102
 ID_PACKAGE_SYNC = 103
+ID_PACKAGE_SOURCE = 104
 
 PACKAGE_TXT_VALUE = {}
-PACKAGE_TXT_VALUE[ID_PACKAGE_NAME] = "Package"
-PACKAGE_TXT_VALUE[ID_PACKAGE_STATUS] = "Status"
-PACKAGE_TXT_VALUE[ID_PACKAGE_CHROOT_STATUS] = "Filesystem status"
-PACKAGE_TXT_VALUE[ID_PACKAGE_SYNC] = "Sync"
-
 ColumnHeaders = {}
-ColumnHeaders[NameColumn] = PACKAGE_TXT_VALUE[ID_PACKAGE_NAME]
-ColumnHeaders[StatusColumn] = PACKAGE_TXT_VALUE[ID_PACKAGE_STATUS]
-ColumnHeaders[FSStatusColumn] = PACKAGE_TXT_VALUE[ID_PACKAGE_CHROOT_STATUS]
-ColumnHeaders[SyncStatusColumn] = PACKAGE_TXT_VALUE[ID_PACKAGE_SYNC]
-
 ColumnHeadersIndex = {}
-ColumnHeadersIndex[NameColumn] = ID_PACKAGE_NAME
-ColumnHeadersIndex[StatusColumn] = ID_PACKAGE_STATUS
-ColumnHeadersIndex[FSStatusColumn] = ID_PACKAGE_CHROOT_STATUS
-ColumnHeadersIndex[SyncStatusColumn] = ID_PACKAGE_SYNC
 
+#init ColumnHeaders and ColumnHeadersIndex, column label.
+def initColumnHeadersDico(name, id, value):
+    ColumnHeadersIndex[name] = id
+    PACKAGE_TXT_VALUE[id] = value
+    ColumnHeaders[name] = PACKAGE_TXT_VALUE[id]
+
+initColumnHeadersDico(NameColumn, ID_PACKAGE_NAME, "Package")
+initColumnHeadersDico(SourceType, ID_PACKAGE_SOURCE, "Source\nType")
+initColumnHeadersDico(StatusColumn, ID_PACKAGE_STATUS, "Source\nStatus")
+initColumnHeadersDico(FSStatusColumn, ID_PACKAGE_CHROOT_STATUS, "chroot jail\nstatus")
+initColumnHeadersDico(SyncStatusColumn, ID_PACKAGE_SYNC, "Synchronized")
+
+#init color dict.
 StatusColorsDict = {}
 for c in ColumnHeaders.keys():
     StatusColorsDict[c] = {}
@@ -147,8 +155,6 @@ StatusColorsDict[FSStatusColumn][CHROOT_UNKNOWN_STATUS] = u"red"
 
 StatusColorsDict[SyncStatusColumn][SYNC_FAIL] = u"red"
 StatusColorsDict[SyncStatusColumn][SYNC_OK] = u"green"
-
-
 
 def StatusColumnCount():
     return len(ColumnHeaders.keys())
@@ -192,8 +198,15 @@ class PackageInfo(ObsLightObject):
                 res[ID_PACKAGE_CHROOT_STATUS] = PREPARED
             elif i == ID_PACKAGE_SYNC:
                 res[ID_PACKAGE_SYNC] = SYNC_OK
-
-
+            elif i == ID_PACKAGE_SOURCE:
+                if self.__package.isGitPackage:
+                    result = SOURCE_GIT
+                else:
+                    if self.__package.isReadOnly():
+                        result = SOURCE_OBS_READ_ONLY
+                    else:
+                        result = SOURCE_OBS_READ_WRITE
+                res[ID_PACKAGE_SOURCE] = result
             else:
                 msg = "Error in getPackageInfo '%s' is not valide" % str(i)
                 raise ObsLightPackageErr(msg)

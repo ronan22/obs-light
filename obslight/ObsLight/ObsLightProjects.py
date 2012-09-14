@@ -179,8 +179,8 @@ class ObsLightProjects(object):
         if not (name in self.__dicOBSLightProjects.keys()):
             project = ObsLightProject(obsServers=self.__obsServers,
                                       obsLightRepositories=self.__obsLightRepositories,
-                                    workingDirectory=self.getObsLightWorkingDirectory(),
-                                    fromSave=fromSave)
+                                      workingDirectory=self.getObsLightWorkingDirectory(),
+                                      fromSave=fromSave)
             self.__dicOBSLightProjects[name] = project
         else:
             message = "Can't import: %s, The Project already exists." % name

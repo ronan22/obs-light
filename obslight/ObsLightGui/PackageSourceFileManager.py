@@ -52,7 +52,6 @@ class PackageSourceFileManager(FileManagerModel):
         self._baseDirPath = self.manager.getPackageParameter(self._project,
                                                              self._package,
                                                              parameter="packageSourceDirectory")
-        print "self._baseDirPath", self._baseDirPath
 
         self._curentDirPath = self._baseDirPath
 

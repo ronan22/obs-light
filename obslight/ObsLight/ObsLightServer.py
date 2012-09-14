@@ -43,6 +43,8 @@ class ObsLightServer(object):
         self.__serverRepo = None
         self.__isReachable = None
 
+        self.__projectRreadOnlyBuffer = {}
+
         if fromSave != None:
             if "isOBSConnected" in fromSave.keys():
                 self.__isOBSConnected = fromSave["isOBSConnected"]
@@ -189,11 +191,14 @@ class ObsLightServer(object):
             raise ObsLightErr.ObsLightObsServers(message)
 
         if parameter == "readonly":
-
+            if project in self.__projectRreadOnlyBuffer.keys():
+                return self.__projectRreadOnlyBuffer[project]
             res = ObsLightOsc.getObsLightOsc().getProjectParameter(projectObsName=project,
                                                                 apiurl=self.__serverAPI,
                                                                 parameter="maintainer")
-            return not self.__user in res
+            ro = not self.__user in res
+            self.__projectRreadOnlyBuffer[project] = ro
+            return ro
         else:
             res = ObsLightOsc.getObsLightOsc().getProjectParameter(projectObsName=project,
                                                                 apiurl=self.__serverAPI,

@@ -124,8 +124,11 @@ class PackageModel(QAbstractTableModel):
     def textAlignmentRoleData(self, index):
         column = index.column()
         if column in range(1, self.columnCount()):
-            return Qt.AlignHCenter | Qt.AlignVCenter
-        return None
+            return Qt.AlignCenter
+#            return Qt.AlignHCenter | Qt.AlignVCenter
+        else:
+            return Qt.AlignVCenter
+
 
 #    def sort(self, Ncol, order):
 #        print "Sort data according to column ", Ncol

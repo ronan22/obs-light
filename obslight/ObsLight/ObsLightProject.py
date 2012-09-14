@@ -75,6 +75,7 @@ class ObsLightProject(ObsLightObject):
 
         self.__projectTarget = fromSave.get("projectTarget", projectTarget)
 
+
         if not (self.__obsServer in self.__obsServers.getObsServerList()):
                     message = "WARNING: '%s' is not a defined OBS server " % self.__obsServer
                     self.logger.warn(message)
@@ -83,6 +84,8 @@ class ObsLightProject(ObsLightObject):
             obsServer = self.__obsServers.getObsServer(name=self.__obsServer)
             obsServer.initConfigProject(projet=self.__projectName, repos=self.__projectTarget)
 
+        self.__readOnly = fromSave.get("ro", obsServer.getProjectParameter(self.__projectName,
+                                                                           "readonly"))
 
         self.__projectArchitecture = fromSave.get("projectArchitecture", projectArchitecture)
         self.__description = fromSave.get("description", description)
@@ -163,6 +166,9 @@ class ObsLightProject(ObsLightObject):
                 subprocess.Popen(command)
 
     #--------------------------------------------------------------------------- project
+    def isReadOnly(self):
+        return self.__readOnly
+
     def __getArchHierarchy(self):
         if self.__projectArchitecture in self.__archHierarchyMap:
             return self.__archHierarchyMap[self.__projectArchitecture]
@@ -314,6 +320,7 @@ class ObsLightProject(ObsLightObject):
         aDic["description"] = self.__description
         aDic["packages"] = self.__packages.getDic()
         aDic["chrootIsInit"] = self.__chrootIsInit
+        aDic["ro"] = self.__readOnly
 #        aDic["extraChrootPackages"] = self.__extraChrootPackages
         return aDic
 

@@ -494,10 +494,6 @@ class ObsLightOsc(ObsLightObject):
 
         return aElement.get("rev")
 
-
-
-
-
     def __subprocess(self, command=None, waitMess=False):
         result = None
         count = 0

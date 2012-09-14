@@ -74,6 +74,7 @@ class ObsLightPackage(ObsLightObject):
         self.__packageInfo = PackageInfo(self, fromSave.get("packageInfo", {}))
 
         self.__name = fromSave.get("name", name)
+        self.__readOnly = self.__project.isReadOnly()
 
         #The spec file name of the package
         self.__specFile = fromSave.get("specFile", None)
@@ -265,6 +266,9 @@ class ObsLightPackage(ObsLightObject):
         return the name of the package.
         '''
         return self.__name
+
+    def isReadOnly(self):
+        return self.__readOnly
 
     def destroy(self):
         """
