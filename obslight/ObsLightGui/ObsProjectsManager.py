@@ -59,7 +59,7 @@ class ObsProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
         """
         mw = self.mainWindow
         mw.newObsProjectButton.clicked.connect(self.gui.runWizard)
-        mw.modifyObsProjectButton.clicked.connect(self.on_modifyObsProjectButton_clicked)
+#        mw.modifyObsProjectButton.clicked.connect(self.on_modifyObsProjectButton_clicked)
         mw.deleteObsProjectButton.clicked.connect(self.on_deleteObsProjectButton_clicked)
 #        mw.loadObsProjectButton.clicked.connect(self.on_importObsProjectButton_clicked)
 #        mw.saveObsProjectButton.clicked.connect(self.on_exportObsProjectButton_clicked)
@@ -67,13 +67,13 @@ class ObsProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
         mw.openChrootButton.clicked.connect(self.on_openChrootButton_clicked)
         mw.deleteChrootButton.clicked.connect(self.on_deleteChrootButton_clicked)
 
-    @popupOnException
-    def on_modifyObsProjectButton_clicked(self):
-        projectName = self.currentProject
-        if projectName is None:
-            return
-        self.__projectConfigManager = ProjectConfigManager(self.gui, projectName)
-        self.__projectConfigManager.finished.connect(self.on_projectConfigManager_finished)
+#    @popupOnException
+#    def on_modifyObsProjectButton_clicked(self):
+#        projectName = self.currentProject
+#        if projectName is None:
+#            return
+#        self.__projectConfigManager = ProjectConfigManager(self.gui, projectName)
+#        self.__projectConfigManager.finished.connect(self.on_projectConfigManager_finished)
 
     @popupOnException
     def on_deleteObsProjectButton_clicked(self):
