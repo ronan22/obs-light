@@ -656,8 +656,9 @@ class ObsLightProject(ObsLightObject):
 
     def removeChRoot(self):
         for package in self.__packages.getPackagesList():
-            if self.getPackage(package).isInstallInChroot():
-                self.getPackage(package).delFromChroot(package)
+            pkgObj = self.getPackage(package)
+            if pkgObj.isInstallInChroot():
+                pkgObj.delFromChroot()
 
         res = self.__chroot.removeChRoot()
         self.__chrootIsInit = False
