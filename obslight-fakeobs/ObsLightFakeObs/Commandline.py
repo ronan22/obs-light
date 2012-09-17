@@ -247,7 +247,7 @@ class FakeObsCommandline(cmdln.Cmdln):
         ${cmd_option_list}
         """
         def mySum(x, y):
-            if isinstance(x, int):
+            if isinstance(x, (int, long, float, complex)):
                 return x + y[2]
             else:
                 return x[2] + y[2]
