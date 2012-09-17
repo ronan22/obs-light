@@ -307,3 +307,18 @@ def getLocalHostIpAddress():
     except:
         hostIp = localhostIp
     return hostIp
+
+def getFakeObsVersion():
+    """
+    Get Fake OBS version, in the form "obslight-fakeobs-x.y.z",
+    or "unknown" if it wasn't installed by a package.
+    """
+    versionFilePath = "/usr/share/doc/packages/obslight-fakeobs/VERSION"
+    try:
+        with open(versionFilePath, "r") as versionFile:
+            version = versionFile.readlines()[0]
+            if version.endswith('\n'):
+                return version[:-1]
+            return version
+    except IOError:
+        return "unknown"

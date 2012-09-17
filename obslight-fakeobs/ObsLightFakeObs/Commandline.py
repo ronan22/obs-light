@@ -34,6 +34,13 @@ import Utils
 class FakeObsCommandline(cmdln.Cmdln):
     name = "obslight-fakeobs"
 
+
+    def print_version(self, *args, **kwargs):
+        """Print version and exit. `args` and `kwargs` not used."""
+        version = Utils.getFakeObsVersion()
+        print version
+        sys.exit(0)
+
     # Overrides cmdln.Cmdln.get_optparser()
     def get_optparser(self):
         # FVE: I wanted to use super(FakeObsCommandline, self).get_optparser()
@@ -42,13 +49,17 @@ class FakeObsCommandline(cmdln.Cmdln):
         op.add_option("-c", "--config", dest="config",
                       help=("specify an alternative configuration file\n" +
                             "(by default: %s)" % Config.DEFAULT_CONFIG_PATH))
+        op.add_option("-V", "--version", nargs=0, action="callback",
+                      callback=self.print_version,
+                      help="show version and exit")
         return op
 
     # Implements cmdln.Cmdln.postoptparse()
     def postoptparse(self):
-        # Don't load config if help asked
+        # Don't load config if help or version asked
         if (len(self.optparser.rargs) > 0 and
-            self._get_canonical_cmd_name(self.optparser.rargs[0]) != "help"):
+            (self._get_canonical_cmd_name(self.optparser.rargs[0]) not in
+             ["help", "version"])):
             if self.options.config is None:
                 Config.loadConfig()
             else:
@@ -337,6 +348,7 @@ class FakeObsCommandline(cmdln.Cmdln):
             msg = "Errors happened whil updating '%s'" % project
         print Utils.colorize(msg, "green" if res == 0 else "red")
         return self.do_check(subcmd, opts, project)
+
 
 def main():
     commandline = FakeObsCommandline()
