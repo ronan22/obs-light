@@ -632,18 +632,24 @@ class ObsLightPackage(ObsLightObject):
             shutil.copy2(pathSrc, pathDst)
 
         if self.isGitPackage:
-            repo = RpmGitRepository(self.getPackageSourceDirectory())
-            spec = rpm.parse_spec(self.getSpecFile(fullPath=True))
-            destDir = absChrootRpmBuildDirectory
-            comp_type = guess_comp_type(spec)
+            listFile = os.listdir(self.getPackageSourceDirectory())
 
-            git_archive(repo,
-                        spec,
-                        destDir,
-                        'HEAD',
-                        comp_type,
-                        comp_level=9,
-                        with_submodules=True)
+            if ".git" in listFile:
+                listFile.remove(".git")
+
+            if len(listFile) > 1:
+                repo = RpmGitRepository(self.getPackageSourceDirectory())
+                spec = rpm.parse_spec(self.getSpecFile(fullPath=True))
+                destDir = absChrootRpmBuildDirectory
+                comp_type = guess_comp_type(spec)
+
+                git_archive(repo,
+                            spec,
+                            destDir,
+                            'HEAD',
+                            comp_type,
+                            comp_level=9,
+                            with_submodules=True)
 
         return 0
 
