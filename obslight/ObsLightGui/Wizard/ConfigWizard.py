@@ -38,6 +38,9 @@ from ConfigureNewPackagePage import ConfigureNewPackagePage
 from ChoosePackagePage import ChoosePackagePage
 from ChooseLocalPackagePage import ChooseLocalPackagePage
 
+from ConfigureGitProjectPage import  ConfigureGitProjectPage
+
+
 class ConfigWizard(QWizard, ObsLightGuiObject):
 
     Pages = {}
@@ -59,6 +62,9 @@ class ConfigWizard(QWizard, ObsLightGuiObject):
 
     def loadPages(self):
         pageCounter = 0
+        self.Pages[u'ConfigureGitProject'] = ConfigureGitProjectPage(self.gui, pageCounter)
+
+        pageCounter += 1
         self.Pages[u'ChooseServer'] = ChooseServerPage(self.gui, pageCounter)
 
         pageCounter += 1

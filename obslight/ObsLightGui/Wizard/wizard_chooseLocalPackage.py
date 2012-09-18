@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui/wizard_chooseLocalPackage.ui'
 #
-# Created: Wed Sep  5 11:04:14 2012
+# Created: Tue Sep 18 14:10:28 2012
 #      by: pyside-uic 0.2.13 running on PySide 1.1.0
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,7 +12,7 @@ from PySide import QtCore, QtGui
 class Ui_WizardPage(object):
     def setupUi(self, WizardPage):
         WizardPage.setObjectName("WizardPage")
-        WizardPage.resize(400, 300)
+        WizardPage.resize(427, 302)
         WizardPage.setLocale(QtCore.QLocale(QtCore.QLocale.English, QtCore.QLocale.UnitedStates))
         self.formLayout = QtGui.QFormLayout(WizardPage)
         self.formLayout.setObjectName("formLayout")
