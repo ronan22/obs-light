@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Tue Sep 18 14:23:35 CEST 2012 - florent@fridu.net
+
+- updated version to 1.0.1
+- improved packaging
+- added 'version' option to commandline
+- now searching for RPMs which are in :full but not in repositories
+  when doing a grab
+
+-------------------------------------------------------------------
 Thu Sep  6 09:59:03 CEST 2012 - florent@fridu.net
 
 - updated version to 1.0.0

@@ -1,4 +1,10 @@
-obslight-fakeobs (1.0.0-1) stable; urgency=low
+obslight-fakeobs (1.0.1-1) stable; urgency=low
+  * Version 1.0.1
+    - improved packaging
+    - added 'version' option to commandline
+    - now searching for RPMs which are in :full but not in repositories
+      when doing a grab
+
   * Version 1.0.0
     - changed data organisation
     - rewrote most parts in python
@@ -20,4 +26,4 @@ obslight-fakeobs (1.0.0-1) stable; urgency=low
     - Created alternative repositories in /srv/fakeobs/releases/repositories
     - Added a tiny web UI on port 8000
 
- -- Florent Vennetier (Intel OTC) <florent@fridu.net>  Tue, 14 Aug 2012 11:43:02 +0200
+ -- Florent Vennetier (Intel OTC) <florent@fridu.net>  Tue, 18 Sep 2012 14:29:12 +0200
