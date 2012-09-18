@@ -520,7 +520,7 @@ class PackageManager(QObject, ObsLightGuiObject):
                                 u"Bad exit status",
                                 message)
 
-        self.__refreshStatus(packageToRefreshList)
+#        self.__refreshStatus(packageToRefreshList)
 
     def __handleRpmCreationResult(self, retValList):
         """
