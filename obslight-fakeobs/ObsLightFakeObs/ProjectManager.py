@@ -272,14 +272,20 @@ def downloadRepository(rsyncUrl, project, target, repoDir):
                                     "-name", "*-debuginfo-*", "-o",
                                     "-name", "*-debugsource-*",
                                     "-exec", "mv", "-f", "{}", debugDir, ";"])
-    # TODO: check retCodes
-    retCode = Utils.callSubprocess(["createrepo", packagesDir])
-    retCode = Utils.callSubprocess(["createrepo", debugDir])
+
+def updateRepositoryMetadata(repoDir):
+    """Call 'createrepo' on `repoDir`"""
+    # TODO: check retCode
+    retCode = Utils.callSubprocess(["createrepo", "--update", repoDir])
 
 def downloadRepositories(rsyncUrl, project, targets, repoDir):
     """Download the RPM repositories of `project` using rsync"""
     for target in targets:
         downloadRepository(rsyncUrl, project, target, repoDir)
+        completeRepoDir = os.path.join(repoDir, target, "packages")
+        updateRepositoryMetadata(completeRepoDir)
+        completeRepoDir = os.path.join(repoDir, target, "debug")
+        updateRepositoryMetadata(completeRepoDir)
 
 def downloadPackageFiles(api, project, package, destDir):
     """
@@ -465,6 +471,9 @@ def grabProject(api, rsyncUrl, project, targets, archs, newName=None):
     # TODO: check return value of downloadPackages()
     fixProjectPackagesMeta(newName)
     downloadRepositories(rsyncUrl, project, targets, repoDir)
+    # findOrphanRpms is a generator
+    for orphan in findOrphanRpms(newName):
+        pass
     updateLiveRepository(newName)
     try:
         # These operations will fail if program is not run
@@ -841,9 +850,9 @@ def findDupes2(project):
     """
     conf = getConfig()
     proc = subprocess.Popen(["fdupes", "-rn",
-                          conf.getProjectFullDir(project),
-                          conf.getProjectRepositoryDir(project)],
-                         stdout=subprocess.PIPE)
+                             conf.getProjectFullDir(project),
+                             conf.getProjectRepositoryDir(project)],
+                            stdout=subprocess.PIPE)
     result = proc.communicate()[0]
     lineBlocks = result.split("\n\n")
     dups = []
@@ -974,3 +983,56 @@ def updateProject(project, rsyncUrl=None, oldName=None):
         confParser.write(configFile)
 
     return res
+
+def findOrphanRpmsOfTarget(project, target):
+    """
+    Find RPMs which are in :full but not in repositories,
+    for `target` only.
+    Yields tuples of (rpm_path_in_full, wanted_rpm_path_in_repo).
+    """
+    fullDir = getConfig().getProjectFullDir(project)
+    repoDir = getConfig().getProjectRepositoryDir(project)
+    targetDir = os.path.join(fullDir, target)
+    targetRepoDir = os.path.join(repoDir, target, "packages")
+    orphans = []
+    for arch in os.listdir(targetDir):
+        archDir = os.path.join(targetDir, arch)
+        namesRawFilePath = os.path.join(archDir,
+                                        "_repository?view=names")
+        xmlContent = ""
+        with open(namesRawFilePath, "r") as myFile:
+            xmlContent = myFile.read()
+        fileList = Utils.getEntryNameList(xmlContent,
+                                          "binary", "filename")
+        for fileName in fileList:
+            if (fileName.endswith("debuginfo.rpm") or
+                fileName.endswith("debugsource.rpm")):
+                continue
+            filePath = os.path.join(archDir, fileName)
+            cmd = ["rpm", "-q", "-p", filePath]
+            proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+            # remove ending '\n'
+            completeName = proc.communicate()[0][:-1]
+            rpmArch = completeName.rsplit(".", 1)[-1]
+            wantedPath = os.path.join(targetRepoDir, rpmArch, completeName) + ".rpm"
+            if not os.path.exists(wantedPath):
+                yield (filePath, wantedPath)
+
+def findOrphanRpms(project, useSymbolicLinks=False, dryRun=False):
+    """
+    Find RPMs which are in :full but not in repositories
+    and hardlink them in repositories.
+    Yields the RPM names.
+    """
+    linkFunc = os.symlink if useSymbolicLinks else os.link
+    repoDir = getConfig().getProjectRepositoryDir(project)
+    for target in getTargetList(project):
+        for orphan in findOrphanRpmsOfTarget(project, target):
+            if not dryRun:
+                linkFunc(orphan[0], orphan[1])
+            rpmName = orphan[1].rsplit('/', 1)[-1]
+            yield rpmName
+
+        if not dryRun:
+            targetRepoDir = os.path.join(repoDir, target, "packages")
+            updateRepositoryMetadata(targetRepoDir)

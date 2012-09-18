@@ -349,6 +349,28 @@ class FakeObsCommandline(cmdln.Cmdln):
         print Utils.colorize(msg, "green" if res == 0 else "red")
         return self.do_check(subcmd, opts, project)
 
+    @cmdln.option("-s", "--symbolic", action="store_true",
+                  help="make symbolic links instead of hard links")
+    @cmdln.option("-n", "--dry-run", action="store_true",
+                  help="don't link orphan RPMs, just list them")
+    def do_findorphanrpms(self, subcmd, opts, project):
+        """${cmd_name}: find RPMs which are in :full but not in repositories
+        and hardlink them in repositories.
+        This is automatically run after a grab.
+
+        You need to be root to run this.
+
+        ${cmd_usage}
+        ${cmd_option_list}
+        """
+        Utils.failIfUserIsNotRoot()
+        counter = 0
+        for orphan in ProjectManager.findOrphanRpms(project, opts.symbolic,
+                                                    opts.dry_run):
+            print orphan
+            counter += 1
+        msg = "Found %d orphan RPMs in '%s'" % (counter, project)
+        print Utils.colorize(msg, "green")
 
 def main():
     commandline = FakeObsCommandline()
