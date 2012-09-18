@@ -43,6 +43,7 @@ Requires:   logrotate
 Requires:   osc
 Requires:   perl
 Requires:   python
+Requires:   rpm
 
 Requires(post): /sbin/service
 Requires(post): /sbin/chkconfig
