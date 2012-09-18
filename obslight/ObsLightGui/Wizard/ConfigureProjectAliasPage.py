@@ -46,6 +46,9 @@ class ConfigureProjectAliasPage(ObsLightWizardPage):
         self.ui_WizardPage.architectureLabel.setText(arch)
         self.ui_WizardPage.aliasLineEdit.setText(suggestedName)
 
+    def getSelectedProjectAlias(self):
+        return  self.field(u"projectAlias")
+
     def validatePage(self):
         if not self.isComplete():
             return False

@@ -57,14 +57,15 @@ class ConfigWizard(QWizard, ObsLightGuiObject):
         self.loadPages()
         self.isModifyingServer = False
 
+
     def pageIndex(self, pageName):
         return self.Pages[pageName].index
 
     def loadPages(self):
         pageCounter = 0
-        self.Pages[u'ConfigureGitProject'] = ConfigureGitProjectPage(self.gui, pageCounter)
-
-        pageCounter += 1
+#        self.Pages[u'ConfigureGitProject'] = ConfigureGitProjectPage(self.gui, pageCounter)
+#
+#        pageCounter += 1
         self.Pages[u'ChooseServer'] = ChooseServerPage(self.gui, pageCounter)
 
         pageCounter += 1
@@ -111,10 +112,10 @@ class ConfigWizard(QWizard, ObsLightGuiObject):
         return self.Pages[u'ChooseLocalProject'].getSelectedLocalProject()
 
     def getSelectedProjectAlias(self):
-        return self.field(u"projectAlias")
+        return  self.Pages[u'ConfigureProjectAlias'].getSelectedProjectAlias()
 
     def getSelectedServerAlias(self):
-        return self.field(u"serverAlias")
+        return self.Pages[u'ConfigureServerAlias'].getSelectedServerAlias()
 
     def getSelectedTarget(self):
         return self.Pages[u'ChooseProjectTarget'].getSelectedTarget()
@@ -122,12 +123,12 @@ class ConfigWizard(QWizard, ObsLightGuiObject):
     def getSelectedArch(self):
         return self.Pages[u'ChooseProjectArch'].getSelectedArch()
 
-    def getCreateChrootOption(self):
-        return self.field(u'CreateChroot')
+#    def getCreateChrootOption(self):
+#        return self.field(u'CreateChroot')
 
-    def skipToPackageSelection(self, projectAlias):
-        self.setField(u"projectAlias", projectAlias)
-        self.setStartId(self.Pages[u'ChooseNewOrExistingPackage'].index)
+#    def skipToPackageSelection(self, projectAlias):
+#        self.setField(u"projectAlias", projectAlias)
+#        self.setStartId(self.Pages[u'ChooseNewOrExistingPackage'].index)
 
     def skipToPackageCreation(self, projectAlias):
         self.setField(u"projectAlias", projectAlias)

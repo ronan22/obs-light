@@ -32,10 +32,8 @@ class ChooseProjectTargetPage(ObsLightWizardPage):
         self.registerField(u"targetCBox*", self.ui_WizardPage.targetComboBox)
 
     def initializePage(self):
-        server = self.field(u"serverAlias")
-        chooseProjectPageIndex = self.wizard().pageIndex(u'ChooseProject')
-        chooseProjectPage = self.wizard().page(chooseProjectPageIndex)
-        project = chooseProjectPage.getSelectedProject()
+        server = self.wizard().getSelectedServerAlias()
+        project = self.wizard().getSelectedProject()
         self._asyncGetTargetList(server, project)
 
     def _fillTargetCBox(self, targetList):
