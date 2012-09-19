@@ -15,19 +15,39 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
+# TODO: rename this module
+# It was named 'Mic' because it was using MIC's functions.
+
 import os
 import subprocess
 import shlex
 import glob
 import atexit
 
-#from mic import chroot
-from mic.utils import misc
-from mic.utils import fs_related
-
 import ObsLightPrintManager
 import ObsLightErr
 from ObsLightSubprocess import SubprocessCrt
+from ObsLightUtils import findBinaryPath
+
+
+# This is a reimplementation of MIC's my_fuser function
+def my_fuser(fp):
+    fuser = findBinaryPath("fuser")
+    if not os.path.exists(fp):
+        return False
+
+    rc = subprocess.call([fuser, "-s", fp])
+    if rc == 0:
+        proc = subprocess.call([fuser, fp], stdout=subprocess.PIPE)
+        pids = proc.communicate()[0].split()
+        for pid in pids:
+            with open("/proc/%s/cmdline" % pid, "r") as fd:
+                cmdline = fd.read()
+            if cmdline[:-1] == "/bin/bash":
+                return True
+
+    # not found
+    return False
 
 class ObsLightMic(object):
 
@@ -201,7 +221,7 @@ class ObsLightMic(object):
         self.__chroot_lockfd.close()
 
         bind_unmount(self.__globalmounts)
-        if not fs_related.my_fuser(self.__chroot_lock):
+        if not my_fuser(self.__chroot_lock):
             #cleanup_resolv(self.__chrootDirectory)
             self.__subprocess(command="sudo rm " + self.__chrootDirectory + "/etc/resolv.conf")
             self.__subprocess(command="sudo touch " + self.__chrootDirectory + "/etc/resolv.conf")
@@ -244,69 +264,10 @@ class ObsLightMic(object):
                     self.__obsLightPrint("dir %s isn't empty." % tmpdir, isDebug=True)
                     #chroot.pwarning("dir %s isn't empty." % tmpdir)
 
-# FIXME: to be removed when ARM builds have been validated on openSUSE, Fedora and Ubuntu
-#    def isArmArch(self, directory=None):
-#        self.__chrootDirectory = directory
-#        self.__findArch()
-#        if self.__qemu_emulator:
-#            return True
-#        else:
-#            return False
-
-#    def __findArch(self):
-#        dev_null = os.open("/dev/null", os.O_WRONLY)
-#        files_to_check = ["/bin/bash", "/sbin/init", "/bin/ps",
-#                          "/bin/kill", "/bin/rm", "/bin/grep"]
-#
-#        architecture_found = False
-#
-#        #''' Register statically-linked qemu-arm if it is an ARM fs '''
-#        qemu_emulator = None
-#
-#        for ftc in files_to_check:
-#            ftc = "%s/%s" % (self.__chrootDirectory, ftc)
-#
-#            # Return code of 'file' is "almost always" 0 based on some man pages
-#            # so we need to check the file existance first.
-#            if not os.path.exists(ftc):
-#                continue
-#
-#            filecmd = misc.find_binary_path("file")
-#            initp1 = subprocess.Popen([filecmd, ftc], stdout=subprocess.PIPE, stderr=dev_null)
-#            fileOutput = initp1.communicate()[0].strip().split("\n")
-#
-#            for i in range(len(fileOutput)):
-#                print fileOutput[i]
-#                if fileOutput[i].find("ARM") > 0:
-#                    # It's no more required to setup Qemu since it is done
-#                    # at the creation of the chroot jail by init_buildsystem
-#                    #qemu_emulator = misc.setup_qemu_emulator(rootdir=self.__chrootDirectory,
-#                    #                                         arch="arm")
-#                    qemu_emulator = True
-#                    architecture_found = True
-#                    break
-#                if fileOutput[i].find("Intel") > 0 or fileOutput[i].find("x86-64") > 0:
-#                    architecture_found = True
-#                    break
-#
-#            if architecture_found:
-#                break
-#
-#        os.close(dev_null)
-#        if not architecture_found:
-#            message = "Failed to getObsLightMic architecture from "
-#            message += "any of the following files from chroot: %s" % files_to_check
-#            raise fs_related.CreatorError(message)
-
-#        self.__qemu_emulator = qemu_emulator
-
-
     def chroot(self, bindmounts=None, execute="/bin/bash"):
         def mychroot():
             os.chroot(self.__chrootDirectory)
             os.chdir("/")
-
-#        self.__findArch()
 
         try:
             self.__obsLightPrint("Launching shell. Exit to continue.", isDebug=True)
@@ -318,9 +279,9 @@ class ObsLightMic(object):
             subprocess.call(args, preexec_fn=mychroot)
 
         except OSError, Err:
-            (err, msg) = Err
-            self.__obsLightPrint(err, isDebug=True)
-            raise fs_related.CreatorError("Failed to chroot: %s" % msg)
+            (errCode, msg) = Err
+            self.__obsLightPrint(errCode, isDebug=True)
+            raise OSError(errCode, "Failed to chroot: %s" % msg)
         finally:
             self.cleanup_chrootenv(bindmounts)
 
@@ -337,8 +298,8 @@ class BindChrootMount:
         self.dest = self.root + "/" + dest
 
         self.mounted = False
-        self.mountcmd = misc.find_binary_path("mount")
-        self.umountcmd = misc.find_binary_path("umount")
+        self.mountcmd = findBinaryPath("mount")
+        self.umountcmd = findBinaryPath("umount")
 
         self.__mySubprocessCrt = SubprocessCrt()
 
@@ -349,7 +310,7 @@ class BindChrootMount:
     def ismounted(self):
         ret = False
         dev_null = os.open("/dev/null", os.O_WRONLY)
-        catcmd = misc.find_binary_path("cat")
+        catcmd = findBinaryPath("cat")
         args = [ catcmd, "/proc/mounts" ]
         #TODO:change to use SubprocessCrt
         proc_mounts = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=dev_null)
@@ -364,7 +325,7 @@ class BindChrootMount:
     def has_chroot_instance(self):
         lock = os.path.join(self.root, ".chroot.lock")
         try:
-            return fs_related.my_fuser(lock)
+            return my_fuser(lock)
         # After reading my_fuser code, it seems that catching
         # "file not found" exception is equivalent to False.
         except IOError as e:
@@ -383,8 +344,8 @@ class BindChrootMount:
         command = "sudo " + self.mountcmd + " --bind " + self.src + " " + self.dest
         rc = self.__subprocess(command=command)
         if rc != 0:
-            raise fs_related.MountError("Bind-mounting '%s' to '%s' failed" %
-                             (self.src, self.dest))
+            msg = "Bind-mounting '%s' to '%s' failed" % (self.src, self.dest)
+            raise ObsLightErr.ObsLightChRootError(msg)
         if self.option:
             #TODO:change to use SubprocessCrt
             rc = subprocess.call(["sudo",
@@ -394,8 +355,8 @@ class BindChrootMount:
                                   "remount,%s" % self.option,
                                   self.dest])
             if rc != 0:
-                message = "Bind-remounting '" + self.dest + "' failed with code " + str(rc)
-                raise fs_related.MountError(message)
+                msg = "Bind-remounting '%s' failed with code %d" % (self.dest, rc)
+                raise ObsLightErr.ObsLightChRootError(msg)
         self.mounted = True
 
     def unmount(self):
@@ -407,8 +368,6 @@ class BindChrootMount:
         self.mounted = False
 
 __myListObsLightMic = {}
-
-
 
 def getObsLightMic(name=None):
     if not (name in __myListObsLightMic.keys()):
