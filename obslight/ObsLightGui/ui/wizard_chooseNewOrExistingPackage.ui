@@ -34,6 +34,13 @@
     </widget>
    </item>
    <item>
+    <widget class="QRadioButton" name="importManifestButton">
+     <property name="text">
+      <string>Import git package using manifest</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QRadioButton" name="createNewPackageButton">
      <property name="text">
       <string>Create new package</string>

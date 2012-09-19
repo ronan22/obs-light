@@ -24,7 +24,7 @@ Created on 17 avr. 2012
 from WizardPageWrapper import ObsLightWizardPage
 from ObsLightGui.Utils import popupOnException
 
-class ChooseNewOrExistingPackage(ObsLightWizardPage):
+class ChooseNewOrExistingPackagePage(ObsLightWizardPage):
 
     def __init__(self, gui, index):
         ObsLightWizardPage.__init__(self, gui, index,
@@ -35,6 +35,10 @@ class ChooseNewOrExistingPackage(ObsLightWizardPage):
                            self.ui_WizardPage.createNewPackageButton)
         self.registerField(u"copyPackage",
                            self.ui_WizardPage.copyPackageButton)
+
+        self.registerField(u"importManifestButton",
+                           self.ui_WizardPage.importManifestButton)
+
     # TODO: implement getProjectParameter(projectAlias, "readonly")
 #    @popupOnException
 #    def initializePage(self):
@@ -49,5 +53,7 @@ class ChooseNewOrExistingPackage(ObsLightWizardPage):
             return self.wizard().pageIndex(u"ConfigureNewPackage")
         elif self.field(u"copyPackage"):
             return self.wizard().pageIndex(u"ChooseLocalProject")
+        elif self.field(u"importManifestButton"):
+            return self.wizard().pageIndex(u"ChooseManifestPage")
         else:
             return self.wizard().pageIndex(u"ChoosePackage")

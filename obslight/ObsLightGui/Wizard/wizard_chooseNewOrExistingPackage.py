@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui/wizard_chooseNewOrExistingPackage.ui'
 #
-# Created: Tue Sep 18 14:10:28 2012
+# Created: Wed Sep 19 15:56:27 2012
 #      by: pyside-uic 0.2.13 running on PySide 1.1.0
 #
 # WARNING! All changes made in this file will be lost!
@@ -20,6 +20,9 @@ class Ui_WizardPage(object):
         self.importExistingPackageButton.setChecked(True)
         self.importExistingPackageButton.setObjectName("importExistingPackageButton")
         self.verticalLayout.addWidget(self.importExistingPackageButton)
+        self.importManifestButton = QtGui.QRadioButton(WizardPage)
+        self.importManifestButton.setObjectName("importManifestButton")
+        self.verticalLayout.addWidget(self.importManifestButton)
         self.createNewPackageButton = QtGui.QRadioButton(WizardPage)
         self.createNewPackageButton.setObjectName("createNewPackageButton")
         self.verticalLayout.addWidget(self.createNewPackageButton)
@@ -38,6 +41,7 @@ class Ui_WizardPage(object):
         WizardPage.setTitle(QtGui.QApplication.translate("WizardPage", "Import packages", None, QtGui.QApplication.UnicodeUTF8))
         WizardPage.setSubTitle(QtGui.QApplication.translate("WizardPage", "Do you want to import an existing package from server, create a new one from scratch, or branch an existing package on server ?", None, QtGui.QApplication.UnicodeUTF8))
         self.importExistingPackageButton.setText(QtGui.QApplication.translate("WizardPage", "Import existing package", None, QtGui.QApplication.UnicodeUTF8))
+        self.importManifestButton.setText(QtGui.QApplication.translate("WizardPage", "Import git package using manifest", None, QtGui.QApplication.UnicodeUTF8))
         self.createNewPackageButton.setText(QtGui.QApplication.translate("WizardPage", "Create new package", None, QtGui.QApplication.UnicodeUTF8))
         self.copyPackageButton.setText(QtGui.QApplication.translate("WizardPage", "Copy of an existing package", None, QtGui.QApplication.UnicodeUTF8))
 

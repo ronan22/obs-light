@@ -25,6 +25,14 @@ from PySide.QtGui import QPlainTextEdit, QWizard
 
 from ObsLightGui.ObsLightGuiObject import ObsLightGuiObject
 
+from ChooseLocalGbsOrOBSProjectPage import ChooseLocalGbsOrOBSProjectPage
+from ChooseProjectTemplatePage import ChooseProjectTemplatePage
+from ChooseProjectConfPage import ChooseProjectConfPage
+from ChooseRepositoryPage import ChooseRepositoryPage
+from ChooseGbsTargetPage import ChooseGbsTargetPage
+from ChooseManifestPage import ChooseManifestPage
+from ConfigureGitPackagePage import  ConfigureGitPackagePage
+
 from ChooseServerPage import ChooseServerPage
 from ConfigureServerUrlPage import ConfigureServerUrlPage
 from ConfigureServerAliasPage import ConfigureServerAliasPage
@@ -33,13 +41,10 @@ from ChooseLocalProjectPage import ChooseLocalProjectPage
 from ChooseProjectTargetPage import ChooseProjectTargetPage
 from ChooseProjectArchPage import ChooseProjectArchPage
 from ConfigureProjectAliasPage import ConfigureProjectAliasPage
-from ChooseNewOrExistingPackage import ChooseNewOrExistingPackage
+from ChooseNewOrExistingPackagePage import ChooseNewOrExistingPackagePage
 from ConfigureNewPackagePage import ConfigureNewPackagePage
 from ChoosePackagePage import ChoosePackagePage
 from ChooseLocalPackagePage import ChooseLocalPackagePage
-
-from ConfigureGitProjectPage import  ConfigureGitProjectPage
-
 
 class ConfigWizard(QWizard, ObsLightGuiObject):
 
@@ -56,51 +61,37 @@ class ConfigWizard(QWizard, ObsLightGuiObject):
         self.setDefaultProperty(QPlainTextEdit.__name__, "plainText", "textChanged")
         self.loadPages()
         self.isModifyingServer = False
-
+        self.__pageCounter = 0
 
     def pageIndex(self, pageName):
         return self.Pages[pageName].index
 
     def loadPages(self):
-        pageCounter = 0
-#        self.Pages[u'ConfigureGitProject'] = ConfigureGitProjectPage(self.gui, pageCounter)
-#
-#        pageCounter += 1
-        self.Pages[u'ChooseServer'] = ChooseServerPage(self.gui, pageCounter)
+        self.__pageCounter = 0
+        def addPage(name, aClass):
+            self.Pages[name] = aClass(self.gui, self.__pageCounter)
+            self.__pageCounter += 1
 
-        pageCounter += 1
-        self.Pages[u'ConfigureServerUrl'] = ConfigureServerUrlPage(self.gui, pageCounter)
-
-        pageCounter += 1
-        self.Pages[u'ConfigureServerAlias'] = ConfigureServerAliasPage(self.gui, pageCounter)
-
-        pageCounter += 1
-        self.Pages[u'ChooseProject'] = ChooseProjectPage(self.gui, pageCounter)
-
-        pageCounter += 1
-        self.Pages[u'ChooseProjectTarget'] = ChooseProjectTargetPage(self.gui, pageCounter)
-
-        pageCounter += 1
-        self.Pages[u'ChooseProjectArch'] = ChooseProjectArchPage(self.gui, pageCounter)
-
-        pageCounter += 1
-        self.Pages[u'ConfigureProjectAlias'] = ConfigureProjectAliasPage(self.gui, pageCounter)
-
-        pageCounter += 1
-        self.Pages[u'ChooseNewOrExistingPackage'] = ChooseNewOrExistingPackage(self.gui,
-                                                                               pageCounter)
-
-        pageCounter += 1
-        self.Pages[u'ConfigureNewPackage'] = ConfigureNewPackagePage(self.gui, pageCounter)
-
-        pageCounter += 1
-        self.Pages[u'ChoosePackage'] = ChoosePackagePage(self.gui, pageCounter)
-
-        pageCounter += 1
-        self.Pages[u'ChooseLocalProject'] = ChooseLocalProjectPage(self.gui, pageCounter)
-
-        pageCounter += 1
-        self.Pages[u'ChooseLocalPackagePage'] = ChooseLocalPackagePage(self.gui, pageCounter)
+        addPage(u'ChooseLocalGbsOrOBSProject', ChooseLocalGbsOrOBSProjectPage)
+        addPage(u'ChooseProjectTemplate', ChooseProjectTemplatePage)
+        addPage(u'ChooseProjectConf', ChooseProjectConfPage)
+        addPage(u'ChooseRepository', ChooseRepositoryPage)
+        addPage(u'ChooseGbsTarget', ChooseGbsTargetPage)
+        addPage(u'ChooseManifestPage', ChooseManifestPage)
+        addPage(u'ConfigProjectGitAliasPage', ConfigProjectGitAliasPage)
+        addPage(u'ChooseServer', ChooseServerPage)
+        addPage(u'ConfigureServerUrl', ConfigureServerUrlPage)
+        addPage(u'ConfigureServerAlias', ConfigureServerAliasPage)
+        addPage(u'ChooseProject', ChooseProjectPage)
+        addPage(u'ChooseProjectTarget', ChooseProjectTargetPage)
+        addPage(u'ChooseProjectArch', ChooseProjectArchPage)
+        addPage(u'ConfigureProjectAlias', ConfigureProjectAliasPage)
+        addPage(u'ChooseNewOrExistingPackage', ChooseNewOrExistingPackagePage)
+        addPage(u'ConfigureNewPackage', ConfigureNewPackagePage)
+        addPage(u'ChoosePackage', ChoosePackagePage)
+        addPage(u'ChooseLocalProject', ChooseLocalProjectPage)
+        addPage(u'ChooseLocalPackagePage', ChooseLocalPackagePage)
+        addPage(u'ConfigureGitPackagePage', ConfigureGitPackagePage)
 
         for page in self.Pages.values():
             self.setPage(page.index, page)

@@ -17,36 +17,36 @@
    <locale language="English" country="UnitedStates"/>
   </property>
   <property name="title">
-   <string>Server configuration</string>
+   <string>Local Project configuration</string>
   </property>
   <property name="subTitle">
-   <string>You can configure a new server or choose on from the list.</string>
+   <string>You can configure a new local project or choose on from a template list.</string>
   </property>
   <attribute name="pageId">
    <string notr="true">1</string>
   </attribute>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QRadioButton" name="addNewServerButton">
+    <widget class="QRadioButton" name="chooseNewLocalProjectButton">
      <property name="text">
-      <string>Add new server</string>
+      <string>Choose Local Project from template list:</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QListWidget" name="LocalProjectListWidget">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QRadioButton" name="addNewLocalProjectButton">
+     <property name="text">
+      <string>New Local Project</string>
      </property>
      <property name="checked">
       <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QRadioButton" name="chooseServerButton">
-     <property name="text">
-      <string>Choose from list:</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QListWidget" name="serverListWidget">
-     <property name="enabled">
-      <bool>false</bool>
      </property>
     </widget>
    </item>
@@ -55,9 +55,9 @@
  <resources/>
  <connections>
   <connection>
-   <sender>chooseServerButton</sender>
+   <sender>chooseNewLocalProjectButton</sender>
    <signal>toggled(bool)</signal>
-   <receiver>serverListWidget</receiver>
+   <receiver>LocalProjectListWidget</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>WizardPage</class>
+ <widget class="QWizardPage" name="WizardPage">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>WizardPage</string>
+  </property>
+  <property name="locale">
+   <locale language="English" country="UnitedStates"/>
+  </property>
+  <property name="title">
+   <string>File configure configuration</string>
+  </property>
+  <property name="subTitle">
+   <string>The project conf denotes the (build) configuration of a project. http://en.opensuse.org/openSUSE:Build_Service_prjconf#Description</string>
+  </property>
+  <attribute name="pageId">
+   <string notr="true">1</string>
+  </attribute>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="1" column="0">
+    <widget class="QRadioButton" name="addNewConfButton">
+     <property name="text">
+      <string>New conf file</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0" colspan="2">
+    <widget class="QListWidget" name="LocalConfListWidget">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QRadioButton" name="chooseConfButton">
+     <property name="text">
+      <string>Choose conf from OBS Light list:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLineEdit" name="lineEdit"/>
+   </item>
+   <item row="2" column="1">
+    <widget class="QPushButton" name="LoadConfFileButton">
+     <property name="text">
+      <string>Load File</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0">
+    <widget class="QRadioButton" name="radioButton">
+     <property name="text">
+      <string>Choose conf from gbs list:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0" colspan="2">
+    <widget class="QListWidget" name="listWidget"/>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>chooseConfButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>LocalConfListWidget</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>199</x>
+     <y>39</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>199</x>
+     <y>174</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

@@ -253,22 +253,21 @@ class chooseGitPackageModel(QStandardItemModel):
             self.layoutChanged.emit()
         return True
 
-class ConfigureGitProjectPage(ObsLightWizardPage):
+class ConfigureGitPackagePage(ObsLightWizardPage):
 
     def __init__(self, gui, index):
-        ObsLightWizardPage.__init__(self, gui, index, u"wizard_chooseGitProject.ui")
+        ObsLightWizardPage.__init__(self, gui, index, u"wizard_chooseGitPackage.ui")
 
         self.ui_WizardPage.updateListPushButton.clicked.connect(self.on_updateListPushButton_clicked)
-        self.ui_WizardPage.loadManifestPushButton.clicked.connect(self.on_loadManifestPushButton_clicked)
+#        self.ui_WizardPage.loadManifestPushButton.clicked.connect(self.on_loadManifestPushButton_clicked)
         self.ui_WizardPage.selectAllPushButton.clicked.connect(self.on_selectAllPushButton_clicked)
         self.ui_WizardPage.unselectAllPushButton.clicked.connect(self.on_unselectAllPushButton_clicked)
-        self.ui_WizardPage.importPushButton.clicked.connect(self.on_importPushButton_clicked)
+#        self.ui_WizardPage.importPushButton.clicked.connect(self.on_importPushButton_clicked)
 
         self.__gitProjectTreeView = self.ui_WizardPage.gitProjectTreeView
         self.__initViewTree()
 
     def __initViewTree(self):
-
         self.standardModel = chooseGitPackageModel()
         self.__gitProjectTreeView.setModel(self.standardModel)
         self.__gitProjectTreeView.collapseAll()
@@ -282,14 +281,14 @@ class ConfigureGitProjectPage(ObsLightWizardPage):
     def on_updateListPushButton_clicked(self):
         print "update"
 
-    def on_loadManifestPushButton_clicked(self):
-        filters = "manifest files (*.xml);;All files (*)"
-        filePath, _filter = QFileDialog.getOpenFileName(self.mainWindow,
-                                                        "Select manifest file (*.xml) to import",
-                                                        filter=filters)
-        if len(filePath) < 1:
-            return
-        print "filePath, _filter", filePath, _filter
+#    def on_loadManifestPushButton_clicked(self):
+#        filters = "manifest files (*.xml);;All files (*)"
+#        filePath, _filter = QFileDialog.getOpenFileName(self.mainWindow,
+#                                                        "Select manifest file (*.xml) to import",
+#                                                        filter=filters)
+#        if len(filePath) < 1:
+#            return
+#        print "filePath, _filter", filePath, _filter
 
     def on_selectAllPushButton_clicked(self):
         self.standardModel.getCollection().selectAll()
@@ -299,10 +298,10 @@ class ConfigureGitProjectPage(ObsLightWizardPage):
         self.standardModel.getCollection().unselectAll()
         self.standardModel.layoutChanged.emit()
 
-    def on_importPushButton_clicked(self):
-        res = self.standardModel.getCollection().getSelected()
-        for p, g in res:
-            print "package", p.ljust(25), " git:", g
+#    def on_importPushButton_clicked(self):
+#        res = self.standardModel.getCollection().getSelected()
+#        for p, g in res:
+#            print "package", p.ljust(25), " git:", g
 
 
 

@@ -14,41 +14,30 @@
    <string>WizardPage</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0" colspan="5">
+   <item row="0" column="0" colspan="3">
     <widget class="QTreeView" name="gitProjectTreeView"/>
    </item>
-   <item row="1" column="2">
+   <item row="1" column="1">
     <widget class="QPushButton" name="selectAllPushButton">
      <property name="text">
       <string>Select All</string>
      </property>
     </widget>
    </item>
-   <item row="1" column="3">
+   <item row="1" column="2">
     <widget class="QPushButton" name="unselectAllPushButton">
      <property name="text">
-      <string>Unselect All</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="4">
-    <widget class="QPushButton" name="importPushButton">
-     <property name="text">
-      <string>Import</string>
+      <string>Deselect All</string>
      </property>
     </widget>
    </item>
    <item row="1" column="0">
     <widget class="QPushButton" name="updateListPushButton">
+     <property name="toolTip">
+      <string>Only available for OBS Light Tizen Live manifest </string>
+     </property>
      <property name="text">
       <string>Update List</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1">
-    <widget class="QPushButton" name="loadManifestPushButton">
-     <property name="text">
-      <string>Load Manifest</string>
      </property>
     </widget>
    </item>
