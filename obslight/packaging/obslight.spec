@@ -25,7 +25,11 @@ Requires:   build
 Requires:   createrepo
 Requires:   curl
 Requires:   git
+%if 0%{?suse_version} >= 1140
+Recommends: mic >= 0.4
+%else
 Requires:   mic >= 0.4
+%endif
 Requires:   osc >= 0.132
 Requires:   qemu
 Requires:   rpm
