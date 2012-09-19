@@ -28,6 +28,7 @@ import shutil
 import urllib
 import time
 
+from ObsLightUtils import micIsAvailable
 from ObsLightSubprocess import SubprocessCrt
 from ObsLightKickstartManager import ObsLightKickstartManager
 from ObsLightTools import isUserInGroup
@@ -38,6 +39,13 @@ class ObsLightMicProject(object):
     ObsLightUserGroup = "users"
 
     def __init__(self, name, workingDirectory, fromSave=None):
+        # FIXME: there may be a better way to say it's not available
+        if not micIsAvailable():
+            from ObsLightErr import ObsLightNotImplementedError
+            msg = "MIC is not installed on your system!\n"
+            msg += "Install it and restart OBS Light."
+            raise ObsLightNotImplementedError(msg)
+
         self.__mySubprocessCrt = SubprocessCrt()
 
         self.__kickstartPath = None

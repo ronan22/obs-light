@@ -24,9 +24,14 @@ Created on 1 févr. 2012
 import os
 import shutil
 
-from mic import kickstart
-from mic.kickstart import kserrors
-from mic.kickstart.custom_commands.moblinrepo import Moblin_RepoData
+IS_AVAILABLE = False
+try:
+    from mic import kickstart
+    from mic.kickstart import kserrors
+    from mic.kickstart.custom_commands.moblinrepo import Moblin_RepoData
+    IS_AVAILABLE = True
+except ImportError:
+    pass
 
 import ObsLightErr
 from ObsLightUtils import isNonEmptyString

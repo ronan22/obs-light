@@ -25,15 +25,18 @@ import os
 import pickle
 import shutil
 
+from ObsLightUtils import micIsAvailable
 import ObsLightErr
-
+from ObsLightObject import ObsLightObject
 from ObsLightMicProject import ObsLightMicProject
 
-class ObsLightMicProjects:
+class ObsLightMicProjects(ObsLightObject):
+
     def __init__(self, workingDirectory):
         '''
         Constructor
         '''
+        ObsLightObject.__init__(self)
         self.__dicOBSLightProjects = {}
         self.__currentProjects = None
         self.__workingDirectory = os.path.join(workingDirectory, "MicProjects")
@@ -102,10 +105,19 @@ class ObsLightMicProjects:
             msg = "Can't import '%s': project already exists" % name
             raise ObsLightErr.ObsLightProjectsError(msg)
         wd = self.getObsLightMicDirectory()
-        self.__dicOBSLightProjects[name] = ObsLightMicProject(name,
-                                                              workingDirectory=wd,
-                                                              fromSave=fromSave)
-
+        # If MIC is not available, we can't instantiate MIC projects.
+        # So we say we haven't any.
+        try:
+            self.__dicOBSLightProjects[name] = ObsLightMicProject(name,
+                                                                  workingDirectory=wd,
+                                                                  fromSave=fromSave)
+        except NotImplementedError:
+            if fromSave is None:
+                # Tell user why he cannot add project
+                raise
+            else:
+                msg = "Found MIC project '%s' but MIC is not available"
+                self.logger.info(msg % name)
 
     def getMicProjectList(self):
         """
