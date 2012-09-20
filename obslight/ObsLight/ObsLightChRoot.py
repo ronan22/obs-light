@@ -197,6 +197,9 @@ class ObsLightChRootCore(object):
             # When OBS Light is used in graphic mode (without console), the commands like "tput"
             # need a value for TERM other than "unknown" (xterm, linux,...)
             f.write('if [ "$TERM" = "unknown" ] ; then TERM="xterm" ; fi\n')
+            # Remove '.' from PATH. This is needed for openSUSE packages
+            # to build in OBS Light.
+            f.write(r'PATH=$(echo $PATH | sed -e s,:\\.,, -e s,^\\.:,,)' + "\n")
 
             for c in command:
                 f.write(c + "\n")
