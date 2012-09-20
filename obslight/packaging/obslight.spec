@@ -19,16 +19,15 @@ BuildArch:  noarch
 URL:        http://en.opensuse.org/openSUSE:OBS_Light
 Source0:    %{name}-%{version}.tar.gz
 Source100:  obslight.yaml
-Requires:   gbs
 Requires:   acl
 Requires:   build
 Requires:   createrepo
 Requires:   curl
+Requires:   gbs
 Requires:   git
 %if 0%{?suse_version} >= 1140
+# "Recommends:" is an openSUSE-only tag
 Recommends: mic >= 0.4
-%else
-Requires:   mic >= 0.4
 %endif
 Requires:   osc >= 0.132
 Requires:   qemu
@@ -90,6 +89,9 @@ Requires:   python-pyside >= 1.0.6
 Conflicts:  obslight-base
 Conflicts:  obslight-server
 Conflicts:  obslight-utils
+%if 0%{?suse_version} >= 1140
+Recommends: mic >= 0.4
+%endif
 
 %description gui
 Utilities to work with OBS Light, a lighter version of OBS.
