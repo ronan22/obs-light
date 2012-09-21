@@ -48,3 +48,31 @@ def levenshtein(a, b):
             current[j] = min(add, delete, change)
 
     return current[n]
+
+def findBinaryPath(binary):
+    """
+    Find the absolute path of `binary`.
+    Raise EnvironmentError if not available.
+    """
+    if os.environ.has_key("PATH"):
+        paths = os.environ["PATH"].split(":")
+    else:
+        paths = []
+        if os.environ.has_key("HOME"):
+            paths += [os.environ["HOME"] + "/bin"]
+        paths += ["/usr/local/sbin", "/usr/local/bin",
+                  "/usr/sbin", "/usr/bin", "/sbin", "/bin"]
+
+    for path in paths:
+        bin_path = "%s/%s" % (path, binary)
+        if os.path.exists(bin_path):
+            return bin_path
+    raise EnvironmentError("Command '%s' is not available." % binary)
+
+def micIsAvailable():
+    """Check if MIC is available."""
+    try:
+        import mic
+        return True
+    except ImportError:
+        return False
