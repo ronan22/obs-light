@@ -1,0 +1,6 @@
+- get rid of sysV init scripts (and drop openSUSE_11.4 support)
+- replace calls to 'sed' from ProjectManager.fixProjectMeta() by python regexp
+- write a log system for the 2 daemons and the commandline
+  (instead of printing to stdout)
+- fix DEB packaging so it does not print warnings at compile time
+- do something to avoid retries when trying to download _attribute

@@ -2,21 +2,17 @@
 
 # Install python dependency not available in
 # current Ubuntu version (12.04).
-easy_install async gitdb gitpython smmap
+easy_install cmdln
 
-cd /srv/fakeobs/
+cd /srv/obslight-fakeobs/
 if [ ! -f lastevents ]
 then
 touch lastevents
-sh tools/addevent initial na na
+# sh tools/addevent initial na na
+echo "1|$(date +%s)|initial|na|na|" >> lastevents
 fi
 
-if [ ! -f mappings.xml ]
-then
-echo "<mappings>\n</mappings>" > mappings.xml
-fi
-
-ln -sf /srv/fakeobs/config/fakeobs-repos.apache2conf /etc/apache2/sites-available/fakeobs-repos.conf
+ln -sf /srv/obslight-fakeobs/config/fakeobs-repos.apache2conf /etc/apache2/sites-available/fakeobs-repos.conf
 a2ensite fakeobs-repos.conf
 chkconfig --add apache2
 # If running, reload, else start

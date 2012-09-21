@@ -3,8 +3,8 @@ Listen 8002
 NameVirtualHost *:8002
 
 <VirtualHost *:8002>
-  DocumentRoot /srv/fakeobs/releases
-  <Directory /srv/fakeobs/releases>
+  DocumentRoot /srv/obslight-fakeobs/repositories
+  <Directory /srv/obslight-fakeobs/repositories>
     Options FollowSymLinks Indexes
     Allow from all
   </Directory>

@@ -1,55 +1,64 @@
+#
+# Copyright 2012, Intel Inc.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Library General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+#
+"""
+Functions to generate answers to _buildinfo requests.
+
+@author: Ronan Le Martret
+@author: Florent Vennetier
+"""
+
 import os
 import re
 import shlex
 import tempfile
 
-import xml.dom.minidom
 from subprocess import Popen, PIPE
 from xml.dom.minidom import getDOMImplementation
 
 from xml.etree import ElementTree
 
-import gitmer
+from Config import getConfig
+from Utils import getLocalHostIpAddress
 
 HOST_IP = None
 
-archHierarchyMap = {}
-archHierarchyMap["i686"] = "i686:i586:i486:i386"
-archHierarchyMap["i586"] = "i686:i586:i486:i386"
-archHierarchyMap["i486"] = "i486:i386"
-archHierarchyMap["i386"] = "i386"
-archHierarchyMap["x86_64"] = "x86_64:i686:i586:i486:i386"
-archHierarchyMap["sparc64v"] = "sparc64v:sparc64:sparcv9v:sparcv9:sparcv8:sparc"
-archHierarchyMap["sparc64"] = "sparc64:sparcv9:sparcv8:sparc"
-archHierarchyMap["sparcv9v"] = "sparcv9v:sparcv9:sparcv8:sparc"
-archHierarchyMap["sparcv9"] = "sparcv9:sparcv8:sparc"
-archHierarchyMap["sparcv8"] = "sparcv8:sparc"
-archHierarchyMap["sparc"] = "sparc"
-archHierarchyMap["armv7el"] = "armv7el:armv7l:armv7vl"
-archHierarchyMap["armv8el"] = "armv8el:armv7hl:armv7thl:armv7tnh:armv7h:armv7nh"
+archHierarchyMap = {"i686": "i686:i586:i486:i386",
+                    "i586": "i686:i586:i486:i386",
+                    "i486": "i486:i386",
+                    "i386": "i386",
+                    "x86_64": "x86_64:i686:i586:i486:i386",
+                    "sparc64v": "sparc64v:sparc64:sparcv9v:sparcv9:sparcv8:sparc",
+                    "sparc64": "sparc64:sparcv9:sparcv8:sparc",
+                    "sparcv9v": "sparcv9v:sparcv9:sparcv8:sparc",
+                    "sparcv9": "sparcv9:sparcv8:sparc",
+                    "sparcv8": "sparcv8:sparc",
+                    "sparc": "sparc",
+                    "armv7el": "armv7el:armv7l:armv7vl",
+                    "armv8el": "armv8el:armv7hl:armv7thl:armv7tnh:armv7h:armv7nh"}
 
-def isNonEmptyString(theString):
-    return isinstance(theString, basestring) and len(theString) > 0
 
-def getLocalRepoHost():
-    cmd = "/sbin/ifconfig"
+def getLocalRepositoryUrl():
+    """Get the URL of the local fakeobs RPM repository."""
     global HOST_IP
-    localhostIp = "127.0.0.1"
     if HOST_IP is None:
-        try:
-            res = Popen(cmd, stdout=PIPE).communicate()[0]
+        HOST_IP = getLocalHostIpAddress()
+    return "http://%s:8002/live" % HOST_IP
 
-            for ip in re.findall(".*inet.*?:([\d.]*)[\s]+.*", res):
-                if isNonEmptyString(ip) and ip != localhostIp:
-                    HOST_IP = ip
-                    break
-        except:
-            HOST_IP = localhostIp
-    if HOST_IP is None:
-        HOST_IP = localhostIp
-    return "http://%s:8002/repositories" % HOST_IP
-
-def getProjectDependency(metaPath, repos):
+def getProjectDependency(metaPath, repo):
     with open(metaPath, "r") as f:
         _meta = f.read()
 
@@ -57,13 +66,14 @@ def getProjectDependency(metaPath, repos):
 
     result = []
     for project in aElement:
-        if (project.tag == "repository") and (project.get("name") == repos):
+        if (project.tag == "repository") and (project.get("name") == repo):
             for path in project.getiterator():
                 if path.tag == "path":
                     result.append((path.get("project"), path.get("repository")))
     return result
 
-def getbuildInfo(rev, srcmd5, specFile, listRepository, dist, depfile, arch, projectName, packageName, repository, spec, addPackages):
+def getbuildInfo(rev, srcmd5, specFile, repositoryList, dist, depfile, arch,
+                 projectName, packageName, repository, spec, addPackages):
     if arch in archHierarchyMap.keys():
         longArch = archHierarchyMap[arch]
     else:
@@ -82,15 +92,17 @@ def getbuildInfo(rev, srcmd5, specFile, listRepository, dist, depfile, arch, pro
                          tmpSpec[1])
 
     splittedCommand = shlex.split(str(command))
+    # FIXME: shouldn't it be .wait() instead of .communicate() ?
     Popen(splittedCommand).communicate()[0]
 
-    repo = getLocalRepoHost()
+    repo = getLocalRepositoryUrl()
     ouputFile = tempfile.mkstemp(suffix=".ouputFile")
 
     errFile = tempfile.mkstemp(suffix=".errFile")
+    fakeObsRoot = getConfig().getPath("fakeobs_root", "/srv/obslight-fakeobs")
     cmd = []
-    cmd.append("/srv/fakeobs/tools/create-rpm-list-from-spec.sh")
-    for aRepo in listRepository:
+    cmd.append("%s/tools/create_rpm_list_from_spec" % fakeObsRoot)
+    for aRepo in repositoryList:
         cmd.append("--repository")
         cmd.append(aRepo)
 
@@ -116,7 +128,8 @@ def getbuildInfo(rev, srcmd5, specFile, listRepository, dist, depfile, arch, pro
     cmd.append("--stdout")
     cmd.append(ouputFile[1])
 
-    Popen(cmd).communicate()
+    # FIXME: shouldn't it be .wait() instead of .communicate() ?
+    Popen(cmd, cwd=fakeObsRoot).communicate()
 
     os.close(tmpSpec[0])
     os.unlink(tmpSpec[1])
@@ -137,8 +150,8 @@ def getbuildInfo(rev, srcmd5, specFile, listRepository, dist, depfile, arch, pro
                 preinstallRes = line
                 preinstallList = preinstallRes[len("preinstall:"):].split()
             elif line.startswith("vminstall"):
-                  vminstallRes = line
-                  vminstallList = vminstallRes[len("vminstall:"):].split()
+                vminstallRes = line
+                vminstallList = vminstallRes[len("vminstall:"):].split()
             elif line.startswith("cbpreinstall"):
                 cbpreinstallRes = line
                 cbpreinstallList = cbpreinstallRes[len("cbpreinstall:"):].split()
@@ -263,7 +276,7 @@ def getbuildInfo(rev, srcmd5, specFile, listRepository, dist, depfile, arch, pro
             bdepelement.setAttribute("name", rpmName)
 
             if rpmName in preinstallList:
-                 bdepelement.setAttribute("preinstall", "1")
+                bdepelement.setAttribute("preinstall", "1")
             if rpmName in vminstallList:
                 bdepelement.setAttribute("vminstall", "1")
             if rpmName in cbpreinstallList:
@@ -328,5 +341,3 @@ def parseRpmFullName(rpmfullName):
         rpmEpoch, rpmVersion = None, rpmEpochVersion
 
     return rpmName, rpmEpoch, rpmVersion, rpmRelease, rpmArch
-
-

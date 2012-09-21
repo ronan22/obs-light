@@ -4,6 +4,6 @@ start on runlevel [2345]
 stop on runlevel [!2345]
 
 console output
-chdir /srv/fakeobs
+chdir /srv/obslight-fakeobs
 
-exec /usr/sbin/fakeobs >> /var/log/fakeobs-daemon.log 2>&1
+exec /usr/sbin/obslight-fakeobswebuid >> /var/log/fakeobs-webui.log 2>&1
