@@ -226,12 +226,13 @@ class ObsLightServer(object):
                              "listFile"]:
             raise ObsLightErr.ObsLightObsServers(parameter + " is not a parameter of a OBS package")
 
-        if not project in self.getLocalProjectList(raw=True):
-            message = "Can't return the package parameter,\n"
-            message += "'%s' is not a project on obs '%s'"
-            message = message % (project, self.__serverAPI)
-
-            raise ObsLightErr.ObsLightObsServers(message)
+# FIXME: is that necessary ? It's really slow on public OBS servers...
+#        if not project in self.getLocalProjectList(raw=True):
+#            message = "Can't return the package parameter,\n"
+#            message += "'%s' is not a project on obs '%s'"
+#            message = message % (project, self.__serverAPI)
+#
+#            raise ObsLightErr.ObsLightObsServers(message)
 
         if not package in self.getObsProjectPackageList(projectObsName=project):
             message = "Can't return the package parameter,\n"
