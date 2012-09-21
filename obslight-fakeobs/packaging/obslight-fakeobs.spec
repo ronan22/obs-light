@@ -264,6 +264,8 @@ fi
 %{_sbindir}/obslight-fakeobsd
 %{_sbindir}/obslight-fakeobswebuid
 %{_bindir}/obslight-fakeobs
+%{_bindir}/obslight-expanddeps
+%{_bindir}/obslight-createrpmlistfromspec
 %{_docdir}/%{name}
 # << files
 
