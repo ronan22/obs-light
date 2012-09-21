@@ -68,11 +68,8 @@ class ObsLightProject(ObsLightObject):
 
         self.__projectLocalName = fromSave.get("projectLocalName", projectLocalName)
         self.__chroot = ObsLightChRoot(projectDirectory=self.getDirectory())
-
         self.__projectName = fromSave.get("projectObsName", projectObsName)
-
         self.__obsServer = fromSave.get("obsServer", obsServer)
-
         self.__projectTarget = fromSave.get("projectTarget", projectTarget)
 
 

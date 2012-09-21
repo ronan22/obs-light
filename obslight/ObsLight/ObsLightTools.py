@@ -422,6 +422,19 @@ def dumpError(exceptionType, message, traceback_):
         print >> sys.stderr, exceptionType, message
     return logPath
 
+def getRepoFromGbsProjectConf(path):
+    result = []
+    patternRepoUrl = r'repo.*\.url=(.*)'
+
+    if path is not None and os.path.isfile(path):
+        f = open(path, 'r')
+        for line in f:
+            res = re.findall(patternRepoUrl, line)
+            if len(res) > 0:
+                result.extend(res)
+    return result
+
+
 if __name__ == '__main__':
 
     Url = "http://repo.pub.meego.com/home:/ronan:/OBS_Light/openSUSE_11.4"

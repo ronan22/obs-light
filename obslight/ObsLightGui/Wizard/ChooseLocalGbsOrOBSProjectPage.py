@@ -47,10 +47,13 @@ class ChooseLocalGbsOrOBSProjectPage(ObsLightWizardPage):
 #        return self.isComplete()
 
     def nextId(self):
-        if self.ui_WizardPage.LocalProjectRadioButton.isChecked():
+        if self.isLocalProject():
             return self.wizard().pageIndex(u'ChooseProjectTemplate')
         else:
             return self.wizard().pageIndex(u"ChooseServer")
+
+    def isLocalProject(self):
+        return self.ui_WizardPage.LocalProjectRadioButton.isChecked()
 
 #    def __completeChanged(self, _row):
 #        self.completeChanged.emit()

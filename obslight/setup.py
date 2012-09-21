@@ -47,9 +47,15 @@ setup(name='obslight',
                   ('/etc/xinetd.d/', ['ObsLightServer/tftp']),
                   ('/srv/obslight-image-server/config', ['ObsLightServer/obslight-image.apache2conf']),
                   ('/srv/obslight-repo-server/config', ['ObsLightServer/obslight-repos.apache2conf'],),
-		  ('/srv/obslight-repo-server/www/theme', ['ObsLightServer/theme/header.shtml',
-			  'ObsLightServer/theme/footer.shtml']),
-		  ('/srv/obslight-repo-server/www/theme/images', ['ObsLightGui/ui/obslight.png'])],
+		          ('/srv/obslight-repo-server/www/theme', ['ObsLightServer/theme/header.shtml',
+			                                               'ObsLightServer/theme/footer.shtml']),
+		          ('/srv/obslight-repo-server/www/theme/images', ['ObsLightGui/ui/obslight.png'])
+                  ('/usr/share/obslight/projectConf', ['projectConf/MeeGoTV-1.2.2-oss.conf',
+                                                      'projectConf/Tizen-1.0-Base.conf',
+                                                      'projectConf/Tizen-1.0-IVI.conf',
+                                                      'projectConf/Tizen-1.0-Main.conf']),
+                  ('/usr/share/obslight/projectTemplate', ['projectTemplate/tizenBase.conf']),
+                 ],
 
       cmdclass={
         'build': build_obslight,

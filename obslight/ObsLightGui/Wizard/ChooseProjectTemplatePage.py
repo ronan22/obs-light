@@ -31,16 +31,37 @@ class ChooseProjectTemplatePage(ObsLightWizardPage):
         self.registerField(u"addNewLocalProject", self.ui_WizardPage.addNewLocalProjectButton)
         self.ui_WizardPage.addNewLocalProjectButton.toggled.connect(self.__completeChanged)
         self.registerField(u"LocalProjectList", self.ui_WizardPage.LocalProjectListWidget)
-        self.ui_WizardPage.LocalProjectListWidget.currentRowChanged.connect(self.__completeChanged)
+        self.ui_WizardPage.LocalProjectListWidget.currentRowChanged.connect(self.selectLocalProjectRow)
+
+        self.projectTemplateDict = None
+        self._selectedFile = None
+
 
     def initializePage(self):
-        pass
-#        serverList = self.manager.getObsServerList()
-#        serverList.sort()
-#        self.ui_WizardPage.LocalProjectListWidget.clear()
-#        self.ui_WizardPage.LocalProjectListWidget.addItems(serverList)
-#        if len(serverList) > 0:
-#            self.ui_WizardPage.chooseServerButton.setChecked(True)
+        self.projectTemplateDict = self.manager.getProjectTemplateList()
+        projectTemplateList = self.projectTemplateDict.keys()
+        projectTemplateList.sort()
+        self.ui_WizardPage.LocalProjectListWidget.clear()
+        self.ui_WizardPage.LocalProjectListWidget.addItems(projectTemplateList)
+        if len(projectTemplateList) > 0:
+            self.ui_WizardPage.chooseNewLocalProjectButton.setChecked(True)
+
+    def selectLocalProjectRow(self, _row):
+        if self.projectTemplateDict is not None:
+            currentItem = self.ui_WizardPage.LocalProjectListWidget.currentItem()
+            if currentItem is not None:
+                aFile = currentItem.text()
+                self._selectedFile = self.projectTemplateDict.get(aFile, None)
+            else:
+                self._selectedFile = None
+        else:
+            self._selectedFile = None
+        self.__completeChanged(_row)
+
+    def getSelectedProjectConf(self):
+        return self._selectedFile
+
+
 
     def isAddNewLocalProject(self):
         return self.field(u"addNewLocalProject")
@@ -49,19 +70,19 @@ class ChooseProjectTemplatePage(ObsLightWizardPage):
         return self.field(u"LocalProjectList")
 
     def isComplete(self):
-        return self.isAddNewLocalProject() or (self.LocalProjectRow() >= 0)
+        return self.isAddNewLocalProject() or (self._selectedFile is not None)
 
     def validatePage(self):
-        if not self.isAddNewLocalProject():
-            self.setField(u"serverAlias",
-                          self.ui_WizardPage.serverListWidget.currentItem().text())
+#        if not self.isAddNewLocalProject():
+#            self.setField(u"serverAlias",
+#                          self.ui_WizardPage.LocalProjectListWidget.currentItem().text())
         return self.isComplete()
 
     def nextId(self):
         if self.isAddNewLocalProject():
             return self.wizard().pageIndex(u"ChooseProjectConf")
         else:
-            return self.wizard().pageIndex(u"ChooseProject")
+            return self.wizard().pageIndex(u"ChooseRepository")
 
     def __completeChanged(self, _row):
         self.completeChanged.emit()

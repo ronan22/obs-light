@@ -19,11 +19,17 @@
   <property name="windowTitle">
    <string>WizardPage</string>
   </property>
+  <property name="title">
+   <string>Choose project type.</string>
+  </property>
+  <property name="subTitle">
+   <string>choose between OBS project or local project  (gbs like).</string>
+  </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="1">
     <widget class="QRadioButton" name="LocalProjectRadioButton">
      <property name="text">
-      <string>Local  Project (gbs like)</string>
+      <string>Local  Project</string>
      </property>
     </widget>
    </item>

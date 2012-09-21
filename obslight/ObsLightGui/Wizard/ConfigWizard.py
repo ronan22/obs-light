@@ -20,6 +20,7 @@ Created on 19 déc. 2011
 
 @author: Florent Vennetier
 '''
+import os
 
 from PySide.QtGui import QPlainTextEdit, QWizard
 
@@ -29,9 +30,10 @@ from ChooseLocalGbsOrOBSProjectPage import ChooseLocalGbsOrOBSProjectPage
 from ChooseProjectTemplatePage import ChooseProjectTemplatePage
 from ChooseProjectConfPage import ChooseProjectConfPage
 from ChooseRepositoryPage import ChooseRepositoryPage
-from ChooseGbsTargetPage import ChooseGbsTargetPage
+from ChooseGbsArchPage import ChooseGbsArchPage
 from ChooseManifestPage import ChooseManifestPage
 from ConfigureGitPackagePage import  ConfigureGitPackagePage
+from ConfigProjectGitAliasPage import ConfigProjectGitAliasPage
 
 from ChooseServerPage import ChooseServerPage
 from ConfigureServerUrlPage import ConfigureServerUrlPage
@@ -76,7 +78,7 @@ class ConfigWizard(QWizard, ObsLightGuiObject):
         addPage(u'ChooseProjectTemplate', ChooseProjectTemplatePage)
         addPage(u'ChooseProjectConf', ChooseProjectConfPage)
         addPage(u'ChooseRepository', ChooseRepositoryPage)
-        addPage(u'ChooseGbsTarget', ChooseGbsTargetPage)
+        addPage(u'ChooseGbsArch', ChooseGbsArchPage)
         addPage(u'ChooseManifestPage', ChooseManifestPage)
         addPage(u'ConfigProjectGitAliasPage', ConfigProjectGitAliasPage)
         addPage(u'ChooseServer', ChooseServerPage)
@@ -96,6 +98,9 @@ class ConfigWizard(QWizard, ObsLightGuiObject):
         for page in self.Pages.values():
             self.setPage(page.index, page)
 
+    def isLocalProject(self):
+        return self.Pages[u'ChooseLocalGbsOrOBSProject'].isLocalProject()
+
     def getSelectedProject(self):
         return self.Pages[u'ChooseProject'].getSelectedProject()
 
@@ -113,6 +118,18 @@ class ConfigWizard(QWizard, ObsLightGuiObject):
 
     def getSelectedArch(self):
         return self.Pages[u'ChooseProjectArch'].getSelectedArch()
+
+    def getProjectTemplatePath(self, fullPath=True):
+
+        if self.Pages[u'ChooseProjectTemplate'].isAddNewLocalProject():
+            res = self.Pages[u'ChooseProjectConf'].getSelectedProjectConf()
+        else:
+            res = self.Pages[u'ChooseProjectTemplate'].getSelectedProjectConf()
+
+        if res is not None and fullPath:
+            return res
+        else:
+            return os.path.basename(res)
 
 #    def getCreateChrootOption(self):
 #        return self.field(u'CreateChroot')
@@ -136,3 +153,15 @@ class ConfigWizard(QWizard, ObsLightGuiObject):
         for key, value in prefilledValues.iteritems():
             self.setField(key, value)
         self.isModifyingServer = prefilledValues.has_key('serverAlias')
+
+    def getProjectConfPath(self):
+        return self.Pages[u'ChooseProjectConf'].getSelectedProjectConf()
+
+    def getGbsAddedRepo(self):
+        return self.Pages[u'ChooseRepository'].getAddedRepo()
+
+    def getSelectedGbsArch(self):
+        return self.Pages[u'ChooseGbsArch'].getArch()
+
+    def getSelectedGbsProject(self):
+        return self.getProjectTemplatePath(False)

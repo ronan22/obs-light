@@ -423,6 +423,7 @@ class ObsLightManagerCore(ObsLightManagerBase):
         Initialize the OBS Light Manager Core.
         '''
         ObsLightManagerBase.__init__(self)
+
     #///////////////////////////////////////////////////////////////////////////server
     def testServer(self, obsServer):
         '''
@@ -550,6 +551,39 @@ class ObsLightManagerCore(ObsLightManagerBase):
 
         self._myObsServers.delObsServer(alias=obsServer)
         self._myObsServers.save()
+
+    #///////////////////////////////////////////////////////////////////////////Local Project
+    def getProjectTemplateList(self):
+        return self.__getProjectFilefList("/usr/share/obslight/projectTemplate")
+
+    def getProjectConfList(self):
+        return self.__getProjectFilefList("/usr/share/obslight/projectConf/")
+
+    def getProjectGbsConfList(self):
+        return self.__getProjectFilefList("/usr/share/gbs/")
+
+    def __getProjectFilefList(self, path):
+        aDict = {}
+        if os.path.isdir(path):
+            for  f in os.listdir(path):
+                aFilePath = os.path.join(path, f)
+                if os.path.isfile(aFilePath) and os.access(aFilePath, os.R_OK):
+                    aDict[f] = aFilePath
+        return aDict
+
+    def getRepoFromGbsProjectConf(self, path):
+        return ObsLightTools.getRepoFromGbsProjectConf(path)
+
+    def getDefaultGbsArch(self):
+        return ["i586", "x86_64 ", "armv8el"]
+
+    def addGbsProject(self, projectTemplatePath, projectConfPath, addedRepo, arch, alias):
+        print
+        print "projectTemplatePath", projectTemplatePath
+        print "projectConfPath", projectConfPath
+        print "addedRepo", addedRepo
+        print "arch", arch
+        print "alias", alias
 
     #///////////////////////////////////////////////////////////////////////////obsproject
 

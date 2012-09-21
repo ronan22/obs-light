@@ -135,8 +135,6 @@ class ObsLightProjects(object):
             finally:
                 aFile.close()
 
-
-
             if projectName is None:
                 self.__saveconfigProject = saveconfigProject
 
@@ -197,6 +195,7 @@ class ObsLightProjects(object):
                    obsServer=None ,
                    projectTarget=None,
                    projectArchitecture=None):
+
         projectTitle = self.__obsServers.getObsServer(obsServer).getProjectTitle(projectObsName)
         description = self.__obsServers.getObsServer(obsServer).getProjectDescription(projectObsName)
 

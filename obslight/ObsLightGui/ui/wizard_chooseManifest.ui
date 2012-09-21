@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>WizardPage</class>
+ <widget class="QWizardPage" name="WizardPage">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>WizardPage</string>
+  </property>
+  <property name="title">
+   <string>Select manifest.</string>
+  </property>
+  <property name="subTitle">
+   <string>manifest contains Git repositories for the Repo source code (standard Android manifest files.)</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="4" column="0">
+    <widget class="QRadioButton" name="listManifestButton">
+     <property name="text">
+      <string>List of OBS Light manifest</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0" colspan="2">
+    <widget class="QListWidget" name="listWidget"/>
+   </item>
+   <item row="7" column="0">
+    <widget class="QRadioButton" name="customManifestButton">
+     <property name="text">
+      <string>Custom manifest</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="0">
+    <widget class="QLineEdit" name="lineEdit"/>
+   </item>
+   <item row="8" column="1">
+    <widget class="QPushButton" name="pushButton">
+     <property name="text">
+      <string>Load File</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QRadioButton" name="liveManifestButton">
+     <property name="text">
+      <string>Tizen Live manifest</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

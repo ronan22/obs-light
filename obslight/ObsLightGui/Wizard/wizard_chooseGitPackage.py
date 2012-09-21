@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui/wizard_chooseGitPackage.ui'
 #
-# Created: Wed Sep 19 15:56:27 2012
+# Created: Thu Sep 20 16:01:35 2012
 #      by: pyside-uic 0.2.13 running on PySide 1.1.0
 #
 # WARNING! All changes made in this file will be lost!
@@ -34,7 +34,7 @@ class Ui_WizardPage(object):
     def retranslateUi(self, WizardPage):
         WizardPage.setWindowTitle(QtGui.QApplication.translate("WizardPage", "WizardPage", None, QtGui.QApplication.UnicodeUTF8))
         self.selectAllPushButton.setText(QtGui.QApplication.translate("WizardPage", "Select All", None, QtGui.QApplication.UnicodeUTF8))
-        self.unselectAllPushButton.setText(QtGui.QApplication.translate("WizardPage", "Unselect All", None, QtGui.QApplication.UnicodeUTF8))
+        self.unselectAllPushButton.setText(QtGui.QApplication.translate("WizardPage", "Deselect All", None, QtGui.QApplication.UnicodeUTF8))
         self.updateListPushButton.setToolTip(QtGui.QApplication.translate("WizardPage", "Only available for OBS Light Tizen Live manifest ", None, QtGui.QApplication.UnicodeUTF8))
         self.updateListPushButton.setText(QtGui.QApplication.translate("WizardPage", "Update List", None, QtGui.QApplication.UnicodeUTF8))
 
