@@ -260,16 +260,16 @@ class Gui(QObject):
         self.__wizard.show()
         return self.__wizard
 
-#    def runWizardToAddPackage(self, project, newPackage=False):
-#        self.__wizard = ConfigWizard(self)
-#        self.__wizard.accepted.connect(self.refresh)
-#        if newPackage:
-#            self.__wizard.skipToPackageCreation(project)
-#        else:
-#            self.__wizard.skipToPackageSelection(project)
-#
-#        self.__wizard.show()
-#        return self.__wizard
+    def runWizardToAddPackage(self, project, newPackage=False):
+        self.__wizard = ConfigWizard(self)
+        self.__wizard.accepted.connect(self.refresh)
+        if newPackage:
+            self.__wizard.skipToPackageCreation(project)
+        else:
+            self.__wizard.skipToPackageSelection(project)
+
+        self.__wizard.show()
+        return self.__wizard
 
     def runWizardToConfigureServer(self, parent=None, **prefilledValues):
         """

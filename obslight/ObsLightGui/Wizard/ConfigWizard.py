@@ -134,9 +134,9 @@ class ConfigWizard(QWizard, ObsLightGuiObject):
 #    def getCreateChrootOption(self):
 #        return self.field(u'CreateChroot')
 
-#    def skipToPackageSelection(self, projectAlias):
-#        self.setField(u"projectAlias", projectAlias)
-#        self.setStartId(self.Pages[u'ChooseNewOrExistingPackage'].index)
+    def skipToPackageSelection(self, projectAlias):
+        self.setField(u"projectAlias", projectAlias)
+        self.setStartId(self.Pages[u'ChooseNewOrExistingPackage'].index)
 
     def skipToPackageCreation(self, projectAlias):
         self.setField(u"projectAlias", projectAlias)
