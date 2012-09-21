@@ -22,6 +22,21 @@ Created on 21 sept. 2012
 '''
 from ObsLightProject import ObsLightProject
 
+import os
+
+from ObsLightUtils import getFilteredFileList, isASpecFile, levenshtein
+from ObsLightPackages import ObsLightPackages
+from ObsLightChRoot import ObsLightChRoot
+#import ObsLightManager
+import ObsLightErr
+from ObsLightSubprocess import SubprocessCrt
+from ObsLightObject import ObsLightObject
+import ObsLightOsc
+
+import ObsLightConfig
+
+import ObsLightGitManager
+from ObsLightSpec import getSpecTagValue
 
 class ObsLightBuilderProject(ObsLightProject):
 
@@ -37,18 +52,13 @@ class ObsLightBuilderProject(ObsLightProject):
                  projectTitle="",
                  description="",
                  fromSave={}):
-        ObsLightProjectCore.__init__(self,
-                                     obsServers,
-                                     obsLightRepositories,
-                                     workingDirectory,
-                                     projectObsName=projectObsName,
-                                     projectLocalName=projectLocalName,
-                                     obsServer=obsServer,
-                                     projectTarget=projectTarget,
-                                     projectArchitecture=projectArchitecture,
-                                     projectTitle=projectTitle,
-                                     description=description,
-                                     fromSave=fromSave)
+        ObsLightProject.__init__(self,
+                                        obsLightRepositories,
+                                        workingDirectory,
+                                        projectLocalName=projectLocalName,
+                                        projectArchitecture=projectArchitecture,
+                                        fromSave=fromSave)
+
     #--------------------------------------------------------------------------- build package
 
     def __prepareChroot(self, section, pkgObj, specFileName):
@@ -79,6 +89,76 @@ class ObsLightBuilderProject(ObsLightProject):
         if section == "prep":
             res = self.__chroot.addPackageSourceInChRoot(pkgObj)
         return 0
+
+    def getProjectParameter(self, parameter=None):
+        '''
+        Get the value of a project parameter:
+        the valid parameter is :
+            projectLocalName
+            projectObsName
+            projectDirectory
+            obsServer
+            projectTarget
+            projectArchitecture
+            title
+            description
+        '''
+        if parameter == "projectLocalName":
+            return self.__projectLocalName
+        elif parameter == "projectObsName":
+            return self.__projectName
+        elif parameter == "projectDirectory":
+            return self.getDirectory()
+        elif parameter == "obsServer":
+            return self.__obsServer
+        elif parameter == "projectTarget":
+            return self.__projectTarget
+        elif parameter == "projectArchitecture":
+            return self.__projectArchitecture
+        elif parameter == "title":
+            return self.__projectTitle
+        elif parameter == "description":
+            return self.__description
+        else:
+            message = "parameter value is not valid for getProjectParameter"
+            raise ObsLightErr.ObsLightProjectsError(message)
+
+    def setProjectParameter(self, parameter=None, value=None):
+        '''
+        Return the value of a parameter of the project:
+        Valid parameters are:
+            projectTarget
+            projectArchitecture
+            title
+            description
+        '''
+        if parameter == "projectTarget":
+            self.__projectTarget = value
+        elif parameter == "projectArchitecture":
+            self.__projectArchitecture = value
+        elif parameter == "title":
+            self.__projectTitle = value
+        elif parameter == "description":
+            self.__description = value
+        else:
+            message = "parameter '%s' is not valid for setProjectParameter" % parameter
+            raise ObsLightErr.ObsLightProjectsError(message)
+        return 0
+
+    def getDic(self):
+        aDic = {}
+        aDic["projectLocalName"] = self.__projectLocalName
+        aDic["projectObsName"] = self.__projectName
+        aDic["obsServer"] = self.__obsServer
+        aDic["projectTarget"] = self.__projectTarget
+        aDic["projectArchitecture"] = self.__projectArchitecture
+        aDic["title"] = self.__projectTitle
+        aDic["description"] = self.__description
+        aDic["packages"] = self.__packages.getDic()
+        aDic["chrootIsInit"] = self.__chrootIsInit
+        aDic["ro"] = self.__readOnly
+#        aDic["extraChrootPackages"] = self.__extraChrootPackages
+        return aDic
 
     def __execRpmSection(self, packageName, section):
         """
@@ -218,16 +298,7 @@ class ObsLightBuilderProject(ObsLightProject):
                 failedPackages.append((packageName, be))
         return failedPackages
 
-    #--------------------------------------------------------------------------- project Repo
-    def removeLocalRepo(self):
-        return self.__obsLightRepositories.deleteRepository(self.__projectLocalName)
 
-    def createRepo(self):
-        repo = self.__obsLightRepositories.getRepository(self.__projectLocalName)
-        if repo.isOutOfDate():
-            return repo.createRepo()
-        else:
-            return 0
 
     #--------------------------------------------------------------------------- chroot jail
     def createPatch(self, package, patch):

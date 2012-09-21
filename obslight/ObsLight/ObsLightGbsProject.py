@@ -20,30 +20,48 @@ Created on 21 sept. 2012
 @author: Ronan Le Martret 
 '''
 from ObsLightBuilderProject import ObsLightBuilderProject
+import os
+import shlex
+import shutil
+import subprocess
+import urllib
+
+from ObsLightUtils import getFilteredFileList, isASpecFile, levenshtein
+from ObsLightPackages import ObsLightPackages
+from ObsLightChRoot import ObsLightChRoot
+#import ObsLightManager
+import ObsLightErr
+from ObsLightSubprocess import SubprocessCrt
+from ObsLightObject import ObsLightObject
+import ObsLightOsc
+
+import ObsLightConfig
+
+import ObsLightGitManager
+from ObsLightSpec import getSpecTagValue
 
 class ObsLightProject(ObsLightBuilderProject):
 
     def __init__(self,
-                 obsServers,
                  obsLightRepositories,
                  workingDirectory,
-                 projectObsName=None,
                  projectLocalName=None,
-                 obsServer=None,
-                 projectTarget=None,
                  projectArchitecture=None,
-                 projectTitle="",
-                 description="",
+                 projectTemplatePath=None,
+                 projectConfPath=None,
+                 addedRepo=None,
                  fromSave={}):
-        ObsLightProjectCore.__init__(self,
-                             obsServers,
+
+        ObsLightBuilderProject.__init__(self,
                              obsLightRepositories,
                              workingDirectory,
-                             projectObsName=projectObsName,
                              projectLocalName=projectLocalName,
-                             obsServer=obsServer,
-                             projectTarget=projectTarget,
                              projectArchitecture=projectArchitecture,
-                             projectTitle=projectTitle,
-                             description=description,
                              fromSave=fromSave)
+
+
+
+
+
+
+

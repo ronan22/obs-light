@@ -577,15 +577,46 @@ class ObsLightManagerCore(ObsLightManagerBase):
     def getDefaultGbsArch(self):
         return ["i586", "x86_64 ", "armv8el"]
 
+    @checkNonEmptyStringProjectArchitecture(4)
+    @checkAvailableProjectLocalName(5)
     def addGbsProject(self, projectTemplatePath, projectConfPath, addedRepo, arch, alias):
-        print
-        print "projectTemplatePath", projectTemplatePath
-        print "projectConfPath", projectConfPath
-        print "addedRepo", addedRepo
-        print "arch", arch
-        print "alias", alias
+        checkNonEmptyStringLocalName(alias)
+        res = self._myObsLightProjects.addGbsProject(projectTemplatePath,
+                                                     projectConfPath,
+                                                     addedRepo,
+                                                     arch,
+                                                     alias)
+        self._myObsLightProjects.save()
+        return res
 
     #///////////////////////////////////////////////////////////////////////////obsproject
+    @checkNonEmptyStringProjectTarget(3)
+    @checkNonEmptyStringProjectArchitecture(4)
+    @checkAvailableProjectLocalName(5)
+    def addProject(self,
+                   serverApi,
+                   projectObsName,
+                   projectTarget,
+                   projectArchitecture,
+                   projectLocalName):
+        '''
+        Create a local project associated with an OBS project.
+        '''
+
+        checkNonEmptyStringLocalName(projectLocalName)
+        checkNonEmptyStringServerApi(serverApi=serverApi)
+
+        self.checkAvailableProjectObsName(projectObsName=projectObsName, serverApi=serverApi)
+        self.checkObsServerAlias(serverApi=serverApi)
+
+        res = self._myObsLightProjects.addOBSProject(projectLocalName=projectLocalName,
+                                                     projectObsName=projectObsName,
+                                                     obsServer=serverApi,
+                                                     projectTarget=projectTarget,
+                                                     projectArchitecture=projectArchitecture)
+        self._myObsLightProjects.save()
+        return res
+
 
     def getObsServerProjectList(self,
                                 serverApi,
@@ -658,33 +689,6 @@ class ObsLightManagerCore(ObsLightManagerBase):
         Remove a local Project.
         '''
         res = self._myObsLightProjects.removeProject(projectLocalName=projectLocalName)
-        return res
-
-    @checkNonEmptyStringProjectTarget(3)
-    @checkNonEmptyStringProjectArchitecture(4)
-    @checkAvailableProjectLocalName(5)
-    def addProject(self,
-                   serverApi,
-                   projectObsName,
-                   projectTarget,
-                   projectArchitecture,
-                   projectLocalName):
-        '''
-        Create a local project associated with an OBS project.
-        '''
-
-        checkNonEmptyStringLocalName(projectLocalName)
-        checkNonEmptyStringServerApi(serverApi=serverApi)
-
-        self.checkAvailableProjectObsName(projectObsName=projectObsName, serverApi=serverApi)
-        self.checkObsServerAlias(serverApi=serverApi)
-
-        res = self._myObsLightProjects.addProject(projectLocalName=projectLocalName,
-                                                 projectObsName=projectObsName,
-                                                 obsServer=serverApi,
-                                                 projectTarget=projectTarget,
-                                                 projectArchitecture=projectArchitecture)
-        self._myObsLightProjects.save()
         return res
 
     @checkProjectLocalName(1)
@@ -1405,8 +1409,6 @@ class ObsLightManager(ObsLightManagerCore):
 
     def initCloneGit(self, projectLocalName, package, gitCommand):
         pass
-
-
 
 #---------------------------------------------------------------------------
     @checkProjectLocalName(1)

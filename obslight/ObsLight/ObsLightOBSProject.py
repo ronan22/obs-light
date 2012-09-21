@@ -22,6 +22,26 @@ Created on 21 sept. 2012
 '''
 from ObsLightBuilderProject import ObsLightBuilderProject
 
+import os
+import shlex
+import shutil
+import subprocess
+import urllib
+
+from ObsLightUtils import getFilteredFileList, isASpecFile, levenshtein
+from ObsLightPackages import ObsLightPackages
+from ObsLightChRoot import ObsLightChRoot
+#import ObsLightManager
+import ObsLightErr
+from ObsLightSubprocess import SubprocessCrt
+from ObsLightObject import ObsLightObject
+import ObsLightOsc
+
+import ObsLightConfig
+
+import ObsLightGitManager
+from ObsLightSpec import getSpecTagValue
+
 class ObsLightOBSProject(ObsLightBuilderProject):
 
     def __init__(self,
@@ -36,20 +56,115 @@ class ObsLightOBSProject(ObsLightBuilderProject):
                  projectTitle="",
                  description="",
                  fromSave={}):
-        ObsLightProjectCore.__init__(self,
-                                     obsServers,
-                                     obsLightRepositories,
-                                     workingDirectory,
-                                     projectObsName=projectObsName,
-                                     projectLocalName=projectLocalName,
-                                     obsServer=obsServer,
-                                     projectTarget=projectTarget,
-                                     projectArchitecture=projectArchitecture,
-                                     projectTitle=projectTitle,
-                                     description=description,
-                                     fromSave=fromSave)
+        ObsLightBuilderProject.__init__(self,
+                                        obsLightRepositories,
+                                        workingDirectory,
+                                        projectLocalName=projectLocalName,
+                                        projectArchitecture=projectArchitecture,
+                                        fromSave=fromSave)
+
+        self.__obsServers = obsServers
+
+
+        self.__projectTitle = fromSave.get("title", "")
+        self.__description = fromSave.get("description", description)
+
+        self.__projectName = fromSave.get("projectObsName", projectObsName)
+
+
+        self.__projectTarget = fromSave.get("projectTarget", projectTarget)
+
+        self.__obsServer = fromSave.get("obsServer", obsServer)
+        if not (self.__obsServer in self.__obsServers.getObsServerList()):
+                    message = "WARNING: '%s' is not a defined OBS server " % self.__obsServer
+                    self.logger.warn(message)
+        #perhaps a trusted_prj must be had
+        else:
+            obsServer = self.__obsServers.getObsServer(name=self.__obsServer)
+            obsServer.initConfigProject(projet=self.__projectName, repos=self.__projectTarget)
+
+        self.__readOnly = fromSave.get("ro", obsServer.getProjectParameter(self.__projectName,
+                                                                           "readonly"))
+
+    def getProjectParameter(self, parameter=None):
+        '''
+        Get the value of a project parameter:
+        the valid parameter is :
+            projectLocalName
+            projectObsName
+            projectDirectory
+            obsServer
+            projectTarget
+            projectArchitecture
+            title
+            description
+        '''
+        if parameter == "projectLocalName":
+            return self.__projectLocalName
+        elif parameter == "projectObsName":
+            return self.__projectName
+        elif parameter == "projectDirectory":
+            return self.getDirectory()
+        elif parameter == "obsServer":
+            return self.__obsServer
+        elif parameter == "projectTarget":
+            return self.__projectTarget
+        elif parameter == "projectArchitecture":
+            return self.__projectArchitecture
+        elif parameter == "title":
+            return self.__projectTitle
+        elif parameter == "description":
+            return self.__description
+        else:
+            message = "parameter value is not valid for getProjectParameter"
+            raise ObsLightErr.ObsLightProjectsError(message)
+
+    def setProjectParameter(self, parameter=None, value=None):
+        '''
+        Return the value of a parameter of the project:
+        Valid parameters are:
+            projectTarget
+            projectArchitecture
+            title
+            description
+        '''
+        if parameter == "projectTarget":
+            self.__projectTarget = value
+        elif parameter == "projectArchitecture":
+            self.__projectArchitecture = value
+        elif parameter == "title":
+            self.__projectTitle = value
+        elif parameter == "description":
+            self.__description = value
+        else:
+            message = "parameter '%s' is not valid for setProjectParameter" % parameter
+            raise ObsLightErr.ObsLightProjectsError(message)
+        return 0
+
+    def getDic(self):
+        aDic = {}
+        aDic["projectLocalName"] = self.__projectLocalName
+        aDic["projectObsName"] = self.__projectName
+        aDic["obsServer"] = self.__obsServer
+        aDic["projectTarget"] = self.__projectTarget
+        aDic["projectArchitecture"] = self.__projectArchitecture
+        aDic["title"] = self.__projectTitle
+        aDic["description"] = self.__description
+        aDic["packages"] = self.__packages.getDic()
+        aDic["chrootIsInit"] = self.__chrootIsInit
+        aDic["ro"] = self.__readOnly
+#        aDic["extraChrootPackages"] = self.__extraChrootPackages
+        return aDic
 
     #--------------------------------------------------------------------------- OBS server
+    def __getConfigPath(self):
+        if self.__configPath is None:
+            obsServer = self.__obsServers.getObsServer(self.__obsServer)
+            self.__configPath = obsServer.saveProjectConfig(self.__projectName,
+                                                            self.__projectTarget)
+
+        return self.__configPath
+
     def getProjectObsName(self):
         return self.__projectName
 
@@ -147,3 +262,36 @@ class ObsLightOBSProject(ObsLightBuilderProject):
         res = urllib.basejoin(serverWeb , "project/show?project=" + self.__projectName)
         return res
 
+
+    def getPackageList(self, onlyInstalled=True):
+        '''
+        Get the list of packages of this project.
+        If `onlyInstalled` is True, get only those which have been imported locally.
+        '''
+        if not onlyInstalled :
+            if self.__obsServer in self.__obsServers.getObsServerList():
+                obsServer = self.__obsServers.getObsServer(self.__obsServer)
+                res1 = set(obsServer.getObsProjectPackageList(projectObsName=self.__projectName))
+                res2 = set(self.__packages.getPackagesList())
+                res = list(res1.difference(res2))
+                res.sort()
+                return res
+            else:
+                return  None
+        else:
+            res = self.__packages.getPackagesList()
+            return res
+
+
+    def updatePackage(self, name):
+        '''
+        update a package of the projectLocalName.
+        '''
+        ObsLightProjectCore.updatePackage(name)
+
+        pkgObj = self.__packages.getPackage(name)
+        if not pkgObj.isGitPackage:
+            server = self.__obsServers.getObsServer(self.__obsServer)
+            self.refreshObsStatus(name)
+
+        return 0

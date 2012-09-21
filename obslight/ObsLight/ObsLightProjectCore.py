@@ -15,96 +15,41 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 '''
-Created on 29 sept. 2011
+Created on 21 sept. 2012
 
-@author: Ronan Le Martret 
-@author: Florent Vennetier
+@author: Ronan Le Martret
 '''
 import os
-import shlex
 import shutil
-import subprocess
-import urllib
 
-from ObsLightUtils import getFilteredFileList, isASpecFile, levenshtein
 from ObsLightPackages import ObsLightPackages
-from ObsLightChRoot import ObsLightChRoot
-#import ObsLightManager
+
 import ObsLightErr
 from ObsLightSubprocess import SubprocessCrt
 from ObsLightObject import ObsLightObject
-import ObsLightOsc
-
-import ObsLightConfig
-
-import ObsLightGitManager
-from ObsLightSpec import getSpecTagValue
 
 class ObsLightProjectCore(ObsLightObject):
 
     def __init__(self,
-                 obsServers,
                  obsLightRepositories,
-                 workingDirectory,
-                 projectObsName=None,
-                 projectLocalName=None,
-                 obsServer=None,
-                 projectTarget=None,
-                 projectArchitecture=None,
-                 projectTitle="",
-                 description="",
-                 fromSave={}):
+                      workingDirectory,
+                      projectLocalName=projectLocalName,
+                      projectArchitecture=projectArchitecture,
+                      fromSave=fromSave):
+
         ObsLightObject.__init__(self)
         self.__mySubprocessCrt = SubprocessCrt()
 
-        self.__obsServers = obsServers
         self.__obsLightRepositories = obsLightRepositories
-        self.__chrootIsInit = fromSave.get("chrootIsInit", False)
         self.__WorkingDirectory = workingDirectory
-        self.__projectTitle = fromSave.get("title", "")
 
         # package name as key, install/don't install as value
         self.__extraChrootPackages = {"vim": False, "emacs": False, "strace": False}
-
         self.__projectLocalName = fromSave.get("projectLocalName", projectLocalName)
-        self.__chroot = ObsLightChRoot(projectDirectory=self.getDirectory())
-        self.__projectName = fromSave.get("projectObsName", projectObsName)
-        self.__obsServer = fromSave.get("obsServer", obsServer)
-        self.__projectTarget = fromSave.get("projectTarget", projectTarget)
 
-
-        if not (self.__obsServer in self.__obsServers.getObsServerList()):
-                    message = "WARNING: '%s' is not a defined OBS server " % self.__obsServer
-                    self.logger.warn(message)
-        #perhaps a trusted_prj must be had
-        else:
-            obsServer = self.__obsServers.getObsServer(name=self.__obsServer)
-            obsServer.initConfigProject(projet=self.__projectName, repos=self.__projectTarget)
-
-        self.__readOnly = fromSave.get("ro", obsServer.getProjectParameter(self.__projectName,
-                                                                           "readonly"))
-
+        self.__readOnly = False
         self.__projectArchitecture = fromSave.get("projectArchitecture", projectArchitecture)
-        self.__description = fromSave.get("description", description)
-
         self.__packages = ObsLightPackages(self, fromSave.get("packages", {}))
-
-        if self.__chrootIsInit == True:
-            if not self.__chroot.isInit():
-                self.__initChRoot()
-#                        self.__chroot.initRepos()
-        else:
-            if self.__chroot.isInit():
-                self.__chrootIsInit = True
-
-#            self.__extraChrootPackages = fromSave.get("extraChrootPackages", {})
-
-#            if self.__chrootIsInit:
-#                for packageName in self.__packages.getPackagesList():
-#                    absPackagePath = self.getAbsPackagePath(name=packageName)
-#                    if absPackagePath != None:
-#                        if not os.path.isdir(absPackagePath) :
-#                            self.addPackageSourceInChRoot(package=packageName)
 
         if not os.path.isdir(self.getDirectory()):
             os.makedirs(self.getDirectory())
@@ -133,35 +78,6 @@ class ObsLightProjectCore(ObsLightObject):
                                                      waitMess=waitMess,
                                                      stdout=stdout)
 
-    def execScript(self, aPath):
-        return self.__chroot.execScript(aPath)
-
-    def openTerminal(self, package):
-        '''
-        Open bash in `package`'s osc working directory.
-        '''
-        if package != None:
-            packagePath = self.__packages.getPackage(package).getPackageChrootDirectory()
-            if packagePath != None:
-                pathScript = self.__chroot.getChrootDirTransfert() + "/runMe.sh"
-                title = "%s project directory" % package
-                f = open(pathScript, 'w')
-                f.write("#!/bin/sh\n")
-                f.write("# Created by obslight\n")
-                f.write("cd " + packagePath + "\n")
-                # control code to change window title
-                f.write('echo -en "\e]2;%s\a"\n' % title)
-                f.write("exec bash\n")
-                f.close()
-                os.chmod(pathScript, 0755)
-                command = ObsLightConfig.getConsole(title) + " " + pathScript
-
-                command = shlex.split(str(command))
-                # subprocess.call(command) would wait for the command to finish,
-                # which would cause problem with terminal emulators which don't
-                # fork themselves
-                subprocess.Popen(command)
-
     #--------------------------------------------------------------------------- project
     def isReadOnly(self):
         return self.__readOnly
@@ -171,20 +87,6 @@ class ObsLightProjectCore(ObsLightObject):
             return self.__archHierarchyMap[self.__projectArchitecture]
         else:
             return self.__projectArchitecture
-
-    def __getConfigPath(self):
-        if self.__configPath is None:
-            obsServer = self.__obsServers.getObsServer(self.__obsServer)
-            self.__configPath = obsServer.saveProjectConfig(self.__projectName,
-                                                            self.__projectTarget)
-
-        return self.__configPath
-
-    def getChrootUserHome(self, fullPath=True):
-        '''
-        Return the abs Path of the user home into chroot jail. 
-        '''
-        return self.__chroot.getChrootUserHome(fullPath)
 
     def __getTarget(self):
         """
@@ -223,23 +125,28 @@ class ObsLightProjectCore(ObsLightObject):
 
     def removeProject(self):
         self.removeLocalRepo()
-        res = self.removeChRoot()
 
-        if res == 0:
-            drctr = self.getDirectory()
-            if os.path.isdir(drctr):
-                try:
-                    return shutil.rmtree(drctr)
-                except:
-                    message = "Error in removeProject, can't remove directory, '%s'" % drctr
-                    raise ObsLightErr.ObsLightProjectsError(message)
-            else:
-                self.logger.warn("'%s' is not a directory" % drctr)
-                return 0
+        drctr = self.getDirectory()
+        if os.path.isdir(drctr):
+            try:
+                return shutil.rmtree(drctr)
+            except:
+                message = "Error in removeProject, can't remove directory, '%s'" % drctr
+                raise ObsLightErr.ObsLightProjectsError(message)
         else:
-            message = "Error in removeProject, can't remove project file system"
-            raise ObsLightErr.ObsLightProjectsError(message)
+            self.logger.warn("'%s' is not a directory" % drctr)
+            return 0
 
+    #--------------------------------------------------------------------------- project Repo
+    def removeLocalRepo(self):
+        return self.__obsLightRepositories.deleteRepository(self.__projectLocalName)
+
+    def createRepo(self):
+        repo = self.__obsLightRepositories.getRepository(self.__projectLocalName)
+        if repo.isOutOfDate():
+            return repo.createRepo()
+        else:
+            return 0
 
     def getProjectParameter(self, parameter=None):
         '''
@@ -299,16 +206,9 @@ class ObsLightProjectCore(ObsLightObject):
     def getDic(self):
         aDic = {}
         aDic["projectLocalName"] = self.__projectLocalName
-        aDic["projectObsName"] = self.__projectName
-        aDic["obsServer"] = self.__obsServer
-        aDic["projectTarget"] = self.__projectTarget
         aDic["projectArchitecture"] = self.__projectArchitecture
-        aDic["title"] = self.__projectTitle
-        aDic["description"] = self.__description
         aDic["packages"] = self.__packages.getDic()
-        aDic["chrootIsInit"] = self.__chrootIsInit
         aDic["ro"] = self.__readOnly
-#        aDic["extraChrootPackages"] = self.__extraChrootPackages
         return aDic
 
 #    def updateProject(self):
@@ -417,20 +317,6 @@ class ObsLightProjectCore(ObsLightObject):
 
         return 0
 
-    def getAbsPackagePath(self, name):
-        '''
-        return the absolute path of a package install into chroot.
-        return None if the package is not install.
-        '''
-        pkgObj = self.__packages.getPackage(package)
-        if pkgObj.isInstallInChroot():
-            packageDirectory = pkgObj.getPackageChrootDirectory()
-            if len(packageDirectory) > 0 and packageDirectory.startswith("/"):
-                packageDirectory = packageDirectory[1:]
-            return os.path.join(self.__chroot.getDirectory() , packageDirectory)
-        else:
-            return None
-
     def __getGitPackagesDefaultDirectory(self):
         '''
         Return the package git directory of the local project.
@@ -508,19 +394,10 @@ class ObsLightProjectCore(ObsLightObject):
         Get the list of packages of this project.
         If `onlyInstalled` is True, get only those which have been imported locally.
         '''
-        if not onlyInstalled :
-            if self.__obsServer in self.__obsServers.getObsServerList():
-                obsServer = self.__obsServers.getObsServer(self.__obsServer)
-                res1 = set(obsServer.getObsProjectPackageList(projectObsName=self.__projectName))
-                res2 = set(self.__packages.getPackagesList())
-                res = list(res1.difference(res2))
-                res.sort()
-                return res
-            else:
-                return  None
+        if onlyInstalled:
+            return self.__packages.getPackagesList()
         else:
-            res = self.__packages.getPackagesList()
-            return res
+            return []
 
     def getPackage(self, package=None):
         '''
@@ -535,10 +412,9 @@ class ObsLightProjectCore(ObsLightObject):
         repo = self.__obsLightRepositories.getRepository(self.__projectLocalName)
         repo.removeRPM(self.getPackage(package).getRPMPublished())
         repo.createRepo()
-        _ = self.__packages.removePackage(package=package)
-
-        res = self.__chroot.removePackage(package)
+        res = self.__packages.removePackage(package=package)
         return res
+
 #    def __createPackageFilesFromGit(self, gitTreePath, packagePath):
 #        """
 #        Create/update files of package at `packagePath` from a git tree
@@ -601,7 +477,6 @@ class ObsLightProjectCore(ObsLightObject):
         update a package of the projectLocalName.
         '''
         self.__refreshObsDescription(name)
-
         pkgObj = self.__packages.getPackage(name)
 #        pkgObj.updatePackage()
         if not pkgObj.isGitPackage:
@@ -613,18 +488,6 @@ class ObsLightProjectCore(ObsLightObject):
 
 #            self.getPackage(name).initPackageFileInfo()
         return 0
-
-
-
-
-
-
-
-
-
-
-
-
 #Manage the repository into the chroot jail
 #_____________________________________________________________________________
 #    def deleteRepo(self, repoAlias):
@@ -659,28 +522,18 @@ class ObsLightProjectCore(ObsLightObject):
 #            return 0
 
 
+#Abstract Funct
+    def refreshObsStatus(self, package):
+        pass
 
-    def autoDisableExtraChrootPackages(self, packageName, specFileName):
-        """Checks if extra packages are available, and enable/disable them accordingly"""
-        obsServer = self.__obsServers.getObsServer(self.__obsServer)
-        extraPackages = set(self.__extraChrootPackages)
-        gotError = True
-        while(gotError and len(extraPackages) > 0):
-            try:
-                buildInfoCli = obsServer.getPackageBuildRequires(self.__projectName,
-                                                                 packageName,
-                                                                 self.__projectTarget ,
-                                                                 self.__projectArchitecture,
-                                                                 specFileName,
-                                                                 list(extraPackages))
-                gotError = False
-            except ObsLightErr.ObsLightOscErr as e:
-                gotError = True
-                toBeRemoved = set()
-                for p in extraPackages:
-                    if e.msg.find(p) >= 0:
-                        toBeRemoved.add(p)
+    def refreshPackageDirectoryStatus(self, package):
+        pass
 
-                extraPackages.difference_update(toBeRemoved)
-        for p in self.__extraChrootPackages.keys():
-            self.__extraChrootPackages[p] = p in extraPackages
+    def updatePackage(self, name):
+        pass
+
+    def __refreshObsDescription(self, name):
+        pass
+
+    def refreshObsStatus(self, name):
+        pass
