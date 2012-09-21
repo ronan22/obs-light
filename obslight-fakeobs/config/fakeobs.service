@@ -1,0 +1,10 @@
+[Unit]
+Description=OBS Light Fake OBS daemon
+After=multi-user.target
+
+[Service]
+WorkingDirectory=/srv/obslight-fakeobs/
+ExecStart=/usr/sbin/obslight-fakeobsd
+
+[Install]
+WantedBy=multi-user.target

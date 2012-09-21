@@ -8,13 +8,15 @@ fi
 OLDVERSION=$1
 NEWVERSION=$2
 
-PRJDIR=obslight-fakeobs/
-PACKAGING="$PRJDIR"packaging/
+PRJDIR=obslight-fakeobs
+PACKAGING="$PRJDIR/packaging"
 
-SPECFILE="$PACKAGING"obslight-fakeobs.spec
-YAMLFILE="$PACKAGING"obslight-fakeobs.yaml
-DEBIANLOG="$PACKAGING"debian.changelog
-DEBIANDSC="$PACKAGING"obslight.dsc
+SPECFILE="$PACKAGING/obslight-fakeobs.spec"
+YAMLFILE="$PACKAGING/obslight-fakeobs.yaml"
+DEBIANLOG="$PACKAGING/debian.changelog"
+DEBIANDSC="$PACKAGING/obslight-fakeobs.dsc"
+DEBIANRULES="$PACKAGING/debian.rules"
+
 echo __________________________________________________________________________
 echo $YAMLFILE
 grep --color "Version: $OLDVERSION" $YAMLFILE
@@ -49,3 +51,9 @@ echo "---"
 grep --color "obslight_$NEWVERSION" $DEBIANDSC
 echo "----------------"
 echo __________________________________________________________________________
+echo $DEBIANRULES
+grep --color "obslight-fakeobs-$OLDVERSION" $DEBIANRULES
+sed -i s/"obslight-fakeobs-$OLDVERSION-"/"obslight-fakeobs-$NEWVERSION-"/ $DEBIANRULES
+echo "---"
+grep --color "obslight-fakeobs-$NEWVERSION" $DEBIANRULES
+echo "----------------"

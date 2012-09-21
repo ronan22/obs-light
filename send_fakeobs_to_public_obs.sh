@@ -7,8 +7,8 @@
 #
 
 PRJ=obslight-fakeobs 
-OBSPROJECT=Project:OBS_Light
-OBSAPI=https://api.pub.meego.com
+OBSPROJECT=devel:OBS:Light:Stable
+OBSAPI=https://api.opensuse.org
 PRJDIR=obslight-fakeobs/
 PACKAGING="$PRJDIR"packaging/
  

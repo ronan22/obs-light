@@ -1,0 +1,11 @@
+[Unit]
+Description=OBS Light Fake OBS web interface
+After=multi-user.target
+Requires=fakeobs.service
+
+[Service]
+WorkingDirectory=/srv/obslight-fakeobs/
+ExecStart=/usr/sbin/obslight-fakeobswebuid
+
+[Install]
+WantedBy=multi-user.target

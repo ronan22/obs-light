@@ -112,7 +112,7 @@
 
 # Check for missing binaries (stale symlinks should not happen)
 # Note: Special treatment of stop for LSB conformance
-FOO_BIN=/usr/sbin/fakeobs
+FOO_BIN=/usr/sbin/obslight-fakeobsd
 test -x $FOO_BIN || { echo "$FOO_BIN not installed"; 
 	if [ "$1" = "stop" ]; then exit 0;
 	else exit 5; fi; }
