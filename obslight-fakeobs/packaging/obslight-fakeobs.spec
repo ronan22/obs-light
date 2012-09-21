@@ -40,8 +40,8 @@ BuildRequires: systemd
 Requires:   build
 Requires:   createrepo
 Requires:   logrotate
+Requires:   obslight-depsolver
 Requires:   osc
-Requires:   perl
 Requires:   python
 Requires:   rpm
 
@@ -56,8 +56,14 @@ BuildRequires: python-devel
 Python script that partially implement an OBS API.
 It is based on Mer Delivery System.
 
+%package -n obslight-depsolver
+Summary: Dependency solving scripts for OBS Light
+Group: Development/Tools/Building
+Requires:   bash
+Requires:   perl
 
-
+%description -n obslight-depsolver
+Dependency solving scripts for OBS Light.
 
 %prep
 %setup -q
@@ -264,7 +270,12 @@ fi
 %{_sbindir}/obslight-fakeobsd
 %{_sbindir}/obslight-fakeobswebuid
 %{_bindir}/obslight-fakeobs
+%{_bindir}/obslight-expanddeps
+%{_bindir}/obslight-createrpmlistfromspec
 %{_docdir}/%{name}
 # << files
 
+%files -n obslight-depsolver
+%{_bindir}/obslight-expanddeps
+%{_bindir}/obslight-createrpmlistfromspec
 
