@@ -47,9 +47,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.979899"
-     inkscape:cx="-1252.6231"
-     inkscape:cy="802.88037"
+     inkscape:zoom="1.4"
+     inkscape:cx="-1391.5219"
+     inkscape:cy="919.44585"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -57,9 +57,9 @@
      showguides="true"
      inkscape:guide-bbox="true"
      inkscape:connector-spacing="15"
-     inkscape:window-width="1920"
-     inkscape:window-height="971"
-     inkscape:window-x="1278"
+     inkscape:window-width="1280"
+     inkscape:window-height="1004"
+     inkscape:window-x="-2"
      inkscape:window-y="-3"
      inkscape:window-maximized="1"
      inkscape:snap-grids="true">
@@ -1027,8 +1027,8 @@
     <text
        xml:space="preserve"
        style="font-size:12px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       x="-1130"
-       y="487.36218"
+       x="-1260"
+       y="502.36218"
        id="text3115"
        sodipodi:linespacing="125%"
        inkscape:export-filename="/home/meego/Documents/gitProject/obs-light/Doc/wizard diagram/path10678-82.png"
@@ -1036,21 +1036,21 @@
        inkscape:export-ydpi="90"><tspan
          sodipodi:role="line"
          id="tspan3117"
-         x="-1130"
-         y="487.36218">Copy package</tspan><tspan
+         x="-1260"
+         y="502.36218">Copy package</tspan><tspan
          sodipodi:role="line"
-         x="-1130"
-         y="502.36218"
+         x="-1260"
+         y="517.36218"
          id="tspan3119">from an other</tspan><tspan
          sodipodi:role="line"
-         x="-1130"
-         y="517.36218"
+         x="-1260"
+         y="532.36218"
          id="tspan3121">local project</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:12px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       x="-1295"
-       y="497.36218"
+       x="-1420"
+       y="512.36218"
        id="text3123"
        sodipodi:linespacing="125%"
        inkscape:export-filename="/home/meego/Documents/gitProject/obs-light/Doc/wizard diagram/path10678-82.png"
@@ -1058,17 +1058,17 @@
        inkscape:export-ydpi="90"><tspan
          sodipodi:role="line"
          id="tspan3125"
-         x="-1295"
-         y="497.36218">Choose a package</tspan><tspan
+         x="-1420"
+         y="512.36218">Choose a package</tspan><tspan
          sodipodi:role="line"
-         x="-1295"
-         y="512.36218"
+         x="-1420"
+         y="527.36218"
          id="tspan3127">from OBS project</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:12px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       x="-1420"
-       y="497.36218"
+       x="-1590"
+       y="512.36218"
        id="text3129"
        sodipodi:linespacing="125%"
        inkscape:export-filename="/home/meego/Documents/gitProject/obs-light/Doc/wizard diagram/path10678-82.png"
@@ -1076,11 +1076,11 @@
        inkscape:export-ydpi="90"><tspan
          sodipodi:role="line"
          id="tspan3131"
-         x="-1420"
-         y="497.36218">Create a package </tspan><tspan
+         x="-1590"
+         y="512.36218">Create a package </tspan><tspan
          sodipodi:role="line"
-         x="-1420"
-         y="512.36218"
+         x="-1590"
+         y="527.36218"
          id="tspan3133">from GIT REPO.</tspan></text>
     <text
        xml:space="preserve"
@@ -1137,7 +1137,7 @@
        xml:space="preserve"
        style="font-size:12px;font-style:normal;font-weight:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
        x="-1525"
-       y="72.362183"
+       y="182.36218"
        id="text3251-3-2"
        sodipodi:linespacing="125%"
        inkscape:export-filename="/home/meego/Documents/gitProject/obs-light/Doc/wizard diagram/path10678-82.png"
@@ -1146,14 +1146,14 @@
          sodipodi:role="line"
          id="tspan3253-5-5"
          x="-1525"
-         y="72.362183">ChooseProjectConf</tspan></text>
+         y="182.36218">ChooseProjectConf</tspan></text>
     <rect
        style="fill:none;stroke:#000000;stroke-width:0.48897046;stroke-opacity:1"
        id="rect2985-38-7-2"
        width="189.86842"
        height="25"
        x="-1620"
-       y="57.362183"
+       y="167.36218"
        inkscape:export-filename="/home/meego/Documents/gitProject/obs-light/Doc/wizard diagram/path10678-82.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90"
@@ -1183,62 +1183,35 @@
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90" />
     <path
-       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)"
-       d="m -1524.9641,27.362183 -0.072,30"
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend);display:inline"
+       d="m -1524.9641,27.362183 -0.072,30.000003"
        id="path4171"
        inkscape:connector-type="polyline"
        inkscape:connector-curvature="0"
        inkscape:export-filename="/home/meego/Documents/gitProject/obs-light/Doc/wizard diagram/path10678-82.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90"
-       inkscape:connection-end-point="d4"
-       inkscape:connection-end="#rect2985-38-7-2"
        inkscape:connection-start-point="d4"
-       inkscape:connection-start="#rect2985-38-7" />
+       inkscape:connection-start="#rect2985-38-7"
+       inkscape:connection-end="#rect2985-38-7-2-4-8"
+       inkscape:connection-end-point="d4" />
     <path
-       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)"
-       d="m -1525.0658,82.362183 0,29.999997"
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend);display:inline"
+       d="m -1525.0658,192.36218 0,30"
        id="path4355"
        inkscape:connector-type="polyline"
        inkscape:connector-curvature="0"
        inkscape:export-filename="/home/meego/Documents/gitProject/obs-light/Doc/wizard diagram/path10678-82.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90"
-       inkscape:connection-end-point="d4"
-       inkscape:connection-end="#rect2985-38-7-2-4"
        inkscape:connection-start-point="d4"
-       inkscape:connection-start="#rect2985-38-7-2" />
-    <path
-       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend);display:inline"
-       d="m -1475.0239,27.362183 59.8923,15 0,55 -59.9641,14.999997"
-       id="path4541"
-       inkscape:connector-type="polyline"
-       inkscape:connector-curvature="0"
-       inkscape:export-filename="/home/meego/Documents/gitProject/obs-light/Doc/wizard diagram/path10678-82.png"
-       inkscape:export-xdpi="90"
-       inkscape:export-ydpi="90"
-       inkscape:connection-end-point="d4"
-       inkscape:connection-end="#rect2985-38-7-2-4"
-       inkscape:connection-start-point="d4"
-       inkscape:connection-start="#rect2985-38-7" />
+       inkscape:connection-start="#rect2985-38-7-2"
+       inkscape:connection-end="#rect2985-38-7-2-4-5"
+       inkscape:connection-end-point="d4" />
     <text
        xml:space="preserve"
        style="font-size:12px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       x="-1405"
-       y="77.362183"
-       id="text5089"
-       sodipodi:linespacing="125%"
-       inkscape:export-filename="/home/meego/Documents/gitProject/obs-light/Doc/wizard diagram/path10678-82.png"
-       inkscape:export-xdpi="90"
-       inkscape:export-ydpi="90"><tspan
-         sodipodi:role="line"
-         id="tspan5091"
-         x="-1405"
-         y="77.362183">Use a known gbs template</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-size:12px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       x="-1675"
+       x="-1710"
        y="42.362183"
        id="text5093"
        sodipodi:linespacing="125%"
@@ -1247,13 +1220,13 @@
        inkscape:export-ydpi="90"><tspan
          sodipodi:role="line"
          id="tspan5095"
-         x="-1675"
+         x="-1710"
          y="42.362183">Create a gbs template</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:12px;font-style:normal;font-weight:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
        x="-1525"
-       y="182.36218"
+       y="237.36218"
        id="text3251-3-2-8-8"
        sodipodi:linespacing="125%"
        inkscape:export-filename="/home/meego/Documents/gitProject/obs-light/Doc/wizard diagram/path10678-82.png"
@@ -1262,19 +1235,19 @@
          sodipodi:role="line"
          id="tspan3253-5-5-0-4"
          x="-1525"
-         y="182.36218">ChooseGbsTarget</tspan></text>
+         y="237.36218">ChooseGbsTarget</tspan></text>
     <rect
        style="fill:none;stroke:#000000;stroke-width:0.48897046;stroke-opacity:1"
        id="rect2985-38-7-2-4-5"
        width="189.86842"
        height="25"
        x="-1620"
-       y="167.36218"
+       y="222.36218"
        inkscape:export-filename="/home/meego/Documents/gitProject/obs-light/Doc/wizard diagram/path10678-82.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90" />
     <path
-       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)"
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend);display:inline"
        d="m -1525.0658,137.36218 0,30"
        id="path5132"
        inkscape:connector-type="polyline"
@@ -1282,10 +1255,10 @@
        inkscape:export-filename="/home/meego/Documents/gitProject/obs-light/Doc/wizard diagram/path10678-82.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90"
-       inkscape:connection-end-point="d4"
-       inkscape:connection-end="#rect2985-38-7-2-4-5"
        inkscape:connection-start-point="d4"
-       inkscape:connection-start="#rect2985-38-7-2-4" />
+       inkscape:connection-start="#rect2985-38-7-2-4"
+       inkscape:connection-end="#rect2985-38-7-2"
+       inkscape:connection-end-point="d4" />
     <text
        xml:space="preserve"
        style="font-size:11.84105301px;font-style:normal;font-weight:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
@@ -1406,8 +1379,8 @@
     <text
        xml:space="preserve"
        style="font-size:12px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       x="-1590"
-       y="522.36218"
+       x="-1790"
+       y="512.36218"
        id="text6099"
        sodipodi:linespacing="125%"
        inkscape:export-filename="/home/meego/Documents/gitProject/obs-light/Doc/wizard diagram/path10678-82.png"
@@ -1415,11 +1388,11 @@
        inkscape:export-ydpi="90"><tspan
          sodipodi:role="line"
          id="tspan6101"
-         x="-1590"
-         y="522.36218">Use manifest.xml</tspan><tspan
+         x="-1790"
+         y="512.36218">Use manifest.xml</tspan><tspan
          sodipodi:role="line"
-         x="-1590"
-         y="537.36218"
+         x="-1790"
+         y="527.36218"
          id="tspan6103">git project</tspan></text>
     <flowRoot
        xml:space="preserve"
@@ -1529,7 +1502,7 @@
        xml:space="preserve"
        style="font-size:11.84105301px;font-style:normal;font-weight:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
        x="-1545.4707"
-       y="234.21819"
+       y="288.48969"
        id="text3023-3"
        sodipodi:linespacing="125%"
        transform="scale(0.9867544,1.0134234)"
@@ -1539,21 +1512,21 @@
          sodipodi:role="line"
          id="tspan3025-6"
          x="-1545.4707"
-         y="234.21819">ConfigProjectGitAlias</tspan></text>
+         y="288.48969">ConfigProjectGitAlias</tspan></text>
     <rect
        style="fill:none;stroke:#000000;stroke-width:0.48897046;stroke-opacity:1"
        id="rect2985-34-3"
        width="189.86842"
        height="25"
        x="-1619.8684"
-       y="222.3622"
+       y="277.36218"
        inkscape:export-filename="/home/meego/Documents/gitProject/obs-light/Doc/wizard diagram/path10678-82.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90"
        inkscape:connector-avoid="true" />
     <path
        style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)"
-       d="m -1508.2775,247.3622 186.555,139.99998"
+       d="m -1499.9492,302.36218 169.8984,85"
        id="path5243"
        inkscape:connector-type="polyline"
        inkscape:connector-curvature="0"
@@ -1566,7 +1539,7 @@
        inkscape:connection-end="#rect2985-690" />
     <path
        style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)"
-       d="m -1525.0359,192.36218 0.072,30.00002"
+       d="m -1525.0359,247.36218 0.072,30"
        id="path3156"
        inkscape:connector-type="polyline"
        inkscape:connector-curvature="0"
@@ -1574,5 +1547,50 @@
        inkscape:connection-start-point="d4"
        inkscape:connection-end="#rect2985-34-3"
        inkscape:connection-end-point="d4" />
+    <text
+       xml:space="preserve"
+       style="font-size:12px;font-style:normal;font-weight:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="-1525"
+       y="72.362183"
+       id="text3251-3-2-8-2"
+       sodipodi:linespacing="125%"
+       inkscape:export-filename="/home/meego/Documents/gitProject/obs-light/Doc/wizard diagram/path10678-82.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"><tspan
+         sodipodi:role="line"
+         id="tspan3253-5-5-0-9"
+         x="-1525"
+         y="72.362183">ChooseRepositoryTree</tspan></text>
+    <rect
+       style="fill:none;stroke:#000000;stroke-width:0.48897046;stroke-opacity:1"
+       id="rect2985-38-7-2-4-8"
+       width="189.86842"
+       height="25"
+       x="-1620"
+       y="57.362186"
+       inkscape:export-filename="/home/meego/Documents/gitProject/obs-light/Doc/wizard diagram/path10678-82.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"
+       inkscape:connector-avoid="true" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend)"
+       d="m -1525.0658,82.362186 0,29.999994"
+       id="path3193"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0"
+       inkscape:connection-start="#rect2985-38-7-2-4-8"
+       inkscape:connection-start-point="d4"
+       inkscape:connection-end="#rect2985-38-7-2-4"
+       inkscape:connection-end-point="d4" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow1Lend);display:inline"
+       d="m -1475.0239,27.362183 59.8923,15.000003 0,55 -59.9641,14.999994"
+       id="path4151"
+       inkscape:connector-type="polyline"
+       inkscape:connector-curvature="0"
+       inkscape:connection-end="#rect2985-38-7-2-4"
+       inkscape:connection-end-point="d4"
+       inkscape:connection-start="#rect2985-38-7"
+       inkscape:connection-start-point="d4" />
   </g>
 </svg>
