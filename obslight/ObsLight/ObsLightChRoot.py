@@ -37,6 +37,7 @@ import ObsLightMic
 import ObsLightErr
 import ObsLightConfig
 from ObsLightSubprocess import SubprocessCrt
+import ObsLightTools
 from ObsLightTools import isUserInGroup
 
 import ObsLightPrintManager
@@ -495,10 +496,9 @@ exit $?
         fsPath = self.getDirectory()
         self.allowAccessToObslightGroup(fsPath, recursive=recursive, writeAccess=True)
 
-    def createChRoot(self, repos,
-                           arch,
-                           apiurl,
-                           obsProject):
+
+    def createChRoot(self, rpmList, buildConfig, arch, specFile, projectName):
+
         self.chrootArch = arch
 
         self.failIfUserNotInUserGroup()
@@ -506,24 +506,46 @@ exit $?
         self.failIfQemuIsNotStatic()
 
         fsPath = self.getDirectory()
-        res = ObsLightOsc.getObsLightOsc().createChRoot(chrootDir=fsPath,
-                                                        repos=repos,
-                                                        arch=arch,
-                                                        apiurl=apiurl,
-                                                        project=obsProject,
-                                                        )
+
+        cmd = "sudo /usr/bin/build"
+        cmd += " --root %s --rpmlist=%s --dist %s --target %s --norootforbuild --changelog %s"
+        cmd = cmd % (fsPath, rpmList, buildConfig, arch, specFile)
+        res = self._subprocess(cmd, waitMess=True)
+
+#        res = ObsLightOsc.getObsLightOsc().createChRoot(chrootDir=fsPath,
+#                                                        repos=repos,
+#                                                        arch=arch,
+#                                                        apiurl=apiurl,
+#                                                        project=obsProject,
+#                                                        )
+
+#        # FIXME: since 0.5.1 there is a big regression: Tizen chroot jail creation fails.
+#        # The problem comes from Tizen's "rpm" package which does not own /usr/lib/rpm/tizen,
+#        # which gives this directory rwx------ file rights on certain conditions.
+#        # The following code is to workaround that.
+#        rpmTizenDir = os.path.join(chrootDir, "usr/lib/rpm/tizen")
+#        if retCode != 0 and os.path.isdir(rpmTizenDir):
+#            mode = os.stat(rpmTizenDir).st_mode
+#            if (stat.S_IMODE(mode) & (stat.S_IROTH | stat.S_IXOTH)) == 0:
+#                self.logger.warning("Using workaround for bug #25565")
+#                command2 = "sudo chmod 755 %s" % rpmTizenDir
+#                self.__subprocess(command2, waitMess=True)
+#                retCode = self._subprocess(command % {"clean": ""}, waitMess=True)
+#
+#        return retCode
+
 
         if res != 0:
-            message = "Can't create the project file system. "
+            message = "Can't create the project file system."
             message += "See the log for details about the error."
             raise ObsLightErr.ObsLightChRootError(message)
 
         self.fixFsRights()
 
-        retVal = self.prepareChroot(self.getDirectory(), obsProject)
+        retVal = self.prepareChroot(self.getDirectory(), projectName)
         if retVal != 0:
             return retVal
-        retVal = self.prepareChroot(self.getDirectory(), obsProject, user="root")
+        retVal = self.prepareChroot(self.getDirectory(), projectName, user="root")
         if retVal != 0:
             return retVal
         retVal = self.setTimezoneInBashrc("root")
@@ -1189,74 +1211,36 @@ exit $RPMBUILD_RETURN_CODE
         package.save()
         return 0
 
-    def __reOrderRpm(self, buildInfoCli, target, configPath):
-        command = []
-        cacheDir = "/tmp/reOrderDir"
-        cacheRpmList = cacheDir + "/rpmList"
-        cacheRpmLink = cacheDir + "/rpmLink"
 
-        self._subprocess(command="rm -rf " + cacheRpmLink)
-        self._subprocess(command="mkdir -p " + cacheRpmLink)
 
-        f = open(cacheRpmList, 'w')
-        listInput = []
-        dicoRpmName = {}
-        for i in buildInfoCli.deps:
-            if not ((i in buildInfoCli.preinstall_list) or (i in buildInfoCli.vminstall_list)) :
-                absPath = i.fullfilename
-                pkgName = os.path.basename(absPath)
-                if pkgName.endswith(".rpm"):
-                    pkgName = pkgName[:-4]
-
-                pkgName = pkgName[:pkgName.rfind("-")]
-                pkgName = pkgName[:pkgName.rfind("-")]
-                dicoRpmName[pkgName] = i
-                f.write(pkgName + "\n")
-                listInput.append(pkgName)
-                command = "ln -sf " + absPath + " " + cacheRpmLink + "/" + pkgName + ".rpm"
-                self._subprocess(command=command)
-        # flush() does not necessarily write the file's data to disk. 
-        # Use os.fsync(f.fileno()) to ensure this behavior.
-        f.flush()
-        os.fsync(f.fileno())
-        f.close()
-        dicopara = {}
-        dicopara["buildDir"] = "/usr/lib/build"
-        dicopara["cfgPth"] = configPath
-        dicopara["tgt"] = target
-        dicopara["RpmList"] = cacheRpmList
-        dicopara["cacheRpmLink"] = cacheRpmLink
-        command = "%(buildDir)s/order --dist %(cfgPth)s --archpath  %(tgt)s "
-        command += "--configdir %(buildDir)s/configs --manifest %(RpmList)s  %(cacheRpmLink)s"
-        command = command % dicopara
-
-        listOrdered = self._subprocess(command=command, stdout=True)
-
-        result = []
-        for pkgName in   listOrdered.split():
-            result.append(dicoRpmName[pkgName])
-        return result
-
-    def installBuildRequires(self, buildInfoCli, target, configPath):
+#    def installBuildRequires(self, buildInfoCli, target, configPath):
+    def installBuildRequires(self, rpmListFilePath, target, configPath):
         instPkgSet = set(self.getInstalledPackagesList())
-        wantedPkgList = self.__reOrderRpm(buildInfoCli, target, configPath)
+#        wantedPkgList = self.__reOrderRpm(buildInfoCli, target, configPath)
+
+        print
+        print "instPkgSet", instPkgSet
+        print
+
+        if os.path.isfile(rpmListFilePath):
+            absPathDict = ObsLightTools.getRpmPathDict(rpmListFilePath)
+        else:
+            msg = "Can't install RPM into chroot jail, the file '%s' do not exist. "
+            msg = msg % rpmListFilePath
+            raise ObsLightErr.ObsLightChRootError(msg)
 
         command = []
         instCount = 0
         eraseCount = 0
-        absPathDict = {}
-
-        # Build a dict of package -> path of RPM
-        for i in wantedPkgList:
-            absPath = i.fullfilename
-            pkgName = os.path.basename(absPath)
-            if pkgName.endswith(".rpm"):
-                pkgName = pkgName[:-4]
-            absPathDict[pkgName] = absPath
 
         wantedPkgSet = set(absPathDict.keys())
+        print "wantedPkgSet", wantedPkgSet
+        print
         # Erase unwanted packages
         unWantedPkgSet = instPkgSet.difference(wantedPkgSet)
+        print "unWantedPkgSet", unWantedPkgSet
+        print
+        for p in wantedPkgSet:print "         ", absPathDict[p]
         for p in unWantedPkgSet:
             cmd = "rpm --nodeps -e '%s'" % p
             command.append(cmd)

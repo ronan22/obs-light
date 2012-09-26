@@ -26,24 +26,7 @@
    <string notr="true">1</string>
   </attribute>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="3" column="0" colspan="2">
-    <widget class="QListWidget" name="RepoListWidget">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1">
-    <widget class="QPushButton" name="AddRepositoryButton">
-     <property name="text">
-      <string>Add URL</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0">
-    <widget class="QLineEdit" name="lineEdit"/>
-   </item>
-   <item row="4" column="0">
+   <item row="7" column="0" colspan="2">
     <widget class="QCheckBox" name="autoAddRepoButton">
      <property name="enabled">
       <bool>true</bool>
@@ -53,6 +36,53 @@
      </property>
      <property name="checked">
       <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="2">
+    <widget class="QPushButton" name="DelRepositoryButton">
+     <property name="text">
+      <string>Del Repo</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0" colspan="3">
+    <widget class="QTableView" name="RepoTableView">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0">
+    <widget class="QLineEdit" name="repositoryNameEdit"/>
+   </item>
+   <item row="6" column="1">
+    <widget class="QLineEdit" name="repositoryUrlEdit"/>
+   </item>
+   <item row="5" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Repository Name</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="1">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Repository URL</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="2">
+    <widget class="QPushButton" name="AddRepositoryButton">
+     <property name="text">
+      <string>Add Repo</string>
      </property>
     </widget>
    </item>

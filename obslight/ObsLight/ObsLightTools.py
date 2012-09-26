@@ -20,6 +20,7 @@ Created on 17 nov. 2011
 @author: Ronan Le Martret
 @author: Florent Vennetier
 '''
+import ObsLightPrintManager
 
 from urlparse import urlparse
 import httplib
@@ -29,6 +30,8 @@ import re
 import traceback
 import time
 import sys
+
+import ConfigParser
 
 from subprocess import call
 import ObsLightConfig
@@ -423,24 +426,129 @@ def dumpError(exceptionType, message, traceback_):
     return logPath
 
 def getRepoFromGbsProjectConf(path):
-    result = []
-    patternRepoUrl = r'repo.*\.url=(.*)'
+    configParser = ConfigParser.ConfigParser()
+    configFile = open(path, 'r')
+    configParser.readfp(configFile)
+    configFile.close()
 
-    if path is not None and os.path.isfile(path):
-        f = open(path, 'r')
-        for line in f:
-            res = re.findall(patternRepoUrl, line)
-            if len(res) > 0:
-                result.extend(res)
+    repoDict = {}
+    profileDict = {}
+    result = {}
+    general = None
+
+    for section in configParser.sections():
+        if section.startswith("profile."):
+            if "repos" in configParser.options(section):
+                listRepo = configParser.get(section, 'repos').replace(" ", "").split(",")
+                if len(listRepo) > 0:
+                    profileDict[section] = listRepo
+        elif section.startswith("repo."):
+            if "url" in configParser.options(section):
+                repoDict[section] = configParser.get(section, 'url')
+
+    if configParser.has_section('general'):
+        if "profile" in configParser.options('general'):
+            p = configParser.get('general', "profile")
+            if p in profileDict.keys():
+                profileDict['general'] = profileDict[p]
+
+    for k in profileDict.keys():
+        res = []
+        for r in profileDict[k]:
+            if r in repoDict.keys():
+                res.append((r[len("repo."):], repoDict[r]))
+        if len(res) > 0:
+            result[k] = res
+
     return result
 
+def createGbsProjectConfig(destDir, projectName, repoList):
+    if len(repoList) == 0:
+        return None
+    gbsProjectConfigFilePath = os.path.join(destDir, ".gbs.conf")
+    configFile = open(gbsProjectConfigFilePath, 'w')
+    configParser = ConfigParser.ConfigParser()
+
+    profileName = "profile." + projectName
+    rNameList = []
+    for rName, rUrl in repoList:
+        rName = "repo." + rName
+        rNameList.append(rName)
+        configParser.add_section(rName)
+        configParser.set(rName, "url", rUrl)
+
+    configParser.add_section("general")
+    configParser.set("general", "profile", profileName)
+
+    configParser.add_section(profileName)
+    configParser.set(profileName, "repos", ", ".join(rNameList))
+
+    configParser.write(configFile)
+    configFile.close()
+
+    return gbsProjectConfigFilePath
+
+
+def getRpmPathDict(rpmListFilePath):
+    f = open(rpmListFilePath, 'r')
+    resultDep = {}
+    resultDepRPMid = []
+    preinstallRes = None
+    vminstallRes = None
+    cbpreinstallRes = None
+    cbinstallRes = None
+    runscriptsRes = None
+    distRes = None
+
+    for line in f:
+        if line.startswith("preinstall"):
+            preinstallRes = line
+            preinstallList = preinstallRes[len("preinstall:"):].split()
+        elif line.startswith("vminstall"):
+            vminstallRes = line
+            vminstallList = vminstallRes[len("vminstall:"):].split()
+        elif line.startswith("cbpreinstall"):
+            cbpreinstallRes = line
+            cbpreinstallList = cbpreinstallRes[len("cbpreinstall:"):].split()
+        elif line.startswith("cbinstall"):
+            cbinstallRes = line
+            cbinstallList = cbinstallRes[len("cbinstall:"):].split()
+        elif line.startswith("runscripts"):
+            runscriptsRes = line
+            runscriptsList = runscriptsRes[len("runscripts:"):].split()
+        elif line.startswith("dist"):
+            distRes = line
+        elif line.startswith("rpmid"):
+            resultDepRPMid.append(line)
+        else:
+            rpmShortName, rpmPath = line.split()
+            rpmName = os.path.basename(rpmPath)
+            if rpmName.endswith(".rpm"):
+                rpmName = rpmName[:-len(".rpm")]
+            resultDep[rpmName] = rpmPath.replace("\n", "")
+    f.close()
+    return resultDep
+
+
+def getGbsBuildRepo(path):
+    f = open(path, 'r')
+
+
+def getBuildConfigPathFromGbsConfig(projectTemplatePath):
+    pass
 
 if __name__ == '__main__':
 
-    Url = "http://repo.pub.meego.com/home:/ronan:/OBS_Light/openSUSE_11.4"
-    print "testUrlRepo", testUrlRepo(Url)
-
-    Url = "https://api.meego.com"
-    print "testUrl", testUrl(Url)
-    print "testHost", testHost(Url)
+#    Url = "http://repo.pub.meego.com/home:/ronan:/OBS_Light/openSUSE_11.4"
+#    print "testUrlRepo", testUrlRepo(Url)
+#
+#    Url = "https://api.meego.com"
+#    print "testUrl", testUrl(Url)
+#    print "testHost", testHost(Url)
 #    print "importCert", importCert(Url)
+
+    print getRpmPathDict("/tmp/rpmlist.StF0Gh2")
+
+
+
+

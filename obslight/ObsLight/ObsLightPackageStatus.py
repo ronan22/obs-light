@@ -37,13 +37,13 @@ BUILD_INSTALLED = "Build Installed"
 BUILD_PACKAGED = "Build Packaged"
 
 LIST_CHROOT_STATUS = [NOT_INSTALLED,
-                    NO_BUILD_DIRECTORY,
-                    NO_BUILD_SECTION,
-                    MANY_BUILD_DIRECTORIES,
-                    PREPARED,
-                    BUILD,
-                    BUILD_INSTALLED,
-                    BUILD_PACKAGED]
+                      NO_BUILD_DIRECTORY,
+                      NO_BUILD_SECTION,
+                      MANY_BUILD_DIRECTORIES,
+                      PREPARED,
+                      BUILD,
+                      BUILD_INSTALLED,
+                      BUILD_PACKAGED]
 
 # define the package source status.
 SOURCE_OBS_READ_ONLY = "OBS\n(ro)"

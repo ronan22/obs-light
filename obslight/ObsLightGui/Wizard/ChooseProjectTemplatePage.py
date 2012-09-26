@@ -36,7 +36,6 @@ class ChooseProjectTemplatePage(ObsLightWizardPage):
         self.projectTemplateDict = None
         self._selectedFile = None
 
-
     def initializePage(self):
         self.projectTemplateDict = self.manager.getProjectTemplateList()
         projectTemplateList = self.projectTemplateDict.keys()
@@ -80,9 +79,9 @@ class ChooseProjectTemplatePage(ObsLightWizardPage):
 
     def nextId(self):
         if self.isAddNewLocalProject():
-            return self.wizard().pageIndex(u"ChooseProjectConf")
-        else:
             return self.wizard().pageIndex(u"ChooseRepository")
+        else:
+            return self.wizard().pageIndex(u"ChooseRepositoryTree")
 
     def __completeChanged(self, _row):
         self.completeChanged.emit()

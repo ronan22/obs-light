@@ -29,6 +29,7 @@ from ObsLightGui.ObsLightGuiObject import ObsLightGuiObject
 from ChooseLocalGbsOrOBSProjectPage import ChooseLocalGbsOrOBSProjectPage
 from ChooseProjectTemplatePage import ChooseProjectTemplatePage
 from ChooseProjectConfPage import ChooseProjectConfPage
+from ChooseRepositoryTreePage import ChooseRepositoryTreePage
 from ChooseRepositoryPage import ChooseRepositoryPage
 from ChooseGbsArchPage import ChooseGbsArchPage
 from ChooseManifestPage import ChooseManifestPage
@@ -77,6 +78,7 @@ class ConfigWizard(QWizard, ObsLightGuiObject):
         addPage(u'ChooseLocalGbsOrOBSProject', ChooseLocalGbsOrOBSProjectPage)
         addPage(u'ChooseProjectTemplate', ChooseProjectTemplatePage)
         addPage(u'ChooseProjectConf', ChooseProjectConfPage)
+        addPage(u'ChooseRepositoryTree', ChooseRepositoryTreePage)
         addPage(u'ChooseRepository', ChooseRepositoryPage)
         addPage(u'ChooseGbsArch', ChooseGbsArchPage)
         addPage(u'ChooseManifestPage', ChooseManifestPage)
@@ -165,3 +167,9 @@ class ConfigWizard(QWizard, ObsLightGuiObject):
 
     def getSelectedGbsProject(self):
         return self.getProjectTemplatePath(False)
+
+    def getInitProjectRepo(self):
+        return self.Pages[u'ChooseRepositoryTree'].getInitProjectRepo()
+
+    def autoAddProjectRepo(self):
+        return self.Pages[u'ChooseRepository'].autoAddProjectRepo()

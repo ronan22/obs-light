@@ -117,7 +117,8 @@ class ChooseProjectConfPage(ObsLightWizardPage):
         return self.isComplete()
 
     def nextId(self):
-        return self.wizard().pageIndex(u'ChooseRepository')
+        return self.wizard().pageIndex(u'ChooseGbsArch')
+
 
     def selectConfRow(self, _row):
         if self.projectConfDict is not None:

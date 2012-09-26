@@ -554,7 +554,11 @@ class ObsLightManagerCore(ObsLightManagerBase):
 
     #///////////////////////////////////////////////////////////////////////////Local Project
     def getProjectTemplateList(self):
-        return self.__getProjectFilefList("/usr/share/obslight/projectTemplate")
+        res = self.__getProjectFilefList("/usr/share/obslight/projectTemplate")
+        gbsConfPath = os.path.expanduser("~/.gbs.conf")
+        if os.path.isfile(gbsConfPath):
+            res[".gbs.conf"] = gbsConfPath
+        return res
 
     def getProjectConfList(self):
         return self.__getProjectFilefList("/usr/share/obslight/projectConf/")
@@ -577,15 +581,15 @@ class ObsLightManagerCore(ObsLightManagerBase):
     def getDefaultGbsArch(self):
         return ["i586", "x86_64 ", "armv8el"]
 
-    @checkNonEmptyStringProjectArchitecture(4)
-    @checkAvailableProjectLocalName(5)
-    def addGbsProject(self, projectTemplatePath, projectConfPath, addedRepo, arch, alias):
+    @checkNonEmptyStringProjectArchitecture(3)
+    @checkAvailableProjectLocalName(4)
+    def addGbsProject(self, projectConfPath, repoList, arch, alias, autoAddProjectRepo=True):
         checkNonEmptyStringLocalName(alias)
-        res = self._myObsLightProjects.addGbsProject(projectTemplatePath,
-                                                     projectConfPath,
-                                                     addedRepo,
+        res = self._myObsLightProjects.addGbsProject(projectConfPath,
+                                                     repoList,
                                                      arch,
-                                                     alias)
+                                                     alias,
+                                                     autoAddProjectRepo)
         self._myObsLightProjects.save()
         return res
 

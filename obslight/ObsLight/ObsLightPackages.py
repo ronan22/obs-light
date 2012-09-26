@@ -37,8 +37,7 @@ class ObsLightPackages(object):
 
         for name in fromSave.get("savePackages", {}).keys():
             packageSave = fromSave["savePackages"][name]
-            package = ObsLightPackage(self.__project,
-                                      fromSave=packageSave)
+            package = ObsLightPackage(self.__project, fromSave=packageSave)
 
             self.__dicOBSLightPackages[name] = package
 

@@ -46,10 +46,10 @@ from ObsLightPackageStatus import NOT_INSTALLED
 from ObsLightPackageStatus import PackageInfo
 
 
-from gbp.scripts.buildpackage_rpm import git_archive, guess_comp_type
-from gbp.scripts.buildpackage_rpm import git_archive
+from gbp.scripts.buildpackage_rpm import main as gbp_build
 from gbp.rpm.git import GitRepositoryError, RpmGitRepository
 import gbp.rpm as rpm
+from gbp.errors import GbpError
 
 class ObsLightPackage(ObsLightObject):
 
@@ -150,7 +150,6 @@ class ObsLightPackage(ObsLightObject):
 
         aDic["firstCommitTag"] = self.__firstCommitTag
         aDic["secondCommitTag"] = self.__secondCommitTag
-
 
         aDic["description"] = self.__description
         aDic["title"] = self.__packageTitle
@@ -621,6 +620,31 @@ class ObsLightPackage(ObsLightObject):
                 path = path[1:]
             return os.path.join(chrootPath , path)
 
+        def create_gbp_export_args(repo, commit, export_dir, tmp_dir, spec):
+            """
+            Construct the cmdline argument list for git-buildpackage export
+            """
+            upstream_branch = "upstream"
+            upstream_tag = 'upstream/%(upstreamversion)s'
+
+            # Now, start constructing the argument list
+            args = ["argv[0] placeholder", "--git-export-only",
+                    "--git-ignore-new", "--git-builder=osc",
+                    "--git-upstream-branch=upstream",
+                    "--git-export-dir=%s" % export_dir,
+                    "--git-tmp-dir=%s" % tmp_dir,
+                    "--git-packaging-dir=packaging",
+                    "--git-spec-file=%s" % spec,
+                    "--git-export=%s" % commit,
+                    "--git-upstream-branch=%s" % upstream_branch,
+                    "--git-upstream-tag=%s" % upstream_tag]
+
+
+            args.extend(["--git-no-patch-export",
+                         "--git-upstream-tree=%s" % commit])
+
+            return args
+
         chrootRpmBuildDirectory = self.getChrootRpmBuildDirectory()
         absChrootRpmBuildDirectory = "%s%s/SOURCES/" % (self.__project.getChRootPath(), chrootRpmBuildDirectory)
 
@@ -639,17 +663,26 @@ class ObsLightPackage(ObsLightObject):
 
             if len(listFile) > 1:
                 repo = RpmGitRepository(self.getPackageSourceDirectory())
+                commit = 'HEAD'
+                export_dir = absChrootRpmBuildDirectory
+                tmp_dir = "/tmp"
                 spec = rpm.parse_spec(self.getSpecFile(fullPath=True))
-                destDir = absChrootRpmBuildDirectory
-                comp_type = guess_comp_type(spec)
 
-                git_archive(repo,
-                            spec,
-                            destDir,
-                            'HEAD',
-                            comp_type,
-                            comp_level=9,
-                            with_submodules=True)
+#                comp_type = guess_comp_type(spec)
+                gbp_args = create_gbp_export_args(repo,
+                                                  commit,
+                                                  export_dir,
+                                                  tmp_dir,
+                                                  spec)
+
+#                git_archive(repo,
+#                            spec,
+#                            destDir,
+#                            'HEAD',
+#                            comp_type,
+#                            comp_level=9,
+#                            with_submodules=True)
+                ret = gbp_build(gbp_args)
 
         return 0
 
@@ -865,7 +898,7 @@ class ObsLightPackage(ObsLightObject):
 
     def getPackageInfo(self, info):
         return self.__packageInfo.getPackageInfo(info)
-        res = {}
+
 
     def isExclude(self):
         return self.__packageInfo.isExclude()

@@ -52,7 +52,7 @@ from osc.build import Buildinfo
 from ObsLightObject import ObsLightObject
 import ObsLightSubprocess
 import ObsLightPrintManager
-EMPTYPROJECTPATH = os.path.join(os.path.dirname(__file__), "emptySpec")
+#EMPTYPROJECTPATH = os.path.join(os.path.dirname(__file__), "emptySpec")
 
 import ObsLightConfig
 
@@ -283,27 +283,25 @@ class ObsLightOsc(ObsLightObject):
     def getPackageBuildRequires(self,
                                 api,
                                 projectObsName,
-                                package,
                                 projectTarget,
                                 arch,
                                 specFile,
-                                extraPackages=[],
-                                existsOnServer=True):
+                                extraPackages=[]):
         self.get_config()
-        if existsOnServer:
-            buildinfoUrl = "%(api)s/build/%(project)s/%(target)s/%(arch)s/%(package)s/_buildinfo"
-        else:
-            buildinfoUrl = "%(api)s/build/%(project)s/%(target)s/%(arch)s/_repository/_buildinfo"
+#        if existsOnServer:
+#            buildinfoUrl = "%(api)s/build/%(project)s/%(target)s/%(arch)s/%(package)s/_buildinfo"
+#        else:
+#            buildinfoUrl = "%(api)s/build/%(project)s/%(target)s/%(arch)s/_repository/_buildinfo"
+        buildinfoUrl = "%(api)s/build/%(project)s/%(target)s/%(arch)s/_repository/_buildinfo"
         buildinfoUrl = buildinfoUrl % {"api": api,
                                        "project": projectObsName,
-                                       "package": package,
                                        "target": projectTarget,
                                        "arch": arch}
 
         if len(extraPackages) > 0:
             query = "?add=" + "&add=".join(extraPackages)
             buildinfoUrl += query
-        self.logger.debug("Getting buildrequires of %s from %s" % (package, buildinfoUrl))
+#        self.logger.debug("Getting buildrequires of %s from %s" % (package, buildinfoUrl))
         self.cleanBuffer(buildinfoUrl)
 
         try:
@@ -332,8 +330,7 @@ class ObsLightOsc(ObsLightObject):
     def getOscPackagecachedir(self, obsDir=""):
         return conf.config['packagecachedir'] % {'apihost': obsDir}
 
-    def updateCache(self, buildInfoXml, apihost):
-
+    def createBuildInfoObj(self, buildInfoXml, apihost):
         aFile = tempfile.NamedTemporaryFile("w", delete=False)
         aFile.write(buildInfoXml)
         aFile.flush()
@@ -347,8 +344,12 @@ class ObsLightOsc(ObsLightObject):
 
         bi = Buildinfo(bi_filename, apihost, build_type, prefer_pkgs.keys())
 
+        return bi
+
+    def updateCache(self, buildInfo, apihost):
         #Fix to solve Http 401 error under debian.
         conf._build_opener.last_opener = (None, None)
+        apiurl = str(urlparse.urlparse(apihost)[1])
 
         cache_dir = self.getOscPackagecachedir(apiurl)
 
@@ -363,8 +364,8 @@ class ObsLightOsc(ObsLightObject):
                 urllist = conf.config['urllist']
 
         # OBS 1.5 and before has no downloadurl defined in buildinfo
-        if bi.downloadurl:
-            urllist.append(bi.downloadurl + '/%(extproject)s/%(extrepository)s/%(arch)s/%(filename)s')
+        if buildInfo.downloadurl:
+            urllist.append(buildInfo.downloadurl + '/%(extproject)s/%(extrepository)s/%(arch)s/%(filename)s')
 
         urllist.append('%(apiurl)s/build/%(project)s/%(repository)s/%(repoarch)s/%(repopackage)s/%(repofilename)s')
 
@@ -381,13 +382,13 @@ class ObsLightOsc(ObsLightObject):
                           enable_cpio=True,
                           cookiejar=conf.cookiejar)
 
-#        check_trusted_projects(apiurl, [ i for i in bi.projects.keys() if not i == prj ])
+#        check_trusted_projects(apiurl, [ i for i in buildInfo.projects.keys() if not i == prj ])
         self.get_config()
-        fetcher.run(bi)
+        fetcher.run(buildInfo)
 
         sys.stderr = old_stderr
         sys.stdout = old_stdout
-        return bi
+        return buildInfo
 
     def getDepProject(self,
                       apiurl=None,

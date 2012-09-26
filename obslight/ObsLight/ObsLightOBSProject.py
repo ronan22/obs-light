@@ -42,6 +42,8 @@ import ObsLightConfig
 import ObsLightGitManager
 from ObsLightSpec import getSpecTagValue
 
+import tempfile
+
 class ObsLightOBSProject(ObsLightBuilderProject):
 
     def __init__(self,
@@ -63,6 +65,7 @@ class ObsLightOBSProject(ObsLightBuilderProject):
                                         projectArchitecture=projectArchitecture,
                                         fromSave=fromSave)
 
+        self.setProjectType('OBS')
         self.__obsServers = obsServers
 
 
@@ -71,53 +74,44 @@ class ObsLightOBSProject(ObsLightBuilderProject):
 
         self.__projectName = fromSave.get("projectObsName", projectObsName)
 
-
         self.__projectTarget = fromSave.get("projectTarget", projectTarget)
 
         self.__obsServer = fromSave.get("obsServer", obsServer)
         if not (self.__obsServer in self.__obsServers.getObsServerList()):
-                    message = "WARNING: '%s' is not a defined OBS server " % self.__obsServer
-                    self.logger.warn(message)
+            message = "WARNING: '%s' is not a defined OBS server " % self.__obsServer
+            self.logger.warn(message)
         #perhaps a trusted_prj must be had
         else:
             obsServer = self.__obsServers.getObsServer(name=self.__obsServer)
             obsServer.initConfigProject(projet=self.__projectName, repos=self.__projectTarget)
 
-        self.__readOnly = fromSave.get("ro", obsServer.getProjectParameter(self.__projectName,
-                                                                           "readonly"))
+        if self.isReadOnly():
+            self.setReadOnly(fromSave.get("ro", obsServer.getProjectParameter(self.__projectName,
+                                                                              "readonly")))
+
 
     def getProjectParameter(self, parameter=None):
         '''
         Get the value of a project parameter:
         the valid parameter is :
-            projectLocalName
             projectObsName
-            projectDirectory
             obsServer
             projectTarget
-            projectArchitecture
             title
             description
         '''
-        if parameter == "projectLocalName":
-            return self.__projectLocalName
-        elif parameter == "projectObsName":
+        if parameter == "projectObsName":
             return self.__projectName
-        elif parameter == "projectDirectory":
-            return self.getDirectory()
-        elif parameter == "obsServer":
+        if parameter == "obsServer":
             return self.__obsServer
         elif parameter == "projectTarget":
             return self.__projectTarget
-        elif parameter == "projectArchitecture":
-            return self.__projectArchitecture
-        elif parameter == "title":
+        if parameter == "title":
             return self.__projectTitle
         elif parameter == "description":
             return self.__description
         else:
-            message = "parameter value is not valid for getProjectParameter"
-            raise ObsLightErr.ObsLightProjectsError(message)
+            return ObsLightBuilderProject.getProjectParameter(self, parameter)
 
     def setProjectParameter(self, parameter=None, value=None):
         '''
@@ -137,33 +131,27 @@ class ObsLightOBSProject(ObsLightBuilderProject):
         elif parameter == "description":
             self.__description = value
         else:
-            message = "parameter '%s' is not valid for setProjectParameter" % parameter
-            raise ObsLightErr.ObsLightProjectsError(message)
+            ObsLightBuilderProject.setProjectParameter(self, parameter, value)
         return 0
 
     def getDic(self):
-        aDic = {}
-        aDic["projectLocalName"] = self.__projectLocalName
+        aDic = ObsLightBuilderProject.getDic(self)
         aDic["projectObsName"] = self.__projectName
         aDic["obsServer"] = self.__obsServer
         aDic["projectTarget"] = self.__projectTarget
-        aDic["projectArchitecture"] = self.__projectArchitecture
         aDic["title"] = self.__projectTitle
         aDic["description"] = self.__description
-        aDic["packages"] = self.__packages.getDic()
-        aDic["chrootIsInit"] = self.__chrootIsInit
-        aDic["ro"] = self.__readOnly
 #        aDic["extraChrootPackages"] = self.__extraChrootPackages
         return aDic
 
     #--------------------------------------------------------------------------- OBS server
-    def __getConfigPath(self):
-        if self.__configPath is None:
+    def getBuildConfigPath(self):
+        if ObsLightBuilderProject.getBuildConfigPath(self) is None:
             obsServer = self.__obsServers.getObsServer(self.__obsServer)
-            self.__configPath = obsServer.saveProjectConfig(self.__projectName,
-                                                            self.__projectTarget)
+            self.setBuildConfigPath(obsServer.saveProjectConfig(self.__projectName,
+                                                                 self.__projectTarget))
 
-        return self.__configPath
+        return ObsLightBuilderProject.getBuildConfigPath(self)
 
     def getProjectObsName(self):
         return self.__projectName
@@ -186,31 +174,32 @@ class ObsLightOBSProject(ObsLightBuilderProject):
         '''
         refresh the package status and rev with the state on OBS Server.
         '''
-        def doRefreshObsStatus(obsServer, package):
-            status = obsServer.getPackageStatus(project=self.__projectName,
-                                                package=package,
-                                                repo=self.__projectTarget,
-                                                arch=self.__projectArchitecture)
-            if status != None:
-                self.__packages.getPackage(package).setPackageParameter(parameter="status",
-                                                                        value=status)
-            return self.__refreshObsPackageRev(package=package)
-
-
-        pkgObj = self.getPackage(package)
-        if not pkgObj.isGitPackage:
-
-            obsServer = self.__obsServers.getObsServer(self.__obsServer)
-
-            if package is not None:
-                return doRefreshObsStatus(obsServer, package)
-
-            else:
-                for pk in self.getPackageList():
-                    doRefreshObsStatus(obsServer, pk)
-                return 0
-        else:
-            return 0
+        return 0
+#        def doRefreshObsStatus(obsServer, package):
+#            status = obsServer.getPackageStatus(project=self.__projectName,
+#                                                package=package,
+#                                                repo=self.__projectTarget,
+#                                                arch=self.getArchitecture())
+##            if status != None:
+##                self._getPackages().getPackage(package).setPackageParameter(parameter="status",
+##                                                                            value=status)
+#            return self.__refreshObsPackageRev(package=package)
+#
+#
+#        pkgObj = self.getPackage(package)
+#        if not pkgObj.isGitPackage:
+#
+#            obsServer = self.__obsServers.getObsServer(self.__obsServer)
+#
+#            if package is not None:
+#                return doRefreshObsStatus(obsServer, package)
+#
+#            else:
+#                for pk in self.getPackageList():
+#                    doRefreshObsStatus(obsServer, pk)
+#                return 0
+#        else:
+#            return 0
 
 #    def getChRootRepositories(self):
 #        return self.__chroot.getChRootRepositories()
@@ -219,7 +208,7 @@ class ObsLightOBSProject(ObsLightBuilderProject):
         obsServer = self.__obsServers.getObsServer(self.__obsServer)
         return obsServer.getDependencyRepositories(self.__projectName,
                                                    self.__projectTarget,
-                                                   self.__projectArchitecture)
+                                                   self.getArchitecture())
 
 
     def getReposProject(self):
@@ -234,7 +223,7 @@ class ObsLightOBSProject(ObsLightBuilderProject):
         """
         refrech package OBS Title and description
         """
-        pkgObj = self.__packages.getPackage(name)
+        pkgObj = self._getPackages().getPackage(name)
 
         #No Title or description for git package.
         if not pkgObj.isGitPackage:
@@ -246,7 +235,7 @@ class ObsLightOBSProject(ObsLightBuilderProject):
             pkgObj.setPackageParameter(parameter="description", value=description)
 
     def repairPackageDirectory(self, package):
-        pkgObj = self.__packages.getPackage(name)
+        pkgObj = self._getPackages().getPackage(name)
 
         if not pkgObj.isGitPackage:
             if package != None:
@@ -272,14 +261,14 @@ class ObsLightOBSProject(ObsLightBuilderProject):
             if self.__obsServer in self.__obsServers.getObsServerList():
                 obsServer = self.__obsServers.getObsServer(self.__obsServer)
                 res1 = set(obsServer.getObsProjectPackageList(projectObsName=self.__projectName))
-                res2 = set(self.__packages.getPackagesList())
+                res2 = set(self._getPackages().getPackagesList())
                 res = list(res1.difference(res2))
                 res.sort()
                 return res
             else:
                 return  None
         else:
-            res = self.__packages.getPackagesList()
+            res = self._getPackages().getPackagesList()
             return res
 
 
@@ -289,9 +278,145 @@ class ObsLightOBSProject(ObsLightBuilderProject):
         '''
         ObsLightProjectCore.updatePackage(name)
 
-        pkgObj = self.__packages.getPackage(name)
+        pkgObj = self._getPackages().getPackage(name)
         if not pkgObj.isGitPackage:
             server = self.__obsServers.getObsServer(self.__obsServer)
             self.refreshObsStatus(name)
 
         return 0
+
+    def autoDisableExtraChrootPackages(self, packageName, specFileName):
+        """Checks if extra packages are available, and enable/disable them accordingly"""
+        obsServer = self.__obsServers.getObsServer(self.__obsServer)
+        extraPackages = set(self.__extraChrootPackages)
+        gotError = True
+        while(gotError and len(extraPackages) > 0):
+            try:
+                buildInfoCli = obsServer.getPackageBuildRequires(self.__projectName,
+                                                                 self.__projectTarget ,
+                                                                 self.getArchitecture(),
+                                                                 specFileName,
+                                                                 list(extraPackages))
+                gotError = False
+            except ObsLightErr.ObsLightOscErr as e:
+                gotError = True
+                toBeRemoved = set()
+                for p in extraPackages:
+                    if e.msg.find(p) >= 0:
+                        toBeRemoved.add(p)
+
+                extraPackages.difference_update(toBeRemoved)
+        for p in self.__extraChrootPackages.keys():
+            self.__extraChrootPackages[p] = p in extraPackages
+
+    def createRpmList(self, specFile):
+        """
+        Create a rpmlist file and return the path.
+        """
+
+        obsServer = self.__obsServers.getObsServer(self.__obsServer)
+        extraPkg = self.getExtraChrootPackagesList()
+        buildInfoCli = obsServer.getPackageBuildRequires(self.__projectName,
+                                                         self.__projectTarget ,
+                                                         self.getArchitecture(),
+                                                         specFile,
+                                                         extraPkg)
+
+
+        res, dicoRpmName = self.__reOrderRpm(buildInfoCli, self.getTarget(), self.getBuildConfigPath())
+
+        preinstall_list = buildInfoCli.preinstall_list
+        vminstall_list = buildInfoCli.vminstall_list
+        cbinstall_list = buildInfoCli.cbinstall_list
+        cbpreinstall_list = buildInfoCli.cbpreinstall_list
+        runscripts_list = buildInfoCli.runscripts_list
+
+#        dicoRpmName = ObsLightCacheManager.checkCacheFile(dicoRpmName)
+
+        rpmListFilePath = tempfile.mkstemp()
+        f = open(rpmListFilePath[1], 'w')
+
+#        print "rpmListFilePath[1]", rpmListFilePath[1]
+
+        for package in res:
+#            print "package", package, " dicoRpmName[package]", dicoRpmName[package]
+            f.write(package + " " + dicoRpmName[package] + "\n")
+
+        f.write("preinstall: " + " ".join(preinstall_list) + "\n")
+        f.write("vminstall: " + " ".join(vminstall_list) + "\n")
+        f.write("cbinstall: " + " ".join(cbinstall_list) + "\n")
+        f.write("cbpreinstall: " + " ".join(cbpreinstall_list) + "\n")
+        f.write("runscripts: " + " ".join(runscripts_list) + "\n")
+
+        f.close()
+
+        return rpmListFilePath[1]
+
+    def __reOrderRpm(self, buildInfoCli, target, configPath):
+        command = []
+        cacheDir = "/tmp/reOrderDir"
+        cacheRpmList = cacheDir + "/rpmList"
+        cacheRpmLink = cacheDir + "/rpmLink"
+
+        self._subprocess(command="rm -rf " + cacheRpmLink)
+        self._subprocess(command="mkdir -p " + cacheRpmLink)
+
+        f = open(cacheRpmList, 'w')
+        listInput = []
+        dicoRpmName = {}
+        for i in buildInfoCli.deps:
+            if not ((i in buildInfoCli.preinstall_list) or (i in buildInfoCli.vminstall_list)) :
+                absPath = i.fullfilename
+                pkgName = os.path.basename(absPath)
+                if pkgName.endswith(".rpm"):
+                    pkgName = pkgName[:-4]
+
+                pkgName = pkgName[:pkgName.rfind("-")]
+                pkgName = pkgName[:pkgName.rfind("-")]
+                dicoRpmName[pkgName] = absPath
+#                dicoRpmName[pkgName] = i
+                f.write(pkgName + "\n")
+                listInput.append(pkgName)
+                command = "ln -sf " + absPath + " " + cacheRpmLink + "/" + pkgName + ".rpm"
+                self._subprocess(command=command)
+        # flush() does not necessarily write the file's data to disk. 
+        # Use os.fsync(f.fileno()) to ensure this behavior.
+        f.flush()
+        os.fsync(f.fileno())
+        f.close()
+        dicopara = {}
+        dicopara["buildDir"] = "/usr/lib/build"
+        dicopara["cfgPth"] = configPath
+        dicopara["tgt"] = target
+        dicopara["RpmList"] = cacheRpmList
+        dicopara["cacheRpmLink"] = cacheRpmLink
+        command = "%(buildDir)s/order --dist %(cfgPth)s --archpath  %(tgt)s "
+        command += "--configdir %(buildDir)s/configs --manifest %(RpmList)s  %(cacheRpmLink)s"
+        command = command % dicopara
+
+        listOrdered = self._subprocess(command=command, stdout=True)
+
+        result = listOrdered.split()
+
+#        # Build a dict of package -> path of RPM
+#        for i in wantedPkgList:
+#            absPath = i.fullfilename
+#            pkgName = os.path.basename(absPath)
+#            if pkgName.endswith(".rpm"):
+#                pkgName = pkgName[:-4]
+#            absPathDict[pkgName] = absPath
+
+        return result, dicoRpmName
+
+    def __getOscPackagesDefaultDirectory(self):
+        '''
+        Return the package Osc directory of the local project.
+        '''
+        return os.path.join(self.getDirectory(), self.__projectName)
+
+    def createPackagePath(self, name, isGitPackage):
+        if isGitPackage:
+           return os.path.join(self.getGitPackagesDefaultDirectory(), name)
+        else:
+            return os.path.join(self.__getOscPackagesDefaultDirectory(), name)
+

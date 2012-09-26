@@ -20,7 +20,7 @@ Created on 21 sept. 2012
 @author: Ronan Le Martret 
 
 '''
-from ObsLightProject import ObsLightProject
+from ObsLightProjectChroot import ObsLightProjectChroot
 
 import os
 
@@ -29,148 +29,82 @@ from ObsLightPackages import ObsLightPackages
 from ObsLightChRoot import ObsLightChRoot
 #import ObsLightManager
 import ObsLightErr
-from ObsLightSubprocess import SubprocessCrt
+
 from ObsLightObject import ObsLightObject
-import ObsLightOsc
 
 import ObsLightConfig
 
 import ObsLightGitManager
-from ObsLightSpec import getSpecTagValue
 
-class ObsLightBuilderProject(ObsLightProject):
+
+class ObsLightBuilderProject(ObsLightProjectChroot):
 
     def __init__(self,
-                 obsServers,
                  obsLightRepositories,
                  workingDirectory,
-                 projectObsName=None,
                  projectLocalName=None,
-                 obsServer=None,
-                 projectTarget=None,
                  projectArchitecture=None,
-                 projectTitle="",
-                 description="",
                  fromSave={}):
-        ObsLightProject.__init__(self,
-                                        obsLightRepositories,
-                                        workingDirectory,
-                                        projectLocalName=projectLocalName,
-                                        projectArchitecture=projectArchitecture,
-                                        fromSave=fromSave)
+        ObsLightProjectChroot.__init__(self,
+                                       obsLightRepositories,
+                                       workingDirectory,
+                                       projectLocalName=projectLocalName,
+                                       projectArchitecture=projectArchitecture,
+                                       fromSave=fromSave)
 
     #--------------------------------------------------------------------------- build package
+    def getProjectParameter(self, parameter=None):
+        '''
+        Get the value of a project parameter:
+        the valid parameter is :
+
+        '''
+        return ObsLightProjectChroot.getProjectParameter(self, parameter)
+
+    def setProjectParameter(self, parameter, value):
+        '''
+        Return the value of a parameter of the project:
+        Valid parameters are:
+
+        '''
+        return ObsLightProjectChroot.setProjectParameter(self, parameter, value)
+
+    def getDic(self):
+        aDic = ObsLightProjectChroot.getDic(self)
+        return aDic
 
     def __prepareChroot(self, section, pkgObj, specFileName):
         # First install the BuildRequires of the spec file.
         # The BuildRequires come from OBS.
         # We need a spec file parser to be OBS free.
+
+        buildConfig = self.getbuildConfigPath()
+        target = self.getArchHierarchy()
+        extraPackage = self.getExtraChrootPackagesList()
         packageName = pkgObj.getName()
 
-        obsServer = self.__obsServers.getObsServer(self.__obsServer)
-        extraPkg = [x for x in self.__extraChrootPackages.keys() if self.__extraChrootPackages[x]]
-        buildInfoCli = obsServer.getPackageBuildRequires(self.__projectName,
-                                                         packageName,
-                                                         self.__projectTarget ,
-                                                         self.__projectArchitecture,
-                                                         specFileName,
-                                                         extraPkg,
-                                                         not pkgObj.isGitPackage)
-        res = -1
+        rpmListFilePath = self.createRpmList(specFileName)
 
-        if len(buildInfoCli.deps) > 0:
-            target = self.__getArchHierarchy()
-            configPath = self.__getConfigPath()
-            res = self.__chroot.installBuildRequires(buildInfoCli, target, configPath)
+        res = self.getChroot().installBuildRequires(rpmListFilePath, target, buildConfig)
 
         if res != 0:
             raise ObsLightErr.ObsLightProjectsError("Can't install " + packageName)
 
         if section == "prep":
-            res = self.__chroot.addPackageSourceInChRoot(pkgObj)
+            res = self.getChroot().addPackageSourceInChRoot(pkgObj)
         return 0
-
-    def getProjectParameter(self, parameter=None):
-        '''
-        Get the value of a project parameter:
-        the valid parameter is :
-            projectLocalName
-            projectObsName
-            projectDirectory
-            obsServer
-            projectTarget
-            projectArchitecture
-            title
-            description
-        '''
-        if parameter == "projectLocalName":
-            return self.__projectLocalName
-        elif parameter == "projectObsName":
-            return self.__projectName
-        elif parameter == "projectDirectory":
-            return self.getDirectory()
-        elif parameter == "obsServer":
-            return self.__obsServer
-        elif parameter == "projectTarget":
-            return self.__projectTarget
-        elif parameter == "projectArchitecture":
-            return self.__projectArchitecture
-        elif parameter == "title":
-            return self.__projectTitle
-        elif parameter == "description":
-            return self.__description
-        else:
-            message = "parameter value is not valid for getProjectParameter"
-            raise ObsLightErr.ObsLightProjectsError(message)
-
-    def setProjectParameter(self, parameter=None, value=None):
-        '''
-        Return the value of a parameter of the project:
-        Valid parameters are:
-            projectTarget
-            projectArchitecture
-            title
-            description
-        '''
-        if parameter == "projectTarget":
-            self.__projectTarget = value
-        elif parameter == "projectArchitecture":
-            self.__projectArchitecture = value
-        elif parameter == "title":
-            self.__projectTitle = value
-        elif parameter == "description":
-            self.__description = value
-        else:
-            message = "parameter '%s' is not valid for setProjectParameter" % parameter
-            raise ObsLightErr.ObsLightProjectsError(message)
-        return 0
-
-    def getDic(self):
-        aDic = {}
-        aDic["projectLocalName"] = self.__projectLocalName
-        aDic["projectObsName"] = self.__projectName
-        aDic["obsServer"] = self.__obsServer
-        aDic["projectTarget"] = self.__projectTarget
-        aDic["projectArchitecture"] = self.__projectArchitecture
-        aDic["title"] = self.__projectTitle
-        aDic["description"] = self.__description
-        aDic["packages"] = self.__packages.getDic()
-        aDic["chrootIsInit"] = self.__chrootIsInit
-        aDic["ro"] = self.__readOnly
-#        aDic["extraChrootPackages"] = self.__extraChrootPackages
-        return aDic
 
     def __execRpmSection(self, packageName, section):
         """
         Execute `section` of the spec file of `packageName`
         into the chroot jail.
         """
-        sectionMap = {"prep":  self.__chroot.prepRpm,
-                      "build": self.__chroot.buildRpm,
-                      "install": self.__chroot.installRpm,
-                      "files": self.__chroot.packageRpm}
+        sectionMap = {"prep":  self.getChroot().prepRpm,
+                      "build": self.getChroot().buildRpm,
+                      "install": self.getChroot().installRpm,
+                      "files": self.getChroot().packageRpm}
 
-        pkgObj = self.__packages.getPackage(packageName)
+        pkgObj = self._getPackages().getPackage(packageName)
 
         specFileObj = pkgObj.getSpecObj()
         if specFileObj is None:
@@ -181,30 +115,30 @@ class ObsLightBuilderProject(ObsLightProject):
         self.__prepareChroot(section, pkgObj, pkgObj.getSpecFile(fullPath=True))
 
         if pkgObj.getPackageParameter("patchMode") and section != "prep":
-            _ = self.__chroot.prepGhostRpmbuild(pkgObj)
+            _ = self.getChroot().prepGhostRpmbuild(pkgObj)
 
-        archs = self.__getArchHierarchy()
+        archs = self.getArchHierarchy()
         buildDir = "/usr/lib/build"
         configdir = buildDir + "/configs"
-        configPath = self.__getConfigPath()
+        configPath = self.getBuildConfigPath()
 
-        target = self.__getTarget()
-        specFilePath = self.__chroot.addPackageSpecInChRoot(pkgObj,
-                                                            specFileName,
-                                                            section,
-                                                            configPath,
-                                                            archs,
-                                                            configdir,
-                                                            buildDir)
+        target = self.getTarget()
+        specFilePath = self.getChroot().addPackageSpecInChRoot(pkgObj,
+                                                               specFileName,
+                                                               section,
+                                                               configPath,
+                                                               archs,
+                                                               configdir,
+                                                               buildDir)
 
         # If we don't remove default ACLs, some files created by the
         # Makefile of package may have wrong rights, and make the build fail.
         # (Was detected with "e2fsprogs")
-        self.__chroot.forbidPackageAccessToObslightGroup(pkgObj)
+        self.getChroot().forbidPackageAccessToObslightGroup(pkgObj)
         retVal = sectionMap[section](package=pkgObj,
                                      specFile=specFilePath,
                                      arch=target)
-        self.__chroot.allowPackageAccessToObslightGroup(pkgObj)
+        self.getChroot().allowPackageAccessToObslightGroup(pkgObj)
         #publish RPM builded.
         if (section == "files") and pkgObj.isPackaged():
             buildRootpath = os.path.join(pkgObj.getChrootRpmBuildDirectory(), "RPMS")
@@ -213,14 +147,14 @@ class ObsLightBuilderProject(ObsLightProject):
         return retVal
 
     def publishRPM(self, pkgObj, path):
-        absBuildRootpath = self.__chroot.getDirectory() + path
+        absBuildRootpath = self.getChroot().getDirectory() + path
         listRPM = []
 
         for arch in os.listdir(absBuildRootpath):
             for rpm in os.listdir(os.path.join(absBuildRootpath, arch)):
                 listRPM.append(os.path.join(arch, rpm))
 
-        repo = self.__obsLightRepositories.getRepository(self.__projectLocalName)
+        repo = self.getRepositories().getRepository(self.getName())
         if len(listRPM) > 0:
             repo.removeRPM(pkgObj.getRPMPublished())
             pkgObj.setRPMPublished(listRPM)
@@ -240,7 +174,6 @@ class ObsLightBuilderProject(ObsLightProject):
     def packageRpm(self, package):
         return self.__execRpmSection(package, "files")
 
-
     #--------------------------------------------------------------------------- test build
     def importPrepBuildPackage(self, packageName):
         """
@@ -250,7 +183,7 @@ class ObsLightBuilderProject(ObsLightProject):
 
         This function was developed for testing purposes.
         """
-        if not self.__chrootIsInit:
+        if not self.isChRootInit():
             # Maybe we can create chroot jail in the calling function?
             self.logger.info("Creating chroot jail of project '%s'" % self.__projectLocalName)
             retVal = self.createChRoot()
@@ -298,18 +231,18 @@ class ObsLightBuilderProject(ObsLightProject):
                 failedPackages.append((packageName, be))
         return failedPackages
 
-
-
     #--------------------------------------------------------------------------- chroot jail
     def createPatch(self, package, patch):
         '''
         Create a patch
         '''
-        return self.__chroot.createPatch(package=self.__packages.getPackage(package),
+        return self.getChroot().createPatch(package=self._getPackages().getPackage(package),
                                          patch=patch)
 
     def updatePatch(self, package):
         '''
         Update a patch
         '''
-        return  self.__chroot.updatePatch(package=self.__packages.getPackage(package))
+        return  self.getChroot().updatePatch(package=self._getPackages().getPackage(package))
+
+

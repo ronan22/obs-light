@@ -28,9 +28,7 @@ import tempfile
 
 from subprocess import Popen, PIPE
 from xml.dom.minidom import getDOMImplementation
-
 from xml.etree import ElementTree
-
 from Utils import getLocalHostIpAddress
 
 HOST_IP = None
@@ -71,8 +69,18 @@ def getProjectDependency(metaPath, repo):
                     result.append((path.get("project"), path.get("repository")))
     return result
 
-def getbuildInfo(rev, srcmd5, specFile, repositoryList, dist, depfile, arch,
-                 projectName, packageName, repository, spec, addPackages):
+def getbuildInfo(rev,
+                 srcmd5,
+                 specFile,
+                 repositoryList,
+                 dist,
+                 depfile,
+                 arch,
+                 projectName,
+                 packageName,
+                 repository,
+                 spec,
+                 addPackages):
     if arch in archHierarchyMap.keys():
         longArch = archHierarchyMap[arch]
     else:

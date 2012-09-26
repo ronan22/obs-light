@@ -21,6 +21,8 @@ Created on 19 sept. 2012
 @author: Ronan Le Martret
 '''
 
+import os
+
 from WizardPageWrapper import ObsLightWizardPage
 
 from PySide.QtGui import QRegExpValidator
@@ -42,7 +44,7 @@ class ConfigProjectGitAliasPage(ObsLightWizardPage):
 
     def initializePage(self):
         arch = self.wizard().getSelectedGbsArch()
-        prj = self.wizard().getSelectedGbsProject()
+        prj = os.path.basename(self.wizard().getProjectConfPath())
 
         self.ui_WizardPage.architectureLabel.setText(arch)
         suggestedName = "%s_%s" % (prj.replace(":", "_").replace(".conf", ""), arch)
@@ -53,18 +55,18 @@ class ConfigProjectGitAliasPage(ObsLightWizardPage):
             return False
 
         alias = self.ui_WizardPage.aliasLineEdit.text()
+
         if self.manager.isALocalProject(alias):
             colorizeWidget(self.ui_WizardPage.aliasLineEdit, u"red")
             return False
 
-
         retVal = self.callWithInfiniteProgress(self.manager.addGbsProject,
                                                u"Adding project %s..." % alias,
-                                               self.wizard().getProjectTemplatePath(),
                                                self.wizard().getProjectConfPath(),
                                                self.wizard().getGbsAddedRepo(),
                                                self.wizard().getSelectedGbsArch(),
-                                               alias)
+                                               alias,
+                                               self.wizard().autoAddProjectRepo())
         # If we get an exception, None is returned
         if retVal is None:
             return False
@@ -74,7 +76,7 @@ class ConfigProjectGitAliasPage(ObsLightWizardPage):
             self.callWithInfiniteProgress(self.manager.createChRoot,
                                           u"Creating chroot...",
                                           alias)
-        return False
+        return True
 
 
     def nextId(self):

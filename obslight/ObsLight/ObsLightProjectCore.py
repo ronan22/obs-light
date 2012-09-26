@@ -32,29 +32,32 @@ class ObsLightProjectCore(ObsLightObject):
 
     def __init__(self,
                  obsLightRepositories,
-                      workingDirectory,
-                      projectLocalName=projectLocalName,
-                      projectArchitecture=projectArchitecture,
-                      fromSave=fromSave):
+                 workingDirectory,
+                 projectLocalName=None,
+                 projectArchitecture=None,
+                 fromSave={}):
 
         ObsLightObject.__init__(self)
         self.__mySubprocessCrt = SubprocessCrt()
 
         self.__obsLightRepositories = obsLightRepositories
         self.__WorkingDirectory = workingDirectory
-
+        self.__projectType = None
         # package name as key, install/don't install as value
-        self.__extraChrootPackages = {"vim": False, "emacs": False, "strace": False}
+        self.__extraChrootPackages = fromSave.get("extraChrootPackages", {"vim": False,
+                                                                          "emacs": False,
+                                                                          "strace": False})
+
         self.__projectLocalName = fromSave.get("projectLocalName", projectLocalName)
 
         self.__readOnly = False
         self.__projectArchitecture = fromSave.get("projectArchitecture", projectArchitecture)
-        self.__packages = ObsLightPackages(self, fromSave.get("packages", {}))
+
 
         if not os.path.isdir(self.getDirectory()):
             os.makedirs(self.getDirectory())
 
-        self.__configPath = None
+        self.__buildConfigPath = fromSave.get("buildConfigPath", None)
 
         # Taken from /usr/lib/build/common_functions
         self.__archHierarchyMap = {}
@@ -70,7 +73,74 @@ class ObsLightProjectCore(ObsLightObject):
         self.__archHierarchyMap["sparcv8"] = "sparcv8:sparc"
         self.__archHierarchyMap["sparc"] = "sparc"
 
+        self.__fromSave = fromSave
 
+    def _initPackage(self):
+        self.__packages = ObsLightPackages(self, self.__fromSave.get("packages", {}))
+
+    def _getPackages(self):
+        return self.__packages
+
+    def getName(self):
+        return self.__projectLocalName
+
+    def getProjectParameter(self, parameter=None):
+        '''
+        Get the value of a project parameter:
+        the valid parameter is :
+            projectLocalName
+            projectDirectory
+            projectArchitecture
+        '''
+        if parameter == "projectLocalName":
+            return self.__projectLocalName
+        elif parameter == "projectDirectory":
+            return self.getDirectory()
+        elif parameter == "projectArchitecture":
+            return self.__projectArchitecture
+
+        elif parameter in [ "projectObsName", "projectTarget", "title", "description"]:
+            return ""
+        else:
+            message = "parameter '%s' is not valid for getProjectParameter" % parameter
+            raise ObsLightErr.ObsLightProjectsError(message)
+
+    def setProjectParameter(self, parameter=None, value=None):
+        '''
+        Return the value of a parameter of the project:
+        Valid parameters are:
+            projectArchitecture
+        '''
+        if parameter == "projectArchitecture":
+            self.__projectArchitecture = value
+        else:
+            message = "parameter '%s' is not valid for setProjectParameter" % parameter
+            raise ObsLightErr.ObsLightProjectsError(message)
+        return 0
+
+    def getDic(self):
+        aDic = {}
+        aDic["projectLocalName"] = self.__projectLocalName
+        aDic["projectArchitecture"] = self.__projectArchitecture
+        aDic["packages"] = self.__packages.getDic()
+        aDic["ro"] = self.__readOnly
+        aDic["type"] = self.__projectType
+        aDic["buildConfigPath"] = self.__buildConfigPath
+        aDic["extraChrootPackages"] = self.__extraChrootPackages
+        return aDic
+
+    def getBuildConfigPath(self):
+        return self.__buildConfigPath
+
+    def setBuildConfigPath(self, path):
+        self.__buildConfigPath = path
+
+    def getExtraChrootPackagesList(self):
+        res = []
+        for package in self.__extraChrootPackages.keys():
+            if self.__extraChrootPackages[package]:
+                res.append(package)
+        return res
     #--------------------------------------------------------------------------- util
 
     def _subprocess(self, command=None, waitMess=False, stdout=False):
@@ -79,26 +149,35 @@ class ObsLightProjectCore(ObsLightObject):
                                                      stdout=stdout)
 
     #--------------------------------------------------------------------------- project
+    def getbuildConfigPath(self):
+        return self.__buildConfigPath
+
+    def getArchitecture(self):
+        return self.__projectArchitecture
+
     def isReadOnly(self):
         return self.__readOnly
 
-    def __getArchHierarchy(self):
+    def setReadOnly(self, value):
+        self.__readOnly = value
+
+    def getArchHierarchy(self):
         if self.__projectArchitecture in self.__archHierarchyMap:
             return self.__archHierarchyMap[self.__projectArchitecture]
         else:
             return self.__projectArchitecture
 
-    def __getTarget(self):
+    def getTarget(self):
         """
         Get the 'target' string to be passed to rpmbuild.
         Looks like 'i586-tizen-linux'.
         """
-        archs = self.__getArchHierarchy()
+        archs = self.getArchHierarchy()
 
         buildDir = "/usr/lib/build"
         configdir = buildDir + "/configs"
 
-        configPath = self.__getConfigPath()
+        configPath = self.getBuildConfigPath()
         command = '%s/getchangetarget --dist "%s" --configdir "%s" --archpath "%s"'
         command = command % (buildDir, configPath, configdir, archs)
 
@@ -141,6 +220,9 @@ class ObsLightProjectCore(ObsLightObject):
     def removeLocalRepo(self):
         return self.__obsLightRepositories.deleteRepository(self.__projectLocalName)
 
+    def getRepositories(self):
+        return self.__obsLightRepositories
+
     def createRepo(self):
         repo = self.__obsLightRepositories.getRepository(self.__projectLocalName)
         if repo.isOutOfDate():
@@ -148,68 +230,15 @@ class ObsLightProjectCore(ObsLightObject):
         else:
             return 0
 
-    def getProjectParameter(self, parameter=None):
-        '''
-        Get the value of a project parameter:
-        the valid parameter is :
-            projectLocalName
-            projectObsName
-            projectDirectory
-            obsServer
-            projectTarget
-            projectArchitecture
-            title
-            description
-        '''
-        if parameter == "projectLocalName":
-            return self.__projectLocalName
-        elif parameter == "projectObsName":
-            return self.__projectName
-        elif parameter == "projectDirectory":
-            return self.getDirectory()
-        elif parameter == "obsServer":
-            return self.__obsServer
-        elif parameter == "projectTarget":
-            return self.__projectTarget
-        elif parameter == "projectArchitecture":
-            return self.__projectArchitecture
-        elif parameter == "title":
-            return self.__projectTitle
-        elif parameter == "description":
-            return self.__description
-        else:
-            message = "parameter value is not valid for getProjectParameter"
-            raise ObsLightErr.ObsLightProjectsError(message)
+    def getLocalRepository(self):
+        return self.__obsLightRepositories.getRepository(self.getName()).getLocalRepository()
 
-    def setProjectParameter(self, parameter=None, value=None):
-        '''
-        Return the value of a parameter of the project:
-        Valid parameters are:
-            projectTarget
-            projectArchitecture
-            title
-            description
-        '''
-        if parameter == "projectTarget":
-            self.__projectTarget = value
-        elif parameter == "projectArchitecture":
-            self.__projectArchitecture = value
-        elif parameter == "title":
-            self.__projectTitle = value
-        elif parameter == "description":
-            self.__description = value
-        else:
-            message = "parameter '%s' is not valid for setProjectParameter" % parameter
-            raise ObsLightErr.ObsLightProjectsError(message)
-        return 0
 
-    def getDic(self):
-        aDic = {}
-        aDic["projectLocalName"] = self.__projectLocalName
-        aDic["projectArchitecture"] = self.__projectArchitecture
-        aDic["packages"] = self.__packages.getDic()
-        aDic["ro"] = self.__readOnly
-        return aDic
+    def setProjectType(self, value):
+        '''
+        Set the type of the project (None,OBS,gbs)
+        '''
+        self.__projectType = value
 
 #    def updateProject(self):
 #        server = self.__obsServers.getObsServer(self.__obsServer)
@@ -317,17 +346,13 @@ class ObsLightProjectCore(ObsLightObject):
 
         return 0
 
-    def __getGitPackagesDefaultDirectory(self):
+    def getGitPackagesDefaultDirectory(self):
         '''
         Return the package git directory of the local project.
         '''
         return os.path.join(self.getDirectory(), "gitWorkingTrees")
 
-    def __getOscPackagesDefaultDirectory(self):
-        '''
-        Return the package Osc directory of the local project.
-        '''
-        return os.path.join(self.getDirectory(), self.__projectName)
+
 
 #    def __addPackagesFromSave(self, fromSave):
 #        '''
@@ -465,11 +490,9 @@ class ObsLightProjectCore(ObsLightObject):
 #            self.__refreshOscPackageLocalRev(name)
             self.refreshObsStatus(name)
 
-    def createPackagePath(self, name, isGitPackage):
-        if isGitPackage:
-           return os.path.join(self.__getGitPackagesDefaultDirectory(), name)
-        else:
-            return os.path.join(self.__getOscPackagesDefaultDirectory(), name)
+    def createPackagePath(self, name, isGitPackage=True):
+        return os.path.join(self.getGitPackagesDefaultDirectory(), name)
+
 
 
     def updatePackage(self, name):
@@ -521,7 +544,6 @@ class ObsLightProjectCore(ObsLightObject):
 #            self.logger.info(message)
 #            return 0
 
-
 #Abstract Funct
     def refreshObsStatus(self, package):
         pass
@@ -537,3 +559,9 @@ class ObsLightProjectCore(ObsLightObject):
 
     def refreshObsStatus(self, name):
         pass
+
+    def getWebProjectPage(self):
+        return ""
+
+    def getReposProject(self):
+        return ""

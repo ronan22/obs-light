@@ -174,7 +174,7 @@ class ObsLightProjects(object):
 
     def __addProjectFromSave(self, name=None, fromSave=None):
         if not (name in self.__dicOBSLightProjects.keys()):
-            projectType = fromSave.get('type', 'obs')
+            projectType = fromSave.get('type', 'OBS')
             if projectType == 'obs':
                 project = ObsLightOBSProject(obsServers=self.__obsServers,
                                           obsLightRepositories=self.__obsLightRepositories,
@@ -184,6 +184,11 @@ class ObsLightProjects(object):
                 project = ObsLightGbsProject(obsLightRepositories=self.__obsLightRepositories,
                                              workingDirectory=self.getObsLightWorkingDirectory(),
                                              fromSave=fromSave)
+            else:
+                project = ObsLightOBSProject(obsServers=self.__obsServers,
+                                          obsLightRepositories=self.__obsLightRepositories,
+                                          workingDirectory=self.getObsLightWorkingDirectory(),
+                                          fromSave=fromSave)
 
             self.__dicOBSLightProjects[name] = project
         else:
@@ -223,23 +228,25 @@ class ObsLightProjects(object):
         self.__dicOBSLightProjects[projectLocalName] = project
         return 0
 
-    def addGbsProject(self, projectTemplatePath,
-                            projectConfPath,
-                            addedRepo,
+    def addGbsProject(self, projectConfPath,
+                            repoList,
                             projectArchitecture,
-                            projectLocalName):
+                            projectLocalName,
+                            autoAddProjectRepo=True):
         if (projectLocalName in self.__dicOBSLightProjects_unload.keys()) or\
            (projectLocalName in self.__dicOBSLightProjects.keys()):
             message = "The projectLocalName '%s' all ready exist" % projectLocalName
             raise ObsLightErr.ObsLightProjectsError(message)
 
         project = ObsLightGbsProject(self.__obsLightRepositories,
-                                     workingDirectory=self.getObsLightWorkingDirectory(),
-                                     projectLocalName=projectLocalName,
-                                     projectArchitecture=projectArchitecture,
-                                     projectTemplatePath,
+                                     self.getObsLightWorkingDirectory(),
+                                     projectLocalName,
+                                     projectArchitecture,
                                      projectConfPath,
-                                     addedRepo)
+                                     repoList,
+                                     autoAddProjectRepo)
+        self.__dicOBSLightProjects[projectLocalName] = project
+        return 0
 
     #---------------------------------------------------------------------------
 
