@@ -237,7 +237,7 @@ class ObsLightBuilderProject(ObsLightProjectChroot):
         Create a patch
         '''
         return self.getChroot().createPatch(package=self._getPackages().getPackage(package),
-                                         patch=patch)
+                                            patch=patch)
 
     def updatePatch(self, package):
         '''

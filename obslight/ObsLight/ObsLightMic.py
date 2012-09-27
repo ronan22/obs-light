@@ -38,7 +38,7 @@ def my_fuser(fp):
 
     rc = subprocess.call([fuser, "-s", fp])
     if rc == 0:
-        proc = subprocess.call([fuser, fp], stdout=subprocess.PIPE)
+        proc = subprocess.Popen([fuser, fp], stdout=subprocess.PIPE)
         pids = proc.communicate()[0].split()
         for pid in pids:
             with open("/proc/%s/cmdline" % pid, "r") as fd:

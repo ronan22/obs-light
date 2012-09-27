@@ -17,7 +17,7 @@
 #
 '''
 Created on 17 avr. 2012
-
+@author: Ronan Le Martret
 @author: Florent Vennetier
 '''
 from PySide.QtGui import QRegExpValidator

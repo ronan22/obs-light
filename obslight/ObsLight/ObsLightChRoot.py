@@ -500,13 +500,25 @@ exit $?
     def createChRoot(self, rpmList, buildConfig, arch, specFile, projectName):
 
         self.chrootArch = arch
-
+        print
+        print "___ failIfUserNotInUserGroup"
+        print
         self.failIfUserNotInUserGroup()
+        print
+        print "___ failIfAclsNotReady"
+        print
         self.failIfAclsNotReady()
+        print
+        print "___ failIfQemuIsNotStatic"
+        print
         self.failIfQemuIsNotStatic()
-
+        print
+        print "___ getDirectory"
+        print
         fsPath = self.getDirectory()
-
+        print
+        print "___ sudo /usr/bin/build"
+        print
         cmd = "sudo /usr/bin/build"
         cmd += " --root %s --rpmlist=%s --dist %s --target %s --norootforbuild --changelog %s"
         cmd = cmd % (fsPath, rpmList, buildConfig, arch, specFile)

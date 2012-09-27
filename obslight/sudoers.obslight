@@ -30,3 +30,5 @@
 %users ALL=(ALL)NOPASSWD:/bin/sed -r -i * /etc/mic/mic.conf
 %users ALL=(ALL)NOPASSWD:/usr/bin/zypper --cache-dir * --root /home/* *
 %users ALL=(ALL)NOPASSWD:/bin/pkill packagekitd
+%users ALL=(ALL)NOPASSWD:/usr/bin/obslight-createrpmlistfromspec *
+%users ALL=(ALL)NOPASSWD:/usr/lib/build/download * *

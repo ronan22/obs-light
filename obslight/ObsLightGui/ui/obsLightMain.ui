@@ -133,23 +133,32 @@
                   <height>301</height>
                  </rect>
                 </property>
-                <layout class="QGridLayout" name="gridLayout_2" columnstretch="0,0">
-                 <item row="0" column="0" colspan="2">
+                <layout class="QGridLayout" name="gridLayout_2" columnstretch="0,0,0">
+                 <item row="0" column="0" colspan="3">
                   <widget class="QLabel" name="projectTitleLabel">
                    <property name="text">
                     <string>Project Title</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="2" column="0" colspan="2">
+                 <item row="2" column="0" colspan="3">
                   <widget class="QLabel" name="projectDescriptionLabel">
                    <property name="text">
                     <string>Description</string>
+                   </property>
+                   <property name="openExternalLinks">
+                    <bool>true</bool>
                    </property>
                   </widget>
                  </item>
                  <item row="5" column="0">
                   <widget class="QLabel" name="projectPageLabel">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
                    <property name="text">
                     <string>Project OBS page:</string>
                    </property>
@@ -176,6 +185,12 @@
                  </item>
                  <item row="6" column="0">
                   <widget class="QLabel" name="projectRepoPageLabel">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
                    <property name="text">
                     <string>Project OBS repo:</string>
                    </property>
@@ -191,7 +206,7 @@
                    </property>
                   </widget>
                  </item>
-                 <item row="3" column="0">
+                 <item row="3" column="0" colspan="2">
                   <spacer name="verticalSpacer_6">
                    <property name="orientation">
                     <enum>Qt::Vertical</enum>
@@ -220,6 +235,12 @@
                  </item>
                  <item row="7" column="0">
                   <widget class="QLabel" name="projectRepoPageLabel_2">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
                    <property name="text">
                     <string>Project local repo:</string>
                    </property>
@@ -234,6 +255,19 @@
                     <bool>true</bool>
                    </property>
                   </widget>
+                 </item>
+                 <item row="5" column="2">
+                  <spacer name="horizontalSpacer_12">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
                  </item>
                 </layout>
                </widget>
@@ -626,7 +660,7 @@ You can select several packages.</string>
             </size>
            </property>
            <property name="currentIndex">
-            <number>0</number>
+            <number>1</number>
            </property>
            <widget class="QSplitter" name="splitter_5">
             <property name="orientation">

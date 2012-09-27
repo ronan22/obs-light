@@ -62,7 +62,7 @@ class ObsLightProjectCore(ObsLightObject):
         # Taken from /usr/lib/build/common_functions
         self.__archHierarchyMap = {}
         self.__archHierarchyMap["i686"] = "i686:i586:i486:i386"
-        self.__archHierarchyMap["i586"] = "i586:i486:i386"
+        self.__archHierarchyMap["i586"] = "i686:i586:i486:i386"
         self.__archHierarchyMap["i486"] = "i486:i386"
         self.__archHierarchyMap["i386"] = "i386"
         self.__archHierarchyMap["x86_64"] = "x86_64:i686:i586:i486:i386"
@@ -129,8 +129,11 @@ class ObsLightProjectCore(ObsLightObject):
         aDic["extraChrootPackages"] = self.__extraChrootPackages
         return aDic
 
-    def getBuildConfigPath(self):
-        return self.__buildConfigPath
+    def getBuildConfigPath(self, fullPath=True):
+        if fullPath:
+            return self.__buildConfigPath
+        else:
+            return os.path.basename(self.__buildConfigPath)
 
     def setBuildConfigPath(self, path):
         self.__buildConfigPath = path

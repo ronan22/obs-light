@@ -25,6 +25,7 @@ import shlex
 import shutil
 import subprocess
 import urllib
+import tempfile
 
 from ObsLightUtils import getFilteredFileList, isASpecFile, levenshtein
 from ObsLightPackages import ObsLightPackages
@@ -32,6 +33,9 @@ from ObsLightChRoot import ObsLightChRoot
 #import ObsLightManager
 import ObsLightErr
 from ObsLightSubprocess import SubprocessCrt
+import subprocess
+
+
 from ObsLightObject import ObsLightObject
 import ObsLightOsc
 
@@ -69,7 +73,7 @@ class ObsLightGbsProject(ObsLightBuilderProject):
         self.__projectGbsConfig = fromSave.get("projectGbsConfig", None)
 
         if len(self.__repoList) == 0:
-            msg = "A gbs '%s' like project need at least one Repository." % self.getName()
+            msg = "The gbs '%s' like project need at least one Repository." % self.getName()
             raise ObsLightErr.ObsLightProjectsError(msg)
 
         if (self.__projectGbsConfig is None) :
@@ -93,6 +97,25 @@ class ObsLightGbsProject(ObsLightBuilderProject):
         '''
         if parameter == "projectGbsConfig":
             return self.__projectGbsConfig
+        elif parameter == "title":
+            return "Local project"
+        elif parameter == "description":
+            result = u''
+            result += u'<p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Repository:</p>'
+            result += u'<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">\n'
+            result += u'<html>'
+            result += u'<head><meta name="qrichtext" content="1" /><style type="text/css">\np, li { white-space: pre-wrap; }\n</style></head>'
+            result += u'<body style=" font-family:\'Sans Serif\'; font-size:9pt; font-weight:400; font-style:normal;">\n'
+            for aRepoName, aRepoUrl in self.__repoList:
+                result += u'<p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">'
+                result += u'<a href="%s">' % aRepoUrl
+                result += u'<span style=" text-decoration: underline; color:#0057ae;">%s</span></a></p>\n' % aRepoName
+            result += u'<p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Build Conf:</p>'
+
+            result += u'<a href="%s">' % self.getBuildConfigPath()
+            result += u'<span style=" text-decoration: underline; color:#0057ae;">%s</span></a></p>\n' % self.getBuildConfigPath(False)
+            result += u'</body></html>'
+            return result
         else:
             return ObsLightBuilderProject.getProjectParameter(self, parameter)
 
@@ -126,10 +149,10 @@ class ObsLightGbsProject(ObsLightBuilderProject):
         errFile = tempfile.mkstemp(suffix=".errFile")
 
         cmd = []
-        cmd.append("obslight-createrpmlistfromspec")
-        for aRepo in self.__buildRepoList:
+        cmd.append("sudo /usr/bin/obslight-createrpmlistfromspec")
+        for aRepoName, aRepoUrl in self.__repoList:
             cmd.append("--repository")
-            cmd.append(aRepo)
+            cmd.append(aRepoUrl)
 
         cmd.append("--dist")
         cmd.append(self.getbuildConfigPath())
@@ -154,7 +177,11 @@ class ObsLightGbsProject(ObsLightBuilderProject):
         cmd.append(ouputFile[1])
 
         # FIXME: shouldn't it be .wait() instead of .communicate() ?
-        Popen(cmd).wait()
+        res = self._subprocess(" ".join(cmd))
+        if res != 0:
+            msg = "Creating cache project '%s' was aborted." % self.getName()
+            raise ObsLightErr.ObsLightProjectsError(msg)
+#        subprocess.Popen(cmd).wait()
 
 #        os.close(tmpSpec[0])
 #        os.unlink(tmpSpec[1])
@@ -172,6 +199,82 @@ class ObsLightGbsProject(ObsLightBuilderProject):
         if len(err) > 0:
             raise ObsLightErr.ObsLightProjectsError(err)
 
-        return ouputFile[1]
+        localRpmListFilePath = self.__createCachedRpmListOuputFile(ouputFile[1], self.__repoList)
+
+        return localRpmListFilePath
+
+    def __cacheRpmFile(self, rpmUrl, repoURL, cacheDir, buildTimeStamp=None):
+        rpmFileDst = os.path.join(cacheDir, os.path.basename(rpmUrl))
+
+        cmdDownload = "sudo /usr/lib/build/download %s %s" % (cacheDir, rpmUrl)
+
+        if os.path.isfile(rpmFileDst) and buildTimeStamp is not None:
+            cmdBuildTimeQuery = "rpm  -qp %s --queryformat=%%{BUILDTIME}" % rpmFileDst
+            resTimeStamp = self._subprocess(cmdBuildTimeQuery, stdout=True)
+
+            if buildTimeStamp != resTimeStamp:
+                res = self._subprocess(cmdDownload)
+                if res == 0:
+                    return rpmFileDst
+                else:
+                    return None
+            else:
+                return rpmFileDst
+        else:
+            res = self._subprocess(cmdDownload)
+            if res == 0:
+                return rpmFileDst
+            else:
+                return None
+
+
+    def __createCachedRpmListOuputFile(self, rpmListFilePath, reposList):
+        repoMD5Dict = {}
+        for aRepoName, aRepoUrl in reposList:
+            repoMD5Dict[aRepoUrl] = ObsLightTools.getRepoCacheDirectory(aRepoUrl)
+        rpmListCachedFilePath = tempfile.mkstemp(suffix=".rpmlist")
+        f = open(rpmListFilePath, "r")
+
+        lineList = []
+        for line in f:
+            lineList.append(line)
+        f.close()
+
+        fResult = open(rpmListCachedFilePath[1], "w")
+        for i in range(len(lineList)):
+            line = lineList[i]
+            isUrlLine = True
+            for b in [ "rpmid", "preinstall", "vminstall", "cbpreinstall", "cbinstall", "runscripts", "dist"]:
+                if line.startswith(b):
+                    isUrlLine = False
+                    break
+            if isUrlLine:
+                rpmName, rpmUrl = line.split()
+                rpmUrl.replace("\n", "")
+                rpmidLine = lineList[i + 1]
+                buildTimeStamp = None
+
+                if rpmidLine.startswith("rpmid"):
+                    splitRes = rpmidLine.split()
+                    if len(splitRes) >= 3:
+                        buildTimeStamp = splitRes[2]
+                for r in repoMD5Dict.keys():
+                    if rpmUrl.startswith(r):
+                        rpmUrl = self.__cacheRpmFile(rpmUrl, r, repoMD5Dict[r], buildTimeStamp)
+                        break
+
+                fResult.write(rpmName + " " + rpmUrl + "\n")
+            else:
+                fResult.write(line)
+        fResult.close()
+        return rpmListCachedFilePath[1]
+
+
+
+    def getWebProjectPage(self):
+        return ""
+
+    def getReposProject(self):
+        return ""
 
 

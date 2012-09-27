@@ -38,7 +38,7 @@ class ConfigProjectGitAliasPage(ObsLightWizardPage):
         noSpaceValidator = QRegExpValidator(PROJECT_ALIAS_REGEXP, self)
         self.ui_WizardPage.aliasLineEdit.setValidator(noSpaceValidator)
         self.registerField(u"projectGbsAlias*", self.ui_WizardPage.aliasLineEdit)
-        self.registerField(u"CreateGbsChroot", self.ui_WizardPage.createChrootCheckBox)
+        self.registerField(u"CreateGbsChroot", self.ui_WizardPage.createGbsChrootCheckBox)
 
         self.setCommitPage(True)
 
@@ -60,6 +60,7 @@ class ConfigProjectGitAliasPage(ObsLightWizardPage):
             colorizeWidget(self.ui_WizardPage.aliasLineEdit, u"red")
             return False
 
+        self.setField(u"projectAlias", alias)
         retVal = self.callWithInfiniteProgress(self.manager.addGbsProject,
                                                u"Adding project %s..." % alias,
                                                self.wizard().getProjectConfPath(),
@@ -72,7 +73,7 @@ class ConfigProjectGitAliasPage(ObsLightWizardPage):
             return False
         self.gui.refresh()
         self.gui.setCurrentProject(alias)
-        if self.field(u"CreateChroot"):
+        if self.field(u"CreateGbsChroot"):
             self.callWithInfiniteProgress(self.manager.createChRoot,
                                           u"Creating chroot...",
                                           alias)

@@ -66,7 +66,7 @@ Red --&gt; Already in use</string>
     </widget>
    </item>
    <item row="3" column="1">
-    <widget class="QCheckBox" name="createChrootCheckBox">
+    <widget class="QCheckBox" name="createGbsChrootCheckBox">
      <property name="text">
       <string/>
      </property>

@@ -21,7 +21,7 @@ Created on 17 nov. 2011
 @author: Florent Vennetier
 '''
 import ObsLightPrintManager
-
+import md5
 from urlparse import urlparse
 import httplib
 import urllib
@@ -30,7 +30,7 @@ import re
 import traceback
 import time
 import sys
-
+import tempfile
 import ConfigParser
 
 from subprocess import call
@@ -548,6 +548,14 @@ if __name__ == '__main__':
 #    print "importCert", importCert(Url)
 
     print getRpmPathDict("/tmp/rpmlist.StF0Gh2")
+
+def getHashRepo(url):
+    m = md5.new()
+    m.update(url)
+    return m.hexdigest()
+
+def getRepoCacheDirectory(url):
+    return os.path.join("/var/cache/build", getHashRepo(url))
 
 
 

@@ -20,6 +20,7 @@ Created on 30 sept. 2011
 @author: ronan
 '''
 import os
+import sys
 import shutil
 
 from ObsLightObject import ObsLightObject
@@ -51,6 +52,30 @@ from gbp.rpm.git import GitRepositoryError, RpmGitRepository
 import gbp.rpm as rpm
 from gbp.errors import GbpError
 
+class PrintHandler(object):
+    """
+    Wrapper for sys.stderr and sys.stdout that writes to a log file.
+    """
+
+    def __init__(self, stream):
+        self.stream = stream
+
+
+    def write(self, buf):
+        self.stream(str(buf))
+
+    def flush(self):
+        pass
+
+    def close(self):
+        pass
+
+    def isatty(self):
+        return True
+
+#        if self.__packageChrootDirectory is None:
+#            self.__packageChrootDirectory = os.path.join(self.__chrootUserHome, self.__name)
+
 class ObsLightPackage(ObsLightObject):
 
     ArchiveSuffix = ".tar.gz"
@@ -79,8 +104,7 @@ class ObsLightPackage(ObsLightObject):
         #The spec file name of the package
         self.__specFile = fromSave.get("specFile", None)
 
-        #the path of the package into the chroot.
-        self.__packageChrootDirectory = fromSave.get("packageChrootDirectory", None)
+
 
         #the path of the package source.
         self.__packageSourceDirectory = fromSave.get("packageSourceDirectory", packagePath)
@@ -116,6 +140,9 @@ class ObsLightPackage(ObsLightObject):
 
         #the Chroot jail path with user home path.
         self.__chrootUserHome = self.__project.getChrootUserHome(fullPath=False)
+
+        #the path of the package into the chroot.
+        self.__packageChrootDirectory = fromSave.get("packageChrootDirectory", None)
 
         self.__chrootRpmBuildDirectory = os.path.join(self.__chrootUserHome,
                                                       self.__name,
@@ -662,12 +689,15 @@ class ObsLightPackage(ObsLightObject):
                 listFile.remove(".git")
 
             if len(listFile) > 1:
-                repo = RpmGitRepository(self.getPackageSourceDirectory())
+                curentDirOld = os.getcwd()
+                sourcePath = self.getPackageSourceDirectory()
+                repo = RpmGitRepository(sourcePath)
+                os.chdir(sourcePath)
                 commit = 'HEAD'
                 export_dir = absChrootRpmBuildDirectory
                 tmp_dir = "/tmp"
-                spec = rpm.parse_spec(self.getSpecFile(fullPath=True))
-
+#                spec = rpm.parse_spec(self.getSpecFile(fullPath=True))
+                spec = self.getSpecFile(fullPath=True)
 #                comp_type = guess_comp_type(spec)
                 gbp_args = create_gbp_export_args(repo,
                                                   commit,
@@ -682,8 +712,20 @@ class ObsLightPackage(ObsLightObject):
 #                            comp_type,
 #                            comp_level=9,
 #                            with_submodules=True)
-                ret = gbp_build(gbp_args)
+                old_stderr = sys.stderr
+                old_stdout = sys.stdout
+                try:
+                    sys.stdout = PrintHandler(ObsLightPrintManager.getLogger().info)
+                    sys.stderr = PrintHandler(ObsLightPrintManager.getLogger().error)
+                    ret = gbp_build(gbp_args)
 
+
+                finally:
+                    sys.stderr = old_stderr
+                    sys.stdout = old_stdout
+                    os.chdir(curentDirOld)
+
+        self.__packageChrootDirectory = os.path.join(self.__chrootUserHome, self.__name)
         return 0
 
     def delFromChroot(self):

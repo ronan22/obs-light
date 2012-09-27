@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui/wizard_configProjectGitAlias.ui'
 #
-# Created: Wed Sep 26 11:33:49 2012
+# Created: Thu Sep 27 16:48:53 2012
 #      by: pyside-uic 0.2.13 running on PySide 1.1.0
 #
 # WARNING! All changes made in this file will be lost!
@@ -35,10 +35,10 @@ class Ui_WizardPage(object):
         self.label_5 = QtGui.QLabel(WizardPage)
         self.label_5.setObjectName("label_5")
         self.formLayout.setWidget(3, QtGui.QFormLayout.LabelRole, self.label_5)
-        self.createChrootCheckBox = QtGui.QCheckBox(WizardPage)
-        self.createChrootCheckBox.setText("")
-        self.createChrootCheckBox.setObjectName("createChrootCheckBox")
-        self.formLayout.setWidget(3, QtGui.QFormLayout.FieldRole, self.createChrootCheckBox)
+        self.createGbsChrootCheckBox = QtGui.QCheckBox(WizardPage)
+        self.createGbsChrootCheckBox.setText("")
+        self.createGbsChrootCheckBox.setObjectName("createGbsChrootCheckBox")
+        self.formLayout.setWidget(3, QtGui.QFormLayout.FieldRole, self.createGbsChrootCheckBox)
 
         self.retranslateUi(WizardPage)
         QtCore.QMetaObject.connectSlotsByName(WizardPage)

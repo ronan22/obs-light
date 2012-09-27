@@ -200,7 +200,8 @@ class ObsLightProjectChroot(ObsLightProjectCore):
 
     def goToChRoot(self, package=None, useRootId=False, detach=False):
         if package != None:
-            packagePath = self._getPackages().getPackage(package).getPackageSourceDirectory()
+            packagePath = self._getPackages().getPackage(package).getPackageChrootDirectory()
+
             if packagePath != None:
                 return self.__chroot.goToChRoot(path=packagePath,
                                                 useRootId=useRootId,
