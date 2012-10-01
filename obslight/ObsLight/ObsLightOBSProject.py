@@ -58,6 +58,9 @@ class ObsLightOBSProject(ObsLightBuilderProject):
                  projectTitle="",
                  description="",
                  fromSave={}):
+
+        self.__projectName = fromSave.get("projectObsName", projectObsName)
+
         ObsLightBuilderProject.__init__(self,
                                         obsLightRepositories,
                                         workingDirectory,
@@ -68,11 +71,8 @@ class ObsLightOBSProject(ObsLightBuilderProject):
         self.setProjectType('OBS')
         self.__obsServers = obsServers
 
-
         self.__projectTitle = fromSave.get("title", "")
         self.__description = fromSave.get("description", description)
-
-        self.__projectName = fromSave.get("projectObsName", projectObsName)
 
         self.__projectTarget = fromSave.get("projectTarget", projectTarget)
 

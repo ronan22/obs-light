@@ -173,3 +173,6 @@ class ConfigWizard(QWizard, ObsLightGuiObject):
 
     def autoAddProjectRepo(self):
         return self.Pages[u'ChooseRepository'].autoAddProjectRepo()
+
+    def getManifestFilePath(self):
+        return self.Pages[u'ChooseManifestPage'].getManifestFilePath()

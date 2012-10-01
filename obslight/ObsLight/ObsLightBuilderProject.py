@@ -57,7 +57,6 @@ class ObsLightBuilderProject(ObsLightProjectChroot):
         '''
         Get the value of a project parameter:
         the valid parameter is :
-
         '''
         return ObsLightProjectChroot.getProjectParameter(self, parameter)
 

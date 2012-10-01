@@ -45,6 +45,9 @@ from os import makedirs
 import threading
 import grp
 import os
+import itertools
+
+import xml.dom.minidom
 
 SOCKETTIMEOUT = 20
 
@@ -537,6 +540,67 @@ def getGbsBuildRepo(path):
 def getBuildConfigPathFromGbsConfig(projectTemplatePath):
     pass
 
+def getHashRepo(url):
+    m = md5.new()
+    m.update(url)
+    return m.hexdigest()
+
+def getRepoCacheDirectory(url):
+    return os.path.join("/var/cache/build", getHashRepo(url))
+
+
+
+def parseManifest(aPath):
+    root = xml.dom.minidom.parse(aPath)
+    if not root or not root.childNodes:
+      raise "no root node in %s" % (aPath,)
+
+    for manifest in root.childNodes:
+      if manifest.nodeName == 'manifest':
+        break
+    else:
+      raise "no <manifest> in %s" % (path)
+
+    projectNodesList = []
+    remoteName = None
+    remoteFetch = None
+
+    defaultRevision = None
+    defaultRemote = None
+    defaultSync = None
+
+    for node in manifest.childNodes:
+        if node.nodeName == 'remote':
+                remoteName = node.getAttribute('name')
+                remoteFetch = node.getAttribute('fetch')
+        if node.nodeName == 'default':
+            defaultRevision = node.getAttribute("revision")
+            defaultRemote = node.getAttribute("remote")
+            defaultSync = node.getAttribute("sync-j")
+
+        if node.nodeName == 'project':
+            path = node.getAttribute("path")
+            name = node.getAttribute("name")
+            projectNodesList.append((path, name))
+
+        else:
+            pass
+
+    res = []
+    for p in projectNodesList:
+        (path, name) = p
+        project = os.path.dirname(path)
+        package = os.path.basename(path)
+
+        git = remoteFetch + name
+        res.append((project , package , git))
+    return res
+
+
+
+
+
+
 if __name__ == '__main__':
 
 #    Url = "http://repo.pub.meego.com/home:/ronan:/OBS_Light/openSUSE_11.4"
@@ -547,15 +611,7 @@ if __name__ == '__main__':
 #    print "testHost", testHost(Url)
 #    print "importCert", importCert(Url)
 
-    print getRpmPathDict("/tmp/rpmlist.StF0Gh2")
-
-def getHashRepo(url):
-    m = md5.new()
-    m.update(url)
-    return m.hexdigest()
-
-def getRepoCacheDirectory(url):
-    return os.path.join("/var/cache/build", getHashRepo(url))
+    print parseManifest("/home/meego/Documents/Tizen/TizenScript/manifest.xml")
 
 
 

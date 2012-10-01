@@ -23,6 +23,7 @@ Created on 17 juin 2011
 
 import os
 import collections
+import time
 
 from ObsLightServers import ObsLightServers
 from ObsLightProjects import ObsLightProjects
@@ -41,6 +42,7 @@ from ObsLightErr import ObsLightObsServers
 from ObsLightErr import ObsLightProjectsError
 from ObsLightErr import ArgError
 
+from ObsLightSubprocess import SubprocessCrt
 VERSION = "0.5.3-1"
 
 def getVersion():
@@ -566,6 +568,10 @@ class ObsLightManagerCore(ObsLightManagerBase):
     def getProjectGbsConfList(self):
         return self.__getProjectFilefList("/usr/share/gbs/")
 
+
+    def getProjectManifestList(self):
+        return self.__getProjectFilefList("/usr/share/obslight/projectManifest/")
+
     def __getProjectFilefList(self, path):
         aDict = {}
         if os.path.isdir(path):
@@ -574,6 +580,17 @@ class ObsLightManagerCore(ObsLightManagerBase):
                 if os.path.isfile(aFilePath) and os.access(aFilePath, os.R_OK):
                     aDict[f] = aFilePath
         return aDict
+
+    def generateUpdatedTizenManifest(self, user):
+        ouputFile = "/usr/share/obslight/projectManifest/tizen-%s.xml"
+        ouputFile = ouputFile % (time.strftime("%Y-%m-%d_%Hh%Mm"))
+        cmd = "/usr/bin/generate_default_xml %s > %s " % (user,)
+
+        aSubProcess = SubprocessCrt()
+        xmlFile = aSubProcess.execSubprocess(cmd, stdout=True)
+        with open(ouputFile, 'w') as f:
+            f.write(xmlFile)
+        return ouputFile
 
     def getRepoFromGbsProjectConf(self, path):
         return ObsLightTools.getRepoFromGbsProjectConf(path)

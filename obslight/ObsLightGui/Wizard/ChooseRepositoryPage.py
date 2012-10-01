@@ -138,7 +138,8 @@ class ChooseRepositoryPage(ObsLightWizardPage):
 
         self.ui_WizardPage.RepoTableView.setModel(self.__repoModel)
         self.ui_WizardPage.RepoTableView.setEnabled (True)
-
+        self.ui_WizardPage.RepoTableView.resizeColumnToContents(0)
+        self.ui_WizardPage.RepoTableView.resizeColumnToContents(1)
         self.ui_WizardPage.repositoryUrlEdit.setText("http://")
 
     def on_AddRepositoryButton_clicked(self):

@@ -130,7 +130,7 @@
                   <x>0</x>
                   <y>0</y>
                   <width>276</width>
-                  <height>301</height>
+                  <height>307</height>
                  </rect>
                 </property>
                 <layout class="QGridLayout" name="gridLayout_2" columnstretch="0,0,0">
@@ -372,19 +372,6 @@
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QComboBox" name="obsStatusFilterComboBox">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="toolTip">
-                <string>Select OBS status filter</string>
                </property>
               </widget>
              </item>

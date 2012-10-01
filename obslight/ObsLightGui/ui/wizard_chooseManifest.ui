@@ -25,10 +25,13 @@
      <property name="text">
       <string>List of OBS Light manifest</string>
      </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
     </widget>
    </item>
    <item row="5" column="0" colspan="2">
-    <widget class="QListWidget" name="listWidget"/>
+    <widget class="QListWidget" name="ManifestListWidget"/>
    </item>
    <item row="7" column="0">
     <widget class="QRadioButton" name="customManifestButton">
@@ -38,16 +41,16 @@
     </widget>
    </item>
    <item row="8" column="0">
-    <widget class="QLineEdit" name="lineEdit"/>
+    <widget class="QLineEdit" name="lineManifestEdit"/>
    </item>
    <item row="8" column="1">
-    <widget class="QPushButton" name="pushButton">
+    <widget class="QPushButton" name="loadManifestPushButton">
      <property name="text">
       <string>Load File</string>
      </property>
     </widget>
    </item>
-   <item row="3" column="0">
+   <item row="9" column="0">
     <widget class="QRadioButton" name="liveManifestButton">
      <property name="text">
       <string>Tizen Live manifest</string>

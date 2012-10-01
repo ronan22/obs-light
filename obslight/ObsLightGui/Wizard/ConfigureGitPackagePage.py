@@ -27,6 +27,11 @@ from PySide.QtGui import QFileDialog
 from PySide.QtGui import QStandardItemModel, QStandardItem, QCheckBox
 from PySide.QtCore import QAbstractListModel, Qt, QAbstractItemModel
 
+from ObsLight.ObsLightTools import parseManifest
+
+from ObsLightGui.Utils import popupOnException, firstArgLast
+
+
 class ItemTree(object):
     '''
     abstract class used for package and project colection.
@@ -66,7 +71,8 @@ class ProjectGit(ItemTree):
         if the projectNameList is empty, the define package is add to the current package.
         else 
         '''
-        if len(projectNameList) == 0:
+        if len(projectNameList) == 0 or\
+           ((len(projectNameList) == 1) and  len(projectNameList[0]) == 0):
             self.__packageList.append(PackageGit(package, gitUrl))
             self.__packageList.sort()
         else:
@@ -158,42 +164,63 @@ class ProjectGit(ItemTree):
 
 
 class ProjectGitCollection:
-
     def __init__(self):
-        f = open("/home/meego/Documents/Tizen/TizenScript/resultPackage.sav", "r")
+        self.__projectGitCollection = None
+
+    def load(self, aPath):
+        gitPackageList = parseManifest(aPath)
 
         self.__projectGitCollection = ProjectGit()
 
-        for line in f:
-            project , package , git = line.split()
+        for project , package , git in gitPackageList:
             self.__projectGitCollection.addPackage(project.split("/"), package, git)
-        f.close()
 
     def createTree(self, item):
-        for t in self.__projectGitCollection.getTree():
-            item.appendRow(t)
+        if self.__projectGitCollection is not None:
+            for t in self.__projectGitCollection.getTree():
+                item.appendRow(t)
+        else:
+            return None
 
     def getCheckedValue(self, listParent):
         listParent.reverse()
-        return self.__projectGitCollection.getItem(listParent).checked
+        if self.__projectGitCollection is not None:
+            return self.__projectGitCollection.getItem(listParent).checked
+        else:
+            return None
 
     def getName(self, listParent):
         listParent.reverse()
-        return self.__projectGitCollection.getItem(listParent).name
+        if self.__projectGitCollection is not None:
+            return self.__projectGitCollection.getItem(listParent).name
+        else:
+            return None
 
     def toggleCheckedValue(self, listParent):
         listParent.reverse()
-        item = self.__projectGitCollection.getItem(listParent)
-        item.toggleCheckedValue()
+        if self.__projectGitCollection is not None:
+            item = self.__projectGitCollection.getItem(listParent)
+            item.toggleCheckedValue()
+        else:
+            return None
 
     def unselectAll(self):
-        self.__projectGitCollection.setCheckedValue(False)
+        if self.__projectGitCollection is not None:
+            self.__projectGitCollection.setCheckedValue(False)
+        else:
+            return None
 
     def selectAll(self):
-        self.__projectGitCollection.setCheckedValue(True)
+        if self.__projectGitCollection is not None:
+            elf.__projectGitCollection.setCheckedValue(True)
+        else:
+            return None
 
     def getSelected(self):
-        return self.__projectGitCollection.getSelected()
+        if self.__projectGitCollection is not None:
+            return self.__projectGitCollection.getSelected()
+        else:
+            return None
 
 class chooseGitPackageModel(QStandardItemModel):
     def __init__(self):
@@ -203,6 +230,9 @@ class chooseGitPackageModel(QStandardItemModel):
         self.item.setEnabled(True)
 
         self.__projectGitCollection = ProjectGitCollection()
+
+    def load(self, aPath):
+        self.__projectGitCollection.load(aPath)
         self.__projectGitCollection.createTree(self.item)
 
     def getCollection(self):
@@ -253,24 +283,32 @@ class chooseGitPackageModel(QStandardItemModel):
             self.layoutChanged.emit()
         return True
 
+    def getSelectedPackage(self):
+        return self.__projectGitCollection.getSelected()
+
 class ConfigureGitPackagePage(ObsLightWizardPage):
 
     def __init__(self, gui, index):
         ObsLightWizardPage.__init__(self, gui, index, u"wizard_chooseGitPackage.ui")
 
-        self.ui_WizardPage.updateListPushButton.clicked.connect(self.on_updateListPushButton_clicked)
-#        self.ui_WizardPage.loadManifestPushButton.clicked.connect(self.on_loadManifestPushButton_clicked)
+#        self.ui_WizardPage.updateListPushButton.clicked.connect(self.on_updateListPushButton_clicked)
         self.ui_WizardPage.selectAllPushButton.clicked.connect(self.on_selectAllPushButton_clicked)
         self.ui_WizardPage.unselectAllPushButton.clicked.connect(self.on_unselectAllPushButton_clicked)
 #        self.ui_WizardPage.importPushButton.clicked.connect(self.on_importPushButton_clicked)
 
         self.__gitProjectTreeView = self.ui_WizardPage.gitProjectTreeView
+        self.standardModel = None
         self.__initViewTree()
+
 
     def __initViewTree(self):
         self.standardModel = chooseGitPackageModel()
         self.__gitProjectTreeView.setModel(self.standardModel)
         self.__gitProjectTreeView.collapseAll()
+
+    def initializePage(self):
+        aPath = self.wizard().getManifestFilePath()
+        self.standardModel.load(aPath)
 
     def cleanupPage(self):
         pass
@@ -278,17 +316,8 @@ class ConfigureGitPackagePage(ObsLightWizardPage):
     def nextId(self):
         return -1
 
-    def on_updateListPushButton_clicked(self):
-        print "update"
-
-#    def on_loadManifestPushButton_clicked(self):
-#        filters = "manifest files (*.xml);;All files (*)"
-#        filePath, _filter = QFileDialog.getOpenFileName(self.mainWindow,
-#                                                        "Select manifest file (*.xml) to import",
-#                                                        filter=filters)
-#        if len(filePath) < 1:
-#            return
-#        print "filePath, _filter", filePath, _filter
+#    def on_updateListPushButton_clicked(self):
+#        print "update"
 
     def on_selectAllPushButton_clicked(self):
         self.standardModel.getCollection().selectAll()
@@ -304,8 +333,21 @@ class ConfigureGitPackagePage(ObsLightWizardPage):
 #            print "package", p.ljust(25), " git:", g
 
 
+    @popupOnException
+    def validatePage(self):
+        projectAlias = self.field(u"projectAlias")
 
+        for name, url in self.standardModel.getSelectedPackage():
+            self._importPackageFromGit(projectAlias, name, "", "", url)
+        return True
 
+    def _importPackageFromGit(self, project, name, title, description, url):
+        retVal = self.callWithInfiniteProgress(self.manager.importPackage,
+                                               "Creating package %s" % name,
+                                               project,
+                                               name,
+                                               url)
+        return retVal
 
 
 

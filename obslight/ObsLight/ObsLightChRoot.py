@@ -60,6 +60,7 @@ class ObsLightChRootCore(object):
         self.__transferDir = None
         self.__chrootTransferDir = None
         self.__oscCacheDir = None
+        self.__buildCacheDir = "/var/cache/build"
         self.__chrootOscCacheDir = None
         self.__chrootUser = None
         self.__chrootUsersHome = None
@@ -271,6 +272,7 @@ class ObsLightChRootCore(object):
         mountDir = {}
         mountDir[self.__transferDir] = self.__chrootTransferDir
         mountDir[self.__oscCacheDir] = self.__chrootOscCacheDir
+        mountDir[self.__buildCacheDir] = self.__buildCacheDir
         self.fixFsRights(recursive=False)
         self.obsLightMic.initChroot(chrootDirectory=self.getDirectory(), mountDir=mountDir)
         self.failIfCannotRunChrootEcho()
@@ -500,25 +502,10 @@ exit $?
     def createChRoot(self, rpmList, buildConfig, arch, specFile, projectName):
 
         self.chrootArch = arch
-        print
-        print "___ failIfUserNotInUserGroup"
-        print
         self.failIfUserNotInUserGroup()
-        print
-        print "___ failIfAclsNotReady"
-        print
         self.failIfAclsNotReady()
-        print
-        print "___ failIfQemuIsNotStatic"
-        print
         self.failIfQemuIsNotStatic()
-        print
-        print "___ getDirectory"
-        print
         fsPath = self.getDirectory()
-        print
-        print "___ sudo /usr/bin/build"
-        print
         cmd = "sudo /usr/bin/build"
         cmd += " --root %s --rpmlist=%s --dist %s --target %s --norootforbuild --changelog %s"
         cmd = cmd % (fsPath, rpmList, buildConfig, arch, specFile)

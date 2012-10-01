@@ -222,6 +222,7 @@ chmod g+w /srv/%IMGSRVPATH/config
 chmod g+w /srv/%REPOSRVPATH/config
 chmod g+w /srv/%IMGSRVPATH/www
 chmod g+w /srv/%REPOSRVPATH/www
+chmod -R o+rw /usr/share/obslight
 # << post
 
 %files
@@ -235,6 +236,7 @@ chmod g+w /srv/%REPOSRVPATH/www
 %{_bindir}/obsprojectsdiff
 %{_bindir}/obslight
 %{_bindir}/obslight-wrapper.py
+%{_bindir}/generate_default_xml
 %{python_sitelib}/ObsLight
 %{python_sitelib}/obslight*egg-info
 %config %attr(440, root, root) %{_sysconfdir}/sudoers.obslight

@@ -111,12 +111,12 @@ LIST_SYNC_STATUS = [SYNC_OK, SYNC_FAIL, SYNC_UNKNOWN]
 
 NameColumn = 0
 SourceType = 1
-StatusColumn = 2
-FSStatusColumn = 3
-SyncStatusColumn = 4
+StatusColumn = 4
+FSStatusColumn = 2
+SyncStatusColumn = 3
 
 ID_PACKAGE_NAME = 100
-ID_PACKAGE_STATUS = 101
+#ID_PACKAGE_STATUS = 101
 ID_PACKAGE_CHROOT_STATUS = 102
 ID_PACKAGE_SYNC = 103
 ID_PACKAGE_SOURCE = 104
@@ -133,7 +133,7 @@ def initColumnHeadersDico(name, id, value):
 
 initColumnHeadersDico(NameColumn, ID_PACKAGE_NAME, "Package")
 initColumnHeadersDico(SourceType, ID_PACKAGE_SOURCE, "Source\nType")
-initColumnHeadersDico(StatusColumn, ID_PACKAGE_STATUS, "Source\nStatus")
+#initColumnHeadersDico(StatusColumn, ID_PACKAGE_STATUS, "Source\nStatus")
 initColumnHeadersDico(FSStatusColumn, ID_PACKAGE_CHROOT_STATUS, "chroot jail\nstatus")
 initColumnHeadersDico(SyncStatusColumn, ID_PACKAGE_SYNC, "Synchronized")
 
@@ -143,13 +143,13 @@ for c in ColumnHeaders.keys():
     StatusColorsDict[c] = {}
 
 # http://www.w3.org/TR/SVG/types.html#ColorKeywords
-StatusColorsDict[StatusColumn][OBS_SUCCEEDED] = u"green"
-StatusColorsDict[StatusColumn][OBS_EXCLUDED] = u"grey"
-StatusColorsDict[StatusColumn][OBS_BROKEN] = u"red"
-StatusColorsDict[StatusColumn][OBS_BUILDING] = u"gold"
-StatusColorsDict[StatusColumn][OBS_FAILED] = u"red"
-StatusColorsDict[StatusColumn][OBS_SCHEDULED] = u"blue"
-StatusColorsDict[StatusColumn][OBS_UNRESOLVABLE] = u"darkred"
+#StatusColorsDict[StatusColumn][OBS_SUCCEEDED] = u"green"
+#StatusColorsDict[StatusColumn][OBS_EXCLUDED] = u"grey"
+#StatusColorsDict[StatusColumn][OBS_BROKEN] = u"red"
+#StatusColorsDict[StatusColumn][OBS_BUILDING] = u"gold"
+#StatusColorsDict[StatusColumn][OBS_FAILED] = u"red"
+#StatusColorsDict[StatusColumn][OBS_SCHEDULED] = u"blue"
+#StatusColorsDict[StatusColumn][OBS_UNRESOLVABLE] = u"darkred"
 
 StatusColorsDict[FSStatusColumn][CHROOT_UNKNOWN_STATUS] = u"red"
 
@@ -192,8 +192,8 @@ class PackageInfo(ObsLightObject):
 
             elif i == ID_PACKAGE_NAME:
                 res[ID_PACKAGE_NAME] = self.__package.getName()
-            elif i == ID_PACKAGE_STATUS:
-                res[ID_PACKAGE_STATUS] = OBS_SUCCEEDED
+#            elif i == ID_PACKAGE_STATUS:
+#                res[ID_PACKAGE_STATUS] = OBS_SUCCEEDED
             elif i == ID_PACKAGE_CHROOT_STATUS:
                 res[ID_PACKAGE_CHROOT_STATUS] = PREPARED
             elif i == ID_PACKAGE_SYNC:
