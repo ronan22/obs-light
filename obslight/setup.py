@@ -51,8 +51,8 @@ setup(name='obslight',
 		          ('/srv/obslight-repo-server/www/theme', ['ObsLightServer/theme/header.shtml',
 			                                               'ObsLightServer/theme/footer.shtml']),
 		          ('/srv/obslight-repo-server/www/theme/images', ['ObsLightGui/ui/obslight.png'])
-                  ('/usr/share/obslight/projectConf', ['projectConf/tizen_2_common.conf']),
-                  ('/usr/share/obslight/projectTemplate', ['projectTemplate/Tizen_2.conf']),
+                  ('/usr/share/obslight/projectConf', ['projectConf/tizen_2_common.conf', ]),
+                  ('/usr/share/obslight/projectTemplate', ['projectTemplate/Tizen_2.conf', ]),
                  ],
 
       cmdclass={
