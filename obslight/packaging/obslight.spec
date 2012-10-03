@@ -250,7 +250,9 @@ chmod -R o+rw /usr/share/obslight
 /srv/%REPOSRVPATH/config/obslight-repos.apache2conf
 /srv/%REPOSRVPATH/www/theme/*
 /srv/%REPOSRVPATH/www/theme/images/*
-# << files
+
+/usr/share/obslight/projectConf/*
+/usr/share/obslight/projectTemplate/*
 
 %files gui
 %defattr(-,root,root,-)
