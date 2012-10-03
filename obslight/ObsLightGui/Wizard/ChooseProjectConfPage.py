@@ -117,8 +117,7 @@ class ChooseProjectConfPage(ObsLightWizardPage):
         return self.isComplete()
 
     def nextId(self):
-        return self.wizard().pageIndex(u'ChooseGbsArch')
-
+        return self.wizard().pageIndex(u'ChooseRepository')
 
     def selectConfRow(self, _row):
         if self.projectConfDict is not None:
@@ -157,10 +156,14 @@ class ChooseProjectConfPage(ObsLightWizardPage):
                                                         filter=filters)
         if len(self._loadConfFile) < 1:
             return
+        self._loadConfFile = str(self._loadConfFile.encode("utf-8"))
         self._selectedFile = self._loadConfFile
         self.ui_WizardPage.lineEdit.setText(self._selectedFile)
         self.completeChanged.emit()
 
+
+    def setSelectedBuildConf(self, selectedBuildConf):
+        self._selectedFile = selectedBuildConf
 
     def getSelectedProjectConf(self):
         return self._selectedFile

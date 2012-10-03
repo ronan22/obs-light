@@ -51,11 +51,8 @@ setup(name='obslight',
 		          ('/srv/obslight-repo-server/www/theme', ['ObsLightServer/theme/header.shtml',
 			                                               'ObsLightServer/theme/footer.shtml']),
 		          ('/srv/obslight-repo-server/www/theme/images', ['ObsLightGui/ui/obslight.png'])
-                  ('/usr/share/obslight/projectConf', ['projectConf/MeeGoTV-1.2.2-oss.conf',
-                                                      'projectConf/Tizen-1.0-Base.conf',
-                                                      'projectConf/Tizen-1.0-IVI.conf',
-                                                      'projectConf/Tizen-1.0-Main.conf']),
-                  ('/usr/share/obslight/projectTemplate', ['projectTemplate/tizenBase.conf']),
+                  ('/usr/share/obslight/projectConf', ['projectConf/tizen_2_common.conf']),
+                  ('/usr/share/obslight/projectTemplate', ['projectTemplate/Tizen_2.conf']),
                  ],
 
       cmdclass={

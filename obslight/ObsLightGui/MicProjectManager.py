@@ -431,6 +431,9 @@ class MicProjectManager(QObject, ObsLightGuiObject):
                                                        filter=filters)
         if len(srcPath) < 1:
             return
+
+        srcPath = str(srcPath.encode("utf-8"))
+
         defaultDstPath = "/%s" % os.path.basename(srcPath)
         for ext in extensions:
             if srcPath.endswith(ext):

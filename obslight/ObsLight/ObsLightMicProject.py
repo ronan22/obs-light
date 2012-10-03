@@ -137,8 +137,12 @@ class ObsLightMicProject(object):
         if not os.path.isfile(filePath):
             raise ObsLightErr.ObsLightMicProjectErr("'%s' is not a file." % filePath)
         wantedPath = os.path.join(self.projectDirectory, self.__name + ".ks")
+
+        if isinstance(wantedPath, unicode):
+            wantedPath = str(wantedPath)
+
         if os.path.abspath(filePath) != wantedPath:
-            tmpKsMngr = ObsLightKickstartManager(str(filePath.encode("utf-8")))
+            tmpKsMngr = ObsLightKickstartManager(filePath)
             tmpKsMngr.saveKickstart(wantedPath)
         self.__kickstartPath = wantedPath
         self.__loadKsManager()

@@ -86,6 +86,14 @@ class ObsLightChRootCore(object):
 
         self.__initChRootAddDir()
 
+        self.__nbJob = ObsLightTools.cpu_count()
+
+    def getNbJob(self):
+        return self.__nbJob
+
+    def setNbJob(self, val):
+        self.__nbJob = val
+
     def __setDirectory(self, projectDirectory):
         self.__projectDirectory = projectDirectory
         self.__chrootDirectory = os.path.join(projectDirectory, "aChroot")
@@ -689,10 +697,13 @@ class ObsLightChRoot(ObsLightChRootCore):
                                                 package.getTopDirRpmBuildLinkDirectory())
 
         srcdefattr = "--define '_srcdefattr (-,root,root)'"
+
+        jobs = "--define  '%%jobs %s'" % self.getNbJob()
+
         topdir = "--define '_topdir %%{getenv:HOME}/%s'" % package.getTopDirRpmBuildLinkDirectory()
         if isNonEmptyString(target):
             args = args + " --target=%s" % target
-        rpmbuildCmd = "rpmbuild %s %s %s %s < /dev/null" % (args, srcdefattr, topdir, specFile)
+        rpmbuildCmd = "rpmbuild %s %s %s %s %s < /dev/null" % (args, srcdefattr, jobs, topdir, specFile)
         parameters["rpmbuildCmd"] = rpmbuildCmd
         parameters["directoryBuild"] = package.getChrootBuildDirectory()
 
@@ -877,13 +888,17 @@ exit $RETURN_VALUE
             msg = "The first %%prep of package '%s' failed. " % package.getName()
             msg += "Return code was: %s" % str(res)
             raise ObsLightErr.ObsLightChRootError(msg)
-
+        for i in range(10):
+            print "_________________________________"
         packageDirectory = self.__findPackageDirectory(package=package)
+        print "packageDirectory", packageDirectory
         if packageDirectory is None:
             return 0
-
+        for i in range(10):
+            print "_________________________________"
         message = "Package directory used by '%s': %s" % (package.getName(), str(packageDirectory))
         ObsLightPrintManager.getLogger().debug(message)
+
         package.setChrootBuildDirectory(packageDirectory)
 
         if package.getPackageParameter("patchMode"):
@@ -1217,10 +1232,6 @@ exit $RPMBUILD_RETURN_CODE
         instPkgSet = set(self.getInstalledPackagesList())
 #        wantedPkgList = self.__reOrderRpm(buildInfoCli, target, configPath)
 
-        print
-        print "instPkgSet", instPkgSet
-        print
-
         if os.path.isfile(rpmListFilePath):
             absPathDict = ObsLightTools.getRpmPathDict(rpmListFilePath)
         else:
@@ -1233,13 +1244,10 @@ exit $RPMBUILD_RETURN_CODE
         eraseCount = 0
 
         wantedPkgSet = set(absPathDict.keys())
-        print "wantedPkgSet", wantedPkgSet
-        print
+
         # Erase unwanted packages
         unWantedPkgSet = instPkgSet.difference(wantedPkgSet)
-        print "unWantedPkgSet", unWantedPkgSet
-        print
-        for p in wantedPkgSet:print "         ", absPathDict[p]
+
         for p in unWantedPkgSet:
             cmd = "rpm --nodeps -e '%s'" % p
             command.append(cmd)

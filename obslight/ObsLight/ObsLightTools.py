@@ -48,8 +48,12 @@ import os
 import itertools
 
 import xml.dom.minidom
+import multiprocessing
 
 SOCKETTIMEOUT = 20
+
+def cpu_count():
+    return multiprocessing.cpu_count()
 
 def createConn(host, port, scheme):
     if scheme == "https":
@@ -464,6 +468,35 @@ def getRepoFromGbsProjectConf(path):
             result[k] = res
 
     return result
+
+def getBuildConfFromGbsProjectConf(selectedProjectRepo, path):
+    configParser = ConfigParser.ConfigParser()
+    configFile = open(path, 'r')
+    configParser.readfp(configFile)
+    configFile.close()
+
+    repoDict = {}
+    buildConfDict = {}
+    result = {}
+    general = None
+
+    for section in configParser.sections():
+        if section.startswith("profile."):
+            if "buildconf" in configParser.options(section):
+                listRepo = configParser.get(section, 'buildconf')
+                buildConfDict[section] = listRepo
+
+    if configParser.has_section('general'):
+        if "profile" in configParser.options('general'):
+            p = configParser.get('general', "profile")
+            if p in buildConfDict.keys():
+                buildConfDict['general'] = buildConfDict[p]
+
+    if selectedProjectRepo in buildConfDict.keys():
+        return buildConfDict[selectedProjectRepo]
+    else:
+        return None
+
 
 def createGbsProjectConfig(destDir, projectName, repoList):
     if len(repoList) == 0:

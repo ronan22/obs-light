@@ -32,6 +32,7 @@ from ObsLightChRoot import ObsLightChRoot
 import ObsLightErr
 
 import ObsLightConfig
+import ObsLightTools
 
 EMPTYSPECFILEPATH = os.path.join(os.path.dirname(__file__), "emptySpec", "emptySpec.spec")
 
@@ -53,6 +54,9 @@ class ObsLightProjectChroot(ObsLightProjectCore):
 
         self.__chrootIsInit = fromSave.get("chrootIsInit", False)
         self.__chroot = ObsLightChRoot(projectDirectory=self.getDirectory())
+
+        self.__nbJob = fromSave.get("nbJob", ObsLightTools.cpu_count())
+        self.__chroot.setNbJob(self.__nbJob)
 
         if self.__chrootIsInit :
             if not self.__chroot.isInit():
@@ -102,6 +106,7 @@ class ObsLightProjectChroot(ObsLightProjectCore):
     def getDic(self):
         aDic = ObsLightProjectCore.getDic(self)
         aDic["chrootIsInit"] = self.__chrootIsInit
+        aDic["nbJob"] = self.__nbJob
         return aDic
 
     def createRpmList(self, specFile):
@@ -139,7 +144,7 @@ class ObsLightProjectChroot(ObsLightProjectCore):
         Open bash in `package`'s chroot jail working directory.
         '''
         if package != None:
-            packagePath = self._getPackages().getPackage(package).getPackageChrootDirectory()
+            packagePath = self._getPackages().getPackage(package).getPackageSourceDirectory()
             if packagePath != None:
                 pathScript = self.__chroot.getChrootDirTransfert() + "/runMe.sh"
                 title = "%s project directory" % package

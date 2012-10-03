@@ -121,34 +121,6 @@ def checkFilePath(position=None):
         return checkFilePath2
     return checkFilePath1
 
-
-def checkNonEmptyStringPackage(position=None):
-    def checkNonEmptyStringPackage1(f):
-        def checkNonEmptyStringPackage2(*args, **kwargs):
-            def test(package):
-                if not isNonEmptyString(package):
-                    raise ObsLightObsServers("Invalid package name: " + str(package))
-
-            package = None
-            if (position is not None) and (position < len(args)):
-                package = args[position]
-            elif "package" in kwargs :
-                package = kwargs["package"]
-            else:
-                raise ObsLightProjectsError("checkNonEmptyStringPackage Fails")
-
-            if isinstance(package, collections.Iterable) and\
-               not isinstance(package, str) and\
-               not isinstance(package, unicode) :
-                for aVal in package:
-                    test(aVal)
-            else:
-                test(package)
-            return f(*args, **kwargs)
-
-        return checkNonEmptyStringPackage2
-    return checkNonEmptyStringPackage1
-
 def checkNonEmptyStringDirectory(position=None):
     def checkNonEmptyStringDirectory1(f):
         def checkNonEmptyStringDirectory2(*args, **kwargs):
@@ -325,6 +297,22 @@ def checkNonEmptyStringLocalName(projectLocalName):
     elif ":" in projectLocalName:
         raise ObsLightProjectsError("':' is forbidden in projectLocalName (%s)"
                                     % str(projectLocalName))
+
+def checkNonEmptyStringPackage(package):
+    def test(package):
+        if not isNonEmptyString(package):
+            raise ObsLightObsServers("Invalid package name: " + str(package))
+
+
+    if isinstance(package, collections.Iterable) and\
+       not isinstance(package, str) and\
+       not isinstance(package, unicode) :
+        for aVal in package:
+            test(aVal)
+    else:
+        test(package)
+
+
 
 #-------------------------------------------------------------------------------
 
@@ -555,12 +543,16 @@ class ObsLightManagerCore(ObsLightManagerBase):
         self._myObsServers.save()
 
     #///////////////////////////////////////////////////////////////////////////Local Project
-    def getProjectTemplateList(self):
-        res = self.__getProjectFilefList("/usr/share/obslight/projectTemplate")
-        gbsConfPath = os.path.expanduser("~/.gbs.conf")
-        if os.path.isfile(gbsConfPath):
-            res[".gbs.conf"] = gbsConfPath
-        return res
+    def getProjectTemplateList(self, local=True):
+        if local:
+            res = {}
+            gbsConfPath = os.path.expanduser("~/.gbs.conf")
+            if os.path.isfile(gbsConfPath):
+                res["~/.gbs.conf"] = gbsConfPath
+            return res
+        else:
+            res = self.__getProjectFilefList("/usr/share/obslight/projectTemplate")
+            return res
 
     def getProjectConfList(self):
         return self.__getProjectFilefList("/usr/share/obslight/projectConf/")
@@ -581,10 +573,10 @@ class ObsLightManagerCore(ObsLightManagerBase):
                     aDict[f] = aFilePath
         return aDict
 
-    def generateUpdatedTizenManifest(self, user):
+    def generateUpdatedTizenManifest(self):
         ouputFile = "/usr/share/obslight/projectManifest/tizen-%s.xml"
-        ouputFile = ouputFile % (time.strftime("%Y-%m-%d_%Hh%Mm"))
-        cmd = "/usr/bin/generate_default_xml %s > %s " % (user,)
+        ouputFile = ouputFile % (time.strftime("%Y-%m-%d_%Hh%M"))
+        cmd = "/usr/bin/generate_default_xml > %s " % ouputFile
 
         aSubProcess = SubprocessCrt()
         xmlFile = aSubProcess.execSubprocess(cmd, stdout=True)
@@ -594,6 +586,9 @@ class ObsLightManagerCore(ObsLightManagerBase):
 
     def getRepoFromGbsProjectConf(self, path):
         return ObsLightTools.getRepoFromGbsProjectConf(path)
+
+    def getBuildConfFromGbsProjectConf(self, selectedProjectRepo, selectedProjectConf):
+        return ObsLightTools.getBuildConfFromGbsProjectConf(selectedProjectRepo, selectedProjectConf)
 
     def getDefaultGbsArch(self):
         return ["i586", "x86_64 ", "armv8el"]
@@ -725,6 +720,7 @@ class ObsLightManagerCore(ObsLightManagerBase):
             projectArchitecture
             projectTitle
             description
+            isLocalProject
         '''
         if not parameter in ["projectLocalName",
                              "projectObsName",
@@ -733,7 +729,8 @@ class ObsLightManagerCore(ObsLightManagerBase):
                              "projectTarget",
                              "projectArchitecture",
                              "title",
-                             "description"]:
+                             "description",
+                             "isLocalProject"]:
             raise ObsLightProjectsError(parameter + " is not a parameter of a local project")
 
         return self._myObsLightProjects.getProject(projectLocalName).getProjectParameter(parameter)
@@ -847,30 +844,27 @@ class ObsLightManagerCore(ObsLightManagerBase):
         Package is not imported automatically,
         you have to call `addPackage(projectLocalName, name)`.
         """
-        server = self.getProjectParameter(projectLocalName, "obsServer")
-        projectObsName = self.getProjectParameter(projectLocalName, "projectObsName")
+        if name in self.getLocalProjectPackageList(projectLocalName=projectLocalName):
+            msg = "'%s' is already a local package of '%s'" % (name, projectLocalName)
+            raise ObsLightObsServers(msg)
 
-#        if self.getObsProjectParameter(server, projectObsName, "readonly"):
-#            if name in self.getLocalProjectPackageList(projectLocalName=projectLocalName):
-#                msg = "'%s' is already a local package of '%s'" % (name, projectLocalName)
-#                raise ObsLightObsServers(msg)
-#    
-#            project = self._myObsLightProjects.getProject(projectLocalName)
-#            serverObj = self._myObsServers.getObsServer(server)
-#            res = project.initPackage(serverObj.getObsServerParameter("serverAPI"),
-#                                      projectLocalName,
-#                                      name,
-#                                      None,
-#                                      None,
-#                                      [],
-#                                      None)
-#    
-#            self._myObsLightProjects.save()
-#            return res
-#        else:
-        res = self.createObsPackage(server, projectObsName, name, title, description)
-
-        return self.addPackage(projectLocalName, name)
+        project = self._myObsLightProjects.getProject(projectLocalName)
+        if self.getProjectParameter(projectLocalName, "isLocalProject"):
+            res = project.addPackage(name, project.createPackagePath(name, True))
+            self._myObsLightProjects.save()
+            return res
+        else:
+            server = self.getProjectParameter(projectLocalName, "obsServer")
+            projectObsName = self.getProjectParameter(projectLocalName, "projectObsName")
+            if self.getObsProjectParameter(server, projectObsName, "readonly"):
+               res = project.addPackage(name, project.createPackagePath(name, True))
+               self._myObsLightProjects.save()
+               return res
+            else:
+                res = self.createObsPackage(server, projectObsName, name, title, description)
+                res = self.addPackage(projectLocalName, name)
+                self._myObsLightProjects.save()
+                return res
 
     def createObsPackage(self, serverApi, projectObsName, package, title="", description=""):
         checkNonEmptyStringServerApi(serverApi=serverApi)
@@ -921,10 +915,7 @@ class ObsLightManagerCore(ObsLightManagerBase):
         '''
         return self._myObsLightProjects.getProject(projectLocalName).getCurrentPackage()
 
-
-
     @checkProjectLocalName(1)
-    @checkNonEmptyStringPackage(2)
     def importPackage(self,
                       projectLocalName,
                       package,
@@ -933,17 +924,26 @@ class ObsLightManagerCore(ObsLightManagerBase):
         import a package to a local project. 
         The package should be local or remote git project.
         '''
+        if (isinstance(package, collections.Iterable) and
+            not isinstance(package, str) and
+            not isinstance(package, unicode) and
+            len(package) == 2):
+            package, url = package
+
+        checkNonEmptyStringPackage(package)
         self.checkNoPackage(projectLocalName=projectLocalName, package=package)
+
         self._myObsLightProjects.getProject(projectLocalName).addPackage(package, url)
+
         self._myObsLightProjects.save()
 
     @checkProjectLocalName(1)
-    @checkNonEmptyStringPackage(2)
     def addPackage(self, projectLocalName, package):
         '''
         Add a package to a local project. The package must exist on the
         OBS server.
         '''
+        checkNonEmptyStringPackage(package)
         self.checkNoPackage(projectLocalName=projectLocalName, package=package)
 
         server = self._myObsLightProjects.getProject(projectLocalName).getObsServer()
@@ -966,18 +966,17 @@ class ObsLightManagerCore(ObsLightManagerBase):
         return server.getPackageList(projectLocalName=projectObsName)
 
     @checkProjectLocalName(1)
-    @checkNonEmptyStringPackage(1)
     def removePackage(self, projectLocalName, package):
         '''
         Remove a package from a local project.
         '''
+        checkNonEmptyStringPackage(package)
         self.checkPackage(projectLocalName=projectLocalName, package=package)
         res = self._myObsLightProjects.getProject(projectLocalName).removePackage(package)
         self._myObsLightProjects.save()
         return res
 
     @checkProjectLocalName(1)
-    @checkNonEmptyStringPackage(2)
     def getPackageParameter(self, projectLocalName, package, parameter):
         '''
         Get the value of a project parameter:
@@ -991,6 +990,7 @@ class ObsLightManagerCore(ObsLightManagerBase):
             description
             title
         '''
+        checkNonEmptyStringPackage(package)
         self.checkPackage(projectLocalName=projectLocalName, package=package)
         project = self._myObsLightProjects.getProject(projectLocalName)
         return project.getPackageParameter(package=package, parameter=parameter)
@@ -1011,7 +1011,6 @@ class ObsLightManagerCore(ObsLightManagerBase):
                                                                                parameter)
 
     @checkProjectLocalName(1)
-    @checkNonEmptyStringPackage(2)
     def setPackageParameter(self, projectLocalName, package, parameter, value):
         '''
         return the value  of the parameter of the package:
@@ -1021,6 +1020,7 @@ class ObsLightManagerCore(ObsLightManagerBase):
             description
             packageTitle
         '''
+        checkNonEmptyStringPackage(package)
         self.checkPackage(projectLocalName=projectLocalName, package=package)
         res = self._myObsLightProjects.getProject(projectLocalName).setPackageParameter(package,
                                                                                         parameter,
@@ -1029,11 +1029,11 @@ class ObsLightManagerCore(ObsLightManagerBase):
         return res
 
     @checkProjectLocalName(1)
-    @checkNonEmptyStringPackage(2)
     def updatePackage(self, projectLocalName, package, controlFunction=None):
         '''
         
         '''
+        checkNonEmptyStringPackage(package)
         self.checkPackage(projectLocalName=projectLocalName, package=package)
         res = self._myObsLightProjects.updatePackage(projectLocalName=projectLocalName,
                                                      package=package,
@@ -1042,12 +1042,12 @@ class ObsLightManagerCore(ObsLightManagerBase):
         return res
 
     @checkProjectLocalName(1)
-    @checkNonEmptyStringPackage(2)
     @checkNonEmptyStringMessage(3)
     def addAndCommitChanges(self, projectLocalName, package, message):
         '''
         Add/Remove file in the local directory of a package, and commit change to the OBS.
         '''
+        checkNonEmptyStringPackage(package)
         self.checkPackage(projectLocalName=projectLocalName, package=package)
         project = self._myObsLightProjects.getProject(projectLocalName)
         project.getPackage(package=package).addRemoveFileToTheProject()
@@ -1114,13 +1114,13 @@ class ObsLightManagerCore(ObsLightManagerBase):
 #        self._myObsLightProjects.save()
 
     @checkProjectLocalName(1)
-    @checkNonEmptyStringPackage(2)
     def getPackageFileInfo(self, projectLocalName, package, fileName):
         '''
         Get a dictionary containing file information:
         - "Status": status returned by osc (one character of " MADC?!")
         - "File name length": just to test
         '''
+        checkNonEmptyStringPackage(package)
         project = self._myObsLightProjects.getProject(projectLocalName)
         return project.getPackage(package).getPackageFileInfo(fileName)
 
@@ -1240,11 +1240,11 @@ class ObsLightManagerCore(ObsLightManagerBase):
 
     #///////////////////////////////////////////////////////////////////////////rpmbuild
     @checkProjectLocalName(1)
-    @checkNonEmptyStringPackage(2)
     def isInstalledInChRoot(self, projectLocalName, package):
         '''
         Return True if the package is installed into the chroot of the project.
         '''
+        checkNonEmptyStringPackage(package)
         self.checkPackage(projectLocalName=projectLocalName, package=package)
         project = self._myObsLightProjects.getProject(projectLocalName)
         return project.getPackage(package).isInstallInChroot()
@@ -1286,23 +1286,23 @@ class ObsLightManagerCore(ObsLightManagerBase):
         return res
 
     @checkProjectLocalName(1)
-    @checkNonEmptyStringPackage(2)
     @checkNonEmptyStringPatch(3)
     def createPatch(self, projectLocalName, package, patch):
         '''
         Generate patch, and add it to the local OBS package, modify the spec file.
         '''
+        checkNonEmptyStringPackage(package)
         self.checkPackage(projectLocalName=projectLocalName, package=package)
         res = self._myObsLightProjects.getProject(projectLocalName).createPatch(package, patch)
         self._myObsLightProjects.save()
         return res
 
     @checkProjectLocalName(1)
-    @checkNonEmptyStringPackage(2)
     def updatePatch(self, projectLocalName, package):
         '''
         Generate patch, and add it to the local OBS package, modify the spec file.
         '''
+        checkNonEmptyStringPackage(package)
         self.checkPackage(projectLocalName=projectLocalName, package=package)
         res = self._myObsLightProjects.getProject(projectLocalName).updatePatch(package)
         self._myObsLightProjects.save()

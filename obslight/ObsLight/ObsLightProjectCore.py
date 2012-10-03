@@ -98,7 +98,8 @@ class ObsLightProjectCore(ObsLightObject):
             return self.getDirectory()
         elif parameter == "projectArchitecture":
             return self.__projectArchitecture
-
+        elif parameter == "isLocalProject":
+            return self.__projectType == 'gbs'
         elif parameter in [ "projectObsName", "projectTarget", "title", "description"]:
             return ""
         else:
@@ -514,6 +515,9 @@ class ObsLightProjectCore(ObsLightObject):
 
 #            self.getPackage(name).initPackageFileInfo()
         return 0
+
+
+
 #Manage the repository into the chroot jail
 #_____________________________________________________________________________
 #    def deleteRepo(self, repoAlias):

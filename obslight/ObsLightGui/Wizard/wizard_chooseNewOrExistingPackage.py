@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui/wizard_chooseNewOrExistingPackage.ui'
 #
-# Created: Thu Sep 27 18:18:49 2012
+# Created: Wed Oct  3 19:10:29 2012
 #      by: pyside-uic 0.2.13 running on PySide 1.1.0
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,12 +26,6 @@ class Ui_WizardPage(object):
         self.createNewPackageButton = QtGui.QRadioButton(WizardPage)
         self.createNewPackageButton.setObjectName("createNewPackageButton")
         self.verticalLayout.addWidget(self.createNewPackageButton)
-        self.copyPackageButton = QtGui.QRadioButton(WizardPage)
-        self.copyPackageButton.setEnabled(True)
-        self.copyPackageButton.setToolTip("")
-        self.copyPackageButton.setCheckable(True)
-        self.copyPackageButton.setObjectName("copyPackageButton")
-        self.verticalLayout.addWidget(self.copyPackageButton)
 
         self.retranslateUi(WizardPage)
         QtCore.QMetaObject.connectSlotsByName(WizardPage)
@@ -40,8 +34,7 @@ class Ui_WizardPage(object):
         WizardPage.setWindowTitle(QtGui.QApplication.translate("WizardPage", "WizardPage", None, QtGui.QApplication.UnicodeUTF8))
         WizardPage.setTitle(QtGui.QApplication.translate("WizardPage", "Import packages", None, QtGui.QApplication.UnicodeUTF8))
         WizardPage.setSubTitle(QtGui.QApplication.translate("WizardPage", "Do you want to import an existing package from server, create a new one from scratch, or branch an existing package on server ?", None, QtGui.QApplication.UnicodeUTF8))
-        self.importExistingPackageButton.setText(QtGui.QApplication.translate("WizardPage", "Import existing package", None, QtGui.QApplication.UnicodeUTF8))
-        self.importManifestButton.setText(QtGui.QApplication.translate("WizardPage", "Import git package using manifest", None, QtGui.QApplication.UnicodeUTF8))
-        self.createNewPackageButton.setText(QtGui.QApplication.translate("WizardPage", "Create new package", None, QtGui.QApplication.UnicodeUTF8))
-        self.copyPackageButton.setText(QtGui.QApplication.translate("WizardPage", "Copy of an existing package", None, QtGui.QApplication.UnicodeUTF8))
+        self.importExistingPackageButton.setText(QtGui.QApplication.translate("WizardPage", "Import package from OBS", None, QtGui.QApplication.UnicodeUTF8))
+        self.importManifestButton.setText(QtGui.QApplication.translate("WizardPage", "Import git package using manifest.xml (repo)", None, QtGui.QApplication.UnicodeUTF8))
+        self.createNewPackageButton.setText(QtGui.QApplication.translate("WizardPage", "Create new package ( empty project, from git url or local path)", None, QtGui.QApplication.UnicodeUTF8))
 

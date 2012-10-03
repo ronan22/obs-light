@@ -29,7 +29,7 @@
    <item row="0" column="1">
     <widget class="QRadioButton" name="LocalProjectRadioButton">
      <property name="text">
-      <string>Local  Project</string>
+      <string>Gbs  Project</string>
      </property>
     </widget>
    </item>

@@ -149,17 +149,19 @@ class ProjectGit(ItemTree):
         ItemTree.toggleCheckedValue(self)
         self.setCheckedValue(self.checked)
 
-    def getSelected(self):
+    def getSelected(self, oldFetch, newFetch):
         '''
         return the package whose check is True
         '''
         res = []
         for project in self.__projectList :
-            res.extend(self.__projectGitDict[project].getSelected())
+            res.extend(self.__projectGitDict[project].getSelected(oldFetch, newFetch))
 
         for package in self.__packageList:
             if package.checked:
-                res.append((package.name, package.gitUrl))
+                gitUrl = package.gitUrl
+                gitUrl = gitUrl.replace(oldFetch, newFetch)
+                res.append((package.name, gitUrl))
         return res
 
 
@@ -212,13 +214,13 @@ class ProjectGitCollection:
 
     def selectAll(self):
         if self.__projectGitCollection is not None:
-            elf.__projectGitCollection.setCheckedValue(True)
+            self.__projectGitCollection.setCheckedValue(True)
         else:
             return None
 
-    def getSelected(self):
+    def getSelected(self, oldFetch, newFetch):
         if self.__projectGitCollection is not None:
-            return self.__projectGitCollection.getSelected()
+            return self.__projectGitCollection.getSelected(oldFetch, newFetch)
         else:
             return None
 
@@ -283,8 +285,8 @@ class chooseGitPackageModel(QStandardItemModel):
             self.layoutChanged.emit()
         return True
 
-    def getSelectedPackage(self):
-        return self.__projectGitCollection.getSelected()
+    def getSelectedPackage(self, oldFetch, newFetch):
+        return self.__projectGitCollection.getSelected(oldFetch, newFetch)
 
 class ConfigureGitPackagePage(ObsLightWizardPage):
 
@@ -332,22 +334,21 @@ class ConfigureGitPackagePage(ObsLightWizardPage):
 #        for p, g in res:
 #            print "package", p.ljust(25), " git:", g
 
-
     @popupOnException
     def validatePage(self):
         projectAlias = self.field(u"projectAlias")
+        swappedImportPackage = firstArgLast(self.manager.importPackage)
+        user = self.ui_WizardPage.userTizenGitNameLineEdit.text()
+        newFetch = "ssh://%s@review.tizen.org:29418/" % user
+        oldFetch = "git://review.tizen.org/"
 
-        for name, url in self.standardModel.getSelectedPackage():
-            self._importPackageFromGit(projectAlias, name, "", "", url)
+        self.callWithProgress(swappedImportPackage,
+                              self.standardModel.getSelectedPackage(oldFetch, newFetch),
+                              u"Adding package %(arg)s...",
+                              projectAlias)
+
         return True
 
-    def _importPackageFromGit(self, project, name, title, description, url):
-        retVal = self.callWithInfiniteProgress(self.manager.importPackage,
-                                               "Creating package %s" % name,
-                                               project,
-                                               name,
-                                               url)
-        return retVal
 
 
 

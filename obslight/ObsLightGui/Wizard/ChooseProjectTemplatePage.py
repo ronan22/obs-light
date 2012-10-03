@@ -28,8 +28,8 @@ class ChooseProjectTemplatePage(ObsLightWizardPage):
     def __init__(self, gui, index):
         ObsLightWizardPage.__init__(self, gui, index, u"wizard_chooseProjectTemplate.ui")
 
-        self.registerField(u"addNewLocalProject", self.ui_WizardPage.addNewLocalProjectButton)
-        self.ui_WizardPage.addNewLocalProjectButton.toggled.connect(self.__completeChanged)
+#        self.registerField(u"addNewLocalProject", self.ui_WizardPage.addNewLocalProjectButton)
+#        self.ui_WizardPage.addNewLocalProjectButton.toggled.connect(self.__completeChanged)
         self.registerField(u"LocalProjectList", self.ui_WizardPage.LocalProjectListWidget)
         self.ui_WizardPage.LocalProjectListWidget.currentRowChanged.connect(self.selectLocalProjectRow)
 
@@ -38,12 +38,30 @@ class ChooseProjectTemplatePage(ObsLightWizardPage):
 
     def initializePage(self):
         self.projectTemplateDict = self.manager.getProjectTemplateList()
+
+        projectDefaultTemplateDict = self.manager.getProjectTemplateList(False)
+        projectDefaultTemplateList = projectDefaultTemplateDict.keys()
+        projectDefaultTemplateList.sort()
+        if len(projectDefaultTemplateList) > 0:
+            self._selectedFile = projectDefaultTemplateDict[projectDefaultTemplateList[0]]
+            self.ui_WizardPage.projectTemplateConfLabel.setText(projectDefaultTemplateList[0])
+            for p in projectDefaultTemplateList[1:]:
+                self.projectTemplateDict[p] = projectDefaultTemplateDict[p]
+        else:
+            self.ui_WizardPage.chooseObslightDefaultButton.setEnabled(False)
+
         projectTemplateList = self.projectTemplateDict.keys()
         projectTemplateList.sort()
+
         self.ui_WizardPage.LocalProjectListWidget.clear()
-        self.ui_WizardPage.LocalProjectListWidget.addItems(projectTemplateList)
         if len(projectTemplateList) > 0:
-            self.ui_WizardPage.chooseNewLocalProjectButton.setChecked(True)
+            self.ui_WizardPage.LocalProjectListWidget.addItems(projectTemplateList)
+        else:
+            self.ui_WizardPage.chooseNewLocalProjectButton.setEnabled(False)
+            self.ui_WizardPage.LocalProjectListWidget.setEnabled(False)
+
+        if len(projectDefaultTemplateList) > 0:
+            self.ui_WizardPage.chooseObslightDefaultButton.setChecked(True)
 
     def selectLocalProjectRow(self, _row):
         if self.projectTemplateDict is not None:
@@ -60,16 +78,14 @@ class ChooseProjectTemplatePage(ObsLightWizardPage):
     def getSelectedProjectConf(self):
         return self._selectedFile
 
-
-
-    def isAddNewLocalProject(self):
-        return self.field(u"addNewLocalProject")
+#    def isAddNewLocalProject(self):
+#        return self.field(u"addNewLocalProject")
 
     def LocalProjectRow(self):
         return self.field(u"LocalProjectList")
 
     def isComplete(self):
-        return self.isAddNewLocalProject() or (self._selectedFile is not None)
+        return (self._selectedFile is not None)
 
     def validatePage(self):
 #        if not self.isAddNewLocalProject():
@@ -78,10 +94,8 @@ class ChooseProjectTemplatePage(ObsLightWizardPage):
         return self.isComplete()
 
     def nextId(self):
-        if self.isAddNewLocalProject():
-            return self.wizard().pageIndex(u"ChooseRepository")
-        else:
-            return self.wizard().pageIndex(u"ChooseRepositoryTree")
+        return self.wizard().pageIndex(u"ChooseRepositoryTree")
+
 
     def __completeChanged(self, _row):
         self.completeChanged.emit()

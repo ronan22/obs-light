@@ -107,7 +107,9 @@ class ObsLightBuilderProject(ObsLightProjectChroot):
 
         specFileObj = pkgObj.getSpecObj()
         if specFileObj is None:
-            raise ObsLightErr.ObsLightPackageErr("Package '%s' has no Spec file!" % packageName)
+            msg = "Package '%s' has no Spec file!" % packageName
+            raise ObsLightErr.ObsLightPackageErr(msg)
+
         specFileObj.parseFile()
         specFileName = pkgObj.getSpecFile()
 

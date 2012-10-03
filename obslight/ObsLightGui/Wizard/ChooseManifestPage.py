@@ -34,14 +34,15 @@ class ChooseManifestPage(ObsLightWizardPage):
         self.__selectedManifestFilePath = None
         self.__ManifestFileDict = None
 
+#        self.registerField(u"lineManifestEdit", self.ui_WizardPage.lineManifestEdit)
         self.registerField(u"liveManifest", self.ui_WizardPage.liveManifestButton)
         self.ui_WizardPage.liveManifestButton.toggled.connect(self.__OnLiveManifestButton)
         self.registerField(u"listManifest", self.ui_WizardPage.listManifestButton)
         self.ui_WizardPage.listManifestButton.toggled.connect(self.__OnListManifestButton)
-        self.registerField(u"customManifest", self.ui_WizardPage.customManifestButton)
-        self.ui_WizardPage.customManifestButton.toggled.connect(self.__OnCustomManifestButtonn)
+#        self.registerField(u"customManifest", self.ui_WizardPage.customManifestButton)
+#        self.ui_WizardPage.customManifestButton.toggled.connect(self.__OnCustomManifestButtonn)
 
-        self.ui_WizardPage.loadManifestPushButton.clicked.connect(self.on_loadManifestPushButton_clicked)
+#        self.ui_WizardPage.loadManifestPushButton.clicked.connect(self.on_loadManifestPushButton_clicked)
 
         self.ui_WizardPage.ManifestListWidget.currentRowChanged.connect(self.selectManifestRow)
 
@@ -49,24 +50,28 @@ class ChooseManifestPage(ObsLightWizardPage):
 
     def __OnLiveManifestButton(self):
         self.ui_WizardPage.ManifestListWidget.setEnabled(False)
-        self.ui_WizardPage.lineManifestEdit.setEnabled(False)
-        self.ui_WizardPage.loadManifestPushButton.setEnabled(False)
+#        self.ui_WizardPage.lineManifestEdit.setEnabled(False)
+#        self.ui_WizardPage.loadManifestPushButton.setEnabled(False)
         self.completeChanged.emit()
         return False
 
     def __OnListManifestButton(self):
         self.ui_WizardPage.ManifestListWidget.setEnabled(True)
-        self.ui_WizardPage.lineManifestEdit.setEnabled(False)
-        self.ui_WizardPage.loadManifestPushButton.setEnabled(False)
+#        self.ui_WizardPage.lineManifestEdit.setEnabled(False)
+#        self.ui_WizardPage.loadManifestPushButton.setEnabled(False)
+        self.selectManifestRow(0)
         self.completeChanged.emit()
         return False
 
-    def __OnCustomManifestButtonn(self):
-        self.ui_WizardPage.ManifestListWidget.setEnabled(False)
-        self.ui_WizardPage.lineManifestEdit.setEnabled(True)
-        self.ui_WizardPage.loadManifestPushButton.setEnabled(True)
-        self.completeChanged.emit()
-        return False
+#    def __OnCustomManifestButtonn(self):
+#        self.ui_WizardPage.ManifestListWidget.setEnabled(False)
+#        self.ui_WizardPage.lineManifestEdit.setEnabled(True)
+#        self.ui_WizardPage.loadManifestPushButton.setEnabled(True)
+#        self.__selectedManifestFilePath = self.field(u"lineManifestEdit")
+#        if len(self.__selectedManifestFilePath) == 0:
+#            self.__selectedManifestFilePath = None
+#        self.completeChanged.emit()
+#        return False
 
     def initializePage(self):
 
@@ -77,17 +82,17 @@ class ChooseManifestPage(ObsLightWizardPage):
 
         self.ui_WizardPage.ManifestListWidget.addItems(self.__ManifestFileDict.keys())
 
-    def on_loadManifestPushButton_clicked(self):
-        filters = "manifest files (*.xml);;All files (*)"
-        filePath, _filter = QFileDialog.getOpenFileName(self.mainWindow,
-                                                        "Select manifest file (*.xml) to import",
-                                                        filter=filters)
-        if len(filePath) < 1:
-            return None
-
-        self.ui_WizardPage.lineManifestEdit.setText(filePath)
-        self.__selectedManifestFilePath = filePath
-        self.completeChanged.emit()
+#    def on_loadManifestPushButton_clicked(self):
+#        filters = "manifest files (*.xml);;All files (*)"
+#        filePath, _filter = QFileDialog.getOpenFileName(self.mainWindow,
+#                                                        "Select manifest file (*.xml) to import",
+#                                                        filter=filters)
+#        if len(filePath) < 1:
+#            return None
+#        filePath = str(filePath.encode("utf-8"))
+#        self.ui_WizardPage.lineManifestEdit.setText(filePath)
+#        self.__selectedManifestFilePath = filePath
+#        self.completeChanged.emit()
 
     def selectManifestRow(self, _row):
         if self.__ManifestFileDict is not None:
@@ -106,16 +111,17 @@ class ChooseManifestPage(ObsLightWizardPage):
         return self.wizard().pageIndex(u'ConfigureGitPackagePage')
 
     def isComplete(self):
-        return self.__selectedManifestFilePath  is not None
+        if self.field(u"liveManifest"):
+            return True
+        else:
+            return self.__selectedManifestFilePath  is not None
 
     def validatePage(self):
 #        print 'self.field(u"liveManifest")', self.field(u"liveManifest")
         if self.field(u"liveManifest"):
 
-            user = "ronan"
             res = self.callWithInfiniteProgress(self.manager.generateUpdatedTizenManifest,
-                                               "generate updated Tizen Manifest for %s user." % user,
-                                               user)
+                                               "generate updated Tizen Manifest.")
 
             self.__selectedManifestFilePath = res
             return True

@@ -54,6 +54,7 @@ class ConfigureNewPackagePage(ObsLightWizardPage):
         projectAlias = self.field(u"projectAlias")
         newPkgGitUrl = self.field(u"newPackageGitUrl")
 
+
         if not isNonEmptyString(newPkgGitUrl.strip(" ")):
             retVal = self._createPackage(projectAlias,
                                          newPkgName,

@@ -104,8 +104,6 @@ class ObsLightPackage(ObsLightObject):
         #The spec file name of the package
         self.__specFile = fromSave.get("specFile", None)
 
-
-
         #the path of the package source.
         self.__packageSourceDirectory = fromSave.get("packageSourceDirectory", packagePath)
 
@@ -153,9 +151,15 @@ class ObsLightPackage(ObsLightObject):
                                                          self.__rpmBuildTmpDirectory)
 
         if fromSave == {}:
-            self.checkoutPackage()
+            if self.isGitPackage and self.isLocalGit():
+                if not os.path.isdir(os.path.join(self.getPackageSourceDirectory(), ".git")):
+                    self.initAGitPackage()
 
+            self.checkoutPackage()
         self.__mySpecFile = self.getSpecObj()
+
+    def isLocalGit(self):
+        return (self.getPackageGit() == self.getPackageSourceDirectory())
 
     def __subprocess(self, command=None, waitMess=False):
         return self.__mySubprocessCrt.execSubprocess(command=command,
@@ -192,6 +196,17 @@ class ObsLightPackage(ObsLightObject):
         aDic["packageInfo"] = self.__packageInfo.getDic()
 
         return aDic
+
+    def initAGitPackage(self):
+        cmd = "git init %s" % self.getPackageSourceDirectory()
+        self.__subprocess(cmd)
+        packageName = self.getName()
+        packagingDir = os.path.join(self.getPackageSourceDirectory(), "packaging")
+        os.makedirs(packagingDir)
+        specPath = os.path.join(packagingDir, packageName + ".spec")
+        with open(specPath, 'w') as f:
+            f.write(specSkeleton % packageName)
+        f.close()
 
     def getPackageParameter(self, parameter=None):
         '''
@@ -334,7 +349,7 @@ class ObsLightPackage(ObsLightObject):
 
     def getPackageSourceDirectory(self):
         '''
-        Return the absolute path of the osc directory of the package.
+        Return the absolute path of the source directory of the package.
         (base on the directory of the spec file).
         '''
         if self.__packageSourceDirectory is None:
@@ -356,8 +371,9 @@ class ObsLightPackage(ObsLightObject):
     #--------------------------------------------------------------------------- Check out/update file
 
     def checkoutPackage(self):
-        if  self.isGitPackage:
-            self.__checkoutGitPackage()
+        if  self.isGitPackage :
+            if not self.isLocalGit():
+                self.__checkoutGitPackage()
         else:
             self.__checkoutOscPackage()
 
@@ -1064,4 +1080,62 @@ class ObsLightPackage(ObsLightObject):
 #        self.initPackageFileInfo()
 
 
+specSkeleton = '''#
+# spec file for package 
+#
+# Copyright (c) 2010 SUSE LINUX Products GmbH, Nuernberg, Germany.
+#
+# All modifications and additions to the file contributed by third parties
+# remain the property of their copyright owners, unless otherwise agreed
+# upon. The license for this file, and modifications and additions to the
+# file, is the same license as for the pristine package itself (unless the
+# license for the pristine package is not an Open Source License, in which
+# case the license is the MIT License). An "Open Source License" is a
+# license that conforms to the Open Source Definition (Version 1.9)
+# published by the Open Source Initiative.
 
+# Please submit bugfixes or comments via http://bugs.opensuse.org/
+#
+
+# norootforbuild
+
+
+Name:           %s
+Version:
+Release:
+License:
+Summary:
+Url:
+Group:
+Source:
+Patch:
+BuildRequires:
+PreReq:
+Provides:
+BuildRoot:      %%{_tmppath}/%%{name}-%%{version}-build
+
+%%description
+
+%%prep
+%%setup -q
+
+%%build
+%%configure
+make %%{?_smp_mflags}
+
+%%install
+%%make_install
+
+%%clean
+%%{?buildroot:%%__rm -rf "%%{buildroot}"}
+
+%%post
+
+%%postun
+
+%%files
+%%defattr(-,root,root)
+%%doc ChangeLog README COPYING
+
+%%changelog
+'''

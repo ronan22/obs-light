@@ -123,10 +123,7 @@ class ConfigWizard(QWizard, ObsLightGuiObject):
 
     def getProjectTemplatePath(self, fullPath=True):
 
-        if self.Pages[u'ChooseProjectTemplate'].isAddNewLocalProject():
-            res = self.Pages[u'ChooseProjectConf'].getSelectedProjectConf()
-        else:
-            res = self.Pages[u'ChooseProjectTemplate'].getSelectedProjectConf()
+        res = self.Pages[u'ChooseProjectTemplate'].getSelectedProjectConf()
 
         if res is not None and fullPath:
             return res
@@ -158,6 +155,9 @@ class ConfigWizard(QWizard, ObsLightGuiObject):
 
     def getProjectConfPath(self):
         return self.Pages[u'ChooseProjectConf'].getSelectedProjectConf()
+
+    def setSelectedBuildConf(self, selectedBuildConf):
+        return self.Pages[u'ChooseProjectConf'].setSelectedBuildConf(selectedBuildConf)
 
     def getGbsAddedRepo(self):
         return self.Pages[u'ChooseRepository'].getAddedRepo()

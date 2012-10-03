@@ -21,7 +21,6 @@ Created on 19 sept. 2012
 @author: Ronan Le Martret
 '''
 
-
 from WizardPageWrapper import ObsLightWizardPage
 from PySide.QtGui import QStandardItemModel, QStandardItem, QCheckBox
 from PySide.QtCore import QAbstractListModel, Qt, QAbstractItemModel, QAbstractTableModel, QSize
@@ -119,21 +118,20 @@ class ChooseRepositoryPage(ObsLightWizardPage):
         self.ui_WizardPage.AddRepositoryButton.clicked.connect(self.on_AddRepositoryButton_clicked)
         self.ui_WizardPage.DelRepositoryButton.clicked.connect(self.on_DelRepositoryButton_clicked)
 
-        self.ui_WizardPage.autoAddRepoButton.stateChanged.connect(self._checkAutoAddRepoButton)
+#        self.ui_WizardPage.autoAddRepoButton.stateChanged.connect(self._checkAutoAddRepoButton)
 
         self.__repoList = []
         self.__addLocalProject = True
 
     def initializePage(self):
-        self.ui_WizardPage.autoAddRepoButton.setChecked(self.__addLocalProject)
+#        self.ui_WizardPage.autoAddRepoButton.setChecked(self.__addLocalProject)
         self.__repoList = self.wizard().getInitProjectRepo()
         self.initializePage_RepoList()
 
-    def _checkAutoAddRepoButton(self):
-        self.__addLocalProject = self.ui_WizardPage.autoAddRepoButton.isChecked()
+#    def _checkAutoAddRepoButton(self):
+#        self.__addLocalProject = self.ui_WizardPage.autoAddRepoButton.isChecked()
 
     def initializePage_RepoList(self):
-
         self.__repoModel = RepoModel(self.__repoList)
 
         self.ui_WizardPage.RepoTableView.setModel(self.__repoModel)
@@ -155,7 +153,7 @@ class ChooseRepositoryPage(ObsLightWizardPage):
         self.initializePage_RepoList()
 
     def nextId(self):
-        return self.wizard().pageIndex(u'ChooseProjectConf')
+        return self.wizard().pageIndex(u'ChooseGbsArch')
 
     def getAddedRepo(self):
         return self.__repoModel.getAddedRepo()

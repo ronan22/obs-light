@@ -23,12 +23,9 @@ Requires:   acl
 Requires:   build
 Requires:   createrepo
 Requires:   curl
-Requires:   gbs
+Requires:   gbs >= 0.10-3.1
 Requires:   git
-%if 0%{?suse_version} >= 1140
-# "Recommends:" is an openSUSE-only tag
-Recommends: mic >= 0.4
-%endif
+Requires: mic >= 0.14-2.1
 Requires:   osc >= 0.132
 Requires:   qemu
 Requires:   rpm
@@ -89,9 +86,6 @@ Requires:   python-pyside >= 1.0.6
 Conflicts:  obslight-base
 Conflicts:  obslight-server
 Conflicts:  obslight-utils
-%if 0%{?suse_version} >= 1140
-Recommends: mic >= 0.4
-%endif
 
 %description gui
 Utilities to work with OBS Light, a lighter version of OBS.

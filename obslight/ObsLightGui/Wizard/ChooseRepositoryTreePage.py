@@ -98,6 +98,8 @@ class chooseRepoModel(QStandardItemModel):
         else:
             return self.__repoDict[self.__selectedRepo]
 
+    def getSelectedProjectRepo(self):
+        return self.__selectedRepo
 
 class ChooseRepositoryTreePage(ObsLightWizardPage):
 
@@ -105,6 +107,7 @@ class ChooseRepositoryTreePage(ObsLightWizardPage):
         ObsLightWizardPage.__init__(self, gui, index, u"wizard_chooseRepositoryTree.ui")
         self.__repositoryTreeView = self.ui_WizardPage.repositoryTreeView
         self.standardModel = None
+        self.__selectedBuildConf = None
 
     def initializePage(self):
         repoDict = self.manager.getRepoFromGbsProjectConf(self.wizard().getProjectTemplatePath())
@@ -113,8 +116,20 @@ class ChooseRepositoryTreePage(ObsLightWizardPage):
         self.__repositoryTreeView.setModel(self.standardModel)
         self.__repositoryTreeView.collapseAll()
 
+    def haveABuildConf(self):
+        selectedProjectRepo = self.standardModel.getSelectedProjectRepo()
+        selectedProjectConf = self.wizard().getProjectTemplatePath()
+        self.__selectedBuildConf = self.manager.getBuildConfFromGbsProjectConf(selectedProjectRepo, selectedProjectConf)
+
+        self.wizard().setSelectedBuildConf(self.__selectedBuildConf)
+
+        return self.__selectedBuildConf is not None
+
     def nextId(self):
-        return self.wizard().pageIndex(u'ChooseRepository')
+        if self.haveABuildConf():
+            return self.wizard().pageIndex(u"ChooseRepository")
+        else:
+            return self.wizard().pageIndex(u"ChooseProjectConf")
 
     def getInitProjectRepo(self):
         if self.standardModel is None:

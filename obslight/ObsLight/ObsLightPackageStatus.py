@@ -36,7 +36,8 @@ BUILD = "Built"
 BUILD_INSTALLED = "Build Installed"
 BUILD_PACKAGED = "Build Packaged"
 
-LIST_CHROOT_STATUS = [NOT_INSTALLED,
+LIST_CHROOT_STATUS = [CHROOT_UNKNOWN_STATUS,
+                      NOT_INSTALLED,
                       NO_BUILD_DIRECTORY,
                       NO_BUILD_SECTION,
                       MANY_BUILD_DIRECTORIES,
@@ -172,9 +173,9 @@ class PackageInfo(ObsLightObject):
         self.__oscRev = fromSave.get(OSC_REV, None)
 
         self.__obsRev = fromSave.get(OBS_REV, None)
-        self.__obsStatus = fromSave.get(OBS_STATUS, OBS_UNKNOWN)
+        self.__obsStatus = fromSave.get(OBS_STATUS, NOT_INSTALLED)
 
-        self.__chRootStatus = fromSave.get(CHROOT_STATUS, CHROOT_UNKNOWN_STATUS)
+        self.__chRootStatus = fromSave.get(CHROOT_STATUS, NOT_INSTALLED)
 
     def getPackageInfo(self, info):
         res = {}
@@ -195,7 +196,7 @@ class PackageInfo(ObsLightObject):
 #            elif i == ID_PACKAGE_STATUS:
 #                res[ID_PACKAGE_STATUS] = OBS_SUCCEEDED
             elif i == ID_PACKAGE_CHROOT_STATUS:
-                res[ID_PACKAGE_CHROOT_STATUS] = PREPARED
+                res[ID_PACKAGE_CHROOT_STATUS] = self.__chRootStatus
             elif i == ID_PACKAGE_SYNC:
                 res[ID_PACKAGE_SYNC] = SYNC_OK
             elif i == ID_PACKAGE_SOURCE:

@@ -25,28 +25,35 @@
   <attribute name="pageId">
    <string notr="true">1</string>
   </attribute>
-  <layout class="QVBoxLayout" name="verticalLayout">
-   <item>
-    <widget class="QRadioButton" name="chooseNewLocalProjectButton">
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QRadioButton" name="chooseObslightDefaultButton">
      <property name="text">
-      <string>Choose Local Project from template list:</string>
+      <string>Default OBS Light gbs project Conf:</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
-   <item>
+   <item row="1" column="0" colspan="2">
+    <widget class="QRadioButton" name="chooseNewLocalProjectButton">
+     <property name="text">
+      <string>Choose gbs Project from template list:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0" colspan="2">
     <widget class="QListWidget" name="LocalProjectListWidget">
      <property name="enabled">
       <bool>false</bool>
      </property>
     </widget>
    </item>
-   <item>
-    <widget class="QRadioButton" name="addNewLocalProjectButton">
+   <item row="0" column="1">
+    <widget class="QLabel" name="projectTemplateConfLabel">
      <property name="text">
-      <string>New Local Project</string>
-     </property>
-     <property name="checked">
-      <bool>true</bool>
+      <string/>
      </property>
     </widget>
    </item>

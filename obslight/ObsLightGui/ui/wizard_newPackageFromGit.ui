@@ -22,7 +22,7 @@
   <property name="subTitle">
    <string>Enter a name for the new package. You can also enter a title and a description (optional but recommended).</string>
   </property>
-  <layout class="QFormLayout" name="formLayout">
+  <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
@@ -32,6 +32,16 @@
    </item>
    <item row="0" column="1">
     <widget class="QLineEdit" name="packageNameLineEdit"/>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="label_4">
+     <property name="text">
+      <string>Git URL or local path:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QLineEdit" name="gitUrlLineEdit"/>
    </item>
    <item row="2" column="0">
     <widget class="QLabel" name="label_2">
@@ -43,9 +53,6 @@
    <item row="2" column="1">
     <widget class="QLineEdit" name="packageTitleLineEdit"/>
    </item>
-   <item row="3" column="1">
-    <widget class="QPlainTextEdit" name="packageDescriptionTextEdit"/>
-   </item>
    <item row="3" column="0">
     <widget class="QLabel" name="label_3">
      <property name="text">
@@ -53,15 +60,8 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="1">
-    <widget class="QLineEdit" name="gitUrlLineEdit"/>
-   </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="label_4">
-     <property name="text">
-      <string>Git URL:</string>
-     </property>
-    </widget>
+   <item row="3" column="1">
+    <widget class="QPlainTextEdit" name="packageDescriptionTextEdit"/>
    </item>
   </layout>
  </widget>

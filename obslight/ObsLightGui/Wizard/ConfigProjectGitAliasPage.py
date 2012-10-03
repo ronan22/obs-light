@@ -39,6 +39,7 @@ class ConfigProjectGitAliasPage(ObsLightWizardPage):
         self.ui_WizardPage.aliasLineEdit.setValidator(noSpaceValidator)
         self.registerField(u"projectGbsAlias*", self.ui_WizardPage.aliasLineEdit)
         self.registerField(u"CreateGbsChroot", self.ui_WizardPage.createGbsChrootCheckBox)
+        self.ui_WizardPage.createGbsChrootCheckBox.setChecked(True)
 
         self.setCommitPage(True)
 

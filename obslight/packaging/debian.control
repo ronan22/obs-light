@@ -7,7 +7,7 @@ Build-Depends: debhelper (>= 4.1.16), python (>= 2.6)
 Package: obslight
 Architecture: any
 Depends: ${shlibs:Depends},
- gbs,
+ gbs (>= 0.10-3.1),
  acl,
  apache2,
  build,
@@ -24,7 +24,7 @@ Depends: ${shlibs:Depends},
  xtightvncviewer,
  wget,
 Recommends:
- mic (>= 0.4),
+ mic (>= 0.14-2.1),
  usb-imagewriter
 Description: Utilities to work with OBS Light, a lighter version of OBS.
  Utilities to work with OBS Light, a lighter version of OBS.
