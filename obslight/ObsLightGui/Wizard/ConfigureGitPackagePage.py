@@ -302,6 +302,7 @@ class ConfigureGitPackagePage(ObsLightWizardPage):
         self.standardModel = None
         self.__initViewTree()
 
+        self.__userIsCheck = False
 
     def __initViewTree(self):
         self.standardModel = chooseGitPackageModel()
@@ -349,7 +350,8 @@ class ConfigureGitPackagePage(ObsLightWizardPage):
 
         return True
 
-
+    def isComplete(self):
+        return self.__userIsCheck
 
 
 

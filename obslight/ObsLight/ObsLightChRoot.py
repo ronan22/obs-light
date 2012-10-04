@@ -530,7 +530,7 @@ exit $?
         # The problem comes from Tizen's "rpm" package which does not own /usr/lib/rpm/tizen,
         # which gives this directory rwx------ file rights on certain conditions.
         # The following code is to workaround that.
-        rpmTizenDir = os.path.join(chrootDir, "usr/lib/rpm/tizen")
+        rpmTizenDir = os.path.join(fsPath, "usr/lib/rpm/tizen")
         if retCode != 0 and os.path.isdir(rpmTizenDir):
             mode = os.stat(rpmTizenDir).st_mode
             if (stat.S_IMODE(mode) & (stat.S_IROTH | stat.S_IXOTH)) == 0:
@@ -542,7 +542,7 @@ exit $?
 #        return retCode
 
 
-        if res != 0:
+        if retCode != 0:
             message = "Can't create the project file system."
             message += "See the log for details about the error."
             raise ObsLightErr.ObsLightChRootError(message)

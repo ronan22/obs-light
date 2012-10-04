@@ -34,7 +34,6 @@ class ChooseLocalPackagePage(ObsLightWizardPage, FilterableWidget):
                                   multiSelection=True)
         self.registerField(u"localPackageRow", self.ui_WizardPage.packageListWidget)
 
-
         self.setCommitPage(True)
 
     def initializePage(self):
