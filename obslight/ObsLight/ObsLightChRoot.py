@@ -536,7 +536,7 @@ exit $?
             if (stat.S_IMODE(mode) & (stat.S_IROTH | stat.S_IXOTH)) == 0:
                 self.logger.warning("Using workaround for bug #25565")
                 command2 = "sudo chmod 755 %s" % rpmTizenDir
-                retCode = self.__subprocess(command2, waitMess=True)
+                retCode = self._subprocess(command2, waitMess=True)
 #                retCode = self._subprocess(command % {"clean": ""}, waitMess=True)
 #
 #        return retCode
