@@ -250,7 +250,6 @@ class chooseGitPackageModel(QStandardItemModel):
 
     def flags(self, index):
         superFlags = super(QStandardItemModel, self).flags(index)
-
         superFlags = superFlags | Qt.ItemIsUserCheckable | Qt.ItemIsSelectable | Qt.ItemIsEnabled
 
         return superFlags
@@ -297,12 +296,21 @@ class ConfigureGitPackagePage(ObsLightWizardPage):
         self.ui_WizardPage.selectAllPushButton.clicked.connect(self.on_selectAllPushButton_clicked)
         self.ui_WizardPage.unselectAllPushButton.clicked.connect(self.on_unselectAllPushButton_clicked)
 #        self.ui_WizardPage.importPushButton.clicked.connect(self.on_importPushButton_clicked)
+        self.ui_WizardPage.CheckUserNameButton.clicked.connect(self.on_CheckUserNameButton_clicked)
+
+        self.registerField(u"CheckUserNameButton", self.ui_WizardPage.CheckUserNameButton)
 
         self.__gitProjectTreeView = self.ui_WizardPage.gitProjectTreeView
         self.standardModel = None
         self.__initViewTree()
+        self.__userIsCheck = False
 
-        self.__userIsCheck = True
+    def on_CheckUserNameButton_clicked(self):
+        self.__userIsCheck = self.callWithInfiniteProgress(self.manager.testSshUser,
+                                                           "Check git user  connection...",
+                                                           self.getTestUser())
+
+        self.completeChanged.emit()
 
     def __initViewTree(self):
         self.standardModel = chooseGitPackageModel()
@@ -335,12 +343,21 @@ class ConfigureGitPackagePage(ObsLightWizardPage):
 #        for p, g in res:
 #            print "package", p.ljust(25), " git:", g
 
+    def getNewFetch(self):
+        user = self.ui_WizardPage.userTizenGitNameLineEdit.text()
+        return "ssh://%s@review.tizen.org:29418/" % user
+
+    def getTestUser(self):
+        user = self.ui_WizardPage.userTizenGitNameLineEdit.text()
+        res = 'ssh -p 29418 -l %s review.tizen.org -o "StrictHostKeyChecking no"' % user
+        return res
+
     @popupOnException
     def validatePage(self):
         projectAlias = self.field(u"projectAlias")
         swappedImportPackage = firstArgLast(self.manager.importPackage)
-        user = self.ui_WizardPage.userTizenGitNameLineEdit.text()
-        newFetch = "ssh://%s@review.tizen.org:29418/" % user
+
+        newFetch = self.getNewFetch()
         oldFetch = "git://review.tizen.org/"
 
         self.callWithProgress(swappedImportPackage,

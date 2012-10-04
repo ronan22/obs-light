@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui/wizard_newProject.ui'
 #
-# Created: Wed Oct  3 19:10:30 2012
+# Created: Thu Oct  4 14:14:55 2012
 #      by: pyside-uic 0.2.13 running on PySide 1.1.0
 #
 # WARNING! All changes made in this file will be lost!

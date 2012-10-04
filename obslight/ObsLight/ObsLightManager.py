@@ -560,6 +560,10 @@ class ObsLightManagerCore(ObsLightManagerBase):
     def getProjectGbsConfList(self):
         return self.__getProjectFilefList("/usr/share/gbs/")
 
+    def testSshUser(self, cmd):
+        aSubProcess = SubprocessCrt()
+        res = aSubProcess.execSubprocess(cmd)
+        return (res == 127)
 
     def getProjectManifestList(self):
         return self.__getProjectFilefList("/usr/share/obslight/projectManifest/")
