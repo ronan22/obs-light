@@ -60,6 +60,12 @@ def getConfigPath():
 def getWorkingDirectory():
     return ObsLightConfig.WORKINGDIRECTORY
 
+def getProjectManifestDirectory():
+    path = os.path.join(getWorkingDirectory() , "projectManifest")
+    if not os.path.isdir(path):
+        os.makedirs(path)
+    return path
+
 def getpidFilePath():
     return os.path.join(getWorkingDirectory(), u"obslight.pid")
 
@@ -566,7 +572,7 @@ class ObsLightManagerCore(ObsLightManagerBase):
         return (res == 127)
 
     def getProjectManifestList(self):
-        return self.__getProjectFilefList("/usr/share/obslight/projectManifest/")
+        return self.__getProjectFilefList(getProjectManifestDirectory())
 
     def __getProjectFilefList(self, path):
         aDict = {}
@@ -578,7 +584,7 @@ class ObsLightManagerCore(ObsLightManagerBase):
         return aDict
 
     def generateUpdatedTizenManifest(self):
-        ouputFile = "/usr/share/obslight/projectManifest/tizen-%s.xml"
+        ouputFile = os.path.join(getProjectManifestDirectory(), "tizen-%s.xml")
         ouputFile = ouputFile % (time.strftime("%Y-%m-%d_%Hh%M"))
         cmd = "/usr/bin/generate_default_xml > %s " % ouputFile
 

@@ -888,14 +888,11 @@ exit $RETURN_VALUE
             msg = "The first %%prep of package '%s' failed. " % package.getName()
             msg += "Return code was: %s" % str(res)
             raise ObsLightErr.ObsLightChRootError(msg)
-        for i in range(10):
-            print "_________________________________"
+
         packageDirectory = self.__findPackageDirectory(package=package)
-        print "packageDirectory", packageDirectory
         if packageDirectory is None:
             return 0
-        for i in range(10):
-            print "_________________________________"
+
         message = "Package directory used by '%s': %s" % (package.getName(), str(packageDirectory))
         ObsLightPrintManager.getLogger().debug(message)
 

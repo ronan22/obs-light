@@ -128,7 +128,7 @@ install -d %{buildroot}/etc/init.d
 mkdir -p %{buildroot}/srv/%IMGSRVPATH/www
 mkdir -p %{buildroot}/usr/share/obslight/projectTemplate
 mkdir -p %{buildroot}/usr/share/obslight/projectConf
-mkdir -p %{buildroot}/usr/share/obslight/projectManifest
+
 
 # << install post
 desktop-file-install --delete-original       \
@@ -252,7 +252,6 @@ chmod -R o+rw /usr/share/obslight
 %dir /usr/share/obslight
 %dir /usr/share/obslight/projectTemplate
 %dir /usr/share/obslight/projectConf
-%dir /usr/share/obslight/projectManifest
 
 /srv/%IMGSRVPATH/config/obslight-image.apache2conf
 /srv/%REPOSRVPATH/config/obslight-repos.apache2conf
