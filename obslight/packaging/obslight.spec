@@ -247,19 +247,19 @@ chmod -R o+rw /usr/share/obslight
 %dir /srv/%REPOSRVPATH/www
 %dir /srv/%REPOSRVPATH/www/theme
 %dir /srv/%REPOSRVPATH/www/theme/images
+%dir /usr/share/obslight
+%dir /usr/share/obslight/projectTemplate
+%dir /usr/share/obslight/projectConf
+%dir /usr/share/obslight/projectManifest
 
 /srv/%IMGSRVPATH/config/obslight-image.apache2conf
 /srv/%REPOSRVPATH/config/obslight-repos.apache2conf
 /srv/%REPOSRVPATH/www/theme/*
 /srv/%REPOSRVPATH/www/theme/images/*
 
-%dir /usr/share/obslight
-%dir /usr/share/obslight/projectTemplate
-%dir /usr/share/obslight/projectConf
-%dir /usr/share/obslight/projectManifest
-
 /usr/share/obslight/projectConf/*
 /usr/share/obslight/projectTemplate/*
+# << files
 
 %files gui
 %defattr(-,root,root,-)
