@@ -149,6 +149,9 @@ then
   fi
 fi
 # << preun
+mkdir -p /usr/share/obslight/projectTemplate
+mkdir -p /usr/share/obslight/projectConf
+mkdir -p /usr/share/obslight/projectManifest
 
 %post
 # >> post
@@ -217,7 +220,6 @@ chmod g+w /srv/%REPOSRVPATH/config
 chmod g+w /srv/%IMGSRVPATH/www
 chmod g+w /srv/%REPOSRVPATH/www
 
-mkdir -p /usr/share/obslight/projectManifest
 chmod -R o+rw /usr/share/obslight
 # << post
 
