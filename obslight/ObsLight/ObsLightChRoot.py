@@ -517,7 +517,7 @@ exit $?
         cmd = "sudo /usr/bin/build"
         cmd += " --root %s --rpmlist=%s --dist %s --target %s --norootforbuild --changelog %s"
         cmd = cmd % (fsPath, rpmList, buildConfig, arch, specFile)
-        res = self._subprocess(cmd, waitMess=True)
+        retCode = self._subprocess(cmd, waitMess=True)
 
 #        res = ObsLightOsc.getObsLightOsc().createChRoot(chrootDir=fsPath,
 #                                                        repos=repos,
@@ -526,17 +526,17 @@ exit $?
 #                                                        project=obsProject,
 #                                                        )
 
-#        # FIXME: since 0.5.1 there is a big regression: Tizen chroot jail creation fails.
-#        # The problem comes from Tizen's "rpm" package which does not own /usr/lib/rpm/tizen,
-#        # which gives this directory rwx------ file rights on certain conditions.
-#        # The following code is to workaround that.
-#        rpmTizenDir = os.path.join(chrootDir, "usr/lib/rpm/tizen")
-#        if retCode != 0 and os.path.isdir(rpmTizenDir):
-#            mode = os.stat(rpmTizenDir).st_mode
-#            if (stat.S_IMODE(mode) & (stat.S_IROTH | stat.S_IXOTH)) == 0:
-#                self.logger.warning("Using workaround for bug #25565")
-#                command2 = "sudo chmod 755 %s" % rpmTizenDir
-#                self.__subprocess(command2, waitMess=True)
+        # FIXME: since 0.5.1 there is a big regression: Tizen chroot jail creation fails.
+        # The problem comes from Tizen's "rpm" package which does not own /usr/lib/rpm/tizen,
+        # which gives this directory rwx------ file rights on certain conditions.
+        # The following code is to workaround that.
+        rpmTizenDir = os.path.join(chrootDir, "usr/lib/rpm/tizen")
+        if retCode != 0 and os.path.isdir(rpmTizenDir):
+            mode = os.stat(rpmTizenDir).st_mode
+            if (stat.S_IMODE(mode) & (stat.S_IROTH | stat.S_IXOTH)) == 0:
+                self.logger.warning("Using workaround for bug #25565")
+                command2 = "sudo chmod 755 %s" % rpmTizenDir
+                retCode = self.__subprocess(command2, waitMess=True)
 #                retCode = self._subprocess(command % {"clean": ""}, waitMess=True)
 #
 #        return retCode
