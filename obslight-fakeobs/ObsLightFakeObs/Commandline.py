@@ -19,6 +19,7 @@
 Commandline client for FakeOBS.
 
 @author: Florent Vennetier
+@author: jobollo@nonadev.net
 """
 
 import sys
@@ -164,6 +165,37 @@ class FakeObsCommandline(cmdln.Cmdln):
         effectiveName = ProjectManager.grabProject(opts.api, opts.rsync,
                                                    project, opts.targets,
                                                    opts.archs, new_name)
+        msg = "Project '%s' grabbed" % effectiveName
+        print Utils.colorize(msg, "green")
+        packageList = ProjectManager.getPackageList(effectiveName)
+        msg = "It contains %d packages" % len(packageList)
+        print Utils.colorize(msg, "green")
+        print
+        return self.do_check(subcmd, opts, effectiveName)
+
+    @cmdln.alias("fromgbs")
+    @cmdln.option("-n", "--name", dest="name",
+                  help="set the project to NAME")
+    @cmdln.option("-a", "--arch", action="append", dest="archs",
+                  default=[],
+                  help="an architecture type to grab")
+    @cmdln.option("-t", "--target", action="append", dest="targets",
+                  default=[],
+                  help="the name of a build target to grab")
+    def do_grabgbs(self, subcmd, opts, url):
+        """${cmd_name}: import a project from a GBS tree
+        
+        NAME parameter is mandatory.
+        You need to be root to run this.
+        
+        ${cmd_usage}
+        ${cmd_option_list}
+        """
+        Utils.failIfUserIsNotRoot()
+        if opts.name is None:
+            raise ValueError("You must provide a NAME! (use -n or --name)")
+        name = opts.name
+        effectiveName = ProjectManager.grabGBSTree(url, name, opts.targets, opts.archs)
         msg = "Project '%s' grabbed" % effectiveName
         print Utils.colorize(msg, "green")
         packageList = ProjectManager.getPackageList(effectiveName)

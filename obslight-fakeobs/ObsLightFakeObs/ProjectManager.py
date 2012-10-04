@@ -18,6 +18,7 @@
 Manage the projects of FakeOBS.
 
 @author: Florent Vennetier
+@author: jobollo@nonadev.net
 """
 
 import os
@@ -484,6 +485,80 @@ def grabProject(api, rsyncUrl, project, targets, archs, newName=None):
         pass
 
     return newName
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def grabGBSTree(url, name, targets, archs, newName=None):
+    """
+    Grab a project from an OBS server.
+      url:       the URL to fetch for the GBS tree 
+                  (ex: http://download.tizen.org/releases/2.0alpha/daily/latest
+                   or  rsync://download.tizen.org/releases/2.0alpha/daily/latest)
+      name:      the name to give to the project after it has 
+                  been grabbed.
+      targets:    a list of build targets to grab
+                  (ex: "standard")
+      archs:     a list of architectures to grab
+                  (ex: ["i586", "armv7el"])
+    """
+    failIfProjectExists(name)
+
+    
+    targetArchTuples = Utils.buildTargetArchTuplesFromServer(api, project,
+                                                             targets, archs)
+    if len(targetArchTuples) == 0:
+        msg = "Invalid target/arch specified, or all disabled on server!"
+        raise ValueError(msg)
+
+    targets = {t for t, a in targetArchTuples}
+    archs = {a for t, a in targetArchTuples}
+
+    conf = getConfig()
+    projectDir = conf.getProjectDir(name)
+    fullDir = conf.getProjectFullDir(name)
+    packagesDir = conf.getProjectPackagesDir(name)
+    repoDir = conf.getProjectRepositoryDir(name)
+
+    if not os.path.isdir(projectDir):
+        os.makedirs(projectDir)
+    writeProjectInfo(api, rsyncUrl, project, targets, archs, name)
+    downloadConfAndMeta(api, project, projectDir)
+    fixProjectMeta(name)
+    downloadFulls(api, project, targetArchTuples, fullDir)
+    downloadPackages(api, project, packagesDir)
+    # TODO: check return value of downloadPackages()
+    fixProjectPackagesMeta(name)
+    downloadRepositories(rsyncUrl, project, targets, repoDir)
+    # findOrphanRpms is a generator
+    for orphan in findOrphanRpms(name):
+        pass
+    updateLiveRepository(name)
+    try:
+        # These operations will fail if program is not run
+        # on an OBS server
+        updateFakeObsDistributions()
+        createFakeObsLink()
+    except IOError:
+        pass
+
+    return name
+
+
+
+
+
+
 
 def removeProject(project):
     """Remove `project` from fakeobs."""

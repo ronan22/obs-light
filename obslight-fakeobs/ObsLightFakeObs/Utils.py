@@ -322,3 +322,5 @@ def getFakeObsVersion():
             return version
     except IOError:
         return "unknown"
+
+
