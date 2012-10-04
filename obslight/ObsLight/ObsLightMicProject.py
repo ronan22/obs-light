@@ -413,7 +413,7 @@ class ObsLightMicProject(object):
 #        cmd += " --cachedir=" + cacheDirPath
         cmd += " --outdir=" + self.projectDirectory
         cmd += " --arch=" + self.__architecture
-        cmd += " --release=build_" + timeString
+#        cmd += " --release=build_" + timeString
         cmd += " --local-pkgs-path=" + self.localPackagesDirectory
         self.__subprocess(cmd)
 

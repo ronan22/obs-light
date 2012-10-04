@@ -136,7 +136,7 @@ initColumnHeadersDico(NameColumn, ID_PACKAGE_NAME, "Package")
 initColumnHeadersDico(SourceType, ID_PACKAGE_SOURCE, "Source\nType")
 #initColumnHeadersDico(StatusColumn, ID_PACKAGE_STATUS, "Source\nStatus")
 initColumnHeadersDico(FSStatusColumn, ID_PACKAGE_CHROOT_STATUS, "chroot jail\nstatus")
-initColumnHeadersDico(SyncStatusColumn, ID_PACKAGE_SYNC, "Synchronized")
+#initColumnHeadersDico(SyncStatusColumn, ID_PACKAGE_SYNC, "Synchronized")
 
 #init color dict.
 StatusColorsDict = {}
@@ -154,8 +154,8 @@ for c in ColumnHeaders.keys():
 
 StatusColorsDict[FSStatusColumn][CHROOT_UNKNOWN_STATUS] = u"red"
 
-StatusColorsDict[SyncStatusColumn][SYNC_FAIL] = u"red"
-StatusColorsDict[SyncStatusColumn][SYNC_OK] = u"green"
+#StatusColorsDict[SyncStatusColumn][SYNC_FAIL] = u"red"
+#StatusColorsDict[SyncStatusColumn][SYNC_OK] = u"green"
 
 def StatusColumnCount():
     return len(ColumnHeaders.keys())

@@ -148,8 +148,8 @@ class PackageManager(QObject, ObsLightGuiObject):
 #        signal.connect(self.on_obsStatusFilterComboBox_currentIndexChanged)
         signal = mw.chrootStatusComboBox.currentIndexChanged
         signal.connect(self.on_chrootStatusComboBox_currentIndexChanged)
-        signal = mw.SyncStatusComboBox.currentIndexChanged
-        signal.connect(self.on_SyncStatusComboBox_currentIndexChanged)
+#        signal = mw.SyncStatusComboBox.currentIndexChanged
+#        signal.connect(self.on_SyncStatusComboBox_currentIndexChanged)
 
 #        signal = mw.obsRevFilterLineEdit.editingFinished
 #        signal.connect(self.on_obsRevFilterLineEdit_editingFinished)
@@ -164,7 +164,7 @@ class PackageManager(QObject, ObsLightGuiObject):
                 self.mainWindow.sourceStatusComboBox.insertItem(0, "")
 #                self.mainWindow.obsStatusFilterComboBox.insertItem(0, "")
                 self.mainWindow.chrootStatusComboBox.insertItem(0, "")
-                self.mainWindow.SyncStatusComboBox.insertItem(0, "")
+#                self.mainWindow.SyncStatusComboBox.insertItem(0, "")
 
 #                for i in self.manager.getListOscStatus(currentProject):
 #                    self.mainWindow.oscStatusFilterComboBox.addItem(i)
@@ -177,8 +177,8 @@ class PackageManager(QObject, ObsLightGuiObject):
                 for i in LIST_CHROOT_STATUS:
                     self.mainWindow.chrootStatusComboBox.addItem(i)
 
-                for i in LIST_SYNC_STATUS:
-                    self.mainWindow.SyncStatusComboBox.addItem(i)
+#                for i in LIST_SYNC_STATUS:
+#                    self.mainWindow.SyncStatusComboBox.addItem(i)
 
                 self.__packageFilterInitialized = True
 
@@ -187,8 +187,7 @@ class PackageManager(QObject, ObsLightGuiObject):
 #            for status, cbox in [(ID_PACKAGE_STATUS, self.mainWindow.obsStatusFilterComboBox),
 #                                 (ID_PACKAGE_CHROOT_STATUS, self.mainWindow.chrootStatusComboBox),
 #                                 (ID_PACKAGE_SYNC, self.mainWindow.SyncStatusComboBox)]:
-            for status, cbox in [(ID_PACKAGE_CHROOT_STATUS, self.mainWindow.chrootStatusComboBox),
-                                 (ID_PACKAGE_SYNC, self.mainWindow.SyncStatusComboBox)]:
+            for status, cbox in [(ID_PACKAGE_CHROOT_STATUS, self.mainWindow.chrootStatusComboBox)]:
                 if status in packageFilter:
                     val = packageFilter.get(status, "")
                     index = cbox.findText(val)
@@ -248,10 +247,10 @@ class PackageManager(QObject, ObsLightGuiObject):
         if txt is not None:
             self.__updatePackageFilter(ID_PACKAGE_CHROOT_STATUS, txt)
 
-    def on_SyncStatusComboBox_currentIndexChanged(self):
-        txt = self.mainWindow.SyncStatusComboBox.currentText()
-        if txt is not None:
-            self.__updatePackageFilter(ID_PACKAGE_SYNC, txt)
+#    def on_SyncStatusComboBox_currentIndexChanged(self):
+#        txt = self.mainWindow.SyncStatusComboBox.currentText()
+#        if txt is not None:
+#            self.__updatePackageFilter(ID_PACKAGE_SYNC, txt)
 
     def __loadPkgModel(self, projectName):
         """
