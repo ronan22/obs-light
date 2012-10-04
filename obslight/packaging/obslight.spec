@@ -126,6 +126,9 @@ ln -s obslightgui-wrapper.py %{buildroot}/%{_bindir}/obslightgui
 install -d %{buildroot}/etc/init.d
 # To be removed when we add a theme (would be already created by setup.py)
 mkdir -p %{buildroot}/srv/%IMGSRVPATH/www
+mkdir -p %{buildroot}/usr/share/obslight/projectTemplate
+mkdir -p %{buildroot}/usr/share/obslight/projectConf
+mkdir -p %{buildroot}/usr/share/obslight/projectManifest
 
 # << install post
 desktop-file-install --delete-original       \
@@ -149,9 +152,6 @@ then
   fi
 fi
 # << preun
-mkdir -p /usr/share/obslight/projectTemplate
-mkdir -p /usr/share/obslight/projectConf
-mkdir -p /usr/share/obslight/projectManifest
 
 %post
 # >> post

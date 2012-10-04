@@ -191,8 +191,10 @@ class ObsLightProjectCore(ObsLightObject):
         endline = "\n"
         if target.endswith("\n"):
             target = target[:-len(endline)]
-
-        return target
+        if len(target) > 0:
+            return target
+        else:
+            return archs
 
     def addRemoveFileToTheProject(self, package=None):
         '''
