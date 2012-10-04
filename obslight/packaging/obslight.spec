@@ -216,6 +216,8 @@ chmod g+w /srv/%IMGSRVPATH/config
 chmod g+w /srv/%REPOSRVPATH/config
 chmod g+w /srv/%IMGSRVPATH/www
 chmod g+w /srv/%REPOSRVPATH/www
+
+mkdir -p /usr/share/obslight/projectManifest
 chmod -R o+rw /usr/share/obslight
 # << post
 
@@ -250,6 +252,11 @@ chmod -R o+rw /usr/share/obslight
 /srv/%REPOSRVPATH/config/obslight-repos.apache2conf
 /srv/%REPOSRVPATH/www/theme/*
 /srv/%REPOSRVPATH/www/theme/images/*
+
+%dir /usr/share/obslight
+%dir /usr/share/obslight/projectTemplate
+%dir /usr/share/obslight/projectConf
+%dir /usr/share/obslight/projectManifest
 
 /usr/share/obslight/projectConf/*
 /usr/share/obslight/projectTemplate/*
