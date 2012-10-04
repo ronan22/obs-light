@@ -19,12 +19,13 @@
 Created on 17 avr. 2012
 
 @author: Florent Vennetier
+@author: Ronan Le Martret
 '''
 
 from WizardPageWrapper import ObsLightWizardPage
 from ObsLightGui.Utils import popupOnException
 
-class ChooseNewOrExistingPackage(ObsLightWizardPage):
+class ChooseNewOrExistingPackagePage(ObsLightWizardPage):
 
     def __init__(self, gui, index):
         ObsLightWizardPage.__init__(self, gui, index,
@@ -33,18 +34,27 @@ class ChooseNewOrExistingPackage(ObsLightWizardPage):
                            self.ui_WizardPage.importExistingPackageButton)
         self.registerField(u"createNewPackage",
                            self.ui_WizardPage.createNewPackageButton)
+        #TMP remove this (Import package from an other local OBS Light Project)
+#        self.registerField(u"copyPackage",
+#                           self.ui_WizardPage.copyPackageButton)
 
-    # TODO: implement getProjectParameter(projectAlias, "readonly")
-#    @popupOnException
-#    def initializePage(self):
-#        projectAlias = self.wizard().getSelectedProjectAlias()
-#        readonly = self.manager.getProjectParameter(projectAlias, "readonly")
-#        if readonly:
-#            self.ui_WizardPage.createNewPackageButton.setEnabled(False)
+        self.registerField(u"importManifestButton",
+                           self.ui_WizardPage.importManifestButton)
+
+    @popupOnException
+    def initializePage(self):
+        projectAlias = self.wizard().getSelectedProjectAlias()
+        isLocalProject = self.manager.getProjectParameter(projectAlias, "isLocalProject")
+        if isLocalProject:
+            self.ui_WizardPage.importExistingPackageButton.setEnabled(False)
 #            self.ui_WizardPage.createNewPackageButton.setToolTip(u"Project is read only")
 
     def nextId(self):
         if self.field(u"createNewPackage"):
             return self.wizard().pageIndex(u"ConfigureNewPackage")
+#        elif self.field(u"copyPackage"):
+#            return self.wizard().pageIndex(u"ChooseLocalProject")
+        elif self.field(u"importManifestButton"):
+            return self.wizard().pageIndex(u"ChooseManifestPage")
         else:
             return self.wizard().pageIndex(u"ChoosePackage")

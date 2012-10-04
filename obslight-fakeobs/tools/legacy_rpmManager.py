@@ -9,8 +9,6 @@ from xml.dom.minidom import getDOMImplementation
 
 from xml.etree import ElementTree
 
-import legacy_gitmer as gitmer
-
 HOST_IP = None
 
 archHierarchyMap = {}

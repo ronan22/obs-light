@@ -13,6 +13,7 @@ obslight-fakeobs (1.0.1-1) stable; urgency=low
   * Version 0.6.1
     - fixed _buildinfo request for ARM builds
     - not using manifest anymore to remove a project
+    - restart daemon after grab or import
 
   * Version 0.6.0
     - Implemented _buildinfo request to allow building without a real OBS

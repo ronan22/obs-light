@@ -26,7 +26,7 @@
    <item>
     <widget class="QRadioButton" name="importExistingPackageButton">
      <property name="text">
-      <string>Import existing package</string>
+      <string>Import package from OBS</string>
      </property>
      <property name="checked">
       <bool>true</bool>
@@ -34,22 +34,16 @@
     </widget>
    </item>
    <item>
-    <widget class="QRadioButton" name="createNewPackageButton">
+    <widget class="QRadioButton" name="importManifestButton">
      <property name="text">
-      <string>Create new package</string>
+      <string>Import git package using manifest.xml (repo)</string>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="QRadioButton" name="branchPackageButton">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="toolTip">
-      <string>Not implemented</string>
-     </property>
+    <widget class="QRadioButton" name="createNewPackageButton">
      <property name="text">
-      <string>Create a branch of an existing package</string>
+      <string>Create new package ( empty project, from git url or local path)</string>
      </property>
     </widget>
    </item>

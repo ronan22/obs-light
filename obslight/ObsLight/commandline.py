@@ -29,7 +29,7 @@ import collections
 
 from ObsLightUtils import getLineno
 
-__PRGNAME__ = "OBSlight"
+__PRGNAME__ = "OBS Light"
 
 firstBorderLen = 4
 secondBorderLen = 30
@@ -411,7 +411,6 @@ __command_modify__ = ["modify"]
 __command_testBuildPackages__ = ["testBuildPackages"]
 
 #Parameter 
-__parameter_gitPath__ = ["path"]
 __parameter_gitUrl__ = ["url"]
 __parameter_reachable__ = ["reachable"]
 __parameter_server_alias__ = ["server_alias", "alias"]
@@ -448,8 +447,8 @@ __parameter_filelist_status__ = ["filelist_status"]
 __parameter_obsstatus__ = ["obsStatus"]
 __parameter_oscstatus__ = ["oscStatus"]
 __parameter_specFile__ = ["specfile"]
-__parameter_fsPackageDirectory__ = ["fspackagedirectory"]
-__parameter_oscPackageDirectory__ = ["oscpackagedirectory"]
+__parameter_packageChrootDirectory__ = ["packageChrootDirectory"]
+__parameter_packageSourceDirectory__ = ["packageSourceDirectory"]
 __parameter_filesystemstatus__ = ["status"]
 __parameter_currentPatch__ = ["currentpatch"]
 __parameter_package_title__ = ["title"]
@@ -464,7 +463,6 @@ __parameter_repo_alias__ = ["repository_alias"]
 
 #Define the server parameter help
 createParameterHelp(__command_help__, __help_command_help__)
-createParameterHelp(__parameter_gitPath__ , ["The local git project directory."])
 createParameterHelp(__parameter_gitUrl__ , ["the URL git project (like: git://XXX.org/XXX/XXX.git)"])
 createParameterHelp(__parameter_reachable__, ["[reachable] optional"])
 createParameterHelp(__parameter_server_alias__, "the alias of an OBS server ")
@@ -510,8 +508,8 @@ createParameterHelp(__parameter_filelist_status__, "the list of files of a packa
 createParameterHelp(__parameter_obsstatus__, "the OBS status")
 createParameterHelp(__parameter_oscstatus__, "OSC status")
 createParameterHelp(__parameter_specFile__, "the spec file name")
-createParameterHelp(__parameter_fsPackageDirectory__, "the directory of the project file system")
-createParameterHelp(__parameter_oscPackageDirectory__, "the OSC package directory")
+createParameterHelp(__parameter_packageChrootDirectory__, "the directory of the project file system")
+createParameterHelp(__parameter_packageSourceDirectory__, "the OSC package directory")
 createParameterHelp(__parameter_filesystemstatus__, "the project file system directory")
 createParameterHelp(__parameter_currentPatch__, "the name of the current patch of the local package")
 createParameterHelp(__parameter_package_title__, "the title of a package")
@@ -652,8 +650,8 @@ appendObsProjectSubCommand(__command_del__)
 appendObsProjectSubCommand(__command_query__)
 appendObsProjectSubCommand(__command_set__)
 appendObsProjectSubCommand(__command_current__)
-appendObsProjectSubCommand(__command_import__)
-appendObsProjectSubCommand(__command_export__)
+#appendObsProjectSubCommand(__command_import__)
+#appendObsProjectSubCommand(__command_export__)
 appendObsProjectSubCommand(__command_dependencyrepositories__)
 appendObsProjectSubCommand(__command_testBuildPackages__)
 
@@ -703,13 +701,13 @@ createObsProjectSubCommandHelp(__command_set__,
                                 "{project_alias <project_alias>}",
                                 "  modify local project parameters"])
 
-createObsProjectSubCommandHelp(__command_import__,
-                               ["obsproject import <path>",
-                                "  import a backup file"])
+#createObsProjectSubCommandHelp(__command_import__,
+#                               ["obsproject import <path>",
+#                                "  import a backup file"])
 
-createObsProjectSubCommandHelp(__command_export__,
-                               ["obsproject export <path> {<project_alias>}}",
-                                "  export a backup file"])
+#createObsProjectSubCommandHelp(__command_export__,
+#                               ["obsproject export <path> {<project_alias>}}",
+#                                "  export a backup file"])
 
 createObsProjectSubCommandHelp(__command_testBuildPackages__,
                                ["test the build of package on the obslight" +
@@ -778,16 +776,16 @@ createObsProjectParameter(__command_set__, [__command_help__,
                                             __parameter_project_description__,
                                             __parameter_project_alias__])
 
-createObsProjectParameter(__command_import__, [__command_help__,
-                                               __parameter_path__],
-                                               [__parameter_path__])
+#createObsProjectParameter(__command_import__, [__command_help__,
+#                                               __parameter_path__],
+#                                               [__parameter_path__])
 
-createObsProjectParameter(__command_export__,
-                          [__command_help__,
-                           __parameter_path__,
-                           __parameter_project_alias__],
-                          [__parameter_path__,
-                           __parameter_project_alias__])
+#createObsProjectParameter(__command_export__,
+#                          [__command_help__,
+#                           __parameter_path__,
+#                           __parameter_project_alias__],
+#                          [__parameter_path__,
+#                           __parameter_project_alias__])
 
 createObsProjectParameter(__command_testBuildPackages__, [__command_help__,
                                                             __parameter_project_alias__,
@@ -806,8 +804,8 @@ appendPackageSubCommand(__command_set__)
 appendPackageSubCommand(__command_update__)
 appendPackageSubCommand(__command_commit__)
 appendPackageSubCommand(__command_repair__)
-appendPackageSubCommand(__command_addfile__)
-appendPackageSubCommand(__command_deletefile__)
+#appendPackageSubCommand(__command_addfile__)
+#appendPackageSubCommand(__command_deletefile__)
 appendPackageSubCommand(__command_refresh__)
 appendPackageSubCommand(__command_testConflict__)
 appendPackageSubCommand(__command_resolveConflict__)
@@ -849,7 +847,7 @@ createPackageSubCommandHelp(__command_query__,
                              "  query information from OBS project",
                              "package query [title|description|obsrev|oscrev|filelist|" +
                              "filelist_status|obsstatus|oscstatus|specfile|" +
-                             "fspackagedirectory|oscpackagedirectory|filesystemstatus|" +
+                             "packageChrootDirectory|packageSourceDirectory|filesystemstatus|" +
                              "currentpatch] {package <package> {project_alias <project_alias>} }",
                              "  query information from local project",
                              "  if no information is specified all informations are queried"])
@@ -872,15 +870,15 @@ createPackageSubCommandHelp(__command_repair__,
                             ["package repair {package <package> {project_alias <project_alias>}",
                              "  repair an inconsistent package working copy"])
 
-createPackageSubCommandHelp(__command_addfile__,
-                            ["package addfile <path> {package <package> " +
-                             "{project_alias <project_alias>}",
-                             "  add file to local package"])
-
-createPackageSubCommandHelp(__command_deletefile__,
-                            ["package deletefile <file> {package <package> " +
-                             "{project_alias <project_alias>}",
-                             "  delete file from local package"])
+#createPackageSubCommandHelp(__command_addfile__,
+#                            ["package addfile <path> {package <package> " +
+#                             "{project_alias <project_alias>}",
+#                             "  add file to local package"])
+#
+#createPackageSubCommandHelp(__command_deletefile__,
+#                            ["package deletefile <file> {package <package> " +
+#                             "{project_alias <project_alias>}",
+#                             "  delete file from local package"])
 
 createPackageSubCommandHelp(__command_refresh__,
                             ["package refresh [oscStatus|obsstatus] {package <package> " +
@@ -915,7 +913,6 @@ createPackageParameter(__command_current__, [__command_help__,
 
 createPackageParameter(__command_import__, [__command_help__,
                                             __parameter_project_alias__,
-                                            __parameter_gitPath__,
                                             __parameter_gitUrl__,
                                             __parameter_package__])
 
@@ -941,8 +938,8 @@ createPackageParameter(__command_query__, [__command_help__,
                                            __parameter_obsstatus__,
                                            __parameter_oscstatus__,
                                            __parameter_specFile__,
-                                           __parameter_fsPackageDirectory__,
-                                           __parameter_oscPackageDirectory__,
+                                           __parameter_packageChrootDirectory__,
+                                           __parameter_packageSourceDirectory__,
                                            __parameter_filesystemstatus__,
                                            __parameter_currentPatch__,
                                            __parameter_project_alias__,
@@ -968,15 +965,15 @@ createPackageParameter(__command_repair__, [__command_help__,
                                             __parameter_package__,
                                            __parameter_project_alias__])
 
-createPackageParameter(__command_addfile__, [__command_help__,
-                                             __parameter_path__,
-                                             __parameter_package__,
-                                             __parameter_project_alias__], [__parameter_path__])
-
-createPackageParameter(__command_deletefile__, [__command_help__,
-                                                __parameter_file__,
-                                             __parameter_package__,
-                                             __parameter_project_alias__], [__parameter_file__])
+#createPackageParameter(__command_addfile__, [__command_help__,
+#                                             __parameter_path__,
+#                                             __parameter_package__,
+#                                             __parameter_project_alias__], [__parameter_path__])
+#
+#createPackageParameter(__command_deletefile__, [__command_help__,
+#                                                __parameter_file__,
+#                                             __parameter_package__,
+#                                             __parameter_project_alias__], [__parameter_file__])
 
 createPackageParameter(__command_refresh__, [__command_help__,
                                              __parameter_obsstatus__,
@@ -2330,70 +2327,70 @@ class ObsLightObsproject(ObsLightBase):
             else:
                 return self.printHelp(__command_set__)
 
-    def obsproject_import(self, listArgv):
-        Help = False
-        path = None
+#    def obsproject_import(self, listArgv):
+#        Help = False
+#        path = None
+#
+#        while self.testArgv(listArgv):
+#            currentCommand, listArgv = self.getParameter(listArgv)
+#            if (currentCommand in __command_help__) or (listArgv == None):
+#                Help = True
+#                break
+#            else:
+#                path = currentCommand
+#                break
+#
+#        if  Help :
+#            return self.printHelp(__command_import__)
+#        else:
+#            if not ObsLightBase.noaction:
+#                if (path == None):
+#                    return self.printError("Missing  path", __command_import__)
+#                m = ObsLightManager.getCommandLineManager()
+#
+#                res = m.importProject(path)
+#
+#                if self.testResult(res, getLineno()) == -1:return - 1
+#                return 0
+#            else:
+#                return self.printHelp(__command_import__)
 
-        while self.testArgv(listArgv):
-            currentCommand, listArgv = self.getParameter(listArgv)
-            if (currentCommand in __command_help__) or (listArgv == None):
-                Help = True
-                break
-            else:
-                path = currentCommand
-                break
 
-        if  Help :
-            return self.printHelp(__command_import__)
-        else:
-            if not ObsLightBase.noaction:
-                if (path == None):
-                    return self.printError("Missing  path", __command_import__)
-                m = ObsLightManager.getCommandLineManager()
-
-                res = m.importProject(path)
-
-                if self.testResult(res, getLineno()) == -1:return - 1
-                return 0
-            else:
-                return self.printHelp(__command_import__)
-
-
-    def obsproject_export(self, listArgv):
-        Help = False
-        path = None
-        project_alias = None
-
-        while self.testArgv(listArgv):
-            currentCommand, listArgv = self.getParameter(listArgv)
-            if (currentCommand in __command_help__) or (listArgv == None):
-                Help = True
-                break
-            else:
-                path = currentCommand
-                project_alias, listArgv = self.getParameter(listArgv)
-                break
-
-        if  Help:
-            return self.printHelp(__command_export__)
-        else:
-            if not ObsLightBase.noaction:
-                if (path == None):
-                    return self.printError("Missing  path", __command_export__)
-
-                m = ObsLightManager.getCommandLineManager()
-
-                if project_alias == None:
-                    project_alias = m.getCurrentObsProject()
-                    if project_alias == None:
-                        return self.printHelp()
-
-                res = m.exportProject(project_alias, path)
-
-                if self.testResult(res, getLineno()) == -1:return - 1
-                return 0
-            else:
-                return self.printHelp(__command_export__)
+#    def obsproject_export(self, listArgv):
+#        Help = False
+#        path = None
+#        project_alias = None
+#
+#        while self.testArgv(listArgv):
+#            currentCommand, listArgv = self.getParameter(listArgv)
+#            if (currentCommand in __command_help__) or (listArgv == None):
+#                Help = True
+#                break
+#            else:
+#                path = currentCommand
+#                project_alias, listArgv = self.getParameter(listArgv)
+#                break
+#
+#        if  Help:
+#            return self.printHelp(__command_export__)
+#        else:
+#            if not ObsLightBase.noaction:
+#                if (path == None):
+#                    return self.printError("Missing  path", __command_export__)
+#
+#                m = ObsLightManager.getCommandLineManager()
+#
+#                if project_alias == None:
+#                    project_alias = m.getCurrentObsProject()
+#                    if project_alias == None:
+#                        return self.printHelp()
+#
+#                res = m.exportProject(project_alias, path)
+#
+#                if self.testResult(res, getLineno()) == -1:return - 1
+#                return 0
+#            else:
+#                return self.printHelp(__command_export__)
 
     def obsproject_dependencyrepositories(self, listArgv):
         Help = False
@@ -2494,10 +2491,10 @@ class ObsLightObsproject(ObsLightBase):
                 return self.obsproject_set(listArgv)
             elif currentCommand in __command_current__:
                 return self.obsproject_current(listArgv)
-            elif currentCommand in  __command_import__ :
-                return self.obsproject_import(listArgv)
-            elif currentCommand in __command_export__ :
-                return self.obsproject_export(listArgv)
+#            elif currentCommand in  __command_import__ :
+#                return self.obsproject_import(listArgv)
+#            elif currentCommand in __command_export__ :
+#                return self.obsproject_export(listArgv)
             elif currentCommand in __command_dependencyrepositories__:
                 return self.obsproject_dependencyrepositories(listArgv)
             elif currentCommand in __command_testBuildPackages__:
@@ -2574,7 +2571,6 @@ class ObsLightObsPackage(ObsLightBase):
         Help = False
         package = None
         url = None
-        path = None
         project_alias = None
 
         while self.testArgv(listArgv):
@@ -2586,10 +2582,6 @@ class ObsLightObsPackage(ObsLightBase):
                 project_alias, listArgv = self.getParameter(listArgv)
                 if (project_alias == None) and ObsLightBase.noaction:
                     return self.printProjectCompletionList()
-            elif currentCommand in __parameter_gitPath__:
-                path, listArgv = self.getParameter(listArgv)
-                if (path == None) and ObsLightBase.noaction:
-                    return self.printHelp(__command_import__)
             elif currentCommand in __parameter_gitUrl__:
                 url, listArgv = self.getParameter(listArgv)
                 if (url == None) and ObsLightBase.noaction:
@@ -2617,8 +2609,7 @@ class ObsLightObsPackage(ObsLightBase):
 
                 return m.importPackage(project_alias,
                                        package,
-                                       url,
-                                       path)
+                                       url)
             else:
                 return self.printHelp(__command_import__)
 
@@ -2758,8 +2749,8 @@ class ObsLightObsPackage(ObsLightBase):
         obsStatus = False
         oscStatus = False
         specFile = False
-        fsPackageDirectory = False
-        oscPackageDirectory = False
+        packageChrootDirectory = False
+        packageSourceDirectory = False
         patch_mode = False
 
         chRootStatus = False
@@ -2796,10 +2787,10 @@ class ObsLightObsPackage(ObsLightBase):
                 oscStatus = True
             elif currentCommand in __parameter_specFile__:
                 specFile = True
-            elif currentCommand in __parameter_fsPackageDirectory__ :
-                fsPackageDirectory = True
-            elif currentCommand in __parameter_oscPackageDirectory__ :
-                oscPackageDirectory = True
+            elif currentCommand in __parameter_packageChrootDirectory__ :
+                packageChrootDirectory = True
+            elif currentCommand in __parameter_packageSourceDirectory__ :
+                packageSourceDirectory = True
             elif currentCommand in __parameter_filesystemstatus__:
                 chRootStatus = True
             elif currentCommand in __parameter_currentPatch__:
@@ -2852,8 +2843,8 @@ class ObsLightObsPackage(ObsLightBase):
                    (not obsStatus)and \
                    (not oscStatus)and \
                    (not specFile)and \
-                   (not fsPackageDirectory)and \
-                   (not oscPackageDirectory)and \
+                   (not packageChrootDirectory)and \
+                   (not packageSourceDirectory)and \
                    (not chRootStatus)and \
                    (not currentPatch)and \
                    (not patch_mode):
@@ -2870,8 +2861,8 @@ class ObsLightObsPackage(ObsLightBase):
                     obsStatus = True
                     oscStatus = True
                     specFile = True
-                    fsPackageDirectory = True
-                    oscPackageDirectory = True
+                    packageChrootDirectory = True
+                    packageSourceDirectory = True
                     chRootStatus = True
                     currentPatch = True
                     patch_mode = True
@@ -2976,19 +2967,20 @@ class ObsLightObsPackage(ObsLightBase):
                     if self.testResult(res, getLineno()) == -1:return - 1
                     self.printSimpleResult("specFile: " + res, str(res))
 
-                if fsPackageDirectory and (project_alias != None):
+                if packageChrootDirectory and (project_alias != None):
                     res = m.getPackageParameter(projectLocalName=project_alias,
                                                     package=package,
-                                                    parameter="fsPackageDirectory")
+                                                    parameter="packageChrootDirectory")
                     if self.testResult(res, getLineno()) == -1:return - 1
-                    self.printSimpleResult("fsPackageDirectory: " + res, str(res))
+                    self.printSimpleResult("packageChrootDirectory: " + res, str(res))
 
-                if oscPackageDirectory and (project_alias != None):
+                if packageSourceDirectory and (project_alias != None):
                     res = m.getPackageParameter(projectLocalName=project_alias,
-                                                    package=package,
-                                                    parameter="oscPackageDirectory")
+                                                package=package,
+                                                parameter="packageSourceDirectory")
+
                     if self.testResult(res, getLineno()) == -1:return - 1
-                    self.printSimpleResult("oscPackageDirectory: " + res, str(res))
+                    self.printSimpleResult("packageSourceDirectory: " + res, str(res))
 
                 if chRootStatus and (project_alias != None):
                     res = m.getPackageParameter(projectLocalName=project_alias,
@@ -3237,7 +3229,7 @@ class ObsLightObsPackage(ObsLightBase):
                     if package == None:
                         return self.printHelp(__command_repair__)
 
-                res = m.repairOscPackageDirectory(projectLocalName=project_alias,
+                res = m.repairPackageDirectory(projectLocalName=project_alias,
                                                   package=package)
                 if self.testResult(res, getLineno()) == -1:return - 1
                 return res
@@ -3274,97 +3266,97 @@ class ObsLightObsPackage(ObsLightBase):
             else:
                 return self.printHelp(__command_current__)
 
-    def package_addfile(self, listArgv):
-        Help = False
-        path = None
-        project_alias = None
-        package = None
+#    def package_addfile(self, listArgv):
+#        Help = False
+#        path = None
+#        project_alias = None
+#        package = None
+#
+#        while self.testArgv(listArgv):
+#            currentCommand, listArgv = self.getParameter(listArgv)
+#            if (currentCommand in __command_help__) or (listArgv == None):
+#                Help = True
+#                break
+#            else:
+#                path = currentCommand
+#                while(len(listArgv) > 0):
+#                    currentCommand, listArgv = self.getParameter(listArgv)
+#                    if currentCommand in __parameter_project_alias__:
+#                        project_alias , listArgv = self.getParameter(listArgv)
+#                        if (project_alias == None) and ObsLightBase.noaction:
+#                            return self.printProjectCompletionList()
+#                    elif currentCommand in __parameter_package__:
+#                        package, listArgv = self.getParameter(listArgv)
+#                        if (package == None) and (project_alias != None) and ObsLightBase.noaction:
+#                            return self.printPackageCompletionList(project_alias)
+#                    else:
+#                        return self.printUnknownCommand(currentCommand, __command_addfile__)
+#                break
+#
+#        if  Help :
+#            return self.printHelp(__command_addfile__)
+#        else:
+#            if not ObsLightBase.noaction:
+#                m = ObsLightManager.getCommandLineManager()
+#                if project_alias == None:
+#                    project_alias = m.getCurrentObsProject()
+#                    if project_alias == None:
+#                        return self.printHelp(__command_addfile__)
+#
+#                if (package == None) :
+#                    package = m.getCurrentPackage(project_alias)
+#                    if package == None:
+#                        return self.printHelp(__command_addfile__)
+#
+#                return m.addFileToPackage(project_alias, package, path)
+#            else:
+#                return self.printHelp(__command_addfile__)
 
-        while self.testArgv(listArgv):
-            currentCommand, listArgv = self.getParameter(listArgv)
-            if (currentCommand in __command_help__) or (listArgv == None):
-                Help = True
-                break
-            else:
-                path = currentCommand
-                while(len(listArgv) > 0):
-                    currentCommand, listArgv = self.getParameter(listArgv)
-                    if currentCommand in __parameter_project_alias__:
-                        project_alias , listArgv = self.getParameter(listArgv)
-                        if (project_alias == None) and ObsLightBase.noaction:
-                            return self.printProjectCompletionList()
-                    elif currentCommand in __parameter_package__:
-                        package, listArgv = self.getParameter(listArgv)
-                        if (package == None) and (project_alias != None) and ObsLightBase.noaction:
-                            return self.printPackageCompletionList(project_alias)
-                    else:
-                        return self.printUnknownCommand(currentCommand, __command_addfile__)
-                break
-
-        if  Help :
-            return self.printHelp(__command_addfile__)
-        else:
-            if not ObsLightBase.noaction:
-                m = ObsLightManager.getCommandLineManager()
-                if project_alias == None:
-                    project_alias = m.getCurrentObsProject()
-                    if project_alias == None:
-                        return self.printHelp(__command_addfile__)
-
-                if (package == None) :
-                    package = m.getCurrentPackage(project_alias)
-                    if package == None:
-                        return self.printHelp(__command_addfile__)
-
-                return m.addFileToPackage(project_alias, package, path)
-            else:
-                return self.printHelp(__command_addfile__)
-
-    def package_deletefile(self, listArgv):
-        Help = False
-        name = None
-        project_alias = None
-        package = None
-
-        while self.testArgv(listArgv):
-            currentCommand, listArgv = self.getParameter(listArgv)
-            if (currentCommand in __command_help__) or (listArgv == None):
-                Help = True
-                break
-            else:
-                name = currentCommand
-                while(len(listArgv) > 0):
-                    currentCommand, listArgv = self.getParameter(listArgv)
-                    if currentCommand in __parameter_project_alias__:
-                        project_alias , listArgv = self.getParameter(listArgv)
-                        if (project_alias == None) and ObsLightBase.noaction:
-                            return self.printProjectCompletionList()
-                    elif currentCommand in __parameter_package__:
-                        package, listArgv = self.getParameter(listArgv)
-                        if (package == None) and (project_alias != None) and ObsLightBase.noaction:
-                            return self.printPackageCompletionList(project_alias)
-                    else:
-                        return self.printUnknownCommand(currentCommand, __command_deletefile__)
-                break
-
-        if  Help :
-            return self.printHelp(__command_deletefile__)
-        else:
-            if not ObsLightBase.noaction:
-                m = ObsLightManager.getCommandLineManager()
-                if project_alias == None:
-                    project_alias = m.getCurrentObsProject()
-                    if project_alias == None:
-                        return self.printHelp(__command_deletefile__)
-
-                if (package == None) :
-                    package = m.getCurrentPackage(project_alias)
-                    if package == None:
-                        return self.printHelp(__command_deletefile__)
-
-                return m.deleteFileFromPackage(project_alias, package, name)
-            else:
-                return self.printHelp(__command_deletefile__)
+#    def package_deletefile(self, listArgv):
+#        Help = False
+#        name = None
+#        project_alias = None
+#        package = None
+#
+#        while self.testArgv(listArgv):
+#            currentCommand, listArgv = self.getParameter(listArgv)
+#            if (currentCommand in __command_help__) or (listArgv == None):
+#                Help = True
+#                break
+#            else:
+#                name = currentCommand
+#                while(len(listArgv) > 0):
+#                    currentCommand, listArgv = self.getParameter(listArgv)
+#                    if currentCommand in __parameter_project_alias__:
+#                        project_alias , listArgv = self.getParameter(listArgv)
+#                        if (project_alias == None) and ObsLightBase.noaction:
+#                            return self.printProjectCompletionList()
+#                    elif currentCommand in __parameter_package__:
+#                        package, listArgv = self.getParameter(listArgv)
+#                        if (package == None) and (project_alias != None) and ObsLightBase.noaction:
+#                            return self.printPackageCompletionList(project_alias)
+#                    else:
+#                        return self.printUnknownCommand(currentCommand, __command_deletefile__)
+#                break
+#
+#        if  Help :
+#            return self.printHelp(__command_deletefile__)
+#        else:
+#            if not ObsLightBase.noaction:
+#                m = ObsLightManager.getCommandLineManager()
+#                if project_alias == None:
+#                    project_alias = m.getCurrentObsProject()
+#                    if project_alias == None:
+#                        return self.printHelp(__command_deletefile__)
+#
+#                if (package == None) :
+#                    package = m.getCurrentPackage(project_alias)
+#                    if package == None:
+#                        return self.printHelp(__command_deletefile__)
+#
+#                return m.deleteFileFromPackage(project_alias, package, name)
+#            else:
+#                return self.printHelp(__command_deletefile__)
 
     def package_refresh(self, listArgv):
         Help = False
@@ -3412,7 +3404,7 @@ class ObsLightObsPackage(ObsLightBase):
                     if package == None:
                         return self.printHelp(__command_refresh__)
                 if OscStatus:
-                    res = m.refreshOscDirectoryStatus(project_alias, package)
+                    res = m.refreshPackageDirectoryStatus(project_alias, package)
                     if self.testResult(res, getLineno()) == -1:return - 1
                 if ObsStatus:
                     res = m.refreshObsStatus(project_alias, package)
@@ -3542,10 +3534,10 @@ class ObsLightObsPackage(ObsLightBase):
                 return self.package_repair(listArgv)
             elif currentCommand in __command_current__:
                 return self.package_current(listArgv)
-            elif currentCommand in __command_addfile__:
-                return self.package_addfile(listArgv)
-            elif currentCommand in __command_deletefile__:
-                return self.package_deletefile(listArgv)
+#            elif currentCommand in __command_addfile__:
+#                return self.package_addfile(listArgv)
+#            elif currentCommand in __command_deletefile__:
+#                return self.package_deletefile(listArgv)
             elif currentCommand in __command_refresh__:
                 return self.package_refresh(listArgv)
             elif currentCommand in __command_testConflict__:

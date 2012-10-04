@@ -125,7 +125,7 @@ class ObsLightGitManager(ObsLightObject):
 
     def findEmptyDirectory(self, package):
         # git ignores empty directories so we must save them into a file.
-        projectPath = self.__chroot.getDirectory() + package.getPackageDirectory()
+        projectPath = self.__chroot.getDirectory() + package.getChrootBuildDirectory()
         res = []
         for root, dirs, files in os.walk(projectPath):
             if len(dirs) == 0 and len(files) == 0:
@@ -264,7 +264,7 @@ class ObsLightGitManager(ObsLightObject):
         return result
 
     def commitGit(self, mess, package):
-        packagePath = package.getPackageDirectory()
+        packagePath = package.getChrootBuildDirectory()
         command = []
         if packagePath is None:
             raise ObsLightErr.ObsLightChRootError("path is not defined in commitGit for .")
@@ -290,7 +290,7 @@ class ObsLightGitManager(ObsLightObject):
                                          package.getCurrentGitDirectory())
         res = self.__subprocess(command=command, stdout=True)
 
-        pathOscPackage = package.getOscDirectory()
+        pathPackagePackaging = package.getPackagingDirectiory()
 
         with open(pathOscPackage + "/" + patch, "w'") as f:
             f.write(res)
@@ -299,5 +299,12 @@ class ObsLightGitManager(ObsLightObject):
 def cloneGitpackage(url, path):
     cmd = "git clone %s %s" % (url, path)
     aSubprocessCrt = SubprocessCrt()
-    aSubprocessCrt.execSubprocess(cmd)
+    return aSubprocessCrt.execSubprocess(cmd)
+
+
+def updateGitpackage(path):
+    cmd = "git --git-dir=%s pull" % os.path.join(path, ".git")
+    aSubprocessCrt = SubprocessCrt()
+    return aSubprocessCrt.execSubprocess(cmd)
+
 

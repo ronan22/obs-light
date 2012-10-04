@@ -61,29 +61,28 @@ getcachedir()
         fi
     done
 }
-
 validate_cache_file()
 {
     local findonly=''
     
-    if ! test -f $CACHE_FILE || ! test -f $CACHE_FILE.id || \
-        test "${repos[*]} ${BUILD_RPMS//:/ /}" != "$(cat $CACHE_FILE.id 2>/dev/null)"; then
-        rm -f $CACHE_FILE.id
+    if ! test -f "$CACHE_FILE" || ! test -f "$CACHE_FILE".id || \
+        test "${repos[*]} ${BUILD_RPMS//:/ /}" != "$(cat "$CACHE_FILE".id 2>/dev/null)"; then
+        rm -f "$CACHE_FILE".id
     else
         for SRC in "${repos[@]}" ${BUILD_RPMS//:/ /}; do
             test -n "$SRC" || SRC=.
             if [ "${SRC#zypp://}" != "$SRC" ]; then
                 SRC="/var/cache/zypp/raw" # XXX can't use name here as we'd need to parse the file
             fi
-            if test "$SRC" -nt $CACHE_FILE; then
-                rm -f $CACHE_FILE.id
+            if test "$SRC" -nt "$CACHE_FILE"; then
+                rm -f "$CACHE_FILE".id
                 break
             fi
         done
     fi
-
-    if ! test -f $CACHE_FILE.id ; then
-        test -z "$LIST_STATE" && echo initializing $CACHE_FILE ...
+	
+    if ! test -f "$CACHE_FILE".id ; then
+        test -z "$LIST_STATE" && echo initializing "$CACHE_FILE" ...
         for SRC in "${repos[@]}" -- ${BUILD_RPMS//:/ /}; do
             if test "$SRC" = '--' ; then
                 findonly=1
@@ -111,14 +110,14 @@ validate_cache_file()
             echo "$@" >&2
             "$@" || exit 1
             echo D:
-        done > $CACHE_FILE.new
+        done > "$CACHE_FILE".new
 
-        mv $CACHE_FILE.new $CACHE_FILE
-        echo "${repos[*]} ${BUILD_RPMS//:/ /}" > $CACHE_FILE.id
+        mv "$CACHE_FILE".new "$CACHE_FILE"
+        echo "${repos[*]} ${BUILD_RPMS//:/ /}" > "$CACHE_FILE".id
     fi
 }
-
 validate_cache_file
-tools/expanddeps --dist $DIST --depfile $CACHE_FILE --archpath $ARCHPATH --configdir /usr/lib/build/configs $ADDPACKAGES $SPEC >$STDOUT 2>$STDERR
+echo obslight-expanddeps --dist $DIST --depfile "$CACHE_FILE" --archpath $ARCHPATH --configdir /usr/lib/build/configs $ADDPACKAGES $SPEC >$STDOUT
+obslight-expanddeps --dist $DIST --depfile "$CACHE_FILE" --archpath $ARCHPATH --configdir /usr/lib/build/configs $ADDPACKAGES $SPEC >$STDOUT 2>$STDERR
 exit 0
 

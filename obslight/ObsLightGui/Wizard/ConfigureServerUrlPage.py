@@ -47,7 +47,7 @@ class ConfigureServerUrlPage(ObsLightWizardPage):
                                {"serverAlias": "fakeobs.local",
                                 "webUrl": "http://localhost:8000",
                                 "apiUrl": "http://localhost:8001",
-                                "repoUrl": "http://localhost:8002/repositories",
+                                "repoUrl": "http://localhost:8002/live",
                                 "username": "obsuser",
                                 "password": "opensuse"},
                                {"serverAlias": "meego.com",

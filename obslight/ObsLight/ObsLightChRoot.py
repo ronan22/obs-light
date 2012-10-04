@@ -37,6 +37,7 @@ import ObsLightMic
 import ObsLightErr
 import ObsLightConfig
 from ObsLightSubprocess import SubprocessCrt
+import ObsLightTools
 from ObsLightTools import isUserInGroup
 
 import ObsLightPrintManager
@@ -47,7 +48,7 @@ from ObsLightUtils import isNonEmptyString
 
 import ObsLightOsc
 
-import ObsLightPackages as PK_CONST
+import ObsLightPackageStatus as PK_CONST
 
 class ObsLightChRootCore(object):
     '''
@@ -59,6 +60,7 @@ class ObsLightChRootCore(object):
         self.__transferDir = None
         self.__chrootTransferDir = None
         self.__oscCacheDir = None
+        self.__buildCacheDir = "/var/cache/build"
         self.__chrootOscCacheDir = None
         self.__chrootUser = None
         self.__chrootUsersHome = None
@@ -83,6 +85,14 @@ class ObsLightChRootCore(object):
         self.logger = ObsLightPrintManager.getLogger()
 
         self.__initChRootAddDir()
+
+        self.__nbJob = ObsLightTools.cpu_count()
+
+    def getNbJob(self):
+        return self.__nbJob
+
+    def setNbJob(self, val):
+        self.__nbJob = val
 
     def __setDirectory(self, projectDirectory):
         self.__projectDirectory = projectDirectory
@@ -119,8 +129,11 @@ class ObsLightChRootCore(object):
 
         self.__chrootUserHome = os.path.join(self.__chrootUsersHome, self.__chrootUser)
 
-    def getChrootUserHome(self):
-        return self.__chrootUserHome
+    def getChrootUserHome(self, fullPath=False):
+        if fullPath:
+            return self.getDirectory() + self.__chrootUserHome
+        else:
+            return self.__chrootUserHome
 
     def getDirectory(self):
         ''' 
@@ -194,6 +207,9 @@ class ObsLightChRootCore(object):
             # When OBS Light is used in graphic mode (without console), the commands like "tput"
             # need a value for TERM other than "unknown" (xterm, linux,...)
             f.write('if [ "$TERM" = "unknown" ] ; then TERM="xterm" ; fi\n')
+            # Remove '.' from PATH. This is needed for openSUSE packages
+            # to build in OBS Light.
+            f.write(r'PATH=$(echo $PATH | sed -e s,:\\.,, -e s,^\\.:,,)' + "\n")
 
             for c in command:
                 f.write(c + "\n")
@@ -264,6 +280,7 @@ class ObsLightChRootCore(object):
         mountDir = {}
         mountDir[self.__transferDir] = self.__chrootTransferDir
         mountDir[self.__oscCacheDir] = self.__chrootOscCacheDir
+        mountDir[self.__buildCacheDir] = self.__buildCacheDir
         self.fixFsRights(recursive=False)
         self.obsLightMic.initChroot(chrootDirectory=self.getDirectory(), mountDir=mountDir)
         self.failIfCannotRunChrootEcho()
@@ -489,35 +506,53 @@ exit $?
         fsPath = self.getDirectory()
         self.allowAccessToObslightGroup(fsPath, recursive=recursive, writeAccess=True)
 
-    def createChRoot(self, repos,
-                           arch,
-                           apiurl,
-                           obsProject):
-        self.chrootArch = arch
 
+    def createChRoot(self, rpmList, buildConfig, arch, specFile, projectName):
+
+        self.chrootArch = arch
         self.failIfUserNotInUserGroup()
         self.failIfAclsNotReady()
         self.failIfQemuIsNotStatic()
-
         fsPath = self.getDirectory()
-        res = ObsLightOsc.getObsLightOsc().createChRoot(chrootDir=fsPath,
-                                                        repos=repos,
-                                                        arch=arch,
-                                                        apiurl=apiurl,
-                                                        project=obsProject,
-                                                        )
+        cmd = "sudo /usr/bin/build"
+        cmd += " --root %s --rpmlist=%s --dist %s --target %s --norootforbuild --changelog %s"
+        cmd = cmd % (fsPath, rpmList, buildConfig, arch, specFile)
+        retCode = self._subprocess(cmd, waitMess=True)
 
-        if res != 0:
-            message = "Can't create the project file system. "
+#        res = ObsLightOsc.getObsLightOsc().createChRoot(chrootDir=fsPath,
+#                                                        repos=repos,
+#                                                        arch=arch,
+#                                                        apiurl=apiurl,
+#                                                        project=obsProject,
+#                                                        )
+
+        # FIXME: since 0.5.1 there is a big regression: Tizen chroot jail creation fails.
+        # The problem comes from Tizen's "rpm" package which does not own /usr/lib/rpm/tizen,
+        # which gives this directory rwx------ file rights on certain conditions.
+        # The following code is to workaround that.
+        rpmTizenDir = os.path.join(fsPath, "usr/lib/rpm/tizen")
+        if retCode != 0 and os.path.isdir(rpmTizenDir):
+            mode = os.stat(rpmTizenDir).st_mode
+            if (stat.S_IMODE(mode) & (stat.S_IROTH | stat.S_IXOTH)) == 0:
+                self.logger.warning("Using workaround for bug #25565")
+                command2 = "sudo chmod 755 %s" % rpmTizenDir
+                retCode = self.__subprocess(command2, waitMess=True)
+#                retCode = self._subprocess(command % {"clean": ""}, waitMess=True)
+#
+#        return retCode
+
+
+        if retCode != 0:
+            message = "Can't create the project file system."
             message += "See the log for details about the error."
             raise ObsLightErr.ObsLightChRootError(message)
 
         self.fixFsRights()
 
-        retVal = self.prepareChroot(self.getDirectory(), obsProject)
+        retVal = self.prepareChroot(self.getDirectory(), projectName)
         if retVal != 0:
             return retVal
-        retVal = self.prepareChroot(self.getDirectory(), obsProject, user="root")
+        retVal = self.prepareChroot(self.getDirectory(), projectName, user="root")
         if retVal != 0:
             return retVal
         retVal = self.setTimezoneInBashrc("root")
@@ -662,12 +697,15 @@ class ObsLightChRoot(ObsLightChRootCore):
                                                 package.getTopDirRpmBuildLinkDirectory())
 
         srcdefattr = "--define '_srcdefattr (-,root,root)'"
+
+        jobs = "--define  '%%jobs %s'" % self.getNbJob()
+
         topdir = "--define '_topdir %%{getenv:HOME}/%s'" % package.getTopDirRpmBuildLinkDirectory()
         if isNonEmptyString(target):
             args = args + " --target=%s" % target
-        rpmbuildCmd = "rpmbuild %s %s %s %s < /dev/null" % (args, srcdefattr, topdir, specFile)
+        rpmbuildCmd = "rpmbuild %s %s %s %s %s < /dev/null" % (args, srcdefattr, jobs, topdir, specFile)
         parameters["rpmbuildCmd"] = rpmbuildCmd
-        parameters["directoryBuild"] = package.getPackageDirectory()
+        parameters["directoryBuild"] = package.getChrootBuildDirectory()
 
         return parameters
 
@@ -761,7 +799,7 @@ class ObsLightChRoot(ObsLightChRootCore):
 
     def addPackageSourceInChRoot(self, package):
 
-        if package.getStatus() == "excluded":
+        if package.isExclude():
             message = "%s has a excluded status, it can't be installed"
             raise ObsLightErr.ObsLightChRootError(message % package.getName())
         else:
@@ -805,12 +843,9 @@ class ObsLightChRoot(ObsLightChRootCore):
                 absChrootRpmBuildDirectory = self._createAbsPath("/%s/SOURCES/")
                 absChrootRpmBuildDirectory = absChrootRpmBuildDirectory % chrootRpmBuildDirectory
                 self.allowAccessToObslightGroup(absChrootRpmBuildDirectory)
+
                 #copy source
-                for aFile in package.getFileList():
-                    path = absChrootRpmBuildDirectory + str(aFile)
-                    if os.path.isfile(path):
-                        os.unlink(path)
-                    shutil.copy2(package.getOscDirectory() + "/" + str(aFile), path)
+                package.exportIntoChroot(self.getDirectory())
 
             else:
                 message = packageName + " source is not installed in " + self.getDirectory()
@@ -853,13 +888,18 @@ exit $RETURN_VALUE
             msg = "The first %%prep of package '%s' failed. " % package.getName()
             msg += "Return code was: %s" % str(res)
             raise ObsLightErr.ObsLightChRootError(msg)
-
+        for i in range(10):
+            print "_________________________________"
         packageDirectory = self.__findPackageDirectory(package=package)
+        print "packageDirectory", packageDirectory
         if packageDirectory is None:
             return 0
+        for i in range(10):
+            print "_________________________________"
         message = "Package directory used by '%s': %s" % (package.getName(), str(packageDirectory))
         ObsLightPrintManager.getLogger().debug(message)
-        package.setDirectoryBuild(packageDirectory)
+
+        package.setChrootBuildDirectory(packageDirectory)
 
         if package.getPackageParameter("patchMode"):
             package.initCurrentPatch()
@@ -894,7 +934,7 @@ exit $RETURN_VALUE
 
                 return self.__buildRpm(specFile, package, arch)
 
-        elif package.getChRootStatus() != PK_CONST.NO_BUILD_DIRECTORY:
+        elif package.haveBuildDirectory():
             package.setChRootStatus(PK_CONST.PREPARED)
 
         return 0
@@ -920,10 +960,11 @@ mv %(directoryBuild)s/.gitignore.tmp.build %(directoryBuild)s/.gitignore
 exit $RETURN_VALUE
 """
         script = script % scriptParameters
+
         res = self.execCommand([script])
 
         packageName = package.getName()
-        packageDirectory = package.getPackageDirectory()
+        packageDirectory = package.getChrootBuildDirectory()
 
         if res == 0:
             self._ObsLightGitManager.ignoreGitWatch(package=package, path=packageDirectory)
@@ -951,7 +992,7 @@ exit $RETURN_VALUE
         '''
         Execute the %build section of an RPM spec file.
         '''
-        if package.getStatus() == "excluded":
+        if package.isExclude():
             msg = u"Package '%s' has a excluded status, it can't be built" % package.getName()
             raise ObsLightErr.ObsLightChRootError(msg)
         if package.specFileHaveAnEmptyBuild():
@@ -965,7 +1006,7 @@ exit $RETURN_VALUE
             res = self.__createGhostRpmbuildCommand("bc", package, specFile, arch)
 
             self._ObsLightGitManager.ignoreGitWatch(package=package,
-                                                     path=package.getPackageDirectory(),
+                                                     path=package.getChrootBuildDirectory(),
                                                      commitComment="build commit")
         else:
             res = self.__createRpmbuildCommand("bc", package, specFile, arch)
@@ -987,7 +1028,7 @@ exit $RETURN_VALUE
         Execute the %install section of an RPM spec file.
         '''
 
-        if package.getStatus() == "excluded":
+        if package.isExclude():
             msg = u"Package '%s' has a excluded status, it can't be install" % package.getName()
             raise ObsLightErr.ObsLightChRootError(msg)
 
@@ -997,7 +1038,7 @@ exit $RETURN_VALUE
             res = self.__createGhostRpmbuildCommand("bi", package, specFile, arch)
 
             self._ObsLightGitManager.ignoreGitWatch(package=package,
-                                                    path=package.getPackageDirectory(),
+                                                    path=package.getChrootBuildDirectory(),
                                                     commitComment="build install commit")
         else:
             res = self.__createRpmbuildCommand("bi", package, specFile, arch)
@@ -1021,7 +1062,7 @@ exit $RETURN_VALUE
         Execute the package section of an RPM spec file.
         '''
 
-        if package.getStatus() == "excluded":
+        if package.isExclude():
             msg = u"Package '%s' has a excluded status, it can't be package" % package.getName()
             raise ObsLightErr.ObsLightChRootError(msg)
 
@@ -1031,7 +1072,7 @@ exit $RETURN_VALUE
             res = self.__createGhostRpmbuildCommand("ba", package, specFile, arch)
 
             self._ObsLightGitManager.ignoreGitWatch(package=package,
-                                                    path=package.getPackageDirectory(),
+                                                    path=package.getChrootBuildDirectory(),
                                                     commitComment="build package commit")
         else:
             res = self.__createRpmbuildCommand("ba", package, specFile, arch)
@@ -1050,7 +1091,7 @@ exit $RETURN_VALUE
         return res
 
     def prepGhostRpmbuild(self, package):
-        packagePath = package.getPackageDirectory()
+        packagePath = package.getChrootBuildDirectory()
         tarFile = package.getArchiveName()
 
         parameter = self.makeChrootScriptParameters()
@@ -1148,7 +1189,7 @@ exit $RPMBUILD_RETURN_CODE
         '''
         if not patch.endswith(".patch"):
             patch += ".patch"
-        packagePath = package.getPackageDirectory()
+        packagePath = package.getChrootBuildDirectory()
 
         self._ObsLightGitManager.commitGit(mess="createPatch", package=package)
 
@@ -1161,7 +1202,6 @@ exit $RPMBUILD_RETURN_CODE
 
         package.addPatch(aFile=patch)
 
-        ObsLightOsc.getObsLightOsc().add(path=package.getOscDirectory(), afile=patch)
         package.save()
         return 0
 
@@ -1170,7 +1210,7 @@ exit $RPMBUILD_RETURN_CODE
         Update a patch from modifications made in the package directory.
         '''
         patch = package.getCurrentPatch()
-        packagePath = package.getPackageDirectory()
+        packagePath = package.getChrootBuildDirectory()
 
         self._ObsLightGitManager.commitGit(mess="updatePatch", package=package)
 
@@ -1185,74 +1225,29 @@ exit $RPMBUILD_RETURN_CODE
         package.save()
         return 0
 
-    def __reOrderRpm(self, buildInfoCli, target, configPath):
-        command = []
-        cacheDir = "/tmp/reOrderDir"
-        cacheRpmList = cacheDir + "/rpmList"
-        cacheRpmLink = cacheDir + "/rpmLink"
 
-        self._subprocess(command="rm -rf " + cacheRpmLink)
-        self._subprocess(command="mkdir -p " + cacheRpmLink)
 
-        f = open(cacheRpmList, 'w')
-        listInput = []
-        dicoRpmName = {}
-        for i in buildInfoCli.deps:
-            if not ((i in buildInfoCli.preinstall_list) or (i in buildInfoCli.vminstall_list)) :
-                absPath = i.fullfilename
-                pkgName = os.path.basename(absPath)
-                if pkgName.endswith(".rpm"):
-                    pkgName = pkgName[:-4]
-
-                pkgName = pkgName[:pkgName.rfind("-")]
-                pkgName = pkgName[:pkgName.rfind("-")]
-                dicoRpmName[pkgName] = i
-                f.write(pkgName + "\n")
-                listInput.append(pkgName)
-                command = "ln -sf " + absPath + " " + cacheRpmLink + "/" + pkgName + ".rpm"
-                self._subprocess(command=command)
-        # flush() does not necessarily write the file's data to disk. 
-        # Use os.fsync(f.fileno()) to ensure this behavior.
-        f.flush()
-        os.fsync(f.fileno())
-        f.close()
-        dicopara = {}
-        dicopara["buildDir"] = "/usr/lib/build"
-        dicopara["cfgPth"] = configPath
-        dicopara["tgt"] = target
-        dicopara["RpmList"] = cacheRpmList
-        dicopara["cacheRpmLink"] = cacheRpmLink
-        command = "%(buildDir)s/order --dist %(cfgPth)s --archpath  %(tgt)s "
-        command += "--configdir %(buildDir)s/configs --manifest %(RpmList)s  %(cacheRpmLink)s"
-        command = command % dicopara
-
-        listOrdered = self._subprocess(command=command, stdout=True)
-
-        result = []
-        for pkgName in   listOrdered.split():
-            result.append(dicoRpmName[pkgName])
-        return result
-
-    def installBuildRequires(self, buildInfoCli, target, configPath):
+#    def installBuildRequires(self, buildInfoCli, target, configPath):
+    def installBuildRequires(self, rpmListFilePath, target, configPath):
         instPkgSet = set(self.getInstalledPackagesList())
-        wantedPkgList = self.__reOrderRpm(buildInfoCli, target, configPath)
+#        wantedPkgList = self.__reOrderRpm(buildInfoCli, target, configPath)
+
+        if os.path.isfile(rpmListFilePath):
+            absPathDict = ObsLightTools.getRpmPathDict(rpmListFilePath)
+        else:
+            msg = "Can't install RPM into chroot jail, the file '%s' do not exist. "
+            msg = msg % rpmListFilePath
+            raise ObsLightErr.ObsLightChRootError(msg)
 
         command = []
         instCount = 0
         eraseCount = 0
-        absPathDict = {}
-
-        # Build a dict of package -> path of RPM
-        for i in wantedPkgList:
-            absPath = i.fullfilename
-            pkgName = os.path.basename(absPath)
-            if pkgName.endswith(".rpm"):
-                pkgName = pkgName[:-4]
-            absPathDict[pkgName] = absPath
 
         wantedPkgSet = set(absPathDict.keys())
+
         # Erase unwanted packages
         unWantedPkgSet = instPkgSet.difference(wantedPkgSet)
+
         for p in unWantedPkgSet:
             cmd = "rpm --nodeps -e '%s'" % p
             command.append(cmd)

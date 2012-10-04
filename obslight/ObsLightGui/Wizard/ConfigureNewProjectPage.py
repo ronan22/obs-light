@@ -43,8 +43,10 @@ class ConfigureNewProjectPage(ObsLightWizardPage):
         newPrjTitle = self.field(u"newProjectTitle")
         newPrjDescr = self.field(u"newProjectDescription")
         serverAlias = self.field(u"serverAlias")
-        retVal = self._createProject(serverAlias, newPrjName,
-                                     newPrjTitle, newPrjDescr)
+        retVal = self._createProject(serverAlias,
+                                     newPrjName,
+                                     newPrjTitle,
+                                     newPrjDescr)
         return retVal is not None
 
     def _createProject(self, server, name, title, description):

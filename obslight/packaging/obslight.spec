@@ -23,8 +23,9 @@ Requires:   acl
 Requires:   build
 Requires:   createrepo
 Requires:   curl
+Requires:   gbs >= 0.10-3.1
 Requires:   git
-Requires:   mic >= 0.4
+Requires: mic >= 0.14-2.1
 Requires:   osc >= 0.132
 Requires:   qemu
 Requires:   rpm
@@ -125,6 +126,9 @@ ln -s obslightgui-wrapper.py %{buildroot}/%{_bindir}/obslightgui
 install -d %{buildroot}/etc/init.d
 # To be removed when we add a theme (would be already created by setup.py)
 mkdir -p %{buildroot}/srv/%IMGSRVPATH/www
+mkdir -p %{buildroot}/usr/share/obslight/projectTemplate
+mkdir -p %{buildroot}/usr/share/obslight/projectConf
+mkdir -p %{buildroot}/usr/share/obslight/projectManifest
 
 # << install post
 desktop-file-install --delete-original       \
@@ -215,6 +219,8 @@ chmod g+w /srv/%IMGSRVPATH/config
 chmod g+w /srv/%REPOSRVPATH/config
 chmod g+w /srv/%IMGSRVPATH/www
 chmod g+w /srv/%REPOSRVPATH/www
+
+chmod -R o+rw /usr/share/obslight
 # << post
 
 %files
@@ -228,6 +234,7 @@ chmod g+w /srv/%REPOSRVPATH/www
 %{_bindir}/obsprojectsdiff
 %{_bindir}/obslight
 %{_bindir}/obslight-wrapper.py
+%{_bindir}/generate_default_xml
 %{python_sitelib}/ObsLight
 %{python_sitelib}/obslight*egg-info
 %config %attr(440, root, root) %{_sysconfdir}/sudoers.obslight
@@ -242,11 +249,18 @@ chmod g+w /srv/%REPOSRVPATH/www
 %dir /srv/%REPOSRVPATH/www
 %dir /srv/%REPOSRVPATH/www/theme
 %dir /srv/%REPOSRVPATH/www/theme/images
+%dir /usr/share/obslight
+%dir /usr/share/obslight/projectTemplate
+%dir /usr/share/obslight/projectConf
+%dir /usr/share/obslight/projectManifest
 
 /srv/%IMGSRVPATH/config/obslight-image.apache2conf
 /srv/%REPOSRVPATH/config/obslight-repos.apache2conf
 /srv/%REPOSRVPATH/www/theme/*
 /srv/%REPOSRVPATH/www/theme/images/*
+
+/usr/share/obslight/projectConf/*
+/usr/share/obslight/projectTemplate/*
 # << files
 
 %files gui

@@ -43,6 +43,9 @@ class ConfigureServerAliasPage(ObsLightWizardPage):
         self.registerField(u"serverAlias*", self.ui_WizardPage.aliasLineEdit)
         self.setCommitPage(True)
 
+    def getSelectedServerAlias(self):
+        return self.field(u"serverAlias")
+
     def initializePage(self):
         linkString = u'<a href="%s">%s</a>'
         webUrl = self.field(u"webUrl")

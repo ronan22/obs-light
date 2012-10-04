@@ -62,4 +62,6 @@ tools/post_import_operations.sh $PROJECT
 
 clean_old_mappings
 
+rcfakeobs restart
+
 echo_green "Project '$PROJECT' imported. It will be accessible on OBS by 'fakeobs:$PROJECT'"

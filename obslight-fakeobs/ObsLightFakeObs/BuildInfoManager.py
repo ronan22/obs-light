@@ -28,10 +28,7 @@ import tempfile
 
 from subprocess import Popen, PIPE
 from xml.dom.minidom import getDOMImplementation
-
 from xml.etree import ElementTree
-
-from Config import getConfig
 from Utils import getLocalHostIpAddress
 
 HOST_IP = None
@@ -72,8 +69,18 @@ def getProjectDependency(metaPath, repo):
                     result.append((path.get("project"), path.get("repository")))
     return result
 
-def getbuildInfo(rev, srcmd5, specFile, repositoryList, dist, depfile, arch,
-                 projectName, packageName, repository, spec, addPackages):
+def getbuildInfo(rev,
+                 srcmd5,
+                 specFile,
+                 repositoryList,
+                 dist,
+                 depfile,
+                 arch,
+                 projectName,
+                 packageName,
+                 repository,
+                 spec,
+                 addPackages):
     if arch in archHierarchyMap.keys():
         longArch = archHierarchyMap[arch]
     else:
@@ -99,9 +106,8 @@ def getbuildInfo(rev, srcmd5, specFile, repositoryList, dist, depfile, arch,
     ouputFile = tempfile.mkstemp(suffix=".ouputFile")
 
     errFile = tempfile.mkstemp(suffix=".errFile")
-    fakeObsRoot = getConfig().getPath("fakeobs_root", "/srv/obslight-fakeobs")
     cmd = []
-    cmd.append("%s/tools/create_rpm_list_from_spec" % fakeObsRoot)
+    cmd.append("obslight-createrpmlistfromspec")
     for aRepo in repositoryList:
         cmd.append("--repository")
         cmd.append(aRepo)
@@ -129,7 +135,7 @@ def getbuildInfo(rev, srcmd5, specFile, repositoryList, dist, depfile, arch,
     cmd.append(ouputFile[1])
 
     # FIXME: shouldn't it be .wait() instead of .communicate() ?
-    Popen(cmd, cwd=fakeObsRoot).communicate()
+    Popen(cmd).wait()
 
     os.close(tmpSpec[0])
     os.unlink(tmpSpec[1])
