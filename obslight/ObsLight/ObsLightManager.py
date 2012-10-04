@@ -43,7 +43,7 @@ from ObsLightErr import ObsLightProjectsError
 from ObsLightErr import ArgError
 
 from ObsLightSubprocess import SubprocessCrt
-VERSION = "0.5.3-1"
+VERSION = "0.9.0-1"
 
 def getVersion():
     '''
