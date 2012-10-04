@@ -1,0 +1,69 @@
+The Grab of GBS Trees
+=====================
+
+
+CAUTION
+-------
+
+Because the primary goal of that option was to import 
+Tizen 2.0 alpha, the option is devloped on HTTP protocol
+not RSYNC what could be a good alternative.
+
+
+HOW DOES IT WORKS ?
+-------------------
+
+The given URL should be a path like 
+
+http://download.tizen.org/releases/2.0alpha/daily/latest/
+or
+rsync://download.tizen.org/releases/2.0alpha/daily/latest/
+
+That path point to a directory that MUST contain the 
+subdirectories:
+
+  - builddata
+  - images
+  - repos
+
+The builddata subdirectory  MUST have the files:
+
+  - build.xml
+
+
+
+
+<build>
+  <archs>
+    <arch>ia32</arch>
+    <arch>armv7l</arch>
+  </archs>
+  <repos>
+    <repo>tizen-base</repo>
+    <repo>tizen-main</repo>
+  </repos>
+  <buildconf>
+    a300db37ca06dc0948bf006eaf2a15fa0481ac5ef64e1a71695bd6b84901f667-build.conf
+  </buildconf>
+  <id>tizen-2.0_20120926.2</id>
+</build>
+
+
+The algo is:
+
+  1. Get the file URL/builddata/build.xml
+
+
+
+To do that, a class GbsTree is created that encapsulate the 
+difference of behaviours between the rsync and the http mode.
+
+
+HOW TO USE A PROXY
+------------------
+
+For HTTP ansd HTTPS, use the environment variables
+http_proxy=host:port
+https_proxy=host:port
+
+
