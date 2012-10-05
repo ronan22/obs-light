@@ -407,7 +407,7 @@ class ObsLightMicProject(object):
                 cmd = "sudo sed -r -i 's,(; *)*proxy =.*,proxy = " + proxies[scheme] + ",' /etc/mic/mic.conf"
                 self.__subprocess(cmd)
 
-        cmd = "sudo mic create " + self.getImageType()
+        cmd = "sudo mic --debug --verbose create " + self.getImageType()
         cmd += " " + self.getKickstartFile()
         cmd += " --logfile=" + logFilePath
 #        cmd += " --cachedir=" + cacheDirPath

@@ -292,7 +292,7 @@ class ObsLightGitManager(ObsLightObject):
 
         pathPackagePackaging = package.getPackagingDirectiory()
 
-        with open(pathOscPackage + "/" + patch, "w'") as f:
+        with open(pathPackagePackaging + "/" + patch, "w'") as f:
             f.write(res)
         return 0
 

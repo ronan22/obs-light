@@ -815,7 +815,7 @@ class ObsLightPackage(ObsLightObject):
             raise ObsLightPackageErr(msg)
 
 #        self.__addFile(aFile)
-        if self.__isGitPackage:
+        if self.isGitPackage:
             pass
         else:
             ObsLightOsc.getObsLightOsc().add(path=self.getOscDirectory(), afile=patch)
