@@ -80,10 +80,10 @@ class PackageManager(QObject, ObsLightGuiObject):
         mw.openTermButton.clicked.connect(self.on_openTermButton_clicked)
 
         #OSC
-        mw.refreshOscStatusButton.clicked.connect(self.on_refreshOscStatusButton_clicked)
+#        mw.refreshOscStatusButton.clicked.connect(self.on_refreshOscStatusButton_clicked)
         mw.updateFilesButton.clicked.connect(self.on_updateFilesButton_clicked)
 
-        mw.repairOscButton.clicked.connect(self.on_repairOscButton_clicked)
+#        mw.repairOscButton.clicked.connect(self.on_repairOscButton_clicked)
 
         #Patch
         mw.generatePatchButton.clicked.connect(self.on_makePatchButton_clicked)
@@ -693,7 +693,7 @@ class PackageManager(QObject, ObsLightGuiObject):
         self.__doUpdatePackages()
 
     def __doUpdatePackages(self):
-        def myRefreshStatus(arg):
+        def myRefreshStatus(arg=[]):
             packageToRefreshList = [x[0] for x in arg]
             self.__refreshStatus(packageToRefreshList)
 
@@ -812,30 +812,30 @@ class PackageManager(QObject, ObsLightGuiObject):
                                         packagesNames,
                                         self.getCurrentProject())
 
-    @popupOnException
-    def on_refreshOscStatusButton_clicked(self):
-        """
-        Called when user clicks on "refresh status" button.
-        Refreshes both OBS and OSC statuses.
-        """
-        self.__refreshStatus()
+#    @popupOnException
+#    def on_refreshOscStatusButton_clicked(self):
+#        """
+#        Called when user clicks on "refresh status" button.
+#        Refreshes both OBS and OSC statuses.
+#        """
+#        self.__refreshStatus()
 
-    @popupOnException
-    def on_repairOscButton_clicked(self):
-        projectName = self.getCurrentProject()
-        if projectName is None:
-            return
-        question = u"<i>Warning:</i> if you have local modifications, they will"
-        question += u" be discarded.<br/>Do you want to continue?"
-        result = QMessageBox.warning(self.mainWindow,
-                                     u"Discard modifications?",
-                                     question,
-                                     buttons=QMessageBox.Yes | QMessageBox.Cancel,
-                                     defaultButton=QMessageBox.Cancel)
-        if result != QMessageBox.Yes:
-            return
-        self.__mapOnSelectedPackages(firstArgLast(self.manager.repairPackageDirectory),
-                                     None,
-                                     u"Repairing OSC directory of %(arg)s...",
-                                     self.__refreshStatus,
-                                     projectName)
+#    @popupOnException
+#    def on_repairOscButton_clicked(self):
+#        projectName = self.getCurrentProject()
+#        if projectName is None:
+#            return
+#        question = u"<i>Warning:</i> if you have local modifications, they will"
+#        question += u" be discarded.<br/>Do you want to continue?"
+#        result = QMessageBox.warning(self.mainWindow,
+#                                     u"Discard modifications?",
+#                                     question,
+#                                     buttons=QMessageBox.Yes | QMessageBox.Cancel,
+#                                     defaultButton=QMessageBox.Cancel)
+#        if result != QMessageBox.Yes:
+#            return
+#        self.__mapOnSelectedPackages(firstArgLast(self.manager.repairPackageDirectory),
+#                                     None,
+#                                     u"Repairing OSC directory of %(arg)s...",
+#                                     self.__refreshStatus,
+#                                     projectName)

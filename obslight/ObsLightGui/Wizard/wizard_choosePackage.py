@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui/wizard_choosePackage.ui'
 #
-# Created: Thu Oct  4 14:14:54 2012
+# Created: Fri Oct  5 13:55:45 2012
 #      by: pyside-uic 0.2.13 running on PySide 1.1.0
 #
 # WARNING! All changes made in this file will be lost!
@@ -14,17 +14,17 @@ class Ui_WizardPage(object):
         WizardPage.setObjectName("WizardPage")
         WizardPage.resize(400, 300)
         WizardPage.setLocale(QtCore.QLocale(QtCore.QLocale.English, QtCore.QLocale.UnitedStates))
-        self.formLayout = QtGui.QFormLayout(WizardPage)
-        self.formLayout.setObjectName("formLayout")
+        self.gridLayout = QtGui.QGridLayout(WizardPage)
+        self.gridLayout.setObjectName("gridLayout")
         self.label = QtGui.QLabel(WizardPage)
         self.label.setObjectName("label")
-        self.formLayout.setWidget(0, QtGui.QFormLayout.LabelRole, self.label)
+        self.gridLayout.addWidget(self.label, 0, 0, 1, 1)
         self.filterLineEdit = QtGui.QLineEdit(WizardPage)
         self.filterLineEdit.setObjectName("filterLineEdit")
-        self.formLayout.setWidget(0, QtGui.QFormLayout.FieldRole, self.filterLineEdit)
+        self.gridLayout.addWidget(self.filterLineEdit, 0, 1, 1, 1)
         self.packageListWidget = QtGui.QListWidget(WizardPage)
         self.packageListWidget.setObjectName("packageListWidget")
-        self.formLayout.setWidget(1, QtGui.QFormLayout.SpanningRole, self.packageListWidget)
+        self.gridLayout.addWidget(self.packageListWidget, 1, 0, 1, 2)
 
         self.retranslateUi(WizardPage)
         QtCore.QMetaObject.connectSlotsByName(WizardPage)

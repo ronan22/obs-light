@@ -508,15 +508,13 @@ class ObsLightProjectCore(ObsLightObject):
         '''
         self.__refreshObsDescription(name)
         pkgObj = self.__packages.getPackage(name)
-#        pkgObj.updatePackage()
-        if not pkgObj.isGitPackage:
-            server = self.__obsServers.getObsServer(self.__obsServer)
-            self.refreshObsStatus(name)
+        pkgObj.updatePackage()
 
     #        self.checkOscDirectoryStatus(package=name)
 #            self.__refreshOscPackageLocalRev(name)
 
 #            self.getPackage(name).initPackageFileInfo()
+
         return 0
 
 
@@ -561,8 +559,6 @@ class ObsLightProjectCore(ObsLightObject):
     def refreshPackageDirectoryStatus(self, package):
         pass
 
-    def updatePackage(self, name):
-        pass
 
     def __refreshObsDescription(self, name):
         pass

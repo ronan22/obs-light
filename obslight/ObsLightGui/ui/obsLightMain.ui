@@ -421,7 +421,7 @@
              <property name="rightMargin">
               <number>0</number>
              </property>
-             <item row="3" column="0" colspan="4">
+             <item row="3" column="0" colspan="3">
               <widget class="QScrollArea" name="scrollArea_2">
                <property name="minimumSize">
                 <size>
@@ -441,7 +441,7 @@
                   <x>0</x>
                   <y>0</y>
                   <width>372</width>
-                  <height>253</height>
+                  <height>229</height>
                  </rect>
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -489,7 +489,62 @@
                </widget>
               </widget>
              </item>
-             <item row="7" column="1">
+             <item row="4" column="0" colspan="3">
+              <widget class="QLabel" name="packageNameLabel">
+               <property name="text">
+                <string>Package Management</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="7" column="0">
+              <widget class="QPushButton" name="deletePackageButton">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="toolTip">
+                <string>Remove the selected package(s) from project.</string>
+               </property>
+               <property name="text">
+                <string>Delete</string>
+               </property>
+              </widget>
+             </item>
+             <item row="5" column="2">
+              <spacer name="horizontalSpacer">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item row="7" column="2">
+              <widget class="QPushButton" name="addAndCommitButton">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="toolTip">
+                <string>Commit all modifications made to the package files.</string>
+               </property>
+               <property name="text">
+                <string>Commit</string>
+               </property>
+              </widget>
+             </item>
+             <item row="6" column="2">
               <widget class="QPushButton" name="updateFilesButton">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -512,34 +567,7 @@ You can select several packages.</string>
                </property>
               </widget>
              </item>
-             <item row="4" column="0" colspan="4">
-              <widget class="QLabel" name="packageNameLabel">
-               <property name="text">
-                <string>Package Management</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignCenter</set>
-               </property>
-              </widget>
-             </item>
-             <item row="5" column="1">
-              <widget class="QPushButton" name="refreshOscStatusButton">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="toolTip">
-                <string>Refresh OSC status column.
- If no package selected, refresh all (may be long).</string>
-               </property>
-               <property name="text">
-                <string>Refresh status</string>
-               </property>
-              </widget>
-             </item>
-             <item row="5" column="0">
+             <item row="6" column="0">
               <widget class="QPushButton" name="importPackageButton">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -552,68 +580,6 @@ You can select several packages.</string>
                </property>
                <property name="text">
                 <string>Import</string>
-               </property>
-              </widget>
-             </item>
-             <item row="7" column="0">
-              <widget class="QPushButton" name="deletePackageButton">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="toolTip">
-                <string>Remove the selected package(s) from project.</string>
-               </property>
-               <property name="text">
-                <string>Delete</string>
-               </property>
-              </widget>
-             </item>
-             <item row="7" column="2">
-              <widget class="QPushButton" name="repairOscButton">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="toolTip">
-                <string>Repair the OSC working copy of the selected package(s).
-You can select several packages.</string>
-               </property>
-               <property name="text">
-                <string>Repair directory</string>
-               </property>
-              </widget>
-             </item>
-             <item row="5" column="3">
-              <spacer name="horizontalSpacer">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item row="5" column="2">
-              <widget class="QPushButton" name="addAndCommitButton">
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="toolTip">
-                <string>Commit all modifications made to the package files.</string>
-               </property>
-               <property name="text">
-                <string>Commit</string>
                </property>
               </widget>
              </item>
@@ -637,7 +603,7 @@ You can select several packages.</string>
             </size>
            </property>
            <property name="currentIndex">
-            <number>0</number>
+            <number>1</number>
            </property>
            <widget class="QSplitter" name="splitter_5">
             <property name="orientation">

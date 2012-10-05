@@ -288,8 +288,8 @@ class PackageInfo(ObsLightObject):
     def getOscPackageRev(self):
         return self.__oscRev
 
-#    def getPackageStatus(self):
-#        return self.__obsStatus
+    def getPackageStatus(self):
+        return self.__obsStatus
 
     def getOscStatus(self):
         return self.__oscStatus

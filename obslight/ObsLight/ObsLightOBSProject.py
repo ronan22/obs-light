@@ -21,6 +21,7 @@ Created on 21 sept. 2012
 
 '''
 from ObsLightBuilderProject import ObsLightBuilderProject
+from ObsLightProjectCore import ObsLightProjectCore
 
 import os
 import shlex
@@ -276,9 +277,10 @@ class ObsLightOBSProject(ObsLightBuilderProject):
         '''
         update a package of the projectLocalName.
         '''
-        ObsLightProjectCore.updatePackage(name)
+        ObsLightProjectCore.updatePackage(self, name)
 
         pkgObj = self._getPackages().getPackage(name)
+
         if not pkgObj.isGitPackage:
             server = self.__obsServers.getObsServer(self.__obsServer)
             self.refreshObsStatus(name)

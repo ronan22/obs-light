@@ -945,7 +945,8 @@ class ObsLightPackage(ObsLightObject):
 #                self.__listInfoFile[aFile] = status
 #        return 0
 
-#    def testConflict(self, aFile=None):
+    def testConflict(self, aFile=None):
+        return False
 #        if aFile != None:
 #            if self.getPackageFileInfo(aFile)[u'Status'].startswith("C"):
 #                return True
