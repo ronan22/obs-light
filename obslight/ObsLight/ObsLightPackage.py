@@ -239,6 +239,9 @@ class ObsLightPackage(ObsLightObject):
         elif parameter == "packageChrootDirectory":
             return self.getPackageChrootDirectory()
 
+        elif parameter == "packageChrootBuildDirectory":
+            return self.getChrootBuildDirectory()
+
         elif parameter == "packageSourceDirectory":
             return self.getPackageSourceDirectory()
 
@@ -257,6 +260,7 @@ class ObsLightPackage(ObsLightObject):
 
         elif parameter == "prepDirName":
             return self.__prepDirName if self.__prepDirName != None else ""
+
         else:
             msg = "Parameter '%s' is not valid for getProjectParameter" % parameter
             raise ObsLightPackageErr(msg)
