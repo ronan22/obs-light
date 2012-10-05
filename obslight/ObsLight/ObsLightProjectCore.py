@@ -120,6 +120,7 @@ class ObsLightProjectCore(ObsLightObject):
         return 0
 
     def getDic(self):
+
         aDic = {}
         aDic["projectLocalName"] = self.__projectLocalName
         aDic["projectArchitecture"] = self.__projectArchitecture
@@ -194,7 +195,7 @@ class ObsLightProjectCore(ObsLightObject):
         if len(target) > 0:
             return target
         else:
-            return archs
+            return self.__projectArchitecture
 
     def addRemoveFileToTheProject(self, package=None):
         '''
