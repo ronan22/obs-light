@@ -1059,9 +1059,11 @@ class ObsLightManagerCore(ObsLightManagerBase):
         '''
         checkNonEmptyStringPackage(package)
         self.checkPackage(projectLocalName=projectLocalName, package=package)
+
         project = self._myObsLightProjects.getProject(projectLocalName)
         project.getPackage(package=package).addRemoveFileToTheProject()
         res = project.commitPackageChange(message=message, package=package)
+
         self._myObsLightProjects.save()
         return res
 

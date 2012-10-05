@@ -129,7 +129,7 @@
                  <rect>
                   <x>0</x>
                   <y>0</y>
-                  <width>276</width>
+                  <width>303</width>
                   <height>307</height>
                  </rect>
                 </property>
@@ -440,8 +440,8 @@
                  <rect>
                   <x>0</x>
                   <y>0</y>
-                  <width>372</width>
-                  <height>229</height>
+                  <width>310</width>
+                  <height>253</height>
                  </rect>
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -603,7 +603,7 @@ You can select several packages.</string>
             </size>
            </property>
            <property name="currentIndex">
-            <number>1</number>
+            <number>0</number>
            </property>
            <widget class="QSplitter" name="splitter_5">
             <property name="orientation">

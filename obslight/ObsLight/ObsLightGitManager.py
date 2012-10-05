@@ -307,4 +307,9 @@ def updateGitpackage(path):
     aSubprocessCrt = SubprocessCrt()
     return aSubprocessCrt.execSubprocess(cmd)
 
-
+def commitGitpackage(path, message):
+    cmd = "git --work-tree=%s --git-dir=%s commit -a -m \"%s\"" % (path,
+                                                                   os.path.join(path, ".git"),
+                                                                   message)
+    aSubprocessCrt = SubprocessCrt()
+    return aSubprocessCrt.execSubprocess(cmd)

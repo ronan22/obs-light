@@ -822,7 +822,7 @@ class ObsLightPackage(ObsLightObject):
         if self.isGitPackage:
             pass
         else:
-            ObsLightOsc.getObsLightOsc().add(path=self.getOscDirectory(), afile=patch)
+            ObsLightOsc.getObsLightOsc().add(path=self.getPackageSourceDirectory(), afile=patch)
 
     def initCurrentPatch(self):
         self.__currentPatch = None
@@ -886,7 +886,7 @@ class ObsLightPackage(ObsLightObject):
 #        return 0
 
 #    def delFile(self, name):
-#        path = os.path.join(self.getOscDirectory(), name)
+#        path = os.path.join(self.getPackageSourceDirectory(), name)
 ##        resInfo = self.getPackageFileInfo(name)
 #        if not resInfo['Status'].startswith("!"):
 #            if not os.path.exists(path):
@@ -898,7 +898,7 @@ class ObsLightPackage(ObsLightObject):
 #
 ##            if not resInfo['Status'].startswith("?"):
 ##                self.__filesToDeleteList.append(name)
-##                ObsLightOsc.getObsLightOsc().remove(path=self.getOscDirectory(), afile=name)
+##                ObsLightOsc.getObsLightOsc().remove(path=self.getPackageSourceDirectory(), afile=name)
 #        else:
 #            if name in self.__filesToDeleteList:
 #                self.__filesToDeleteList.remove(name)
@@ -990,7 +990,7 @@ class ObsLightPackage(ObsLightObject):
         return self.__packagePath
 
     def repairPackageDirectory(self):
-        path = self.getOscDirectory()
+        path = self.getPackageSourceDirectory()
         ObsLightOsc.getObsLightOsc().repairOscPackageDirectory(path=path)
         return self.updatePackage(name=package)
 
@@ -1053,10 +1053,11 @@ class ObsLightPackage(ObsLightObject):
 #        self.__fileList.append(afile)
 
     def autoResolvedConflict(self):
-        for aFile in self.__fileList:
-            if self.testConflict(aFile=aFile):
-                ObsLightOsc.getObsLightOsc().autoResolvedConflict(packagePath=self.getOscDirectory(),
-                                                                  aFile=aFile)
+        if not self.isGitPackage:
+            for aFile in self.__fileList:
+                if self.testConflict(aFile=aFile):
+                    ObsLightOsc.getObsLightOsc().autoResolvedConflict(packagePath=self.getPackageSourceDirectory(),
+                                                                      aFile=aFile)
         return 0
 #        return self.initPackageFileInfo()
 
@@ -1064,23 +1065,29 @@ class ObsLightPackage(ObsLightObject):
         '''
         add new file and remove file to the project.
         '''
-        ObsLightOsc.getObsLightOsc().addremove(path=self.getOscDirectory())
+        if not self.isGitPackage:
+            ObsLightOsc.getObsLightOsc().addremove(path=self.getPackageSourceDirectory())
 #        self.initPackageFileInfo()
 
     def commitPackageChange(self, message=None):
         '''
         commit the package to the OBS server.
         '''
-        if self.__packageInfo.isReadyToCommit():
-            message = "Can't Commit \"%s\"\n"
-            message += "because local osc rev \"%s\" and OBS rev \"%s\" do not match.\n"
-            message += "Please update the package."
-            message = message % (package, oscRev, obsRev)
+        if not self.isGitPackage:
+            if self.__packageInfo.isReadyToCommit():
+                message = "Can't Commit \"%s\"\n"
+                message += "because local osc rev \"%s\" and OBS rev \"%s\" do not match.\n"
+                message += "Please update the package."
+                message = message % (package, oscRev, obsRev)
 
-            raise ObsLightErr.ObsLightProjectsError(message)
+                raise ObsLightErr.ObsLightProjectsError(message)
 
         self.autoResolvedConflict()
-        ObsLightOsc.getObsLightOsc().commitProject(path=self.getOscDirectory(), message=message)
+        if not self.isGitPackage:
+            ObsLightOsc.getObsLightOsc().commitProject(path=self.getPackageSourceDirectory(), message=message)
+        else:
+            sourcePath = self.getPackageSourceDirectory()
+            return ObsLightGitManager.commitGitpackage(sourcePath, message)
 #        self.__filesToDeleteList = []
 #        self.initPackageFileInfo()
 
