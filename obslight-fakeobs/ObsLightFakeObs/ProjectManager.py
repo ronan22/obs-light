@@ -574,24 +574,31 @@ def grabGBSTree(uri, name, targets, archs, orders, alias, verbose=False):
 
     # get the packages: each package is a subproject
     for repo in gbstree.built_repos:
+
+	# connect o the repo of GBS
+	gbstree.set_repo(repo)
+
+	# renaming the project
 	subprj = repo if repo not in renames else renames[repo]
 	prj = name if not subprj else name+":"+subprj
 	if verbose:
 	    print "scanning project {} ({}) from repo {}".format(prj,subprj,repo)
-	gbstree.set_repo(repo)
 
+	# get root directories
 	projectDir = conf.getProjectDir(prj)
 	fullDir = conf.getProjectFullDir(prj)
 	packagesDir = conf.getProjectPackagesDir(prj)
 	repoDir = conf.getProjectRepositoryDir(prj)
 
-	print " project dir: %s" % projectDir
-	print "    full dir: %s" % fullDir
-	print "packages dir: %s" % packagesDir
-	print "    repo dir: %s" % repoDir
+	if verbose:
+	    print " project dir: " + projectDir
+	    print "    full dir: " + fullDir
+	    print "packages dir: " + packagesDir
+	    print "    repo dir: " + repoDir
 
-	if not os.path.isdir(projectDir):
-	    os.makedirs(projectDir)
+	for d in [ projectDir, fullDir, packagesDir, repoDir ]:
+	    if not os.path.isdir(d):
+		os.makedirs(d)
 
 	# Write the project informations
 	# TODO: these informations should include the fact that it is a GBS import!
@@ -600,10 +607,16 @@ def grabGBSTree(uri, name, targets, archs, orders, alias, verbose=False):
 	# write the config file
 	gbstree.download_config(os.path.join(projectDir,"_config"))
 
+	# connect to the source package
+	gbstree.set_package("source")
+
+	# iterate on GBS archs
 	for arch in archs:
 	    if verbose:
 		print "   for arch {}".format(arch)
 	    gbstree.set_arch(arch)
+	    gbstree.set_package("packages")
+	    gbstree.set_package("debug")
 
     return name
     

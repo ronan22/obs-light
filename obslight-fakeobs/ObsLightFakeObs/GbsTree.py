@@ -277,13 +277,13 @@ class GbsTree:
     def _read_repomd(self):
 	"""
 	"""
-	if verbose:
+	if self.verbose:
 	    print "reading repomd for repo:{} arch:{} package:{}".format(self.current_repo, self.current_arch, self.current_package)
 	uri = "{}/{}".format(self.uri_pack_data,self.file_repomd)
 	repomd = self._http_read(uri)
 	if not repomd:
 	    self._error("not able to acces repomd for repo:{} arch:{} package:{}".format(self.current_repo, self.current_arch, self.current_package))
-	if verbose:
+	if self.verbose:
 	    print "REPOMD:"
 	    print repomd
 	meta = { "repomd": repomd }
