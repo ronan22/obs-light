@@ -26,12 +26,8 @@ subdirectories:
   - images
   - repos
 
-The builddata subdirectory  MUST have the files:
-
-  - build.xml
-
-
-
+The builddata subdirectory  MUST have the file build.xml.
+Here is an example of the content of a build.xml file:
 
 <build>
   <archs>
@@ -48,10 +44,10 @@ The builddata subdirectory  MUST have the files:
   <id>tizen-2.0_20120926.2</id>
 </build>
 
-
 The algo is:
 
   1. Get the file URL/builddata/build.xml
+  1.1. read it and record the archs and repos and confs
 
 
 

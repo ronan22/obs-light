@@ -1,0 +1,12 @@
+[Paths]
+fakeobs_root: /home/jb/f-o-r
+projects_dir: /home/jb/f-o-r/projects
+repositories_dir: /home/jb/f-o-r/repositories
+live_dir: /home/jb/f-o-r/live
+
+[Limits]
+
+[Ports]
+
+[Commands]
+

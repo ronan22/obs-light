@@ -29,12 +29,14 @@ import subprocess
 import tempfile
 import time
 import urllib
+import urllib2
 
 import xml.dom.minidom
 import ConfigParser
 
 import Utils
 import Dupes
+import GbsTree
 from Config import getConfig
 from DistributionsManager import updateFakeObsDistributions
 from ObsManager import createFakeObsLink
@@ -154,6 +156,30 @@ def downloadFile(url, destDir=None, fileName=None, retryIfEmpty=True):
         else:
             sizeOk = True
     return retCode
+
+def downloadTo(uri,filename):
+    """
+    Download the file at `uri` to `fileName`.
+    """
+    nrtry = max(1,getConfig().getIntLimit("max_download_retries", 2))
+    f = None
+    while True:
+	try:
+	    f = urllib2.urlopen(uri)
+	    data = f.read()
+	    f.close()
+	    f = open(filename,"w")
+	    f.write(data)
+	    f.close()
+	    return True
+	except Exception as e:
+	    if f:
+		f.close()
+	    if nrtry > 1:
+		nrtry = nrtry - 1
+	    else:
+		raise e
+    return False
 
 def downloadFiles(baseUrl, fileNames, destDir=None):
     """Download several files with a common base URL"""
@@ -499,7 +525,7 @@ def grabProject(api, rsyncUrl, project, targets, archs, newName=None):
 
 
 
-def grabGBSTree(url, name, targets, archs, newName=None):
+def grabGBSTree(uri, name, targets, archs, orders, alias, verbose=False):
     """
     Grab a project from an OBS server.
       url:       the URL to fetch for the GBS tree 
@@ -511,39 +537,93 @@ def grabGBSTree(url, name, targets, archs, newName=None):
                   (ex: "standard")
       archs:     a list of architectures to grab
                   (ex: ["i586", "armv7el"])
+      orders:    a list of sub projets order
+                  (ex: ["tizen-base", "tizen-main"] means that tizen-main depends on tizen-base)
+      alias:     a list of renamings
+                  (ex: ["tizen-base=Base", "tizen-main=Main"])
+      verbose:   a flag to have verbose messages
     """
-    failIfProjectExists(name)
+    if verbose:
+	print "entering grabGBStree(uri={}, name={}, targets={}, archs={}, orders={}, alias={}, True)".format(uri, name, targets, archs, orders, alias)
 
-    
-    targetArchTuples = Utils.buildTargetArchTuplesFromServer(api, project,
-                                                             targets, archs)
-    if len(targetArchTuples) == 0:
-        msg = "Invalid target/arch specified, or all disabled on server!"
-        raise ValueError(msg)
+    # TODO: reactivate the test
+    if False:
+	failIfProjectExists(name)
 
-    targets = {t for t, a in targetArchTuples}
-    archs = {a for t, a in targetArchTuples}
+    # build the renaming
+    renames = {}
+    for a in alias:
+        x = a.split("=")
+        renames[x[0].strip()] = x[1].strip()
+    if verbose:
+	print "renames: "+str(renames)
 
+    # connect to the GbsTree
+    gbstree = GbsTree.GbsTree(uri,False,verbose) # TODO remove verbosity
+    if not gbstree.connect():
+	raise ValueError(gbstree.error_message)
+
+    # check the archs
+    for a in archs:
+	if a not in gbstree.built_archs:
+	    gbstree.disconnect()
+	    raise ValueError("arch mismatch: '{}' isn't built in {}".format(a,uri))
+
+    # get config data
     conf = getConfig()
-    projectDir = conf.getProjectDir(name)
-    fullDir = conf.getProjectFullDir(name)
-    packagesDir = conf.getProjectPackagesDir(name)
-    repoDir = conf.getProjectRepositoryDir(name)
 
-    if not os.path.isdir(projectDir):
-        os.makedirs(projectDir)
-    writeProjectInfo(api, rsyncUrl, project, targets, archs, name)
-    downloadConfAndMeta(api, project, projectDir)
-    fixProjectMeta(name)
+    # get the packages: each package is a subproject
+    for repo in gbstree.built_repos:
+	subprj = repo if repo not in renames else renames[repo]
+	prj = name if not subprj else name+":"+subprj
+	if verbose:
+	    print "scanning project {} ({}) from repo {}".format(prj,subprj,repo)
+	gbstree.set_repo(repo)
+
+	projectDir = conf.getProjectDir(prj)
+	fullDir = conf.getProjectFullDir(prj)
+	packagesDir = conf.getProjectPackagesDir(prj)
+	repoDir = conf.getProjectRepositoryDir(prj)
+
+	print " project dir: %s" % projectDir
+	print "    full dir: %s" % fullDir
+	print "packages dir: %s" % packagesDir
+	print "    repo dir: %s" % repoDir
+
+	if not os.path.isdir(projectDir):
+	    os.makedirs(projectDir)
+
+	# Write the project informations
+	# TODO: these informations should include the fact that it is a GBS import!
+	writeProjectInfo("", "", prj, targets, archs, prj)
+
+	# write the config file
+	gbstree.download_config(os.path.join(projectDir,"_config"))
+
+	for arch in archs:
+	    if verbose:
+		print "   for arch {}".format(arch)
+	    gbstree.set_arch(arch)
+
+    return name
+    
+    # TODO: write the _meta
+    # fixProjectMeta(name)
+
+    # 
     downloadFulls(api, project, targetArchTuples, fullDir)
     downloadPackages(api, project, packagesDir)
+
     # TODO: check return value of downloadPackages()
+
     fixProjectPackagesMeta(name)
     downloadRepositories(rsyncUrl, project, targets, repoDir)
+
     # findOrphanRpms is a generator
     for orphan in findOrphanRpms(name):
         pass
     updateLiveRepository(name)
+
     try:
         # These operations will fail if program is not run
         # on an OBS server
@@ -553,9 +633,6 @@ def grabGBSTree(url, name, targets, archs, newName=None):
         pass
 
     return name
-
-
-
 
 
 
