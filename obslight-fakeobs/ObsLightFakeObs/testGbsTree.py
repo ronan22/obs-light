@@ -3,20 +3,20 @@
 import sys
 import GbsTree
 
-doraise = False
 verbose = True
 
 uri = "http://download.tizen.org/releases/2.0alpha/daily/latest/"
-gt = GbsTree.GbsTree(uri, doraise, verbose)
 
-c = gt.connect()
-
-if c:
-	print "CONNECTED to "+uri
-else:
-	print "ERROR!!! connection failed!!!!"
-	print gt.error_message
-	sys.exit(1)
+#doraise = False
+#gt = GbsTree.GbsTree(uri, doraise, verbose)
+#c = gt.connect()
+#
+#if c:
+#	print "CONNECTED to "+uri
+#else:
+#	print "ERROR!!! connection failed!!!!"
+#	print gt.error_message
+#	sys.exit(1)
 
 import Config
 import ProjectManager

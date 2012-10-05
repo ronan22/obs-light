@@ -26,6 +26,7 @@ import urllib2
 import xml.dom.minidom
 import hashlib
 from xml.etree import ElementTree
+import cStringIO
 
 import Utils
 import Config
@@ -279,8 +280,8 @@ class GbsTree:
 	"""
 	if self.verbose:
 	    print "reading repomd for repo:{} arch:{} package:{}".format(self.current_repo, self.current_arch, self.current_package)
-	uri = "{}/{}".format(self.uri_pack_data,self.file_repomd)
-	repomd = self._http_read(uri)
+	urimd = "{}/{}".format(self.uri_pack_data,self.file_repomd)
+	repomd = self._http_read(urimd)
 	if not repomd:
 	    self._error("not able to acces repomd for repo:{} arch:{} package:{}".format(self.current_repo, self.current_arch, self.current_package))
 	if self.verbose:
@@ -288,6 +289,58 @@ class GbsTree:
 	    print repomd
 	meta = { "repomd": repomd }
 	doc = xml.dom.minidom.parseString(repomd)
+
+	# fills data with locations of listed data
+	data = {}
+	for n in doc.getElementsByTagName("data"):
+	    assert n.nodeType==n.ELEMENT_NODE
+	    t = n.getAttribute("type")
+	    if t:
+		l = n.getElementsByTagName("location")
+		if l and len(l) == 1:
+		    l = l[0]
+		    assert l.nodeType==n.ELEMENT_NODE
+		    h = l.getAttribute("href")
+		    if h:
+			data[t] = h
+	if self.verbose:
+	    print "COLLECTED DATA" + str(data)
+
+	# check the existance of the "filelists" data
+	if "filelists" not in data:
+	    return self._error("not able to locate a filelist in "+urimd)
+
+	# read the file list
+	urifl = "{}/{}".format(self.uri_pack_base,data["filelists"])
+	flist = self._http_read(urifl)
+	if not flist:
+	    return self._error("not able to acces filelists for repo:{} arch:{} package:{}".format(self.current_repo, self.current_arch, self.current_package))
+	flist = self._unzip(flist)
+
+	# create the list of repositories
+	doc = xml.dom.minidom.parseString(flist)
+	pklist = []
+	for p in doc.getElementsByTagName("package"):
+	    assert p.nodeType==n.ELEMENT_NODE
+	    pv = p.getElementsByTagName("version")
+	    if pv and len(pv) == 1:
+		pv = pv[0]
+		assert pv.nodeType==n.ELEMENT_NODE
+		name = p.getAttribute("name")
+		arch = p.getAttribute("arch")
+		ver = pv.getAttribute("ver")
+		rel = pv.getAttribute("rel")
+		if name and arch and ver and rel:
+		    rpm = "{}-{}-{}.{}.rpm".format(name,ver,rel,arch)
+		    pklist.append({
+			"name": name,
+			"arch": arch,
+			"ver": ver,
+			"rel": rel,
+			"rpm": rpm,
+		    })
+	if self.verbose:
+	    print "COLLECTED PACKAGES" + str(pklist)
 	
 	self.current_pack_meta = meta
 	return True
@@ -309,6 +362,25 @@ class GbsTree:
 	    self._original_error_from_exception(e,"when fetching %s"%uri)
 	    return None
 
+    def _unzip(self,data):
+	"""
+	return an unzipped version of a given content
+	"""
+	while True:
+	    if data[0]==chr(31) or data[1]==chr(139):
+		data = self._filter(data,["gunzip","-"])
+	    else:
+		return data
+
+    def _filter(self,data,command):
+	"""
+	Execute the 'command' as a process filtering data in its stdin and 
+	writing the result on its stdout.
+	"""
+	proc = subprocess.Popen(command,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+	(data,err) = proc.communicate(data)
+	proc.wait()
+	return data
 
     # section of error handling
     #--------------------------
