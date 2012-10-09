@@ -572,13 +572,13 @@ def grabGBSTree(uri, name, targets, archs, orders, alias, verbose=False):
     # get config data
     conf = getConfig()
 
-    # get the packages: each package is a subproject
+    # iterate on GBS repositories: each repository is a subproject
     for repo in gbstree.built_repos:
 
-	# connect o the repo of GBS
+	# connect to the GBS repository
 	gbstree.set_repo(repo)
 
-	# renaming the project
+	# Perform renaming
 	subprj = repo if repo not in renames else renames[repo]
 	prj = name if not subprj else name+":"+subprj
 	if verbose:
@@ -596,6 +596,7 @@ def grabGBSTree(uri, name, targets, archs, orders, alias, verbose=False):
 	    print "packages dir: " + packagesDir
 	    print "    repo dir: " + repoDir
 
+	# create the directories
 	for d in [ projectDir, fullDir, packagesDir, repoDir ]:
 	    if not os.path.isdir(d):
 		os.makedirs(d)
@@ -609,14 +610,32 @@ def grabGBSTree(uri, name, targets, archs, orders, alias, verbose=False):
 
 	# connect to the source package
 	gbstree.set_package("source")
+	for e in gbstree.iterate_on_entries():
+	    print "to {} extract rpm {}".format(packagesDir,e.get_rpm_name())
 
-	# iterate on GBS archs
+	# iterate on GBS archs: each arch is a target
 	for arch in archs:
-	    if verbose:
-		print "   for arch {}".format(arch)
+
+	    # connect to the GBS acrh
 	    gbstree.set_arch(arch)
-	    gbstree.set_package("packages")
-	    gbstree.set_package("debug")
+
+	    # Perform renaming
+	    target = arch if arch not in renames else renames[arch]
+	    if verbose:
+		print "   for target {} (was arch {})".format(target,arch)
+
+	    # for each package kind
+	    for kind in [ "packages", "debug" ]:
+		# connect to the GBS package
+		gbstree.set_package(kind)
+
+		# create the root directory for the package
+		kdir = os.path.join(repoDir,target,kind)
+		if not os.path.isdir(kdir):
+		    os.makedirs(kdir)
+
+		# download the package
+		gbstree.download_package_to(kdir)
 
     return name
     

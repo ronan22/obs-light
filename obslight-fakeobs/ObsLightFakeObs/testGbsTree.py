@@ -29,7 +29,7 @@ name = "Tizen:2.0"
 targets = [ "standard" ]
 archs = [ "ia32" ]
 orders = [ "tizen-base", "tizen-main" ]
-alias = [ "tizen-base=Base", "tizen-main=Main" ]
+alias = [ "tizen-base=Base", "tizen-main=Main", "ia32=standard" ]
 
 n = ProjectManager.grabGBSTree(uri, name, targets, archs, orders, alias, verbose)
 print n

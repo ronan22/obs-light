@@ -198,6 +198,66 @@ class GbsTree:
 	    return True
 	return self._unimplemented()
 
+    def iterate_on_entries(self):
+	"""
+	"""
+	assert self.connected
+	assert self.current_package
+	for e in self.current_pack_meta["pklist"]:
+	    yield e
+
+    def download_package_to(self,rootdir):
+	"""
+	"""
+	assert self.connected
+	assert self.current_package
+	if self.is_http:
+	    print "downloading package {} to {}".format(self.uri_pack_data,rootdir)
+	    return True
+	return self._unimplemented()
+
+    # internal classes
+    # ----------------
+    class _ListEntry:
+	"""
+	Classe for instances of the list of rpms
+	"""
+	def __init__(self,name,arch,ver,rel):
+	    """
+	    Init the current instance for the given 'name', 'arch', 'ver' and 'rel'
+	    """
+	    self.name = name
+	    self.arch = arch
+	    self.version = ver
+	    self.release = rel
+	def get_name(self):
+	    """
+	    Return the name
+	    """
+	    return self.name
+	def get_arch(self):
+	    """
+	    Return the arch
+	    """
+	    return self.arch
+	def get_version(self):
+	    """
+	    Return the version
+	    """
+	    return self.version
+	def get_release(self):
+	    """
+	    Return the release
+	    """
+	    return self.release
+	def get_rpm_name(self):
+	    """
+	    Return the name of the rpm
+	    """
+	    return "{}-{}-{}.{}.rpm".format(self.name,self.version,self.release,self.arch)
+	def __repr__(self):
+	    return self.get_rpm_name()
+
     # internal connection methods
     # ---------------------------
 
@@ -284,10 +344,6 @@ class GbsTree:
 	repomd = self._http_read(urimd)
 	if not repomd:
 	    self._error("not able to acces repomd for repo:{} arch:{} package:{}".format(self.current_repo, self.current_arch, self.current_package))
-	if self.verbose:
-	    print "REPOMD:"
-	    print repomd
-	meta = { "repomd": repomd }
 	doc = xml.dom.minidom.parseString(repomd)
 
 	# fills data with locations of listed data
@@ -303,8 +359,6 @@ class GbsTree:
 		    h = l.getAttribute("href")
 		    if h:
 			data[t] = h
-	if self.verbose:
-	    print "COLLECTED DATA" + str(data)
 
 	# check the existance of the "filelists" data
 	if "filelists" not in data:
@@ -331,18 +385,13 @@ class GbsTree:
 		ver = pv.getAttribute("ver")
 		rel = pv.getAttribute("rel")
 		if name and arch and ver and rel:
-		    rpm = "{}-{}-{}.{}.rpm".format(name,ver,rel,arch)
-		    pklist.append({
-			"name": name,
-			"arch": arch,
-			"ver": ver,
-			"rel": rel,
-			"rpm": rpm,
-		    })
-	if self.verbose:
-	    print "COLLECTED PACKAGES" + str(pklist)
+		    pklist.append(self._ListEntry(name,arch,ver,rel))
 	
-	self.current_pack_meta = meta
+	self.current_pack_meta = {
+		    "repomd": repomd,
+		    "data":   data,
+		    "pklist": pklist
+		    }
 	return True
 
     # internal utils
