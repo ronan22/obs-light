@@ -564,10 +564,10 @@ def grabGBSTree(uri, name, targets, archs, orders, alias, verbose=False):
 	raise ValueError(gbstree.error_message)
 
     # check the archs
-    for a in archs:
-	if a not in gbstree.built_archs:
-	    gbstree.disconnect()
-	    raise ValueError("arch mismatch: '{}' isn't built in {}".format(a,uri))
+    #for a in archs:
+    #	if a not in gbstree.built_archs:
+    #	    gbstree.disconnect()
+    #	    raise ValueError("arch mismatch: '{}' isn't built in {}".format(a,uri))
 
     # get config data
     conf = getConfig()
@@ -610,19 +610,18 @@ def grabGBSTree(uri, name, targets, archs, orders, alias, verbose=False):
 
 	# connect to the source package
 	gbstree.set_package("source")
-	for e in gbstree.iterate_on_entries():
-	    print "to {} extract rpm {}".format(packagesDir,e.get_rpm_name())
+	gbstree.extract_package_rpms_to(packagesDir,False,True)
 
 	# iterate on GBS archs: each arch is a target
-	for arch in archs:
+	for rtarget in archs:
 
 	    # connect to the GBS acrh
-	    gbstree.set_arch(arch)
+	    gbstree.set_target(rtarget)
 
 	    # Perform renaming
-	    target = arch if arch not in renames else renames[arch]
+	    ltarget = rtarget if rtarget not in renames else renames[rtarget]
 	    if verbose:
-		print "   for target {} (was arch {})".format(target,arch)
+		print "   for target {} (was arch {})".format(ltarget,rtarget)
 
 	    # for each package kind
 	    for kind in [ "packages", "debug" ]:
@@ -630,12 +629,13 @@ def grabGBSTree(uri, name, targets, archs, orders, alias, verbose=False):
 		gbstree.set_package(kind)
 
 		# create the root directory for the package
-		kdir = os.path.join(repoDir,target,kind)
+		kdir = os.path.join(repoDir,ltarget,kind)
 		if not os.path.isdir(kdir):
 		    os.makedirs(kdir)
 
 		# download the package
-		gbstree.download_package_to(kdir)
+		flag = kind!="debug"
+		gbstree.download_package_to(kdir,flag,not flag) # accept errors for debug and no arch
 
     return name
     

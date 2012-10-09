@@ -323,35 +323,4 @@ def getFakeObsVersion():
     except IOError:
         return "unknown"
 
-def httpDownloadTo(uri,filename,nrtry=2,shouldRaise=True):
-    """
-    Download the file at `uri` to `fileName`.
-    """
-    assert os.path.isdir(os.path.dirname(filename)), "the directory for '%s' must exists"%filename
-    assert nrtry > 0
-    fin = None
-    fout = None
-    while True:
-	try:
-	    fin = urllib2.urlopen(uri)
-	    fout = open(filename,"w")
-	    data = fin.read(10000000)
-	    while data:
-		fout.write(data)
-		data = fin.read()
-	    fin.close()
-	    fout.close()
-	    return True
-	except Exception as e:
-	    if fin:
-		fin.close()
-	    if fout:
-		fout.close()
-	    if nrtry > 1:
-		nrtry = nrtry - 1
-	    elif shouldRaise:
-		raise e
-	    else:
-	        return False
-
 
