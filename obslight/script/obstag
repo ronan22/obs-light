@@ -106,7 +106,7 @@ class PackageRevision(object):
         s = "%(srcmd5)40s | %(rev)6s | " % self.__dict__
         s += "%20s | " % time.strftime("%Y-%m-%d %H:%M:%S", date)
         s += "%(name)s | %(version)s |%(user)s |%(comment)s " % self.__dict__
-        return s
+        return s.encode("utf8")
 
     def __cmp__(self, other):
         if self.name == other.name:
