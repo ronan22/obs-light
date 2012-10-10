@@ -24,9 +24,10 @@ import re
 import subprocess
 import urllib2
 import xml.dom.minidom
-#import hashlib
+import hashlib
 #from xml.etree import ElementTree
 import shutil
+import shlex
 
 #import Utils
 import Config
@@ -45,12 +46,21 @@ class GbsTree:
     file_buildxml = "build.xml"
     file_repomd = "repomd.xml"
 
-    def __init__(self,url,should_raise=False,verbose=False):
+    def __init__(self,url,**options):
 	"""
-	attach the current object to a given URL
+	Create an instance attached to a given 'URL'
+	The options are given by names. 
+	Here are the options:
+	    NAME	    TYPE	DEFAULT	    COMMENT
+	    verbose	    bool	False	    if true, details are printed to stdout
+	    should_raise    bool	False	    if true, exceptions are raised
+	    rsynckeep	    bool	False	    if true, rsynced data aren't removed
+	    archs	    [string]	None	    what archs are wanted, all if None
 	"""
-	self.should_raise = should_raise
-	self.verbose = verbose
+	self.should_raise = bool(options.setdefault("should_raise",False))
+	self.verbose = bool(options.setdefault("verbose",False))
+	self.rsynckeep = bool(options.setdefault("rsynckeep",False))
+	self.archs = options.setdefault("archs",None)
 	self.clear_error()
 	self.connected = False
 	self.url = url.strip()
@@ -189,17 +199,29 @@ class GbsTree:
 	self.current_package = package
 	return True
 
-    def iterate_on_entries(self):
+    def check_package_archs(self):
 	"""
+	Checks the archs of the package against the required archs
+	The required archs are set at the creation of the instance, see __init__
+	Return the tuple (status, missing, supported)
+	Where
+	    - status: is false if missing archs is detected, true otherwise
+	    - missing: if the list of missing archs (we have status=not bool(missing))
+	    - supported: is the list of the supported archs
 	"""
 	assert self.connected
 	assert self.current_package
-	for e in self.current_pack_meta["pklist"]:
-	    yield e
+	supported = self.current_pack_meta["archs"]
+	missing = []
+	if self.archs:
+	    for a in self.archs:
+		missing.append(a)
+	return (not bool(missing), missing, supported)
 
     def download_package_to(self,rootdir,addarch=True,dont_fail=False):
 	"""
-	do
+	Download the package to 'rootdir'
+	
 	"""
 	assert self.connected
 	assert self.current_package
@@ -252,7 +274,7 @@ class GbsTree:
 	    for e in self.current_pack_meta["pklist"]:
 		r = e.get_rpm_name()
 		u = "{}/{}".format(root,r)
-		n = os.path.join(d,r)
+		n = os.path.join(rootdir,r)
 		if not self._connector.download_to(u,n):
 		    if dont_fail:
 			print "WARNING: can't get RPM {} in {}".format(r,root)
@@ -504,16 +526,20 @@ class GbsTree:
 	"""
 	connect to the URL using the http protocol
 	"""
+	assert not self.connected
+	assert not self._connector
+
+	# clears the errors
+	self.clear_error()
+
+	# compute the http base
 	base = schema + self.path
-	connector = GbsTree.ConnectorHttp(base,self.nrtry,self.should_raise,self.verbose)
-	bxml = connector.read("{}/{}".format(self.dir_build,self.file_buildxml))
-	if bxml is  None:
-	    return False
-	if not self._read_build_xml(bxml):
-	    return False
-	self.connected = True
-	self._connector = connector
-	return True
+
+	# create the connector
+	connector = GbsTree.ConnectorHTTP(self,base,self.nrtry)
+
+	# terminate connexion
+	return self._connect_terminate(connector)
 
     # internal rsync
     # --------------
@@ -521,9 +547,42 @@ class GbsTree:
 	"""
 	connect to the URL using the rsync protocol
 	"""
-	# TODO: currently not implemented
-	self._original_error("rsync protocol not yet implemented")
-	return False
+
+	# clears the errors
+	self.clear_error()
+
+	# create the rsync directory
+	conf = Config.getConfig()
+	rsyncdir = conf.getRsyncPath()
+	if not os.path.isdir(rsyncdir):
+	    os.makedirs(rsyncdir)
+
+	# compute the rsync base
+	base = "rsync:{}/".format(self.path)
+
+	# create the connector
+	connector = GbsTree.ConnectorRSYNC(self,base,rsyncdir,self.rsynckeep)
+
+	# connect
+	if not connector.connect():
+	    return False
+
+	# terminate connexion
+	return self._connect_terminate(connector)
+
+    def _connect_terminate(self,connector):
+	"""
+	terminate to connect by reading build.xml
+	"""
+	bxml = connector.read("{}/{}".format(self.dir_build,self.file_buildxml))
+	if bxml is  None:
+	    connector.disconnect()
+	    return False
+	if not self._read_build_xml(bxml):
+	    connector.disconnect()
+	    return False
+	self.connected = True
+	self._connector = connector
 	return True
 
     # section of error handling
@@ -588,74 +647,6 @@ class GbsTree:
 
     # internal classes
     # ----------------
-    class ErrorManager:
-	"""
-	"""
-	def __init__(self,should_raise=False,verbose=False):
-	    """
-	    Initialisation
-	    """
-	    self.should_raise = should_raise
-	    self.verbose = verbose
-	    self.is_set = False
-	    self.message = ""
-	    self._original = ""
-
-	def clear(self):
-	    """
-	    clear any pending error
-	    """
-	    self.error_message = ""
-	    self.has_error = False
-	    self._original_error_message = ""
-
-	def error(self,message):
-	    """
-	    set the 'is_set' status and the 'message'
-	    also raise an exception if 'should_raise' is True
-	    """
-	    self.is_set = True
-	    if self._original:
-		self.message = message + "\ndetail:" + self._original
-		self._original = ""
-	    else:
-		self.message = message
-	    if self.verbose:
-		print "GbsTree ERROR:"
-		print "=============="
-		print self.message
-	    if self.should_raise:
-		raise Exception(self.message)
-	    return False
-    
-	def error_from_exception(self, exception, message):
-	    """
-	    set the 'is_set' status and the 'message'
-	    according to the exception and the given message.
-	    also raise an exception if 'should_raise' is True
-	    """
-	    self.error("when {}\nexception catched:\n{}".format(message, str(exception)))
-
-	def error_from(self,other):
-	    """
-	    set the error from an 'other' instance of ErrorManager
-	    """
-	    assert other.is_set
-	    self.error(other.message)
-    
-	def set_original(self,message):
-	    """
-	    append 'message' to the original error
-	    """
-	    self._original = self._original + "\n... " + message
-    
-    
-	def set_original_from_exception(self, exception, message):
-	    """
-	    append 'message' and 'exception' to the original error
-	    """
-	    self.set_original("when {}\nexception catched:\n{}".format(message, str(exception)))
-    
     class _ListEntry:
 	"""
 	Classe for instances of the list of rpms
@@ -706,28 +697,29 @@ class GbsTree:
 	    return self.get_rpm_name()
 
 
-    class Connector(ErrorManager):
+    class Connector():
 	"""
 	Base class for connectors
 	"""
-	def __init__(self,should_raise=False,verbose=False):
+	def __init__(self,owner):
 	    """
 	    """
-	    GbsTree.ErrorManager.__init__(self,should_raise,verbose)
+	    self._owner = owner
+	    self.verbose = self._owner.verbose
 	def disconnect(self):
 	    """
 	    """
 	    pass
 
-    class ConnectorHttp(Connector):
+    class ConnectorHTTP(Connector):
 	"""
 	The HTTP/HTTPS connector
 	"""
-	def __init__(self,uri,nrtry=1,should_raise=False,verbose=False):
+	def __init__(self,owner,uri,nrtry=1):
 	    """
 	    init current instance
 	    """
-	    GbsTree.Connector.__init__(self,should_raise,verbose)
+	    GbsTree.Connector.__init__(self,owner)
 	    self.uri = uri
 	    self.nrtry = nrtry
 	    self.blocksize = 10000000 # 10 megabyte block
@@ -753,7 +745,7 @@ class GbsTree:
 		    if nrtry > 1:
 			nrtry = nrtry - 1
 			fin = None
-		    self.set_original_from_exception(e, "when fetching {}".format(uri))
+		    self._owner._original_error_from_exception(e, "when fetching {}".format(uri))
 		    return None
 
 	def download_to(self,fname,filename):
@@ -789,7 +781,7 @@ class GbsTree:
 			fin = None
 		        fout = None
 		    else:
-			return self.error_from_exception(e,"when downloading {}".format(uri))
+			return self._owner._error_from_exception(e,"when downloading {}".format(uri))
 
 	def stream_to(self,fname,fout):
 	    """
@@ -818,40 +810,87 @@ class GbsTree:
 			fin = None
 		        fout = None
 		    else:
-			return self.error_from_exception(e,"when streaming {}".format(uri))
+			return self._owner._error_from_exception(e,"when streaming {}".format(uri))
 	    
-    class ConnectorRsync(Connector):
+    class ConnectorRSYNC(Connector):
 	"""
 	The RSYNC connector
 	"""
-	def __init__(self,target,nrtry=1,should_raise=False,verbose=False):
+	def __init__(self,owner,target,rsyncdir,remove_at_disconnect):
 	    """
 	    init current instance
 	    """
-	    GbsTree.Connector.__init__(self,should_raise,verbose)
+	    GbsTree.Connector.__init__(self,owner)
 	    self.target = target
-	    self.rootdir = None
+	    self.rsyncdir = rsyncdir
+	    key = hashlib.md5(target).hexdigest()
+	    self.connected = False
+	    self.rootdir = os.path.join(rsyncdir,key)
+	    self.rootinfo = self.rootdir + ".info"
+	    self.remove_at_disconnect = remove_at_disconnect
 	    self.blocksize = 10000000 # 10 megabyte block
 
-	def connect_at(self,rootdir):
+	def connect(self):
 	    """
+	    make the rsync
 	    """
-	    #TODO
-	    return False
-	    self.rootdir = rootdir
+	    assert not self.connected
+
+	    # creates the directory if needed
+	    try:
+		if not os.path.isdir(self.rootdir):
+		    os.makedirs(self.rootdir)
+		if not os.path.exists(self.rootinfo):
+		    f = open(self.rootinfo,"w")
+		    f.write(self.target)
+		    f.close()
+	    except Exception as e:
+		self._owner._error_from_exception(e,"when preparing rsync")
+
+	    # compose the command
+	    command = [ "rsync",
+		    "--archive",
+		    "--hard-links",
+		    "--delete",
+		    "--checksum",
+		    "--inplace",
+		    "--progress",
+		    "--exclude=image-configs.xml", 
+		    "--exclude=images", 
+		    "--exclude=buildlogs", 
+		    "--exclude=image-configs", 
+		    "--exclude=reports",
+		    self.target,
+		    "." ]
+	    rsync = subprocess.Popen(command,
+		cwd = self.rootdir,
+		stderr = subprocess.PIPE)
+	    rsync.wait()
+	    sts = rsync.returncode
+	    if sts != 0:
+		self._owner._error("rsync error for {}: {}".format(self.target,rsync.stderr.read()))
+		rsync.stderr.close()
+		return False
+	    self.connected = True
 	    return True
 
 	def disconnect(self):
 	    """
 	    """
-	    shutil.rmtree(self.rootdir)
-	    self.rootdir = None
+	    assert self.connected
+	    if self.remove_at_disconnect:
+		try:
+		    shutil.rmtree(self.rootdir)
+		    os.remove(self.rootinfo)
+		except Exception:
+		    pass # FIXME what to do?
+	    self.connected = False
 
 	def read(self,fname):
 	    """
 	    return the document at the given 'fname' or None in case of error
 	    """
-	    assert(self.rootdir)
+	    assert self.connected
 	    src = os.path.join(self.rootdir,fname)
 	    try:
 	        fin = open(src,"r")
@@ -859,19 +898,21 @@ class GbsTree:
 		fin.close()
 		return result
 	    except Excepion as e:
-		self.error_from_exception(e, "when reading {}".format(src))
+		self._owner._error_from_exception(e, "when reading {}".format(src))
 		return None
 
 	def download_to(self,fname,filename):
 	    """
 	    get of the 'fname' and save it into the given 'filename'
 	    """
-	    assert(self.rootdir)
+	    assert self.connected
 	    assert os.path.isdir(os.path.dirname(filename)), "the directory for '{}' must exists".format(filename)
 	    src = os.path.join(self.rootdir,fname)
 	    if self.verbose:
 		print "downloading {} to {}".format(src,filename)
 	    try:
+		if os.path.exists(filename):
+		    os.remove(filename)
 		os.link(src, filename)
 		return True
 	    except Exception as e:
@@ -879,13 +920,13 @@ class GbsTree:
 		    shutil.copy(src, filename)
 		    return True
 		except Exception as e:
-		    return self.error_from_exception(e,"when downloading {}".format(src))
+		    return self._owner._error_from_exception(e,"when downloading {}".format(src))
 
 	def stream_to(self,fname,fout):
 	    """
 	    get of the 'fname' and write to the stream 'fout'
 	    """
-	    assert(self.rootdir)
+	    assert self.connected
 	    src = os.path.join(self.rootdir,fname)
 	    if self.verbose:
 		print "streaming {}".format(src)
@@ -900,7 +941,7 @@ class GbsTree:
 		fin.close()
 		return True
 	    except Excepion as e:
-		self.error_from_exception(e, "when streaming {}".format(src))
-		return None
+		self._owner._error_from_exception(e, "when streaming {}".format(src))
+		return False
 	    
 

@@ -515,6 +515,15 @@ def grabProject(api, rsyncUrl, project, targets, archs, newName=None):
 
 
 
+metameta = """<project name="{NAME}">
+ <title>{BASE}</title>
+ <description>OBS output grab of {BASE}</description>
+ <person role="maintainer" userid="unknown" />
+ <person role="bugowner" userid="unknown" />
+ <repository name="{REPO}">
+{PATHS}{ARCHS}
+ </repository>
+</project>"""
 
 
 
@@ -525,41 +534,37 @@ def grabProject(api, rsyncUrl, project, targets, archs, newName=None):
 
 
 
-def grabGBSTree(uri, name, targets, archs, orders, alias, verbose=False):
+def grabGBSTree(uri, name, targets, archs, orders, verbose=False):
     """
     Grab a project from an OBS server.
       url:       the URL to fetch for the GBS tree 
                   (ex: http://download.tizen.org/releases/2.0alpha/daily/latest
-                   or  rsync://download.tizen.org/releases/2.0alpha/daily/latest)
+                   or  rsync://download.tizen.org/snapshots/2.0alpha/common/latest)
       name:      the name to give to the project after it has 
                   been grabbed.
       targets:    a list of build targets to grab
-                  (ex: "standard")
+                  (ex: "ia32")
       archs:     a list of architectures to grab
                   (ex: ["i586", "armv7el"])
       orders:    a list of sub projets order
                   (ex: ["tizen-base", "tizen-main"] means that tizen-main depends on tizen-base)
-      alias:     a list of renamings
-                  (ex: ["tizen-base=Base", "tizen-main=Main"])
       verbose:   a flag to have verbose messages
     """
     if verbose:
-	print "entering grabGBStree(uri={}, name={}, targets={}, archs={}, orders={}, alias={}, True)".format(uri, name, targets, archs, orders, alias)
+	print "entering grabGBStree(uri={}, name={}, targets={}, archs={}, orders={}, True)".format(uri, name, targets, archs, orders)
 
     # TODO: reactivate the test
     if False:
 	failIfProjectExists(name)
 
-    # build the renaming
-    renames = {}
-    for a in alias:
-        x = a.split("=")
-        renames[x[0].strip()] = x[1].strip()
-    if verbose:
-	print "renames: "+str(renames)
-
     # connect to the GbsTree
-    gbstree = GbsTree.GbsTree(uri,False,verbose) # TODO remove verbosity
+    options = {
+	"verbose":      verbose,
+	"should_raise": False,
+	"rsynckeep":    True, # FIXME: transmit it correctly
+	"archs":	None, # FIXME: set arch here
+    }
+    gbstree = GbsTree.GbsTree(uri,verbose=verbose,rsynckeep=True,archs=archs)
     if not gbstree.connect():
 	raise ValueError(gbstree.error_message)
 
@@ -568,6 +573,7 @@ def grabGBSTree(uri, name, targets, archs, orders, alias, verbose=False):
     #	if a not in gbstree.built_archs:
     #	    gbstree.disconnect()
     #	    raise ValueError("arch mismatch: '{}' isn't built in {}".format(a,uri))
+    archsxml = "".join(["  <arch>{}</arch>\n".format(a) for a in archs])
 
     # get config data
     conf = getConfig()
@@ -579,8 +585,8 @@ def grabGBSTree(uri, name, targets, archs, orders, alias, verbose=False):
 	gbstree.set_repo(repo)
 
 	# Perform renaming
-	subprj = repo if repo not in renames else renames[repo]
-	prj = name if not subprj else name+":"+subprj
+	subprj = repo.replace(":","_")
+	prj = name if not subprj else "{}:{}".format(name,subprj)
 	if verbose:
 	    print "scanning project {} ({}) from repo {}".format(prj,subprj,repo)
 
@@ -601,25 +607,50 @@ def grabGBSTree(uri, name, targets, archs, orders, alias, verbose=False):
 	    if not os.path.isdir(d):
 		os.makedirs(d)
 
+	# uri of the repo
+	repouri = "{}/{}".format(uri, gbstree.path_repo)
+
 	# Write the project informations
 	# TODO: these informations should include the fact that it is a GBS import!
-	writeProjectInfo("", "", prj, targets, archs, prj)
+	writeProjectInfo("GBS", uri, prj, targets, archs, prj)
 
 	# write the config file
 	gbstree.download_config(os.path.join(projectDir,"_config"))
+
+	# compute the dependencies from order
+	pathsxml = ""
+	for r in orders:
+	    r = repo.replace(":","_")
+	    if r == subprj:
+		break
+	    p = name if not r else "{}:{}".format(name,r)
+	    pathsxml = '{}  <path project="{}" repository="{}"/>\n'.format(pathsxml,p,r)
+
+	# Write the project meta
+	meta = metameta.format(**{
+		"NAME": prj,
+		"BASE": repouri,
+		"REPO": subprj,
+		"PATHS": pathsxml,
+		"ARCHS": archsxml,
+	    })
+	metaname = os.path.join(projectDir,"_meta")
+	f = open(metaname,"w")
+	f.write(meta)
+	f.close()
 
 	# connect to the source package
 	gbstree.set_package("source")
 	gbstree.extract_package_rpms_to(packagesDir,False,True)
 
 	# iterate on GBS archs: each arch is a target
-	for rtarget in archs:
+	for rtarget in targets:
 
 	    # connect to the GBS acrh
 	    gbstree.set_target(rtarget)
 
 	    # Perform renaming
-	    ltarget = rtarget if rtarget not in renames else renames[rtarget]
+	    ltarget = rtarget.replace(":","_")
 	    if verbose:
 		print "   for target {} (was arch {})".format(ltarget,rtarget)
 
@@ -636,6 +667,7 @@ def grabGBSTree(uri, name, targets, archs, orders, alias, verbose=False):
 		# download the package
 		flag = kind!="debug"
 		gbstree.download_package_to(kdir,flag,not flag) # accept errors for debug and no arch
+		updateRepositoryMetadata(kdir)
 
     return name
     

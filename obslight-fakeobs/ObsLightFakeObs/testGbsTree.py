@@ -6,9 +6,16 @@ import GbsTree
 verbose = True
 
 uri = "http://download.tizen.org/releases/2.0alpha/daily/latest/"
+uri = "rsync://download.tizen.org/snapshots/2.0alpha/common/latest/"
+
+options = {
+    "verbose":      True,
+    "should_raise": False,
+    "rsynckeep":    True,
+}
 
 #doraise = False
-#gt = GbsTree.GbsTree(uri, doraise, verbose)
+#gt = GbsTree.GbsTree(uri, **options)
 #c = gt.connect()
 #
 #if c:
@@ -26,12 +33,11 @@ Config.loadConfig("testGbsTreeCfg")
 
 uri = uri
 name = "Tizen:2.0"
-targets = [ "standard" ]
-archs = [ "ia32" ]
+targets = [ "ia32" ]
+archs = None
 orders = [ "tizen-base", "tizen-main" ]
-alias = [ "tizen-base=Base", "tizen-main=Main", "ia32=standard" ]
 
-n = ProjectManager.grabGBSTree(uri, name, targets, archs, orders, alias, verbose)
+n = ProjectManager.grabGBSTree(uri, name, targets, archs, orders, verbose)
 print n
 
 
