@@ -178,10 +178,10 @@ class FakeObsCommandline(cmdln.Cmdln):
                   help="set the project to NAME")
     @cmdln.option("-a", "--arch", action="append", dest="archs",
                   default=[],
-                  help="an architecture type to grab")
+                  help="architecture(s) to grab, dont put anything for all archs")
     @cmdln.option("-t", "--target", action="append", dest="targets",
                   default=[],
-                  help="the name of a build target to grab")
+                  help="the name of a build target to grab (caution, targets are also named 'conf' in build.xml)")
     @cmdln.option("-o", "--order", action="append", dest="orders",
                   default=[],
                   help="the name of a sub project ordering the dependencies.")
@@ -203,6 +203,8 @@ class FakeObsCommandline(cmdln.Cmdln):
         if opts.name is None:
             raise ValueError("You must provide a NAME! (use -n or --name)")
         name = opts.name
+	if not opts.archs:
+	    opts.archs = None
         effectiveName = ProjectManager.grabGBSTree(url, name, opts.targets, opts.archs, opt.orders, opt.verbose, opt.force)
         msg = "Project '%s' grabbed" % effectiveName
         print Utils.colorize(msg, "green")

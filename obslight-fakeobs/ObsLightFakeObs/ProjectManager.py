@@ -550,7 +550,8 @@ def grabGBSTree(uri, name, targets, archs, orders, verbose=False, force=False):
 	"verbose":      verbose,
 	"should_raise": False,
 	"rsynckeep":    True, # FIXME: transmit it correctly
-	"archs":	archs
+	"archs":	archs,
+	"noarchs":	[ "noarch" ] 
     }
     gbstree = GbsTree.GbsTree(uri,verbose=verbose,rsynckeep=True,archs=archs)
     if not gbstree.connect():

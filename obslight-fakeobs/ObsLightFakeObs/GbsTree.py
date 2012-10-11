@@ -63,6 +63,7 @@ class GbsTree:
 	self.verbose = bool(options.setdefault("verbose",False))
 	self.rsynckeep = bool(options.setdefault("rsynckeep",False))
 	self.archs = options.setdefault("archs",None)
+	self.noarchs = options.setdefault("noarchs",[ "noarch" ])
 	self.clear_error()
 	self.connected = False
 	self.url = url.strip()
@@ -258,6 +259,9 @@ class GbsTree:
 
 	# copy the packages of the list
 	for e in self.current_pack_meta["pklist"]:
+	    if self.archs and e.get_arch() not in self.archs:
+		if self.noarchs and e.get_arch() not in self.noarchs:
+		    continue
 	    l = e.get_location()
 	    u = "{}/{}".format(root,l)
 	    n = os.path.join(rootdir,l)
@@ -284,6 +288,9 @@ class GbsTree:
 
 	# copy the packages of the list
 	for e in self.current_pack_meta["pklist"]:
+	    if self.archs and e.get_arch() not in self.archs:
+		if self.noarchs and e.get_arch() not in self.noarchs:
+		    continue
 	    n = e.get_name()
 	    l = e.get_location()
 	    u = "{}/{}".format(root,l)
