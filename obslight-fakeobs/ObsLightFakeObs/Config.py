@@ -32,6 +32,7 @@ DEFAULT_CONFIG = {
 	"projects_dir":     "%(fakeobs_root)s/projects",
 	"repositories_dir": "%(fakeobs_root)s/repositories",
 	"rsync_dir":        "%(fakeobs_root)s/_rsync",
+	"live_dir":	    "%(fakeobs_root)s/repositories/live",
 }
 
 class ObsLightFakeObsConfig(object):

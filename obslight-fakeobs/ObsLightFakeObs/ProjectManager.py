@@ -432,7 +432,10 @@ def writeProjectInfo(api, rsyncUrl, project, targets, archs, newName):
     confParser.set("GrabInfo", "rsync_url", rsyncUrl)
     confParser.set("GrabInfo", "project", project)
     confParser.set("GrabInfo", "targets", ",".join(targets))
-    confParser.set("GrabInfo", "archs", ",".join(archs))
+    if archs is None:
+	confParser.set("GrabInfo", "archs", "*")
+    else:
+	confParser.set("GrabInfo", "archs", ",".join(archs))
     confParser.set("GrabInfo", "date", grabTime)
 
     confParser.add_section("UpdateInfo")
@@ -515,26 +518,7 @@ def grabProject(api, rsyncUrl, project, targets, archs, newName=None):
 
 
 
-metameta = """<project name="{NAME}">
- <title>{BASE}</title>
- <description>OBS output grab of {BASE}</description>
- <person role="maintainer" userid="unknown" />
- <person role="bugowner" userid="unknown" />
- <repository name="{REPO}">
-{PATHS}{ARCHS}
- </repository>
-</project>"""
-
-
-
-
-
-
-
-
-
-
-def grabGBSTree(uri, name, targets, archs, orders, verbose=False):
+def grabGBSTree(uri, name, targets, archs, orders, verbose=False, force=False):
     """
     Grab a project from an OBS server.
       url:       the URL to fetch for the GBS tree 
@@ -554,15 +538,19 @@ def grabGBSTree(uri, name, targets, archs, orders, verbose=False):
 	print "entering grabGBStree(uri={}, name={}, targets={}, archs={}, orders={}, True)".format(uri, name, targets, archs, orders)
 
     # TODO: reactivate the test
-    if False:
+    if not force:
 	failIfProjectExists(name)
+
+    def localname(n):
+	"Compute the local name"
+	return n.replace(":","_")
 
     # connect to the GbsTree
     options = {
 	"verbose":      verbose,
 	"should_raise": False,
 	"rsynckeep":    True, # FIXME: transmit it correctly
-	"archs":	None, # FIXME: set arch here
+	"archs":	archs
     }
     gbstree = GbsTree.GbsTree(uri,verbose=verbose,rsynckeep=True,archs=archs)
     if not gbstree.connect():
@@ -573,7 +561,6 @@ def grabGBSTree(uri, name, targets, archs, orders, verbose=False):
     #	if a not in gbstree.built_archs:
     #	    gbstree.disconnect()
     #	    raise ValueError("arch mismatch: '{}' isn't built in {}".format(a,uri))
-    archsxml = "".join(["  <arch>{}</arch>\n".format(a) for a in archs])
 
     # get config data
     conf = getConfig()
@@ -585,7 +572,7 @@ def grabGBSTree(uri, name, targets, archs, orders, verbose=False):
 	gbstree.set_repo(repo)
 
 	# Perform renaming
-	subprj = repo.replace(":","_")
+	subprj = localname(repo)
 	prj = name if not subprj else "{}:{}".format(name,subprj)
 	if verbose:
 	    print "scanning project {} ({}) from repo {}".format(prj,subprj,repo)
@@ -596,16 +583,61 @@ def grabGBSTree(uri, name, targets, archs, orders, verbose=False):
 	packagesDir = conf.getProjectPackagesDir(prj)
 	repoDir = conf.getProjectRepositoryDir(prj)
 
-	if verbose:
-	    print " project dir: " + projectDir
-	    print "    full dir: " + fullDir
-	    print "packages dir: " + packagesDir
-	    print "    repo dir: " + repoDir
-
 	# create the directories
 	for d in [ projectDir, fullDir, packagesDir, repoDir ]:
 	    if not os.path.isdir(d):
 		os.makedirs(d)
+
+	# connect to the source package
+	gbstree.set_package("source")
+	gbstree.extract_package_rpms_to(packagesDir,prj,True)
+
+	# all archs
+	allarchs = archs
+
+	# iterate on GBS archs: each arch is a target
+	for rtarget in targets:
+
+	    # connect to the GBS acrh
+	    gbstree.set_target(rtarget)
+
+	    # Perform renaming
+	    ltarget = localname(rtarget)
+	    if verbose:
+		print "   for target {} (was arch {})".format(ltarget,rtarget)
+
+	    # create the Live directory
+	    fulltardir = os.path.join(fullDir,ltarget)
+	    if not os.path.isdir(fulltardir):
+		os.makedirs(fulltardir)
+
+	    # for each package kind
+	    for kind in [ "packages", "debug" ]:
+		# connect to the GBS package
+		gbstree.set_package(kind)
+
+		# check the archs
+		flag = kind!="debug"
+		if flag:
+		    (ok,miss,avail) = gbstree.check_package_archs()
+		    if not ok:
+			raise ValueError("unavailable archs: "+(", ".join(miss)))
+		    elif not archs:
+			if allarchs:
+			    for a in avail:
+				if a not in allarchs:
+				    allarchs.append(a)
+			else:
+			    allarchs = [ a for a in avail ]
+
+		# create the root directory for the package
+		kdir = os.path.join(repoDir,ltarget,kind)
+		if not os.path.isdir(kdir):
+		    os.makedirs(kdir)
+
+		# download the package
+		gbstree.download_package_to(kdir,not flag) # accept errors for debug and no arch
+		updateRepositoryMetadata(kdir)
 
 	# uri of the repo
 	repouri = "{}/{}".format(uri, gbstree.path_repo)
@@ -617,76 +649,43 @@ def grabGBSTree(uri, name, targets, archs, orders, verbose=False):
 	# write the config file
 	gbstree.download_config(os.path.join(projectDir,"_config"))
 
+	archsxml = "".join(["  <arch>{}</arch>\n".format(a) for a in allarchs])
+
 	# compute the dependencies from order
 	pathsxml = ""
 	for r in orders:
-	    r = repo.replace(":","_")
+	    r = localname(repo)
 	    if r == subprj:
 		break
 	    p = name if not r else "{}:{}".format(name,r)
 	    pathsxml = '{}  <path project="{}" repository="{}"/>\n'.format(pathsxml,p,r)
 
 	# Write the project meta
-	meta = metameta.format(**{
-		"NAME": prj,
-		"BASE": repouri,
-		"REPO": subprj,
-		"PATHS": pathsxml,
-		"ARCHS": archsxml,
-	    })
+	meta = """<project name="{NAME}">
+ <title>{BASE}</title>
+ <description>OBS output grab of {BASE}</description>
+ <person role="maintainer" userid="unknown" />
+ <person role="bugowner" userid="unknown" />
+ <repository name="{REPO}">
+{PATHS}{ARCHS} </repository>
+</project>""".format(
+		NAME = prj,
+		BASE = repouri,
+		REPO = subprj,
+		PATHS = pathsxml,
+		ARCHS = archsxml,
+	    )
 	metaname = os.path.join(projectDir,"_meta")
 	f = open(metaname,"w")
 	f.write(meta)
 	f.close()
 
-	# connect to the source package
-	gbstree.set_package("source")
-	gbstree.extract_package_rpms_to(packagesDir,False,True)
-
-	# iterate on GBS archs: each arch is a target
-	for rtarget in targets:
-
-	    # connect to the GBS acrh
-	    gbstree.set_target(rtarget)
-
-	    # Perform renaming
-	    ltarget = rtarget.replace(":","_")
-	    if verbose:
-		print "   for target {} (was arch {})".format(ltarget,rtarget)
-
-	    # for each package kind
-	    for kind in [ "packages", "debug" ]:
-		# connect to the GBS package
-		gbstree.set_package(kind)
-
-		# create the root directory for the package
-		kdir = os.path.join(repoDir,ltarget,kind)
-		if not os.path.isdir(kdir):
-		    os.makedirs(kdir)
-
-		# download the package
-		flag = kind!="debug"
-		gbstree.download_package_to(kdir,flag,not flag) # accept errors for debug and no arch
-		updateRepositoryMetadata(kdir)
-
-    return name
-    
-    # TODO: write the _meta
-    # fixProjectMeta(name)
-
-    # 
-    downloadFulls(api, project, targetArchTuples, fullDir)
-    downloadPackages(api, project, packagesDir)
-
-    # TODO: check return value of downloadPackages()
-
-    fixProjectPackagesMeta(name)
-    downloadRepositories(rsyncUrl, project, targets, repoDir)
-
-    # findOrphanRpms is a generator
-    for orphan in findOrphanRpms(name):
-        pass
-    updateLiveRepository(name)
+	# 
+	fixProjectMeta(prj)
+	fixProjectPackagesMeta(prj)
+	for orphan in findOrphanRpms(prj):
+	    pass
+	updateLiveRepository(prj)
 
     try:
         # These operations will fail if program is not run
@@ -695,6 +694,10 @@ def grabGBSTree(uri, name, targets, archs, orders, verbose=False):
         createFakeObsLink()
     except IOError:
         pass
+
+    return name
+    
+    downloadFulls(api, project, targetArchTuples, fullDir)
 
     return name
 

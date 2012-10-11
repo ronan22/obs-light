@@ -19,6 +19,8 @@
 @author: jobollo@nonadev.net
 """
 
+import sys
+
 import os
 import re
 import subprocess
@@ -215,13 +217,16 @@ class GbsTree:
 	missing = []
 	if self.archs:
 	    for a in self.archs:
-		missing.append(a)
+		if a not in supported:
+		    missing.append(a)
 	return (not bool(missing), missing, supported)
 
-    def download_package_to(self,rootdir,addarch=True,dont_fail=False):
+    def download_package_to(self,rootdir,dont_fail=False):
 	"""
 	Download the package to 'rootdir'
-	
+	The flags 'adarch' and 'dont_fail' controls the behaviour:
+	    - 'addarg' means that if true, the arch is added as directory
+	    - 'dont_fail' means that if an error occurs, the download continue
 	"""
 	assert self.connected
 	assert self.current_package
@@ -252,37 +257,21 @@ class GbsTree:
 		return False
 
 	# copy the packages of the list
-	if addarch:
-	    ad = {}
-	    for e in self.current_pack_meta["pklist"]:
-		a = e.get_arch()
-		r = e.get_rpm_name()
-		u = "{}/{}/{}".format(root,a,r)
-		d = ad.get(a)
-		if not d:
-		    d = os.path.join(rootdir,a)
-		    ad[a] = d
-		    if not os.path.isdir(d):
-			os.makedirs(d)
-		n = os.path.join(d,r)
-		if not self._connector.download_to(u,n):
-		    if dont_fail:
-			print "WARNING: can't get RPM {} in {}/{}".format(r,root,a)
-		    else:
-			return False
-	else:
-	    for e in self.current_pack_meta["pklist"]:
-		r = e.get_rpm_name()
-		u = "{}/{}".format(root,r)
-		n = os.path.join(rootdir,r)
-		if not self._connector.download_to(u,n):
-		    if dont_fail:
-			print "WARNING: can't get RPM {} in {}".format(r,root)
-		    else:
-			return False
+	for e in self.current_pack_meta["pklist"]:
+	    l = e.get_location()
+	    u = "{}/{}".format(root,l)
+	    n = os.path.join(rootdir,l)
+	    d = os.path.dirname(n)
+	    if not os.path.isdir(d):
+		os.makedirs(d)
+	    if not self._connector.download_to(u,n):
+		if dont_fail:
+		    print "WARNING: can't get RPM {} in {}".format(r,root)
+		else:
+		    return False
 	return True
 
-    def extract_package_rpms_to(self,rootdir,addarch=True,dont_fail=False):
+    def extract_package_rpms_to(self,rootdir,meta_project=None,dont_fail=False):
 	"""
 	do
 	"""
@@ -294,40 +283,30 @@ class GbsTree:
 	root = self.path_package
 
 	# copy the packages of the list
-	if addarch:
-	    ad = {}
-	    for e in self.current_pack_meta["pklist"]:
-		n = e.get_name()
-		a = e.get_arch()
-		r = e.get_rpm_name()
-		u = "{}/{}/{}".format(root,a,r)
-		d = ad.get(a)
-		if not d:
-		    d = os.path.join(rootdir,a)
-		    ad[a] = d
-		    if not os.path.isdir(d):
-			os.makedirs(d)
-		d = os.path.join(d,n)
-		if not os.path.isdir(d):
-		    os.makedirs(d)
-		if not self._extract_rpm_to(u,d):
-		    if dont_fail:
-			print "WARNING: can't extract RPM {} in {}/{}".format(r,root,a)
-		    else:
-			return False
-	else:
-	    for e in self.current_pack_meta["pklist"]:
-		n = e.get_name()
-		r = e.get_rpm_name()
-		u = "{}/{}".format(root,r)
-		d = os.path.join(rootdir,n)
-		if not os.path.isdir(d):
-		    os.makedirs(d)
-		if not self._extract_rpm_to(u,d):
-		    if dont_fail:
-			print "WARNING: can't extract RPM {} in {}".format(r,root)
-		    else:
-			return False
+	for e in self.current_pack_meta["pklist"]:
+	    n = e.get_name()
+	    l = e.get_location()
+	    u = "{}/{}".format(root,l)
+	    d = os.path.join(rootdir,n)
+	    if not os.path.isdir(d):
+		os.makedirs(d)
+	    if not self._extract_rpm_to(u,d):
+		if dont_fail:
+		    print "WARNING: can't extract RPM {} in {}".format(r,root)
+		else:
+		    return False
+	    # create the _meta
+	    if meta_project:
+		c = """<package name="{NAME}" project="{PROJ}">
+  <title>{TITLE}</title>
+  <description>
+{DESC}
+  </description>
+</package>""".format(NAME=e.get_name(),PROJ=meta_project,TITLE=e.get_summary(),DESC=e.get_description())
+		f = open(os.path.join(d,"_meta"),"w")
+		f.write(c)
+		f.close()
+	    
 	return True
 
     # internal connection methods
@@ -427,39 +406,21 @@ class GbsTree:
 	fpri = self._unzip(fpri)
 
 	# create the list of repositories from the primary.xml
-	doc = xml.dom.minidom.parseString(fpri)
+	primary = xml.dom.minidom.parseString(fpri)
 	pklist = []
 	archlst = {}
-	for p in doc.getElementsByTagName("package"):
+	for p in primary.getElementsByTagName("package"):
 	    assert p.nodeType==p.ELEMENT_NODE
 	    t = p.getAttribute("type")
 	    if t and t=="rpm":
-		pn = p.getElementsByTagName("name")
-		pa = p.getElementsByTagName("arch")
-		pv = p.getElementsByTagName("version")
-		if pn and pa and pv and len(pn)==1 and len(pa)==1 and len(pv) == 1:
-		    pn = pn[0]
-		    pa = pa[0]
-		    pv = pv[0]
-		    assert pn.nodeType==pn.ELEMENT_NODE
-		    assert pn.firstChild and pn.firstChild.nodeType == pn.TEXT_NODE
-		    name = pn.firstChild.data.strip()
-		    assert pa.nodeType==pa.ELEMENT_NODE
-		    assert pa.firstChild and pa.firstChild.nodeType == pa.TEXT_NODE
-		    arch = pa.firstChild.data.strip()
-		    assert pv.nodeType==pv.ELEMENT_NODE
-		    epoch = pv.getAttribute("epoch")
-		    ver = pv.getAttribute("ver")
-		    rel = pv.getAttribute("rel")
-		    # records the item
-		    if name and arch and ver and rel:
-			pklist.append(self._ListEntry(name,arch,epoch,ver,rel))
-		    # records the arch
-		    archlst[arch] = True
+		pk = self._Package(p)
+		archlst[pk.get_arch()] = True
+		pklist.append(pk)
 
 	self.current_pack_meta = {
 		    "repomd": repomd,
 		    "data":   data,
+		    "primary": primary,
 		    "pklist": pklist,
 		    "archs": archlst.keys()
 		    }
@@ -505,7 +466,7 @@ class GbsTree:
 	stsr2c = r2c.returncode
 	stscpio = cpio.returncode
 	if not stsco:
-	    err = self._connector.message
+	    err = self.error_message
 	elif stsr2c != 0:
 	    err = r2c.stderr.read()
 	elif stscpio != 0:
@@ -647,55 +608,102 @@ class GbsTree:
 
     # internal classes
     # ----------------
-    class _ListEntry:
+    class _Package:
 	"""
-	Classe for instances of the list of rpms
+	Classe for instances of the package in the primary.xml
 	"""
-	def __init__(self,name,arch,epoch,ver,rel):
+	def __init__(self,node):
 	    """
-	    Init the current instance for the given 'name', 'arch', 'ver' and 'rel'
+	    initialisation
 	    """
-	    self.name = name
-	    self.arch = arch
-	    self.epoch = epoch
-	    self.version = ver
-	    self.release = rel
+	    self.set_node(node)
+
+	def set_node(self,node):
+	    """
+	    Change the node to 'node'
+	    """
+	    assert node.nodeType == node.ELEMENT_NODE
+	    assert node.getAttribute("type") == "rpm"
+	    self.node = node
+
+	def _subnode1(self,n,name):
+	    """
+	    The first subnode of the node 'n' of tagname 'name' 
+	    None if no subnode of 'name'
+	    """
+	    if n:
+		n = n.getElementsByTagName(name)
+		if n:
+		    return n[0]
+	    return None
+	    
+	def _txtof(self,n):
+	    """
+	    Text content of the node 'n' (must be the first child node)
+	    None if no text
+	    """
+	    if n:
+		n = n.firstChild
+		if n and n.nodeType == n.TEXT_NODE:
+		    return n.data.strip()
+	    return None
+	    
+	def _attr(self,n,name):
+	    """
+	    Value of the attribute of 'name' of the node 'n'
+	    None if no such attribute
+	    """
+	    if n:
+		return n.getAttribute(name)
+	    return None
+	    
 	def get_name(self):
 	    """
 	    Return the name
 	    """
-	    return self.name
+	    return self._txtof(self._subnode1(self.node,"name"))
+	    
 	def get_arch(self):
 	    """
 	    Return the arch
 	    """
-	    return self.arch
+	    return self._txtof(self._subnode1(self.node,"name"))
+	    
 	def get_epoch(self):
 	    """
 	    Return the epoch
 	    """
-	    return self.epoch
+	    return self._attr(self._subnode1(self.node,"version"),"epoch")
+
 	def get_version(self):
 	    """
 	    Return the version
 	    """
-	    return self.version
+	    return self._attr(self._subnode1(self.node,"version"),"ver")
+	    
 	def get_release(self):
 	    """
 	    Return the release
 	    """
-	    return self.release
-	def get_rpm_name(self):
+	    return self._attr(self._subnode1(self.node,"version"),"rel")
+	    
+	def get_location(self):
 	    """
-	    Return the name of the rpm
+	    Return the location of the package
 	    """
-	    if self.epoch != "0" and False: # FIXME: how is epoch to be treated
-	    	return "{}-{}:{}-{}.{}.rpm".format(self.name,self.epoch,self.version,self.release,self.arch)
-	    else:
-		return "{}-{}-{}.{}.rpm".format(self.name,self.version,self.release,self.arch)
-	def __repr__(self):
-	    return self.get_rpm_name()
+	    return self._attr(self._subnode1(self.node,"location"),"href")
 
+	def get_summary(self):
+	    """
+	    Return the summary of the package
+	    """
+	    return self._txtof(self._subnode1(self.node,"summary"))
+
+	def get_description(self):
+	    """
+	    Return the description of the package
+	    """
+	    return self._txtof(self._subnode1(self.node,"description"))
 
     class Connector():
 	"""
@@ -703,13 +711,21 @@ class GbsTree:
 	"""
 	def __init__(self,owner):
 	    """
+	    Init curret to point on an owner for error management
 	    """
 	    self._owner = owner
 	    self.verbose = self._owner.verbose
 	def disconnect(self):
 	    """
+	    Disconnect and purge any temporary data
 	    """
 	    pass
+	def scheme(self):
+	    """
+	    Returns the protocol scheme
+	    Valid results are None, "http", "https", "rsync"
+	    """
+	    return None
 
     class ConnectorHTTP(Connector):
 	"""
@@ -719,10 +735,19 @@ class GbsTree:
 	    """
 	    init current instance
 	    """
+	    assert self.uri.startswith("http:") or self.uri.startswith("https:")
 	    GbsTree.Connector.__init__(self,owner)
 	    self.uri = uri
 	    self.nrtry = nrtry
+	    self._scheme = "https" if self.uri.startswith("https:") else "http"
 	    self.blocksize = 10000000 # 10 megabyte block
+
+	def scheme(self):
+	    """
+	    Returns the protocol scheme
+	    Results is "http" or "https"
+	    """
+	    return self._scheme
 
 	def read(self,fname):
 	    """
@@ -730,7 +755,7 @@ class GbsTree:
 	    """
 	    uri = "{}/{}".format(self.uri,fname)
 	    if self.verbose:
-		print "accessing {}".format(uri)
+		print "accessing {}".format(fname)
 	    fin = None
 	    nrtry = self.nrtry
 	    while True:
@@ -755,7 +780,7 @@ class GbsTree:
 	    assert os.path.isdir(os.path.dirname(filename)), "the directory for '{}' must exists".format(filename)
 	    uri = "{}/{}".format(self.uri,fname)
 	    if self.verbose:
-		print "downloading {} to {}".format(uri,filename)
+		print "downloading {}".format(fname)
 	    nrtry = self.nrtry
 	    size = self.blocksize
 	    fin = None
@@ -789,7 +814,7 @@ class GbsTree:
 	    """
 	    uri = "{}/{}".format(self.uri,fname)
 	    if self.verbose:
-		print "streaming {}".format(uri)
+		print "streaming {}".format(fname)
 	    nrtry = 1
 	    size = self.blocksize
 	    fin = None
@@ -828,7 +853,14 @@ class GbsTree:
 	    self.rootdir = os.path.join(rsyncdir,key)
 	    self.rootinfo = self.rootdir + ".info"
 	    self.remove_at_disconnect = remove_at_disconnect
-	    self.blocksize = 10000000 # 10 megabyte block
+	    self._sync_done = []
+
+	def scheme(self):
+	    """
+	    Returns the protocol scheme
+	    Result is "rsync"
+	    """
+	    return "rsync"
 
 	def connect(self):
 	    """
@@ -845,32 +877,8 @@ class GbsTree:
 		    f.write(self.target)
 		    f.close()
 	    except Exception as e:
-		self._owner._error_from_exception(e,"when preparing rsync")
+		return self._owner._error_from_exception(e,"when preparing rsync")
 
-	    # compose the command
-	    command = [ "rsync",
-		    "--archive",
-		    "--hard-links",
-		    "--delete",
-		    "--checksum",
-		    "--inplace",
-		    "--progress",
-		    "--exclude=image-configs.xml", 
-		    "--exclude=images", 
-		    "--exclude=buildlogs", 
-		    "--exclude=image-configs", 
-		    "--exclude=reports",
-		    self.target,
-		    "." ]
-	    rsync = subprocess.Popen(command,
-		cwd = self.rootdir,
-		stderr = subprocess.PIPE)
-	    rsync.wait()
-	    sts = rsync.returncode
-	    if sts != 0:
-		self._owner._error("rsync error for {}: {}".format(self.target,rsync.stderr.read()))
-		rsync.stderr.close()
-		return False
 	    self.connected = True
 	    return True
 
@@ -885,12 +893,75 @@ class GbsTree:
 		except Exception:
 		    pass # FIXME what to do?
 	    self.connected = False
+	    self._sync_done = []
+
+	def _sync(self,directory):
+	    """
+	    Rsync the 'directory'
+	    """
+	    assert self.connected
+
+	    # get names
+	    local = os.path.join(self.rootdir,directory)
+	    remote = os.path.join(self.target,directory)+"/"
+	    if self.verbose:
+		print "rsyncing "+remote
+
+	    # creates the directory if needed
+	    if not os.path.isdir(local):
+		try:
+		    os.makedirs(local)
+		except Exception as e:
+		    return self._owner._error_from_exception(e,"when preparing rsync")
+	    
+	    # compose the command
+	    command = [ "rsync",
+		    "--archive",
+		    "--hard-links",
+		    "--delete",
+		    "--checksum",
+		    # "--inplace",   # FIXME: check it, removed to improve updating
+		    "--chmod=u+w",
+		    "--progress",
+		    "--exclude=image-configs.xml", 
+		    "--exclude=images", 
+		    "--exclude=buildlogs", 
+		    "--exclude=image-configs", 
+		    "--exclude=reports",
+		    remote,
+		    "." ]
+
+	    # make the rsync
+	    sys.stdout.flush() # as output of rsync goes to stdout, flush it before
+	    rsync = subprocess.Popen(command, cwd = local, stderr = subprocess.PIPE)
+	    rsync.wait()
+	    if rsync.returncode != 0:
+		self._owner._error("rsync error for {}: {}".format(remote,rsync.stderr.read()))
+		rsync.stderr.close()
+		return False
+
+	    self._sync_done.append(directory)
+	    rsync.stderr.close()
+	    return True
+
+	def _ensure(self,fname):
+	    """
+	    Ensure tat the file 'fname' is rsynced
+	    Curently, it works by directory
+	    """
+	    assert self.connected
+	    for d in self._sync_done:
+		if fname.startswith(d):
+		    return True
+	    return self._sync(os.path.dirname(fname))
 
 	def read(self,fname):
 	    """
 	    return the document at the given 'fname' or None in case of error
 	    """
 	    assert self.connected
+	    if not self._ensure(fname):
+		return None
 	    src = os.path.join(self.rootdir,fname)
 	    try:
 	        fin = open(src,"r")
@@ -898,7 +969,7 @@ class GbsTree:
 		fin.close()
 		return result
 	    except Excepion as e:
-		self._owner._error_from_exception(e, "when reading {}".format(src))
+		self._owner._error_from_exception(e, "when reading {}".format(fname))
 		return None
 
 	def download_to(self,fname,filename):
@@ -907,9 +978,11 @@ class GbsTree:
 	    """
 	    assert self.connected
 	    assert os.path.isdir(os.path.dirname(filename)), "the directory for '{}' must exists".format(filename)
+	    if not self._ensure(fname):
+		return False
 	    src = os.path.join(self.rootdir,fname)
 	    if self.verbose:
-		print "downloading {} to {}".format(src,filename)
+		print "downloading {}".format(fname)
 	    try:
 		if os.path.exists(filename):
 		    os.remove(filename)
@@ -927,10 +1000,12 @@ class GbsTree:
 	    get of the 'fname' and write to the stream 'fout'
 	    """
 	    assert self.connected
+	    if not self._ensure(fname):
+		return False
 	    src = os.path.join(self.rootdir,fname)
 	    if self.verbose:
-		print "streaming {}".format(src)
-	    size = self.blocksize
+		print "streaming {}".format(fname)
+	    size = 65500
 	    fin = None
 	    try:
 	        fin = open(src,"r")
@@ -940,7 +1015,7 @@ class GbsTree:
 		    data = fin.read(size)
 		fin.close()
 		return True
-	    except Excepion as e:
+	    except Exception as e:
 		self._owner._error_from_exception(e, "when streaming {}".format(src))
 		return False
 	    

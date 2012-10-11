@@ -185,6 +185,10 @@ class FakeObsCommandline(cmdln.Cmdln):
     @cmdln.option("-o", "--order", action="append", dest="orders",
                   default=[],
                   help="the name of a sub project ordering the dependencies.")
+    @cmdln.option("-v", "--verbose", action="store_true", dest="verbose",
+                  help="print extra informations")
+    @cmdln.option("-f", "--force", action="store_true", dest="force",
+                  help="perform the grab even if he project aleady exists")
     def do_grabgbs(self, subcmd, opts, url):
         """
 	${cmd_name}: import a project from a GBS tree
@@ -199,7 +203,7 @@ class FakeObsCommandline(cmdln.Cmdln):
         if opts.name is None:
             raise ValueError("You must provide a NAME! (use -n or --name)")
         name = opts.name
-        effectiveName = ProjectManager.grabGBSTree(url, name, opts.targets, opts.archs, opt.orders)
+        effectiveName = ProjectManager.grabGBSTree(url, name, opts.targets, opts.archs, opt.orders, opt.verbose, opt.force)
         msg = "Project '%s' grabbed" % effectiveName
         print Utils.colorize(msg, "green")
         packageList = ProjectManager.getPackageList(effectiveName)
