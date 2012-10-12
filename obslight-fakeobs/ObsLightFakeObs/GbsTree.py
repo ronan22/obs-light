@@ -15,11 +15,11 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 """
+Objects to manage the GBS tree exported by OBS of the Tizen Project for Tizen GBS
 @author: jobol@nonadev.net
 """
 
 import sys
-
 import os
 import re
 import subprocess
@@ -53,18 +53,21 @@ class GbsTree:
 	    verbose	    bool	False	    if true, details are printed to stdout
 	    should_raise    bool	False	    if true, exceptions are raised
 	    rsynckeep	    bool	False	    if true, rsynced data aren't removed
-	    archs	    [string]	None	    what archs are wanted, all if None
+	    archs	    [string]	None	    what archs are wanted, list of names, None if any arch wanted
+	    noarchs	    [string]	["noarch"]  what archs are always taken (even if absent of achs)
 	"""
 	self.should_raise = bool(options.setdefault("should_raise",False))
 	self.verbose = bool(options.setdefault("verbose",False))
 	self.rsynckeep = bool(options.setdefault("rsynckeep",False))
 	self.archs = options.setdefault("archs",None)
 	self.noarchs = options.setdefault("noarchs",[ "noarch" ])
+	if self.noarchs is None:
+	    self.noarchs = []
 	self.clear_error()
 	self.connected = False
 	self.url = url.strip()
 	self._connector = None
-	rm = re.match("^(\w+:)?(.*)$",self.url)
+	rm = re.match("^(\w+:)?(.*)$",self.url) # TODO: remove 're' and use a URI manager
 	assert rm
 	self.protocol = rm.group(1).lower()
 	p = rm.group(2)
@@ -255,8 +258,9 @@ class GbsTree:
 
 	# copy the packages of the list
 	for e in self.current_pack_meta["pklist"]:
-	    if self.archs and e.get_arch() not in self.archs:
-		if self.noarchs and e.get_arch() not in self.noarchs:
+	    if self.archs:
+		a = e.get_arch()
+		if a not in self.archs and a not in self.noarchs:
 		    continue
 	    l = e.get_location()
 	    u = "{}/{}".format(root,l)
@@ -286,8 +290,9 @@ class GbsTree:
 
 	# copy the packages of the list
 	for e in self.current_pack_meta["pklist"]:
-	    if self.archs and e.get_arch() not in self.archs:
-		if self.noarchs and e.get_arch() not in self.noarchs:
+	    if self.archs:
+		a = e.get_arch()
+		if a not in self.archs and a not in self.noarchs:
 		    continue
 	    n = e.get_name()
 	    l = e.get_location()
@@ -418,9 +423,12 @@ class GbsTree:
 	    assert p.nodeType==p.ELEMENT_NODE
 	    t = p.getAttribute("type")
 	    if t and t=="rpm":
+		# got a <package type="rpm"> node! use it!
 		pk = self._Package(p)
-		archlst[pk.get_arch()] = True
 		pklist.append(pk)
+		a = pk.get_arch()
+		if a not in self.noarchs:
+		    archlst[a] = True
 
 	self.current_pack_meta = {
 		    "repomd": repomd,
@@ -436,12 +444,12 @@ class GbsTree:
 
     def _unzip(self,data):
 	"""
-	return an unzipped version of a given content
+	return an unzipped version of a given 'data'
 	"""
 	while True:
 	    if data[0]==chr(31) or data[1]==chr(139):
 		data = self._filter(data,["gunzip","-"])
-	    else:
+	    else: # TODO: only gziped file is detected: enought but one could add other types
 		return data
 
     def _filter(self,data,command):
@@ -457,6 +465,7 @@ class GbsTree:
 
     def _extract_rpm_to(self,fname,directory):
 	"""
+	Extract the RPM named 'fname' to the 'directory' that must exist
 	"""
 	assert os.path.isdir(directory)
 	r2c = subprocess.Popen(["rpm2cpio", "-"],
@@ -672,7 +681,7 @@ class GbsTree:
 	    """
 	    Return the arch
 	    """
-	    return self._txtof(self._subnode1(self.node,"name"))
+	    return self._txtof(self._subnode1(self.node,"arch"))
 	    
 	def get_epoch(self):
 	    """

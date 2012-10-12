@@ -537,7 +537,7 @@ def grabGBSTree(uri, name, targets, archs, orders, verbose=False, force=False):
     if verbose:
 	print "entering grabGBStree(uri={}, name={}, targets={}, archs={}, orders={}, True)".format(uri, name, targets, archs, orders)
 
-    # TODO: reactivate the test
+    # Test that the project exists not already
     if not force:
 	failIfProjectExists(name)
 
@@ -655,7 +655,7 @@ def grabGBSTree(uri, name, targets, archs, orders, verbose=False, force=False):
 	# compute the dependencies from order
 	pathsxml = ""
 	for r in orders:
-	    r = localname(repo)
+	    r = localname(r)
 	    if r == subprj:
 		break
 	    p = name if not r else "{}:{}".format(name,r)
@@ -663,8 +663,8 @@ def grabGBSTree(uri, name, targets, archs, orders, verbose=False, force=False):
 
 	# Write the project meta
 	meta = """<project name="{NAME}">
- <title>{BASE}</title>
- <description>OBS output grab of {BASE}</description>
+ <title>GBS grab of {BASE}</title>
+ <description>OBS output for GBS grabbed from {BASE}</description>
  <person role="maintainer" userid="unknown" />
  <person role="bugowner" userid="unknown" />
  <repository name="{REPO}">
