@@ -37,8 +37,8 @@ Requires:   wget
 Requires:   imagewriter
 %endif
 %if 0%{?suse_version} > 1140
-#Requires:   qemu-linux-user
-Requires:   qemu-arm-static
+Requires:   qemu-linux-user
+#Requires:   qemu-arm-static
 %endif
 %if 0%{?fedora}
 Requires:   httpd
