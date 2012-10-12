@@ -23,9 +23,9 @@ Requires:   acl
 Requires:   build
 Requires:   createrepo
 Requires:   curl
-Requires:   gbs >= 0.10-3.1
+Requires:   gbs >= 0.10
 Requires:   git
-Requires: mic >= 0.14-2.1
+Requires: mic >= 0.14
 Requires:   osc >= 0.132
 Requires:   qemu
 Requires:   rpm
