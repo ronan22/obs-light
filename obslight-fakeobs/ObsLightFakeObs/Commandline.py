@@ -176,12 +176,12 @@ class FakeObsCommandline(cmdln.Cmdln):
     @cmdln.alias("fromgbs")
     @cmdln.option("-n", "--name", dest="name",
                   help="set the project to NAME")
-    @cmdln.option("-a", "--arch", action="append", dest="archs",
-                  default=[],
-                  help="architecture(s) to grab, dont put anything for all archs")
     @cmdln.option("-t", "--target", action="append", dest="targets",
                   default=[],
                   help="the name of a build target to grab (caution, targets are also named 'conf' in build.xml)")
+    @cmdln.option("-a", "--arch", action="append", dest="archs",
+                  default=[],
+                  help="architecture(s) to grab, dont put anything for all archs")
     @cmdln.option("-o", "--order", action="append", dest="orders",
                   default=[],
                   help="the name of a sub project ordering the dependencies.")
@@ -189,6 +189,8 @@ class FakeObsCommandline(cmdln.Cmdln):
                   help="print extra informations")
     @cmdln.option("-f", "--force", action="store_true", dest="force",
                   help="perform the grab even if he project aleady exists")
+    @cmdln.option("-k", "--rsynckeep", action="store_false", dest="rsynckeep",
+                  help="dont remove the rsync data at the end of the grab")
     def do_grabgbs(self, subcmd, opts, url):
         """
 	${cmd_name}: import a project from a GBS tree
@@ -205,7 +207,9 @@ class FakeObsCommandline(cmdln.Cmdln):
         name = opts.name
 	if not opts.archs:
 	    opts.archs = None
-        effectiveName = ProjectManager.grabGBSTree(url, name, opts.targets, opts.archs, opt.orders, opt.verbose, opt.force)
+	if len(opts.archs)==1 and opts.archs[0]=="*":
+	    opts.archs = None
+        effectiveName = ProjectManager.grabGBSTree(url, name, opts.targets, opts.archs, opts.orders, **opts)
         msg = "Project '%s' grabbed" % effectiveName
         print Utils.colorize(msg, "green")
         packageList = ProjectManager.getPackageList(effectiveName)

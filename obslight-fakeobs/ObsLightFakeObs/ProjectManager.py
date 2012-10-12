@@ -537,6 +537,7 @@ def grabGBSTree(uri, name, targets, archs, orders, verbose=False, force=False):
       orders:    a list of sub projets order
                   (ex: ["tizen-base", "tizen-main"] means that tizen-main depends on tizen-base)
       verbose:   a flag to have verbose messages
+      rsynckeep: a flag to keep any rsync data for futur use
     """
     if verbose:
 	print "entering grabGBStree(uri={}, name={}, targets={}, archs={}, orders={}, True)".format(uri, name, targets, archs, orders)
