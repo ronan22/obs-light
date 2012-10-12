@@ -19,6 +19,12 @@ Objects to manage the GBS tree exported by OBS of the Tizen Project for Tizen GB
 @author: jobol@nonadev.net
 """
 
+# CAUTION: the way the paths are managed is not good because there is a mix
+# between built paths and read paths.
+# Here are two points identified:
+#      - the location of packages read in primary is used as-is
+#      - the location for rsync ae used directly to point on local synchronized dir
+
 import sys
 import os
 import re
