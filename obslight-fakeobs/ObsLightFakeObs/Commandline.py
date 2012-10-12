@@ -19,7 +19,7 @@
 Commandline client for FakeOBS.
 
 @author: Florent Vennetier
-@author: jobollo@nonadev.net
+@author: jobol@nonadev.net
 """
 
 import sys

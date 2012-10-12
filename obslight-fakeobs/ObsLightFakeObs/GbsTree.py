@@ -15,8 +15,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 """
-
-@author: jobollo@nonadev.net
+@author: jobol@nonadev.net
 """
 
 import sys
@@ -27,11 +26,8 @@ import subprocess
 import urllib2
 import xml.dom.minidom
 import hashlib
-#from xml.etree import ElementTree
 import shutil
 import shlex
-
-#import Utils
 import Config
 
 class GbsTree:
@@ -277,7 +273,9 @@ class GbsTree:
 
     def extract_package_rpms_to(self,rootdir,meta_project=None,dont_fail=False):
 	"""
-	do
+	Extracts the source packages to the 'rootdir'
+	If 'meta_project' isn't None, the _meta file is created with the given poject name
+	If 'dont_fail' isn't False, individuals failures dont stop the extracting
 	"""
 	assert self.connected
 	assert self.current_package

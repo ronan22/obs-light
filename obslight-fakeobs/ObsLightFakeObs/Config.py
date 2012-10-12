@@ -18,6 +18,7 @@
 Configuration manager for FakeOBS.
 
 @author: Florent Vennetier
+@author: jobol@nonadev.net
 """
 
 import errno
@@ -32,7 +33,7 @@ DEFAULT_CONFIG = {
 	"projects_dir":     "%(fakeobs_root)s/projects",
 	"repositories_dir": "%(fakeobs_root)s/repositories",
 	"rsync_dir":        "%(fakeobs_root)s/_rsync",
-	"live_dir":	    "%(fakeobs_root)s/repositories/live",
+	"live_dir":	    "%(repositories_dir)s/live",
 }
 
 class ObsLightFakeObsConfig(object):

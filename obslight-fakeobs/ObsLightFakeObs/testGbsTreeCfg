@@ -1,8 +1,9 @@
 [Paths]
-fakeobs_root: /home/jb/f-o-r
-projects_dir: /home/jb/f-o-r/projects
-repositories_dir: /home/jb/f-o-r/repositories
-live_dir: /home/jb/f-o-r/live
+fakeobs_root:     /home/jb/f-o-r
+projects_dir:     %(fakeobs_root)s/projects
+repositories_dir: %(fakeobs_root)s/repositories
+rsync_dir:        %(fakeobs_root)s/_rsync
+live_dir:	  %(repositories_dir)s/live
 
 [Limits]
 

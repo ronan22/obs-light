@@ -18,7 +18,7 @@
 Manage the projects of FakeOBS.
 
 @author: Florent Vennetier
-@author: jobollo@nonadev.net
+@author: jobol@nonadev.net
 """
 
 import os
