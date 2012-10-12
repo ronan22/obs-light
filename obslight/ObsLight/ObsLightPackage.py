@@ -822,7 +822,7 @@ class ObsLightPackage(ObsLightObject):
         if self.isGitPackage:
             pass
         else:
-            ObsLightOsc.getObsLightOsc().add(path=self.getPackageSourceDirectory(), afile=patch)
+            ObsLightOsc.getObsLightOsc().add(path=self.getPackageSourceDirectory(), afile=self.__currentPatch)
 
     def initCurrentPatch(self):
         self.__currentPatch = None
