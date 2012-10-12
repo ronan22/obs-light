@@ -1053,11 +1053,11 @@ class ObsLightPackage(ObsLightObject):
 #        self.__fileList.append(afile)
 
     def autoResolvedConflict(self):
-        if not self.isGitPackage:
-            for aFile in self.__fileList:
-                if self.testConflict(aFile=aFile):
-                    ObsLightOsc.getObsLightOsc().autoResolvedConflict(packagePath=self.getPackageSourceDirectory(),
-                                                                      aFile=aFile)
+#        if not self.isGitPackage:
+#            for aFile in self.__fileList:
+#                if self.testConflict(aFile=aFile):
+#                    ObsLightOsc.getObsLightOsc().autoResolvedConflict(packagePath=self.getPackageSourceDirectory(),
+#                                                                      aFile=aFile)
         return 0
 #        return self.initPackageFileInfo()
 

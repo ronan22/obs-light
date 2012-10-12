@@ -422,3 +422,26 @@ class ObsLightOBSProject(ObsLightBuilderProject):
         else:
             return os.path.join(self.__getOscPackagesDefaultDirectory(), name)
 
+    def commitPackageChange(self, message=None, package=None):
+        '''
+        commit the package to the OBS server or git.
+        '''
+        # test if package is a RW OBS package.
+        pkgObj = self._getPackages().getPackage(package)
+
+        if not pkgObj.isGitPackage:
+            server = self.__obsServers.getObsServer(self.__obsServer)
+            if server.getProjectParameter(self.__projectName, "readonly"):
+                message = "Can't commit project you are not maintainer on project."
+                raise ObsLightErr.ObsLightProjectsError(message)
+
+        #Do a package commit
+        pkgObj.commitPackageChange(message=message)
+
+        if not pkgObj.isGitPackage:
+            #check 
+#            self.checkOscDirectoryStatus(package=package)
+#            self.__refreshOscPackageLocalRev(package=package)
+            self.refreshObsStatus(package=package)
+
+        return 0
