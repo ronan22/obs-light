@@ -1,187 +1,123 @@
-The Grab of GBS Trees
-=====================
+FAKEOBS-GRABGBS(1)
+==================
+:author:       José Bollo
+:man source:   FakeObs
+:man manual:   FakeObs Manual
+
+NAME
+----
+
+obslight-fakeobs-grabgbs - Grab from a GBS output of an OBS server
+one or more subprojects ino the fakeobs database.
 
 
-CAUTION
+SYNOPSYS
+--------
+
+*obslight-fakeobs grabgbs* [options] -n|--name <project-name> <uri>
+
+
+*obslight-fakeobs fromgbs* [options] -n|--name <project-name> <uri>
+
+DESCRIPTION
+-----------
+
+Import to the the *fakeobs* database the project given by <uri>.
+
+The primary goal of that option of obslight-fakeobs is to import 
+the GBS output of the OBS of Tizen.
+
+The <uri> should point to a download directory of *Tizen*.
+It must look something like [SCHEME:]//download.tizen.org/SUBPATH.
+Where:
+
+  - SCHEME if present is in 'rsync', 'https', 'http'. 
+    If SCHEME isn't given, the above methods wil be tried in the
+    given order: 'rsync' then 'https' and finally 'http'.
+
+  - SUBPATH points to a directory that MUST contain a subdirectory 
+    named 'builddata' that MUST contain the file 'build.xml'.
+
+A such <uri> is the base uri of a *Tizen* build for GBS. It contains 
+several subprojects. At least 2 subprojects: tizen-base and tizen-main.
+But more can be found. Every subproject is imported to the *fakeobs* 
+database as subprojects of the project named <project-name> given
+with the MANDATORY option *--name <project-name>*.
+
+Because *fakeobs* should know the dependencies betwen the imported
+subprojects, the option *--order* allows to give the order of dependencies
+between the subpojects.
+
+CAUTION: An OBS builds for one or more architectures. Architectures are also named *targets*
+by *fakeobs*. The imported targets must be explicitely given by the option
+*--target*. If targets aren't given, nothing will be imported.
+
+The targeted builds are built for one or several processors also designed as
+'arch'. The option *--arch* allow to tell what arch is needed.
+
+For Tizen, it is generally a good idea to check the download repository
+using a web navigator. The main entry point is https://download.tizen.org/ .
+
+OPTIONS
 -------
 
-Because the primary goal of that option was to import 
-Tizen 2.0 alpha, the option is devloped on HTTP protocol
-not RSYNC what could be a good alternative.
+*-n, --name <project-name>*::
+    This option is _*MANDATORY*_.
+    The grab creates the project of name *<project-name>* in the database of *fakeobs*.
+
+*-t, --target <target-name>*::
+    Tells that the target of name *<target-name>* is to grab. 
+    Many target can be set.
+    Any not listed target is left out, so at least one target have to be set.
+
+*-a, --arch <arch-name>*::
+    Tells that the arch of name *<arch-name>* is to grab. 
+    Many target can be set.
+    If no arch is set then all available archs are grabbed.
+    You can also use *--arch '*'* to grab all the available archs.
+    
+    help="architecture(s) to grab, dont put anything for all archs")
+
+*-o, --order <subproject-name>*::
+    Give a the *<subproject-name>* for ordering subprojects dependencies.
+    A given subproject will be made dependent of all the subprojects previously given
+    using the *--order* option.
+
+*-v, --verbose*::
+    Display more information messages.
+
+*-f, --force*::
+    Don't stop if the project already exists in the database of fakeobs.
+	
+
+*-k, --rsynckeep*::
+    Don't remove the internally synchronized files.
+    Use that option for example on a lastest built if you wanted to further update
+    it using the --force option.
+ 
+
+EXAMPLES
+--------
+
+[source,shell]
+obslight-fakeobs grabgbs -t ia32 -a i586 -a i686 -o tizen-base -o tizen-main -n Tizen:r2.0a http://download.tizen.org/releases/2.0alpha/daily/latest/
 
 
-HOW DOES IT WORKS ?
--------------------
+Using the above command, you grab from //download.tizen.org/releases/2.0alpha (that
+doesn't offer rsync facility) all the subprojects, making the subproject +tizen-main+
+depend of the subproject +tizen-base+. 
 
-The given URL should be a path like 
+Because rsync is active for snapshots, the following command is valid.
 
-http://download.tizen.org/releases/2.0alpha/daily/latest/
-or
-rsync://download.tizen.org/releases/2.0alpha/daily/latest/
+[source,shell]
+obslight-fakeobs grabgbs -t ia32 -o tizen-base -o tizen-main -n Tizen:2.0 -k -f rsync://download.tizen.org/snapshots/2.0alpha/common/latest/
 
-That path point to a directory that MUST contain the 
-subdirectories:
+That command can be used to track the latest snapshot.
 
-  - builddata
-  - images
-  - repos
+KNOWN ISSUE
+-----------
 
-The builddata subdirectory  MUST have the file build.xml.
-Here is an example of the content of a build.xml file:
-
-<build>
-  <archs>
-    <arch>ia32</arch>
-    <arch>armv7l</arch>
-  </archs>
-  <repos>
-    <repo>tizen-base</repo>
-    <repo>tizen-main</repo>
-  </repos>
-  <buildconf>
-    a300db37ca06dc0948bf006eaf2a15fa0481ac5ef64e1a71695bd6b84901f667-build.conf
-  </buildconf>
-  <id>tizen-2.0_20120926.2</id>
-</build>
-
-The algo is:
-
-  1. Get the file BUILD from URL/builddata/build.xml
-  2. Extract from BUILD the arch, conf, repo and id data
-  3. For each repo of BUILD
-      a. create the project info
-      b. create the _config file
-      c. create the _meta file
-	  d. get the sources
-	  e. get the packages
-	  f. get the debugs
-
-
-
-To do that, a class GbsTree is created that encapsulate the 
-difference of behaviours between the rsync and the http mode.
-
-DIFFERENCES OF TERMS
---------------------
-
-Be aware that the terms arch and target aren't very clear.
-The BUILD file uses the word 'arch' for an other meaning that the common one.
-
-
-HOW TO USE A PROXY
-------------------
-
-For HTTP ansd HTTPS, use the environment variables
-http_proxy=host:port
-https_proxy=host:port
-
-
-USING REPOMD.XML FILES
-----------------------
-
-Few documents are availables that describe repomd.xml.
-See:
- - http://en.opensuse.org/openSUSE:Standards_Rpm_Metadata
- - http://createrepo.baseurl.org/wiki
-
-Here is a repodata directory content:
-
- 0458d0ccd0e09a10173f6a6b76ea6aa40250547dbd51643a343b0b134c77c2da-primary.xml.gz       20-Sep-2012 22:25   41K  
- 3d40e179248c0e3e50e4e8259a38c8feb08e56f89b5dac52dc0d554a5e37c076-other.xml.gz         20-Sep-2012 22:25   38K  
- 24732f02378576d9b63727ee3ceaae4493a03edfe1c8114b36c0c2b4ff7bf376-filelists.xml.gz     20-Sep-2012 22:25   16K  
- cf1a328aca55531432ce373c4b5a46c7c9c8b3e390d90c892c04b9d59ac039a0-filelists.sqlite.bz2 20-Sep-2012 22:25   23K  
- e6374807e0ffeab8e36879cd491ab82d810f493fa442beb88f36c52ab9f0d1ea-primary.sqlite.bz2   20-Sep-2012 22:25   58K  
- ef34dbc82cc252417ad8152f0713821e83c04a465b2d273ed37aedd20faf921b-other.sqlite.bz2     20-Sep-2012 22:25   50K  
- repomd.xml                                                                            20-Sep-2012 22:25  3.1K  
-
-for that directory, the repomd file contains:
-
-<?xml version="1.0" encoding="UTF-8"?>
-<repomd xmlns="http://linux.duke.edu/metadata/repo" xmlns:rpm="http://linux.duke.edu/metadata/rpm" xmlns:suse="http://novell.com/package/metadata/suse/common">
-  <revision>1348179898</revision>
-  <data type="other_db">
-    <location href="repodata/ef34dbc82cc252417ad8152f0713821e83c04a465b2d273ed37aedd20faf921b-other.sqlite.bz2"/>
-    <checksum type="sha256">ef34dbc82cc252417ad8152f0713821e83c04a465b2d273ed37aedd20faf921b</checksum>
-    <timestamp>1348179906.79</timestamp>
-    <size>51163</size>
-    <open-size>178176</open-size>
-    <open-checksum type="sha256">c30c067446c053b1f969350a3b8ff7209b68507627a9c72c1558ab8d5d9c89a9</open-checksum>
-    <database_version>10</database_version>
-  </data>
-  <data type="other">
-    <checksum type="sha256">3d40e179248c0e3e50e4e8259a38c8feb08e56f89b5dac52dc0d554a5e37c076</checksum>
-    <timestamp>1348179906</timestamp>
-    <size>39409</size>
-    <open-size>188196</open-size>
-    <open-checksum type="sha256">c0a3a1dffd777617b48b7088f89bbeb36225fc9894464e64d83ede9a1fe82d57</open-checksum>
-    <location href="repodata/3d40e179248c0e3e50e4e8259a38c8feb08e56f89b5dac52dc0d554a5e37c076-other.xml.gz"/>
-  </data>
-  <data type="filelists_db">
-    <location href="repodata/cf1a328aca55531432ce373c4b5a46c7c9c8b3e390d90c892c04b9d59ac039a0-filelists.sqlite.bz2"/>
-    <checksum type="sha256">cf1a328aca55531432ce373c4b5a46c7c9c8b3e390d90c892c04b9d59ac039a0</checksum>
-    <timestamp>1348179906.82</timestamp>
-    <size>24030</size>
-    <open-size>74752</open-size>
-    <open-checksum type="sha256">28205047d49780c6009f190a7f6a1bbbf31f66dca023c59350f15da04dc169a0</open-checksum>
-    <database_version>10</database_version>
-  </data>
-  <data type="filelists">
-    <checksum type="sha256">24732f02378576d9b63727ee3ceaae4493a03edfe1c8114b36c0c2b4ff7bf376</checksum>
-    <timestamp>1348179906</timestamp>
-    <size>16516</size>
-    <open-size>78082</open-size>
-    <open-checksum type="sha256">caaef64efdc9f3b3b29be2f59ef9859d6c2c4388f456ce79e9516288245d2ccf</open-checksum>
-    <location href="repodata/24732f02378576d9b63727ee3ceaae4493a03edfe1c8114b36c0c2b4ff7bf376-filelists.xml.gz"/>
-  </data>
-  <data type="primary_db">
-    <location href="repodata/e6374807e0ffeab8e36879cd491ab82d810f493fa442beb88f36c52ab9f0d1ea-primary.sqlite.bz2"/>
-    <checksum type="sha256">e6374807e0ffeab8e36879cd491ab82d810f493fa442beb88f36c52ab9f0d1ea</checksum>
-    <timestamp>1348179906.9</timestamp>
-    <size>59042</size>
-    <open-size>241664</open-size>
-    <open-checksum type="sha256">e3c95475d6eeb647b67c3fbedece1336c39652a20672a64ee5c038f921bfb18b</open-checksum>
-    <database_version>10</database_version>
-  </data>
-  <data type="primary">
-    <checksum type="sha256">0458d0ccd0e09a10173f6a6b76ea6aa40250547dbd51643a343b0b134c77c2da</checksum>
-    <timestamp>1348179906</timestamp>
-    <size>42355</size>
-    <open-size>248038</open-size>
-    <open-checksum type="sha256">d14dd70e59155adbe1ee4641c896dfe7771aad234378ec2f151ea19ed960d61d</open-checksum>
-    <location href="repodata/0458d0ccd0e09a10173f6a6b76ea6aa40250547dbd51643a343b0b134c77c2da-primary.xml.gz"/>
-  </data>
-</repomd>
-
-For that, the package list is founded in /repomd/data[type="filelists"]/location[href].
-Here is the head of the content of the listfile:
-
-<?xml version="1.0" encoding="UTF-8"?>
-<filelists xmlns="http://linux.duke.edu/metadata/filelists" packages="188">
-<package pkgid="c2584a644cf71da68f4875db54c6a18d9f50c4be195702f8a883de7190740811" name="acl" arch="src">
-    <version epoch="0" ver="2.2.49" rel="slp.1.1"/>
-    <file>01-Makefile.patch</file>
-    <file>02-499076-physical-walk.patch</file>
-    <file>03-re-stat_file_after_chown.patch</file>
-    <file>04-print_useful_error_from_read_acl_comments.patch</file>
-    <file>05-restore_crash_on_malformed_input.patch</file>
-    <file>06-fix_potential_null_pointer_dereference.patch</file>
-    <file>09-prevent_setfacl_--restore_from_SIGSEGV.patch</file>
-    <file>acl-2.2.49-build.patch</file>
-    <file>acl-2.2.49.src.tar.gz</file>
-    <file>acl.spec</file>
-</package>
-
-<package pkgid="b1a0b769fef62d4e667ab6e591521dd8242a8c1985a421a85b9686e16536d243" name="attr" arch="src">
-    <version epoch="0" ver="2.4.44" rel="slp.7.2"/>
-    <file>01-578386-Makefile.patch</file>
-    <file>02-fix_memory_leak_in_attr_copy_action.patch</file>
-    <file>03-pull_in_string.h.patch</file>
-    <file>05-eliminate_a_memory_leak.patch</file>
-    <file>06-eliminate_a_double_free.patch</file>
-    <file>07-fix_thinko_in_restore.patch</file>
-    <file>attr-2.4.44-build.patch</file>
-    <file>attr-2.4.44.src.tar.gz</file>
-    <file>attr.spec</file>
-</package>
+The contents of the ':full' subdirectories can't be grabed but must be guessed.
+It actually works for 'i686' and 'i586' archs, not for arm.
 
 
