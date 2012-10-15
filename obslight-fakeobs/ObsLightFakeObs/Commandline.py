@@ -175,7 +175,7 @@ class FakeObsCommandline(cmdln.Cmdln):
 
     @cmdln.alias("fromgbs")
     @cmdln.option("-n", "--name", dest="name",
-                  help="set the project to NAME")
+                  help="set the project to NAME (mandatory option")
     @cmdln.option("-t", "--target", action="append", dest="targets",
                   default=[],
                   help="the name of a build target to grab (caution, targets are also named 'conf' in build.xml)")
@@ -192,11 +192,10 @@ class FakeObsCommandline(cmdln.Cmdln):
     @cmdln.option("-k", "--rsynckeep", action="store_false", dest="rsynckeep",
                   help="dont remove the rsync data at the end of the grab")
     def do_grabgbs(self, subcmd, opts, url):
-        """
-	${cmd_name}: import a project from a GBS tree
+        """${cmd_name}: import a project from a GBS tree
         
-        NAME parameter is mandatory.
         You need to be root to run this.
+        The option --name is MANDATORY.
         
         ${cmd_usage}
         ${cmd_option_list}
