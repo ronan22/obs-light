@@ -273,7 +273,7 @@ fi
 %{_sbindir}/fakeobswebui
 %{_sbindir}/rcfakeobs
 %{_sbindir}/rcfakeobswebui
-%endif
+
 %config %{_sysconfdir}/logrotate.d/obslight-fakeobs
 %config %{_sysconfdir}/obslight-fakeobs.conf
 %{_sbindir}/obslight-fakeobsd
