@@ -6,10 +6,10 @@
 # - update the changelogs (obslight.spec, debian.changelog)
 #
 set -x
-if [ $# -ne 1 ]; then
-  echo "usage: $0 \"commit message\""
-  exit 1
-fi
+#if [ $# -lt 1 ]; then
+#  echo "usage: $0 \"commit message\""
+#  exit 1
+#fi
 
 # Create a temporary directory and go into it
 TMPDIR=`mktemp -d`
@@ -28,7 +28,11 @@ cp -v "$PROJECTDIR"/"$PACKAGING"/* $TMPDIR/"$PRJ"
 cd $TMPDIR/"$PRJ"
 # Add all new files, remove disappeared files, and commit
 osc -v ar 
-osc -v ci -m "$1"
+if [ $# -lt 1 ]; then
+  osc vc && osc -v ci
+else
+  osc -v ci -m "$1"
+fi
 # Check the return value and delete (or not) the temporary directory
 RETVAL=$?
 cd $PROJECTDIR

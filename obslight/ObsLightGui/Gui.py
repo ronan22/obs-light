@@ -109,13 +109,21 @@ class Gui(QObject):
         self.__loadGeometry()
         self.__mainWindow.show()
 
+
+
     def __loadGeometry(self):
         settings = QSettings("Intel_OTC", "obslightgui")
         propMap = {"mainWindow/geometry": self.__mainWindow.restoreGeometry,
                    "mainWindow/state": self.__mainWindow.restoreState,
-                   "mainWindow/splitterState": self.__mainWindow.splitter.restoreState,
                    "mainWindow/splitter2State": self.__mainWindow.splitter_2.restoreState,
+                   "mainWindow/splitter3State": self.__mainWindow.splitter_3.restoreState,
+                   "mainWindow/splitter4State": self.__mainWindow.splitter_4.restoreState,
+                   "mainWindow/splitter5State": self.__mainWindow.splitter_5.restoreState,
+                   "mainWindow/splitter6State": self.__mainWindow.splitter_6.restoreState,
+                   "mainWindow/splitterState": self.__mainWindow.splitter.restoreState,
+                   "mainWindow/splitterGeo": self.__mainWindow.splitter.restoreGeometry,
                    "logWindow/geometry": self.__logManager.restoreGeometry}
+
         for propName, func in propMap.iteritems():
             prop = settings.value(propName)
             if prop is not None:
@@ -125,9 +133,15 @@ class Gui(QObject):
         settings = QSettings("Intel_OTC", "obslightgui")
         propMap = {"mainWindow/geometry": self.__mainWindow.saveGeometry,
                    "mainWindow/state": self.__mainWindow.saveState,
-                   "mainWindow/splitterState": self.__mainWindow.splitter.saveState,
                    "mainWindow/splitter2State": self.__mainWindow.splitter_2.saveState,
+                   "mainWindow/splitter3State": self.__mainWindow.splitter_3.saveState,
+                   "mainWindow/splitter4State": self.__mainWindow.splitter_4.saveState,
+                   "mainWindow/splitter5State": self.__mainWindow.splitter_5.saveState,
+                   "mainWindow/splitter6State": self.__mainWindow.splitter_6.saveState,
+                   "mainWindow/splitterState": self.__mainWindow.splitter.saveState,
+                   "mainWindow/splitterGeo": self.__mainWindow.splitter.saveGeometry,
                    "logWindow/geometry": self.__logManager.saveGeometry}
+
         for propName, func in propMap.iteritems():
             settings.setValue(propName, func())
 
@@ -253,6 +267,7 @@ class Gui(QObject):
             self.__wizard.skipToPackageCreation(project)
         else:
             self.__wizard.skipToPackageSelection(project)
+
         self.__wizard.show()
         return self.__wizard
 

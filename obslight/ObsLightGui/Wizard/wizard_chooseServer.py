@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui/wizard_chooseServer.ui'
 #
-# Created: Mon Jul 30 17:12:03 2012
+# Created: Fri Oct  5 13:55:45 2012
 #      by: pyside-uic 0.2.13 running on PySide 1.1.0
 #
 # WARNING! All changes made in this file will be lost!

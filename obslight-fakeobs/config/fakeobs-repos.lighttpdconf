@@ -1,5 +1,5 @@
 $SERVER["socket"] == ":8002" {
-  server.document-root = "/srv/fakeobs/releases/"
+  server.document-root = "/srv/obslight-fakeobs/repositories/"
 
   dir-listing.activate = "enable"
 }

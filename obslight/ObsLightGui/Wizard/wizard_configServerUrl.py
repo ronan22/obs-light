@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui/wizard_configServerUrl.ui'
 #
-# Created: Thu Aug  2 09:33:39 2012
+# Created: Fri Oct  5 13:55:46 2012
 #      by: pyside-uic 0.2.13 running on PySide 1.1.0
 #
 # WARNING! All changes made in this file will be lost!

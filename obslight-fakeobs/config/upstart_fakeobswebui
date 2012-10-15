@@ -1,0 +1,9 @@
+description     "Fake OBS daemon"
+
+start on runlevel [2345]
+stop on runlevel [!2345]
+
+console output
+chdir /srv/obslight-fakeobs
+
+exec /usr/sbin/obslight-fakeobswebuid >> /var/log/fakeobs-webui.log 2>&1

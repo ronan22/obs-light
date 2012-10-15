@@ -196,6 +196,8 @@ class MicProjectsManager(ObsLightGuiObject, ProjectsManagerBase):
                                                         filter=filters)
         if len(filePath) < 1:
             return
+        filePath = str(filePath.encode("utf-8"))
+
         self.callWithInfiniteProgress(self.manager.setKickstartFile,
                                       "Importing Kickstart file",
                                       micProject,

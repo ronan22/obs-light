@@ -11,7 +11,7 @@
 %{!?python_sitelib: %define python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 Name:       obslight
 Summary:    OBS Light
-Version:    0.5.3
+Version:    0.9.0
 Release:    1
 Group:      Development/Tools/Building
 License:    GPLv2
@@ -23,8 +23,9 @@ Requires:   acl
 Requires:   build
 Requires:   createrepo
 Requires:   curl
+Requires:   gbs >= 0.10
 Requires:   git
-Requires:   mic >= 0.4
+Requires:   mic >= 0.12
 Requires:   osc >= 0.132
 Requires:   qemu
 Requires:   rpm
@@ -37,6 +38,7 @@ Requires:   imagewriter
 %endif
 %if 0%{?suse_version} > 1140
 Requires:   qemu-linux-user
+#Requires:   qemu-arm-static
 %endif
 %if 0%{?fedora}
 Requires:   httpd
@@ -93,7 +95,7 @@ This package contains the graphical interface.
 
 
 %prep
-%setup -q -n %{name}
+%setup -q
 
 # >> setup
 # << setup
@@ -125,6 +127,9 @@ ln -s obslightgui-wrapper.py %{buildroot}/%{_bindir}/obslightgui
 install -d %{buildroot}/etc/init.d
 # To be removed when we add a theme (would be already created by setup.py)
 mkdir -p %{buildroot}/srv/%IMGSRVPATH/www
+mkdir -p %{buildroot}/usr/share/obslight/projectTemplate
+mkdir -p %{buildroot}/usr/share/obslight/projectConf
+
 
 # << install post
 desktop-file-install --delete-original       \
@@ -195,8 +200,8 @@ MOD_INCLUDE="/etc/apache2/mods-available/include.load"
 fi
 
 #Remove old http python server service.
-service obslightserver status >/dev/null && service obslightserver stop
-/sbin/chkconfig --check obslightserver && /sbin/chkconfig --del obslightserver
+[ -e /etc/init.d/obslightserver ] && service obslightserver status >/dev/null && service obslightserver stop || :
+[ -e /etc/init.d/obslightserver ] && /sbin/chkconfig --check obslightserver && /sbin/chkconfig --del obslightserver || :
 
 #Add new http apache2 server service.
 [ -e /etc/init.d/apache2 ] && /sbin/chkconfig --add apache2
@@ -215,6 +220,8 @@ chmod g+w /srv/%IMGSRVPATH/config
 chmod g+w /srv/%REPOSRVPATH/config
 chmod g+w /srv/%IMGSRVPATH/www
 chmod g+w /srv/%REPOSRVPATH/www
+
+chmod -R o+rw /usr/share/obslight
 # << post
 
 %files
@@ -228,6 +235,7 @@ chmod g+w /srv/%REPOSRVPATH/www
 %{_bindir}/obsprojectsdiff
 %{_bindir}/obslight
 %{_bindir}/obslight-wrapper.py
+%{_bindir}/generate_default_xml
 %{python_sitelib}/ObsLight
 %{python_sitelib}/obslight*egg-info
 %config %attr(440, root, root) %{_sysconfdir}/sudoers.obslight
@@ -242,11 +250,17 @@ chmod g+w /srv/%REPOSRVPATH/www
 %dir /srv/%REPOSRVPATH/www
 %dir /srv/%REPOSRVPATH/www/theme
 %dir /srv/%REPOSRVPATH/www/theme/images
+%dir /usr/share/obslight
+%dir /usr/share/obslight/projectTemplate
+%dir /usr/share/obslight/projectConf
 
 /srv/%IMGSRVPATH/config/obslight-image.apache2conf
 /srv/%REPOSRVPATH/config/obslight-repos.apache2conf
 /srv/%REPOSRVPATH/www/theme/*
 /srv/%REPOSRVPATH/www/theme/images/*
+
+/usr/share/obslight/projectConf/*
+/usr/share/obslight/projectTemplate/*
 # << files
 
 %files gui

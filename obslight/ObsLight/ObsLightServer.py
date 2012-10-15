@@ -43,6 +43,8 @@ class ObsLightServer(object):
         self.__serverRepo = None
         self.__isReachable = None
 
+        self.__projectRreadOnlyBuffer = {}
+
         if fromSave != None:
             if "isOBSConnected" in fromSave.keys():
                 self.__isOBSConnected = fromSave["isOBSConnected"]
@@ -98,7 +100,7 @@ class ObsLightServer(object):
         return self.__isReachable
 
     def getObsProjectPackageList(self, projectObsName):
-        return ObsLightOsc.getObsLightOsc().getListPackage(apiurl=self.__serverAPI,
+        return ObsLightOsc.getObsLightOsc().getPackageList(apiurl=self.__serverAPI,
                                                            projectLocalName=projectObsName)
 
     def getFilesListPackage(self,
@@ -111,18 +113,19 @@ class ObsLightServer(object):
 
     def getPackageBuildRequires(self,
                                 projectObsName,
-                                package,
                                 projectTarget,
                                 arch,
-                                specFile):
+                                specFile,
+                                extraPackages=[]):
         buildInfoXml = ObsLightOsc.getObsLightOsc().getPackageBuildRequires(self.__serverAPI,
-                                                                    projectObsName,
-                                                                    package,
-                                                                    projectTarget,
-                                                                    arch,
-                                                                    specFile)
+                                                                            projectObsName,
+                                                                            projectTarget,
+                                                                            arch,
+                                                                            specFile,
+                                                                            extraPackages)
 
-        buildInfoCli = ObsLightOsc.getObsLightOsc().updateCache(buildInfoXml, self.__serverAPI)
+        buildInfoCli = ObsLightOsc.getObsLightOsc().createBuildInfoObj(buildInfoXml, self.__serverAPI)
+        buildInfoCli = ObsLightOsc.getObsLightOsc().updateCache(buildInfoCli, self.__serverAPI)
 
         return buildInfoCli
 
@@ -172,8 +175,10 @@ class ObsLightServer(object):
                              "maintainer",
                              "bugowner",
                              "arch",
-                             "repository"]:
-            raise ObsLightErr.ObsLightObsServers(parameter + " is not a parameter of a OBS project")
+                             "repository",
+                             "readonly"]:
+            mess = "\"%s\" is not a parameter of a OBS project" % parameter
+            raise ObsLightErr.ObsLightObsServers(mess)
 
         if not project in self.getLocalProjectList(raw=True):
             message = "Can't return the project parameter,\n"
@@ -182,9 +187,20 @@ class ObsLightServer(object):
 
             raise ObsLightErr.ObsLightObsServers(message)
 
-        return ObsLightOsc.getObsLightOsc().getProjectParameter(projectObsName=project,
+        if parameter == "readonly":
+            if project in self.__projectRreadOnlyBuffer.keys():
+                return self.__projectRreadOnlyBuffer[project]
+            res = ObsLightOsc.getObsLightOsc().getProjectParameter(projectObsName=project,
+                                                                apiurl=self.__serverAPI,
+                                                                parameter="maintainer")
+            ro = not self.__user in res
+            self.__projectRreadOnlyBuffer[project] = ro
+            return ro
+        else:
+            res = ObsLightOsc.getObsLightOsc().getProjectParameter(projectObsName=project,
                                                                 apiurl=self.__serverAPI,
                                                                 parameter=parameter)
+            return res
 
     def getAPI(self):
         return str(self.__serverAPI)
@@ -207,12 +223,13 @@ class ObsLightServer(object):
                              "listFile"]:
             raise ObsLightErr.ObsLightObsServers(parameter + " is not a parameter of a OBS package")
 
-        if not project in self.getLocalProjectList(raw=True):
-            message = "Can't return the package parameter,\n"
-            message += "'%s' is not a project on obs '%s'"
-            message = message % (project, self.__serverAPI)
-
-            raise ObsLightErr.ObsLightObsServers(message)
+# FIXME: is that necessary ? It's really slow on public OBS servers...
+#        if not project in self.getLocalProjectList(raw=True):
+#            message = "Can't return the package parameter,\n"
+#            message += "'%s' is not a project on obs '%s'"
+#            message = message % (project, self.__serverAPI)
+#
+#            raise ObsLightErr.ObsLightObsServers(message)
 
         if not package in self.getObsProjectPackageList(projectObsName=project):
             message = "Can't return the package parameter,\n"
@@ -326,8 +343,8 @@ class ObsLightServer(object):
         '''
         return self.__alias
 
-    def getListPackage(self, projectLocalName=None):
-        return ObsLightOsc.getObsLightOsc().getListPackage(apiurl=self.__serverAPI,
+    def getPackageList(self, projectLocalName=None):
+        return ObsLightOsc.getObsLightOsc().getPackageList(apiurl=self.__serverAPI,
                                                         projectLocalName=projectLocalName)
 
     def checkoutPackage(self, projectObsName=None, package=None, directory=None):

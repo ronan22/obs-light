@@ -13,14 +13,12 @@ Sources:
 Requires:
     - apache2
     - bash
+    - createrepo
     - git
     - logrotate
     - osc
     - python
-    - python-async
-    - python-gitdb
-    - python-gitpython
-    - python-smmap
+    - python-cmdln
 RequiresPost:
     - sysconfig
 Configure: none

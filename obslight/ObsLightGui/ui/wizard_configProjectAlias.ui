@@ -73,7 +73,14 @@
     </widget>
    </item>
    <item row="3" column="1">
-    <widget class="QLineEdit" name="aliasLineEdit"/>
+    <widget class="QLineEdit" name="aliasLineEdit">
+     <property name="acceptDrops">
+      <bool>false</bool>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+    </widget>
    </item>
    <item row="5" column="1">
     <widget class="QCheckBox" name="createChrootCheckBox">

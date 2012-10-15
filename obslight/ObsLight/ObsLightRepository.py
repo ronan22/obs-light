@@ -57,6 +57,8 @@ class ObsLightRepository(object):
 
         self.__mySubprocessCrt = SubprocessCrt()
 
+        self.createRepo()
+
     def __subprocess(self, command=None, waitMess=False, stdout=False):
         return self.__mySubprocessCrt.execSubprocess(command=command,
                                                      waitMess=waitMess,

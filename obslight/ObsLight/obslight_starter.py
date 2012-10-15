@@ -2,8 +2,6 @@ import sys
 import os
 from distutils.version import LooseVersion
 
-from mic.__version__ import VERSION as MIC_VERSION
-
 from ObsLight.ObsLightManager import getpidFilePath
 
 _wasStoppedCorrectly = True
@@ -69,7 +67,11 @@ def writePidFile():
         pidFile.write(str(os.getpid()))
 
 def getMicVersionString():
-    return MIC_VERSION
+    try:
+        from mic.__version__ import VERSION as MIC_VERSION
+        return MIC_VERSION
+    except ImportError:
+        return "unknown"
 
 def compareVersion(v1, v2):
     """

@@ -28,6 +28,7 @@ import shutil
 import urllib
 import time
 
+from ObsLightUtils import micIsAvailable
 from ObsLightSubprocess import SubprocessCrt
 from ObsLightKickstartManager import ObsLightKickstartManager
 from ObsLightTools import isUserInGroup
@@ -38,6 +39,13 @@ class ObsLightMicProject(object):
     ObsLightUserGroup = "users"
 
     def __init__(self, name, workingDirectory, fromSave=None):
+        # FIXME: there may be a better way to say it's not available
+        if not micIsAvailable():
+            from ObsLightErr import ObsLightNotImplementedError
+            msg = "MIC is not installed on your system!\n"
+            msg += "Install it and restart OBS Light."
+            raise ObsLightNotImplementedError(msg)
+
         self.__mySubprocessCrt = SubprocessCrt()
 
         self.__kickstartPath = None
@@ -129,6 +137,10 @@ class ObsLightMicProject(object):
         if not os.path.isfile(filePath):
             raise ObsLightErr.ObsLightMicProjectErr("'%s' is not a file." % filePath)
         wantedPath = os.path.join(self.projectDirectory, self.__name + ".ks")
+
+        if isinstance(wantedPath, unicode):
+            wantedPath = str(wantedPath)
+
         if os.path.abspath(filePath) != wantedPath:
             tmpKsMngr = ObsLightKickstartManager(filePath)
             tmpKsMngr.saveKickstart(wantedPath)
@@ -387,7 +399,7 @@ class ObsLightMicProject(object):
         """
         self.failIsUserNotInUserGroup()
         timeString = time.strftime("%Y-%m-%d_%Hh%Mm") + str(time.time() % 1).split(".")[1]
-        logFilePath = os.path.join(self.projectDirectory, "buildLog")
+        logFilePath = os.path.join(self.projectDirectory, "build_" + timeString, "buildLog")
 #        cacheDirPath = os.path.join(self.projectDirectory, "cache")
         proxies = urllib.getproxies_environment()
         for scheme in proxies.keys():
@@ -395,13 +407,13 @@ class ObsLightMicProject(object):
                 cmd = "sudo sed -r -i 's,(; *)*proxy =.*,proxy = " + proxies[scheme] + ",' /etc/mic/mic.conf"
                 self.__subprocess(cmd)
 
-        cmd = "sudo mic create " + self.getImageType()
+        cmd = "sudo mic --debug --verbose create " + self.getImageType()
         cmd += " " + self.getKickstartFile()
         cmd += " --logfile=" + logFilePath
 #        cmd += " --cachedir=" + cacheDirPath
         cmd += " --outdir=" + self.projectDirectory
         cmd += " --arch=" + self.__architecture
-        cmd += " --release=build_" + timeString
+#        cmd += " --release=build_" + timeString
         cmd += " --local-pkgs-path=" + self.localPackagesDirectory
         self.__subprocess(cmd)
 
@@ -419,7 +431,11 @@ class ObsLightMicProject(object):
 
     def runQemu(self):
         #TO TEST
-        #"sudo qemu-system-x86_64 -hda latest/images/meego-netbook-ia32-qemu_local/meego-netbook-ia32-qemu_local-latest-hda.raw -boot c -m 2047 -k fr -vnc :1 -smp 2 -serial pty -M pc -cpu core2duo -append "root=/dev/sda1 console=ttyS0,115200n8" -kernel ./kernel/vmlinuz-2.6.37.2-6 -initrd ./kernel/initrd-2.6.37.2-6.img -vga std -sdl"
+        #"sudo qemu-system-x86_64 -hda\
+        # latest/images/meego-netbook-ia32-qemu_local/meego-netbook-ia32-qemu_local-latest-hda.raw\
+        # -boot c -m 2047 -k fr -vnc :1 -smp 2 -serial pty -M pc -cpu core2duo\
+        # -append "root=/dev/sda1 console=ttyS0,115200n8" -kernel\
+        # ./kernel/vmlinuz-2.6.37.2-6 -initrd ./kernel/initrd-2.6.37.2-6.img -vga std -sdl"
         #sudo screen /dev/pts/5
         #vncviewer :1
         pass

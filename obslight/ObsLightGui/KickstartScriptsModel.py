@@ -30,7 +30,7 @@ class KickstartScriptsModel(KickstartModelBase):
     Class to manage the scripts of the Kickstart file of a MIC project.
     """
 
-    NewScriptName = "NEW_SCRIPT"
+    NewScriptName = "NEW_UNSAVED_SCRIPT"
     NewScriptText = "# Enter script here\n"
     NewScriptInterpreter = "/bin/sh"
     NewScriptType = 0

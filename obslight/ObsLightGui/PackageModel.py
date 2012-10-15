@@ -23,23 +23,21 @@ Created on 2 nov. 2011
 from PySide.QtCore import QAbstractTableModel, QSize, Qt
 from PySide.QtGui import QColor
 
+from ObsLight.ObsLightPackageStatus import OBS_REV, OBS_STATUS, OSC_REV, OSC_STATUS, CHROOT_STATUS
+from ObsLight.ObsLightPackageStatus import NameColumn, StatusColumn, FSStatusColumn, SyncStatusColumn
+
+
+from ObsLight.ObsLightPackageStatus import ColumnHeaders, ColumnHeadersIndex
+from ObsLight.ObsLightPackageStatus import StatusColorsDict
+from ObsLight.ObsLightPackageStatus import StatusColumnCount
+
 class PackageModel(QAbstractTableModel):
     '''
     QAbstractTableModel subclass to do the interface between the
     "packageTableWidget" and the ObsLightManager.
     '''
-
-    NameColumn = 0
-    ObsStatusColumn = 1
-    ObsRevColumn = 2
-    OscStatusColumn = 3
-    OscRevColumn = 4
-    FSStatusColumn = 5
-
-    ColumnHeaders = ("Package", "OBS status", "Rev",
-                     "Local status", "Rev", "Filesystem status")
-
     __emptyList = {}
+    colors = None
 
     def __init__(self, obsLightManager, projectName):
         QAbstractTableModel.__init__(self)
@@ -47,15 +45,24 @@ class PackageModel(QAbstractTableModel):
         self.__project = projectName
         self.__pkgList = None
         self.__getPackageList()
-        self.colors = list(({}, {}, {}, {}, {}, {}))
-        self._loadColors()
+
+        if self.colors is None:
+            self.__loadColors()
+
+    def __loadColors(self):
+        self.colors = {}
+        for columnLabel in StatusColorsDict.keys():
+            self.colors[columnLabel] = {}
+            for txt in StatusColorsDict[columnLabel].keys():
+                color = StatusColorsDict[columnLabel][txt]
+                self.colors[columnLabel][txt] = QColor(color)
 
     #model
     def rowCount(self, _parent=None):
         return len(self.__getPackageList())
     #model
     def columnCount(self, _parent=None):
-        return 6
+        return StatusColumnCount()
     #model
     def data(self, index, role=Qt.DisplayRole):
         if not index.isValid() or index.row() >= self.rowCount():
@@ -73,36 +80,14 @@ class PackageModel(QAbstractTableModel):
             if orientation == Qt.Orientation.Vertical:
                 return section
             else:
-                return self.ColumnHeaders[section]
+                return ColumnHeaders[section]
         elif role == Qt.SizeHintRole:
             if orientation == Qt.Orientation.Vertical:
                 pass
             else:
-                if section == self.OscRevColumn or section == self.ObsRevColumn:
+                if section == SyncStatusColumn:
                     return QSize(32, 0)
         return None
-
-    def _loadColors(self):
-        # http://www.w3.org/TR/SVG/types.html#ColorKeywords
-        self.colors[self.ObsStatusColumn]["succeeded"] = QColor(u"green")
-        self.colors[self.ObsStatusColumn]["excluded"] = QColor(u"grey")
-        self.colors[self.ObsStatusColumn]["broken"] = QColor(u"red")
-        self.colors[self.ObsStatusColumn]["building"] = QColor(u"gold")
-        self.colors[self.ObsStatusColumn]["failed"] = QColor(u"red")
-        self.colors[self.ObsStatusColumn]["scheduled"] = QColor(u"blue")
-        self.colors[self.ObsStatusColumn]["unresolvable"] = QColor(u"darkred")
-
-        self.colors[self.FSStatusColumn]["Installed"] = QColor(u"green")
-
-        self.colors[self.OscStatusColumn]["Unknown"] = QColor(u"grey")
-        self.colors[self.OscStatusColumn]["Succeeded"] = QColor(u"green")
-        self.colors[self.OscStatusColumn]["inconsistent state"] = QColor(u"red")
-        # "inferior" means oscRev < obsRev
-        self.colors[self.OscRevColumn][u"inferior"] = QColor(u"red")
-        self.colors[self.OscRevColumn][u"equal"] = QColor(u"green")
-        # "superior" means oscRev > obsRev, which should never happen
-        self.colors[self.OscRevColumn][u"superior"] = QColor(u"red")
-        self.colors[self.ObsRevColumn][u"ok"] = QColor(u"green")
 
     def getProject(self):
         return self.__project
@@ -125,44 +110,25 @@ class PackageModel(QAbstractTableModel):
     def displayRoleData(self, row, column):
         packageList = self.__getPackageList()
         packageName = sorted(packageList.keys())[row]
-        retVal = None
-
-        if column == self.NameColumn:
-            retVal = packageName
-        elif column == self.ObsStatusColumn:
-            retVal = packageList[packageName]["status"]
-        elif column == self.FSStatusColumn:
-            retVal = packageList[packageName]["chRootStatus"]
-        elif column == self.OscStatusColumn:
-            retVal = packageList[packageName]["oscStatus"]
-        elif column == self.OscRevColumn:
-            retVal = packageList[packageName]["oscRev"]
-        elif column == self.ObsRevColumn:
-            retVal = packageList[packageName]["obsRev"]
-        return retVal
+        columnIndex = ColumnHeadersIndex[column]
+        return str(packageList[packageName].get(columnIndex, ""))
 
     def foregroundRoleData(self, index):
         row = index.row()
         column = index.column()
         drData = self.displayRoleData(row, column)
-        if column == self.OscRevColumn:
-            obsRev = self.displayRoleData(row, self.ObsRevColumn)
-            if drData < obsRev:
-                drData = u"inferior"
-            elif drData == obsRev:
-                drData = u"equal"
-            else:
-                drData = u"superior"
-        if column == self.ObsRevColumn:
-            drData = u"ok"
+
         color = self.colors[column].get(drData, None)
         return color
 
     def textAlignmentRoleData(self, index):
         column = index.column()
         if column in range(1, self.columnCount()):
-            return Qt.AlignHCenter | Qt.AlignVCenter
-        return None
+            return Qt.AlignCenter
+#            return Qt.AlignHCenter | Qt.AlignVCenter
+        else:
+            return Qt.AlignVCenter
+
 
 #    def sort(self, Ncol, order):
 #        print "Sort data according to column ", Ncol

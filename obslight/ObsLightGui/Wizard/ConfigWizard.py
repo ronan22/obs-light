@@ -20,21 +20,34 @@ Created on 19 déc. 2011
 
 @author: Florent Vennetier
 '''
+import os
 
 from PySide.QtGui import QPlainTextEdit, QWizard
 
 from ObsLightGui.ObsLightGuiObject import ObsLightGuiObject
 
+from ChooseLocalGbsOrOBSProjectPage import ChooseLocalGbsOrOBSProjectPage
+from ChooseProjectTemplatePage import ChooseProjectTemplatePage
+from ChooseProjectConfPage import ChooseProjectConfPage
+from ChooseRepositoryTreePage import ChooseRepositoryTreePage
+from ChooseRepositoryPage import ChooseRepositoryPage
+from ChooseGbsArchPage import ChooseGbsArchPage
+from ChooseManifestPage import ChooseManifestPage
+from ConfigureGitPackagePage import  ConfigureGitPackagePage
+from ConfigProjectGitAliasPage import ConfigProjectGitAliasPage
+
 from ChooseServerPage import ChooseServerPage
 from ConfigureServerUrlPage import ConfigureServerUrlPage
 from ConfigureServerAliasPage import ConfigureServerAliasPage
 from ChooseProjectPage import ChooseProjectPage
+from ChooseLocalProjectPage import ChooseLocalProjectPage
 from ChooseProjectTargetPage import ChooseProjectTargetPage
 from ChooseProjectArchPage import ChooseProjectArchPage
 from ConfigureProjectAliasPage import ConfigureProjectAliasPage
-from ChooseNewOrExistingPackage import ChooseNewOrExistingPackage
+from ChooseNewOrExistingPackagePage import ChooseNewOrExistingPackagePage
 from ConfigureNewPackagePage import ConfigureNewPackagePage
 from ChoosePackagePage import ChoosePackagePage
+from ChooseLocalPackagePage import ChooseLocalPackagePage
 
 class ConfigWizard(QWizard, ObsLightGuiObject):
 
@@ -51,53 +64,56 @@ class ConfigWizard(QWizard, ObsLightGuiObject):
         self.setDefaultProperty(QPlainTextEdit.__name__, "plainText", "textChanged")
         self.loadPages()
         self.isModifyingServer = False
+        self.__pageCounter = 0
 
     def pageIndex(self, pageName):
         return self.Pages[pageName].index
 
     def loadPages(self):
-        pageCounter = 0
-        self.Pages[u'ChooseServer'] = ChooseServerPage(self.gui, pageCounter)
+        self.__pageCounter = 0
+        def addPage(name, aClass):
+            self.Pages[name] = aClass(self.gui, self.__pageCounter)
+            self.__pageCounter += 1
 
-        pageCounter += 1
-        self.Pages[u'ConfigureServerUrl'] = ConfigureServerUrlPage(self.gui, pageCounter)
-
-        pageCounter += 1
-        self.Pages[u'ConfigureServerAlias'] = ConfigureServerAliasPage(self.gui, pageCounter)
-
-        pageCounter += 1
-        self.Pages[u'ChooseProject'] = ChooseProjectPage(self.gui, pageCounter)
-
-        pageCounter += 1
-        self.Pages[u'ChooseProjectTarget'] = ChooseProjectTargetPage(self.gui, pageCounter)
-
-        pageCounter += 1
-        self.Pages[u'ChooseProjectArch'] = ChooseProjectArchPage(self.gui, pageCounter)
-
-        pageCounter += 1
-        self.Pages[u'ConfigureProjectAlias'] = ConfigureProjectAliasPage(self.gui, pageCounter)
-
-        pageCounter += 1
-        self.Pages[u'ChooseNewOrExistingPackage'] = ChooseNewOrExistingPackage(self.gui,
-                                                                               pageCounter)
-
-        pageCounter += 1
-        self.Pages[u'ConfigureNewPackage'] = ConfigureNewPackagePage(self.gui, pageCounter)
-
-        pageCounter += 1
-        self.Pages[u'ChoosePackage'] = ChoosePackagePage(self.gui, pageCounter)
+        addPage(u'ChooseLocalGbsOrOBSProject', ChooseLocalGbsOrOBSProjectPage)
+        addPage(u'ChooseProjectTemplate', ChooseProjectTemplatePage)
+        addPage(u'ChooseProjectConf', ChooseProjectConfPage)
+        addPage(u'ChooseRepositoryTree', ChooseRepositoryTreePage)
+        addPage(u'ChooseRepository', ChooseRepositoryPage)
+        addPage(u'ChooseGbsArch', ChooseGbsArchPage)
+        addPage(u'ChooseManifestPage', ChooseManifestPage)
+        addPage(u'ConfigProjectGitAliasPage', ConfigProjectGitAliasPage)
+        addPage(u'ChooseServer', ChooseServerPage)
+        addPage(u'ConfigureServerUrl', ConfigureServerUrlPage)
+        addPage(u'ConfigureServerAlias', ConfigureServerAliasPage)
+        addPage(u'ChooseProject', ChooseProjectPage)
+        addPage(u'ChooseProjectTarget', ChooseProjectTargetPage)
+        addPage(u'ChooseProjectArch', ChooseProjectArchPage)
+        addPage(u'ConfigureProjectAlias', ConfigureProjectAliasPage)
+        addPage(u'ChooseNewOrExistingPackage', ChooseNewOrExistingPackagePage)
+        addPage(u'ConfigureNewPackage', ConfigureNewPackagePage)
+        addPage(u'ChoosePackage', ChoosePackagePage)
+        addPage(u'ChooseLocalProject', ChooseLocalProjectPage)
+        addPage(u'ChooseLocalPackagePage', ChooseLocalPackagePage)
+        addPage(u'ConfigureGitPackagePage', ConfigureGitPackagePage)
 
         for page in self.Pages.values():
             self.setPage(page.index, page)
 
+    def isLocalProject(self):
+        return self.Pages[u'ChooseLocalGbsOrOBSProject'].isLocalProject()
+
     def getSelectedProject(self):
         return self.Pages[u'ChooseProject'].getSelectedProject()
 
+    def getSelectedLocalProject(self):
+        return self.Pages[u'ChooseLocalProject'].getSelectedLocalProject()
+
     def getSelectedProjectAlias(self):
-        return self.field(u"projectAlias")
+        return  self.Pages[u'ConfigureProjectAlias'].getSelectedProjectAlias()
 
     def getSelectedServerAlias(self):
-        return self.field(u"serverAlias")
+        return self.Pages[u'ConfigureServerAlias'].getSelectedServerAlias()
 
     def getSelectedTarget(self):
         return self.Pages[u'ChooseProjectTarget'].getSelectedTarget()
@@ -105,12 +121,21 @@ class ConfigWizard(QWizard, ObsLightGuiObject):
     def getSelectedArch(self):
         return self.Pages[u'ChooseProjectArch'].getSelectedArch()
 
-    def getCreateChrootOption(self):
-        return self.field(u'CreateChroot')
+    def getProjectTemplatePath(self, fullPath=True):
+
+        res = self.Pages[u'ChooseProjectTemplate'].getSelectedProjectConf()
+
+        if res is not None and fullPath:
+            return res
+        else:
+            return os.path.basename(res)
+
+#    def getCreateChrootOption(self):
+#        return self.field(u'CreateChroot')
 
     def skipToPackageSelection(self, projectAlias):
         self.setField(u"projectAlias", projectAlias)
-        self.setStartId(self.Pages[u'ChoosePackage'].index)
+        self.setStartId(self.Pages[u'ChooseNewOrExistingPackage'].index)
 
     def skipToPackageCreation(self, projectAlias):
         self.setField(u"projectAlias", projectAlias)
@@ -127,3 +152,27 @@ class ConfigWizard(QWizard, ObsLightGuiObject):
         for key, value in prefilledValues.iteritems():
             self.setField(key, value)
         self.isModifyingServer = prefilledValues.has_key('serverAlias')
+
+    def getProjectConfPath(self):
+        return self.Pages[u'ChooseProjectConf'].getSelectedProjectConf()
+
+    def setSelectedBuildConf(self, selectedBuildConf):
+        return self.Pages[u'ChooseProjectConf'].setSelectedBuildConf(selectedBuildConf)
+
+    def getGbsAddedRepo(self):
+        return self.Pages[u'ChooseRepository'].getAddedRepo()
+
+    def getSelectedGbsArch(self):
+        return self.Pages[u'ChooseGbsArch'].getArch()
+
+    def getSelectedGbsProject(self):
+        return self.getProjectTemplatePath(False)
+
+    def getInitProjectRepo(self):
+        return self.Pages[u'ChooseRepositoryTree'].getInitProjectRepo()
+
+    def autoAddProjectRepo(self):
+        return self.Pages[u'ChooseRepository'].autoAddProjectRepo()
+
+    def getManifestFilePath(self):
+        return self.Pages[u'ChooseManifestPage'].getManifestFilePath()

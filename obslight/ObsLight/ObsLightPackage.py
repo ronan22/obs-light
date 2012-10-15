@@ -20,347 +20,291 @@ Created on 30 sept. 2011
 @author: ronan
 '''
 import os
+import sys
 import shutil
 
+from ObsLightObject import ObsLightObject
+from ObsLightUtils import getFilteredFileList
 from ObsLightSpec import ObsLightSpec
 
 import ObsLightOsc
 
+import ObsLightGitManager
+
 import ObsLightPrintManager
 from ObsLightSubprocess import SubprocessCrt
 
+import ObsLightErr
 from ObsLightErr import ObsLightPackageErr
 
 from copy import copy
 
-import ObsLightPackages as PK_CONST
+from ObsLightUtils import getFilteredFileList, isASpecFile, levenshtein
 
-class ObsLightPackage(object):
-    '''
-    classdocs
-    '''
+from ObsLightPackageStatus import OBS_REV, OBS_STATUS, OSC_REV, OSC_STATUS, CHROOT_STATUS
+from ObsLightPackageStatus import NOT_INSTALLED
+
+from ObsLightPackageStatus import PackageInfo
+
+
+from gbp.scripts.buildpackage_rpm import main as gbp_build
+from gbp.rpm.git import GitRepositoryError, RpmGitRepository
+import gbp.rpm as rpm
+from gbp.errors import GbpError
+
+class PrintHandler(object):
+    """
+    Wrapper for sys.stderr and sys.stdout that writes to a log file.
+    """
+
+    def __init__(self, stream):
+        self.stream = stream
+
+
+    def write(self, buf):
+        self.stream(str(buf))
+
+    def flush(self):
+        pass
+
+    def close(self):
+        pass
+
+    def isatty(self):
+        return True
+
+#        if self.__packageChrootDirectory is None:
+#            self.__packageChrootDirectory = os.path.join(self.__chrootUserHome, self.__name)
+
+class ObsLightPackage(ObsLightObject):
+
     ArchiveSuffix = ".tar.gz"
 
     def __init__(self,
-                 packagePath,
-                 chrootUserHome,
+                 project,
                  name=None,
-                 specFile=None,
-                 listFile=None,
-                 listInfoFile=None,
-                 status="Unknown",
-                 obsRev="-1",
-                 oscStatus="Unknown",
-                 oscRev="-1",
-                 chRootStatus=PK_CONST.NOT_INSTALLED,
-                 description="",
-                 packageTitle="",
-                 fromSave=None):
-        '''
-        Constructor
-        '''
-        listFile = listFile or []
-        self.__packagePath = packagePath
+                 packagePath=None,
+                 packageGitPath=None,
+                 fromSave={},
+                 ):
+
+        ObsLightObject.__init__(self)
+        self.__project = project
+
         self.__mySubprocessCrt = SubprocessCrt()
-        self.__specFile = None
+
         self.__mySpecFile = None
-        self.__firstCommitTag = None
-        self.__secondCommitTag = None
-        self.__currentPatch = None
-        self.__listInfoFile = listInfoFile
-        self.__description = description
-        self.__packageTitle = packageTitle
-        self.__chRootStatus = chRootStatus
-        self.__oscStatus = oscStatus
-        self.__oscRev = oscRev
-        self.__obsRev = obsRev
-        self.__filesToDeleteList = []
-        self.__prepDirName = None
 
+        # Package info.
+        self.__packageInfo = PackageInfo(self, fromSave.get("packageInfo", {}))
+
+        self.__name = fromSave.get("name", name)
+        self.__readOnly = self.__project.isReadOnly()
+
+        #The spec file name of the package
+        self.__specFile = fromSave.get("specFile", None)
+
+        #the path of the package source.
+        self.__packageSourceDirectory = fromSave.get("packageSourceDirectory", packagePath)
+
+        # Package git info.
+        #packageGitPath can be a path or URL.
+        self.__packageGitPath = fromSave.get("packageGitPath", packageGitPath)
+
+        # Package patch tag.
+        self.__firstCommitTag = fromSave.get("firstCommitTag", None)
+        self.__secondCommitTag = fromSave.get("secondCommitTag", None)
+
+        # OBS server  status, description, title.
+        self.__description = fromSave.get("description", None)
+        self.__packageTitle = fromSave.get("title", None)
+
+        # Current patch info.
+        self.__currentPatch = fromSave.get("currentPatch", None)
+        self.__patchMode = fromSave.get("patchMode", True)
+
+        # Build info.
+        self.__prepDirName = fromSave.get("prepDirName", None)
+        self.__listRPMPublished = fromSave.get("listRPMPublished", [])
+
+        #Name of git directory used into chroot, to manage source for auto patch.
         self.__obslightGit = ".git_obslight"
-        self.__packageGit = None
-        self.__currentGitIsPackageGit = False
-
-        self.__patchMode = True
-        self.__listRPMPublished = []
-
-        if fromSave is None:
-            self.__name = name
-            if listFile is None:
-                self.__fileList = []
-            else:
-                self.__fileList = listFile
-            self.__status = status
-            self.__obsRev = str(obsRev)
-            self.__specFile = specFile
-            self.__packageDirectory = None
-        else:
-            if "packageGit" in fromSave.keys():
-                self.__packageGit = fromSave["packageGit"]
-            if "currentGitIsPackageGit" in fromSave.keys():
-                self.__currentGitIsPackageGit = fromSave["currentGitIsPackageGit"]
-            if "name" in fromSave.keys():
-                self.__name = fromSave["name"]
-            if "listFile" in fromSave.keys():
-                self.__fileList = copy(fromSave["listFile"])
-            if "status" in fromSave.keys():
-                self.__status = fromSave["status"]
-            if "specFile" in fromSave.keys():
-                self.__specFile = fromSave["specFile"]
-            if "packageDirectory" in fromSave.keys():
-                self.__packageDirectory = fromSave["packageDirectory"]
-            if self.__status in [None, "None", ""]:
-                self.__status = "Unknown"
-            if  "description" in fromSave.keys():
-                self.__description = fromSave["description"]
-            if  "title" in fromSave.keys():
-                self.__packageTitle = fromSave["title"]
-            if "chRootStatus" in fromSave.keys():
-                self.__chRootStatus = fromSave["chRootStatus"]
-            if "oscStatus" in fromSave.keys():
-                self.__oscStatus = fromSave["oscStatus"]
-            if "firstCommitTag" in fromSave.keys():
-                self.__firstCommitTag = fromSave["firstCommitTag"]
-            if "secondCommitTag" in fromSave.keys():
-                self.__secondCommitTag = fromSave["secondCommitTag"]
-            if "oscRev" in fromSave.keys():
-                self.__oscRev = str(fromSave["oscRev"])
-            if "obsRev" in fromSave.keys():
-                self.__obsRev = str(fromSave["obsRev"])
-            if "currentPatch" in fromSave.keys():
-                self.__currentPatch = fromSave["currentPatch"]
-            if "listInfoFile" in fromSave.keys():
-                self.__listInfoFile = copy(fromSave["listInfoFile"])
-            if "listFileToDel" in fromSave.keys():
-                self.__filesToDeleteList = copy(fromSave["listFileToDel"])
-            if "prepDirName" in fromSave.keys():
-                self.__prepDirName = fromSave["prepDirName"]
-
-            if "patchMode" in fromSave.keys():
-                self.__patchMode = fromSave["patchMode"]
-
-            if "listRPMPublished" in fromSave.keys():
-                self.__listRPMPublished = fromSave["listRPMPublished"]
-
 
         self.__rpmBuildDirectoryLink = "rpmbuild"
         self.__rpmBuildDirectory = "obslightbuild"
         self.__rpmBuildTmpDirectory = "obslightbuild_TMP"
 
-        self.__chrootRpmBuildDirectory = chrootUserHome + "/" + self.__name + "/" + self.__rpmBuildDirectory
-        self.__chrootRpmBuildTmpDirectory = chrootUserHome + "/" + self.__name + "/" + self.__rpmBuildTmpDirectory
+        self.__packageChrootBuildDirectory = fromSave.get("packageChrootBuildDirectory", None)
 
-        self.__initConfigureFile()
+        #the Chroot jail path with user home path.
+        self.__chrootUserHome = self.__project.getChrootUserHome(fullPath=False)
 
-    #---------------------------------------------------------------------------
-    def __initConfigureFile(self):
-        '''
-        Init the  spec.
-        '''
-        try:
-            if not self.__specFile in (None, 'None', ""):
-                self.__initSpecFile()
-            else:
-                self.__mySpecFile = None
-        except BaseException:
-            ObsLightPrintManager.getLogger().error(u"Error reading SPEC file", exc_info=1)
+        #the path of the package into the chroot.
+        self.__packageChrootDirectory = fromSave.get("packageChrootDirectory", None)
 
-    def getRPMPublished(self):
-        return self.__listRPMPublished
+        self.__chrootRpmBuildDirectory = os.path.join(self.__chrootUserHome,
+                                                      self.__name,
+                                                      self.__rpmBuildDirectory)
 
-    def setRPMPublished(self, listRPMPublished):
-        self.__listRPMPublished = listRPMPublished
+        self.__chrootRpmBuildTmpDirectory = os.path.join(self.__chrootUserHome,
+                                                         self.__name ,
+                                                         self.__rpmBuildTmpDirectory)
 
-    def getCurrentGitDirectory(self):
-        if self.__currentGitIsPackageGit:
-            return os.path.join(self.__chrootRpmBuildDirectory, "BUILD", self.__packageGit)
-        else:
-            return os.path.join(self.__chrootRpmBuildDirectory, "BUILD", self.__obslightGit)
+        if fromSave == {}:
+            if self.isGitPackage and self.isLocalGit():
+                if not os.path.isdir(os.path.join(self.getPackageSourceDirectory(), ".git")):
+                    self.initAGitPackage()
 
+            self.checkoutPackage()
+        self.__mySpecFile = self.getSpecObj()
 
-    def setPackageGit(self, directory):
-        self.__packageGit = directory
-
-    def isCurrentGitIsPackageGit(self):
-        return self.__currentGitIsPackageGit
-
-    def getPackageInfo(self, info):
-        '''
-        
-        '''
-        res = {}
-        for i in info:
-            if i == "obsRev":
-                res["obsRev"] = self.getObsPackageRev()
-            elif i == "oscRev":
-                res["oscRev"] = self.getOscPackageRev()
-            elif i == "status":
-                res["status"] = self.getPackageStatus()
-            elif i == "oscStatus":
-                res["oscStatus"] = self.getOscStatus()
-            elif i == "chRootStatus":
-                res["chRootStatus"] = self.getChRootStatus()
-            else:
-                raise ObsLightPackageErr("Error in getPackageInfo '" + str(i) + "' is not valide")
-        return res
-    #---------------------------------------------------------------------------
-    def getOscStatus(self):
-        '''
-        
-        '''
-        return self.__oscStatus
-
-    def getPackageStatus(self):
-        '''
-        
-        '''
-        return self.__status
-
-    def getChRootStatus(self):
-        '''
-        
-        '''
-        return self.__chRootStatus
-
-    def getOscPackageRev(self):
-        '''
-        
-        '''
-        return self.__oscRev
-
-    def getObsPackageRev(self):
-        '''
-        
-        '''
-        return self.__obsRev
-
-    #---------------------------------------------------------------------------
-
-    def getChrootRpmBuildDirectory(self):
-        '''
-        
-        '''
-        return self.__chrootRpmBuildDirectory
-
-    def getChrootRpmBuildTmpDirectory(self):
-        '''
-        
-        '''
-        return self.__chrootRpmBuildTmpDirectory
-
-    def getTopDirRpmBuildDirectory(self):
-        '''
-        
-        '''
-        return  self.__rpmBuildDirectory
-
-    def getTopDirRpmBuildLinkDirectory(self):
-        '''
-        
-        '''
-        return self.__rpmBuildDirectoryLink
-
-    def getTopDirRpmBuildTmpDirectory(self):
-        '''
-        
-        '''
-        return self.__rpmBuildTmpDirectory
-
-
-
-    def getPackageFileList(self):
-        '''
-        
-        '''
-        res = []
-        res.extend(self.__fileList)
-        res.extend(self.__filesToDeleteList)
-        return res
-
-    def setOscPackageRev(self, rev):
-        '''
-        
-        '''
-        self.__oscRev = rev
-
-    def setObsPackageRev(self, rev):
-        '''
-        
-        '''
-        self.__obsRev = rev
-
-    def setFirstCommit(self, tag):
-        '''
-        
-        '''
-        self.__firstCommitTag = tag
-
-    def getFirstCommit(self):
-        '''
-        
-        '''
-        return self.__firstCommitTag
-
-    def setSecondCommit(self, tag):
-        '''
-        
-        '''
-        self.__secondCommitTag = tag
-
-    def getSecondCommit(self):
-        return self.__secondCommitTag
-
-    def getPackagePath(self):
-        '''
-        
-        '''
-        return self.__packagePath
-
-
-    def setChRootStatus(self, status):
-        '''
-        
-        '''
-        self.__chRootStatus = status
-
-    def __initSpecFile(self):
-        '''
-        
-        '''
-        if os.path.isfile(self.__packagePath + "/" + self.__specFile):
-            self.__mySpecFile = ObsLightSpec(packagePath=self.__packagePath,
-                                             aFile=self.__specFile)
-
-    def delFromChroot(self):
-        '''
-        
-        '''
-        self.__packageDirectory = None
-        self.__chRootStatus = PK_CONST.NOT_INSTALLED
-
-    def isInstallInChroot(self):
-        '''
-        Return True if the package is install into the chroot.
-        '''
-
-        if self.getChRootStatus() == PK_CONST.NOT_INSTALLED:
-            return False
-        else:
-            return True
-
-    def update(self, status=None):
-        '''
-        
-        '''
-        if status not in [None, "", "None"]:
-            self.__status = status
+    def isLocalGit(self):
+        return (self.getPackageGit() == self.getPackageSourceDirectory())
 
     def __subprocess(self, command=None, waitMess=False):
-        '''
-        
-        '''
         return self.__mySubprocessCrt.execSubprocess(command=command,
                                                      waitMess=waitMess)
+    #--------------------------------------------------------------------------- package management
+    def getDic(self):
+        '''
+        return a description of the object in a dictionary.
+        '''
+        aDic = {}
+        aDic["name"] = self.getName()
+
+        aDic["specFile"] = self.getSpecFile()
+
+        aDic["packageChrootDirectory"] = self.getPackageChrootDirectory()
+        aDic["packageSourceDirectory"] = self.getPackageSourceDirectory()
+
+        aDic["packageGitPath"] = self.__packageGitPath
+
+        aDic["firstCommitTag"] = self.__firstCommitTag
+        aDic["secondCommitTag"] = self.__secondCommitTag
+
+        aDic["description"] = self.__description
+        aDic["title"] = self.__packageTitle
+
+        aDic["currentPatch"] = self.__currentPatch
+        aDic["patchMode"] = self.__patchMode
+
+        aDic["prepDirName"] = self.__prepDirName
+        aDic["listRPMPublished"] = self.__listRPMPublished
+
+        aDic["packageChrootBuildDirectory"] = self.getChrootBuildDirectory()
+
+        aDic["packageInfo"] = self.__packageInfo.getDic()
+
+        return aDic
+
+    def initAGitPackage(self):
+        cmd = "git init %s" % self.getPackageSourceDirectory()
+        self.__subprocess(cmd)
+        packageName = self.getName()
+        packagingDir = os.path.join(self.getPackageSourceDirectory(), "packaging")
+        os.makedirs(packagingDir)
+        specPath = os.path.join(packagingDir, packageName + ".spec")
+        with open(specPath, 'w') as f:
+            f.write(specSkeleton % packageName)
+        f.close()
+
+    def getPackageParameter(self, parameter=None):
+        '''
+        Get the value of a project parameter:
+        the valid parameter is :
+            name
+            
+            specFile
+            
+            packageChrootDirectory
+            packageSourceDirectory
+            
+            firstCommitTag
+            
+            description
+            title
+            
+            currentPatch
+            patchMode
+            
+            prepDirName
+        '''
+
+        if parameter == "name":
+            return self.getName()
+
+        elif parameter == "specFile":
+            return self.getSpecFile()
+
+        elif parameter == "packageChrootDirectory":
+            return self.getPackageChrootDirectory()
+
+        elif parameter == "packageChrootBuildDirectory":
+            return self.getChrootBuildDirectory()
+
+        elif parameter == "packageSourceDirectory":
+            return self.getPackageSourceDirectory()
+
+        elif  parameter == "firstCommitTag":
+            return self.__firstCommitTag if self.__firstCommitTag != None else ""
+
+        elif parameter == "description":
+            return self.__description if self.__description != None else ""
+        elif parameter == "title":
+            return self.__packageTitle if self.__packageTitle != None else ""
+
+        elif parameter == "currentPatch":
+            return self.__currentPatch if self.__currentPatch != None else ""
+        elif parameter == "patchMode":
+            return self.__patchMode
+
+        elif parameter == "prepDirName":
+            return self.__prepDirName if self.__prepDirName != None else ""
+
+        else:
+            msg = "Parameter '%s' is not valid for getProjectParameter" % parameter
+            raise ObsLightPackageErr(msg)
+
+    def setPackageParameter(self, parameter=None, value=None):
+        '''
+        return the value  of the parameter of the package:
+        the valid parameter is :
+            specFile
+            
+            packageChrootDirectory
+            
+            description
+            title
+            
+            currentPatch
+            patchMode
+            
+            prepDirName
+        '''
+
+        if parameter == "specFile":
+            self.setSpecFile(value)
+
+        elif parameter == "packageChrootDirectory":
+            self.__packageChrootDirectory = value
+
+        elif parameter == "description":
+            self.__description = value
+        elif parameter == "title":
+            self.__packageTitle = value
+
+        elif parameter == "patchMode":
+            self.__patchMode = value
+        elif parameter == "currentPatch":
+            self.__currentPatch = value
+
+        elif parameter == "prepDirName":
+            self.__prepDirName = value
+
+        else:
+            msg = "The parameter '%s' value is not valid for setPackageParameter" % parameter
+            raise ObsLightPackageErr(msg)
+        return 0
 
     def getName(self):
         '''
@@ -368,366 +312,193 @@ class ObsLightPackage(object):
         '''
         return self.__name
 
-    def getDic(self):
-        '''
-        return a description of the object in a dictionary.
-        '''
-        aDic = {}
-        aDic["name"] = self.__name
-        aDic["listFile"] = copy(self.__fileList)
-        aDic["status"] = self.__status
-        aDic["specFile"] = self.__specFile
-        aDic["packageDirectory"] = self.__packageDirectory
-        aDic["description"] = self.__description
-        aDic["title"] = self.__packageTitle
-        aDic["chRootStatus"] = self.__chRootStatus
-        aDic["oscStatus"] = self.__oscStatus
-        aDic["firstCommitTag"] = self.__firstCommitTag
-        aDic["secondCommitTag"] = self.__secondCommitTag
-        aDic["oscRev"] = self.__oscRev
-        aDic["currentPatch"] = self.__currentPatch
-        aDic["obsRev"] = self.__obsRev
-        aDic["listInfoFile"] = copy(self.__listInfoFile)
-        aDic["listFileToDel"] = copy(self.__filesToDeleteList)
-        aDic["prepDirName"] = self.__prepDirName
-        aDic["packageGit"] = self.__packageGit
-        aDic["currentGitIsPackageGit"] = self.__currentGitIsPackageGit
-        aDic["patchMode"] = self.__patchMode
-        aDic["listRPMPublished"] = self.__listRPMPublished
-        return aDic
+    def isReadOnly(self):
+        return self.__readOnly
 
-    def getPackageParameter(self, parameter=None):
-        '''
-        Get the value of a project parameter:
-        the valid parameter is :
-            name
-            listFile
-            status
-            specFile
-            fsPackageDirectory
-            oscPackageDirectory
-            description
-            title
-            chRootStatus
-            oscStatus
-            oscRev
-            patchMode
-            buildSortCutMode
-            installSortCutMode
-        '''
-
-        if parameter == "name":
-            return self.__name if self.__name != None else ""
-        elif parameter == "listFile":
-            return self.__fileList if self.__fileList != None else ""
-        elif parameter == "obsStatus":
-            return self.__status if self.__status != None else ""
-        elif parameter == "specFile":
-            return self.__specFile if self.__specFile != None else ""
-        elif parameter == "fsPackageDirectory":
-            if self.__packageDirectory != None:
-                return self.__packageDirectory
-            else :
-                if self.getChRootStatus() == PK_CONST.NOT_INSTALLED:
-                    return ""
-                else:
-                    return self.__chrootRpmBuildDirectory
-
-        elif parameter == "oscPackageDirectory":
-            return self.__packagePath if self.__packagePath != None else ""
-        elif parameter == "description":
-            return self.__description if self.__description != None else ""
-        elif parameter == "title":
-            return self.__packageTitle if self.__packageTitle != None else ""
-        elif parameter == "chRootStatus":
-            return self.__chRootStatus if self.__chRootStatus != None else ""
-        elif parameter == "oscStatus":
-            return  self.__oscStatus if self.__oscStatus != None else ""
-        elif  parameter == "firstCommitTag":
-            return self.__firstCommitTag if self.__firstCommitTag != None else ""
-        elif  parameter == "oscRev":
-            return self.__oscRev if self.__oscRev != None else ""
-        elif parameter == "currentPatch":
-            return self.__currentPatch if self.__currentPatch != None else ""
-        elif parameter == "obsRev":
-            return self.__obsRev if self.__obsRev != None else ""
-        elif parameter == "listInfoFile":
-            return self.__listInfoFile if self.__listInfoFile != None else ""
-        elif parameter == "listFileToDel":
-            return self.__filesToDeleteList if self.__filesToDeleteList != None else ""
-        elif parameter == "prepDirName":
-            return self.__prepDirName if self.__prepDirName != None else ""
-        elif parameter == "patchMode":
-            return self.__patchMode
-        else:
-            msg = "Parameter '%s' is not valid for getProjectParameter" % parameter
-            raise ObsLightPackageErr(msg)
-
-    def specFileHaveAnEmptyBuild(self):
-        '''
-        
-        '''
-        if self.__mySpecFile is None:
-            self.__initSpecFile()
-
-        if self.__mySpecFile is None:
-            return None
-
-        return self.__mySpecFile.specFileHaveAnEmptyBuild()
-
-    def getSpecFileObj(self):
-
-        return self.__mySpecFile
-
-
-
-    def setPrepDirName(self, prepDirName):
-        '''
-        
-        '''
-        self.__prepDirName = prepDirName
-
-    def getPrepDirName(self):
-        '''
-        
-        '''
-        return self.__prepDirName
-
-    def getArchiveName(self):
+    def destroy(self):
         """
-        Get the name of the temporary archive we create from
-        sources extracted from git.
+        When the package is delteted, the package source is remove.
         """
-        if self.__prepDirName != None:
-            return self.__name + self.ArchiveSuffix
-        else:
-            return self.__prepDirName + self.ArchiveSuffix
-
-    def initCurrentPatch(self):
-        '''
-        
-        '''
-        self.__currentPatch = None
-
-
-    def patchIsInit(self):
-        '''
-        
-        '''
-        return self.__currentPatch != None
-
-    def getCurrentPatch(self):
-        '''
-        
-        '''
-        return self.__currentPatch
-
-    def setOscStatus(self, status):
-        '''
-        
-        '''
-        self.__oscStatus = status
-
-    def setPackageParameter(self, parameter=None, value=None):
-        '''
-        return the value  of the parameter of the package:
-        the valid parameter is :
-            specFile
-            packageDirectory
-            description
-            title
-            status
-            oscStatus
-            patchMode
-        '''
-        if parameter == "specFile":
-            self.__specFile = value
-            self.__initConfigureFile()
-        elif parameter == "packageDirectory":
-            self.__packageDirectory = value
-        elif parameter == "description":
-            self.__description = value
-        elif parameter == "title":
-            self.__packageTitle = value
-        elif parameter == "status":
-            self.__status = value
-        elif parameter == "listFile":
-            self.__fileList = value
-        elif parameter == "oscStatus":
-            self.__oscStatus = value
-        elif parameter == "oscRev":
-            self.__oscRev = value
-        elif parameter == "currentPatch":
-            self.__currentPatch = value
-        elif parameter == "obsRev":
-            self.__obsRev = value
-        elif parameter == "listInfoFile":
-            self.__listInfoFile = value
-        elif parameter == "listFileToDel":
-            self.__filesToDeleteList = value
-        elif parameter == "prepDirName":
-            self.__prepDirName = value
-        elif parameter == "patchMode":
-            self.__patchMode = value
-        else:
-            raise ObsLightPackageErr("The parameter '" + parameter + "' value is not valid for setPackageParameter")
+        sourcePath = self.getPackageSourceDirectory()
+        if  sourcePath is not None:
+            if os.path.isdir(sourcePath):
+                return self.__subprocess("rm -fr " + sourcePath)
         return 0
 
-    # TODO: delete this function
-    def getListFile(self):
-        return self.getFileList()
+    def getPackagingDirectiory(self):
+        if self.isGitPackage:
+            path = os.path.join(self.getPackageSourceDirectory(), "packaging")
+            return path
+        else:
+            return self.getPackageSourceDirectory()
 
-    def getFileList(self):
-        return self.__fileList
+    def getPackagingFiles(self, returnFullPath=False):
+        '''
+        Return the packaging files list. 
+        '''
+        packagingPath = self.getPackagingDirectiory()
+        if os.path.isdir(packagingPath):
+            listFile = os.listdir(packagingPath)
+            res = []
+            for f in listFile:
+                fileFullPath = os.path.join(packagingPath, f)
+                if os.path.isfile(fileFullPath) and not f.startswith('.') and not f.endswith('~'):
+                    if returnFullPath:
+                        res.append(fileFullPath)
+                    else:
+                        res.append(f)
+            return res
+        else:
+            return []
 
-    def getStatus(self):
+    def getPackageSourceDirectory(self):
         '''
-        return the Status of the package.
+        Return the absolute path of the source directory of the package.
+        (base on the directory of the spec file).
         '''
-        return self.__status
+        if self.__packageSourceDirectory is None:
+            self.__packageSourceDirectory = self.__project.createPackagePath(self.getName(), self.isGitPackage)
 
-    def getSpecFile(self):
-        '''
-        return the  spec file.
-        '''
-        return self.__specFile
+        return self.__packageSourceDirectory
 
-    def getSpecFilePath(self):
-        '''
-        return the  spec file abs path.
-        '''
-        return os.path.join(self.__packagePath, self.__specFile)
+    def getPackageChrootDirectory(self):
+        return self.__packageChrootDirectory
+#        if self.__packageChrootDirectory != None:
+#                return self.__packageChrootDirectory
+#            else :
+#                if self.__packageInfo.getChRootStatus() == PK_CONST.NOT_INSTALLED:
+#                    return ""
+#                else:
+#                    return self.getChrootRpmBuildDirectory()
 
-    def getOscDirectory(self):
-        '''
-        Return the absolute path of the osc directory of the package (base on the directory of the spec file).
-        '''
-        return self.__packagePath
 
-    def setDirectoryBuild(self, packageDirectory=None):
-        '''
-        Set the directory of the package into the chroot.
-        '''
-        self.__packageDirectory = packageDirectory
+    #--------------------------------------------------------------------------- Check out/update file
 
-    def getPackageDirectory(self):
-        '''
-        Return the directory of the package into the chroot.
-        '''
-        return self.__packageDirectory
+    def checkoutPackage(self):
+        if  self.isGitPackage :
+            if not self.isLocalGit():
+                self.__checkoutGitPackage()
+        else:
+            self.__checkoutOscPackage()
 
-#    def getDirectoryPackageName(self):
+        self.findBestSpecFile()
+        return 0
+
+    def __checkoutOscPackage(self):
+        ObsLightOsc.getObsLightOsc().checkoutPackage(obsServer=self.__project.getObsServer(),
+                                                     projectObsName=self.__project.getProjectObsName(),
+                                                     package=self.getName(),
+                                                     directory=self.__project.getDirectory())
+    def __checkoutGitPackage(self):
+        sourcePath = self.getPackageSourceDirectory()
+
+        url = self.getPackageGit()
+        if url is None:
+            msg = "Neither local path nor URL specified to import package from!"
+            raise ObsLightErr.ObsLightPackageErr(msg)
+
+        if os.path.isdir(sourcePath):
+            if len(os.listdir(sourcePath)) > 0:
+                msg = "Cannot do git clone in '%s': directory is not empty." % sourcePath
+                raise ObsLightErr.ObsLightPackageErr(msg)
+
+        ObsLightGitManager.cloneGitpackage(url, sourcePath)
+
+        if not os.path.isdir(os.path.join(sourcePath, ".git")):
+            mess = "'%s' is not a git directory" % sourcePath
+            raise ObsLightErr.ObsLightPackageErr(mess)
+
+        return 0
+
+    def updatePackage(self):
+        if  self.isGitPackage:
+            self.__updateGitPackage()
+        else:
+            self.__updateOscPackage()
+
+        self.findBestSpecFile()
+        return 0
+
+    def __updateGitPackage(self):
+        sourcePath = self.getPackageSourceDirectory()
+        return ObsLightGitManager.updateGitpackage(sourcePath)
+
+    def __updateOscPackage(self):
+        sourcePath = self.getPackageSourceDirectory()
+        ObsLightOsc.getObsLightOsc().updatePackage(sourcePath)
+        return 0
+
+    #--------------------------------------------------------------------------- spec file
+
+#    def __initConfigureFile(self):
 #        '''
-#        
+#        Init the  spec.
 #        '''
-#        if self.__mySpecFile != None:
-#            res = self.__mySpecFile.getDirectoryPackageName()
-#            if res != None:
-#                return None
+#        try:
+#            if not self.__specFile in (None, 'None', ""):
+#                self.__initSpecFile()
 #            else:
-#                raise ObsLightPackageErr("Error " + self.__name + " Have no spec File.")
-#        else:
-#            raise ObsLightPackageErr("Error " + self.__name + " Have no spec File.")
-#        return None
+#                self.__mySpecFile = None
+#        except BaseException:
+#            ObsLightPrintManager.getLogger().error(u"Error reading SPEC file", exc_info=1)
+#
+#    def __initSpecFile(self):
+#        if os.path.isfile(self.__packagePath + "/" + self.__specFile):
+#            self.__mySpecFile = ObsLightSpec(packagePath=self.__packagePath,
+#                                             aFile=self.__specFile)
 
-    def getMacroDirectoryPackageName(self):
-        '''
-        Return the Name used for the BUILD directory, by setup in %prep section
-        '''
-        if self.__mySpecFile is None:
-            self.__initSpecFile()
+    def findBestSpecFile(self):
+        """Find the name of the spec file which matches best with `packageName`"""
+        specFileList = self.__getSpecFileList(self.getPackagingFiles())
+        packageName = self.getName()
 
-        if self.__mySpecFile is None:
-            return None
-
-        name = self.__mySpecFile.getMacroDirectoryPackageName()
-
-        if name != None:
-            name = self.__mySpecFile.getResolveMacroName(name)
-            return name
+        specFile = None
+        if len(specFileList) < 1:
+            # No spec file in list
+            specFile = None
+        elif len(specFileList) == 1:
+            # Only one spec file
+            specFile = specFileList[0]
         else:
-            return None
+            sameStart = []
+            for spec in specFileList:
+                if str(spec[:-5]) == str(packageName):
+                    # This spec file has the same name as the package
+                    specFile = spec
+                    break
+                elif spec.startswith(packageName):
+                    # This spec file has a name which looks like the package
+                    sameStart.append(spec)
 
-    def getMacroPackageName(self):
-        '''
-        return the %{name} of the Pkg
-        '''
-        if self.__mySpecFile is None:
-            self.__initSpecFile()
+            if specFile is None:
+                if len(sameStart) > 0:
+                    # Sort the list of 'same start' by the Levenshtein distance
+                    sameStart.sort(key=lambda x: levenshtein(x, packageName))
+                    specFile = sameStart[0]
+                else:
+                    # No spec file starts with the name of the package,
+                    # sort the whole spec file list by the Levenshtein distance
+                    specFileList.sort(key=lambda x: levenshtein(x, packageName))
+                    specFile = specFileList[0]
 
-        if self.__mySpecFile is None:
-            return None
+        if specFile is None:
+            msg = "Found no spec file matching package name '%s'" % packageName
         else:
-            return self.__mySpecFile.getResolveMacroName("%{name}")
+            msg = "Spec file chosen for package '%s': '%s'" % (packageName, specFile)
+        self.logger.info(msg)
 
-    def addPatch(self, aFile=None):
-        '''
-        add a Patch aFile to package, the patch is automatically add to the spec aFile.
-        '''
-        self.__currentPatch = aFile
-        if self.__mySpecFile != None:
-            if self.__mySpecFile.addpatch(aFile) == 1:
-                ObsLightPrintManager.obsLightPrint("WARNING: Patch already exist the spec file will not be changed.")
-            else:
-                self.save()
-        else:
-            raise ObsLightPackageErr("No Spec in the package")
-
-        self.__addFile(aFile)
-
-    def __isASpecfile(self, afile):
-        '''
-        
-        '''
-        return afile.endswith(".spec")
-
-    def __addFile(self, afile):
-        '''
-        
-        '''
-        self.__fileList.append(afile)
-
-    def addFile(self, path):
-        '''
-        Add a aFile to the package.
-        '''
-        if not os.path.exists(path):
-            raise ObsLightPackageErr("'" + path + "' is not a file, can't add to package")
-
-        name = os.path.basename(path)
-        shutil.copy2(path, os.path.join(self.getOscDirectory(), name))
-        self.__addFile(name)
-        ObsLightOsc.getObsLightOsc().add(path=self.getOscDirectory(), afile=name)
-
-        if self.__isASpecfile(name):
-            self.__specFile = name
-            self.__initSpecFile()
-
-        self.initPackageFileInfo()
+        self.setSpecFile(specFile)
         return 0
 
-    def delFile(self, name):
-        '''
-        
-        '''
-        path = os.path.join(self.getOscDirectory(), name)
-        resInfo = self.getPackageFileInfo(name)
-        if not resInfo['Status'].startswith("!"):
-            if not os.path.exists(path):
-                raise ObsLightPackageErr("'" + path + "' not in package directory.")
-            os.remove(path)
+    @staticmethod
+    def __getSpecFileList(fileList):
+        """Returns a new list from `fileList` with only spec files"""
+        specFileList = []
+        for f in fileList:
+            if isASpecFile(f):
+                specFileList.append(f)
+        return specFileList
 
-            if name in self.__fileList:
-                self.__fileList.remove(name)
-
-            if not resInfo['Status'].startswith("?"):
-                self.__filesToDeleteList.append(name)
-                ObsLightOsc.getObsLightOsc().remove(path=self.getOscDirectory(), afile=name)
-        else:
-            if name in self.__filesToDeleteList:
-                self.__filesToDeleteList.remove(name)
-        self.initPackageFileInfo()
-        return 0
 
     def save(self):
         '''
@@ -743,8 +514,10 @@ class ObsLightPackage(object):
         Save the Spec file.
         '''
         if self.__mySpecFile != None:
-            self.__mySpecFile.saveTmpSpec(path=path, excludePatch=self.__currentPatch, archive=archive)
-            self.initPackageFileInfo()
+            self.__mySpecFile.saveTmpSpec(path=path,
+                                          excludePatch=self.__currentPatch,
+                                          archive=archive)
+#            self.initPackageFileInfo()
         else:
             raise ObsLightPackageErr("No Spec in the package")
 
@@ -753,10 +526,13 @@ class ObsLightPackage(object):
         Save the Spec file.
         '''
         if self.__mySpecFile != None:
-            self.__mySpecFile.saveSpecShortCut(path, section, self.getChRootStatus(), self.getPackageDirectory())
+            self.__mySpecFile.saveSpecShortCut(path,
+                                               section,
+                                               self.__packageInfo.getChRootStatus(),
+                                               self.getPackageChrootDirectory(),
+                                               )
         else:
             raise ObsLightPackageErr("No Spec in the package")
-
 
     def saveSpec(self, path):
         '''
@@ -773,9 +549,9 @@ class ObsLightPackage(object):
         '''
 
         if self.__mySpecFile != None:
-            self.save()
             res = self.__mySpecFile.addFile(baseFile=baseFile, aFile=aFile)
-            self.initPackageFileInfo()
+#            self.initPackageFileInfo()
+            self.save()
             return res
         else:
             raise ObsLightPackageErr("No Spec in the package")
@@ -786,103 +562,592 @@ class ObsLightPackage(object):
         '''
         if self.__mySpecFile != None:
             res = self.__mySpecFile.delFile(aFile=aFile)
-            self.initPackageFileInfo()
+#            self.initPackageFileInfo()
             self.save()
             return res
         else:
             raise ObsLightPackageErr("No Spec in the package")
 
-    def autoResolvedConflict(self):
-        '''
-        
-        '''
-        for aFile in self.__fileList:
-            if self.testConflict(aFile=aFile):
-                ObsLightOsc.getObsLightOsc().autoResolvedConflict(packagePath=self.getOscDirectory(), aFile=aFile)
-        return self.initPackageFileInfo()
+    def __isASpecfile(self, afile):
+        return afile.endswith(".spec")
 
-    def commitToObs(self, message=None):
+    def getSpecFile(self, fullPath=False):
         '''
-        commit the package to the OBS server.
+        return the  spec file.
         '''
-        self.autoResolvedConflict()
-        ObsLightOsc.getObsLightOsc().commitProject(path=self.getOscDirectory(), message=message)
-        self.__filesToDeleteList = []
-        self.initPackageFileInfo()
+        if self.__specFile is not None:
+            if fullPath:
+                return os.path.join(self.getPackagingDirectiory(), self.__specFile)
+            else:
+                return self.__specFile
+        else:
+            return None
+
+    def getSpecObj(self):
+        if self.__mySpecFile is not None:
+            return self.__mySpecFile
+        else:
+            if not self.__specFile in (None, 'None', ""):
+                if os.path.isfile(self.getSpecFile(True)):
+                    self.__mySpecFile = ObsLightSpec(packagePath=self.getPackagingDirectiory(),
+                                                     aFile=self.getSpecFile())
+                else:
+                    self.__mySpecFile = None
+                return self.__mySpecFile
+            else:
+                return None
+
+    def setSpecFile(self, newSpecFile):
+        '''
+        return the  spec file.
+        '''
+        oldSpecFile = self.__specFile
+        self.__specFile = newSpecFile
+
+        if oldSpecFile != newSpecFile:
+            self.__mySpecFile = self.getSpecObj()
+
+    def specFileHaveAnEmptyBuild(self):
+        mySpecFile = self.getSpecObj()
+
+        if mySpecFile is None:
+            return None
+
+        return mySpecFile.specFileHaveAnEmptyBuild()
+
+    def getMacroDirectoryPackageName(self):
+        '''
+        Return the Name used for the BUILD directory, by setup in %prep section
+        '''
+        mySpecFile = self.getSpecObj()
+
+        if mySpecFile is None:
+            return None
+
+        name = mySpecFile.getMacroDirectoryPackageName()
+
+        if name != None:
+            name = mySpecFile.getResolveMacroName(name)
+            return name
+        else:
+            return None
+
+    def getMacroPackageName(self):
+        '''
+        return the %{name} of the Pkg
+        '''
+        mySpecFile = self.getSpecObj()
+
+        if mySpecFile is None:
+            return None
+
+        return mySpecFile.getResolveMacroName("%{name}")
+
+    #--------------------------------------------------------------------------- osc Management
+
+
+    #--------------------------------------------------------------------------- git Management
+    @property
+    def isGitPackage(self):
+        return (self.getPackageGit() is not None)
+
+    def setPackageGit(self, path):
+        self.__packageGitPath = path
+
+    def getPackageGit(self):
+        return self.__packageGitPath
+
+    #--------------------------------------------------------------------------- chroot Management
+    def exportIntoChroot(self, chrootPath):
+        """
+        Export package source into chroot.
+        """
+        def _createAbsPath(path):
+            if len(path) > 0 and path.startswith("/"):
+                path = path[1:]
+            return os.path.join(chrootPath , path)
+
+        def create_gbp_export_args(repo, commit, export_dir, tmp_dir, spec):
+            """
+            Construct the cmdline argument list for git-buildpackage export
+            """
+            upstream_branch = "upstream"
+            upstream_tag = 'upstream/%(upstreamversion)s'
+
+            # Now, start constructing the argument list
+            args = ["argv[0] placeholder", "--git-export-only",
+                    "--git-ignore-new", "--git-builder=osc",
+                    "--git-upstream-branch=upstream",
+                    "--git-export-dir=%s" % export_dir,
+                    "--git-tmp-dir=%s" % tmp_dir,
+                    "--git-packaging-dir=packaging",
+                    "--git-spec-file=%s" % spec,
+                    "--git-export=%s" % commit,
+                    "--git-upstream-branch=%s" % upstream_branch,
+                    "--git-upstream-tag=%s" % upstream_tag]
+
+
+            args.extend(["--git-no-patch-export",
+                         "--git-upstream-tree=%s" % commit])
+
+            return args
+
+        chrootRpmBuildDirectory = self.getChrootRpmBuildDirectory()
+        absChrootRpmBuildDirectory = "%s%s/SOURCES/" % (self.__project.getChRootPath(), chrootRpmBuildDirectory)
+
+        for aFile in self.getPackagingFiles():
+            pathDst = absChrootRpmBuildDirectory + str(aFile)
+            if os.path.isfile(pathDst):
+                os.unlink(pathDst)
+            pathSrc = os.path.join(self.getPackagingDirectiory() , str(aFile))
+            shutil.copy2(pathSrc, pathDst)
+
+        if self.isGitPackage:
+            listFile = os.listdir(self.getPackageSourceDirectory())
+
+            if ".git" in listFile:
+                listFile.remove(".git")
+
+            if len(listFile) > 1:
+                curentDirOld = os.getcwd()
+                sourcePath = self.getPackageSourceDirectory()
+                repo = RpmGitRepository(sourcePath)
+                os.chdir(sourcePath)
+                commit = 'HEAD'
+                export_dir = absChrootRpmBuildDirectory
+                tmp_dir = "/tmp"
+#                spec = rpm.parse_spec(self.getSpecFile(fullPath=True))
+                spec = self.getSpecFile(fullPath=True)
+#                comp_type = guess_comp_type(spec)
+                gbp_args = create_gbp_export_args(repo,
+                                                  commit,
+                                                  export_dir,
+                                                  tmp_dir,
+                                                  spec)
+
+#                git_archive(repo,
+#                            spec,
+#                            destDir,
+#                            'HEAD',
+#                            comp_type,
+#                            comp_level=9,
+#                            with_submodules=True)
+                old_stderr = sys.stderr
+                old_stdout = sys.stdout
+                try:
+                    sys.stdout = PrintHandler(ObsLightPrintManager.getLogger().info)
+                    sys.stderr = PrintHandler(ObsLightPrintManager.getLogger().error)
+                    ret = gbp_build(gbp_args)
+
+
+                finally:
+                    sys.stderr = old_stderr
+                    sys.stdout = old_stdout
+                    os.chdir(curentDirOld)
+
+        self.__packageChrootDirectory = os.path.join(self.__chrootUserHome, self.__name)
+        return 0
+
+    def delFromChroot(self):
+        self.__packageChrootDirectory = None
+        self.__packageInfo.delFromChroot()
+
+    def isInstallInChroot(self):
+        '''
+        Return True if the package is install into the chroot.
+        '''
+        if self.__packageInfo.getChRootStatus() == NOT_INSTALLED:
+            return False
+        else:
+            return True
+
+
+    #--------------------------------------------------------------------------- chroot build Management
+    def getRPMPublished(self):
+        return self.__listRPMPublished
+
+    def setRPMPublished(self, listRPMPublished):
+        self.__listRPMPublished = listRPMPublished
+
+    def getCurrentGitDirectory(self):
+        return os.path.join(self.getChrootRpmBuildDirectory(), "BUILD", self.__obslightGit)
+
+    def isCurrentGitIsPackageGit(self):
+        return self.__currentGitIsPackageGit
+
+    def getChrootRpmBuildDirectory(self):
+        return self.__chrootRpmBuildDirectory
+
+    def getChrootRpmBuildTmpDirectory(self):
+        return self.__chrootRpmBuildTmpDirectory
+
+    def getTopDirRpmBuildDirectory(self):
+        return  self.__rpmBuildDirectory
+
+    def getTopDirRpmBuildLinkDirectory(self):
+        return self.__rpmBuildDirectoryLink
+
+    def getTopDirRpmBuildTmpDirectory(self):
+        return self.__rpmBuildTmpDirectory
+
+    def setChrootBuildDirectory(self, path):
+        '''
+        Set the directory of the package build directory into the chroot.
+        '''
+        self.__packageChrootBuildDirectory = path
+
+    def getChrootBuildDirectory(self):
+        '''
+        Return the directory of the package build directory into the chroot.
+        '''
+        return self.__packageChrootBuildDirectory
+
+    #--------------------------------------------------------------------------- Patch Management
+    def addPatch(self, aFile=None):
+        '''
+        add a Patch aFile to package, the patch is automatically add to the spec aFile.
+        '''
+        self.__currentPatch = aFile
+        if self.__mySpecFile != None:
+            if self.__mySpecFile.addpatch(aFile) == 1:
+                msg = "WARNING: Patch already exist the spec file will not be changed."
+                ObsLightPrintManager.obsLightPrint(msg)
+            else:
+                self.save()
+        else:
+            msg = "No Spec in the package"
+            raise ObsLightPackageErr(msg)
+
+#        self.__addFile(aFile)
+        if self.isGitPackage:
+            pass
+        else:
+            ObsLightOsc.getObsLightOsc().add(path=self.getPackageSourceDirectory(), afile=self.__currentPatch)
+
+    def initCurrentPatch(self):
+        self.__currentPatch = None
+
+    def patchIsInit(self):
+        return self.__currentPatch != None
+
+    def getCurrentPatch(self):
+        return self.__currentPatch
+
+    def setFirstCommit(self, tag):
+        self.__firstCommitTag = tag
+
+    def getFirstCommit(self):
+        return self.__firstCommitTag
+
+    def setSecondCommit(self, tag):
+        self.__secondCommitTag = tag
+
+    def getSecondCommit(self):
+        return self.__secondCommitTag
+
+    def setPrepDirName(self, prepDirName):
+        self.__prepDirName = prepDirName
+
+    def getPrepDirName(self):
+        return self.__prepDirName
+
+    def getArchiveName(self):
+        """
+        Get the name of the temporary archive we create from
+        sources extracted from git.
+        """
+        if self.__prepDirName is None:
+            return self.__name + self.ArchiveSuffix
+        else:
+            return self.__prepDirName + self.ArchiveSuffix
+
+    #--------------------------------------------------------------------------- File management (old)
+#    def addFile(self, path):
+#        '''
+#        Add a aFile to the package.
+#        '''
+#        if not os.path.exists(path):
+#            raise ObsLightPackageErr("'" + path + "' is not a file, can't add to package")
+#
+#        name = os.path.basename(path)
+#        shutil.copy2(path, os.path.join(self.getPackagingDirectiory(), name))
+##        self.__addFile(name)
+#
+#        if self.__isGitPackage:
+#            pass
+#        else:
+#            ObsLightOsc.getObsLightOsc().add(path=self.getPackagingDirectiory(), afile=name)
+#
+#
+#        if self.__isASpecfile(name):
+#            self.findBestSpecFile()
+#
+##        self.initPackageFileInfo()
+#        return 0
+
+#    def delFile(self, name):
+#        path = os.path.join(self.getPackageSourceDirectory(), name)
+##        resInfo = self.getPackageFileInfo(name)
+#        if not resInfo['Status'].startswith("!"):
+#            if not os.path.exists(path):
+#                raise ObsLightPackageErr("'" + path + "' not in package directory.")
+#            os.remove(path)
+#
+##            if name in self.__fileList:
+##                self.__fileList.remove(name)
+#
+##            if not resInfo['Status'].startswith("?"):
+##                self.__filesToDeleteList.append(name)
+##                ObsLightOsc.getObsLightOsc().remove(path=self.getPackageSourceDirectory(), afile=name)
+#        else:
+#            if name in self.__filesToDeleteList:
+#                self.__filesToDeleteList.remove(name)
+##        self.initPackageFileInfo()
+#        return 0
+
+#    def getPackageFileInfo(self, fileName):
+#        if self.__listInfoFile is None:
+#            try:
+#                res = ObsLightOsc.getObsLightOsc().getPackageFileInfo(workingdir=self.__packagePath)
+#            # FVE: temporary hack to get file list in UI
+#            except ObsLightOsc.oscerr.NoWorkingCopy:
+#                res = []
+#                for f in getFilteredFileList(self.__packagePath):
+#                    res.append((' ', f))
+#            if res != None:
+#                self.__listInfoFile = {}
+#                for status, aFile in res:
+#                    self.__listInfoFile[aFile] = status
+#        if fileName in self.__listInfoFile.keys():
+#            res = self.__listInfoFile[fileName]
+#            if res == "A":
+#                res += " (Added)"
+#            elif res == "D":
+#                res += " (Deleted)"
+#            elif res == "M":
+#                res += " (Modified)"
+#            elif res == "!":
+#                res += " (item is missing, removed by non-osc command)"
+#            elif res == "?":
+#                res += " (item is not under version control)"
+#            elif res == "C":
+#                res += " (Conflicted)"
+#
+#            return {u'Status': res}
+#        else:
+#            return {u'Status': u"! (item is missing, removed by non-osc command)"}
+
+#    def initPackageFileInfo(self):
+#        res = ObsLightOsc.getObsLightOsc().getPackageFileInfo(workingdir=self.__packagePath)
+#        if res != None:
+#            self.__listInfoFile = {}
+#            for status, aFile in res:
+#                self.__listInfoFile[aFile] = status
+#        return 0
+
+    def testConflict(self, aFile=None):
+        return False
+#        if aFile != None:
+#            if self.getPackageFileInfo(aFile)[u'Status'].startswith("C"):
+#                return True
+#            return False
+#        else:
+#            for aFile in self.getListFile():
+#                if self.getPackageFileInfo(aFile)[u'Status'].startswith("C"):
+#                    return True
+#            return False
+
+    #--------------------------------------------------------------------------- Package Info
+
+    def getPackageInfo(self, info):
+        return self.__packageInfo.getPackageInfo(info)
+
+
+    def isExclude(self):
+        return self.__packageInfo.isExclude()
+
+    def setChRootStatus(self, status):
+        return self.__packageInfo.setChRootStatus(status)
+
+    def haveBuildDirectory(self):
+        return self.__packageInfo.haveBuildDirectory()
+
+    def isPackaged(self):
+        return self.__packageInfo.isPackaged()
+    #---------------------------------------------------------------------------
+    @property
+    def existsOnServer(self):
+        # TODO: check that it really exists on server
+        return self.__existsOnServer
+
+#    def getPackageFileList(self):
+#        res = []
+#        res.extend(self.__fileList)
+#        res.extend(self.__filesToDeleteList)
+#        return res
+
+    def getPackagePath(self):
+        return self.__packagePath
+
+    def repairPackageDirectory(self):
+        path = self.getPackageSourceDirectory()
+        ObsLightOsc.getObsLightOsc().repairOscPackageDirectory(path=path)
+        return self.updatePackage(name=package)
+
+
+    def __createPackageArchiveFromGit(self,
+                                      gitTreePath,
+                                      packagePath,
+                                      packageName,
+                                      packageVersion=None):
+        """
+        Create the archive of package `packageName`, in directory `packagePath`,
+        from the git tree at `gitTreePath`.
+        `packageName` should be the name of the package as written in spec file.
+        Optional `packageVersion` should be the version of the package as written in spec file.
+        """
+        if packageVersion is None:
+            archiveName = packageName + ".tar"
+            packageTopDir = packageName
+        else:
+            versionSuffix = "-%s" % packageVersion
+            archiveName = packageName + versionSuffix + ".tar"
+            packageTopDir = packageName + versionSuffix
+        archivePath = os.path.join(packagePath, archiveName)
+        cmd = 'git --git-dir="%s/.git" archive --prefix %s/ -o "%s" HEAD' % (gitTreePath,
+                                                                             packageTopDir,
+                                                                             archivePath)
+        res = self.__mySubprocessCrt.execSubprocess(cmd)
+        errorMsg = "Failed to create archive of packageName '%s'" % packageName
+        if res != 0:
+            raise ObsLightErr.ObsLightProjectsError(errorMsg)
+        cmd = 'gzip -f %s' % archivePath
+        res = self.__mySubprocessCrt.execSubprocess(cmd)
+        if res != 0:
+            raise ObsLightErr.ObsLightProjectsError(errorMsg)
+
+
+    # TODO: delete this function
+#    def getListFile(self):
+#        return self.getFileList()
+
+#    def getFileList(self):
+#        return self.__fileList
+
+
+#    def getDirectoryPackageName(self):
+#        '''
+#        
+#        '''
+#        if self.__mySpecFile != None:
+#            res = self.__mySpecFile.getDirectoryPackageName()
+#            if res != None:
+#                return None
+#            else:
+#                raise ObsLightPackageErr("Error " + self.__name + " Have no spec File.")
+#        else:
+#            raise ObsLightPackageErr("Error " + self.__name + " Have no spec File.")
+#        return None
+
+#    def __addFile(self, afile):
+#        self.__fileList.append(afile)
+
+    def autoResolvedConflict(self):
+#        if not self.isGitPackage:
+#            for aFile in self.__fileList:
+#                if self.testConflict(aFile=aFile):
+#                    ObsLightOsc.getObsLightOsc().autoResolvedConflict(packagePath=self.getPackageSourceDirectory(),
+#                                                                      aFile=aFile)
+        return 0
+#        return self.initPackageFileInfo()
 
     def addRemoveFileToTheProject(self):
         '''
         add new file and remove file to the project.
         '''
-        ObsLightOsc.getObsLightOsc().addremove(path=self.getOscDirectory())
-        self.initPackageFileInfo()
+        if not self.isGitPackage:
+            ObsLightOsc.getObsLightOsc().addremove(path=self.getPackageSourceDirectory())
+#        self.initPackageFileInfo()
 
-    def destroy(self):
+    def commitPackageChange(self, message=None):
         '''
-        
+        commit the package to the OBS server.
         '''
-        return self.__subprocess(command="rm -r  " + self.getOscDirectory())
+        if not self.isGitPackage:
+            if self.__packageInfo.isReadyToCommit():
+                message = "Can't Commit \"%s\"\n"
+                message += "because local osc rev \"%s\" and OBS rev \"%s\" do not match.\n"
+                message += "Please update the package."
+                message = message % (package, oscRev, obsRev)
 
-    def initPackageFileInfo(self):
-        '''
-        
-        '''
-        res = ObsLightOsc.getObsLightOsc().getPackageFileInfo(workingdir=self.__packagePath)
-        if res != None:
-            self.__listInfoFile = {}
-            for status, aFile in res:
-                self.__listInfoFile[aFile] = status
-        return 0
+                raise ObsLightErr.ObsLightProjectsError(message)
 
-    def getPackageFileInfo(self, fileName):
-        '''
-        
-        '''
-
-        if self.__listInfoFile is None:
-            res = ObsLightOsc.getObsLightOsc().getPackageFileInfo(workingdir=self.__packagePath)
-            if res != None:
-                self.__listInfoFile = {}
-                for status, aFile in res:
-                    self.__listInfoFile[aFile] = status
-        if fileName in self.__listInfoFile.keys():
-            res = self.__listInfoFile[fileName]
-            if res == "A":
-                res += " (Added)"
-            elif res == "D":
-                res += " (Deleted)"
-            elif res == "M":
-                res += " (Modified)"
-            elif res == "!":
-                res += " (item is missing, removed by non-osc command)"
-            elif res == "?":
-                res += " (item is not under version control)"
-            elif res == "C":
-                res += " (Conflicted)"
-
-            return {u'Status': res}
+        self.autoResolvedConflict()
+        if not self.isGitPackage:
+            ObsLightOsc.getObsLightOsc().commitProject(path=self.getPackageSourceDirectory(), message=message)
         else:
-            return {u'Status': u"! (item is missing, removed by non-osc command)"}
-
-    def testConflict(self, aFile=None):
-        '''
-        
-        '''
-        if aFile != None:
-            if self.getPackageFileInfo(aFile)[u'Status'].startswith("C"):
-                return True
-            return False
-        else:
-            for aFile in self.getListFile():
-                if self.getPackageFileInfo(aFile)[u'Status'].startswith("C"):
-                    return True
-            return False
+            sourcePath = self.getPackageSourceDirectory()
+            return ObsLightGitManager.commitGitpackage(sourcePath, message)
+#        self.__filesToDeleteList = []
+#        self.initPackageFileInfo()
 
 
+specSkeleton = '''#
+# spec file for package 
+#
+# Copyright (c) 2010 SUSE LINUX Products GmbH, Nuernberg, Germany.
+#
+# All modifications and additions to the file contributed by third parties
+# remain the property of their copyright owners, unless otherwise agreed
+# upon. The license for this file, and modifications and additions to the
+# file, is the same license as for the pristine package itself (unless the
+# license for the pristine package is not an Open Source License, in which
+# case the license is the MIT License). An "Open Source License" is a
+# license that conforms to the Open Source Definition (Version 1.9)
+# published by the Open Source Initiative.
+
+# Please submit bugfixes or comments via http://bugs.opensuse.org/
+#
+
+# norootforbuild
 
 
+Name:           %s
+Version:
+Release:
+License:
+Summary:
+Url:
+Group:
+Source:
+Patch:
+BuildRequires:
+PreReq:
+Provides:
+BuildRoot:      %%{_tmppath}/%%{name}-%%{version}-build
 
+%%description
 
+%%prep
+%%setup -q
 
+%%build
+%%configure
+make %%{?_smp_mflags}
 
+%%install
+%%make_install
 
+%%clean
+%%{?buildroot:%%__rm -rf "%%{buildroot}"}
+
+%%post
+
+%%postun
+
+%%files
+%%defattr(-,root,root)
+%%doc ChangeLog README COPYING
+
+%%changelog
+'''

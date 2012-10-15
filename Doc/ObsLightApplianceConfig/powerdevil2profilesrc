@@ -1,0 +1,7 @@
+[Performance]
+icon=preferences-system-performance
+
+[Performance][HandleButtonEvents]
+lidAction=64
+powerButtonAction=16
+

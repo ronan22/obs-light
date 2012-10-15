@@ -151,7 +151,13 @@ class ObsLightLocalServerErr(OBSLightBaseError):
         OBSLightBaseError.__init__(self)
         self.msg = msg
 
-
-
-
+class ObsLightNotImplementedError(NotImplementedError, OBSLightBaseError):
+    """
+    Exception raised when a functionality is not implemented
+    or not available.
+    """
+    def __init__(self, msg):
+        OBSLightBaseError.__init__(self)
+        NotImplementedError.__init__(self, msg)
+        self.msg = msg
 

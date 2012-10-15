@@ -20,7 +20,7 @@ Created on 21 déc. 2011
 
 @author: Florent Vennetier
 '''
-
+from PySide.QtGui import QMessageBox
 from ObsLightGui.FilterableWidget import FilterableWidget
 from ObsLightGui.Utils import popupOnException, ProgressRunnable2
 
@@ -49,6 +49,23 @@ class ChooseProjectPage(ObsLightWizardPage, FilterableWidget):
                                    restrainMaintainer,
                                    restrainBugowner,
                                    restrainRemoteLinks)
+
+    @popupOnException
+    def validatePage(self):
+        if not self.isComplete():
+            return False
+        readonly = self._isSelectedProjectReadOnly()
+        if readonly:
+            msg = u"Warning: the project you selected is read only!\n"
+            msg += u"You won't be able to push modifications.\n\n"
+            msg += u"Do you want to import it anyway?"
+            result = QMessageBox.warning(self,
+                                         u"Read only project",
+                                         msg,
+                                         buttons=QMessageBox.Yes | QMessageBox.Cancel,
+                                         defaultButton=QMessageBox.Yes)
+            return result == QMessageBox.Yes
+        return True
 
     @popupOnException
     def _checkBoxStateChanged(self, _state):
@@ -100,6 +117,17 @@ class ChooseProjectPage(ObsLightWizardPage, FilterableWidget):
         runnable.finished[object].connect(self._fillProjectList)
         progress.forceShow()
         runnable.runOnGlobalInstance()
+
+    def _isSelectedProjectReadOnly(self):
+        """Checks if the selected project is readonly (with progress bar)"""
+        project = str(self.getSelectedProject())
+        server = str(self.wizard().getSelectedServerAlias())
+        ro = self.callWithInfiniteProgress(self.manager.getObsProjectParameter,
+                                           u"Checking if project '%s' is readonly" % project,
+                                           server,
+                                           project,
+                                           "readonly")
+        return ro
 
     def getSelectedProject(self):
         return self.ui_WizardPage.projectListWidget.item(self.field(u"projectRow")).text()

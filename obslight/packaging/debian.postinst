@@ -52,6 +52,7 @@ chmod g+w /srv/$IMGSRVPATH/www
 chmod g+w /srv/$REPOSRVPATH
 chmod g+w /srv/$REPOSRVPATH/config
 chmod g+w /srv/$REPOSRVPATH/www
+chmod -R o+rw /usr/share/obslight
 
 xdg-desktop-menu install --novendor /usr/share/applications/obslightgui.desktop
 

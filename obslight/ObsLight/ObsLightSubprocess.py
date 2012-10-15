@@ -94,6 +94,9 @@ class SubprocessCrt(object):
                     if stdout and (f_stdout == fd):
                         outPutRes += output
                     for line in output.split("\n"):
+                        if not line == b"" or not output.endswith("\n"):
+                            outputs[fd]["EOF"] = False
+
                         if line == b"" and not output.endswith("\n"):
                             outputs[fd]["EOF"] = True
                         elif line != "" and not noOutPut:
@@ -120,8 +123,8 @@ class SubprocessCrt(object):
 
         # maybe p.wait() is better ?
         res = p.poll()
-        ObsLightPrintManager.getLogger().debug("command finished: '%s', return code: %s"
-                                               % (command, unicode(res)))
+        msg = "command finished: '%s', return code: %s" % (command, unicode(res))
+        ObsLightPrintManager.getLogger().debug(msg)
 
         if stdout:
             return outPutRes
