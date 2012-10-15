@@ -3,7 +3,7 @@
 from distutils.core import setup
 
 setup(name='obslight-fakeobs',
-      version="1.0.0",
+      version="1.0.2",
       description='OBS Light Fake OBS',
       long_description='Python script that partially implement an OBS API.\
  It is based on Mer Delivery System',
