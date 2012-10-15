@@ -207,9 +207,9 @@ class FakeObsCommandline(cmdln.Cmdln):
         name = opts.name
 	if not opts.archs:
 	    opts.archs = None
-	if len(opts.archs)==1 and opts.archs[0]=="*":
+	elif len(opts.archs)==1 and opts.archs[0]=="*":
 	    opts.archs = None
-        effectiveName = ProjectManager.grabGBSTree(url, name, opts.targets, opts.archs, opts.orders, **opts)
+        effectiveName = ProjectManager.grabGBSTree(url, name, opts.targets, opts.archs, opts.orders, opts.verbose, opts.force)
         msg = "Project '%s' grabbed" % effectiveName
         print Utils.colorize(msg, "green")
         packageList = ProjectManager.getPackageList(effectiveName)
