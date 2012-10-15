@@ -1,3 +1,4 @@
+# coding=utf-8
 #
 # Copyright 2012, Intel Inc.
 #
@@ -18,7 +19,7 @@
 Manage the projects of FakeOBS.
 
 @author: Florent Vennetier
-@author: jobol@nonadev.net
+@author: José Bollo
 """
 
 import os

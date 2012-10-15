@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# coding=utf-8
 """
 dupes.py
 Find duplicate files

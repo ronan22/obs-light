@@ -1,3 +1,4 @@
+# coding=utf-8
 #
 # Copyright 2012, Intel Inc.
 #
@@ -16,7 +17,8 @@
 #
 """
 Objects to manage the GBS tree exported by OBS of the Tizen Project for Tizen GBS
-@author: jobol@nonadev.net
+
+@author: José Bollo
 """
 
 # CAUTION: the way the paths are managed is not good because there is a mix

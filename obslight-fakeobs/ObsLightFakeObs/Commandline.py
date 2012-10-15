@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# coding=utf-8
 #
 # Copyright 2012, Intel Inc.
 #
@@ -19,7 +20,7 @@
 Commandline client for FakeOBS.
 
 @author: Florent Vennetier
-@author: jobol@nonadev.net
+@author: José Bollo
 """
 
 import sys
@@ -215,7 +216,8 @@ class FakeObsCommandline(cmdln.Cmdln):
         msg = "It contains %d packages" % len(packageList)
         print Utils.colorize(msg, "green")
         print
-        return self.do_check(subcmd, opts, effectiveName)
+        #return self.do_check(subcmd, opts, effectiveName)
+        return True
 
     @cmdln.alias("verify")
     def do_check(self, subcmd, opts, project):
