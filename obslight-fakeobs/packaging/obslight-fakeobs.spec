@@ -117,9 +117,7 @@ cp -f README %{buildroot}%{_docdir}/%{name}
 echo "%{name}-%{version}-%{release}" > %{buildroot}%{_docdir}/%{name}/VERSION
 
 ln -sf /srv/fakeobs/tools/fakeobs.py %{buildroot}%{_sbindir}/fakeobs
-ln -sf %{_sysconfdir}/init.d/fakeobs %{buildroot}%{_sbindir}/rcfakeobs
 ln -sf /srv/fakeobs/tools/fakeobswebui.py %{buildroot}%{_sbindir}/fakeobswebui
-ln -sf %{_sysconfdir}/init.d/fakeobswebui %{buildroot}%{_sbindir}/rcfakeobswebui
 # << install pre
 
 # >> install post
@@ -256,9 +254,11 @@ fi
 %dir /srv/obslight-fakeobs/config
 %dir /srv/obslight-fakeobs/theme
 %dir /srv/obslight-fakeobs/tools
+
 /srv/obslight-fakeobs/config/*
 /srv/obslight-fakeobs/theme/*
 /srv/obslight-fakeobs/tools/*
+
 %{python_sitelib}/ObsLightFakeObs
 %{python_sitelib}/obslight_fakeobs-*.egg-info
 %if 0%{?fedora} || 0%{?suse_version} >= 1210
