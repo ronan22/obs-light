@@ -7,6 +7,11 @@ Tue Sep 18 14:23:35 CEST 2012 - florent@fridu.net
   when doing a grab
 
 -------------------------------------------------------------------
+Wed Sep 12 09:35:04 UTC 2012 - florent@fridu.net
+
+- restart daemon after grab or import
+
+-------------------------------------------------------------------
 Thu Sep  6 09:59:03 CEST 2012 - florent@fridu.net
 
 - updated version to 1.0.0
@@ -20,11 +25,6 @@ Tue Aug 14 09:38:29 UTC 2012 - florent@fridu.net
 - updated version to 0.6.1
 - fixed _buildinfo request for ARM builds
 - not using manifest anymore to remove a project
-
--------------------------------------------------------------------
-Wed Sep 12 09:35:04 UTC 2012 - florent@fridu.net
-
-- restart daemon after grab or import
 
 -------------------------------------------------------------------
 Tue Aug 14 09:38:29 UTC 2012 - florent@fridu.net
