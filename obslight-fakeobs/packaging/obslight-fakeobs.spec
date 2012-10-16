@@ -115,9 +115,6 @@ ln -sf %{_sysconfdir}/init.d/fakeobswebui %{buildroot}%{_sbindir}/rcfakeobswebui
 cp -f config/logrotate_fakeobs %{buildroot}%{_sysconfdir}/logrotate.d/obslight-fakeobs
 cp -f README %{buildroot}%{_docdir}/%{name}
 echo "%{name}-%{version}-%{release}" > %{buildroot}%{_docdir}/%{name}/VERSION
-
-ln -sf /srv/fakeobs/tools/fakeobs.py %{buildroot}%{_sbindir}/fakeobs
-ln -sf /srv/fakeobs/tools/fakeobswebui.py %{buildroot}%{_sbindir}/fakeobswebui
 # << install pre
 
 # >> install post
