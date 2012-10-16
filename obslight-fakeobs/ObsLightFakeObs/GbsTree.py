@@ -757,7 +757,7 @@ class GbsTree:
 	    """
 	    init current instance
 	    """
-	    assert self.uri.startswith("http:") or self.uri.startswith("https:")
+	    assert uri.startswith("http:") or uri.startswith("https:")
 	    GbsTree.Connector.__init__(self,owner)
 	    self.uri = uri
 	    self.nrtry = nrtry
