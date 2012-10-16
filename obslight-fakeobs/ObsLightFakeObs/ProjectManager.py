@@ -726,12 +726,6 @@ def grabGBSTree(uri, name, targets, archs, orders, verbose=False, force=False):
 
     return name
     
-    downloadFulls(api, project, targetArchTuples, fullDir)
-
-    return name
-
-
-
 
 def removeProject(project):
     """Remove `project` from fakeobs."""

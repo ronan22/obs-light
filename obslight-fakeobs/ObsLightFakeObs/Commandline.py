@@ -212,10 +212,10 @@ class FakeObsCommandline(cmdln.Cmdln):
         effectiveName = ProjectManager.grabGBSTree(url, name, opts.targets, opts.archs, opts.orders, opts.verbose, opts.force)
         msg = "Project '%s' grabbed" % effectiveName
         print Utils.colorize(msg, "green")
-        packageList = ProjectManager.getPackageList(effectiveName)
-        msg = "It contains %d packages" % len(packageList)
-        print Utils.colorize(msg, "green")
-        print
+        #packageList = ProjectManager.getPackageList(effectiveName)
+        #msg = "It contains %d packages" % len(packageList)
+        #print Utils.colorize(msg, "green")
+        #print
         #return self.do_check(subcmd, opts, effectiveName)
         return True
 
