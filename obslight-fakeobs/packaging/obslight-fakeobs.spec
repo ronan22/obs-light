@@ -265,11 +265,6 @@ fi
 %config %{_sysconfdir}/init.d/fakeobs
 %config %{_sysconfdir}/init.d/fakeobswebui
 %endif
-%config %{_sysconfdir}/logrotate.d/fakeobs
-%{_sbindir}/fakeobs
-%{_sbindir}/fakeobswebui
-%{_sbindir}/rcfakeobs
-%{_sbindir}/rcfakeobswebui
 
 %config %{_sysconfdir}/logrotate.d/obslight-fakeobs
 %config %{_sysconfdir}/obslight-fakeobs.conf

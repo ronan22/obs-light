@@ -26,6 +26,7 @@ Requires:   curl
 Requires:   gbs >= 0.10
 Requires:   git
 Requires:   mic >= 0.12
+Requires:   obslight-depsolver
 Requires:   osc >= 0.132
 Requires:   qemu
 Requires:   rpm
