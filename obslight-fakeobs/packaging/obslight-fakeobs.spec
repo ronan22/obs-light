@@ -61,6 +61,7 @@ It is based on Mer Delivery System.
 Summary: Dependency solving scripts for OBS Light
 Group: Development/Tools/Building
 Requires:   bash
+Requires:   build
 Requires:   perl
 
 %description -n obslight-depsolver
