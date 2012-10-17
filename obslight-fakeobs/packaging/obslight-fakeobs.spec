@@ -277,6 +277,16 @@ fi
 
 %files -n obslight-depsolver
 %defattr(-,root,root,-)
+%if 0%{?fedora}
+#To bypass auto Requires for fedora (require perl(build) but build don't package like this.)
+#https://fedoraproject.org/wiki/Packaging:AutoProvidesAndRequiresFiltering#Perl
+%{?filter_setup:
+%filter_requires_in %{_bindir}/obslight-expanddeps
+%filter_requires_in %{_bindir}/obslight-createrpmlistfromspec
+%filter_setup
+}
+%endif
+
 %{_bindir}/obslight-expanddeps
 %{_bindir}/obslight-createrpmlistfromspec
 
