@@ -1084,7 +1084,7 @@ class ObsLightPackage(ObsLightObject):
 
         self.autoResolvedConflict()
         if not self.isGitPackage:
-            ObsLightOsc.getObsLightOsc().commitProject(path=self.getPackageSourceDirectory(), message=message)
+            return ObsLightOsc.getObsLightOsc().commitProject(path=self.getPackageSourceDirectory(), message=message)
         else:
             sourcePath = self.getPackageSourceDirectory()
             return ObsLightGitManager.commitGitpackage(sourcePath, message)

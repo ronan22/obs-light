@@ -43,7 +43,7 @@ from ObsLightErr import ObsLightProjectsError
 from ObsLightErr import ArgError
 
 from ObsLightSubprocess import SubprocessCrt
-VERSION = "0.9.0-1"
+VERSION = "1.0.0-1"
 
 def getVersion():
     '''
@@ -1062,7 +1062,7 @@ class ObsLightManagerCore(ObsLightManagerBase):
 
         project = self._myObsLightProjects.getProject(projectLocalName)
         project.getPackage(package=package).addRemoveFileToTheProject()
-        res = project.commitPackageChange(message=message, package=package)
+        res = project.getPackage(package=package).commitPackageChange(message=message)
 
         self._myObsLightProjects.save()
         return res
