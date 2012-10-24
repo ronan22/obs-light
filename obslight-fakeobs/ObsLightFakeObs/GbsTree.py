@@ -322,7 +322,7 @@ class GbsTree:
 		md5src = hashlib.md5()
 		for fn in sorted(os.listdir(d)):
 		    if fn not in [ "_meta", "_directory" ]:
-			f = s.path.join(d,fn)
+			f = os.path.join(d,fn)
 			md5 = Utils.computeMd5(f)
 			md5src.update("{}  {}\n".format(md5,fn))
 			s = os.stat(f)
