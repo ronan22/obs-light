@@ -319,14 +319,17 @@ class GbsTree:
 	    if meta_project:
 		# create the _directory file
 		entries = []
-		for fn in os.listdir(d):
+		md5src = hashlib.md5()
+		for fn in os.listdir(d).sort():
 		    if fn not in [ "_meta", "_directory" ]:
 			f = s.path.join(d,fn)
 			md5 = Utils.computeMd5(f)
+			md5src.update("{}  {}\n".format(md5,fn))
 			s = os.stat(f)
 			entries.append('  <entry name="{NAME}" md5="{MD5}" size="{SIZE}" mtime="{MTIME}" />\n'.format(
 			    NAME=fn, MD5=md5, SIZE=s.st_size, MTIME=s.st_mtime)
-		c = '<directory name="{NAME}" rev="1">\n{ENTRIES}</directory>\n'.format(NAME=e.get_name(),ENTRIES="".join(entries))
+		c = '<directory name="{NAME}" rev="1" srcmd5="{SRCMD5}">\n{ENTRIES}</directory>\n'.format(
+			NAME=e.get_name(),ENTRIES="".join(entries),SRCMD5=md5src.hexdigest())
 		f = open(os.path.join(d,"_directory"),"w")
 		f.write(c)
 		f.close()
