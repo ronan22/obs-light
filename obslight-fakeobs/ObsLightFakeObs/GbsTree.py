@@ -327,7 +327,7 @@ class GbsTree:
 			md5src.update("{}  {}\n".format(md5,fn))
 			s = os.stat(f)
 			entries.append('  <entry name="{NAME}" md5="{MD5}" size="{SIZE}" mtime="{MTIME}" />\n'.format(
-			    NAME=fn, MD5=md5, SIZE=s.st_size, MTIME=s.st_mtime)
+			    NAME=fn, MD5=md5, SIZE=s.st_size, MTIME=s.st_mtime))
 		c = '<directory name="{NAME}" rev="1" srcmd5="{SRCMD5}">\n{ENTRIES}</directory>\n'.format(
 			NAME=e.get_name(),ENTRIES="".join(entries),SRCMD5=md5src.hexdigest())
 		f = open(os.path.join(d,"_directory"),"w")
