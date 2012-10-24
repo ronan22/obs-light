@@ -65,8 +65,8 @@ def getPackageLastRevSrcmd5(project, package):
     xmlContent = buildFileIndex(project, package)
     doc = xml.dom.minidom.parseString(xmlContent)
     for element in doc.getElementsByTagName("directory"):
-        rev = element.attributes["rev"]
-        srcmd5 = element.attributes["srcmd5"]
+        rev = element.attributes["rev"].value
+        srcmd5 = element.attributes["srcmd5"].value
         return rev, srcmd5
 
 def getProjectSpecFile(project, package):
