@@ -37,6 +37,7 @@ import hashlib
 import shutil
 import shlex
 import Config
+import Utils
 
 class GbsTree:
     """
@@ -313,8 +314,24 @@ class GbsTree:
 		    print "WARNING: can't extract RPM {} in {}".format(r,root)
 		else:
 		    return False
-	    # create the _meta
+
+	    # add meta data if requested
 	    if meta_project:
+		# create the _directory file
+		entries = []
+		for fn in os.listdir(d):
+		    if fn not in [ "_meta", "_directory" ]:
+			f = s.path.join(d,fn)
+			md5 = Utils.computeMd5(f)
+			s = os.stat(f)
+			entries.append('  <entry name="{NAME}" md5="{MD5}" size="{SIZE}" mtime="{MTIME}" />\n'.format(
+			    NAME=fn, MD5=md5, SIZE=s.st_size, MTIME=s.st_mtime)
+		c = '<directory name="{NAME}" rev="1">\n{ENTRIES}</directory>\n'.format(NAME=e.get_name(),ENTRIES="".join(entries))
+		f = open(os.path.join(d,"_directory"),"w")
+		f.write(c)
+		f.close()
+
+		# create the _meta file
 		c = """<package name="{NAME}" project="{PROJ}">
   <title>{TITLE}</title>
   <description>
