@@ -320,7 +320,7 @@ class GbsTree:
 		# create the _directory file
 		entries = []
 		md5src = hashlib.md5()
-		for fn in os.listdir(d).sort():
+		for fn in sorted(os.listdir(d)):
 		    if fn not in [ "_meta", "_directory" ]:
 			f = s.path.join(d,fn)
 			md5 = Utils.computeMd5(f)
