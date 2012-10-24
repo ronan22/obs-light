@@ -602,6 +602,7 @@ def grabGBSTree(uri, name, targets, archs, orders, verbose=False, force=False):
 	# all archs
 	allarchs = archs
 
+	metarepos = []
 	# iterate on GBS archs: each arch is a target
 	for rtarget in targets:
 
@@ -621,7 +622,7 @@ def grabGBSTree(uri, name, targets, archs, orders, verbose=False, force=False):
 	    if not os.path.isdir(dbgdir):
 		os.makedirs(dbgdir)
 	    gbstree.download_package_to(dbgdir,True) # accept errors for debug and no arch
-	    updateRepositoryMetadata(dbgdir) # FIXME: Is it really useful? drop it 
+	    updateRepositoryMetadata(dbgdir) # FIXME: Is it really useful? 
 
 	    # connect to the PACKAGES sub-package
 	    gbstree.set_package("packages")
@@ -645,7 +646,7 @@ def grabGBSTree(uri, name, targets, archs, orders, verbose=False, force=False):
 	    if not os.path.isdir(pkgdir):
 		os.makedirs(pkgdir)
 	    gbstree.download_package_to(pkgdir,False)
-	    updateRepositoryMetadata(pkgdir)
+	    updateRepositoryMetadata(pkgdir) # FIXME: Is it really useful? 
 
 	    # create the Live directories
 	    for a in avail:
@@ -672,6 +673,22 @@ def grabGBSTree(uri, name, targets, archs, orders, verbose=False, force=False):
 			os.unlink(ffile)
 		    os.symlink(os.path.relpath(rfile,fdir),ffile)
 
+	    # compute metas
+	    metaarchs = "".join(["  <arch>{}</arch>\n".format(a) for a in avail])
+	    metapath = []
+	    for r in orders:
+		r = localname(r)
+		if r == subprj:
+		    break
+		p = name if not r else "{}:{}".format(name,r)
+		metapath.append('  <path project="{}" repository="{}"/>\n'.format(p,ltarget))
+	    metapath = "".join(metapath)
+	    metarepos.append('<repository name="{REPO}">\n{PATHS}{ARCHS} </repository>\n'.format(
+		    REPO = ltarget,
+		    PATHS = metapath,
+		    ARCHS = metaarchs,
+		))
+
 	# uri of the repo
 	repouri = "{}/{}".format(uri, gbstree.path_repo)
 
@@ -682,33 +699,16 @@ def grabGBSTree(uri, name, targets, archs, orders, verbose=False, force=False):
 	# write the config file
 	gbstree.download_config(os.path.join(projectDir,"_config"))
 
-	# compute meta archs
-	metaarchs = "".join(["  <arch>{}</arch>\n".format(a) for a in allarchs])
-
-	# compute the meta project dependencies from order
-	metaxml = ""
-	for r in orders:
-	    r = localname(r)
-	    if r == subprj:
-		break
-	    p = name if not r else "{}:{}".format(name,r)
-	    metaxml = '{}  <path project="{}" repository="{}"/>\n'.format(metaxml,p,r)
-
 	# Write the project _meta file
 	meta = """<project name="{NAME}">
  <title>GBS grab of {BASE}</title>
  <description>OBS output for GBS grabbed from {BASE}</description>
  <person role="maintainer" userid="unknown" />
  <person role="bugowner" userid="unknown" />
- <repository name="{REPO}">
-{PATHS}{ARCHS} </repository>
-</project>""".format(
+{REPOS}</project>""".format(
 		NAME = prj,
 		BASE = repouri,
-		REPO = subprj,
-		PATHS = metaxml,
-		ARCHS = metaarchs,
-	    )
+		REPOS = "".join(metarepos))
 	metaname = os.path.join(projectDir,"_meta")
 	f = open(metaname,"w")
 	f.write(meta)
