@@ -1,0 +1,123 @@
+FAKEOBS-GRABGBS(1)
+==================
+:author:       José Bollo
+:man source:   FakeObs
+:man manual:   FakeObs Manual
+
+NAME
+----
+
+obslight-fakeobs-grabgbs - Grab from a GBS output of an OBS server
+one or more subprojects ino the fakeobs database.
+
+
+SYNOPSYS
+--------
+
+*obslight-fakeobs grabgbs* [options] -n|--name <project-name> <uri>
+
+
+*obslight-fakeobs fromgbs* [options] -n|--name <project-name> <uri>
+
+DESCRIPTION
+-----------
+
+Import to the the *fakeobs* database the project given by <uri>.
+
+The primary goal of that option of obslight-fakeobs is to import 
+the GBS output of the OBS of Tizen.
+
+The <uri> should point to a download directory of *Tizen*.
+It must look something like [SCHEME:]//download.tizen.org/SUBPATH.
+Where:
+
+  - SCHEME if present is in 'rsync', 'https', 'http'. 
+    If SCHEME isn't given, the above methods wil be tried in the
+    given order: 'rsync' then 'https' and finally 'http'.
+
+  - SUBPATH points to a directory that MUST contain a subdirectory 
+    named 'builddata' that MUST contain the file 'build.xml'.
+
+A such <uri> is the base uri of a *Tizen* build for GBS. It contains 
+several subprojects. At least 2 subprojects: tizen-base and tizen-main.
+But more can be found. Every subproject is imported to the *fakeobs* 
+database as subprojects of the project named <project-name> given
+with the MANDATORY option *--name <project-name>*.
+
+Because *fakeobs* should know the dependencies betwen the imported
+subprojects, the option *--order* allows to give the order of dependencies
+between the subpojects.
+
+CAUTION: An OBS builds for one or more architectures. Architectures are also named *targets*
+by *fakeobs*. The imported targets must be explicitely given by the option
+*--target*. If targets aren't given, nothing will be imported.
+
+The targeted builds are built for one or several processors also designed as
+'arch'. The option *--arch* allow to tell what arch is needed.
+
+For Tizen, it is generally a good idea to check the download repository
+using a web navigator. The main entry point is https://download.tizen.org/ .
+
+OPTIONS
+-------
+
+*-n, --name <project-name>*::
+    This option is _*MANDATORY*_.
+    The grab creates the project of name *<project-name>* in the database of *fakeobs*.
+
+*-t, --target <target-name>*::
+    Tells that the target of name *<target-name>* is to grab. 
+    Many target can be set.
+    Any not listed target is left out, so at least one target have to be set.
+
+*-a, --arch <arch-name>*::
+    Tells that the arch of name *<arch-name>* is to grab. 
+    Many target can be set.
+    If no arch is set then all available archs are grabbed.
+    You can also use *--arch '*'* to grab all the available archs.
+    
+    help="architecture(s) to grab, dont put anything for all archs")
+
+*-o, --order <subproject-name>*::
+    Give a the *<subproject-name>* for ordering subprojects dependencies.
+    A given subproject will be made dependent of all the subprojects previously given
+    using the *--order* option.
+
+*-v, --verbose*::
+    Display more information messages.
+
+*-f, --force*::
+    Don't stop if the project already exists in the database of fakeobs.
+	
+
+*-k, --rsynckeep*::
+    Don't remove the internally synchronized files.
+    Use that option for example on a lastest built if you wanted to further update
+    it using the --force option.
+ 
+
+EXAMPLES
+--------
+
+[source,shell]
+obslight-fakeobs grabgbs -t ia32 -a i586 -a i686 -o tizen-base -o tizen-main -n Tizen:r2.0a http://download.tizen.org/releases/2.0alpha/daily/latest/
+
+
+Using the above command, you grab from //download.tizen.org/releases/2.0alpha (that
+doesn't offer rsync facility) all the subprojects, making the subproject +tizen-main+
+depend of the subproject +tizen-base+. 
+
+Because rsync is active for snapshots, the following command is valid.
+
+[source,shell]
+obslight-fakeobs grabgbs -t ia32 -o tizen-base -o tizen-main -n Tizen:2.0 -k -f rsync://download.tizen.org/snapshots/2.0alpha/common/latest/
+
+That command can be used to track the latest snapshot.
+
+KNOWN ISSUE
+-----------
+
+The contents of the ':full' subdirectories can't be grabed but must be guessed.
+It actually works for 'i686' and 'i586' archs, not for arm.
+
+

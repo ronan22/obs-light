@@ -1,3 +1,4 @@
+# coding=utf-8
 #
 # Copyright 2012, Intel Inc.
 #
@@ -322,3 +323,5 @@ def getFakeObsVersion():
             return version
     except IOError:
         return "unknown"
+
+

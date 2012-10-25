@@ -1,4 +1,7 @@
 obslight-fakeobs (1.0.1-1) stable; urgency=low
+  * Version 1.0.2
+    - command grabgbs added
+
   * Version 1.0.1
     - improved packaging
     - added 'version' option to commandline
@@ -27,4 +30,4 @@ obslight-fakeobs (1.0.1-1) stable; urgency=low
     - Created alternative repositories in /srv/fakeobs/releases/repositories
     - Added a tiny web UI on port 8000
 
- -- Florent Vennetier (Intel OTC) <florent@fridu.net>  Tue, 18 Sep 2012 14:29:12 +0200
+ -- José Bollo (Intel OTC) <jobol@nonadev.net>  Mon, 15 Oct 2012 10:00:00 +0200

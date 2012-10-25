@@ -1,6 +1,6 @@
 Format: 1.0
 Source: obslight-fakeobs
-Version: 1.0.1
+Version: 1.0.2
 Binary: obslight-fakeobs
 Maintainer: Ronan Le Martret <ronan@fridu.net>
 Architecture: any

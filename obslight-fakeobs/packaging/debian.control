@@ -21,6 +21,7 @@ Depends: ${shlibs:Depends},
 # python-smmap,
  python-setuptools,
  rpm,
+ rpm2cpio,
  upstart
 Description: Python script that partially implement an OBS API.
  It is based on Mer Delivery System.

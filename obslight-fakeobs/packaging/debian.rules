@@ -77,7 +77,7 @@ install: build
 	ln -s /lib/init/upstart-job $(BUILDROOT)/etc/init.d/fakeobswebui
 	cp -f config/logrotate_fakeobs $(BUILDROOT)/etc/logrotate.d/fakeobs
 	cp -f README $(BUILDROOT)/usr/share/doc/packages/obslight-fakeobs
-	echo "obslight-fakeobs-1.0.1-1.0" > $(BUILDROOT)/usr/share/doc/packages/obslight-fakeobs/VERSION
+	echo "obslight-fakeobs-1.0.2-1.0" > $(BUILDROOT)/usr/share/doc/packages/obslight-fakeobs/VERSION
 
 	 # make install DESTDIR=/usr/src/packages/BUILD/debian/ace
 	 # --- end custom part for installing

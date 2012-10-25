@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# coding=utf-8
 #
 # Copyright 2012, Intel Inc.
 #
@@ -19,6 +20,7 @@
 Commandline client for FakeOBS.
 
 @author: Florent Vennetier
+@author: José Bollo
 """
 
 import sys
@@ -171,6 +173,51 @@ class FakeObsCommandline(cmdln.Cmdln):
         print Utils.colorize(msg, "green")
         print
         return self.do_check(subcmd, opts, effectiveName)
+
+    @cmdln.alias("fromgbs")
+    @cmdln.option("-n", "--name", dest="name",
+                  help="set the project to NAME (mandatory option")
+    @cmdln.option("-t", "--target", action="append", dest="targets",
+                  default=[],
+                  help="the name of a build target to grab (caution, targets are also named 'conf' in build.xml)")
+    @cmdln.option("-a", "--arch", action="append", dest="archs",
+                  default=[],
+                  help="architecture(s) to grab, dont put anything for all archs")
+    @cmdln.option("-o", "--order", action="append", dest="orders",
+                  default=[],
+                  help="the name of a sub project ordering the dependencies.")
+    @cmdln.option("-v", "--verbose", action="store_true", dest="verbose",
+                  help="print extra informations")
+    @cmdln.option("-f", "--force", action="store_true", dest="force",
+                  help="perform the grab even if he project aleady exists")
+    @cmdln.option("-k", "--rsynckeep", action="store_false", dest="rsynckeep",
+                  help="dont remove the rsync data at the end of the grab")
+    def do_grabgbs(self, subcmd, opts, url):
+        """${cmd_name}: import a project from a GBS tree
+        
+        You need to be root to run this.
+        The option --name is MANDATORY.
+        
+        ${cmd_usage}
+        ${cmd_option_list}
+        """
+        Utils.failIfUserIsNotRoot()
+        if opts.name is None:
+            raise ValueError("You must provide a NAME! (use -n or --name)")
+        name = opts.name
+	if not opts.archs:
+	    opts.archs = None
+	elif len(opts.archs)==1 and opts.archs[0]=="*":
+	    opts.archs = None
+        effectiveName = ProjectManager.grabGBSTree(url, name, opts.targets, opts.archs, opts.orders, opts.verbose, opts.force)
+        msg = "Project '%s' grabbed" % effectiveName
+        print Utils.colorize(msg, "green")
+        #packageList = ProjectManager.getPackageList(effectiveName)
+        #msg = "It contains %d packages" % len(packageList)
+        #print Utils.colorize(msg, "green")
+        #print
+        #return self.do_check(subcmd, opts, effectiveName)
+        return True
 
     @cmdln.alias("verify")
     def do_check(self, subcmd, opts, project):

@@ -1,0 +1,195 @@
+'\" t
+.\"     Title: fakeobs-grabgbs
+.\"    Author: José Bollo
+.\" Generator: DocBook XSL Stylesheets v1.77.1 <http://docbook.sf.net/>
+.\"      Date: 10/12/2012
+.\"    Manual: FakeObs Manual
+.\"    Source: FakeObs
+.\"  Language: English
+.\"
+.TH "FAKEOBS\-GRABGBS" "1" "10/12/2012" "FakeObs" "FakeObs Manual"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+obslight-fakeobs-grabgbs \- Grab from a GBS output of an OBS server one or more subprojects ino the fakeobs database\&.
+.SH "SYNOPSYS"
+.sp
+\fBobslight\-fakeobs grabgbs\fR [options] \-n|\-\-name <project\-name> <uri>
+.sp
+\fBobslight\-fakeobs fromgbs\fR [options] \-n|\-\-name <project\-name> <uri>
+.SH "DESCRIPTION"
+.sp
+Import to the the \fBfakeobs\fR database the project given by <uri>\&.
+.sp
+The primary goal of that option of obslight\-fakeobs is to import the GBS output of the OBS of Tizen\&.
+.sp
+The <uri> should point to a download directory of \fBTizen\fR\&. It must look something like [SCHEME:]//download\&.tizen\&.org/SUBPATH\&. Where:
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+SCHEME if present is in
+\fIrsync\fR,
+\fIhttps\fR,
+\fIhttp\fR\&. If SCHEME isn\(cqt given, the above methods wil be tried in the given order:
+\fIrsync\fR
+then
+\fIhttps\fR
+and finally
+\fIhttp\fR\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+SUBPATH points to a directory that MUST contain a subdirectory named
+\fIbuilddata\fR
+that MUST contain the file
+\fIbuild\&.xml\fR\&.
+.RE
+.sp
+A such <uri> is the base uri of a \fBTizen\fR build for GBS\&. It contains several subprojects\&. At least 2 subprojects: tizen\-base and tizen\-main\&. But more can be found\&. Every subproject is imported to the \fBfakeobs\fR database as subprojects of the project named <project\-name> given with the MANDATORY option \fB\-\-name <project\-name>\fR\&.
+.sp
+Because \fBfakeobs\fR should know the dependencies betwen the imported subprojects, the option \fB\-\-order\fR allows to give the order of dependencies between the subpojects\&.
+.if n \{\
+.sp
+.\}
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+\fBCaution\fR
+.ps -1
+.br
+.sp
+An OBS builds for one or more architectures\&. Architectures are also named \fBtargets\fR by \fBfakeobs\fR\&. The imported targets must be explicitely given by the option \fB\-\-target\fR\&. If targets aren\(cqt given, nothing will be imported\&.
+.sp .5v
+.RE
+.sp
+The targeted builds are built for one or several processors also designed as \fIarch\fR\&. The option \fB\-\-arch\fR allow to tell what arch is needed\&.
+.sp
+For Tizen, it is generally a good idea to check the download repository using a web navigator\&. The main entry point is https://download\&.tizen\&.org/ \&.
+.SH "OPTIONS"
+.PP
+\fB\-n, \-\-name <project\-name>\fR
+.RS 4
+This option is
+\fI*MANDATORY*\fR\&. The grab creates the project of name
+\fB<project\-name>\fR
+in the database of
+\fBfakeobs\fR\&.
+.RE
+.PP
+\fB\-t, \-\-target <target\-name>\fR
+.RS 4
+Tells that the target of name
+\fB<target\-name>\fR
+is to grab\&. Many target can be set\&. Any not listed target is left out, so at least one target have to be set\&.
+.RE
+.PP
+\fB\-a, \-\-arch <arch\-name>\fR
+.RS 4
+Tells that the arch of name
+\fB<arch\-name>\fR
+is to grab\&. Many target can be set\&. If no arch is set then all available archs are grabbed\&. You can also use
+\fB\-\-arch \fR\fB\fR* to grab all the available archs\&.
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+help="architecture(s) to grab, dont put anything for all archs")
+.fi
+.if n \{\
+.RE
+.\}
+.RE
+.PP
+\fB\-o, \-\-order <subproject\-name>\fR
+.RS 4
+Give a the
+\fB<subproject\-name>\fR
+for ordering subprojects dependencies\&. A given subproject will be made dependent of all the subprojects previously given using the
+\fB\-\-order\fR
+option\&.
+.RE
+.PP
+\fB\-v, \-\-verbose\fR
+.RS 4
+Display more information messages\&.
+.RE
+.PP
+\fB\-f, \-\-force\fR
+.RS 4
+Don\(cqt stop if the project already exists in the database of fakeobs\&.
+.RE
+.PP
+\fB\-k, \-\-rsynckeep\fR
+.RS 4
+Don\(cqt remove the internally synchronized files\&. Use that option for example on a lastest built if you wanted to further update it using the \-\-force option\&.
+.RE
+.SH "EXAMPLES"
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+obslight\-fakeobs grabgbs \-t ia32 \-a i586 \-a i686 \-o tizen\-base \-o tizen\-main \-n Tizen:r2\&.0a http://download\&.tizen\&.org/releases/2\&.0alpha/daily/latest/
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+Using the above command, you grab from //download\&.tizen\&.org/releases/2\&.0alpha (that doesn\(cqt offer rsync facility) all the subprojects, making the subproject tizen\-main depend of the subproject tizen\-base\&.
+.sp
+Because rsync is active for snapshots, the following command is valid\&.
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+obslight\-fakeobs grabgbs \-t ia32 \-o tizen\-base \-o tizen\-main \-n Tizen:2\&.0 \-k \-f rsync://download\&.tizen\&.org/snapshots/2\&.0alpha/common/latest/
+.fi
+.if n \{\
+.RE
+.\}
+.sp
+That command can be used to track the latest snapshot\&.
+.SH "KNOWN ISSUE"
+.sp
+The contents of the \fI:full\fR subdirectories can\(cqt be grabed but must be guessed\&. It actually works for \fIi686\fR and \fIi586\fR archs, not for arm\&.
+.SH "AUTHOR"
+.PP
+\fBJosé Bollo\fR
+.RS 4
+Author.
+.RE

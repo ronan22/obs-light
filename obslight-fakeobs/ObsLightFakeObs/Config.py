@@ -1,3 +1,4 @@
+# coding=utf-8
 #
 # Copyright 2012, Intel Inc.
 #
@@ -18,6 +19,7 @@
 Configuration manager for FakeOBS.
 
 @author: Florent Vennetier
+@author: José Bollo
 """
 
 import errno
@@ -27,9 +29,13 @@ import ConfigParser
 GLOBAL_CONFIG_INSTANCE = None
 
 DEFAULT_CONFIG_PATH = "/etc/obslight-fakeobs.conf"
-DEFAULT_CONFIG = {"fakeobs_root": "/srv/obslight-fakeobs",
-                  "projects_dir": "%(fakeobs_root)s/projects",
-                  "repositories_dir": "%(fakeobs_root)s/repositories"}
+DEFAULT_CONFIG = {
+	"fakeobs_root":     "/srv/obslight-fakeobs",
+	"projects_dir":     "%(fakeobs_root)s/projects",
+	"repositories_dir": "%(fakeobs_root)s/repositories",
+	"rsync_dir":        "%(fakeobs_root)s/_rsync",
+	"live_dir":	    "%(repositories_dir)s/live",
+}
 
 class ObsLightFakeObsConfig(object):
 
@@ -87,6 +93,9 @@ class ObsLightFakeObsConfig(object):
 
     def getProjectInfoPath(self, project):
         return os.path.join(self.getProjectDir(project), "project_info")
+
+    def getRsyncPath(self):
+        return self.cp.get("Paths", "rsync_dir")
 
     def getIntLimit(self, whatLimit, default=None):
         """Get an integer property from the 'Limits' section."""

@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# coding=utf-8
 """Simple HTTP Server.
 
 This module builds on BaseHTTPServer by implementing the standard GET

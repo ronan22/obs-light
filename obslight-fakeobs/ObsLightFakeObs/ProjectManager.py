@@ -1,3 +1,4 @@
+# coding=utf-8
 #
 # Copyright 2012, Intel Inc.
 #
@@ -18,6 +19,7 @@
 Manage the projects of FakeOBS.
 
 @author: Florent Vennetier
+@author: José Bollo
 """
 
 import os
@@ -28,12 +30,14 @@ import subprocess
 import tempfile
 import time
 import urllib
+import urllib2
 
 import xml.dom.minidom
 import ConfigParser
 
 import Utils
 import Dupes
+import GbsTree
 from Config import getConfig
 from DistributionsManager import updateFakeObsDistributions
 from ObsManager import createFakeObsLink
@@ -153,6 +157,30 @@ def downloadFile(url, destDir=None, fileName=None, retryIfEmpty=True):
         else:
             sizeOk = True
     return retCode
+
+def downloadTo(uri,filename):
+    """
+    Download the file at `uri` to `fileName`.
+    """
+    nrtry = max(1,getConfig().getIntLimit("max_download_retries", 2))
+    f = None
+    while True:
+	try:
+	    f = urllib2.urlopen(uri)
+	    data = f.read()
+	    f.close()
+	    f = open(filename,"w")
+	    f.write(data)
+	    f.close()
+	    return True
+	except Exception as e:
+	    if f:
+		f.close()
+	    if nrtry > 1:
+		nrtry = nrtry - 1
+	    else:
+		raise e
+    return False
 
 def downloadFiles(baseUrl, fileNames, destDir=None):
     """Download several files with a common base URL"""
@@ -405,7 +433,10 @@ def writeProjectInfo(api, rsyncUrl, project, targets, archs, newName):
     confParser.set("GrabInfo", "rsync_url", rsyncUrl)
     confParser.set("GrabInfo", "project", project)
     confParser.set("GrabInfo", "targets", ",".join(targets))
-    confParser.set("GrabInfo", "archs", ",".join(archs))
+    if archs is None:
+	confParser.set("GrabInfo", "archs", "*")
+    else:
+	confParser.set("GrabInfo", "archs", ",".join(archs))
     confParser.set("GrabInfo", "date", grabTime)
 
     confParser.add_section("UpdateInfo")
@@ -484,6 +515,217 @@ def grabProject(api, rsyncUrl, project, targets, archs, newName=None):
         pass
 
     return newName
+
+
+grabGBSKnowledge = {
+    "i586": [ "noarch", "i586" ],
+    "i686": [ "noarch", "i586", "i686" ],
+}
+
+
+def grabGBSTree(uri, name, targets, archs, orders, verbose=False, force=False):
+    """
+    Grab a project from an OBS server.
+      url:       the URL to fetch for the GBS tree 
+                  (ex: http://download.tizen.org/releases/2.0alpha/daily/latest
+                   or  rsync://download.tizen.org/snapshots/2.0alpha/common/latest)
+      name:      the name to give to the project after it has 
+                  been grabbed.
+      targets:    a list of build targets to grab
+                  (ex: "ia32")
+      archs:     a list of architectures to grab
+                  (ex: ["i586", "armv7el"])
+      orders:    a list of sub projets order
+                  (ex: ["tizen-base", "tizen-main"] means that tizen-main depends on tizen-base)
+      verbose:   a flag to have verbose messages
+      rsynckeep: a flag to keep any rsync data for futur use
+    """
+    if verbose:
+	print "entering grabGBStree(uri={}, name={}, targets={}, archs={}, orders={}, True)".format(uri, name, targets, archs, orders)
+
+    # Test that the project exists not already
+    if not force:
+	failIfProjectExists(name)
+
+    def localname(n):
+	"Compute the local name"
+	return n.replace(":","_")
+
+    # connect to the GbsTree
+    options = {
+	"verbose":      verbose,
+	"should_raise": False,
+	"rsynckeep":    True, # FIXME: transmit it correctly
+	"archs":	archs,
+	"noarchs":	[ "noarch" ] 
+    }
+    gbstree = GbsTree.GbsTree(uri,verbose=verbose,rsynckeep=True,archs=archs)
+    if not gbstree.connect():
+	raise ValueError(gbstree.error_message)
+
+    # check the archs
+    #for a in archs:
+    #	if a not in gbstree.built_archs:
+    #	    gbstree.disconnect()
+    #	    raise ValueError("arch mismatch: '{}' isn't built in {}".format(a,uri))
+
+    # get config data
+    conf = getConfig()
+
+    # iterate on GBS repositories: each repository is a subproject
+    for repo in gbstree.built_repos:
+
+	# connect to the GBS repository
+	gbstree.set_repo(repo)
+
+	# Perform renaming
+	subprj = localname(repo)
+	prj = name if not subprj else "{}:{}".format(name,subprj)
+	if verbose:
+	    print "scanning project {} ({}) from repo {}".format(prj,subprj,repo)
+
+	# get root directories
+	projectDir = conf.getProjectDir(prj)
+	fullDir = conf.getProjectFullDir(prj)
+	packagesDir = conf.getProjectPackagesDir(prj)
+	repoDir = conf.getProjectRepositoryDir(prj)
+
+	# create the directories
+	for d in [ projectDir, fullDir, packagesDir, repoDir ]:
+	    if not os.path.isdir(d):
+		os.makedirs(d)
+
+	# connect to the source package
+	gbstree.set_package("source")
+	gbstree.extract_package_rpms_to(packagesDir,prj,True)
+
+	# all archs
+	allarchs = archs
+
+	metarepos = []
+	# iterate on GBS archs: each arch is a target
+	for rtarget in targets:
+
+	    # connect to the GBS acrh
+	    gbstree.set_target(rtarget)
+
+	    # Perform renaming
+	    ltarget = localname(rtarget)
+	    if verbose:
+		print "   for target {} (was arch {})".format(ltarget,rtarget)
+
+	    # connect to the DEBUG sub-package
+	    gbstree.set_package("debug")
+	    dbgdir = os.path.join(repoDir,ltarget,"debug")
+
+	    # download the DEBUG sub-package
+	    if not os.path.isdir(dbgdir):
+		os.makedirs(dbgdir)
+	    gbstree.download_package_to(dbgdir,True) # accept errors for debug and no arch
+	    updateRepositoryMetadata(dbgdir) # FIXME: Is it really useful? 
+
+	    # connect to the PACKAGES sub-package
+	    gbstree.set_package("packages")
+	    pkgdir = os.path.join(repoDir,ltarget,"packages")
+
+	    # check the availables archs
+	    (ok,miss,avail) = gbstree.check_package_archs()
+	    if not ok:
+		raise ValueError("unavailable archs: "+(", ".join(miss)))
+	    else:
+		if archs:
+		    avail = archs
+		if allarchs:
+		    for a in avail:
+			if a not in allarchs:
+			    allarchs.append(a)
+		else:
+		    allarchs = [ a for a in avail ]
+
+	    # download the PACKAGES sub-package
+	    if not os.path.isdir(pkgdir):
+		os.makedirs(pkgdir)
+	    gbstree.download_package_to(pkgdir,False)
+	    updateRepositoryMetadata(pkgdir) # FIXME: Is it really useful? 
+
+	    # create the Live directories
+	    for a in avail:
+		# exract in pkdic the packages list
+		knowledge = grabGBSKnowledge[a] if a in grabGBSKnowledge else [ "noarch", a ]
+		pkdic = {}
+		for pk in gbstree.current_pack_meta["pklist"]:
+		    pkarch = pk.get_arch()
+		    if pkarch in knowledge:
+			n = pk.get_name()
+			if n not in pkdic:
+			    pkdic[n] = pk
+			elif knowledge.index(pkarch) > knowledge.index(pkdic[n].get_arch()):
+			    pkdic[n] = pk
+		# create the main directory
+		fdir = os.path.join(fullDir,ltarget,a)
+		if not os.path.isdir(fdir):
+		    os.makedirs(fdir)
+		# link on packages
+		for pk in pkdic.itervalues():
+		    ffile = os.path.join(fdir,pk.get_name())+".rpm"
+		    rfile = os.path.join(pkgdir,pk.get_location())
+		    if os.path.lexists(ffile):
+			os.unlink(ffile)
+		    os.symlink(os.path.relpath(rfile,fdir),ffile)
+
+	    # compute metas
+	    metaarchs = "".join(["  <arch>{}</arch>\n".format(a) for a in avail])
+	    metapath = []
+	    for r in orders:
+		r = localname(r)
+		if r == subprj:
+		    break
+		p = name if not r else "{}:{}".format(name,r)
+		metapath.append('  <path project="{}" repository="{}"/>\n'.format(p,ltarget))
+	    metapath = "".join(metapath)
+	    metarepos.append('<repository name="{REPO}">\n{PATHS}{ARCHS} </repository>\n'.format(
+		    REPO = ltarget,
+		    PATHS = metapath,
+		    ARCHS = metaarchs,
+		))
+
+	# uri of the repo
+	repouri = "{}/{}".format(uri, gbstree.path_repo)
+
+	# Write the project informations
+	# TODO: these informations should include the fact that it is a GBS import!
+	writeProjectInfo("GBS", uri, prj, targets, archs, prj)
+
+	# write the config file
+	gbstree.download_config(os.path.join(projectDir,"_config"))
+
+	# Write the project _meta file
+	meta = """<project name="{NAME}">
+ <title>GBS grab of {BASE}</title>
+ <description>OBS output for GBS grabbed from {BASE}</description>
+ <person role="maintainer" userid="unknown" />
+ <person role="bugowner" userid="unknown" />
+{REPOS}</project>""".format(
+		NAME = prj,
+		BASE = repouri,
+		REPOS = "".join(metarepos))
+	metaname = os.path.join(projectDir,"_meta")
+	f = open(metaname,"w")
+	f.write(meta)
+	f.close()
+
+	updateLiveRepository(prj)
+
+    try:
+        # These operations will fail if program is not run
+        # on an OBS server
+        updateFakeObsDistributions()
+        createFakeObsLink()
+    except IOError:
+        pass
+
+    return name
+    
 
 def removeProject(project):
     """Remove `project` from fakeobs."""
