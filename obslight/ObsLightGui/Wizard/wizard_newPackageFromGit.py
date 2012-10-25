@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'ui/wizard_newPackageFromGit.ui'
 #
-# Created: Fri Oct  5 13:55:46 2012
+# Created: Mon Oct 22 16:44:51 2012
 #      by: pyside-uic 0.2.13 running on PySide 1.1.0
 #
 # WARNING! All changes made in this file will be lost!
@@ -30,16 +30,22 @@ class Ui_WizardPage(object):
         self.gridLayout.addWidget(self.gitUrlLineEdit, 1, 1, 1, 1)
         self.label_2 = QtGui.QLabel(WizardPage)
         self.label_2.setObjectName("label_2")
-        self.gridLayout.addWidget(self.label_2, 2, 0, 1, 1)
+        self.gridLayout.addWidget(self.label_2, 3, 0, 1, 1)
         self.packageTitleLineEdit = QtGui.QLineEdit(WizardPage)
         self.packageTitleLineEdit.setObjectName("packageTitleLineEdit")
-        self.gridLayout.addWidget(self.packageTitleLineEdit, 2, 1, 1, 1)
+        self.gridLayout.addWidget(self.packageTitleLineEdit, 3, 1, 1, 1)
         self.label_3 = QtGui.QLabel(WizardPage)
         self.label_3.setObjectName("label_3")
-        self.gridLayout.addWidget(self.label_3, 3, 0, 1, 1)
+        self.gridLayout.addWidget(self.label_3, 5, 0, 1, 1)
         self.packageDescriptionTextEdit = QtGui.QPlainTextEdit(WizardPage)
         self.packageDescriptionTextEdit.setObjectName("packageDescriptionTextEdit")
-        self.gridLayout.addWidget(self.packageDescriptionTextEdit, 3, 1, 1, 1)
+        self.gridLayout.addWidget(self.packageDescriptionTextEdit, 5, 1, 1, 1)
+        self.gitSubDirLineEdit = QtGui.QLineEdit(WizardPage)
+        self.gitSubDirLineEdit.setObjectName("gitSubDirLineEdit")
+        self.gridLayout.addWidget(self.gitSubDirLineEdit, 2, 1, 1, 1)
+        self.SubDirLabel = QtGui.QLabel(WizardPage)
+        self.SubDirLabel.setObjectName("SubDirLabel")
+        self.gridLayout.addWidget(self.SubDirLabel, 2, 0, 1, 1)
 
         self.retranslateUi(WizardPage)
         QtCore.QMetaObject.connectSlotsByName(WizardPage)
@@ -52,4 +58,5 @@ class Ui_WizardPage(object):
         self.label_4.setText(QtGui.QApplication.translate("WizardPage", "Git URL or local path:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_2.setText(QtGui.QApplication.translate("WizardPage", "Title:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_3.setText(QtGui.QApplication.translate("WizardPage", "Description:", None, QtGui.QApplication.UnicodeUTF8))
+        self.SubDirLabel.setText(QtGui.QApplication.translate("WizardPage", "git sub dir (optional git)", None, QtGui.QApplication.UnicodeUTF8))
 

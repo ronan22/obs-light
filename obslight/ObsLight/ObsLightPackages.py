@@ -59,6 +59,7 @@ class ObsLightPackages(object):
                    name,
                    packagePath,
                    packageGitPath,
+                   gitSubDir,
                    ):
 
         if not name in  self.__dicOBSLightPackages.keys():
@@ -66,6 +67,7 @@ class ObsLightPackages(object):
                                                                name=name,
                                                                packagePath=packagePath,
                                                                packageGitPath=packageGitPath,
+                                                               subDir=gitSubDir
                                                                )
             self.__currentPackage = name
         else:

@@ -929,21 +929,24 @@ class ObsLightManagerCore(ObsLightManagerBase):
     def importPackage(self,
                       projectLocalName,
                       package,
-                      url=None):
+                      url=None,
+                      gitSubDir=None):
         '''
         import a package to a local project. 
         The package should be local or remote git project.
         '''
         if (isinstance(package, collections.Iterable) and
             not isinstance(package, str) and
-            not isinstance(package, unicode) and
-            len(package) == 2):
-            package, url = package
+            not isinstance(package, unicode)):
+            if len(package) == 2:
+                package, url = package
+            if len(package) == 3:
+                package, url, gitSubDir = package
 
         checkNonEmptyStringPackage(package)
         self.checkNoPackage(projectLocalName=projectLocalName, package=package)
 
-        self._myObsLightProjects.getProject(projectLocalName).addPackage(package, url)
+        self._myObsLightProjects.getProject(projectLocalName).addPackage(package, url, gitSubDir)
 
         self._myObsLightProjects.save()
 

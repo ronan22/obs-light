@@ -14,6 +14,24 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
+
+# (C) 2006-2011 Guido Guenther <agx@sigxcpu.org>
+# (C) 2012 Intel Corporation <markus.lehtonen@linux.intel.com>
+# (C) 2012 Intel Corporation <ronan@fridu.net>
+#    This program is free software; you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation; either version 2 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program; if not, write to the Free Software
+#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
 '''
 Created on 30 sept. 2011
 
@@ -38,6 +56,7 @@ import ObsLightErr
 from ObsLightErr import ObsLightPackageErr
 
 from copy import copy
+import tempfile as aliasTempfile
 
 from ObsLightUtils import getFilteredFileList, isASpecFile, levenshtein
 
@@ -46,11 +65,153 @@ from ObsLightPackageStatus import NOT_INSTALLED
 
 from ObsLightPackageStatus import PackageInfo
 
+import subprocess
 
-from gbp.scripts.buildpackage_rpm import main as gbp_build
-from gbp.rpm.git import GitRepositoryError, RpmGitRepository
+import types
+
+from gbp.scripts.buildpackage_rpm import *
+#from gbp.scripts.buildpackage_rpm import main as gbp_build
+from gbp.rpm.git import GitRepositoryError
+from gbp.rpm.git import  RpmGitRepository
 import gbp.rpm as rpm
-from gbp.errors import GbpError
+#from gbp.errors import GbpError
+import urllib
+
+
+def walkAroundArchive(self, *_args, **_kwargs):
+    """
+    Create an archive from a treeish
+
+    @param format: the type of archive to create, e.g. 'tar.gz'
+    @type format: C{str}
+    @param prefix: prefix to prepend to each filename in the archive
+    @type prefix: C{str}
+    @param output: the name of the archive to create
+    @type output: C{str}
+    @param treeish: the treeish to create the archive from
+    @type treeish: C{str}
+    @param filter_cmd: an extra command whom to pipe git-archive output
+    @type filter_cmd: C{list} of C{str}
+    """
+    format = _kwargs['format']
+    prefix = _kwargs['prefix']
+    output = _kwargs['output']
+    treeish = _kwargs['treeish']
+    filter_cmd = _kwargs.get("filter_cmd", [])
+
+
+    git_cmd = ['git', 'archive',
+               '--format=%s' % format, '--prefix=%s' % prefix, treeish]
+
+    if self.subDir is not None:
+        git_cmd.append(self.subDir)
+
+    try:
+        f_out = file(output, 'w')
+        if filter_cmd:
+            if self.subDir is None:
+                msg = "%s | %s > %s" % (" ".join(git_cmd), " ".join(filter_cmd), output)
+                self.loggerInfo(msg)
+
+                p_git = subprocess.Popen(git_cmd,
+                                         stdout=subprocess.PIPE,
+                                         cwd=self.path)
+                p_filter = subprocess.Popen(filter_cmd,
+                                            stdin=p_git.stdout,
+                                            stdout=f_out,
+                                            cwd=self.path)
+                p_git.stdout.close()
+                p_filter.communicate()
+                filter_ret = p_filter.wait()
+
+            else:
+
+#                tmpTar = aliasTempfile.mkstemp(suffix=".tar")
+                tmpTar = aliasTempfile.NamedTemporaryFile("rw", suffix=".tar", delete=False)
+
+                tempSrcDir = aliasTempfile.mkdtemp()
+                tempDstDir = aliasTempfile.mkdtemp()
+                tempDstFile = os.path.join(tempDstDir, prefix)
+                tempSrcSecondDir = os.path.join(tempSrcDir, prefix, self.subDir)
+
+#                os.makedirs(tempDstFile)
+
+                cmd_untar = ["tar", "xf", tmpTar.name, "-C", tempSrcDir]
+
+                cmd_cp = ["cp", "-ra", tempSrcSecondDir, tempDstFile]
+                cmd_tar = ["tar", "c", "-C", tempDstDir, prefix]
+#                cmd_tar = ["tar", "c", "-C", tempDstDir, "--remove-files", "."]
+
+                msg = "mkdir -p %s ; mkdir %s ; %s > %s ; %s ; %s ; rm -r %s ; %s | %s > %s ; rm -r %s ;rm -r %s"
+                msg = msg % (tempDstFile,
+                             tempSrcDir,
+                             " ".join(git_cmd),
+                             tmpTar.name,
+                             " ".join(cmd_untar),
+                             " ".join(cmd_cp),
+                             tmpTar.name,
+                             " ".join(cmd_tar),
+                             " ".join(filter_cmd),
+                             output,
+                             tempSrcDir,
+                             tempDstDir)
+
+                self.loggerInfo(msg)
+                p_git = subprocess.Popen(git_cmd,
+                                         stdout=tmpTar,
+                                         cwd=self.path)
+
+                tmpTar.flush()
+                tmpTar.close()
+
+                p_git.communicate()
+                p_git_ret = p_git.wait()
+
+                p_untar = subprocess.Popen(cmd_untar,
+                                           stdout=subprocess.PIPE)
+#                os.close(tmpTar[0])
+#                os.unlink(tmpTar[1])
+
+                p_untar.communicate()
+                p_untar_ret = p_untar.wait()
+
+                p_cp = subprocess.Popen(cmd_cp,
+                                        stdout=subprocess.PIPE)
+                p_cp.communicate()
+                p_cp_ret = p_cp.wait()
+
+                p_tar = subprocess.Popen(cmd_tar,
+                                         stdout=subprocess.PIPE,
+                                         cwd=self.path)
+
+                p_filter = subprocess.Popen(filter_cmd,
+                                            stdin=p_tar.stdout,
+                                            stdout=f_out,
+                                            cwd=self.path)
+                p_tar.stdout.close()
+                p_filter.communicate()
+                filter_ret = p_filter.wait()
+
+#                os.removedirs(tempDir)
+
+                filter_ret = 0
+        else:
+            p_git = subprocess.Popen(git_cmd,
+                                     stdout=f_out,
+                                     cwd=self.path)
+            p_git.communicate()
+            filter_ret = 0
+
+        git_ret = p_git.wait()
+    except IOError, err:
+        raise GitRepositoryError("Unable to archive: %s" % err)
+    except OSError, err:
+        raise GitRepositoryError("Unable to archive, command failed: %s" % err)
+
+    if git_ret:
+        raise GitRepositoryError("Unable to archive %s, git-archive failed: %s" % treeish)
+    if filter_ret:
+        raise GitRepositoryError("Unable to archive %s, filter command failed: %s" % (treeish, filter_ret))
 
 class PrintHandler(object):
     """
@@ -85,6 +246,7 @@ class ObsLightPackage(ObsLightObject):
                  name=None,
                  packagePath=None,
                  packageGitPath=None,
+                 subDir=None,
                  fromSave={},
                  ):
 
@@ -106,6 +268,7 @@ class ObsLightPackage(ObsLightObject):
 
         #the path of the package source.
         self.__packageSourceDirectory = fromSave.get("packageSourceDirectory", packagePath)
+        self.__subDir = fromSave.get("subDir", subDir)
 
         # Package git info.
         #packageGitPath can be a path or URL.
@@ -188,13 +351,14 @@ class ObsLightPackage(ObsLightObject):
         aDic["currentPatch"] = self.__currentPatch
         aDic["patchMode"] = self.__patchMode
 
+        aDic["subDir"] = self.__subDir
+
         aDic["prepDirName"] = self.__prepDirName
         aDic["listRPMPublished"] = self.__listRPMPublished
 
         aDic["packageChrootBuildDirectory"] = self.getChrootBuildDirectory()
 
         aDic["packageInfo"] = self.__packageInfo.getDic()
-
         return aDic
 
     def initAGitPackage(self):
@@ -245,27 +409,45 @@ class ObsLightPackage(ObsLightObject):
         elif parameter == "packageSourceDirectory":
             return self.getPackageSourceDirectory()
 
+        elif parameter == "subDir":
+            return self.__subDir if self.__subDir is not None else ""
+
         elif  parameter == "firstCommitTag":
-            return self.__firstCommitTag if self.__firstCommitTag != None else ""
+            return self.__firstCommitTag if self.__firstCommitTag is not None else ""
 
         elif parameter == "description":
-            return self.__description if self.__description != None else ""
+            res = self.__description if self.__description is not None else ""
+            if self.isGitPackage:
+                dsp = "GIT:\n%s\n\n" % self.getPackageGit()
+                if self.__subDir is not None:
+                    dsp += "GIT Sub dir:\n%s\n\n" % self.__subDir
+                res = dsp + res
+            else:
+                serverWeb = self.__project.getServerWeb()
+
+                urlPath = "package/show?package=%s&project=%s" % (self.getName(), self.__project.getProjectObsName())
+                url = urllib.basejoin(serverWeb , urlPath)
+                url = u'<a href="%s">%s</a>' % (url, url)
+                res = "%s\n%s" % (url, res)
+
+            return res
+
         elif parameter == "title":
-            return self.__packageTitle if self.__packageTitle != None else ""
+            return self.__packageTitle if self.__packageTitle is not None else ""
 
         elif parameter == "currentPatch":
-            return self.__currentPatch if self.__currentPatch != None else ""
+            return self.__currentPatch if self.__currentPatch is not None else ""
         elif parameter == "patchMode":
             return self.__patchMode
 
         elif parameter == "prepDirName":
-            return self.__prepDirName if self.__prepDirName != None else ""
+            return self.__prepDirName if self.__prepDirName is not None else ""
 
         else:
             msg = "Parameter '%s' is not valid for getProjectParameter" % parameter
             raise ObsLightPackageErr(msg)
 
-    def setPackageParameter(self, parameter=None, value=None):
+    def setPackageParameter(self, parameter, value):
         '''
         return the value  of the parameter of the package:
         the valid parameter is :
@@ -287,6 +469,9 @@ class ObsLightPackage(ObsLightObject):
 
         elif parameter == "packageChrootDirectory":
             self.__packageChrootDirectory = value
+
+        elif parameter == "subDir":
+            self.__subDir = value
 
         elif parameter == "description":
             self.__description = value
@@ -327,7 +512,10 @@ class ObsLightPackage(ObsLightObject):
 
     def getPackagingDirectiory(self):
         if self.isGitPackage:
-            path = os.path.join(self.getPackageSourceDirectory(), "packaging")
+            if self.__subDir is None:
+                path = os.path.join(self.getPackageSourceDirectory(), "packaging")
+            else:
+                path = os.path.join(self.getPackageSourceDirectory(), self.__subDir, "packaging")
             return path
         else:
             return self.getPackageSourceDirectory()
@@ -686,12 +874,214 @@ class ObsLightPackage(ObsLightObject):
                     "--git-upstream-branch=%s" % upstream_branch,
                     "--git-upstream-tag=%s" % upstream_tag]
 
+            if self.__subDir is not None:
+                args.append("--packaging-dir=%s" % self.__subDir)
 
             args.extend(["--git-no-patch-export",
                          "--git-upstream-tree=%s" % commit])
 
             return args
 
+        def gbp_build(argv):
+
+
+            retval = 0
+            prefix = "git-"
+            cp = None
+
+            options, gbp_args, builder_args = parse_args(argv, prefix)
+            if not options:
+                return 1
+
+            try:
+                repo = RpmGitRepository(os.path.curdir)
+            except GitRepositoryError:
+                gbp.log.err("%s is not a git repository" % (os.path.abspath('.')))
+                return 1
+            else:
+                repo_dir = os.path.abspath(os.path.curdir)
+
+            repo.subDir = self.__subDir
+            setattr(repo, "archive", types.MethodType(walkAroundArchive, repo))
+
+#            repo.archive = walkAroundArchive
+            repo.loggerInfo = self.logger.info
+            try:
+                # Create base temporary directory for this run
+                options.tmp_dir = tempfile.mkdtemp(dir=options.tmp_dir,
+                                                   prefix='buildpackage-rpm_')
+            except GbpError, err:
+                gbp.log.err(err)
+                return 1
+
+            try:
+                branch = repo.get_branch()
+            except GitRepositoryError:
+                branch = None
+
+            try:
+                if not options.export_only:
+                    Command(options.cleaner, shell=True)()
+                if not options.ignore_new:
+                    (ret, out) = repo.is_clean(options.ignore_untracked)
+                    if not ret:
+                        gbp.log.err("You have uncommitted changes in your source tree:")
+                        gbp.log.err(out)
+                        raise GbpError, "Use --git-ignore-new or --git-ignore-untracked to ignore."
+
+                if not options.ignore_new and not options.ignore_branch:
+                    if branch != options.packaging_branch:
+                        gbp.log.err("You are not on branch '%s' but on '%s'" % (options.packaging_branch, branch))
+                        raise GbpError, "Use --git-ignore-branch to ignore or --git-packaging-branch to set the branch name."
+
+                # Determine tree-ish to be exported
+                tree = get_tree(repo, options.export)
+
+                # Dump from git to a temporary directory:
+                dump_dir = tempfile.mkdtemp(dir=options.tmp_dir,
+                                            prefix='dump_tree_')
+                gbp.log.debug("Dumping tree '%s' to '%s'" % (options.export, dump_dir))
+                if not dump_tree(repo, dump_dir, tree, options.with_submodules):
+                    raise GbpError
+                # Find and parse spec from dump dir to get version etc.
+                if options.spec_file != 'auto':
+                    specfile = os.path.join(dump_dir, options.spec_file)
+                    options.packaging_dir = os.path.dirname(specfile)
+                else:
+                    specfile = rpm.guess_spec(os.path.join(dump_dir, options.packaging_dir),
+                                              True,
+                                              os.path.basename(repo.path) + '.spec')
+                spec = rpm.SpecFile(specfile)
+                gbp.log.debug("Using spec file '%s'" % specfile)
+                spec.debugprint()
+
+                if not options.tag_only:
+                    # Setup builder opts
+                    setup_builder(options, builder_args)
+
+                    # Generate patches, if requested
+                    if options.patch_export and not is_native(repo, options):
+                        export_patches(repo, spec, tree, options)
+
+                    # Prepare final export dirs
+                    export_dir = prepare_export_dir(options.export_dir)
+                    source_dir = makedir(os.path.join(export_dir, options.source_dir))
+                    spec_dir = makedir(os.path.join(export_dir, options.spec_dir))
+
+                    # Move packaging files
+                    gbp.log.debug("Exporting packaging files in '%s' to '%s'" % (spec.specdir, export_dir))
+                    pkgfiles = os.listdir(spec.specdir)
+                    for f in pkgfiles:
+                        src = os.path.join(spec.specdir, f)
+                        if f == os.path.basename(spec.specfile):
+                            dst = os.path.join(spec_dir, f)
+                            spec.specfile = os.path.abspath(dst)
+                        else:
+                            dst = os.path.join(source_dir, f)
+                        try:
+                            if os.path.isdir(src):
+                                # dir is not packaging files, skip it
+                                continue
+                            else:
+                                shutil.copy2(src, dst)
+                        except IOError, err:
+                            raise GbpError, "Error exporting files: %s" % err
+                    spec.specdir = spec_dir
+
+                    if options.orig_prefix != 'auto':
+                        options.orig_prefix = options.orig_prefix % dict(spec.version,
+                                                                         version=RpmPkgPolicy.compose_full_version(spec.version),
+                                                                         name=spec.name,
+                                                                         vendor=options.vendor)
+                    elif spec.orig_src:
+                        options.orig_prefix = spec.orig_src['prefix']
+
+                    # Get/build the orig tarball
+                    if is_native(repo, options):
+                        if spec.orig_src:
+                            # Just build source archive from the exported tree
+                            gbp.log.info("Creating (native) source archive %s from '%s'" % (spec.orig_src['filename'], tree))
+                            if spec.orig_src['compression']:
+                                gbp.log.debug("Building source archive with compression '%s -%s'" % (spec.orig_src['compression'], options.comp_level))
+                            if not git_archive(repo, spec, source_dir, options.tmp_dir,
+                                               tree, options.orig_prefix,
+                                               options.comp_level,
+                                               options.with_submodules):
+                                raise GbpError, "Cannot create source tarball at '%s'" % export_dir
+                    # Non-native packages: create orig tarball from upstream
+                    elif spec.orig_src:
+                         prepare_upstream_tarball(repo, spec, options, source_dir)
+
+                    # Run postexport hook
+                    if options.postexport:
+                        RunAtCommand(options.postexport, shell=True,
+                                     extra_env={'GBP_GIT_DIR': repo.git_dir,
+                                                'GBP_TMP_DIR': options.tmp_dir})(dir=export_dir)
+                    # Do actual build
+                    if not options.export_only and not options.tag_only:
+                        if options.prebuild:
+                            RunAtCommand(options.prebuild, shell=True,
+                                         extra_env={'GBP_GIT_DIR': repo.git_dir(),
+                                                    'GBP_BUILD_DIR': export_dir})(dir=export_dir)
+
+                        # Finally build the package:
+                        if options.builder.startswith("rpmbuild"):
+                            builder_args.extend([spec.specfile])
+                        else:
+                            builder_args.extend([os.path.basename(spec.specfile)])
+                        RunAtCommand(options.builder, builder_args, shell=True,
+                                     extra_env={'GBP_BUILD_DIR': export_dir})(dir=export_dir)
+                        if options.postbuild:
+                            changes = os.path.abspath("%s/%s.changes" % (source_dir, spec.name))
+                            gbp.log.debug("Looking for changes file %s" % changes)
+                            Command(options.postbuild, shell=True,
+                                    extra_env={'GBP_CHANGES_FILE': changes,
+                                               'GBP_BUILD_DIR': export_dir})()
+
+                # Tag (note: tags the exported version)
+                if options.tag or options.tag_only:
+                    gbp.log.info("Tagging %s" % RpmPkgPolicy.compose_full_version(spec.version))
+                    tag_str_fields = dict(spec.version, vendor=options.vendor)
+                    tag_str_fields = update_tag_str_fields(options.packaging_tag, tag_str_fields, repo, tree)
+                    tag = repo.version_to_tag(options.packaging_tag, tag_str_fields)
+                    if options.retag and repo.has_tag(tag):
+                        repo.delete_tag(tag)
+                    repo.create_tag(name=tag, msg="%s release %s" % (options.vendor,
+                                        RpmPkgPolicy.compose_full_version(spec.version)),
+                                    sign=options.sign_tags, keyid=options.keyid, commit=tree)
+                    if options.posttag:
+                        sha = repo.rev_parse("%s^{}" % tag)
+                        Command(options.posttag, shell=True,
+                                extra_env={'GBP_TAG': tag,
+                                           'GBP_BRANCH': branch,
+                                           'GBP_SHA1': sha})()
+            except CommandExecFailed:
+                retval = 1
+            except GitRepositoryError as err:
+                gbp.log.err("Git command failed: %s" % err)
+                ret = 1
+            except GbpError, err:
+                if len(err.__str__()):
+                    gbp.log.err(err)
+                retval = 1
+            except rpm.NoSpecError, err:
+                gbp.log.err("Failed determine spec file (%s)" % err)
+                retval = 1
+            finally:
+                drop_index()
+                shutil.rmtree(options.tmp_dir)
+
+            if not options.tag_only:
+                if options.purge and not retval and not options.export_only:
+                    RemoveTree(export_dir)()
+
+                if cp and not gbp.notifications.notify(cp, not retval, options.notify):
+                    gbp.log.err("Failed to send notification")
+                    retval = 1
+
+            return retval
+
+        #-------------------------------------------------------------------------------------------
         chrootRpmBuildDirectory = self.getChrootRpmBuildDirectory()
         absChrootRpmBuildDirectory = "%s%s/SOURCES/" % (self.__project.getChRootPath(), chrootRpmBuildDirectory)
 
@@ -719,6 +1109,7 @@ class ObsLightPackage(ObsLightObject):
 #                spec = rpm.parse_spec(self.getSpecFile(fullPath=True))
                 spec = self.getSpecFile(fullPath=True)
 #                comp_type = guess_comp_type(spec)
+
                 gbp_args = create_gbp_export_args(repo,
                                                   commit,
                                                   export_dir,
@@ -738,7 +1129,6 @@ class ObsLightPackage(ObsLightObject):
                     sys.stdout = PrintHandler(ObsLightPrintManager.getLogger().info)
                     sys.stderr = PrintHandler(ObsLightPrintManager.getLogger().error)
                     ret = gbp_build(gbp_args)
-
 
                 finally:
                     sys.stderr = old_stderr

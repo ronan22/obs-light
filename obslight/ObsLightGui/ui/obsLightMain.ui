@@ -179,7 +179,7 @@
                     <bool>true</bool>
                    </property>
                    <property name="textInteractionFlags">
-                    <set>Qt::LinksAccessibleByMouse</set>
+                    <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
                    </property>
                   </widget>
                  </item>
@@ -463,12 +463,28 @@
                   </widget>
                  </item>
                  <item>
-                  <widget class="QLabel" name="packageDescriptionLabel">
+                  <widget class="QLabel" name="packageDescriptionLabel_2">
                    <property name="text">
                     <string>Package Description</string>
                    </property>
-                   <property name="wordWrap">
+                   <property name="openExternalLinks">
                     <bool>true</bool>
+                   </property>
+                   <property name="textInteractionFlags">
+                    <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLabel" name="packageDescriptionLabel">
+                   <property name="text">
+                    <string>link</string>
+                   </property>
+                   <property name="openExternalLinks">
+                    <bool>true</bool>
+                   </property>
+                   <property name="textInteractionFlags">
+                    <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
                    </property>
                   </widget>
                  </item>

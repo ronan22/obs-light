@@ -41,6 +41,10 @@ class ConfigureNewPackagePage(ObsLightWizardPage):
         self.registerField(u"newPackageGitUrl",
                            self.ui_WizardPage.gitUrlLineEdit)
 
+        self.registerField(u"gitSubDirLineEdit",
+                           self.ui_WizardPage.gitSubDirLineEdit)
+
+
     def nextId(self):
         return -1
 
@@ -54,6 +58,10 @@ class ConfigureNewPackagePage(ObsLightWizardPage):
         projectAlias = self.field(u"projectAlias")
         newPkgGitUrl = self.field(u"newPackageGitUrl")
 
+        gitSubDirLineEdit = self.field(u"gitSubDirLineEdit")
+
+        if not isNonEmptyString(gitSubDirLineEdit.strip(" ")):
+            gitSubDirLineEdit = None
 
         if not isNonEmptyString(newPkgGitUrl.strip(" ")):
             retVal = self._createPackage(projectAlias,
@@ -65,7 +73,8 @@ class ConfigureNewPackagePage(ObsLightWizardPage):
                                                 newPkgName,
                                                 newPkgTitle,
                                                 newPkgDescr,
-                                                newPkgGitUrl)
+                                                newPkgGitUrl,
+                                                gitSubDirLineEdit)
         return retVal is not None
 
     def _createPackage(self, project, name, title, description):
@@ -77,10 +86,11 @@ class ConfigureNewPackagePage(ObsLightWizardPage):
                                                description)
         return retVal
 
-    def _importPackageFromGit(self, project, name, title, description, url):
+    def _importPackageFromGit(self, project, name, title, description, url, gitSubDirLineEdit):
         retVal = self.callWithInfiniteProgress(self.manager.importPackage,
                                                "Creating package %s" % name,
                                                project,
                                                name,
-                                               url)
+                                               url,
+                                               gitSubDirLineEdit)
         return retVal

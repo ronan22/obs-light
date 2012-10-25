@@ -244,8 +244,11 @@ class ObsLightOBSProject(ObsLightBuilderProject):
             else:
                 return None
 
+    def getServerWeb(self):
+        return self.__obsServers.getObsServer(name=self.__obsServer).getUrlServerWeb()
+
     def getWebProjectPage(self):
-        serverWeb = self.__obsServers.getObsServer(name=self.__obsServer).getUrlServerWeb()
+        serverWeb = self.getServerWeb()
 
         if serverWeb in (None, "None", ""):
             raise ObsLightErr.ObsLightProjectsError("No Web Server")

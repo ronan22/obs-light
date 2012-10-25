@@ -450,7 +450,7 @@ class ObsLightProjectCore(ObsLightObject):
 #            for f in packagingDirFileList:
 #                shutil.copy(os.path.join(packagingDir, f), os.path.join(packagePath, f))
 
-    def addPackage(self, name=None, packageGitPath=None):
+    def addPackage(self, name=None, packageGitPath=None, gitSubDir=None):
         '''
         add a package to the projectLocalName.
         if url is given, package will be a git package.
@@ -467,6 +467,7 @@ class ObsLightProjectCore(ObsLightObject):
         self.__packages.addPackage(name=name,
                                    packagePath=packagePath,
                                    packageGitPath=packageGitPath,
+                                   gitSubDir=gitSubDir
                                    )
         pkgObj = self.__packages.getPackage(name)
 
