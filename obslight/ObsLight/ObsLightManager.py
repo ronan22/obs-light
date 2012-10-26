@@ -935,12 +935,13 @@ class ObsLightManagerCore(ObsLightManagerBase):
         import a package to a local project. 
         The package should be local or remote git project.
         '''
+
         if (isinstance(package, collections.Iterable) and
             not isinstance(package, str) and
             not isinstance(package, unicode)):
             if len(package) == 2:
                 package, url = package
-            if len(package) == 3:
+            elif len(package) == 3:
                 package, url, gitSubDir = package
 
         checkNonEmptyStringPackage(package)
