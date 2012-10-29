@@ -199,12 +199,15 @@ fi
 # Remove old http python server service
 [ -e /etc/init.d/obslightserver ] && service obslightserver status >/dev/null && service obslightserver stop || :
 [ -e /etc/init.d/obslightserver ] && /sbin/chkconfig --check obslightserver && /sbin/chkconfig --del obslightserver || :
-%endif
 
 %{fillup_and_insserv -f -y fakeobs}
 %{fillup_and_insserv -f -y fakeobswebui}
+
+%endif
+
 %restart_on_update fakeobs
 %restart_on_update fakeobswebui
+
 # Starting services also on first install
 service fakeobs status || service fakeobs start || :
 service fakeobswebui status || service fakeobswebui start || :
