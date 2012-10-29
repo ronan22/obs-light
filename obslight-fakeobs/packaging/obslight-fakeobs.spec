@@ -199,6 +199,7 @@ fi
 # Remove old http python server service
 [ -e /etc/init.d/obslightserver ] && service obslightserver status >/dev/null && service obslightserver stop || :
 [ -e /etc/init.d/obslightserver ] && /sbin/chkconfig --check obslightserver && /sbin/chkconfig --del obslightserver || :
+%endif
 
 %{fillup_and_insserv -f -y fakeobs}
 %{fillup_and_insserv -f -y fakeobswebui}
@@ -212,7 +213,6 @@ service fakeobswebui status || service fakeobswebui start || :
 [ -e /etc/init.d/apache2 ] && /sbin/chkconfig --add apache2 || :
 [ -e /etc/init.d/apache2 ] && service apache2 start || :
 
-%endif
 # << post
 
 %postun
