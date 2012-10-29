@@ -1,5 +1,6 @@
 #!/bin/bash
 ADDPACKAGES=" "
+DEBUG_MOD=NO
 while test -n "$1" ; do
     case "$1" in
         --repository|--repo)
@@ -33,6 +34,10 @@ while test -n "$1" ; do
             ;;
         --stdout)
             STDOUT="$2";
+            shift 2;
+            ;;
+	--debug)
+            DEBUG_MOD="$2";
             shift 2;
             ;;
         *)
@@ -117,8 +122,13 @@ validate_cache_file()
     fi
 }
 validate_cache_file
-echo obslight-expanddeps --dist $DIST --depfile "$CACHE_FILE" --archpath $ARCHPATH --configdir /usr/lib/build/configs $ADDPACKAGES $SPEC >$STDOUT
+echo obslight-expanddeps --dist $DIST --depfile "$CACHE_FILE" --archpath $ARCHPATH --configdir /usr/lib/build/configs $ADDPACKAGES $SPEC 
 obslight-expanddeps --dist $DIST --depfile "$CACHE_FILE" --archpath $ARCHPATH --configdir /usr/lib/build/configs $ADDPACKAGES $SPEC >$STDOUT 2>$STDERR
-rm $CACHE_FILE
+
+if [ $DEBUG_MOD = NO ] ; 
+then
+ echo remove cache_file $CACHE_FILE 
+ rm $CACHE_FILE
+fi
 exit 0
 
