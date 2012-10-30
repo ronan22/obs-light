@@ -145,7 +145,13 @@ class FakeObsCommandline(cmdln.Cmdln):
                   default=[],
                   help="the name of a build target to grab")
     @cmdln.option("-r", "--rsync",
-                  help="rsync URL to fetch repositories from. If rsync server is not available, you can use http URL instead.")
+                  help="rsync URL to fetch repositories from. If rsync server is not available, you can use http(s) URL instead.")
+    @cmdln.option("--repo-user", dest="repo_user",
+                  default=None,
+                  help="set the http(s) user name for repositories")
+    @cmdln.option("--repo-password", dest="repo_password",
+                  default=None,
+                  help="set the http(s) user password for repositories")
     @cmdln.option("-A", "--api",
                   help="API URL of the OBS server to import project from")
     def do_grab(self, subcmd, opts, project):
@@ -165,7 +171,8 @@ class FakeObsCommandline(cmdln.Cmdln):
             raise ValueError("You must provide an rsync URL! (use -r or --rsync)")
         effectiveName = ProjectManager.grabProject(opts.api, opts.rsync,
                                                    project, opts.targets,
-                                                   opts.archs, new_name)
+                                                   opts.archs, new_name,
+                                                   opts.repo_user, opts.repo_password)
         msg = "Project '%s' grabbed" % effectiveName
         print Utils.colorize(msg, "green")
         packageList = ProjectManager.getPackageList(effectiveName)

@@ -267,7 +267,7 @@ def downloadFulls(api, project, targetArchTuples, fullDir):
         destDir = os.path.join(fullDir, target, arch)
         downloadFull(api, project, target, arch, destDir)
 
-def downloadRepository(rsyncUrl, project, target, repoDir):
+def downloadRepository(rsyncUrl, project, target, repoDir, repo_user, repo_password):
     """Download the RPM repository of `project`, for `target`, using rsync"""
     if not os.path.isdir(repoDir):
         os.makedirs(repoDir)
@@ -282,7 +282,11 @@ def downloadRepository(rsyncUrl, project, target, repoDir):
     if rsyncUrl.startswith("http"):
         rejectTample = '--reject "index.html*","*.btih","*.magnet","*.md5","*.meta4","*.metalink","*.mirrorlist","*.sha1","*.sha256","robots.txt"'
         option = "--mirror --no-parent --no-host-directories --tries=4 --retry-connrefused "
+        if (repo_user is not None) and (repo_password is not None):
+            option += " --user=%s --password=%s " % (repo_user, repo_password)
+
         wgetCmd = 'wget --directory-prefix=%s %s %s --cut-dirs=%s %s'
+
 
         url = "%s/%s/%s" % (rsyncUrl, project.replace(":", ":/"), target)
 
@@ -321,10 +325,10 @@ def updateRepositoryMetadata(repoDir):
     # TODO: check retCode
     retCode = Utils.callSubprocess(["createrepo", "--update", repoDir])
 
-def downloadRepositories(rsyncUrl, project, targets, repoDir):
+def downloadRepositories(rsyncUrl, project, targets, repoDir, repo_user, repo_password):
     """Download the RPM repositories of `project` using rsync"""
     for target in targets:
-        downloadRepository(rsyncUrl, project, target, repoDir)
+        downloadRepository(rsyncUrl, project, target, repoDir, repo_user, repo_password)
         completeRepoDir = os.path.join(repoDir, target, "packages")
         updateRepositoryMetadata(completeRepoDir)
         completeRepoDir = os.path.join(repoDir, target, "debug")
@@ -471,7 +475,7 @@ def testRsyncUrl(rsyncUrl):
             msg = "Invalid rsync URL: %s" % rsyncUrl
             raise ValueError(msg)
 
-def grabProject(api, rsyncUrl, project, targets, archs, newName=None):
+def grabProject(api, rsyncUrl, project, targets, archs, newName=None, repo_user=None, repo_password=None):
     """
     Grab a project from an OBS server.
       api:       the public API of the OBS server
@@ -519,14 +523,14 @@ def grabProject(api, rsyncUrl, project, targets, archs, newName=None):
         os.makedirs(projectDir)
     writeProjectInfo(api, rsyncUrl, project, targets, archs, newName)
     downloadConfAndMeta(api, project, projectDir)
-    fixProjectMeta(newName)
-    downloadFulls(api, project, targetArchTuples, fullDir)
-    downloadPackages(api, project, packagesDir)
+    #fixProjectMeta(newName)
+    #downloadFulls(api, project, targetArchTuples, fullDir)
+    #downloadPackages(api, project, packagesDir)
 
     # TODO: check return value of downloadPackages()
-    fixProjectPackagesMeta(newName)
+    #fixProjectPackagesMeta(newName)
 
-    downloadRepositories(rsyncUrl, project, targets, repoDir)
+    downloadRepositories(rsyncUrl, project, targets, repoDir, repo_user, repo_password)
     # findOrphanRpms is a generator
     for orphan in findOrphanRpms(newName):
         pass
