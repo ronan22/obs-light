@@ -158,18 +158,18 @@ def downloadFile(url, destDir=None, fileName=None, retryIfEmpty=True):
             sizeOk = True
     return retCode
 
-def downloadTo(uri,filename):
+def downloadTo(uri, filename):
     """
     Download the file at `uri` to `fileName`.
     """
-    nrtry = max(1,getConfig().getIntLimit("max_download_retries", 2))
+    nrtry = max(1, getConfig().getIntLimit("max_download_retries", 2))
     f = None
     while True:
 	try:
 	    f = urllib2.urlopen(uri)
 	    data = f.read()
 	    f.close()
-	    f = open(filename,"w")
+	    f = open(filename, "w")
 	    f.write(data)
 	    f.close()
 	    return True
@@ -279,16 +279,31 @@ def downloadRepository(rsyncUrl, project, target, repoDir):
     if not os.path.exists(debugDir):
         os.makedirs(debugDir)
 
-    conf = getConfig()
-    rsync = [conf.getCommand("rsync", "rsync")]
-    rsync += shlex.split(conf.getCommand("rsync_options", "-aHx"))
-    rsync += ["--exclude=*.src.rpm", "--exclude=repocache/",
-              "--exclude=*.repo", "--exclude=repodata/",
-              "--exclude=src/", "--include=*.rpm",
-              "%s/%s/%s/*" % (rsyncUrl, project.replace(":", ":/"), target),
-              "."]
-    # TODO: check retCode
-    retCode = Utils.callSubprocess(rsync, cwd=packagesDir)
+    if rsyncUrl.startswith("http"):
+        rejectTample = '--reject "index.html*","*.btih","*.magnet","*.md5","*.meta4","*.metalink","*.mirrorlist","*.sha1","*.sha256","robots.txt"'
+        option = "--mirror --no-parent --no-host-directories "
+        wgetCmd = 'wget --directory-prefix=%s %s %s --cut-dirs=%s %s'
+
+        url = "%s/%s/%s" % (rsyncUrl, project.replace(":", ":/"), target)
+
+        true_slash_count = url.count('/') - 2 * url.count('//')
+
+        wgetCmd = wgetCmd % (packagesDir, rejectTample, option, true_slash_count, url)
+
+        # TODO: check retCode
+        retCode = Utils.callSubprocess(shlex.split(wgetCmd))
+
+    else:
+        conf = getConfig()
+        rsync = [conf.getCommand("rsync", "rsync")]
+        rsync += shlex.split(conf.getCommand("rsync_options", "-aHx"))
+        rsync += ["--exclude=*.src.rpm", "--exclude=repocache/",
+                  "--exclude=*.repo", "--exclude=repodata/",
+                  "--exclude=src/", "--include=*.rpm",
+                  "%s/%s/%s/*" % (rsyncUrl, project.replace(":", ":/"), target),
+                  "."]
+        # TODO: check retCode
+        retCode = Utils.callSubprocess(rsync, cwd=packagesDir)
 
     # Original MDS code was deleting RPM signatures.
     # We do not do it, so RPMs in :full and repositories are the same,
@@ -447,6 +462,15 @@ def writeProjectInfo(api, rsyncUrl, project, targets, archs, newName):
     with open(getConfig().getProjectInfoPath(newName), "wb") as configFile:
         confParser.write(configFile)
 
+def testRsyncUrl(rsyncUrl):
+    if rsyncUrl.startswith("http"):
+        #TODO Check url
+        pass
+    else:
+        if not Utils.checkRsyncUrl(rsyncUrl):
+            msg = "Invalid rsync URL: %s" % rsyncUrl
+            raise ValueError(msg)
+
 def grabProject(api, rsyncUrl, project, targets, archs, newName=None):
     """
     Grab a project from an OBS server.
@@ -471,8 +495,7 @@ def grabProject(api, rsyncUrl, project, targets, archs, newName=None):
     if not Utils.checkObsPublicApi(api):
         raise ValueError("Invalid API: %s" % api)
 
-    if not Utils.checkRsyncUrl(rsyncUrl):
-        raise ValueError("Invalid rsync URL: %s" % rsyncUrl)
+    testRsyncUrl(rsyncUrl)
 
     if not Utils.projectExistsOnServer(api, project):
         raise ValueError("Could not find project '%s' on server" % project)
@@ -499,8 +522,10 @@ def grabProject(api, rsyncUrl, project, targets, archs, newName=None):
     fixProjectMeta(newName)
     downloadFulls(api, project, targetArchTuples, fullDir)
     downloadPackages(api, project, packagesDir)
+
     # TODO: check return value of downloadPackages()
     fixProjectPackagesMeta(newName)
+
     downloadRepositories(rsyncUrl, project, targets, repoDir)
     # findOrphanRpms is a generator
     for orphan in findOrphanRpms(newName):
@@ -549,7 +574,7 @@ def grabGBSTree(uri, name, targets, archs, orders, verbose=False, force=False):
 
     def localname(n):
 	"Compute the local name"
-	return n.replace(":","_")
+	return n.replace(":", "_")
 
     # connect to the GbsTree
     options = {
@@ -557,9 +582,9 @@ def grabGBSTree(uri, name, targets, archs, orders, verbose=False, force=False):
 	"should_raise": False,
 	"rsynckeep":    True, # FIXME: transmit it correctly
 	"archs":	archs,
-	"noarchs":	[ "noarch" ] 
+	"noarchs":	[ "noarch" ]
     }
-    gbstree = GbsTree.GbsTree(uri,verbose=verbose,rsynckeep=True,archs=archs)
+    gbstree = GbsTree.GbsTree(uri, verbose=verbose, rsynckeep=True, archs=archs)
     if not gbstree.connect():
 	raise ValueError(gbstree.error_message)
 
@@ -580,9 +605,9 @@ def grabGBSTree(uri, name, targets, archs, orders, verbose=False, force=False):
 
 	# Perform renaming
 	subprj = localname(repo)
-	prj = name if not subprj else "{}:{}".format(name,subprj)
+	prj = name if not subprj else "{}:{}".format(name, subprj)
 	if verbose:
-	    print "scanning project {} ({}) from repo {}".format(prj,subprj,repo)
+	    print "scanning project {} ({}) from repo {}".format(prj, subprj, repo)
 
 	# get root directories
 	projectDir = conf.getProjectDir(prj)
@@ -597,7 +622,7 @@ def grabGBSTree(uri, name, targets, archs, orders, verbose=False, force=False):
 
 	# connect to the source package
 	gbstree.set_package("source")
-	gbstree.extract_package_rpms_to(packagesDir,prj,True)
+	gbstree.extract_package_rpms_to(packagesDir, prj, True)
 
 	# all archs
 	allarchs = archs
@@ -612,26 +637,26 @@ def grabGBSTree(uri, name, targets, archs, orders, verbose=False, force=False):
 	    # Perform renaming
 	    ltarget = localname(rtarget)
 	    if verbose:
-		print "   for target {} (was arch {})".format(ltarget,rtarget)
+		print "   for target {} (was arch {})".format(ltarget, rtarget)
 
 	    # connect to the DEBUG sub-package
 	    gbstree.set_package("debug")
-	    dbgdir = os.path.join(repoDir,ltarget,"debug")
+	    dbgdir = os.path.join(repoDir, ltarget, "debug")
 
 	    # download the DEBUG sub-package
 	    if not os.path.isdir(dbgdir):
 		os.makedirs(dbgdir)
-	    gbstree.download_package_to(dbgdir,True) # accept errors for debug and no arch
+	    gbstree.download_package_to(dbgdir, True) # accept errors for debug and no arch
 	    updateRepositoryMetadata(dbgdir) # FIXME: Is it really useful? 
 
 	    # connect to the PACKAGES sub-package
 	    gbstree.set_package("packages")
-	    pkgdir = os.path.join(repoDir,ltarget,"packages")
+	    pkgdir = os.path.join(repoDir, ltarget, "packages")
 
 	    # check the availables archs
-	    (ok,miss,avail) = gbstree.check_package_archs()
+	    (ok, miss, avail) = gbstree.check_package_archs()
 	    if not ok:
-		raise ValueError("unavailable archs: "+(", ".join(miss)))
+		raise ValueError("unavailable archs: " + (", ".join(miss)))
 	    else:
 		if archs:
 		    avail = archs
@@ -645,7 +670,7 @@ def grabGBSTree(uri, name, targets, archs, orders, verbose=False, force=False):
 	    # download the PACKAGES sub-package
 	    if not os.path.isdir(pkgdir):
 		os.makedirs(pkgdir)
-	    gbstree.download_package_to(pkgdir,False)
+	    gbstree.download_package_to(pkgdir, False)
 	    updateRepositoryMetadata(pkgdir) # FIXME: Is it really useful? 
 
 	    # create the Live directories
@@ -662,16 +687,16 @@ def grabGBSTree(uri, name, targets, archs, orders, verbose=False, force=False):
 			elif knowledge.index(pkarch) > knowledge.index(pkdic[n].get_arch()):
 			    pkdic[n] = pk
 		# create the main directory
-		fdir = os.path.join(fullDir,ltarget,a)
+		fdir = os.path.join(fullDir, ltarget, a)
 		if not os.path.isdir(fdir):
 		    os.makedirs(fdir)
 		# link on packages
 		for pk in pkdic.itervalues():
-		    ffile = os.path.join(fdir,pk.get_name())+".rpm"
-		    rfile = os.path.join(pkgdir,pk.get_location())
+		    ffile = os.path.join(fdir, pk.get_name()) + ".rpm"
+		    rfile = os.path.join(pkgdir, pk.get_location())
 		    if os.path.lexists(ffile):
 			os.unlink(ffile)
-		    os.symlink(os.path.relpath(rfile,fdir),ffile)
+		    os.symlink(os.path.relpath(rfile, fdir), ffile)
 
 	    # compute metas
 	    metaarchs = "".join(["  <arch>{}</arch>\n".format(a) for a in avail])
@@ -680,13 +705,13 @@ def grabGBSTree(uri, name, targets, archs, orders, verbose=False, force=False):
 		r = localname(r)
 		if r == subprj:
 		    break
-		p = name if not r else "{}:{}".format(name,r)
-		metapath.append('  <path project="{}" repository="{}"/>\n'.format(p,ltarget))
+		p = name if not r else "{}:{}".format(name, r)
+		metapath.append('  <path project="{}" repository="{}"/>\n'.format(p, ltarget))
 	    metapath = "".join(metapath)
 	    metarepos.append('<repository name="{REPO}">\n{PATHS}{ARCHS} </repository>\n'.format(
-		    REPO = ltarget,
-		    PATHS = metapath,
-		    ARCHS = metaarchs,
+		    REPO=ltarget,
+		    PATHS=metapath,
+		    ARCHS=metaarchs,
 		))
 
 	# uri of the repo
@@ -697,7 +722,7 @@ def grabGBSTree(uri, name, targets, archs, orders, verbose=False, force=False):
 	writeProjectInfo("GBS", uri, prj, targets, archs, prj)
 
 	# write the config file
-	gbstree.download_config(os.path.join(projectDir,"_config"))
+	gbstree.download_config(os.path.join(projectDir, "_config"))
 
 	# Write the project _meta file
 	meta = """<project name="{NAME}">
@@ -706,11 +731,11 @@ def grabGBSTree(uri, name, targets, archs, orders, verbose=False, force=False):
  <person role="maintainer" userid="unknown" />
  <person role="bugowner" userid="unknown" />
 {REPOS}</project>""".format(
-		NAME = prj,
-		BASE = repouri,
-		REPOS = "".join(metarepos))
-	metaname = os.path.join(projectDir,"_meta")
-	f = open(metaname,"w")
+		NAME=prj,
+		BASE=repouri,
+		REPOS="".join(metarepos))
+	metaname = os.path.join(projectDir, "_meta")
+	f = open(metaname, "w")
 	f.write(meta)
 	f.close()
 
@@ -725,7 +750,7 @@ def grabGBSTree(uri, name, targets, archs, orders, verbose=False, force=False):
         pass
 
     return name
-    
+
 
 def removeProject(project):
     """Remove `project` from fakeobs."""
@@ -768,6 +793,8 @@ def exportProject(project, destPath=None):
     res = Utils.callSubprocess(tarCmd)
     # TODO: check 'res'
     return destPath
+
+
 
 def importProject(archivePath, newName=None):
     """
@@ -1128,20 +1155,7 @@ def shrinkProject(project, useSymbolicLinks=False):
             linkedRpms.append((dup1[1], dup1[0], os.path.getsize(dup1[1])))
     return linkedRpms
 
-def updateProject(project, rsyncUrl=None, oldName=None):
-    """
-    Update a local project from a remote project, using rsync.
-    `rsyncUrl` should be a URL to the Fake OBS root ("fakeobs_root"
-    parameter of configuration file) of the remote host.
-    `oldName` should be the name of the remote project to do the
-    update from (local project may have been renamed at import).
-    """
-    conf = getConfig()
-    fakeObsRoot = conf.getFakeObsRootDir()
-    projectInfoPath = conf.getProjectInfoPath(project)
-    confParser = ConfigParser.SafeConfigParser()
-    confParser.read(projectInfoPath)
-
+def updateProjectRsyncUrl(project, rsyncUrl=None, oldName=None):
     # TODO: use getUpdateInformations()
     if rsyncUrl is None:
         # User did not provide rsyncUrl.
@@ -1160,9 +1174,7 @@ def updateProject(project, rsyncUrl=None, oldName=None):
         if not Utils.isNonEmptyString(rsyncUrl):
             raise ValueError(msg % projectInfoPath)
 
-    if not Utils.checkRsyncUrl(rsyncUrl):
-        msg = "Invalid rsync URL: %s" % rsyncUrl
-        raise ValueError(msg)
+    testRsyncUrl(rsyncUrl)
 
     if oldName is None:
         # User may have renamed the project when importing.
@@ -1214,6 +1226,23 @@ def updateProject(project, rsyncUrl=None, oldName=None):
         res1 = Utils.callSubprocess(prjRsync, cwd=fakeObsRoot)
         res2 = Utils.callSubprocess(repoRsync, cwd=fakeObsRoot)
         res = res1 or res2
+    return res
+
+def updateProject(project, rsyncUrl=None, oldName=None):
+    """
+    Update a local project from a remote project, using rsync.
+    `rsyncUrl` should be a URL to the Fake OBS root ("fakeobs_root"
+    parameter of configuration file) of the remote host.
+    `oldName` should be the name of the remote project to do the
+    update from (local project may have been renamed at import).
+    """
+    conf = getConfig()
+    fakeObsRoot = conf.getFakeObsRootDir()
+    projectInfoPath = conf.getProjectInfoPath(project)
+    confParser = ConfigParser.SafeConfigParser()
+    confParser.read(projectInfoPath)
+
+    res = updateProjectRsyncUrl(project, rsyncUrl, oldName)
 
     fixProjectMeta(project)
     fixProjectPackagesMeta(project)
