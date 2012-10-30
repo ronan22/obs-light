@@ -281,7 +281,7 @@ def downloadRepository(rsyncUrl, project, target, repoDir):
 
     if rsyncUrl.startswith("http"):
         rejectTample = '--reject "index.html*","*.btih","*.magnet","*.md5","*.meta4","*.metalink","*.mirrorlist","*.sha1","*.sha256","robots.txt"'
-        option = "--mirror --no-parent --no-host-directories "
+        option = "--mirror --no-parent --no-host-directories --tries=4 --retry-connrefused "
         wgetCmd = 'wget --directory-prefix=%s %s %s --cut-dirs=%s %s'
 
         url = "%s/%s/%s" % (rsyncUrl, project.replace(":", ":/"), target)
