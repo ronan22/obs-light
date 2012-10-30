@@ -523,12 +523,12 @@ def grabProject(api, rsyncUrl, project, targets, archs, newName=None, repo_user=
         os.makedirs(projectDir)
     writeProjectInfo(api, rsyncUrl, project, targets, archs, newName)
     downloadConfAndMeta(api, project, projectDir)
-    #fixProjectMeta(newName)
-    #downloadFulls(api, project, targetArchTuples, fullDir)
-    #downloadPackages(api, project, packagesDir)
+    fixProjectMeta(newName)
+    downloadFulls(api, project, targetArchTuples, fullDir)
+    downloadPackages(api, project, packagesDir)
 
     # TODO: check return value of downloadPackages()
-    #fixProjectPackagesMeta(newName)
+    fixProjectPackagesMeta(newName)
 
     downloadRepositories(rsyncUrl, project, targets, repoDir, repo_user, repo_password)
     # findOrphanRpms is a generator
