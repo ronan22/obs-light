@@ -203,10 +203,11 @@ fi
 %{fillup_and_insserv -f -y fakeobs}
 %{fillup_and_insserv -f -y fakeobswebui}
 
-%endif
 %restart_on_update apache2
 %restart_on_update fakeobs
 %restart_on_update fakeobswebui
+%endif
+
 
 
 # Starting services also on first install
