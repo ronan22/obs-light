@@ -309,6 +309,12 @@ class BindChrootMount:
 
     def ismounted(self):
         ret = False
+        pathDest = os.path.abspath(self.dest)
+
+        if not os.path.exists(pathDest):
+                ret = False
+                return ret
+
         dev_null = os.open("/dev/null", os.O_WRONLY)
         catcmd = findBinaryPath("cat")
         args = [ catcmd, "/proc/mounts" ]
@@ -316,7 +322,12 @@ class BindChrootMount:
         proc_mounts = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=dev_null)
         outputs = proc_mounts.communicate()[0].strip().split("\n")
         for line in outputs:
-            if os.stat(line.split()[1]).st_ino == os.stat(os.path.abspath(self.dest)).st_ino:
+            pathMount = line.split()[1]
+
+            if not os.path.exists(pathMount):
+                continue
+
+            if os.stat(pathMount).st_ino == os.stat(pathDest).st_ino:
                 ret = True
                 break
 
