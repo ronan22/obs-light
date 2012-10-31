@@ -30,6 +30,33 @@ import xml.dom.minidom
 import hashlib
 from xml.etree import ElementTree
 
+import  base64
+
+class HTTPBasicAuthSimple(urllib2.BaseHandler):
+    def __init__(self, host, user, password):
+        self.host = host
+        self.auth = 'Basic ' + base64.b64encode(user + ':' + password)
+
+    def http_request(self, req):
+        return self.process(req)
+
+    def https_request(self, req):
+        return self.process(req)
+
+    def process(self, req):
+        if req.get_host().endswith(self.host):
+            req.add_header('Authorization', self.auth)
+        return req
+
+def createOpener(auths=[]):
+    opener = urllib2.build_opener()
+    urllib2.install_opener(opener)
+    for auth in auths:
+        if len(auth) == 3:
+            host, user, password = auth
+            h = HTTPBasicAuthSimple(host, user, password)
+            opener.add_handler(h)
+
 SIZE_LIMIT_FOR_INTERNAL_MD5 = 1024 * 1024
 TERMINAL_COLORS = {"black": "\033[30;1m",
                    "red": "\033[31;1m",
@@ -234,10 +261,22 @@ def findBestSpecFile(specFileList, packageName):
                 specFile = specFileList[0]
     return specFile
 
-def curlUnpack(url, destDir):
+def curlUnpack(url, destDir, api_user, api_password):
     """Call `url` and pipe the result to cpio to extract RPMs in `destDir`"""
-    proc1 = subprocess.Popen(["curl", "-k", "--retry", "5", url],
-                          stdout=subprocess.PIPE)
+
+    curl_cmd = ["curl", "-k", "--retry", "5"]
+
+    if (api_user is not None) and (api_password is not None):
+        curl_cmd.extend(["-u", "%s:%s" % (api_user, api_password)])
+
+    curl_cmd += [url]
+
+    api_user, api_password
+
+    proc1 = subprocess.Popen(curl_cmd,
+                             stdout=subprocess.PIPE)
+
+
     proc2 = subprocess.Popen(["cpio", "-idvm"], stdin=proc1.stdout,
                              cwd=destDir)
     return proc2.wait()
@@ -256,21 +295,26 @@ def createCpio(outputFile, strFileList, cwd=None):
     proc.communicate(strFileList)
     return proc.wait()
 
-def fixObsPublicApi(api):
+def fixObsPublicApi(api, api_user, api_password):
     """
     Removes ending '/' from `api` and appends '/public' if necessary.
     Returns the fixed api.
     """
     if api.endswith('/'):
         api = api[:-1]
-    if not api.endswith("/public"):
+    if not api.endswith("/public") and (api_user is None) and (api_password is None):
         return api + "/public"
     else:
         return api
 
-def checkObsPublicApi(api):
+def checkObsPublicApi(api, api_user, api_password):
     """Try to contact `api` to see if it's valid."""
-    cmd = ["curl", "-s", "-S", "-f", "-k", api]
+    cmd = ["curl", "-s", "-S", "-f", "-k"]
+
+    if (api_user is not None) and (api_password is not None):
+        cmd.extend(["-u", "%s:%s" % (api_user, api_password)])
+
+    cmd.append(api)
     res = callSubprocess(cmd, stdout=subprocess.PIPE)
     return res == 0
 

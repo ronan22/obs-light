@@ -154,6 +154,12 @@ class FakeObsCommandline(cmdln.Cmdln):
                   help="set the http(s) user password for repositories")
     @cmdln.option("-A", "--api",
                   help="API URL of the OBS server to import project from")
+    @cmdln.option("--api-user", dest="api_user",
+                  default=None,
+                  help="set the API user name for OBS")
+    @cmdln.option("--api-password", dest="api_password",
+                  default=None,
+                  help="set the API user password for OBS")
     def do_grab(self, subcmd, opts, project):
         """${cmd_name}: import a project from server
         
@@ -169,9 +175,11 @@ class FakeObsCommandline(cmdln.Cmdln):
             raise ValueError("You must provide an API! (use -A or --api)")
         if opts.rsync is None:
             raise ValueError("You must provide an rsync URL! (use -r or --rsync)")
+
         effectiveName = ProjectManager.grabProject(opts.api, opts.rsync,
                                                    project, opts.targets,
                                                    opts.archs, new_name,
+                                                   opts.api_user, opts.api_password,
                                                    opts.repo_user, opts.repo_password)
         msg = "Project '%s' grabbed" % effectiveName
         print Utils.colorize(msg, "green")

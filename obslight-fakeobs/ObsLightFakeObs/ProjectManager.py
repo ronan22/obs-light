@@ -42,6 +42,8 @@ from Config import getConfig
 from DistributionsManager import updateFakeObsDistributions
 from ObsManager import createFakeObsLink
 
+from urlparse import urlparse
+
 def getProjectList():
     """Get the local project list."""
     projectList = os.listdir(getConfig().getProjectsRootDir())
@@ -128,7 +130,7 @@ def failIfTargetDoesNotExist(project, target):
         raise ValueError("Target '%s' does not exist for project '%s'!"
                          % (target, project))
 
-def downloadFile(url, destDir=None, fileName=None, retryIfEmpty=True):
+def downloadFile(url, destDir=None, fileName=None, retryIfEmpty=True, user=None, password=None):
     """
     Download the file at `url` to `destDir` and name it `fileName`.
     `retryIfEmpty` works only if `fileName` is provided.
@@ -136,8 +138,13 @@ def downloadFile(url, destDir=None, fileName=None, retryIfEmpty=True):
     conf = getConfig()
     maxRetries = conf.getIntLimit("max_download_retries", 2)
     cmd = [conf.getCommand("wget", "wget")]
+
     cmd += shlex.split(conf.getCommand("wget_options",
                                        "--no-check-certificate"))
+
+    if (user is not None) and (password is not None):
+        cmd += ["--user=%s" % user, "--password=%s" % password]
+
     if fileName is not None:
         cmd += ["-O", fileName]
     cmd += [url]
@@ -182,13 +189,16 @@ def downloadTo(uri, filename):
 		raise e
     return False
 
-def downloadFiles(baseUrl, fileNames, destDir=None):
+def downloadFiles(baseUrl, fileNames, destDir=None, user=None, password=None):
     """Download several files with a common base URL"""
     conf = getConfig()
     maxRetries = conf.getIntLimit("max_download_retries", 2)
     cmd = [conf.getCommand("wget", "wget")]
     cmd += shlex.split(conf.getCommand("wget_options",
                                        "--no-check-certificate"))
+    if (user is not None) and (password is not None):
+        cmd += ["--user=%s" % user, "--password=%s" % password]
+
     urls = []
     for myFile in fileNames:
         urls.append(baseUrl + urllib.quote(myFile))
@@ -231,7 +241,7 @@ def deleteRpmSignatures(topDir):
                                     "-exec", "rpm", "--delsign", "{}", ";"])
     return retCode
 
-def downloadFull(api, project, target, arch, destDir):
+def downloadFull(api, project, target, arch, destDir, api_user, api_password):
     """
     Download the full (aka bootstrap) of `project` from `api`
     for `target` and `arch`, into `destDir`.
@@ -242,7 +252,7 @@ def downloadFull(api, project, target, arch, destDir):
     cpioUrl = "%s/build/%s/%s/%s/_repository?%s"
     for viewType in ["cache", "names", "binaryversions", "solvstate"]:
         url = viewUrl % (api, project, target, arch, viewType)
-        retCode = downloadFile(url, destDir)
+        retCode = downloadFile(url, destDir, user=api_user, password=api_password)
 
     namesViewPath = os.path.join(destDir, "_repository?view=names")
     cpioQueries = makeCpioQueries(namesViewPath,
@@ -254,9 +264,9 @@ def downloadFull(api, project, target, arch, destDir):
         while retCode != 0 and maxRetries >= 0:
             maxRetries -= 1
             url = cpioUrl % (api, project, target, arch, query)
-            retCode = Utils.curlUnpack(url, destDir)
+            retCode = Utils.curlUnpack(url, destDir, api_user, api_password)
 
-def downloadFulls(api, project, targetArchTuples, fullDir):
+def downloadFulls(api, project, targetArchTuples, fullDir, api_user, api_password):
     """
     Download the fulls (aka bootstraps) of `project` for each
     target and architecture in `targetArchTuples`.
@@ -265,7 +275,7 @@ def downloadFulls(api, project, targetArchTuples, fullDir):
     """
     for target, arch in targetArchTuples:
         destDir = os.path.join(fullDir, target, arch)
-        downloadFull(api, project, target, arch, destDir)
+        downloadFull(api, project, target, arch, destDir, api_user, api_password)
 
 def downloadRepository(rsyncUrl, project, target, repoDir, repo_user, repo_password):
     """Download the RPM repository of `project`, for `target`, using rsync"""
@@ -334,7 +344,7 @@ def downloadRepositories(rsyncUrl, project, targets, repoDir, repo_user, repo_pa
         completeRepoDir = os.path.join(repoDir, target, "debug")
         updateRepositoryMetadata(completeRepoDir)
 
-def downloadPackageFiles(api, project, package, destDir):
+def downloadPackageFiles(api, project, package, destDir, api_user, api_password):
     """
     Download source files of `package` of `project` from `api`
     and put them in `destDir`.
@@ -347,14 +357,14 @@ def downloadPackageFiles(api, project, package, destDir):
     # Download the file index, save it to '_directory'
     indexUrl = "%s/source/%s/%s" % (api, project, package)
     indexPath = os.path.join(destDir, conf.PackageDescriptionFile)
-    res = downloadFile(indexUrl, fileName=indexPath)
+    res = downloadFile(indexUrl, fileName=indexPath, user=api_user, password=api_password)
 
     # Download special files, often missing. Don't care about return code.
     for special in ["_meta", "_attribute"]:
         fileUrl = urllib.quote("source/%s/%s/%s" %
                                (project, package, special))
         fileUrl = "%s/%s" % (api, fileUrl)
-        downloadFile(fileUrl, destDir)
+        downloadFile(fileUrl, destDir, user=api_user, password=api_password)
 
     # Parse the file index and download files
     xmlContent = None
@@ -363,21 +373,25 @@ def downloadPackageFiles(api, project, package, destDir):
     entries = Utils.getEntriesAsDicts(xmlContent)
     baseUrl = urllib.quote("source/%s/%s/" % (project, package))
     baseUrl = "%s/%s" % (api, baseUrl)
+
     res = downloadFiles(baseUrl,
                         [entry["name"] for entry in entries],
-                        destDir)
+                        destDir,
+                        user=api_user, password=api_password)
 
     # Check everything is OK, and retry files which failed
     maxRetries = conf.getIntLimit("max_download_retries", 2)
     filesInError = checkPackageFilesByPath(destDir)
     while len(filesInError) > 0 and maxRetries > 0:
+
         pathList = [os.path.basename(x[1]) for x in filesInError]
-        res = downloadFiles(baseUrl, pathList, destDir)
+
+        res = downloadFiles(baseUrl, pathList, destDir, user=api_user, password=api_password)
         maxRetries -= 1
         filesInError = checkPackageFilesByPath(destDir)
     return filesInError
 
-def downloadPackages(api, project, packagesDir):
+def downloadPackages(api, project, packagesDir, api_user, api_password):
     """Download sources of all packages of `project` from `api`"""
     packagesInError = []
     packageList = Utils.getPackageListFromServer(api, project)
@@ -393,21 +407,22 @@ def downloadPackages(api, project, packagesDir):
         packageDir = os.path.join(packagesDir, package)
         try:
             filesInError = downloadPackageFiles(api, project,
-                                                package, packageDir)
+                                                package, packageDir,
+                                                api_user, api_password)
             if len(filesInError) > 0:
                 packagesInError.append((package, filesInError))
         except BaseException as myException:
             packagesInError.append((package, myException))
     return packagesInError
 
-def downloadConfAndMeta(api, project, destDir):
+def downloadConfAndMeta(api, project, destDir, api_user, api_password):
     """Download configuration and meta information about `project`"""
     if not os.path.isdir(destDir):
         os.makedirs(destDir)
     for myFile in ["_meta", "_config"]:
         fileUrl = urllib.quote("source/%s/%s" % (project, myFile))
         fileUrl = "%s/%s" % (api, fileUrl)
-        retCode = downloadFile(fileUrl, destDir)
+        retCode = downloadFile(fileUrl, destDir, user=api_user, password=api_password)
 
 def fixProjectMeta(project):
     """
@@ -475,7 +490,16 @@ def testRsyncUrl(rsyncUrl):
             msg = "Invalid rsync URL: %s" % rsyncUrl
             raise ValueError(msg)
 
-def grabProject(api, rsyncUrl, project, targets, archs, newName=None, repo_user=None, repo_password=None):
+def grabProject(api,
+                rsyncUrl,
+                project,
+                targets,
+                archs,
+                newName=None,
+                api_user=None,
+                api_password=None,
+                repo_user=None,
+                repo_password=None):
     """
     Grab a project from an OBS server.
       api:       the public API of the OBS server
@@ -495,8 +519,23 @@ def grabProject(api, rsyncUrl, project, targets, archs, newName=None, repo_user=
         newName = project
     failIfProjectExists(newName)
 
-    api = Utils.fixObsPublicApi(api)
-    if not Utils.checkObsPublicApi(api):
+    auths = []
+
+    if (api_user is not None) and (api_password is not None):
+        (scheme, netloc, _path, _params, _query, _fragment) = urlparse(str(api))
+        auths.append((netloc, api_user, api_password))
+
+    if rsyncUrl.startswith("html") and (repo_user is not None) and (api_password is not None):
+        (scheme, netloc, _path, _params, _query, _fragment) = urlparse(str(rsyncUrl))
+        auths.append((netloc, repo_user, repo_password))
+
+
+    if len(auths) > 0:
+        Utils.createOpener(auths)
+
+    api = Utils.fixObsPublicApi(api, api_user, api_password)
+
+    if not Utils.checkObsPublicApi(api, api_user, api_password):
         raise ValueError("Invalid API: %s" % api)
 
     testRsyncUrl(rsyncUrl)
@@ -522,10 +561,11 @@ def grabProject(api, rsyncUrl, project, targets, archs, newName=None, repo_user=
     if not os.path.isdir(projectDir):
         os.makedirs(projectDir)
     writeProjectInfo(api, rsyncUrl, project, targets, archs, newName)
-    downloadConfAndMeta(api, project, projectDir)
+    downloadConfAndMeta(api, project, projectDir, api_user, api_password)
     fixProjectMeta(newName)
-    downloadFulls(api, project, targetArchTuples, fullDir)
-    downloadPackages(api, project, packagesDir)
+    downloadFulls(api, project, targetArchTuples, fullDir, api_user, api_password)
+
+    downloadPackages(api, project, packagesDir, api_user, api_password)
 
     # TODO: check return value of downloadPackages()
     fixProjectPackagesMeta(newName)
