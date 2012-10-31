@@ -316,9 +316,10 @@ class BindChrootMount:
         proc_mounts = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=dev_null)
         outputs = proc_mounts.communicate()[0].strip().split("\n")
         for line in outputs:
-            if line.split()[1] == os.path.abspath(self.dest):
+            if os.stat(line.split()[1]).st_ino == os.stat(os.path.abspath(self.dest)).st_ino:
                 ret = True
                 break
+
         os.close(dev_null)
         return ret
 
