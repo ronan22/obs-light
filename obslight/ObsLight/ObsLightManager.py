@@ -601,7 +601,7 @@ class ObsLightManagerCore(ObsLightManagerBase):
         return ObsLightTools.getBuildConfFromGbsProjectConf(selectedProjectRepo, selectedProjectConf)
 
     def getDefaultGbsArch(self):
-        return ["i586", "x86_64 ", "armv8el"]
+        return ["i586", "x86_64 ","armv7l" ,"armv8el"]
 
     @checkNonEmptyStringProjectArchitecture(3)
     @checkAvailableProjectLocalName(4)
