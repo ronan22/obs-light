@@ -298,9 +298,9 @@ def downloadRepository(rsyncUrl, project, target, repoDir, repo_user, repo_passw
         wgetCmd = 'wget --directory-prefix=%s %s %s --cut-dirs=%s %s'
 
 
-        url = "%s/%s/%s" % (rsyncUrl, project.replace(":", ":/"), target)
+        url = "%s/%s/%s/" % (rsyncUrl, project.replace(":", ":/"), target)
 
-        true_slash_count = url.count('/') - 2 * url.count('//')
+        true_slash_count = url.count('/') - 2 * url.count('//') +1
 
         wgetCmd = wgetCmd % (packagesDir, rejectTample, option, true_slash_count, url)
 
