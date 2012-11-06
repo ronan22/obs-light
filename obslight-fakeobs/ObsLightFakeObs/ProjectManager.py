@@ -525,7 +525,7 @@ def grabProject(api,
         (scheme, netloc, _path, _params, _query, _fragment) = urlparse(str(api))
         auths.append((netloc, api_user, api_password))
 
-    if rsyncUrl.startswith("html") and (repo_user is not None) and (api_password is not None):
+    if rsyncUrl.startswith("http") and (repo_user is not None) and (api_password is not None):
         (scheme, netloc, _path, _params, _query, _fragment) = urlparse(str(rsyncUrl))
         auths.append((netloc, repo_user, repo_password))
 
