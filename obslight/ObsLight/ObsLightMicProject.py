@@ -421,7 +421,7 @@ class ObsLightMicProject(object):
         """
         Get the available architecture types as a list.
         """
-        return ["i686","x86_64", "armv7hl"]
+        return ["i686","x86_64", "armv7l","armv7hl"]
 
     def getAvailableImageTypes(self):
         """
