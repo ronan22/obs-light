@@ -60,7 +60,7 @@ class ObsLightProjectChroot(ObsLightProjectCore):
 
         if self.__chrootIsInit :
             if not self.__chroot.isInit():
-                self.__initChRoot()
+                self.__chrootIsInit=False
 #                        self.__chroot.initRepos()
         else:
             if self.__chroot.isInit():
