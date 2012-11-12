@@ -57,10 +57,6 @@ class ObsLightGbsProject(ObsLightBuilderProject):
                  repoList=[],
                  autoAddProjectRepo=True,
                  fromSave={}):
-
-        #Set the type of the project
-        self.setProjectType('gbs')
-        self.__repoList = fromSave.get("repoList", repoList)
         
         ObsLightBuilderProject.__init__(self,
                                         obsLightRepositories,
@@ -69,6 +65,9 @@ class ObsLightGbsProject(ObsLightBuilderProject):
                                         projectArchitecture=projectArchitecture,
                                         fromSave=fromSave)
 
+        #Set the type of the project
+        self.setProjectType('gbs')
+        self.__repoList = fromSave.get("repoList", repoList)
 
         self.setBuildConfigPath(fromSave.get("buildConfigPath", projectConfPath))
 
