@@ -300,7 +300,7 @@ def downloadRepository(rsyncUrl, project, target, repoDir, repo_user, repo_passw
 
         url = "%s/%s/%s/" % (rsyncUrl, project.replace(":", ":/"), target)
 
-        true_slash_count = url.count('/') - 2 * url.count('//') +1
+        true_slash_count = url.count('/') - 2 * url.count('//') -1
 
         wgetCmd = wgetCmd % (packagesDir, rejectTample, option, true_slash_count, url)
 

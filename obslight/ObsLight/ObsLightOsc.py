@@ -380,8 +380,7 @@ class ObsLightOsc(ObsLightObject):
                           api_host_options=conf.config['api_host_options'],
                           http_debug=False,
                           enable_cpio=True,
-                          cookiejar=conf.cookiejar)
-
+                          cookiejar=conf.cookiejar) 
 #        check_trusted_projects(apiurl, [ i for i in buildInfo.projects.keys() if not i == prj ])
         self.get_config()
         fetcher.run(buildInfo)
