@@ -525,7 +525,7 @@ def grabProject(api,
         (scheme, netloc, _path, _params, _query, _fragment) = urlparse(str(api))
         auths.append((netloc, api_user, api_password))
 
-    if rsyncUrl.startswith("http") and (repo_user is not None) and (api_password is not None):
+    if rsyncUrl.startswith("http") and (repo_user is not None) and (repo_password is not None):
         (scheme, netloc, _path, _params, _query, _fragment) = urlparse(str(rsyncUrl))
         auths.append((netloc, repo_user, repo_password))
 
@@ -609,7 +609,7 @@ def grabGBSTree(uri, name, targets, archs, orders, verbose=False, force=False,re
       verbose:   a flag to have verbose messages
       rsynckeep: a flag to keep any rsync data for futur use
     """
-    if (repo_user is not None) and (api_password is not None):
+    if (repo_user is not None) and (repo_password is not None):
         (scheme, netloc, _path, _params, _query, _fragment) = urlparse(str(uri))
         Utils.createOpener((netloc, repo_user, repo_password))
         
