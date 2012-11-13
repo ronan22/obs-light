@@ -207,6 +207,12 @@ class FakeObsCommandline(cmdln.Cmdln):
                   help="perform the grab even if he project aleady exists")
     @cmdln.option("-k", "--rsynckeep", action="store_false", dest="rsynckeep",
                   help="dont remove the rsync data at the end of the grab")
+    @cmdln.option("--repo-user", dest="repo_user",
+                  default=None,
+                  help="set the http(s) user name for repositories")
+    @cmdln.option("--repo-password", dest="repo_password",
+                  default=None,
+                  help="set the http(s) user password for repositories")
     def do_grabgbs(self, subcmd, opts, url):
         """${cmd_name}: import a project from a GBS tree
         
@@ -224,7 +230,7 @@ class FakeObsCommandline(cmdln.Cmdln):
 	    opts.archs = None
 	elif len(opts.archs) == 1 and opts.archs[0] == "*":
 	    opts.archs = None
-        effectiveName = ProjectManager.grabGBSTree(url, name, opts.targets, opts.archs, opts.orders, opts.verbose, opts.force)
+        effectiveName = ProjectManager.grabGBSTree(url, name, opts.targets, opts.archs, opts.orders, opts.verbose, opts.force,opts.repo_user,opts.repo_password)
         msg = "Project '%s' grabbed" % effectiveName
         print Utils.colorize(msg, "green")
         #packageList = ProjectManager.getPackageList(effectiveName)

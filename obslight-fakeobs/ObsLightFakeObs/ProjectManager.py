@@ -592,7 +592,7 @@ grabGBSKnowledge = {
 }
 
 
-def grabGBSTree(uri, name, targets, archs, orders, verbose=False, force=False):
+def grabGBSTree(uri, name, targets, archs, orders, verbose=False, force=False,repo_user=None,repo_password=None):
     """
     Grab a project from an OBS server.
       url:       the URL to fetch for the GBS tree 
@@ -609,6 +609,12 @@ def grabGBSTree(uri, name, targets, archs, orders, verbose=False, force=False):
       verbose:   a flag to have verbose messages
       rsynckeep: a flag to keep any rsync data for futur use
     """
+    if (repo_user is not None) and (api_password is not None):
+        (scheme, netloc, _path, _params, _query, _fragment) = urlparse(str(uri))
+        Utils.createOpener((netloc, repo_user, repo_password))
+        
+        
+        
     if verbose:
 	print "entering grabGBStree(uri={}, name={}, targets={}, archs={}, orders={}, True)".format(uri, name, targets, archs, orders)
 
