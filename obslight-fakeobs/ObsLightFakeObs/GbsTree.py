@@ -340,7 +340,7 @@ class GbsTree:
   <description>
 {DESC}
   </description>
-</package>""".format(NAME=e.get_name(),PROJ=meta_project,TITLE=e.get_summary(),DESC=e.get_description())
+</package>""".format(NAME=e.get_name(),PROJ=meta_project,TITLE=e.get_summary(),DESC=e.get_description().replace(">","&amp;gt;&#13;").replace("<","&amp;lt;").replace("&","&amp;")  )
 		f = open(os.path.join(d,"_meta"),"w")
 		f.write(c)
 		f.close()
