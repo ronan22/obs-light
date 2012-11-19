@@ -186,14 +186,14 @@ def copy_pac(src_apiurl, src_project, src_package,
     them into the other by uploading them (client-side copy) --
     or by the server, in a single api call.
     """
-
     if not (src_apiurl == dst_apiurl and src_project == dst_project \
         and src_package == dst_package):
         src_meta = core.show_package_meta(src_apiurl, src_project, src_package)
         dst_userid = conf.get_apiurl_usr(dst_apiurl)
+        print "tic"
         src_meta = core.replace_pkg_meta(src_meta, dst_package, dst_project, keep_maintainers,
                                          dst_userid, keep_develproject)
-
+        print "toc"
         print 'Sending meta data...'
         u = makeurl(dst_apiurl, ['source', dst_project, dst_package, '_meta'])
         core.http_PUT(u, data=src_meta)
@@ -279,9 +279,7 @@ def creatPackage(apiurl, projectObsName, package):
     tmp = '<package project="%s" name="%s"><title>%s</title>'
     tmp += '<description>%s</description></package>'
     tmp = tmp % (projectObsName, package, "", "")
-
     aElement = ElementTree.fromstring(tmp)
-
     core.http_PUT(url, data=ElementTree.tostring(aElement))
 
 
@@ -443,6 +441,7 @@ def copyproject(apiUrl, srcProjectName, dstApiUrl, dstProjectName, tagFilePath):
             printmessage(message, False)
 
             try:
+                
                 print
                 copy_pac(apiUrl,
                          srcProjectName,
@@ -509,11 +508,9 @@ if __name__ == '__main__':
     try:
         if len(sys.argv) == 5:
             # Use same OBS URL as source and destination
-            copyproject(sys.argv[1], sys.argv[2], sys.argv[1],
-                 sys.argv[3], sys.argv[4])
+            copyproject(sys.argv[1], sys.argv[2], sys.argv[1],sys.argv[3], sys.argv[4])
         elif len(sys.argv) == 6:
-            copyproject(sys.argv[1], sys.argv[2], sys.argv[3],
-                 sys.argv[4], sys.argv[5])
+            copyproject(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
         else:
             print >> sys.stderr, "Wrong number of arguments !\n"
             help_(sys.argv[0])
