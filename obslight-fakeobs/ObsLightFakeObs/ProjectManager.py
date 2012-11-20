@@ -612,10 +612,7 @@ def grabGBSTree(uri, name, targets, archs, orders, verbose=False, force=False,re
     if (repo_user is not None) and (repo_password is not None):
         (scheme, netloc, _path, _params, _query, _fragment) = urlparse(str(uri))
         Utils.createOpener([(netloc, repo_user, repo_password)])
-        
-        
-        
-        
+
     if verbose:
 	print "entering grabGBStree(uri={}, name={}, targets={}, archs={}, orders={}, True)".format(uri, name, targets, archs, orders)
 

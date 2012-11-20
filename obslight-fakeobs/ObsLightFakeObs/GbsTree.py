@@ -63,13 +63,13 @@ class GbsTree:
 	    should_raise    bool	False	    if true, exceptions are raised
 	    rsynckeep	    bool	False	    if true, rsynced data aren't removed
 	    archs	    [string]	None	    what archs are wanted, list of names, None if any arch wanted
-	    noarchs	    [string]	["noarch"]  what archs are always taken (even if absent of achs)
+	    noarchs	    [string]	["noarch", "src"]  what archs are always taken (even if absent of archs)
 	"""
 	self.should_raise = bool(options.setdefault("should_raise",False))
 	self.verbose = bool(options.setdefault("verbose",False))
 	self.rsynckeep = bool(options.setdefault("rsynckeep",False))
 	self.archs = options.setdefault("archs",None)
-	self.noarchs = options.setdefault("noarchs",[ "noarch" ])
+	self.noarchs = options.setdefault("noarchs",[ "noarch", "src" ])
 	if self.noarchs is None:
 	    self.noarchs = []
 	self.clear_error()
