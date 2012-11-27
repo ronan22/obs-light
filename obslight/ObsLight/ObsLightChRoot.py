@@ -515,8 +515,8 @@ exit $?
         self.failIfQemuIsNotStatic()
         fsPath = self.getDirectory()
         cmd = "sudo /usr/bin/build"
-        cmd += " --root %s --rpmlist=%s --dist %s --target %s --norootforbuild --changelog %s"
-        cmd = cmd % (fsPath, rpmList, buildConfig, arch, specFile)
+        cmd += " --use-system-qemu --root %s --rpmlist=%s --dist %s --target %s --arch %s --norootforbuild --changelog %s"
+        cmd = cmd % (fsPath, rpmList, buildConfig, arch,arch, specFile)
         retCode = self._subprocess(cmd, waitMess=True)
 
 #        res = ObsLightOsc.getObsLightOsc().createChRoot(chrootDir=fsPath,
