@@ -515,6 +515,7 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                                                         arch ,
                                                         "_repository?view=names")
                                 if os.path.isfile(filePath):
+                                    #Too slow sould be rewrite
                                     doc = xml.dom.minidom.parse(filePath)
                                     removables = []
                                     for x in doc.getElementsByTagName("binary"):
