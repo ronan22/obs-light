@@ -428,6 +428,19 @@ class ObsLightSpec(ObsLightObject):
                     f.write(line)
         f.close()
 
+    def getSpecTxt(self):
+        res=""
+        res+=self.WrittenByObsLight
+        for section in self.__orderList:
+            for line in self.__spectDico[section]:
+                if line.startswith("Release:") and \
+                   (line.strip("Release:").strip(" ").rstrip("\n") == ""):
+                    res+="Release:1\n"
+                else:
+                    res+=line
+        return res
+        
+
     def saveSpecShortCut(self, path, sectionTarget, packageStatus, packagedir):
         if path == None:
             path = self.__path

@@ -397,6 +397,13 @@ class ObsLightPackage(ObsLightObject):
         if parameter == "name":
             return self.getName()
 
+        elif parameter == "SpecTxt":
+            specObj=self.getSpecObj()
+            if specObj is None:
+                return ""
+            else:
+                return specObj.getSpecTxt()
+        
         elif parameter == "specFile":
             return self.getSpecFile()
 

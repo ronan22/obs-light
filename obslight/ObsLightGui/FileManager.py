@@ -24,6 +24,9 @@ Created on 4 nov. 2011
 from os.path import join as joinPath
 
 from PySide.QtCore import QObject
+
+from PySide import  QtGui,QtCore
+
 from PySide.QtGui import QFileDialog, QFileSystemModel, QMessageBox
 
 from ObsLight.ObsLightUtils import isNonEmptyString
@@ -32,6 +35,8 @@ from ObsLightGuiObject import ObsLightGuiObject
 
 from PackageSourceFileManager import PackageSourceFileManager
 from ChrootFileManager import ChrootFileManager
+
+from HighlighterSpecFile import Highlighter 
 
 class FileManager(QObject, ObsLightGuiObject):
     '''
@@ -44,9 +49,26 @@ class FileManager(QObject, ObsLightGuiObject):
 
         self.__chrootFileManager = PackageSourceFileManager(gui, self.manager)
         self.__packageSourceFileManager = ChrootFileManager(gui, self.manager)
-
+        
+        self.setupEditor()
+        
         self.__project = None
         self.__package = None
+
+
+    def setupEditor(self):
+        font = QtGui.QFont()
+
+        font.setFamily("Courier")
+
+        font.setFixedPitch(True)
+
+        font.setPointSize(10)
+
+
+        self.mainWindow.SpecFileBrowser.setFont(font)
+
+        self.highlighter = Highlighter(self.mainWindow.SpecFileBrowser.document())
 
 #---------------------------------------------------------------------------------------------------
     def setCurrentPackage(self, project, package):
@@ -63,7 +85,10 @@ class FileManager(QObject, ObsLightGuiObject):
 
         self.__chrootFileManager.setCurrentProjectAndPackage(project, package)
         self.__packageSourceFileManager.setCurrentProjectAndPackage(project, package)
-
+        
+        if project is not None and package is not None:
+            self.mainWindow.SpecFileBrowser.setText(self.manager.getPackageParameter( project, package, "SpecTxt"))
+        
         self.refresh()
 
     def refresh(self):
