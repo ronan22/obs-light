@@ -622,7 +622,7 @@ You can select several packages.</string>
             </size>
            </property>
            <property name="currentIndex">
-            <number>1</number>
+            <number>0</number>
            </property>
            <widget class="QSplitter" name="splitter_5">
             <property name="orientation">
