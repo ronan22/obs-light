@@ -295,7 +295,8 @@ class SimpleHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                         contenttype = "text/plain"
                     # GET /source/<project>/_pubkey
                     # GET /source/<project>/_pattern
-                    elif pathparts[2] in {"_pubkey", "_pattern"}:
+                    #elif pathparts[2] in {"_pubkey", "_pattern"}:
+                    elif pathparts[2] in {"_pubkey"}:
                         content = None # 404 it
                     # GET /source/<project>/<package>
                     else:
