@@ -1,34 +1,35 @@
 # Sudo rules for OBSLight
 %users ALL+=(ALL)NOPASSWD:/usr/bin/build
-%users ALL+=(ALL)NOPASSWD:/usr/bin/mic *
-%users ALL+=(ALL)NOPASSWD:/bin/chown * */OBSLight/MicProjects/*
-%users ALL+=(ALL)NOPASSWD:/bin/chmod * */OBSLight/MicProjects/*
-%users ALL+=(ALL)NOPASSWD:/usr/bin/setfacl * */OBSLight/*/aChroot*
-%users ALL+=(ALL)NOPASSWD:/bin/mkdir -p */OBSLight/*/aChroot*
-%users ALL+=(ALL)NOPASSWD:/bin/chown * */OBSLight/*/aChroot*
-%users ALL+=(ALL)NOPASSWD:/bin/chmod * */OBSLight/*/aChroot*
-%users ALL+=(ALL)NOPASSWD:/usr/bin/chroot */OBSLight/*/aChroot su --session-command=/chrootTransfert/* - *
-%users ALL+=(ALL)NOPASSWD:/usr/sbin/chroot */OBSLight/*/aChroot su --session-command=/chrootTransfert/* - *
-%users ALL+=(ALL)NOPASSWD:/usr/bin/chroot */OBSLight/*/aChroot /chrootTransfert/*  
-%users ALL+=(ALL)NOPASSWD:/usr/sbin/chroot */OBSLight/*/aChroot /chrootTransfert/*
-%users ALL+=(ALL)NOPASSWD:/bin/mount --bind * */OBSLight/*/aChroot*
-%users ALL+=(ALL)NOPASSWD:/bin/mount --bind -o remount* */OBSLight/*/aChroot*
-%users ALL+=(ALL)NOPASSWD:/bin/umount -l */OBSLight/*/aChroot*
-%users ALL+=(ALL)NOPASSWD:/bin/cp * */OBSLight/*/aChroot*
-%users ALL+=(ALL)NOPASSWD:/bin/rm */OBSLight/*/aChroot*
-%users ALL+=(ALL)NOPASSWD:/bin/rm -r */OBSLight/*/aChroot*
-%users ALL+=(ALL)NOPASSWD:/bin/rm -r */OBSLight/MicProjects/*
-%users ALL+=(ALL)NOPASSWD:/bin/touch */OBSLight/*/aChroot*
-%users ALL+=(ALL)NOPASSWD:/bin/echo * > /proc/sys/fs/binfmt_misc/*
-%users ALL+=(ALL)NOPASSWD:/sbin/modprobe binfmt_misc
-%users ALL+=(ALL)NOPASSWD:/bin/mount -t binfmt_misc none /proc/sys/fs/binfmt_misc
-%users ALL+=(ALL)NOPASSWD:/bin/chmod *w /proc/sys/fs/binfmt_misc/*
-%users ALL+=(ALL)NOPASSWD:/bin/mkdir /srv/obslight/*
-%users ALL+=(ALL)NOPASSWD:/bin/mount --bind * /srv/obslight/*
-%users ALL+=(ALL)NOPASSWD:/usr/bin/tee -a /etc/exports
-%users ALL+=(ALL)NOPASSWD:/usr/sbin/exportfs -ra
-%users ALL+=(ALL)NOPASSWD:/bin/sed -r -i * /etc/mic/mic.conf
-%users ALL+=(ALL)NOPASSWD:/usr/bin/zypper --cache-dir * --root /home/* *
-%users ALL+=(ALL)NOPASSWD:/bin/pkill packagekitd
-%users ALL+=(ALL)NOPASSWD:/usr/bin/obslight-createrpmlistfromspec *
-%users ALL+=(ALL)NOPASSWD:/usr/lib/build/download * *
+%users ALL=(ALL)NOPASSWD:/usr/bin/build
+%users ALL=(ALL)NOPASSWD:/usr/bin/mic *
+%users ALL=(ALL)NOPASSWD:/bin/chown * */OBSLight/MicProjects/*
+%users ALL=(ALL)NOPASSWD:/bin/chmod * */OBSLight/MicProjects/*
+%users ALL=(ALL)NOPASSWD:/usr/bin/setfacl * */OBSLight/*/aChroot*
+%users ALL=(ALL)NOPASSWD:/bin/mkdir -p */OBSLight/*/aChroot*
+%users ALL=(ALL)NOPASSWD:/bin/chown * */OBSLight/*/aChroot*
+%users ALL=(ALL)NOPASSWD:/bin/chmod * */OBSLight/*/aChroot*
+%users ALL=(ALL)NOPASSWD:/usr/bin/chroot */OBSLight/*/aChroot su --session-command=/chrootTransfert/* - *
+%users ALL=(ALL)NOPASSWD:/usr/sbin/chroot */OBSLight/*/aChroot su --session-command=/chrootTransfert/* - *
+%users ALL=(ALL)NOPASSWD:/usr/bin/chroot */OBSLight/*/aChroot /chrootTransfert/*  
+%users ALL=(ALL)NOPASSWD:/usr/sbin/chroot */OBSLight/*/aChroot /chrootTransfert/*
+%users ALL=(ALL)NOPASSWD:/bin/mount --bind * */OBSLight/*/aChroot*
+%users ALL=(ALL)NOPASSWD:/bin/mount --bind -o remount* */OBSLight/*/aChroot*
+%users ALL=(ALL)NOPASSWD:/bin/umount -l */OBSLight/*/aChroot*
+%users ALL=(ALL)NOPASSWD:/bin/cp * */OBSLight/*/aChroot*
+%users ALL=(ALL)NOPASSWD:/bin/rm */OBSLight/*/aChroot*
+%users ALL=(ALL)NOPASSWD:/bin/rm -r */OBSLight/*/aChroot*
+%users ALL=(ALL)NOPASSWD:/bin/rm -r */OBSLight/MicProjects/*
+%users ALL=(ALL)NOPASSWD:/bin/touch */OBSLight/*/aChroot*
+%users ALL=(ALL)NOPASSWD:/bin/echo * > /proc/sys/fs/binfmt_misc/*
+%users ALL=(ALL)NOPASSWD:/sbin/modprobe binfmt_misc
+%users ALL=(ALL)NOPASSWD:/bin/mount -t binfmt_misc none /proc/sys/fs/binfmt_misc
+%users ALL=(ALL)NOPASSWD:/bin/chmod *w /proc/sys/fs/binfmt_misc/*
+%users ALL=(ALL)NOPASSWD:/bin/mkdir /srv/obslight/*
+%users ALL=(ALL)NOPASSWD:/bin/mount --bind * /srv/obslight/*
+%users ALL=(ALL)NOPASSWD:/usr/bin/tee -a /etc/exports
+%users ALL=(ALL)NOPASSWD:/usr/sbin/exportfs -ra
+%users ALL=(ALL)NOPASSWD:/bin/sed -r -i * /etc/mic/mic.conf
+%users ALL=(ALL)NOPASSWD:/usr/bin/zypper --cache-dir * --root /home/* *
+%users ALL=(ALL)NOPASSWD:/bin/pkill packagekitd
+%users ALL=(ALL)NOPASSWD:/usr/bin/obslight-createrpmlistfromspec *
+%users ALL=(ALL)NOPASSWD:/usr/lib/build/download * *
