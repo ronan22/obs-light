@@ -42,15 +42,15 @@ projectLocalName = sys.argv[2]
 repo = sys.argv[3]
 arch = sys.argv[4]
 
-print "WARNING!!! DEVEL CODE!!!"
-print "apiurl", apiurl
-print "projectLocalName", projectLocalName
-print "repo", repo
-print "arch", arch
+#print "WARNING!!! DEVEL CODE!!!"
+#print "apiurl", apiurl
+#print "projectLocalName", projectLocalName
+#print "repo", repo
+#print "arch", arch
 
 for pk in  getListPackage(apiurl, projectLocalName):
-    if getPackageStatus(apiurl, projectLocalName, pk, repo, arch) == "failed":
-        print "Rebuild pk:", pk,
-        core.rebuild(apiurl, projectLocalName, pk, repo, arch)
-        print "Start"
+    if getPackageStatus(apiurl, projectLocalName, pk, repo, arch) == "broken":
+        print pk
+        #core.rebuild(apiurl, projectLocalName, pk, repo, arch)
+        #print "Start"
 
