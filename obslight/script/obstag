@@ -150,7 +150,11 @@ class ObsProject(object):
         url += "/" + packageName + "/_history"
         printdebug("Calling %s" % url)
         try:
-            xmlResult = core.http_request("GET", url).read()
+
+            res=core.http_request("GET", url)
+            
+            xmlResult = res.read()
+
         except HTTPError as e:
             if e.code == 404:
                 printdebug("History not available for %s, trying to get undated last revision"
@@ -182,7 +186,8 @@ class ObsProject(object):
         revisionsList = list()
         url = "%s/source/%s/%s" % (self.apiUrl, self.name, packageName)
         printdebug("Calling %s" % url)
-        xmlResult = core.http_request("GET", url).read()
+        res=core.http_request("GET", url)
+        xmlResult = res.read()
         directoryList = ElementTree.fromstring(xmlResult)
         for directory in directoryList.iter("directory"):
             revision = PackageRevision(packageName,
@@ -246,6 +251,7 @@ def main(apiUrl, projectName, outFilePath):
                 else:
                     print
                 revisions = obsProject.getPackageRevisions(packageName)
+
                 if len(revisions) > 0:
                     print >> outFile, revisions[0]
                 else:
