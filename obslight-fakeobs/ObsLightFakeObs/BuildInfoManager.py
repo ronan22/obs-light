@@ -98,7 +98,6 @@ def getbuildInfo(rev,
                          "/usr/lib/build/configs",
                          spec,
                          tmpSpec[1])
-
     splittedCommand = shlex.split(str(command))
     # FIXME: shouldn't it be .wait() instead of .communicate() ?
     Popen(splittedCommand).communicate()[0]
@@ -136,6 +135,7 @@ def getbuildInfo(rev,
     cmd.append(ouputFile[1])
 
     # FIXME: shouldn't it be .wait() instead of .communicate() ?
+    
     Popen(cmd).wait()
 
     os.close(tmpSpec[0])

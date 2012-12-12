@@ -291,10 +291,9 @@ def packageFilesDiffer(src_apiurl, src_project, src_package,
     dstFilesDict = getPackageFiles(dst_apiurl, dst_project, dst_package, dst_revision)
 
     srcPackageFilesSet = set(srcFilesDict.keys())
-    if '_link' in srcPackageFilesSet:
+    if '_link' in srcPackageFilesSet and len(srcPackageFilesSet)>1:
         srcPackageFilesSet.remove('_link')
     dstPackageFilesSet = set(dstFilesDict.keys())
-
     filesInBothPackages = srcPackageFilesSet.intersection(dstPackageFilesSet)
 
     for aFile in filesInBothPackages:

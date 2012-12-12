@@ -564,12 +564,9 @@ def grabProject(api,
     downloadConfAndMeta(api, project, projectDir, api_user, api_password)
     fixProjectMeta(newName)
     downloadFulls(api, project, targetArchTuples, fullDir, api_user, api_password)
-
     downloadPackages(api, project, packagesDir, api_user, api_password)
-
     # TODO: check return value of downloadPackages()
     fixProjectPackagesMeta(newName)
-
     downloadRepositories(rsyncUrl, project, targets, repoDir, repo_user, repo_password)
     # findOrphanRpms is a generator
     for orphan in findOrphanRpms(newName):
@@ -1346,10 +1343,14 @@ def findOrphanRpms(project, useSymbolicLinks=False, dryRun=False):
     linkFunc = os.symlink if useSymbolicLinks else os.link
     repoDir = getConfig().getProjectRepositoryDir(project)
     for target in getTargetList(project):
-        for orphan in findOrphanRpmsOfTarget(project, target):
+        for (filePath, wantedPath) in findOrphanRpmsOfTarget(project, target):
             if not dryRun:
-                linkFunc(orphan[0], orphan[1])
-            rpmName = orphan[1].rsplit('/', 1)[-1]
+                wantedPathDir=os.path.dirname(wantedPath)
+                if not os.path.isdir(wantedPathDir):
+                    os.makedirs(wantedPathDir)
+                    
+                linkFunc(filePath, wantedPath)
+            rpmName = wantedPath.rsplit('/', 1)[-1]
             yield rpmName
 
         if not dryRun:

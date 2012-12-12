@@ -153,7 +153,7 @@ def testPackageFiles(src_apiurl, src_project, src_package,
     dicoDstFiles = getPackageFiles(dst_apiurl, dst_project, dst_package)
 
     listSrcPackageFiles = set(dicoSrcFiles.keys())
-    if '_link' in listSrcPackageFiles:
+    if '_link' in listSrcPackageFiles and len(listSrcPackageFiles)>1:
         listSrcPackageFiles.remove('_link')
 
     listDstPackageFiles = set(dicoDstFiles.keys())
@@ -190,14 +190,12 @@ def copy_pac(src_apiurl, src_project, src_package,
         and src_package == dst_package):
         src_meta = core.show_package_meta(src_apiurl, src_project, src_package)
         dst_userid = conf.get_apiurl_usr(dst_apiurl)
-        print "tic"
         src_meta = core.replace_pkg_meta(src_meta, dst_package, dst_project, keep_maintainers,
                                          dst_userid, keep_develproject)
-        print "toc"
         print 'Sending meta data...'
         u = makeurl(dst_apiurl, ['source', dst_project, dst_package, '_meta'])
-        core.http_PUT(u, data=src_meta)
 
+        core.http_PUT(u, data=src_meta)
 
 
     query = {'rev': 'upload'}
@@ -250,7 +248,6 @@ def copy_pac(src_apiurl, src_project, src_package,
         finally:
             if not tmpfile is None:
                 os.unlink(tmpfile)
-    print
     if comment:
         query['comment'] = comment
     query['cmd'] = 'commit'
@@ -422,8 +419,12 @@ def copyproject(apiUrl, srcProjectName, dstApiUrl, dstProjectName, tagFilePath):
                     printmessage("(following the link) ", False)
                     packageIsLink = True
                     if packageIsLink:
-                        listFileToUpdate = testPackageFiles(apiUrl, srcProjectName, pkgName,
-                                                            dstApiUrl, dstProjectName, pkgName,
+                        listFileToUpdate = testPackageFiles(apiUrl,
+                                                            srcProjectName,
+                                                            pkgName,
+                                                            dstApiUrl,
+                                                            dstProjectName,
+                                                            pkgName,
                                                             md5)
                         if len(listFileToUpdate) == 0:
                             packagePresent = True
@@ -442,7 +443,6 @@ def copyproject(apiUrl, srcProjectName, dstApiUrl, dstProjectName, tagFilePath):
 
             try:
                 
-                print
                 copy_pac(apiUrl,
                          srcProjectName,
                          pkgName,

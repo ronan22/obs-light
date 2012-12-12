@@ -1,4 +1,5 @@
 # Sudo rules for OBSLight
+%users ALL+=(ALL)NOPASSWD:/usr/bin/build
 %users ALL=(ALL)NOPASSWD:/usr/bin/build
 %users ALL=(ALL)NOPASSWD:/usr/bin/mic *
 %users ALL=(ALL)NOPASSWD:/bin/chown * */OBSLight/MicProjects/*
@@ -7,8 +8,8 @@
 %users ALL=(ALL)NOPASSWD:/bin/mkdir -p */OBSLight/*/aChroot*
 %users ALL=(ALL)NOPASSWD:/bin/chown * */OBSLight/*/aChroot*
 %users ALL=(ALL)NOPASSWD:/bin/chmod * */OBSLight/*/aChroot*
-%users ALL=(ALL)NOPASSWD:/usr/bin/chroot */OBSLight/*/aChroot su -c /chrootTransfert/* - *
-%users ALL=(ALL)NOPASSWD:/usr/sbin/chroot */OBSLight/*/aChroot su -c /chrootTransfert/* - *
+%users ALL=(ALL)NOPASSWD:/usr/bin/chroot */OBSLight/*/aChroot su --session-command=/chrootTransfert/* - *
+%users ALL=(ALL)NOPASSWD:/usr/sbin/chroot */OBSLight/*/aChroot su --session-command=/chrootTransfert/* - *
 %users ALL=(ALL)NOPASSWD:/usr/bin/chroot */OBSLight/*/aChroot /chrootTransfert/*  
 %users ALL=(ALL)NOPASSWD:/usr/sbin/chroot */OBSLight/*/aChroot /chrootTransfert/*
 %users ALL=(ALL)NOPASSWD:/bin/mount --bind * */OBSLight/*/aChroot*

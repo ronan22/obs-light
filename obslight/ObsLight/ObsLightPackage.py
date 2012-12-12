@@ -960,7 +960,7 @@ class ObsLightPackage(ObsLightObject):
                                               os.path.basename(repo.path) + '.spec')
                 spec = rpm.SpecFile(specfile)
                 gbp.log.debug("Using spec file '%s'" % specfile)
-                spec.debugprint()
+                #spec.debugprint()
 
                 if not options.tag_only:
                     # Setup builder opts
@@ -1075,7 +1075,8 @@ class ObsLightPackage(ObsLightObject):
                 gbp.log.err("Failed determine spec file (%s)" % err)
                 retval = 1
             finally:
-                drop_index()
+                drop_index(repo)
+                
                 shutil.rmtree(options.tmp_dir)
 
             if not options.tag_only:

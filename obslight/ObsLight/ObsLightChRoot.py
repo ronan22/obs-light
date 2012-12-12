@@ -236,7 +236,9 @@ class ObsLightChRootCore(object):
         if user == "root":
             aCommand = "sudo -H chroot %(chrootPath)s %(scriptPath)s"
         else:
-            aCommand = "sudo -H chroot %(chrootPath)s su -c \"%(scriptPath)s\" - %(user)s"
+            aCommand = "sudo -H chroot %(chrootPath)s su --session-command=\"%(scriptPath)s\" - %(user)s"
+            
+            
 
         aCommand = aCommand % parameter
 
@@ -268,7 +270,7 @@ class ObsLightChRootCore(object):
         os.chmod(scriptPath, 0755)
         parameter = self.makeChrootScriptParameters()
         parameter["scriptPath"] = self.__transferDir + "/" + scriptName
-        aCommand = "sudo -H chroot %(chrootPath)s su -c \"%(scriptPath)s\" - %(user)s"
+        aCommand = "sudo -H chroot %(chrootPath)s su --session-command=\"%(scriptPath)s\" - %(user)s"
         aCommand = aCommand % parameter
 
         if self.hostArch == 'x86_64':
@@ -337,7 +339,7 @@ class ObsLightChRootCore(object):
         if useRootId:
             parameter["user"] = "root"
         parameter["scriptPath"] = self.__transferDir + "/runMe.sh"
-        command = "sudo -H chroot %(chrootPath)s su -c \"%(scriptPath)s\" - %(user)s"
+        command = "sudo -H chroot %(chrootPath)s su --session-command=\"%(scriptPath)s\" - %(user)s"
         command = command % parameter
 
         if detach is True:
@@ -386,7 +388,7 @@ exit $?
         os.chmod(self.getDirectory() + scriptPath, 0755)
         parameter = self.makeChrootScriptParameters()
         parameter["scriptPath"] = scriptPath
-        cmd = "sudo -H chroot %(chrootPath)s su -c \"%(scriptPath)s\" - %(user)s"
+        cmd = "sudo -H chroot %(chrootPath)s su --session-command=\"%(scriptPath)s\" - %(user)s"
         cmd = cmd % parameter
         res = self._subprocess(cmd)
         if res != 0:
