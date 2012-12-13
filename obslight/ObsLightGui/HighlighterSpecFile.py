@@ -85,7 +85,7 @@ class Highlighter(QtGui.QSyntaxHighlighter):
 #       sh colors
         shComment = ['#.*$']                     
         shIf       =["\\bif\\b","\\bfi\\b"]                    
-        shOperator  =['[><|!&;]','[!=]=']                   
+        shOperator  =['[><|\!&;]|[\!=]=']                   
         shQuote1    =["\'"]                   
         shQuote2    =["\""]                   
         shQuoteDelim =[]                  
@@ -101,6 +101,7 @@ class Highlighter(QtGui.QSyntaxHighlighter):
                          '^Requires\\b',
                          '^Icon\\b',
                          '^URL\\b',
+                         '^Url\\b',
                          '^Source\d*\\b',
                          '^Patch\d*\\b',
                          '^refix\\b',
@@ -135,7 +136,38 @@ class Highlighter(QtGui.QSyntaxHighlighter):
                          '^Enhances\\b']   
                      
         specCommandOpts  =  ["\\s-\\w+","\\s--\\w[a-zA-Z_-]+"]
-        specCommandSpecial  =[]           
+        specCommandSpecial  =["\\bmake\\b",
+                              "\\bxmkmf\\b",
+                              "\\bmkdir\\b",
+                              "\\bchmod\\b",
+                              "\\bln\\b",
+                              "\\bfind\\b",
+                              "\\bsed\\b",
+                              "\\brm\\b",
+                              "\\bstrip\\b",
+                              "\\bmoc\\b",
+                              "\\becho\\b",
+                              "\\bgrep\\b",
+                              "\\bls\\b",
+                              "\\brm\\b",
+                              "\\bmv\\b",
+                              "\\bmkdir\\b",
+                              "\\binstall\\b",
+                              "\\bcp\\b",
+                              "\\bpwd\\b",
+                              "\\bcat\\b",
+                              "\\btail\\b",
+                              "\\bthen\\b",
+                              "\\belse\\b",
+                              "\\belif\\b",
+                              "\\bcd\\b",
+                              "\\bgzip\\b",
+                              "\\brmdir\\b",
+                              "\\bln\\b",
+                              "\\beval\\b",
+                              "\\bexport\\b",
+                              "\\btouch\\b"] 
+                  
         specComment=['^\\s*#.*$']                    
         specConfigure    =["\./configure"]
         specScriptArea = ["^%prep",
@@ -147,7 +179,8 @@ class Highlighter(QtGui.QSyntaxHighlighter):
                           "^%postun",
                           "^%preun",
                           "^%post",
-                          "^%files"]
+                          "^%files",
+                          "^%changelog"]
         specDescriptionArea = ['^%description']
         specPackageArea = ['^%package']   
         specDescriptionOpts =[]           
@@ -169,7 +202,7 @@ class Highlighter(QtGui.QSyntaxHighlighter):
                               "(%|\$)\{*_buildsubdir\}*",
                               "(%|\$)\{*_vendor\}*",
                               "(%|\$)\{*_bzip2bin\}*",
-                              "(%|\$)\{*_datadirapache2.service\}*",
+                              "(%|\$)\{*_datadir\}*",
                               "(%|\$)\{*_dbpath\}*",
                               "(%|\$)\{*_dbpath_rebuild\}*",
                               "(%|\$)\{*_defaultdocdir\}*",
@@ -200,6 +233,7 @@ class Highlighter(QtGui.QSyntaxHighlighter):
                               "(%|\$)\{*_libdir\}*",
                               "(%|\$)\{*_libexecdir\}*",
                               "(%|\$)\{*_localstatedir\}*",
+                              "(%|\$)\{*_mandir\}*",
                               "(%|\$)\{*_netsharedpath\}*",
                               "(%|\$)\{*_oldincludedir\}*",
                               "(%|\$)\{*_os\}*",
@@ -227,7 +261,9 @@ class Highlighter(QtGui.QSyntaxHighlighter):
                               "(%|\$)\{*_usr\}*",
                               "(%|\$)\{*_usrsrc\}*",
                               "(%|\$)\{*_var\}*",
-                              "(%|\$)\{*_vendor\}*"]           
+                              "(%|\$)\{*_vendor\}*",
+                              "%if",
+                              "%endif"]           
 
         specMacroNameOther  =["(%|\$)\{*buildroot\}*",
                               "(%|\$)\{*buildsubdir\}*",
@@ -243,27 +279,27 @@ class Highlighter(QtGui.QSyntaxHighlighter):
                               "(%|\$)\{*vendor\}*",
                               "(%|\$)\{*version\}*"]           
         
-        specMonth        =["Jan",
-                           "Feb",
-                           "Mar",
-                           "Apr",
-                           "Jun",
-                           "Jul",
-                           "Aug",
-                           "Sep",
-                           "Nov",
-                           "Dec",
-                           "January",
-                           "February",
-                           "March",
-                           "May",
-                           "June",
-                           "July",
-                           "August",
-                           "September",
-                           "October",
-                           "November",
-                           "December"]              
+        specMonth        =["\\bJan\\b",
+                           "\\bFeb\\b",
+                           "\\bMar\\b",
+                           "\\bApr\\b",
+                           "\\bJun\\b",
+                           "\\bJul\\b",
+                           "\\bAug\\b",
+                           "\\bSep\\b",
+                           "\\bNov\\b",
+                           "\\bDec\\b",
+                           "\\bJanuary\\b",
+                           "\\bFebruary\\b",
+                           "\\bMarch\\b",
+                           "\\bMay\\b",
+                           "\\bJune\\b",
+                           "\\bJuly\\b",
+                           "\\bAugust\\b",
+                           "\\bSeptember\\b",
+                           "\\bOctober\\b",
+                           "\\bNovember\\b",
+                           "\\bDecember\\b"]              
         specNumber       =['(^-=|[ t]-=|-)[0-9.-]*[0-9]']              
         specPackageOpts   =['s-ns*w']             
         specPercent      =[]              
@@ -281,19 +317,19 @@ class Highlighter(QtGui.QSyntaxHighlighter):
                                "(%|\$)\{*CXXFLAGS\}*",
                                "(%|\$)\{*CPPFLAGS\}*"]
                   
-        specSpecialVariablesNames   =["RPM_BUILD",
-                                      "ROOT",
-                                      "RPM_BUILD_DIR",
-                                      "RPM_SOURCE_DIR",
-                                      "RPM_OPT_FLAGS",
-                                      "LDFLAGS",
-                                      "CC",
-                                      "CC_FLAGS",
-                                      "CPPNAME",
-                                      "CFLAGS",
-                                      "CXX",
-                                      "CXXFLAGS",
-                                      "CPPFLAGS"]   
+        specSpecialVariablesNames   =["\\bRPM_BUILD\\b",
+                                      "\\bROOT\\b",
+                                      "\\bRPM_BUILD_DIR\\b",
+                                      "\\bRPM_SOURCE_DIR\\b",
+                                      "\\bRPM_OPT_FLAGS\\b",
+                                      "\\bLDFLAGS\\b",
+                                      "\\bCC\\b",
+                                      "\\bCC_FLAGS\\b",
+                                      "\\bCPPNAME\\b",
+                                      "\\bCFLAGS\\b",
+                                      "\\bCXX\\b",
+                                      "\\bCXXFLAGS\\b",
+                                      "\\bCPPFLAGS\\b"]   
         specTarCommand        =[]         
         specURL            =['((https{0,1}|ftp)://|(www[23]{0,1}\.|ftp\.))[A-Za-z0-9._/~:,#-]+']     
         specURLMacro      =['((https{0,1}|ftp)://|(www[23]{0,1}\.|ftp\.))[A-Za-z0-9._/~:,#%\{\}-]+']
@@ -347,7 +383,7 @@ class Highlighter(QtGui.QSyntaxHighlighter):
         self.highlightingRules.extend( (QtCore.QRegExp(i),specOpts) for i in specDescriptionOpts)            
         self.highlightingRules.extend( (QtCore.QRegExp(i),specWWWlink) for i in specEmail)                      
         self.highlightingRules.extend( (QtCore.QRegExp(i),Error) for i in specError)                      
-#        self.highlightingRules.extend( (QtCore.QRegExp(i),specSectionMacro) for i in specFilesDirective)             
+        self.highlightingRules.extend( (QtCore.QRegExp(i),Macro) for i in specFilesDirective)             
         self.highlightingRules.extend( (QtCore.QRegExp(i),specOpts) for i in specFilesOpts)                  
         self.highlightingRules.extend( (QtCore.QRegExp(i),String) for i in specLicense)                    
         self.highlightingRules.extend( (QtCore.QRegExp(i),Identifier) for i in specMacroNameLocal)             
