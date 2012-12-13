@@ -68,8 +68,18 @@ class ObsLightGbsProject(ObsLightBuilderProject):
         #Set the type of the project
         self.setProjectType('gbs')
         self.__repoList = fromSave.get("repoList", repoList)
-
-        self.setBuildConfigPath(fromSave.get("buildConfigPath", projectConfPath))
+        
+        projectConfPath=fromSave.get("buildConfigPath", projectConfPath)
+        
+        if projectConfPath is not None: 
+            projectConflocalPath= os.path.join(self.getDirectory()  ,os.path.basename(projectConfPath))
+        else:
+            projectConflocalPath=None
+            
+        if projectConflocalPath != projectConfPath:
+            shutil.copyfile(projectConfPath,projectConflocalPath)
+        
+        self.setBuildConfigPath(projectConflocalPath)
 
         self.__projectGbsConfig = fromSave.get("projectGbsConfig", None)
 
