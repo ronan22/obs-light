@@ -808,8 +808,28 @@ It may open in background on some desktop environments.</string>
              <property name="frameShadow">
               <enum>QFrame::Raised</enum>
              </property>
-             <layout class="QHBoxLayout" name="horizontalLayout_4">
-              <item>
+             <layout class="QGridLayout" name="gridLayout_12">
+              <item row="2" column="2">
+               <widget class="QPushButton" name="UpdateSpecFile">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>Update</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1" alignment="Qt::AlignLeft|Qt::AlignBottom">
+               <widget class="QLabel" name="SpecFilePathLabel">
+                <property name="text">
+                 <string>Spec file path:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
                <widget class="QPushButton" name="SaveSpecFile">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -822,20 +842,7 @@ It may open in background on some desktop environments.</string>
                 </property>
                </widget>
               </item>
-              <item>
-               <widget class="QPushButton" name="pushButton_4">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="text">
-                 <string>Update</string>
-                </property>
-               </widget>
-              </item>
-              <item>
+              <item row="2" column="3">
                <spacer name="horizontalSpacer_13">
                 <property name="orientation">
                  <enum>Qt::Horizontal</enum>
@@ -847,6 +854,9 @@ It may open in background on some desktop environments.</string>
                  </size>
                 </property>
                </spacer>
+              </item>
+              <item row="1" column="2" colspan="2" alignment="Qt::AlignBottom">
+               <widget class="QLineEdit" name="SpecFilePathLinkLabel"/>
               </item>
              </layout>
             </widget>

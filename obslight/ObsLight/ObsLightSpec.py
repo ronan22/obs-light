@@ -78,7 +78,7 @@ class ObsLightSpec(ObsLightObject):
         if self.__path != None:
             self.parseFile()
 
-    def parseFile(self):
+    def parseFile(self,value=None):
         def testSection(line):
             for sect in self.__listSection:
                 if line.startswith(sect):
@@ -91,18 +91,25 @@ class ObsLightSpec(ObsLightObject):
 
         path = self.__path
         if path != None:
-            tmpLineList = []
+            
 
             if not os.path.exists(path):
                 raise ObsLightErr.ObsLightSpec("parseFile: the path: " + path + ", do not exist")
-
-            #Load the file in a list
-            f = open(path, 'rb')
-
-            for line in f:
-                tmpLineList.append(line)
-            f.close()
-
+            
+            
+            if value is None:
+                tmpLineList = []
+                #Load the file in a list
+                f = open(path, 'rb')
+                
+                for line in f:
+                    tmpLineList.append(line)
+                f.close()
+            else:
+                tmpLineList = value.split("\n")
+                for i in range(len(tmpLineList)):
+                    tmpLineList[i]=tmpLineList[i]+"\n"
+                
             #init variable
             self.__spectDico = {}
             currentSection = self.__introduction_section
@@ -418,7 +425,6 @@ class ObsLightSpec(ObsLightObject):
         if path == None:
             path = self.__path
         f = open(path, 'w')
-        f.write(self.WrittenByObsLight)
         for section in self.__orderList:
             for line in self.__spectDico[section]:
                 if line.startswith("Release:") and \
@@ -430,7 +436,6 @@ class ObsLightSpec(ObsLightObject):
 
     def getSpecTxt(self):
         res=""
-        res+=self.WrittenByObsLight
         for section in self.__orderList:
             for line in self.__spectDico[section]:
                 if line.startswith("Release:") and \

@@ -378,7 +378,9 @@ class ObsLightPackage(ObsLightObject):
         the valid parameter is :
             name
             
+            SpecTxt
             specFile
+            specFilePath
             
             packageChrootDirectory
             packageSourceDirectory
@@ -407,6 +409,9 @@ class ObsLightPackage(ObsLightObject):
         elif parameter == "specFile":
             return self.getSpecFile()
 
+        elif parameter == "specFilePath":
+            return self.getSpecFile( fullPath=True  )
+        
         elif parameter == "packageChrootDirectory":
             return self.getPackageChrootDirectory()
 
@@ -462,6 +467,8 @@ class ObsLightPackage(ObsLightObject):
             
             packageChrootDirectory
             
+            saveSpec
+            
             description
             title
             
@@ -471,7 +478,13 @@ class ObsLightPackage(ObsLightObject):
             prepDirName
         '''
 
-        if parameter == "specFile":
+        if parameter == "saveSpec":
+            self.saveSpec(None,value)
+            
+        elif parameter == "updateSpec":
+            self.updateSpec()
+            
+        elif parameter == "specFile":
             self.setSpecFile(value)
 
         elif parameter == "packageChrootDirectory":
@@ -729,12 +742,24 @@ class ObsLightPackage(ObsLightObject):
         else:
             raise ObsLightPackageErr("No Spec in the package")
 
-    def saveSpec(self, path):
+    def saveSpec(self, path,value=None):
         '''
         Save the Spec file.
         '''
         if self.__mySpecFile != None:
+            if value is not None:
+                self.__mySpecFile.parseFile(value)
+                
             self.__mySpecFile.save(path=path)
+        else:
+            raise ObsLightPackageErr("No Spec in the package")
+
+    def updateSpec(self):
+        '''
+        Save the Spec file.
+        '''
+        if self.__mySpecFile != None:
+            self.__mySpecFile.parseFile()
         else:
             raise ObsLightPackageErr("No Spec in the package")
 

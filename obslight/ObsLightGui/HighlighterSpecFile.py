@@ -46,6 +46,11 @@ class Highlighter(QtGui.QSyntaxHighlighter):
         Special =QtGui.QTextCharFormat()
         Special.setForeground(QtGui.QColor.fromRgb(cvStrToColor("c4a0ff")))
         
+        Structure=QtGui.QTextCharFormat()
+        Structure.setForeground(QtGui.QColor.fromRgb(cvStrToColor("4e9a06")))
+        
+        Identifier=QtGui.QTextCharFormat()
+        Identifier.setForeground(QtGui.QColor.fromRgb(cvStrToColor("06989a")))
         
         String=Statement
         Function=Statement
@@ -55,9 +60,10 @@ class Highlighter(QtGui.QSyntaxHighlighter):
         Error=Statement
         specSectionMacro=Statement
         specGlobalMacro=Statement
-        Identifier=Statement
-        specDate=Statement
         
+        specDate=Statement
+        Number=Statement
+        specDate=Statement
         
         Macro=QtGui.QTextCharFormat()
         Macro.setForeground(QtGui.QColor.fromRgb(cvStrToColor("75507b")))
@@ -73,7 +79,6 @@ class Highlighter(QtGui.QSyntaxHighlighter):
                                          '^%makeinstall\\b',
                                          '^%include\\b'] 
         
-        specWWWlink                    =[] 
 #        specOpts                       =[] 
         specGlobalMacro              =[] 
 
@@ -132,34 +137,183 @@ class Highlighter(QtGui.QSyntaxHighlighter):
         specCommandOpts  =  ["\\s-\\w+","\\s--\\w[a-zA-Z_-]+"]
         specCommandSpecial  =[]           
         specComment=['^\\s*#.*$']                    
-        specConfigure    =[]              
-        specDate      =[]                 
+        specConfigure    =["\./configure"]
+        specScriptArea = ["^%prep",
+                          "^%check",
+                          "^%build",
+                          "^%install",
+                          "^%clean",
+                          "^%pre",
+                          "^%postun",
+                          "^%preun",
+                          "^%post",
+                          "^%files"]
+        specDescriptionArea = ['^%description']
+        specPackageArea = ['^%package']   
         specDescriptionOpts =[]           
-        specEmail         =[]             
+        specEmail         =["<=<[A-Za-z0-9_.-]+@([A-Za-z0-9_-]+.)+[A-Za-z]+>>="]             
         specError       =[]               
-        specFilesDirective =[]            
+        specFilesDirective =['%(attrib|defattr|attr|dir|config|docdir|doc|lang|verify|ghost)']            
         specFilesOpts      =[]            
-        specLicense        =[]            
-        specMacroNameLocal  =[]           
-        specMacroNameOther  =[]           
-        specMonth        =[]              
-        specNumber       =[]              
-        specPackageOpts   =[]             
+        specLicense        =[]  
+            
+        specMacroNameLocal  =["(%|\$)\{*_arch\}*",
+                              "(%|\$)\{*_binary_payload\}*",
+                              "(%|\$)\{*_bindir\}*",
+                              "(%|\$)\{*_build\}*",
+                              "(%|\$)\{*_build_alias\}*",
+                              "(%|\$)\{*_build_cpu\}*",
+                              "(%|\$)\{*_builddir\}*",
+                              "(%|\$)\{*_build_os\}*",
+                              "(%|\$)\{*_buildshell\}*",
+                              "(%|\$)\{*_buildsubdir\}*",
+                              "(%|\$)\{*_vendor\}*",
+                              "(%|\$)\{*_bzip2bin\}*",
+                              "(%|\$)\{*_datadirapache2.service\}*",
+                              "(%|\$)\{*_dbpath\}*",
+                              "(%|\$)\{*_dbpath_rebuild\}*",
+                              "(%|\$)\{*_defaultdocdir\}*",
+                              "(%|\$)\{*_docdir\}*",
+                              "(%|\$)\{*_excludedocs\}*",
+                              "(%|\$)\{*_exec_prefix\}*",
+                              "(%|\$)\{*_fixgroup\}*",
+                              "(%|\$)\{*_fixowner\}*",
+                              "(%|\$)\{*_fixperms\}*",
+                              "(%|\$)\{*_ftpport\}*",
+                              "(%|\$)\{*_ftpproxy\}*",
+                              "(%|\$)\{*_gpg_path\}*",
+                              "(%|\$)\{*_gzipbin\}*",
+                              "(%|\$)\{*_host\}*",
+                              "(%|\$)\{*_alias\}*",
+                              "(%|\$)\{*_host_cpu\}*",
+                              "(%|\$)\{*_host_os\}*",
+                              "(%|\$)\{*_host_vendor\}*",
+                              "(%|\$)\{*_httpport\}*",
+                              "(%|\$)\{*_httpproxy\}*",
+                              "(%|\$)\{*_includedir\}*",
+                              "(%|\$)\{*_infodir\}*",
+                              "(%|\$)\{*_install_langs\}*",
+                              "(%|\$)\{*_script_path\}*",
+                              "(%|\$)\{*_instchangelog\}*",
+                              "(%|\$)\{*_langpatt\}*",
+                              "(%|\$)\{*_lib\}*",
+                              "(%|\$)\{*_libdir\}*",
+                              "(%|\$)\{*_libexecdir\}*",
+                              "(%|\$)\{*_localstatedir\}*",
+                              "(%|\$)\{*_netsharedpath\}*",
+                              "(%|\$)\{*_oldincludedir\}*",
+                              "(%|\$)\{*_os\}*",
+                              "(%|\$)\{*_pgpbin\}*",
+                              "(%|\$)\{*_path\}*",
+                              "(%|\$)\{*_prefix\}*",
+                              "(%|\$)\{*_provides\}*",
+                              "(%|\$)\{*_rpmdir\}*",
+                              "(%|\$)\{*_rpmfilename\}*",
+                              "(%|\$)\{*_sbindir\}*",
+                              "(%|\$)\{*_sharedstatedir\}*",
+                              "(%|\$)\{*_signature\}*",
+                              "(%|\$)\{*_sourcedir\}*",
+                              "(%|\$)\{*_source_payload\}*",
+                              "(%|\$)\{*_specdir\}*",
+                              "(%|\$)\{*_srcrpmdir\}*",
+                              "(%|\$)\{*_sysconfdir\}*",
+                              "(%|\$)\{*_alias\}*",
+                              "(%|\$)\{*_target_cpu\}*",
+                              "(%|\$)\{*_target_os\}*",
+                              "(%|\$)\{*_platform\}*",
+                              "(%|\$)\{*_vendor\}*",
+                              "(%|\$)\{*_timecheck\}*",
+                              "(%|\$)\{*_topdir\}*",
+                              "(%|\$)\{*_usr\}*",
+                              "(%|\$)\{*_usrsrc\}*",
+                              "(%|\$)\{*_var\}*",
+                              "(%|\$)\{*_vendor\}*"]           
+
+        specMacroNameOther  =["(%|\$)\{*buildroot\}*",
+                              "(%|\$)\{*buildsubdir\}*",
+                              "(%|\$)\{*distribution\}*",
+                              "(%|\$)\{*disturl\}*",
+                              "(%|\$)\{*ix86\}*",
+                              "(%|\$)\{*name\}*",
+                              "(%|\$)\{*nil\}*",
+                              "(%|\$)\{*optflags\}*",
+                              "(%|\$)\{*perl_sitearch\}*",
+                              "(%|\$)\{*release\}*",
+                              "(%|\$)\{*requires_eq\}*",
+                              "(%|\$)\{*vendor\}*",
+                              "(%|\$)\{*version\}*"]           
+        
+        specMonth        =["Jan",
+                           "Feb",
+                           "Mar",
+                           "Apr",
+                           "Jun",
+                           "Jul",
+                           "Aug",
+                           "Sep",
+                           "Nov",
+                           "Dec",
+                           "January",
+                           "February",
+                           "March",
+                           "May",
+                           "June",
+                           "July",
+                           "August",
+                           "September",
+                           "October",
+                           "November",
+                           "December"]              
+        specNumber       =['(^-=|[ t]-=|-)[0-9.-]*[0-9]']              
+        specPackageOpts   =['s-ns*w']             
         specPercent      =[]              
-        specSpecialChar  =[]              
-        specSpecialVariables =[]          
-        specSpecialVariablesNames   =[]   
+        specSpecialChar  =[]
+        #start with $foo ${foo} %foo %{foo}             
+        specSpecialVariables =["(%|\$)\{*RPM_BUILD_ROOT\}*",
+                               "(%|\$)\{*RPM_BUILD_DIR\}*",
+                               "(%|\$)\{*_SOURCE_DIR\}*",
+                               "(%|\$)\{*_OPT_FLAGS\}*",
+                               "(%|\$)\{*LDFLAGS\}*",
+                               "(%|\$)\{*CC\}*",
+                               "(%|\$)\{*CC_FLAGS\}*",
+                               "(%|\$)\{*CFLAGS\}*",
+                               "(%|\$)\{*CXX\}*",
+                               "(%|\$)\{*CXXFLAGS\}*",
+                               "(%|\$)\{*CPPFLAGS\}*"]
+                  
+        specSpecialVariablesNames   =["RPM_BUILD",
+                                      "ROOT",
+                                      "RPM_BUILD_DIR",
+                                      "RPM_SOURCE_DIR",
+                                      "RPM_OPT_FLAGS",
+                                      "LDFLAGS",
+                                      "CC",
+                                      "CC_FLAGS",
+                                      "CPPNAME",
+                                      "CFLAGS",
+                                      "CXX",
+                                      "CXXFLAGS",
+                                      "CPPFLAGS"]   
         specTarCommand        =[]         
-        specURL            =[]            
-        specURLMacro      =[]             
-        specVariables     =[]             
-        specWeekday       =[]             
-        specListedFilesBin  =[]           
-        specListedFilesDoc  =[]           
-        specListedFilesEtc  =[]           
-        specListedFilesLib   =[]          
-        specListedFilesPrefix =[]         
-        specListedFilesShare  =[]  
+        specURL            =['((https{0,1}|ftp)://|(www[23]{0,1}\.|ftp\.))[A-Za-z0-9._/~:,#-]+']     
+        specURLMacro      =['((https{0,1}|ftp)://|(www[23]{0,1}\.|ftp\.))[A-Za-z0-9._/~:,#%\{\}-]+']
+        
+        specVariables     =[]         
+        specWeekday       =["Mon","Tue","Thu","Fri","Sat","Sun"]           
+        specListedFilesBin  =['/s=bin/']           
+        specListedFilesDoc  =['/(man\d*|doc|info)>']           
+        specListedFilesEtc  =['specListedFilesBin',
+                              'specListedFilesLib',
+                              'specListedFilesDoc',
+                              'specListedFilesEtc',
+                              'specListedFilesShare',
+                              'specListedFilesPrefix',
+                              'specVariables',
+                              'specSpecialChar'] 
+                                        
+        specListedFilesLib   =['/(lib|include)/']          
+        specListedFilesPrefix =['/(usr|local|opt|X11R6|X11)/']         
+        specListedFilesShare  =['/share/']  
         
                
         self.highlightingRules = []
@@ -167,7 +321,6 @@ class Highlighter(QtGui.QSyntaxHighlighter):
 #  "main types color definitions
         self.highlightingRules.extend( (QtCore.QRegExp(i),Structure) for i in specSehIftion)                  
         self.highlightingRules.extend( (QtCore.QRegExp(i),Macro) for i in specSectionMacro )              
-        self.highlightingRules.extend( (QtCore.QRegExp(i),PreProc) for i in specWWWlink  )                  
 #        self.highlightingRules.extend( (QtCore.QRegExp(i),Operator) for i in specOpts     )                  
         self.highlightingRules.extend( (QtCore.QRegExp(i),Identifier) for i in specGlobalMacro )               
         
@@ -186,22 +339,25 @@ class Highlighter(QtGui.QSyntaxHighlighter):
         self.highlightingRules.extend( (QtCore.QRegExp(i),specOpts) for i in specCommandOpts)
         self.highlightingRules.extend( (QtCore.QRegExp(i),Special) for i in specCommandSpecial)
         self.highlightingRules.extend( (QtCore.QRegExp(i),Comment) for i in specComment)                    
-        self.highlightingRules.extend( (QtCore.QRegExp(i),Statement) for i in specConfigure)                  
-        self.highlightingRules.extend( (QtCore.QRegExp(i),String) for i in specDate)                       
+        self.highlightingRules.extend( (QtCore.QRegExp(i),Statement) for i in specConfigure)
+        self.highlightingRules.extend( (QtCore.QRegExp(i),Structure) for i in specScriptArea)
+        self.highlightingRules.extend( (QtCore.QRegExp(i),Structure) for i in specDescriptionArea)
+        self.highlightingRules.extend( (QtCore.QRegExp(i),Structure) for i in specPackageArea)
+                          
         self.highlightingRules.extend( (QtCore.QRegExp(i),specOpts) for i in specDescriptionOpts)            
         self.highlightingRules.extend( (QtCore.QRegExp(i),specWWWlink) for i in specEmail)                      
         self.highlightingRules.extend( (QtCore.QRegExp(i),Error) for i in specError)                      
 #        self.highlightingRules.extend( (QtCore.QRegExp(i),specSectionMacro) for i in specFilesDirective)             
         self.highlightingRules.extend( (QtCore.QRegExp(i),specOpts) for i in specFilesOpts)                  
         self.highlightingRules.extend( (QtCore.QRegExp(i),String) for i in specLicense)                    
-        self.highlightingRules.extend( (QtCore.QRegExp(i),Statement) for i in specMacroNameLocal)             
-        self.highlightingRules.extend( (QtCore.QRegExp(i),Statement) for i in specMacroNameOther)             
+        self.highlightingRules.extend( (QtCore.QRegExp(i),Identifier) for i in specMacroNameLocal)             
+        self.highlightingRules.extend( (QtCore.QRegExp(i),Identifier) for i in specMacroNameOther)             
         self.highlightingRules.extend( (QtCore.QRegExp(i),specDate) for i in specMonth)                      
         self.highlightingRules.extend( (QtCore.QRegExp(i),Number) for i in specNumber)                     
         self.highlightingRules.extend( (QtCore.QRegExp(i),specOpts) for i in specPackageOpts)                
         self.highlightingRules.extend( (QtCore.QRegExp(i),Special) for i in specPercent)                    
         self.highlightingRules.extend( (QtCore.QRegExp(i),Special) for i in specSpecialChar)                
-        self.highlightingRules.extend( (QtCore.QRegExp(i),Statement) for i in specSpecialVariables)           
+        self.highlightingRules.extend( (QtCore.QRegExp(i),Identifier) for i in specSpecialVariables)           
         self.highlightingRules.extend( (QtCore.QRegExp(i),Statement) for i in specSpecialVariablesNames)      
         self.highlightingRules.extend( (QtCore.QRegExp(i),Statement) for i in specTarCommand)                 
         self.highlightingRules.extend( (QtCore.QRegExp(i),specWWWlink) for i in specURL)                        
