@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>obslight.png</normaloff>obslight.png</iconset>
+    <normaloff>../../../../../../.designer/backup/obslight.png</normaloff>../../../../../../.designer/backup/obslight.png</iconset>
   </property>
   <property name="locale">
    <locale language="English" country="UnitedStates"/>
@@ -822,7 +822,7 @@ It may open in background on some desktop environments.</string>
                 </property>
                </widget>
               </item>
-              <item row="1" column="1" alignment="Qt::AlignLeft|Qt::AlignBottom">
+              <item row="1" column="1" alignment="Qt::AlignLeft">
                <widget class="QLabel" name="SpecFilePathLabel">
                 <property name="text">
                  <string>Spec file path:</string>
@@ -856,7 +856,24 @@ It may open in background on some desktop environments.</string>
                </spacer>
               </item>
               <item row="1" column="2" colspan="2" alignment="Qt::AlignBottom">
-               <widget class="QLineEdit" name="SpecFilePathLinkLabel"/>
+               <widget class="QLineEdit" name="SpecFilePathLinkLabel">
+                <property name="readOnly">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <spacer name="verticalSpacer_8">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </spacer>
               </item>
              </layout>
             </widget>
@@ -1830,8 +1847,8 @@ If destination does not exist on your host, select '/', validate, and edit desti
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1037</width>
-     <height>20</height>
+     <width>1065</width>
+     <height>31</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
