@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'ui/wizard_configProjectAlias.ui'
 #
-# Created: Mon Oct 22 16:44:51 2012
-#      by: pyside-uic 0.2.13 running on PySide 1.1.0
+# Created: Tue Dec 18 10:43:53 2012
+#      by: pyside-uic 0.2.13 running on PySide 1.1.2
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -39,7 +39,7 @@ class Ui_WizardPage(object):
         self.formLayout.setWidget(3, QtGui.QFormLayout.LabelRole, self.label_4)
         self.aliasLineEdit = QtGui.QLineEdit(WizardPage)
         self.aliasLineEdit.setAcceptDrops(False)
-        self.aliasLineEdit.setReadOnly(True)
+        self.aliasLineEdit.setReadOnly(False)
         self.aliasLineEdit.setObjectName("aliasLineEdit")
         self.formLayout.setWidget(3, QtGui.QFormLayout.FieldRole, self.aliasLineEdit)
         self.createChrootCheckBox = QtGui.QCheckBox(WizardPage)
