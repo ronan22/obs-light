@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>../../../../../../.designer/backup/obslight.png</normaloff>../../../../../../.designer/backup/obslight.png</iconset>
+	<normaloff>obslight.png</normaloff>obslight.png</iconset>
   </property>
   <property name="locale">
    <locale language="English" country="UnitedStates"/>

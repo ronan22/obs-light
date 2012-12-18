@@ -914,6 +914,25 @@ class ObsLightOsc(ObsLightObject):
         os.chdir(directory)
         command = "osc -A " + obsServer + " co " + projectObsName + " " + package
         self.__subprocess(command=command)
+        
+        packagePath=os.path.join(directory,projectObsName,package)
+        listFile=os.listdir(packagePath)
+        for aFile in listFile:
+            if aFile =="_service":
+                command = "osc service run"
+                os.chdir(packagePath)
+                self.__subprocess(command=command)
+                listServiceFile=os.listdir(packagePath)
+                for aFile in listServiceFile:
+                    if aFile.startswith("_service") and aFile.count(":") > 0:
+                        src=os.path.join(packagePath,aFile)
+                        dst=os.path.join(packagePath,aFile[aFile.rfind(":")+1:])
+                        os.rename(src,dst )
+                
+                return 0
+            
+        return 0
+        
 
     def updatePackage(self, packagePath):
         os.chdir(packagePath)
