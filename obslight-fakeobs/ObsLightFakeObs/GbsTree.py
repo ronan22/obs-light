@@ -687,7 +687,7 @@ class GbsTree:
 	    if n:
 		n = n.firstChild
 		if n and n.nodeType == n.TEXT_NODE:
-		    return n.data.strip()
+		    return n.data.strip().encode('utf-8')
 	    return ""
 	    
 	def _attr(self,n,name):
